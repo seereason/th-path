@@ -1,0 +1,65 @@
+name:               th-path
+version:            0.15
+cabal-version:      >= 1.10
+build-type:         Simple
+license:            BSD3
+category:           Template Haskell
+author:             David Fox
+copyright:          (c) David Fox
+maintainer:         David Fox <dsf@seereason.com>
+homepage:           https://github.com/seereason/th-path
+bug-reports:        https://github.com/seereason/th-path/issues
+stability:          experimental
+synopsis:           Paths within types
+description:        A Path type represents a mapping from a type to some piece of that type
+
+library
+  hs-source-dirs: .
+  build-depends:
+    aeson,
+    applicative-extras,
+    base >= 4.2 && < 5,
+    containers,
+    data-default,
+    filemanip-extra,
+    happstack-authenticate,
+    haskell-src-exts,
+    jmacro,
+    json,
+    lens,
+    ListLike,
+    mtl,
+    safe,
+    safecopy,
+    syb,
+    template-haskell >= 2.9,
+    text,
+    th-desugar,
+    th-orphans,
+    th-typegraph >= 0.15,
+    web-routes,
+    web-routes-th
+  ghc-options:      -Wall
+  exposed-modules:  Language.Haskell.TH.Path
+                    Language.Haskell.TH.Path.Core
+                    Language.Haskell.TH.Path.DeriveLensInfo
+                    Language.Haskell.TH.Path.Lens
+                    Language.Haskell.TH.Path.LensTH
+                    Language.Haskell.TH.Path.Order
+                    Language.Haskell.TH.Path.PathToLensDecs
+                    Language.Haskell.TH.Path.PathType
+                    Language.Haskell.TH.Path.PathTypeDecs
+  default-language: Haskell2010
+
+-- test-suite th-path-tests
+--   type:             exitcode-stdio-1.0
+--   hs-source-dirs:   test
+--   main-is:          Tests.hs
+--   build-depends:    array, base, bytestring, containers, deepseq, ghc-prim,
+--                     hspec, hspec-core, mtl, syb, template-haskell, text,
+--                     th-context, th-desugar, th-orphans, th-reify-many, th-typegraph >= 0.15
+--   default-language: Haskell2010
+
+source-repository head
+  type:     git
+  location: git://github.com/seereason/th-path.git
