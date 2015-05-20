@@ -5,7 +5,6 @@
 module Language.Haskell.TH.Path.Lens
             ( total
             , at
-            , atUnsafe
             , mat
             , eitherIso
             , readOnlyLens
@@ -35,9 +34,9 @@ import Debug.Trace
 
 import Control.Category
 import Control.Applicative.Error (maybeRead)
-import Control.Lens ((^?), set, Traversal', Lens')
+import Control.Lens (set, Traversal', Lens')
 import Data.Generics (Typeable)
-import Control.Lens (_Just, iso, lens, view)
+import Control.Lens (_Just, iso, lens, view, (^?))
 import qualified Data.Map as M (Map, insert, lookup)
 import Data.Maybe (catMaybes, fromMaybe)
 import Data.Monoid
@@ -79,29 +78,6 @@ lens_mrs = lens getter setter
 readOnlyLens :: Lens' a a
 readOnlyLens = iso id (error "Lens.readOnlyLens: TROUBLE ignoring write to readOnlyLens")
 
-{-
-instance Show (Traversal' a b) where
-    show _ = "<<partial lens>>"
-
-instance Show (Lens' a b) where
-    show _ = "<<total lens>>"
-
-    lens ((view bc) . (view ab)) (\c a -> abS (bcS c (abG a)) a)
-         where abS = set ab
-               bcS = set bc
-               abG = view ab
--}
-
-{-
-(^$) :: Lens' a b -> a -> b
-(^$) = view
-
-(^=) :: Lens' a b -> b -> a -> a
-(^=) = set
--}
-
--- _Just :: Traversal' (Maybe a) a
-
 mat :: forall k a. (Show k, Ord k) => k -> Traversal' (M.Map k a) a
 mat k = lens (M.lookup k) (\ mp ma -> maybe mp (\ a -> M.insert k a mp) ma) . _Just
 
@@ -112,11 +88,6 @@ at ii = lens getter setter . _Just
           getter = nth ii
           setter :: [a] -> Maybe a -> [a]
           setter = replace ii
-          -- (at (fromIntegral ii)) (\ ma l -> maybe l (\ a -> replace (fromIntegral ii))))
-
--- | Like 'at', but assumes the index is valid.
-atUnsafe :: Integral i => a -> i -> Lens' [a] a
-atUnsafe d i = total d (at i)
 
 nth :: Integral i => i -> [a] -> Maybe a
 nth n _ | n < 0 = Nothing
@@ -128,19 +99,6 @@ replace :: Integral i => i -> [b] -> Maybe b -> [b]
 replace 0 (_ : xs) (Just x) = x : xs
 replace n (_ : xs) x | n > 0 = replace (pred n) xs x
 replace _ xs _ = xs
-
-{-
-listLookupLens :: (Eq k, Eq a, Monoid a) => k -> Traversal' [(k,a)] a
-listLookupLens kk = _Just . totalLens (listLookupLens' kk)
-
-listLookupLens' :: (Eq k, Eq a, Monoid a) => k -> Lens' [(k,a)] (Maybe a)
-listLookupLens' kk = lens (lookup kk) (replace' kk)
-
-replace' :: Eq k => k -> Maybe a -> [(k,a)] -> [(k,a)]
-replace' k (Just a) ((k0, _a0) : al) | k == k0 = (k, a) : al
-replace' k (Just a) ((k0, a0) : al) = (k0, a0) : replace' k (Just a) al
-replace' _ _ al = al
--}
 
 lens_trace :: Show a => String -> Lens' a a
 lens_trace s =
@@ -209,17 +167,6 @@ _lens_Monoid_Maybe_Tests = [ [i 1,2,3] == ((set lens_Monoid_Maybe (Just [1,2,3])
                           ]
   where i :: Int -> Int
         i = id
-
-{-
-genRecordAccessorLens :: String -> String -> String -> String
-genRecordAccessorLens  recordtype fieldname fieldtype =
-    intercalate "\n" $ map (intercalate " ") code
-        where code = [ [ fname, hasType, "Lens", recordtype, fieldtype]
-                     , [ fname, "=", "Lens", fieldname, "(\\v r -> r {", fieldname, "= v } )"]
-                     ]
-              fname = "lens_" ++ recordtype ++ "_" ++ fieldname
-              hasType = "::"
--}
 
 newtype JSONText = JSONText {unJSONText :: String} deriving (Eq, Ord, Read, Show, Data, Typeable, Monoid)
 

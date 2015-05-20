@@ -8,30 +8,29 @@ module Language.Haskell.TH.Path.Order
     , ToIntJS(intJS)
     , OrderKey(init, succ)
 #if __GHC_VERSION__ >= 708
-    , OrderMap(Order, next, empty, elems, order, putItem, fromList, view, insert, permute)
+    , OrderMap(Order, next, empty, elems, order, putItem, fromPairs, view, insert, permute)
 #else
-    , OrderMap(next, empty, elems, order, putItem, fromList, view, insert, permute), Order
+    , OrderMap(next, empty, elems, order, putItem, fromPairs, view, insert, permute), Order
 #endif
     , deleteItem
     , appendItem
     , insertItems
+    , toPairs
     , toList
-    , toList'
-    , toList''
-    , fromList'
+    , fromList
     , asList
     , find
     , lens_omat
-    , lens_omatUnsafe
     , view'
     , deriveOrder
+    , toList''
     ) where
 
 import Control.Applicative ((<$>))
 import Data.Aeson (ToJSON(toJSON), FromJSON(parseJSON))
 import Data.Data (Data)
 import Data.Int (Int32)
-import Control.Lens (Traversal', Lens', _Just, lens)
+import Control.Lens (Traversal', _Just, Lens', lens)
 import Data.List as List (partition, elem, foldl, foldl', foldr, filter)
 import qualified Data.ListLike as LL
 import Data.Map as Map (Map, (!))
@@ -102,8 +101,8 @@ class OrderKey k => OrderMap k where
                  Just x -> Just (x, m {elems' = Map.delete k (elems m), order' = filter (/= k) (order m)})
     -- | Build an order from a list of (key, value) pairs.  No
     -- uniqueness check of the keys is performed.
-    fromList :: [(k, v)] -> Order k v
-    fromList prs =
+    fromPairs :: [(k, v)] -> Order k v
+    fromPairs prs =
       let ks = map fst prs in
       Order { elems' = Map.fromList prs
             {-, deleted = mempty-}
@@ -150,25 +149,25 @@ instance OrderKey k => OrderMap k where
 
 instance OrderMap k => Monoid (Order k m) where
     mempty = empty
-    mappend a b = foldr (\ x m -> fst (insert x m)) a (toList' b)
+    mappend a b = foldr (\ x m -> fst (insert x m)) a (toList b)
 
 -- Not sure how correct these three instances are in the presence of
 -- randomly allocated keys and the like.
 instance (OrderMap k, Eq a) => Eq (Order k a) where
-    a == b = toList' a == toList' b
+    a == b = toList a == toList b
 
 instance (OrderMap k, Eq a, Ord a) => Ord (Order k a) where
-    compare a b = compare (toList' a) (toList' b)
+    compare a b = compare (toList a) (toList b)
 
 instance (OrderMap k, Read a) => Read (Order k a) where
     -- readsPrec :: Int -> String -> [(OrderMap k a, String)]
-    readsPrec _ s = let l = (read s :: [a]) in [(fromList' l, "")]
+    readsPrec _ s = let l = (read s :: [a]) in [(fromList l, "")]
 
 instance (OrderMap k, ToJSON k, ToJSON a) => ToJSON (Order k a) where
-  toJSON = toJSON . toList
+  toJSON = toJSON . toPairs
 
 instance (OrderMap k, FromJSON k, FromJSON a) => FromJSON (Order k a) where
-  parseJSON = fmap fromList . parseJSON
+  parseJSON = fmap fromPairs . parseJSON
 
 instance (OrderKey k, Monoid (Order k a)) => LL.ListLike (Order k a) a where
     singleton x = fst $ insert x empty
@@ -180,8 +179,8 @@ instance (OrderKey k, Monoid (Order k a)) => LL.ListLike (Order k a) a where
                _ -> error "OrderMap.tail"
 
 instance (OrderKey k, Monoid (Order k a)) => LL.FoldableLL (Order k a) a where
-    foldl f r0 xs = List.foldl f r0 (toList' xs)
-    foldr f r0 xs = List.foldr f r0 (toList' xs)
+    foldl f r0 xs = List.foldl f r0 (toList xs)
+    foldr f r0 xs = List.foldr f r0 (toList xs)
 
 instance ToIntJS IntJS where
     intJS = id
@@ -225,25 +224,21 @@ insertItems om xs =
       f x (ks, om') = let (om'', k) = insert x om' in ((k : ks), om'')
 
 -- | Return the keys and values of the order.
-toList :: OrderMap k => Order k v -> [(k, v)]
-toList m = map (\ k -> (k, (elems m) ! k)) (order m)
+toPairs :: OrderMap k => Order k v -> [(k, v)]
+toPairs m = map (\ k -> (k, (elems m) ! k)) (order m)
 
 -- | Return only the values of the order, discarding the keys.
-toList' :: OrderMap k => Order k v -> [v]
-toList' = map snd . toList
-
--- | Return the keys and values of the order.
-toList'' :: OrderMap k => (k -> v) -> Order k v -> [(k, Lens' (Order k v) v, v)]
-toList'' d m = map (\ (k, v) -> (k, total (d k) (lens_omat k), v)) (toList m)
+toList :: OrderMap k => Order k v -> [v]
+toList = map snd . toPairs
 
 -- | Build an order from a list of values, allocating new all keys.
-fromList' :: OrderMap k => [v] -> Order k v
-fromList' xs = foldl' (flip appendItem) empty xs
+fromList :: OrderMap k => [v] -> Order k v
+fromList xs = foldl' (flip appendItem) empty xs
 
 -- | Perform an operation on a of an Order's (key, value) pairs,
 -- reassembling the resulting pairs into a new Order.
 asList :: OrderMap k => ([(k, v)] -> [(k, v)]) -> Order k v -> Order k v
-asList f om = fromList . f . toList $ om
+asList f om = fromPairs . f . toPairs $ om
 
 -- | Find the first value (along with the associated key) that
 -- satisfies the predicate.
@@ -268,11 +263,6 @@ lens_omat k =
       getter s = Map.lookup k $ elems s
       setter :: Order k v -> Maybe v -> Order k v
       setter s a = maybe s (\ a' -> putItem k a' s) a
-
--- | Unsafe version of 'lens_omat', do not use if we can't prove that k
--- is an index of the Order we are applying this lens to.
-lens_omatUnsafe :: forall k v. OrderMap k => v -> k -> Lens' (Order k v) v
-lens_omatUnsafe d i = total d (lens_omat i)
 
 -- | Like view, but discards the remainder list
 view' :: OrderMap k => k -> Order k v -> v
@@ -332,3 +322,6 @@ deriveOrder t = do
   -- for that.
   omtype <- tySynD mpname [] [t|Order $(conT idname) $(conT t)|]
   return $ [idtype, omtype] ++ insts
+
+toList'' :: OrderMap k => (k -> v) -> Order k v -> [(k, Lens' (Order k v) v, v)]
+toList'' d m = map (\ (k, v) -> (k, total (d k) (lens_omat k), v)) (toPairs m)

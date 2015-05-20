@@ -89,12 +89,6 @@ nameMakeLens t namer = do
       TyConI reified -> decMakeLens t reified namer
       _ -> return []
 
--- | There are three types of lens - Lens is a regular total lens,
--- Traveral' is a lens that might return Nothing, and SomeLens is a
--- union type of these two.  For every lens created here we generate
--- two declarations - one of either type Lens or Traveral' (with
--- suffixes _total and _partial respectively) and one of type SomeLens
--- with no suffix.
 decMakeLens :: Name -> Dec -> (Name -> Name -> Maybe String) -> Q [Dec]
 decMakeLens t (NewtypeD cx n ps c ss) namer = decMakeLens t (DataD cx n ps [c] ss) namer
 decMakeLens t (DataD _ nameA params cons _) namer = do
