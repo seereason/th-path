@@ -8,9 +8,10 @@ module Language.Haskell.TH.Path
     , Path_Map(..)
     , Path_OMap(..)
     , Path_List(..)
-    , ToLens(toLens)
+    , Path(toLens)
+    , PathType
     ) where
 
 import Language.Haskell.TH.Path.Core
 import Language.Haskell.TH.Path.DeriveLensInfo
-import Language.Haskell.TH.Path.PathToLensDecs
+import Language.Haskell.TH.Path.PathInstanceDecs

@@ -23,20 +23,20 @@ import Data.Function (on)
 import Data.Graph (reachable)
 import Data.List as List (groupBy, map, sort, sortBy)
 import Data.Map as Map (empty, fromListWith, keys, lookup, Map)
-import Data.Maybe (catMaybes, listToMaybe, mapMaybe)
+import Data.Maybe (catMaybes, mapMaybe)
 import Data.Set as Set (difference, fromList, map, Set)
 import Language.Haskell.TH
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Core (Field, LensHint, R(..), makePathLenses, allPathKeys, allLensKeys)
-import Language.Haskell.TH.Path.PathToLensDecs
+import Language.Haskell.TH.Path.PathInstanceDecs
 import Language.Haskell.TH.Path.PathTypeDecs
 import Language.Haskell.TH.TypeGraph.Core (typeArity)
 import Language.Haskell.TH.TypeGraph.Expand (E(E), expandType)
 import Language.Haskell.TH.TypeGraph.Graph (isolate, GraphEdges, graphFromMap, dissolveM)
 import Language.Haskell.TH.TypeGraph.Hints (HasVertexHints)
 import Language.Haskell.TH.TypeGraph.Info (infoMap, TypeGraphInfo, withTypeGraphInfo)
-import Language.Haskell.TH.TypeGraph.Monad (typeGraphEdges, vertex)
+import Language.Haskell.TH.TypeGraph.Monad (simpleVertex, typeGraphEdges, vertex)
 import Language.Haskell.TH.TypeGraph.Vertex (TypeGraphVertex(..), etype)
 import Prelude hiding (any, concat, concatMap, elem, foldr, mapM_, null, or)
 import System.FilePath.Extra (compareSaveAndReturn, changeError)
@@ -63,25 +63,20 @@ deriveLensInfo st gt hs = do
             , _edges = edges
             , _graph = graphFromMap edges
             }
-  -- let validPathTypeNames = mapMaybe validPathTypeName toLensInstances
   (lenses :: [Dec]) <-
-      evalRWST (allPathKeys >>= mapM_ makePathLenses . toList) r Map.empty >>=
-      return . concat . uniqOn decName1 . snd >>=
-      runIO . compareSaveAndReturn changeError "GeneratedLenses.hs"
+      evalRWST (allPathKeys >>= mapM_ makePathLenses . toList . Set.map simpleVertex) r Map.empty >>=
+      runIO . compareSaveAndReturn changeError "GeneratedLenses.hs" . concat . snd
   (pathTypes :: [Dec]) <-
-      evalRWST (allPathKeys >>= mapM pathTypeDecs . toList) r Map.empty >>=
+      evalRWST (allPathKeys >>= mapM pathTypeDecs . toList . Set.map simpleVertex) r Map.empty >>=
       sequence . snd >>=
-      -- filter out impossible paths
-      -- return . List.map (filter (hasValidPathType validPathTypeNames)) >>=
-      return . concat . uniqOn decName1 >>=
-      runIO . compareSaveAndReturn changeError "GeneratedPathTypes.hs"
+      runIO . compareSaveAndReturn changeError "GeneratedPathTypes.hs" . concat
   (dataPathNames :: [Dec]) <-
       (stringList "dataPathTypes" . List.map show . sort . catMaybes . List.map dataName $ pathTypes) >>=
       runIO . compareSaveAndReturn changeError "GeneratedDataPathNames.hs"
   (toLensInstances :: [Dec]) <-
-      evalRWST (allLensKeys >>= mapM (uncurry pathToLensDecs) . toList) r Map.empty >>=
+      evalRWST (allLensKeys >>= mapM (uncurry pathInstanceDecs) . toList) r Map.empty >>=
       return . uniqOn instType . concat . snd >>=
-      runIO . compareSaveAndReturn changeError "GeneratedToLensInstances.hs"
+      runIO . compareSaveAndReturn changeError "GeneratedPathInstances.hs"
 
   return $ pathTypes ++ dataPathNames ++ lenses ++ toLensInstances
 
@@ -138,14 +133,6 @@ uniqOn f = List.map head . groupBy ((==) `on` f) . sortBy (compare `on` f)
 instType :: Dec -> Type
 instType (InstanceD _ typ _) = typ
 instType _ = error "instType"
-
-decName1 :: [Dec] -> Maybe Name
-decName1 = maybe Nothing decName . listToMaybe
-
-decName :: Dec -> Maybe Name
-decName (TySynD x _ _) = Just x
-decName (SigD x _) = Just x
-decName dec = dataName dec
 
 dataName :: Dec -> Maybe Name
 dataName (NewtypeD _ x _ _ _) = Just x

@@ -46,7 +46,7 @@ library
                     Language.Haskell.TH.Path.Lens
                     Language.Haskell.TH.Path.LensTH
                     Language.Haskell.TH.Path.Order
-                    Language.Haskell.TH.Path.PathToLensDecs
+                    Language.Haskell.TH.Path.PathInstanceDecs
                     Language.Haskell.TH.Path.PathType
                     Language.Haskell.TH.Path.PathTypeDecs
   default-language: Haskell2010

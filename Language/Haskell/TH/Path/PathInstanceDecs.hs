@@ -12,10 +12,10 @@
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# OPTIONS_GHC -fno-warn-orphans -fno-warn-missing-signatures #-}
-module Language.Haskell.TH.Path.PathToLensDecs
-    ( ToLens(toLens)
-    , Path
-    , pathToLensDecs
+module Language.Haskell.TH.Path.PathInstanceDecs
+    ( Path(toLens)
+    , PathType
+    , pathInstanceDecs
     ) where
 
 import Control.Applicative ((<$>), Applicative(pure))
@@ -49,46 +49,47 @@ null = foldr (\_ _ -> False) True
 -- end types, there is only one path type that can describe the path
 -- from start to end.  The toLens function will typically have several
 -- clauses describing different paths for a given (start, goal) pair.
-class ToLens s a where
-    type Path s a
-    toLens :: Path s a -> Traversal' s a
+class Path s a where
+    type PathType s a
+    toLens :: PathType s a -> Traversal' s a
 
--- instance OrderKey k => ToLens (Path_OMap k a) (Order k a) a where
+-- instance OrderKey k => Path (Order k a) a where
+--     type PathType (Order k a) a = (Path_OMap k a)
 --     toLens (Path_At k a) = lens_omat k . toLens a
 
 -- | For a given TypeGraphVertex, compute the declaration of the
 -- corresponding path type.  Each clause matches some possible value
 -- of the path type, and returns a lens that extracts the value the
 -- path type value specifies.
-pathToLensDecs :: forall m. (DsMonad m, MonadReader R m, MonadWriter [[Dec]] m) => TypeGraphVertex -> TypeGraphVertex -> m ()
-pathToLensDecs gkey key = do
+pathInstanceDecs :: forall m. (DsMonad m, MonadReader R m, MonadWriter [[Dec]] m) => TypeGraphVertex -> TypeGraphVertex -> m ()
+pathInstanceDecs gkey key = do
   let gtyp = bestType gkey -- runExpanded (view etype gkey)
   ptyp <- pathType (pure gtyp) key
   ok <- goalReachable gkey key
   when ok $ do
-    (clauses :: [ClauseQ]) <- pathToLensClauses (pure gtyp) key gkey ptyp
+    (clauses :: [ClauseQ]) <- pathInstanceClauses (pure gtyp) key gkey ptyp
     -- a <- runQ $ newName "a"
     when (not (null clauses)) $
-         tell1 (instanceD (pure []) [t|ToLens $(pure (bestType key)) $(pure (bestType gkey))|]
-                  [tySynInstD ''Path (tySynEqn [pure (bestType key), pure (bestType gkey)] (pure ptyp)),
+         tell1 (instanceD (pure []) [t|Path $(pure (bestType key)) $(pure (bestType gkey))|]
+                  [tySynInstD ''PathType (tySynEqn [pure (bestType key), pure (bestType gkey)] (pure ptyp)),
                    funD 'toLens clauses])
     where
       -- Send a single dec to our funky writer monad
       tell1 :: DecQ -> m ()
       tell1 dec = runQ (sequence (map sequence [[dec]])) >>= tell
 
-pathToLensClauses :: forall m. (DsMonad m, MonadReader R m, MonadWriter [[Dec]] m) =>
-                     TypeQ -- ^ the goal type
-                  -> TypeGraphVertex -- ^ they type whose clauses we are generating
-                  -> TypeGraphVertex -- ^ the goal type key
-                  -> Type -- ^ the corresponding path type - first type parameter of ToLens
-                  -> m [ClauseQ]
-pathToLensClauses gtyp key gkey ptyp =
-  pathHints key >>= pathToLensClauses'
+pathInstanceClauses :: forall m. (DsMonad m, MonadReader R m, MonadWriter [[Dec]] m) =>
+                       TypeQ -- ^ the goal type
+                    -> TypeGraphVertex -- ^ they type whose clauses we are generating
+                    -> TypeGraphVertex -- ^ the goal type key
+                    -> Type -- ^ the corresponding path type - first type parameter of ToLens
+                    -> m [ClauseQ]
+pathInstanceClauses gtyp key gkey ptyp =
+  pathHints key >>= pathInstanceClauses'
     where
-      pathToLensClauses' :: [(TypeGraphVertex, LensHint)] -> m [ClauseQ]
-      pathToLensClauses' _hints | view etype key == view etype gkey = return [clause [wildP] (normalB [|idLens|]) []]
-      pathToLensClauses' hints = foldPath control key hints
+      pathInstanceClauses' :: [(TypeGraphVertex, LensHint)] -> m [ClauseQ]
+      pathInstanceClauses' _hints | view etype key == view etype gkey = return [clause [wildP] (normalB [|idLens|]) []]
+      pathInstanceClauses' hints = foldPath control key hints
         where
           control =
             FoldPathControl
@@ -155,7 +156,7 @@ namedTypeClause gtyp tname gkey ptyp =
                   ok <- goalReachable gkey key'
                   case ok of
                     False -> return []
-                    True -> pathToLensClauses gtyp key' gkey ptyp
+                    True -> pathInstanceClauses gtyp key' gkey ptyp
             doDec (NewtypeD _ _ _ con _) = doCons [con]
             doDec (DataD _ _ _ cons _) = doCons cons
             doDec dec = error $ "doName - unexpected Dec: " ++ show dec
