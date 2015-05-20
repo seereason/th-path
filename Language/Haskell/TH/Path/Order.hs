@@ -4,9 +4,7 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
 module Language.Haskell.TH.Path.Order
-    ( IntJS
-    , ToIntJS(intJS)
-    , OrderKey(init, succ)
+    ( OrderKey(init, succ)
 #if __GHC_VERSION__ >= 708
     , OrderMap(Order, next, empty, elems, order, putItem, fromPairs, view, insert, permute)
 #else
@@ -23,14 +21,13 @@ module Language.Haskell.TH.Path.Order
     , lens_omat
     , view'
     , deriveOrder
-    , toList''
     ) where
 
 import Control.Applicative ((<$>))
 import Data.Aeson (ToJSON(toJSON), FromJSON(parseJSON))
 import Data.Data (Data)
 import Data.Int (Int32)
-import Control.Lens (Traversal', _Just, Lens', lens)
+import Control.Lens (Traversal', _Just, lens)
 import Data.List as List (partition, elem, foldl, foldl', foldr, filter)
 import qualified Data.ListLike as LL
 import Data.Map as Map (Map, (!))
@@ -41,7 +38,7 @@ import Data.Text as Text (null, pack)
 import Data.Text.Read (decimal, signed)
 import Data.Typeable (Typeable)
 import Language.Haskell.TH
-import Language.Haskell.TH.Path.Lens (total)
+import Language.Haskell.TH.Path.IntJS (IntJS, ToIntJS(intJS))
 import Language.Javascript.JMacro (ToJExpr(toJExpr), JExpr(ValExpr), JVal(JInt))
 import Prelude hiding (init, succ)
 import qualified Prelude (succ)
@@ -53,21 +50,12 @@ instance (ToJSON k, ToJSON v) => ToJSON (Map k v) where
 instance (Ord k, FromJSON k, FromJSON v) => FromJSON (Map k v) where
     parseJSON mp = Map.fromList <$> parseJSON mp
 
--- | Javascript can't handle Int64, so until there is an Int53 in
--- haskell this will have to do.
-type IntJS = Int32
-
-instance ToJExpr IntJS where
-    toJExpr = ValExpr . JInt . fromIntegral
-
-class ToIntJS k where
-    intJS :: k -> IntJS
-
 class (Ord k, ToIntJS k) => OrderKey k where
-    init :: k      -- ^ The initial key value
+    init :: k      -- ^ The initial key value (toEnum 0?)
     succ :: k -> k -- ^ The successor function for k
 
--- | An OrderMap is a map from k to v (returned by 'elems') and an
+-- | The OrderMap instance is inferred from the OrderKey instance.
+-- An OrderMap is a map from k to v (returned by 'elems') and an
 -- ordering of keys [k] (returned by 'order'.)  This is a better data
 -- structure to use in a collaborative application because the keys
 -- are a stable way to address the element, not dependant on the
@@ -182,22 +170,9 @@ instance (OrderKey k, Monoid (Order k a)) => LL.FoldableLL (Order k a) a where
     foldl f r0 xs = List.foldl f r0 (toList xs)
     foldr f r0 xs = List.foldr f r0 (toList xs)
 
-instance ToIntJS IntJS where
-    intJS = id
-
-instance OrderKey IntJS where
-    init = 1            -- Yeah, that's right, 1.  F**k zeroth elements.
+instance (ToIntJS a, Ord a, Enum a) => OrderKey a where
+    init = toEnum 1            -- Yeah, that's right, 1.  F**k zeroth elements.
     succ = Prelude.succ
-
-instance PathInfo IntJS where
-  toPathSegments i = [pack $ show i]
-  fromPathSegments = pToken (const "IntJS") checkInt
-   where checkInt txt =
-           case signed decimal txt of
-             (Left _e) -> Nothing
-             (Right (n, r))
-                 | Text.null r -> Just n
-                 | otherwise -> Nothing
 
 instance (OrderKey k, SafeCopy k, SafeCopy a) => SafeCopy (Order k a) where
     putCopy m = contain $ do safePut (elems' m)
@@ -217,7 +192,7 @@ deleteItem k m = maybe m snd (view k m)
 appendItem :: OrderMap k => v -> Order k v -> Order k v
 appendItem x = fst . insert x
 
-insertItems :: forall k v. OrderMap k => Order k v -> [v] -> ([k], Order k v)
+insertItems :: forall k v. Enum k => OrderMap k => Order k v -> [v] -> ([k], Order k v)
 insertItems om xs =
     foldr f ([], om) (reverse xs)
     where
@@ -268,26 +243,6 @@ lens_omat k =
 view' :: OrderMap k => k -> Order k v -> v
 view' i m = maybe (error "Order.view'") fst (view i m)
 
-#if 0
--- | makeOrder "Foo" generates the following newtype and Next
--- instance, where all the names containing Foo are generated.  Once
--- we have the Next instance, the Order instance can be inferred.
-type Foo = Int
-
-newtype FooID = FooID {unFooID :: IntJS} deriving (Eq, Ord, Read, Show, Data, Typeable)
-
-instance OrderKey FooID where
-    init = FooID 0
-    succ (FooID n) = FooID (succ n)
-
-instance ToJSON FooID where toJSON = toJSON . unFooID
-instance FromJSON FooID where parseJSON = fmap FooID . parseJSON
-
-type Foos = OrderMap FooID Foo
-
--- The OrderMap instance is inferred from the OrderKey instance.
-#endif
-
 -- | Given the name of a type such as AbbrevPair, generate declarations
 -- @@
 --     newtype AbbrevPairID = AbbrevPairID {unAbbrevPairID :: IntJS} deriving (Eq, Ord, Read, Show, Data, Typeable)
@@ -308,9 +263,9 @@ deriveOrder t = do
       unname = mkName ("un" ++ nameBase t ++ "ID")
       mpname = mkName (nameBase t ++ "s")
   idtype <- newtypeD (cxt []) idname [] (recC idname [varStrictType unname (strictType notStrict [t|IntJS|]) ]) [''Eq, ''Ord, ''Read, ''Show, ''Data, ''Typeable]
-  insts <- [d| instance OrderKey $(conT idname) where
-                 init = $(conE idname) (0 :: IntJS)
-                 succ n = $(conE idname) (succ ($(varE unname) n))
+  insts <- [d| instance Enum $(conT idname) where
+                 toEnum = $(conE idname) . toEnum
+                 fromEnum = fromEnum . $(varE unname)
                instance ToIntJS $(conT idname) where
                  intJS = $(varE unname)
                instance ToJSON $(conT idname) where
@@ -322,6 +277,3 @@ deriveOrder t = do
   -- for that.
   omtype <- tySynD mpname [] [t|Order $(conT idname) $(conT t)|]
   return $ [idtype, omtype] ++ insts
-
-toList'' :: OrderMap k => (k -> v) -> Order k v -> [(k, Lens' (Order k v) v, v)]
-toList'' d m = map (\ (k, v) -> (k, total (d k) (lens_omat k), v)) (toPairs m)

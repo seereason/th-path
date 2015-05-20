@@ -3,8 +3,7 @@
 {-# OPTIONS_GHC -Wall -fno-warn-orphans #-}
 
 module Language.Haskell.TH.Path.Lens
-            ( total
-            , at
+            ( at
             , mat
             , eitherIso
             , readOnlyLens
@@ -36,9 +35,9 @@ import Control.Category
 import Control.Applicative.Error (maybeRead)
 import Control.Lens (set, Traversal', Lens')
 import Data.Generics (Typeable)
-import Control.Lens (_Just, iso, lens, view, (^?))
+import Control.Lens (_Just, iso, lens, view)
 import qualified Data.Map as M (Map, insert, lookup)
-import Data.Maybe (catMaybes, fromMaybe)
+import Data.Maybe (catMaybes)
 import Data.Monoid
 import Data.SafeCopy (deriveSafeCopy, base)
 import Data.Text as Text (Text, pack, unpack, unwords, words)
@@ -47,9 +46,6 @@ import Prelude hiding (id, (.))
 import Safe (readMay)
 import Text.JSON.Generic (Data, decodeJSON, encodeJSON)
 import Web.Routes.TH (derivePathInfo)
-
-total :: a -> Traversal' s a -> Lens' s a
-total d p = lens (\ s -> fromMaybe d (s ^? p)) (flip (set p))
 
 idLens :: Lens' a a
 idLens = iso id id

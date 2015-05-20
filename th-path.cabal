@@ -43,6 +43,7 @@ library
   exposed-modules:  Language.Haskell.TH.Path
                     Language.Haskell.TH.Path.Core
                     Language.Haskell.TH.Path.DeriveLensInfo
+                    Language.Haskell.TH.Path.IntJS
                     Language.Haskell.TH.Path.Lens
                     Language.Haskell.TH.Path.LensTH
                     Language.Haskell.TH.Path.Order
