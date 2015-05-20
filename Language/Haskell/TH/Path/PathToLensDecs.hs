@@ -10,9 +10,11 @@
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TupleSections #-}
+{-# LANGUAGE TypeFamilies #-}
 {-# OPTIONS_GHC -fno-warn-orphans -fno-warn-missing-signatures #-}
 module Language.Haskell.TH.Path.PathToLensDecs
     ( ToLens(toLens)
+    , Path
     , pathToLensDecs
     ) where
 
@@ -47,8 +49,9 @@ null = foldr (\_ _ -> False) True
 -- end types, there is only one path type that can describe the path
 -- from start to end.  The toLens function will typically have several
 -- clauses describing different paths for a given (start, goal) pair.
-class ToLens path s a | s a -> path where
-    toLens :: path -> Traversal' s a
+class ToLens s a where
+    type Path s a
+    toLens :: Path s a -> Traversal' s a
 
 -- instance OrderKey k => ToLens (Path_OMap k a) (Order k a) a where
 --     toLens (Path_At k a) = lens_omat k . toLens a
@@ -66,7 +69,9 @@ pathToLensDecs gkey key = do
     (clauses :: [ClauseQ]) <- pathToLensClauses (pure gtyp) key gkey ptyp
     -- a <- runQ $ newName "a"
     when (not (null clauses)) $
-         tell1 (instanceD (pure []) [t|ToLens $(pure ptyp) $(pure (bestType key)) $(pure (bestType gkey))|] [funD 'toLens clauses])
+         tell1 (instanceD (pure []) [t|ToLens $(pure (bestType key)) $(pure (bestType gkey))|]
+                  [tySynInstD ''Path (tySynEqn [pure (bestType key), pure (bestType gkey)] (pure ptyp)),
+                   funD 'toLens clauses])
     where
       -- Send a single dec to our funky writer monad
       tell1 :: DecQ -> m ()
