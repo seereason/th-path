@@ -16,7 +16,6 @@ description:        A Path type represents a mapping from a type to some piece o
 library
   hs-source-dirs: .
   build-depends:
-    aeson,
     applicative-extras,
     base >= 4.2 && < 5,
     containers,
@@ -24,8 +23,6 @@ library
     filemanip-extra,
     happstack-authenticate,
     haskell-src-exts,
-    jmacro,
-    json,
     lens,
     ListLike,
     mtl,
@@ -37,13 +34,11 @@ library
     th-desugar,
     th-orphans,
     th-typegraph >= 0.15,
-    web-routes,
     web-routes-th
   ghc-options:      -Wall
   exposed-modules:  Language.Haskell.TH.Path
                     Language.Haskell.TH.Path.Core
                     Language.Haskell.TH.Path.DeriveLensInfo
-                    Language.Haskell.TH.Path.IntJS
                     Language.Haskell.TH.Path.Lens
                     Language.Haskell.TH.Path.LensTH
                     Language.Haskell.TH.Path.Order

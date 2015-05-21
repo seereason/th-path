@@ -23,10 +23,7 @@ module Language.Haskell.TH.Path.Order
     , deriveOrder
     ) where
 
-import Control.Applicative ((<$>))
-import Data.Aeson (ToJSON(toJSON), FromJSON(parseJSON))
 import Data.Data (Data)
-import Data.Int (Int32)
 import Control.Lens (Traversal', _Just, lens)
 import Data.List as List (partition, elem, foldl, foldl', foldr, filter)
 import qualified Data.ListLike as LL
@@ -34,23 +31,12 @@ import Data.Map as Map (Map, (!))
 import qualified Data.Map as Map
 import Data.Monoid (Monoid(mempty, mappend))
 import Data.SafeCopy (SafeCopy(..), contain, safeGet, safePut)
-import Data.Text as Text (null, pack)
-import Data.Text.Read (decimal, signed)
 import Data.Typeable (Typeable)
 import Language.Haskell.TH
-import Language.Haskell.TH.Path.IntJS (IntJS, ToIntJS(intJS))
-import Language.Javascript.JMacro (ToJExpr(toJExpr), JExpr(ValExpr), JVal(JInt))
 import Prelude hiding (init, succ)
 import qualified Prelude (succ)
-import Web.Routes.PathInfo
 
-instance (ToJSON k, ToJSON v) => ToJSON (Map k v) where
-    toJSON mp = toJSON (Map.toList mp)
-
-instance (Ord k, FromJSON k, FromJSON v) => FromJSON (Map k v) where
-    parseJSON mp = Map.fromList <$> parseJSON mp
-
-class (Ord k, ToIntJS k) => OrderKey k where
+class Ord k => OrderKey k where
     init :: k      -- ^ The initial key value (toEnum 0?)
     succ :: k -> k -- ^ The successor function for k
 
@@ -151,12 +137,6 @@ instance (OrderMap k, Read a) => Read (Order k a) where
     -- readsPrec :: Int -> String -> [(OrderMap k a, String)]
     readsPrec _ s = let l = (read s :: [a]) in [(fromList l, "")]
 
-instance (OrderMap k, ToJSON k, ToJSON a) => ToJSON (Order k a) where
-  toJSON = toJSON . toPairs
-
-instance (OrderMap k, FromJSON k, FromJSON a) => FromJSON (Order k a) where
-  parseJSON = fmap fromPairs . parseJSON
-
 instance (OrderKey k, Monoid (Order k a)) => LL.ListLike (Order k a) a where
     singleton x = fst $ insert x empty
     head m = case order m of
@@ -170,7 +150,7 @@ instance (OrderKey k, Monoid (Order k a)) => LL.FoldableLL (Order k a) a where
     foldl f r0 xs = List.foldl f r0 (toList xs)
     foldr f r0 xs = List.foldr f r0 (toList xs)
 
-instance (ToIntJS a, Ord a, Enum a) => OrderKey a where
+instance (Ord a, Enum a) => OrderKey a where
     init = toEnum 1            -- Yeah, that's right, 1.  F**k zeroth elements.
     succ = Prelude.succ
 
@@ -247,31 +227,19 @@ view' i m = maybe (error "Order.view'") fst (view i m)
 -- @@
 --     newtype AbbrevPairID = AbbrevPairID {unAbbrevPairID :: IntJS} deriving (Eq, Ord, Read, Show, Data, Typeable)
 --     type AbbrevPairs = Order AbbrevPairID AbbrevPair
---     instance OrderKey AbbrevPairID where
---       init = AbbrevPairID (0 :: IntJS)
---       succ n = AbbrevPairID (succ (unAbbrevPairID n))
---     instance ToIntJS AbbrevPairID where
---       intJS = unAbbrevPairID
---     instance ToJSON AbbrevPairID where
---       toJSON = (toJSON . unAbbrevPairID)
---     instance FromJSON AbbrevPairID where
---       parseJSON = ((fmap AbbrevPairID) . parseJSON)
+--     instance Enum AbbrevPairID where
+--       toEnum = AbbrevPairID . toEnum
+--       fromEnum = fromEnum . unAbbrevPairID
 -- @@
-deriveOrder :: Name -> Q [Dec]
-deriveOrder t = do
+deriveOrder :: TypeQ -> Name -> Q [Dec]
+deriveOrder ityp t = do
   let idname = mkName (nameBase t ++ "ID")
       unname = mkName ("un" ++ nameBase t ++ "ID")
       mpname = mkName (nameBase t ++ "s")
-  idtype <- newtypeD (cxt []) idname [] (recC idname [varStrictType unname (strictType notStrict [t|IntJS|]) ]) [''Eq, ''Ord, ''Read, ''Show, ''Data, ''Typeable]
+  idtype <- newtypeD (cxt []) idname [] (recC idname [varStrictType unname (strictType notStrict ityp) ]) [''Eq, ''Ord, ''Read, ''Show, ''Data, ''Typeable]
   insts <- [d| instance Enum $(conT idname) where
                  toEnum = $(conE idname) . toEnum
-                 fromEnum = fromEnum . $(varE unname)
-               instance ToIntJS $(conT idname) where
-                 intJS = $(varE unname)
-               instance ToJSON $(conT idname) where
-                   toJSON = toJSON . $(varE unname)
-               instance FromJSON $(conT idname) where
-                   parseJSON = fmap $(conE idname) . parseJSON |]
+                 fromEnum = fromEnum . $(varE unname) |]
   -- It would be nice to build the PathInfo instance for idname, but a
   -- call to derivePathInfo would try to reify it, and its too soon
   -- for that.

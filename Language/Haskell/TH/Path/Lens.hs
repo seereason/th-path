@@ -1,4 +1,4 @@
-{-# LANGUAGE CPP, DeriveDataTypeable, FlexibleInstances, GeneralizedNewtypeDeriving, MultiParamTypeClasses, RankNTypes, ScopedTypeVariables, TemplateHaskell #-}
+{-# LANGUAGE CPP, FlexibleInstances, MultiParamTypeClasses, RankNTypes, ScopedTypeVariables, TemplateHaskell #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# OPTIONS_GHC -Wall -fno-warn-orphans #-}
 
@@ -19,10 +19,6 @@ module Language.Haskell.TH.Path.Lens
             , lens_mrs
             , idLens
             , dummyLens
-            , JSONText
-            , iso_JSONText
-            , gjsonIso
-            , gjsonLens
             , textLens
             , IsText(textLens')
             , stringLens
@@ -34,18 +30,14 @@ import Debug.Trace
 import Control.Category
 import Control.Applicative.Error (maybeRead)
 import Control.Lens (set, Traversal', Lens')
-import Data.Generics (Typeable)
 import Control.Lens (_Just, iso, lens, view)
 import qualified Data.Map as M (Map, insert, lookup)
 import Data.Maybe (catMaybes)
 import Data.Monoid
-import Data.SafeCopy (deriveSafeCopy, base)
 import Data.Text as Text (Text, pack, unpack, unwords, words)
 import Happstack.Authenticate.Core (UserId(..))
 import Prelude hiding (id, (.))
 import Safe (readMay)
-import Text.JSON.Generic (Data, decodeJSON, encodeJSON)
-import Web.Routes.TH (derivePathInfo)
 
 idLens :: Lens' a a
 idLens = iso id id
@@ -163,20 +155,6 @@ _lens_Monoid_Maybe_Tests = [ [i 1,2,3] == ((set lens_Monoid_Maybe (Just [1,2,3])
                           ]
   where i :: Int -> Int
         i = id
-
-newtype JSONText = JSONText {unJSONText :: String} deriving (Eq, Ord, Read, Show, Data, Typeable, Monoid)
-
-iso_JSONText :: Lens' JSONText String
-iso_JSONText = iso unJSONText JSONText
-
-$(derivePathInfo ''JSONText)
-$(deriveSafeCopy 1 'base ''JSONText)
-
-gjsonIso :: Data a => Lens' a JSONText
-gjsonIso = iso (JSONText . encodeJSON) (decodeJSON . unJSONText)
-
-gjsonLens :: Data a => Lens' a JSONText
-gjsonLens = gjsonIso
 
 textLens :: Lens' Text Text
 textLens = iso id id
