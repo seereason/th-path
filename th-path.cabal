@@ -32,6 +32,7 @@ library
     template-haskell >= 2.9,
     text,
     th-desugar,
+    th-kinds,
     th-orphans,
     th-typegraph >= 0.15,
     web-routes-th
