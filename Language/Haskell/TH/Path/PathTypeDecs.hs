@@ -67,7 +67,8 @@ pathTypeDecs key =
       doInfo (TyConI dec) =
           -- tell [ [d| z = $(litE (stringL ("doDec " ++ pprint' dec))) |] ] >>
           doDec dec
-      doInfo info = error $ "pathTypeDecs - unexpected Info: " ++ show info
+      doInfo (FamilyI dec _insts) = doDec dec
+      doInfo info = error $ "pathTypeDecs - unexpected Info: " ++ pprint' info ++ "\n  " ++ show info
       doDec :: Dec -> m ()
       -- If we have a type synonym, we can create a path type synonym
       doDec (TySynD _ _ typ') =
@@ -76,7 +77,8 @@ pathTypeDecs key =
              mapM_ (\pname -> tell [sequence (tySynD pname [PlainTV a] (return ptype) : [] {-concatMap (goalSynonym key pname) gtypes-})]) (pathTypeNames key)
       doDec (NewtypeD _ tname _ con _) = doDataD tname [con]
       doDec (DataD _ tname _ cons _) = doDataD tname cons
-      doDec dec = error $ "doName - unexpected Dec: " ++ pprint dec
+      doDec (FamilyD _flavour _name _tvbs _mkind) = return ()
+      doDec dec = error $ "doName - unexpected Dec: " ++ pprint dec ++ "\n  " ++ show dec
 
       doDataD :: Name -> [Con] -> m ()
       doDataD tname cons =
