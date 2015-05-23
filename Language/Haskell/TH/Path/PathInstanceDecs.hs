@@ -24,7 +24,6 @@ import Control.Monad (when)
 import Control.Monad.Reader (MonadReader, runReaderT)
 import Control.Monad.Writer (MonadWriter, tell)
 import Data.List as List (map)
-import Data.Maybe (catMaybes)
 import Language.Haskell.TH
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
@@ -98,41 +97,45 @@ pathInstanceClauses gtyp key gkey ptyp =
                   let ((_, Substitute lns ltyp) : _) = [x | x@(_, Substitute _ _) <- hints]
                   lkey <- view typeInfo >>= runReaderT (expandType ltyp >>= vertex Nothing)
                   lval <- pathValue lkey
-                  return [clause [wildP] (normalB [|$(pure lns) . toLens $(pure lval)|]) []]
+                  testClause gkey ltyp (clause [wildP] (normalB [|$(pure lns) . toLens $(pure lval)|]) [])
               , pathyf = return []
               , namedf = \tname -> namedTypeClause gtyp tname gkey ptyp
-              , maybef = \_etyp -> do
+              , maybef = \etyp -> do
                   e <- runQ (newName "e")
-                  return [ clause [ [p|Path_Maybe $(varP e)|] ] (normalB [|_Just . toLens $(varE e)|]) [] ]
+                  testClause gkey etyp (clause [ [p|Path_Maybe $(varP e)|] ] (normalB [|_Just . toLens $(varE e)|]) [])
               , listf = \_etyp -> return []
-              , orderf = \_ktyp _vtyp -> do
+              , orderf = \_ktyp vtyp -> do
                   k <- runQ (newName "k")
                   v <- runQ (newName "v")
-                  return [ clause [ [p|Path_At $(varP k) $(varP v)|] ] (normalB [|lens_omat $(varE k) . toLens $(varE v)|]) [] ]
-              , mapf = \_ktyp _vtyp -> do
+                  testClause gkey vtyp (clause [ [p|Path_At $(varP k) $(varP v)|] ] (normalB [|lens_omat $(varE k) . toLens $(varE v)|]) [])
+              , mapf = \_ktyp vtyp -> do
                   k <- runQ (newName "k")
                   v <- runQ (newName "v")
-                  return [ clause [ [p|Path_Map $(varP k) $(varP v)|] ] (normalB [|mat $(varE k) . toLens $(varE v)|]) [] ]
+                  testClause gkey vtyp (clause [ [p|Path_Map $(varP k) $(varP v)|] ] (normalB [|mat $(varE k) . toLens $(varE v)|]) [])
               , pairf = \ftyp styp -> do
                   f <- runQ (newName "f")
                   s <- runQ (newName "s")
                   fclause <- testClause gkey ftyp (clause [ [p|Path_First $(varP f)|] ] (normalB [|_1 . toLens $(varE f)|]) [])
                   sclause <- testClause gkey styp (clause [ [p|Path_Second $(varP s)|] ] (normalB [|_2 . toLens $(varE s)|]) [])
-                  return $ catMaybes $ [fclause, sclause]
+                  return $ concat $ [fclause, sclause]
               , eitherf = \ltyp rtyp -> do
                   l <- runQ (newName "l")
                   r <- runQ (newName "r")
                   lclause <- testClause gkey ltyp (clause [ [p|Left $(varP l)|] ] (normalB [|_Left . toLens $(varE l)|]) [])
                   rclause <- testClause gkey rtyp (clause [ [p|Right $(varP r)|] ] (normalB [|_Right . toLens $(varE r)|]) [])
-                  return $ catMaybes [lclause, rclause]
+                  return $ concat [lclause, rclause]
               , otherf = return [ clause [wildP] (normalB [|(error $ $(litE (stringL ("Need to find lens for field type: " ++ pprint (view etype key))))) :: Traversal' $(pure (runExpanded (view etype key))) $(pure (bestType gkey))|]) [] ]
               }
 
-testClause :: (DsMonad m, MonadReader R m, MonadWriter [[Dec]] m) => TypeGraphVertex -> Type -> ClauseQ -> m (Maybe ClauseQ)
+testClause :: (DsMonad m, MonadReader R m, MonadWriter [[Dec]] m) => TypeGraphVertex -> Type -> ClauseQ -> m [ClauseQ]
 testClause gkey typ cl = do
+  ok <- testPath gkey typ
+  return $ if ok then [cl] else []
+
+testPath :: (DsMonad m, MonadReader R m, MonadWriter [[Dec]] m) => TypeGraphVertex -> Type -> m Bool
+testPath gkey typ = do
   key <- view typeInfo >>= runReaderT (expandType typ >>= vertex Nothing)
-  ok <- goalReachable gkey key
-  return $ if ok then Just cl else Nothing
+  goalReachable gkey key
 
 -- | Return an expression whose type is the path type of the vertex.
 pathValue :: (DsMonad m, MonadReader R m) => TypeGraphVertex -> m Exp
