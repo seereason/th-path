@@ -80,7 +80,7 @@ pathInstanceDecs gkey key = do
 
 pathInstanceClauses :: forall m. (DsMonad m, MonadReader R m, MonadWriter [[Dec]] m) =>
                        TypeQ -- ^ the goal type
-                    -> TypeGraphVertex -- ^ they type whose clauses we are generating
+                    -> TypeGraphVertex -- ^ the type whose clauses we are generating
                     -> TypeGraphVertex -- ^ the goal type key
                     -> Type -- ^ the corresponding path type - first type parameter of ToLens
                     -> m [ClauseQ]
@@ -97,15 +97,15 @@ pathInstanceClauses gtyp key gkey ptyp =
               , substf = \_lns _styp -> do
                   let ((_, Substitute lns ltyp) : _) = [x | x@(_, Substitute _ _) <- hints]
                   lkey <- view typeInfo >>= runReaderT (expandType ltyp >>= vertex Nothing)
-                  pval <- pathValue lkey
-                  return [clause [wildP] (normalB [|$(pure lns) . toLens $(pure pval)|]) []]
+                  lval <- pathValue lkey
+                  return [clause [wildP] (normalB [|$(pure lns) . toLens $(pure lval)|]) []]
               , pathyf = return []
               , namedf = \tname -> namedTypeClause gtyp tname gkey ptyp
               , maybef = \_etyp -> do
                   e <- runQ (newName "e")
                   return [ clause [ [p|Path_Maybe $(varP e)|] ] (normalB [|_Just . toLens $(varE e)|]) [] ]
               , listf = \_etyp -> return []
-              , orderf = \_ityp _etyp -> do
+              , orderf = \_ktyp _vtyp -> do
                   k <- runQ (newName "k")
                   v <- runQ (newName "v")
                   return [ clause [ [p|Path_At $(varP k) $(varP v)|] ] (normalB [|lens_omat $(varE k) . toLens $(varE v)|]) [] ]
