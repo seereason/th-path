@@ -58,21 +58,18 @@ class Path s a where
 --     toLens (Path_At k a) = lens_omat k . toLens a
 
 -- | For a given TypeGraphVertex, compute the declaration of the
--- corresponding path type.  Each clause matches some possible value
+-- corresponding Path instance.  Each clause matches some possible value
 -- of the path type, and returns a lens that extracts the value the
 -- path type value specifies.
 pathInstanceDecs :: forall m. (DsMonad m, MonadReader R m, MonadWriter [[Dec]] m) => TypeGraphVertex -> TypeGraphVertex -> m ()
 pathInstanceDecs gkey key = do
-  let gtyp = bestType gkey -- runExpanded (view etype gkey)
+  let gtyp = bestType gkey
   ptyp <- pathType (pure gtyp) key
-  ok <- goalReachable gkey key
-  when ok $ do
-    (clauses :: [ClauseQ]) <- pathInstanceClauses (pure gtyp) key gkey ptyp
-    -- a <- runQ $ newName "a"
-    when (not (null clauses)) $
-         tell1 (instanceD (pure []) [t|Path $(pure (bestType key)) $(pure (bestType gkey))|]
-                  [tySynInstD ''PathType (tySynEqn [pure (bestType key), pure (bestType gkey)] (pure ptyp)),
-                   funD 'toLens clauses])
+  (clauses :: [ClauseQ]) <- pathInstanceClauses (pure gtyp) key gkey ptyp
+  when (not (null clauses)) $
+       tell1 (instanceD (pure []) [t|Path $(pure (bestType key)) $(pure (bestType gkey))|]
+                [tySynInstD ''PathType (tySynEqn [pure (bestType key), pure (bestType gkey)] (pure ptyp)),
+                 funD 'toLens clauses])
     where
       -- Send a single dec to our funky writer monad
       tell1 :: DecQ -> m ()

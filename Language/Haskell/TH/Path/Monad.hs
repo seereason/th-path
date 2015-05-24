@@ -17,7 +17,6 @@ module Language.Haskell.TH.Path.Monad
     ( R(..), startTypes, lensHintMap, typeInfo, edges
 
     , makeTypeGraph
-    , runTypeGraph
 
     , FoldPathControl(..)
     , foldPath
@@ -35,7 +34,7 @@ import Debug.Trace
 import Control.Applicative ((<$>))
 import Control.Lens -- (makeLenses, over, view)
 import Control.Monad (filterM)
-import Control.Monad.Reader (MonadReader, ReaderT, runReaderT)
+import Control.Monad.Reader (MonadReader, runReaderT)
 import Control.Monad.Writer (MonadWriter, tell)
 import Data.Default (Default)
 import Data.Graph (Graph, reachable, transposeG, Vertex)
@@ -193,9 +192,6 @@ makeTypeGraph st gt hs = do
              , _edges = es
              , _graph = graphFromMap es
              }
-
-runTypeGraph :: DsMonad m => Q [Type] -> Q [Type] -> [(Maybe Field, Q Type, Q LensHint)] -> ReaderT R m a -> m a
-runTypeGraph st gt hs action = makeTypeGraph st gt hs >>= runReaderT action
 
 makeHintList :: [(Maybe Field, Q Type, Q hint)] -> Q [(Maybe Field, E Type, hint)]
 makeHintList hs = do
