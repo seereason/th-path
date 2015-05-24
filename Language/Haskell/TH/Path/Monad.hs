@@ -40,9 +40,9 @@ import Control.Monad.Writer (MonadWriter, tell)
 import Data.Default (Default)
 import Data.Graph (Graph, reachable, transposeG, Vertex)
 import Data.List as List (filter, intercalate, map)
-import Data.Map as Map (findWithDefault, fromListWith, keys, lookup, Map)
+import Data.Map as Map (findWithDefault, fromListWith, keys, lookup, Map, map, mapWithKey)
 import Data.Maybe (fromMaybe, mapMaybe)
-import Data.Set as Set (difference, empty, fromList, map, Set)
+import Data.Set as Set (difference, empty, filter, fromList, map, Set)
 import Language.Haskell.TH
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
@@ -224,7 +224,7 @@ makeTypeGraphEdges st = do
                      ConT tname -> maybe False (\ x -> case x of PrimTyConI _ _ _ -> True; _ -> False) (Map.lookup tname im)
                      _ -> False
         return $ k /= Right StarT || fv /= Set.empty || prim
-  edges' <- typeGraphEdges >>= dissolveM victim
+  edges' <- typeGraphEdges >>= dissolveM victim >>= return . removePathsToOrderKeys . removeUnnamedFieldEdges
   let (g, vf, kf) = graphFromMap edges'
   -- Isolate all nodes that are not reachable from the start types.
   kernel <- mapM expandType st >>= mapM (vertex Nothing) >>= return . mapMaybe kf
@@ -235,6 +235,18 @@ makeTypeGraphEdges st = do
       edges'' = isolate victims edges'
   trace (pprint edges'') (return ())
   return edges''
+    where
+      removeUnnamedFieldEdges :: (GraphEdges hint TypeGraphVertex) -> (GraphEdges hint TypeGraphVertex)
+      removeUnnamedFieldEdges =
+          -- If the _field field of the goal key is a Left it is a
+          -- positional field rather than named - we don't make lenses
+          -- for such fields so we don't want their edges in our graph.
+          Map.map (\(hint, gkeys) -> (hint, Set.filter (\gkey -> maybe True (\(_, _, fld) -> either (const False) (const True) fld) (view field gkey)) gkeys))
+      removePathsToOrderKeys :: (GraphEdges hint TypeGraphVertex) -> (GraphEdges hint TypeGraphVertex)
+      removePathsToOrderKeys =
+          Map.mapWithKey (\key (hint, gkeys) -> (hint, Set.filter (\gkey -> case view etype key of
+                                                                              E (AppT (AppT mtyp ityp) _etyp) | mtyp == ConT ''Order -> E ityp /= view etype gkey
+                                                                              _ -> True) gkeys))
 
 makeHintMap :: (Functor m, DsMonad m, MonadReader (TypeGraphInfo hint) m) => [(Maybe Field, E Type, hint)] -> m (Map TypeGraphVertex [hint])
 makeHintMap hs = Map.fromListWith (++) <$> mapM (\(fld, typ, hint) -> vertex fld typ >>= \v -> return (v, [hint])) hs
