@@ -42,6 +42,7 @@ library
                     Language.Haskell.TH.Path.DeriveLensInfo
                     Language.Haskell.TH.Path.Lens
                     Language.Haskell.TH.Path.LensTH
+                    Language.Haskell.TH.Path.Monad
                     Language.Haskell.TH.Path.Order
                     Language.Haskell.TH.Path.PathInstanceDecs
                     Language.Haskell.TH.Path.PathType
