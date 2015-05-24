@@ -35,11 +35,11 @@ import Debug.Trace
 import Control.Applicative ((<$>))
 import Control.Lens -- (makeLenses, over, view)
 import Control.Monad (filterM)
-import Control.Monad.Reader (MonadReader, ReaderT, runReaderT, ask)
+import Control.Monad.Reader (MonadReader, ReaderT, runReaderT)
 import Control.Monad.Writer (MonadWriter, tell)
 import Data.Default (Default)
 import Data.Graph (Graph, reachable, transposeG, Vertex)
-import Data.List as List (intercalate, map)
+import Data.List as List (filter, intercalate, map)
 import Data.Map as Map (findWithDefault, fromListWith, keys, lookup, Map)
 import Data.Maybe (fromMaybe, mapMaybe)
 import Data.Set as Set (difference, empty, fromList, map, Set)
@@ -55,7 +55,7 @@ import Language.Haskell.TH.TypeGraph.Expand (E(E), expandType, runExpanded)
 import Language.Haskell.TH.TypeGraph.Free (freeTypeVars)
 import Language.Haskell.TH.TypeGraph.Graph (dissolveM, GraphEdges, graphFromMap, isolate)
 import Language.Haskell.TH.TypeGraph.Hints (VertexHint(..), HasVertexHints)
-import Language.Haskell.TH.TypeGraph.Info (infoMap, TypeGraphInfo, withTypeGraphInfo)
+import Language.Haskell.TH.TypeGraph.Info (infoMap, TypeGraphInfo, typeGraphInfo)
 import Language.Haskell.TH.TypeGraph.Monad (typeGraphEdges, vertex)
 import Language.Haskell.TH.TypeGraph.Vertex (TypeGraphVertex(..), etype, field, typeNames)
 import Prelude hiding (any, concat, concatMap, elem, exp, foldr, mapM_, null, or)
@@ -92,6 +92,7 @@ pathHints key = do
              then List.map (key',) (toList s2)
              else List.map (key,) (toList s1)
 
+-- | A lens key is a pair of vertexes corresponding to a Path instance.
 allLensKeys :: (DsMonad m, MonadReader R m) => m (Set (TypeGraphVertex, TypeGraphVertex))
 allLensKeys = do
   (gkeys :: [TypeGraphVertex]) <- view goalTypes >>= \gtypes -> view typeInfo >>= runReaderT (mapM expandType gtypes >>= mapM (vertex Nothing))
@@ -111,7 +112,7 @@ allPathKeys = do
 makePathLenses :: (DsMonad m, MonadReader R m, MonadWriter [[Dec]] m) => TypeGraphVertex -> m ()
 makePathLenses key = do
   hints <- pathHints key
-  case filter noLensHint (List.map snd hints) of
+  case List.filter noLensHint (List.map snd hints) of
     [] -> mapM make (toList (typeNames key)) >>= tell
     _ -> return ()
     where
@@ -182,7 +183,7 @@ makeTypeGraph st gt hs = do
   st' <- runQ st
   gt' <- runQ gt
   hl <- runQ $ makeHintList hs
-  ti <- makeTypeGraphInfo st' hl
+  ti <- typeGraphInfo hl st'
   es <- runReaderT (makeTypeGraphEdges st') ti
   hm <- runReaderT (makeHintMap hl) ti
   return $ R { _startTypes = st'
@@ -203,9 +204,6 @@ makeHintList hs = do
           hint <- hintq
           return (fld, typ, hint)) hs
 
-makeTypeGraphInfo :: DsMonad m => [Type] -> [(Maybe Field, E Type, LensHint)] -> m (TypeGraphInfo LensHint)
-makeTypeGraphInfo st hintList = withTypeGraphInfo hintList st ask
-
 -- | Build a graph of the subtype relation, omitting any types whose
 -- arity is nonzero and any not reachable from the start types.  (We
 -- may also want to eliminate nodes that are not on a path from a
@@ -222,12 +220,9 @@ makeTypeGraphEdges st = do
         let (E etyp) = view etype v
         k <- runQ $ inferKind etyp
         fv <- runQ $ freeTypeVars etyp
-        trace ("kind " ++ pprint' etyp ++ ": " ++ pprint' k) (return ())
-        trace ("free " ++ pprint' etyp ++ ": " ++ show fv) (return ())
         let prim = case etyp of
                      ConT tname -> maybe False (\ x -> case x of PrimTyConI _ _ _ -> True; _ -> False) (Map.lookup tname im)
                      _ -> False
-        trace ("type: " ++ pprint' etyp ++ ": kind=" ++ pprint' k ++ ", free=" ++ show fv ++ ", prim=" ++ show prim) (return ())
         return $ k /= Right StarT || fv /= Set.empty || prim
   edges' <- typeGraphEdges >>= dissolveM victim
   let (g, vf, kf) = graphFromMap edges'
