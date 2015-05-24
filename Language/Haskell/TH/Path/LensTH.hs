@@ -150,11 +150,13 @@ decMakeLens t (DataD _ nameA params cons _) namer = do
               [| let getter a = $(varE fname) a
                      setter a b = $(recUpdE [|a|] [fieldExp fname [|b|]]) in
                  lens getter setter |]
-        sequence [ sigD accName
-                        (forallT (map PlainTV params'') (return []) [t|Traversal' $appliedT $ftype|])
+        let lensType = [t|$(if ncons > 1 then [t|Traversal'|] else [t|Lens'|]) $appliedT $ftype|]
+            lensType' = case params'' of
+                          [] -> lensType
+                          _ -> forallT (map PlainTV params'') (return []) lensType
+        sequence [ sigD accName lensType'
                  , valD (varP accName) (normalB (if ncons > 1 then [|$(varE partialName)|] else [|$(varE totalName)|])) []
-                 , sigD (if ncons > 1 then partialName else totalName)
-                        (forallT (map PlainTV params'') (return []) [t|$(if ncons > 1 then [t|Traversal'|] else [t|Lens'|]) $appliedT $ftype|])
+                 , sigD (if ncons > 1 then partialName else totalName) lensType'
                  , valD (varP (if ncons > 1 then partialName else totalName)) (normalB (if ncons > 1 then partialBody else totalBody)) [] ]
 
     conPat :: Con -> PatQ
