@@ -29,8 +29,6 @@ module Language.Haskell.TH.Path.Monad
     , goalReachable
     ) where
 
-import Debug.Trace
-
 import Control.Applicative ((<$>))
 import Control.Lens -- (makeLenses, over, view)
 import Control.Monad (filterM)
@@ -223,7 +221,7 @@ makeTypeGraphEdges st = do
       victims = difference (Set.fromList (Map.keys edges')) keep
       edges'' :: GraphEdges hint TypeGraphVertex
       edges'' = isolate victims edges'
-  trace (pprint edges'') (return ())
+  -- trace (pprint edges'') (return ())
   return edges''
     where
       removeUnnamedFieldEdges :: (GraphEdges hint TypeGraphVertex) -> (GraphEdges hint TypeGraphVertex)

@@ -21,7 +21,7 @@ import Data.List as List (intercalate, map)
 import Language.Haskell.TH
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.Path.Core (LensHint(..), bestPathTypeName, pathTypeNameFromTypeName, Path_OMap, Path_List, Path_Map, Path_Pair, Path_Maybe)
+import Language.Haskell.TH.Path.Core (bestPathTypeName, pathTypeNameFromTypeName, Path_OMap, Path_List, Path_Map, Path_Pair, Path_Maybe)
 import Language.Haskell.TH.Path.Monad (R, typeInfo, pathHints, reachableFrom, FoldPathControl(..), foldPath)
 import Language.Haskell.TH.TypeGraph.Core (pprint')
 import Language.Haskell.TH.TypeGraph.Expand (E(E), runExpanded)
@@ -44,12 +44,9 @@ pathType gtyp key =
           control =
               FoldPathControl
                 { simplef = let Just (pname, _syns) = bestPathTypeName key in runQ [t|$(conT pname) $gtyp|]
-                , substf = \lns styp ->
-                    maybe -- This type has no name, we need to construct a path type based on the
-                          -- underlying type, not the Substitute hint.
-                          (pathType' (filter (\(_, h) -> h /= Substitute lns styp) hints))
-                          (\(pname, _syns) -> runQ [t|$(conT pname) $gtyp|])
-                          (bestPathTypeName key)
+                , substf = \_lns _styp ->
+                    -- This is safe because hint types are now required to have a name
+                    let Just (pname, _syns) = bestPathTypeName key in runQ [t|$(conT pname) $gtyp|]
                 , pathyf = return $ runExpanded $ view etype key
                 , namedf = \tname -> runQ $ [t|$(conT (pathTypeNameFromTypeName tname)) $gtyp|]
                 , maybef = \etyp -> do
