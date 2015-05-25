@@ -69,8 +69,6 @@ data R
     = R
       { _startTypes :: [Type]
       -- ^ Start types
-      , _goalTypes :: [Type]
-      -- ^ The names of the types we are generating pathTo_lens_*_name functions for
       , _lensHintMap :: Map TypeGraphVertex [LensHint] -- FIXME: [LensHint] -> Set LensHint
       , _typeInfo :: TypeGraphInfo LensHint
       , _edges :: GraphEdges LensHint TypeGraphVertex
@@ -94,9 +92,8 @@ pathHints key = do
 -- | A lens key is a pair of vertexes corresponding to a Path instance.
 allLensKeys :: (DsMonad m, MonadReader R m) => m (Set (TypeGraphVertex, TypeGraphVertex))
 allLensKeys = do
-  (gkeys :: [TypeGraphVertex]) <- view goalTypes >>= \gtypes -> view typeInfo >>= runReaderT (mapM expandType gtypes >>= mapM (vertex Nothing))
   pathKeys <- allPathKeys
-  Set.fromList <$> filterM (uncurry goalReachable) [ (g, k) | g <- gkeys, k <- toList pathKeys ]
+  Set.fromList <$> filterM (uncurry goalReachable) [ (g, k) | g <- toList pathKeys, k <- toList pathKeys ]
 
 allPathKeys :: forall m. (DsMonad m, MonadReader R m) => m (Set TypeGraphVertex)
 allPathKeys = do
@@ -177,16 +174,14 @@ foldPath (FoldPathControl{..}) v hints = do
     AppT (AppT t3 ltyp) rtyp | t3 == ConT ''Either -> eitherf ltyp rtyp
     _ -> otherf
 
-makeTypeGraph :: DsMonad m => Q [Type] -> Q [Type] -> [(Maybe Field, Name, Q LensHint)] -> m R
-makeTypeGraph st gt hs = do
+makeTypeGraph :: DsMonad m => Q [Type] -> [(Maybe Field, Name, Q LensHint)] -> m R
+makeTypeGraph st hs = do
   st' <- runQ st
-  gt' <- runQ gt
   hl <- runQ $ makeHintList hs
   ti <- typeGraphInfo hl st'
   es <- runReaderT (makeTypeGraphEdges st') ti
   hm <- runReaderT (makeHintMap hl) ti
   return $ R { _startTypes = st'
-             , _goalTypes = gt'
              , _lensHintMap = hm
              , _typeInfo = ti
              , _edges = es

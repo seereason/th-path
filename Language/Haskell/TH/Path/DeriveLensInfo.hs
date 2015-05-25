@@ -38,8 +38,8 @@ import Data.Foldable
 -- a portion of a value.  Each path type describes the correspondence
 -- between a value and the portions of that value available via lens.
 -- Each path to lens function turns a path type value into a lens.
-deriveLensInfo :: Q [Type] -> Q [Type] -> [(Maybe Field, Name, Q LensHint)] -> Q [Dec]
-deriveLensInfo st gt hs = makeTypeGraph st gt hs >>= \r -> do
+deriveLensInfo :: Q [Type] -> [(Maybe Field, Name, Q LensHint)] -> Q [Dec]
+deriveLensInfo st hs = makeTypeGraph st hs >>= \r -> do
   (lenses :: [Dec]) <-
       evalRWST (allPathKeys >>= mapM_ makePathLenses . toList . Set.map simpleVertex) r Map.empty >>=
       runIO . compareSaveAndReturn changeError "GeneratedLenses.hs" . concat . snd
