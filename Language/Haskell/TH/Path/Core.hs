@@ -27,7 +27,6 @@ module Language.Haskell.TH.Path.Core
     -- * Hints
     , LensHint(..)
     , Field
-    , View(viewLens)
     ) where
 
 import Control.Lens -- (makeLenses, over, view)
@@ -106,11 +105,6 @@ instance Show LensHint where
 
 instance Ppr LensHint where
     ppr = ptext . show
-
--- This is the View class from MIMO, but we can't use it directly
--- until we convert from data-lens to lens.
-class View a b | a -> b where
-    viewLens :: Lens' a b
 
 -- Naming conventions
 

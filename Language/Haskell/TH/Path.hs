@@ -1,7 +1,8 @@
 module Language.Haskell.TH.Path
     ( LensHint(..)
     , Field
-    , View(viewLens)
+    , View(viewLens, ViewType)
+    , viewInstanceType
     , deriveLensInfo
     , Path_Pair(..)
     , Path_Maybe(..)
@@ -15,3 +16,4 @@ module Language.Haskell.TH.Path
 import Language.Haskell.TH.Path.Core
 import Language.Haskell.TH.Path.DeriveLensInfo
 import Language.Haskell.TH.Path.PathInstanceDecs
+import Language.Haskell.TH.Path.View

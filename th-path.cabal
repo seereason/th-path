@@ -13,9 +13,9 @@ stability:          experimental
 synopsis:           Paths within types
 description:        A Path type represents a mapping from a type to some piece of that type
 
-flag local-th-typegraph
-  Description: Link to local source repo for th-typegraph package
-  Default: False
+flag local-th-context
+  Description: Link to local source repo for th-context and th-typegraph packages
+  Default: True
   Manual: True
 
 library
@@ -52,10 +52,14 @@ library
     Language.Haskell.TH.Path.PathInstanceDecs
     Language.Haskell.TH.Path.PathType
     Language.Haskell.TH.Path.PathTypeDecs
+    Language.Haskell.TH.Path.View
   default-language: Haskell2010
-  if flag(local-th-typegraph)
-    hs-source-dirs: ../th-typegraph
+  if flag(local-th-context)
+    hs-source-dirs: ../th-context, ../th-typegraph
     exposed-modules:
+      Language.Haskell.TH.Context
+      Language.Haskell.TH.Context.Reify
+      Language.Haskell.TH.Context.Simple
       Language.Haskell.TH.TypeGraph
       Language.Haskell.TH.TypeGraph.Core
       Language.Haskell.TH.TypeGraph.Expand
@@ -67,7 +71,7 @@ library
       Language.Haskell.TH.TypeGraph.Unsafe
       Language.Haskell.TH.TypeGraph.Vertex
   else
-    build-depends: th-typegraph >= 0.17
+    build-depends: th-context >= 0.15, th-typegraph >= 0.17
 
 -- test-suite th-path-tests
 --   type:             exitcode-stdio-1.0
