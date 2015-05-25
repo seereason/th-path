@@ -239,8 +239,10 @@ makeTypeGraphEdges st = do
           Map.map (\(hint, gkeys) -> (hint, Set.filter (\gkey -> maybe True (\(_, _, fld) -> either (const False) (const True) fld) (view field gkey)) gkeys))
       removePathsToOrderKeys :: (GraphEdges hint TypeGraphVertex) -> (GraphEdges hint TypeGraphVertex)
       removePathsToOrderKeys =
+          -- The graph will initially include edges from (Map a b) to a, but we
+          -- only create lenses to the b values of a map, so remove the edge to a.
           Map.mapWithKey (\key (hint, gkeys) -> (hint, Set.filter (\gkey -> case view etype key of
-                                                                              E (AppT (AppT mtyp ityp) _etyp) | mtyp == ConT ''Order -> E ityp /= view etype gkey
+                                                                              E (AppT (AppT (ConT mtyp) ityp) _etyp) | elem mtyp [''Map, ''Order] -> E ityp /= view etype gkey
                                                                               _ -> True) gkeys))
 
 makeHintMap :: (Functor m, DsMonad m, MonadReader (TypeGraphInfo hint) m) => [(Maybe Field, Name, hint)] -> m (Map TypeGraphVertex [hint])
