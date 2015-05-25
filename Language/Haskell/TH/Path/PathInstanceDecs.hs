@@ -23,6 +23,7 @@ import Control.Lens hiding (cons) -- (makeLenses, over, view)
 import Control.Monad (when)
 import Control.Monad.Reader (MonadReader, runReaderT)
 import Control.Monad.Writer (MonadWriter, tell)
+import Data.Foldable
 import Data.List as List (map)
 import Language.Haskell.TH
 import Language.Haskell.TH.Desugar (DsMonad)
@@ -39,7 +40,6 @@ import Language.Haskell.TH.TypeGraph.Monad (vertex)
 import Language.Haskell.TH.TypeGraph.Vertex (bestType, TypeGraphVertex(..), etype)
 import Prelude hiding (any, concat, concatMap, elem, foldr, mapM_, null, or)
 
-import Data.Foldable
 #if ! MIN_VERSION_base(4,8,0)
 null :: Foldable t => t a -> Bool
 null = foldr (\_ _ -> False) True

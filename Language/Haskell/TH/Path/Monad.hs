@@ -177,7 +177,7 @@ foldPath (FoldPathControl{..}) v hints = do
     AppT (AppT t3 ltyp) rtyp | t3 == ConT ''Either -> eitherf ltyp rtyp
     _ -> otherf
 
-makeTypeGraph :: DsMonad m => Q [Type] -> Q [Type] -> [(Maybe Field, Q Type, Q LensHint)] -> m R
+makeTypeGraph :: DsMonad m => Q [Type] -> Q [Type] -> [(Maybe Field, Name, Q LensHint)] -> m R
 makeTypeGraph st gt hs = do
   st' <- runQ st
   gt' <- runQ gt
@@ -193,12 +193,11 @@ makeTypeGraph st gt hs = do
              , _graph = graphFromMap es
              }
 
-makeHintList :: [(Maybe Field, Q Type, Q hint)] -> Q [(Maybe Field, E Type, hint)]
+makeHintList :: [(Maybe Field, Name, Q hint)] -> Q [(Maybe Field, Name, hint)]
 makeHintList hs = do
-  mapM (\(fld, typeq, hintq) -> do
-          typ <- typeq >>= expandType
+  mapM (\(fld, tname, hintq) -> do
           hint <- hintq
-          return (fld, typ, hint)) hs
+          return (fld, tname, hint)) hs
 
 -- | Build a graph of the subtype relation, omitting any types whose
 -- arity is nonzero and any not reachable from the start types.  (We
@@ -244,5 +243,5 @@ makeTypeGraphEdges st = do
                                                                               E (AppT (AppT mtyp ityp) _etyp) | mtyp == ConT ''Order -> E ityp /= view etype gkey
                                                                               _ -> True) gkeys))
 
-makeHintMap :: (Functor m, DsMonad m, MonadReader (TypeGraphInfo hint) m) => [(Maybe Field, E Type, hint)] -> m (Map TypeGraphVertex [hint])
-makeHintMap hs = Map.fromListWith (++) <$> mapM (\(fld, typ, hint) -> vertex fld typ >>= \v -> return (v, [hint])) hs
+makeHintMap :: (Functor m, DsMonad m, MonadReader (TypeGraphInfo hint) m) => [(Maybe Field, Name, hint)] -> m (Map TypeGraphVertex [hint])
+makeHintMap hs = Map.fromListWith (++) <$> mapM (\(fld, tname, hint) -> expandType (ConT tname) >>= vertex fld >>= \v -> return (v, [hint])) hs

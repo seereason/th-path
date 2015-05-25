@@ -25,7 +25,7 @@ import Data.Set (Set)
 import Language.Haskell.TH
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.Path.Core (LensHint(..), bestPathTypeName, pathConNameOfField, pathTypeNameFromTypeName, pathTypeNames)
+import Language.Haskell.TH.Path.Core (bestPathTypeName, pathConNameOfField, pathTypeNameFromTypeName, pathTypeNames)
 import Language.Haskell.TH.Path.Monad (R, typeInfo, pathHints, foldPath, FoldPathControl(..))
 import Language.Haskell.TH.Path.PathType (pathType)
 import Language.Haskell.TH.Syntax as TH (VarStrictType)
@@ -45,8 +45,7 @@ pathTypeDecs key =
           control =
             FoldPathControl
               { simplef = maybe (error $ "pathTypeDecs: simple path type has no name: " ++ pprint' key) (uncurry simplePath) (bestPathTypeName key)
-              , substf = \lns styp ->
-                  maybe (pathTypeDecs' (filter (\(_, h) -> h /= Substitute lns styp) hints)) (uncurry simplePath) (bestPathTypeName key)
+              , substf = \_lns _styp -> maybe (return ()) (uncurry simplePath) (bestPathTypeName key)
               , pathyf = return ()
               , namedf = \_tname -> doNames
               , maybef = \_etyp -> doNames
