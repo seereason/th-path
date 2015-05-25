@@ -27,6 +27,9 @@ module Language.Haskell.TH.Path.Core
     -- * Hints
     , LensHint(..)
     , Field
+
+    -- * Hint classes
+    , SelfPath
     ) where
 
 import Control.Lens -- (makeLenses, over, view)
@@ -79,10 +82,6 @@ data LensHint
     -- function with this.  The expression is the lens to use,
     -- and the second element of the pair is the 'b' Type of
     -- the lens.
-    | Self
-    -- ^ Causes the type to be used as its own Path Type.  For
-    -- example, a UUID or some enumerated type contained in a record
-    -- could be used directly to reference the object that contains it.
     | Normal'
     -- ^ no effect
     | VertexHint VertexHint
@@ -91,7 +90,6 @@ data LensHint
 instance HasVertexHints LensHint where
     hasVertexHints (VertexHint x) = return [x]
     hasVertexHints (Substitute _exp typ) = return [Divert typ]
-    hasVertexHints Self = return [Normal] -- FIXME
     hasVertexHints _ = return []
 
 instance Default LensHint where
@@ -99,12 +97,16 @@ instance Default LensHint where
 
 instance Show LensHint where
     show (Substitute exp typ) = "Substitute (" ++ pprint exp ++ ") (" ++ pprint typ ++ ")"
-    show Self = "Self"
     show Normal' = "Normal'"
     show (VertexHint x) = "VertexHint " ++ show x
 
 instance Ppr LensHint where
     ppr = ptext . show
+
+-- | Instances of this class will be used as their own Path Type.  For
+-- example, a UUID or some enumerated type contained in a record
+-- could be used directly to reference the object that contains it.
+class SelfPath a
 
 -- Naming conventions
 

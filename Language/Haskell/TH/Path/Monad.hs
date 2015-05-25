@@ -41,6 +41,7 @@ import Data.Map as Map (findWithDefault, fromListWith, keys, lookup, Map, map, m
 import Data.Maybe (fromMaybe, mapMaybe)
 import Data.Set as Set (difference, empty, filter, fromList, map, Set)
 import Language.Haskell.TH
+import Language.Haskell.TH.Context.Reify (evalContextState, reifyInstancesWithContext)
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.KindInference (inferKind)
@@ -112,7 +113,7 @@ makePathLenses key = do
     where
       make tname = runQ (nameMakeLens tname (\ nameA nameB -> Just (nameBase (fieldLensName nameA nameB))))
       -- The presence of most hints means we don't need a lens
-      noLensHint Self = True
+      -- noLensHint Self = True
       noLensHint (VertexHint Sink) = True
       noLensHint (Substitute _ _) = True
       noLensHint _ = False
@@ -159,8 +160,9 @@ data FoldPathControl m r
 foldPath :: (DsMonad m, MonadReader R m) => FoldPathControl m r -> TypeGraphVertex -> [(TypeGraphVertex, LensHint)] -> m r
 foldPath (FoldPathControl{..}) v hints = do
   let substs = [x | x@(_, Substitute _ _) <- hints]
+  selfPath <- (not . null) <$> evalContextState (reifyInstancesWithContext ''SelfPath [let (E typ) = view etype v in typ])
   case runExpanded (view etype v) of
-    _ | elem Self (List.map snd hints) -> pathyf
+    _ | selfPath -> pathyf
       | elem (VertexHint Sink) (List.map snd hints) -> simplef
       | not (null substs) -> let ((_, Substitute exp typ) : _) = substs in substf exp typ
     ConT tname -> namedf tname
