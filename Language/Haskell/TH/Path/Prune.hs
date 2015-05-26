@@ -86,30 +86,17 @@ pruneTypeGraph edges = do
         when hideHint (modify $ cut (singleton v))
 
       doHint :: (Maybe Field, Name, hint) -> StateT (GraphEdges hint TypeGraphVertex) m ()
-      doHint (fld, tname, hint) = hasVertexHints hint >>= mapM_ (\vh -> expandType (ConT tname) >>= allVertices fld >>= mapM_ (\v -> {-t3 v vh >>-} doVertexHint v vh))
+      doHint (fld, tname, hint) = hasVertexHints hint >>= mapM_ (\vh -> expandType (ConT tname) >>= allVertices fld >>= mapM_ (\v -> doVertexHint v vh))
 
       doVertexHint :: TypeGraphVertex -> VertexHint -> StateT (GraphEdges hint TypeGraphVertex) m ()
       doVertexHint _ Normal = return ()
       -- Replace all out edges with a single edge to typ'
       doVertexHint v (Divert typ') = do
         v' <- expandType typ' >>= vertex Nothing
-#if 0
         modify $ Map.alter (alterFn (const (singleton v'))) v
-#else
-        -- This is here because we want a path to ReportIntendedUse even
-        -- though there is a substitution of String on Maybe ReportIntendedUse.
-        -- I'm going to try to remove the Maybe from that substitution.
-        case (null $ typeNames v) of
-          False -> modify $ Map.alter (alterFn (const (singleton v'))) v
-          True -> modify $ Map.alter (alterFn (Set.insert v')) v
-#endif
       doVertexHint v (Extra typ') = do
         v' <- expandType typ' >>= vertex Nothing
         modify $ Map.alter (alterFn (Set.insert v')) v
-
-      -- t1 x = trace ("before hints:\n" ++ pprint x) (return x)
-      -- t2 x = trace ("after hints:\n" ++ pprint x) (return x)
-      -- t3 v x = trace ("doVertexHint " ++ pprint' v ++ ": " ++ pprint x) (return ())
 
 -- | build the function argument of Map.alter for the GraphEdges map.
 alterFn :: Default hint => (Set TypeGraphVertex -> Set TypeGraphVertex) -> Maybe (hint, Set TypeGraphVertex) -> Maybe (hint, Set TypeGraphVertex)
