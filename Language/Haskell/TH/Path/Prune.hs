@@ -12,7 +12,8 @@
 {-# LANGUAGE TupleSections #-}
 {-# OPTIONS_GHC -Wall #-}
 module Language.Haskell.TH.Path.Prune
-    ( pruneTypeGraph
+    ( SinkType
+    , pruneTypeGraph
     ) where
 
 #if __GLASGOW_HASKELL__ < 709
@@ -33,7 +34,7 @@ import Language.Haskell.TH.Context.Reify (evalContextState, reifyInstancesWithCo
 import Language.Haskell.TH.TypeGraph.Core (Field, unlifted)
 import Language.Haskell.TH.TypeGraph.Expand (E(E), expandType)
 import Language.Haskell.TH.TypeGraph.Graph (cut, cutM, GraphEdges)
-import Language.Haskell.TH.TypeGraph.Hints (SinkType, HasVertexHints(hasVertexHints), VertexHint(..))
+import Language.Haskell.TH.TypeGraph.Hints (HasVertexHints(hasVertexHints), VertexHint(..))
 import Language.Haskell.TH.TypeGraph.Info (TypeGraphInfo, hints)
 import Language.Haskell.TH.TypeGraph.Monad (allVertices, vertex)
 import Language.Haskell.TH.TypeGraph.Vertex (TypeGraphVertex(..), etype, typeNames)
@@ -48,6 +49,11 @@ import Data.Foldable (null)
 null :: Foldable t => t a -> Bool
 null = foldr (\_ _ -> False) True
 #endif
+
+-- | If a type is an instance of this class no paths that lead to the
+-- internal stucture of the value will be created - the value is
+-- considered atomic.
+class SinkType a
 
 -- | Remove any vertices that are labelled with primitive types, and then
 -- apply the hints obtained from the

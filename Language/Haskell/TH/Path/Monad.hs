@@ -48,7 +48,7 @@ import Language.Haskell.TH.KindInference (inferKind)
 import Language.Haskell.TH.Path.Core
 import Language.Haskell.TH.Path.LensTH (nameMakeLens)
 import Language.Haskell.TH.Path.Order (Order)
-import Language.Haskell.TH.Path.Prune (pruneTypeGraph)
+import Language.Haskell.TH.Path.Prune (pruneTypeGraph, SinkType)
 import Language.Haskell.TH.TypeGraph.Core (pprint')
 import Language.Haskell.TH.TypeGraph.Expand (E(E), expandType, runExpanded)
 import Language.Haskell.TH.TypeGraph.Free (freeTypeVars)
