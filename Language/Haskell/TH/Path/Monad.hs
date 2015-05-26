@@ -108,14 +108,15 @@ allPathKeys = do
 makePathLenses :: (DsMonad m, MonadReader R m, MonadWriter [[Dec]] m) => TypeGraphVertex -> m ()
 makePathLenses key = do
   hints <- pathHints key
-  case List.filter noLensHint (List.map snd hints) of
-    [] -> mapM make (toList (typeNames key)) >>= tell
+  simplePath <- (not . null) <$> evalContextState (reifyInstancesWithContext ''SinkType [let (E typ) = view etype key in typ])
+  case (simplePath, List.filter noLensHint (List.map snd hints)) of
+    (False, []) -> mapM make (toList (typeNames key)) >>= tell
     _ -> return ()
     where
       make tname = runQ (nameMakeLens tname (\ nameA nameB -> Just (nameBase (fieldLensName nameA nameB))))
       -- The presence of most hints means we don't need a lens
       -- noLensHint Self = True
-      noLensHint (VertexHint Sink) = True
+      -- noLensHint (VertexHint Sink) = True
       noLensHint (Substitute _ _) = True
       noLensHint _ = False
 
@@ -162,9 +163,10 @@ foldPath :: (DsMonad m, MonadReader R m) => FoldPathControl m r -> TypeGraphVert
 foldPath (FoldPathControl{..}) v hints = do
   let substs = [x | x@(_, Substitute _ _) <- hints]
   selfPath <- (not . null) <$> evalContextState (reifyInstancesWithContext ''SelfPath [let (E typ) = view etype v in typ])
+  simplePath <- (not . null) <$> evalContextState (reifyInstancesWithContext ''SinkType [let (E typ) = view etype v in typ])
   case runExpanded (view etype v) of
     _ | selfPath -> pathyf
-      | elem (VertexHint Sink) (List.map snd hints) -> simplef
+      | simplePath -> simplef
       | not (null substs) -> let ((_, Substitute exp typ) : _) = substs in substf exp typ
     ConT tname -> namedf tname
     AppT (AppT mtyp ityp) etyp | mtyp == ConT ''Order -> orderf ityp etyp
