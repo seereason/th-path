@@ -15,7 +15,7 @@ description:        A Path type represents a mapping from a type to some piece o
 
 flag local-th-context
   Description: Link to local source repo for th-context and th-typegraph packages
-  Default: True
+  Default: False
   Manual: True
 
 library
