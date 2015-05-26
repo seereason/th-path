@@ -91,8 +91,8 @@ pathInstanceClauses gtyp key gkey ptyp =
           control =
             FoldPathControl
               { simplef = return [] -- Simple paths only work if we are at the goal type, and that case is handled above.
-              , substf = \_lns _styp -> do
-                  let ((_, Substitute lns ltyp) : _) = [x | x@(_, Substitute _ _) <- hints]
+              , substf = \lns ltyp -> do
+                  -- let ((_, Substitute lns ltyp) : _) = [x | x@(_, Substitute _ _) <- hints]
                   lkey <- view typeInfo >>= runReaderT (expandType ltyp >>= vertex Nothing)
                   lval <- pathValue lkey
                   testClause gkey ltyp (clause [wildP] (normalB [|$(pure lns) . toLens $(pure lval)|]) [])

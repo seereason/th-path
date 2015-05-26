@@ -38,7 +38,7 @@ import Data.Default (Default)
 import Data.Graph (Graph, reachable, transposeG, Vertex)
 import Data.List as List (filter, intercalate, map)
 import Data.Map as Map (findWithDefault, fromListWith, keys, lookup, Map, map, mapWithKey)
-import Data.Maybe (fromMaybe, mapMaybe)
+import Data.Maybe (fromJust, fromMaybe, isJust, mapMaybe)
 import Data.Set as Set (difference, empty, filter, fromList, map, Set)
 import Language.Haskell.TH
 import Language.Haskell.TH.Context.Reify (evalContextState, reifyInstancesWithContext)
@@ -49,6 +49,7 @@ import Language.Haskell.TH.Path.Core
 import Language.Haskell.TH.Path.LensTH (nameMakeLens)
 import Language.Haskell.TH.Path.Order (Order)
 import Language.Haskell.TH.Path.Prune (pruneTypeGraph, SinkType)
+import Language.Haskell.TH.Path.View (View(viewLens), viewInstanceType)
 import Language.Haskell.TH.TypeGraph.Core (pprint')
 import Language.Haskell.TH.TypeGraph.Expand (E(E), expandType, runExpanded)
 import Language.Haskell.TH.TypeGraph.Free (freeTypeVars)
@@ -164,10 +165,16 @@ foldPath (FoldPathControl{..}) v hints = do
   let substs = [x | x@(_, Substitute _ _) <- hints]
   selfPath <- (not . null) <$> evalContextState (reifyInstancesWithContext ''SelfPath [let (E typ) = view etype v in typ])
   simplePath <- (not . null) <$> evalContextState (reifyInstancesWithContext ''SinkType [let (E typ) = view etype v in typ])
+  viewType <- evalContextState (viewInstanceType (let (E typ) = view etype v in typ))
   case runExpanded (view etype v) of
     _ | selfPath -> pathyf
       | simplePath -> simplef
       | not (null substs) -> let ((_, Substitute exp typ) : _) = substs in substf exp typ
+    typ
+      | isJust viewType -> do
+          let b = fromJust viewType
+          exp <- runQ [|viewLens :: Lens' $(return typ) $(return b)|]
+          substf exp b
     ConT tname -> namedf tname
     AppT (AppT mtyp ityp) etyp | mtyp == ConT ''Order -> orderf ityp etyp
     AppT ListT etyp -> listf etyp

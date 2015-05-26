@@ -29,6 +29,7 @@ import Data.Set as Set (empty, insert, Set, singleton)
 import Language.Haskell.TH -- (Con, Dec, nameBase, Type)
 import Language.Haskell.TH.KindInference (inferKind)
 import Language.Haskell.TH.Context.Reify (evalContextState, reifyInstancesWithContext)
+import Language.Haskell.TH.Path.View (viewInstanceType)
 import Language.Haskell.TH.TypeGraph.Core (Field, unlifted)
 import Language.Haskell.TH.TypeGraph.Expand (E(E), expandType)
 import Language.Haskell.TH.TypeGraph.Graph (cut, cutM, dissolveM, GraphEdges)
@@ -64,7 +65,8 @@ pruneTypeGraph :: forall m hint. (DsMonad m, Default hint, Eq hint, HasVertexHin
 pruneTypeGraph edges = do
   cutPrimitiveTypes edges >>= dissolveHigherOrder >>= execStateT (view hints >>= mapM_ doHint >>
                                                                   get >>= mapM_ doSink . Map.keys >>
-                                                                  get >>= mapM_ doHide . Map.keys)
+                                                                  get >>= mapM_ doHide . Map.keys >>
+                                                                  get >>= mapM_ doView . Map.keys)
     where
       doSink :: TypeGraphVertex -> StateT (GraphEdges hint TypeGraphVertex) m ()
       doSink v = do
@@ -77,6 +79,15 @@ pruneTypeGraph edges = do
         let (E typ) = view etype v
         hideHint <- (not . null) <$> evalContextState (reifyInstancesWithContext ''HideType [typ])
         when hideHint (modify $ cut (singleton v))
+
+      doView :: TypeGraphVertex -> StateT (GraphEdges hint TypeGraphVertex) m ()
+      doView v = do
+        let (E a) = view etype v
+        evalContextState (viewInstanceType a) >>=
+          maybe (return ())
+                (\b -> do
+                   v' <- expandType b >>= vertex Nothing
+                   modify $ Map.alter (alterFn (const (singleton v'))) v)
 
       doHint :: (Maybe Field, Name, hint) -> StateT (GraphEdges hint TypeGraphVertex) m ()
       doHint (fld, tname, hint) = hasVertexHints hint >>= mapM_ (\vh -> expandType (ConT tname) >>= allVertices fld >>= mapM_ (\v -> doVertexHint v vh))
