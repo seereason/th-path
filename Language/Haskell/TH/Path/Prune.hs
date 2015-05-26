@@ -73,15 +73,9 @@ pruneTypeGraph edges = do
       doVert :: TypeGraphVertex -> StateT (GraphEdges hint TypeGraphVertex) m ()
       doVert v = do
         let (E typ) = view etype v
-        prim <- case typ of
-                  ConT name -> qReify name >>= return . doInfo
-                      where
-                        doInfo (PrimTyConI _ _ _) = True
-                        doInfo _ = False
-                  _ -> return False
         kind <- runQ (inferKind typ)
-        sinkHint <- if kind == Right StarT && not prim then (not . null) <$> evalContextState (reifyInstancesWithContext ''SinkType [typ]) else return False
-        hideHint <- if kind == Right StarT && not prim then (not . null) <$> evalContextState (reifyInstancesWithContext ''HideType [typ]) else return False
+        sinkHint <- if kind == Right StarT then (not . null) <$> evalContextState (reifyInstancesWithContext ''SinkType [typ]) else return False
+        hideHint <- if kind == Right StarT then (not . null) <$> evalContextState (reifyInstancesWithContext ''HideType [typ]) else return False
         when sinkHint (modify $ Map.alter (alterFn (const Set.empty)) v)
         when hideHint (modify $ cut (singleton v))
 
