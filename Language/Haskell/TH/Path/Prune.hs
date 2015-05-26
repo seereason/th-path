@@ -55,6 +55,9 @@ null = foldr (\_ _ -> False) True
 -- considered atomic.
 class SinkType a
 
+-- | Like SinkType, but no paths out or into the type will be created.
+class HideType a
+
 -- | Remove any vertices that are labelled with primitive types, and then
 -- apply the hints obtained from the
 -- a new graph which incorporates the information from the hints.
@@ -78,19 +81,15 @@ pruneTypeGraph edges = do
                   _ -> return False
         kind <- runQ (inferKind typ)
         sinkHint <- if kind == Right StarT && not prim then (not . null) <$> evalContextState (reifyInstancesWithContext ''SinkType [typ]) else return False
+        hideHint <- if kind == Right StarT && not prim then (not . null) <$> evalContextState (reifyInstancesWithContext ''HideType [typ]) else return False
         when sinkHint (modify $ Map.alter (alterFn (const Set.empty)) v)
+        when hideHint (modify $ cut (singleton v))
 
       doHint :: (Maybe Field, Name, hint) -> StateT (GraphEdges hint TypeGraphVertex) m ()
       doHint (fld, tname, hint) = hasVertexHints hint >>= mapM_ (\vh -> expandType (ConT tname) >>= allVertices fld >>= mapM_ (\v -> {-t3 v vh >>-} doVertexHint v vh))
 
       doVertexHint :: TypeGraphVertex -> VertexHint -> StateT (GraphEdges hint TypeGraphVertex) m ()
       doVertexHint _ Normal = return ()
-{-
-      doVertexHint v Sink =
-        modify $ Map.alter (alterFn (const Set.empty)) v
--}
-      doVertexHint v Hidden =
-        modify $ cut (singleton v)
       -- Replace all out edges with a single edge to typ'
       doVertexHint v (Divert typ') = do
         v' <- expandType typ' >>= vertex Nothing
