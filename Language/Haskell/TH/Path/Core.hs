@@ -30,9 +30,12 @@ module Language.Haskell.TH.Path.Core
     -- * Hint classes
     , SelfPath
 
+    -- * instance queries
+    , pathTypeNames
+
     -- * Naming conventions
     , pathTypeNameFromTypeName
-    , pathTypeNames
+    , pathTypeNames'
     , bestPathTypeName
     , pathConNameOfField
     , fieldLensName
@@ -41,12 +44,15 @@ module Language.Haskell.TH.Path.Core
 import Control.Lens -- (makeLenses, over, view)
 import Data.Default (Default(def))
 import Data.Generics (Data, Typeable)
+import Data.List as List (map)
 import Data.SafeCopy (base, deriveSafeCopy)
-import Data.Set as Set (map, minView, Set)
+import Data.Set as Set (difference, fromList, map, minView, Set)
 import Language.Haskell.TH
+import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.PprLib (ptext)
+import Language.Haskell.TH.Syntax (qReify)
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.TypeGraph.Core (Field)
+import Language.Haskell.TH.TypeGraph.Core (Field, pprint')
 import Language.Haskell.TH.TypeGraph.Expand (E(E))
 import Language.Haskell.TH.TypeGraph.Hints (HasVertexHints(hasVertexHints), VertexHint(..))
 import Language.Haskell.TH.TypeGraph.Vertex (TypeGraphVertex(..), etype, syns, typeNames)
@@ -80,6 +86,9 @@ data Path_Map k v = Path_Map k v  deriving (Eq, Ord, Read, Show, Typeable, Data)
 data Path_List a = Path_Elems deriving (Eq, Ord, Read, Show, Typeable, Data)
 
 data Path_OMap k a = Path_OMap | Path_At k a deriving (Eq, Ord, Read, Show, Typeable, Data) -- FIXME - Path_OMap constructor should be removed
+
+primitivePathTypeNames :: Set Name
+primitivePathTypeNames = Set.fromList [''Path_Pair, ''Path_List, ''Either, ''Path_Map, ''Path_OMap, ''Path_Maybe]
 
 $(derivePathInfo ''Path_Pair)
 $(derivePathInfo ''Path_List)
@@ -126,13 +135,23 @@ instance Ppr LensHint where
 -- could be used directly to reference the object that contains it.
 class SelfPath a
 
+-- | Find all the names of the (non-primitive) path types.
+pathTypeNames :: DsMonad m => m (Set Name)
+pathTypeNames = do
+  (FamilyI (FamilyD TypeFam _pathtype [_,_] (Just StarT)) tySynInsts) <- qReify ''PathType
+  return . flip Set.difference primitivePathTypeNames . Set.fromList . List.map (\(TySynInstD _ (TySynEqn _ typ)) -> doTySyn typ) $ tySynInsts
+    where
+      doTySyn (AppT x _) = doTySyn x
+      doTySyn (ConT pathTypeName) = pathTypeName
+      doTySyn x = error $ "Unexpected PathType: " ++ pprint' x ++ " (" ++ show x ++ ")"
+
 -- Naming conventions
 
 pathTypeNameFromTypeName :: Name -> Name
 pathTypeNameFromTypeName tname = mkName $ "Path_" ++ nameBase tname
 
-pathTypeNames :: TypeGraphVertex -> Set Name
-pathTypeNames = Set.map pathTypeNameFromTypeName . typeNames
+pathTypeNames' :: TypeGraphVertex -> Set Name
+pathTypeNames' = Set.map pathTypeNameFromTypeName . typeNames
 
 -- | If the type is (ConT name) return name, otherwise return a type
 -- synonym name.

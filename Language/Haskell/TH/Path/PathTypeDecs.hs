@@ -25,7 +25,7 @@ import Data.Set (Set)
 import Language.Haskell.TH
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.Path.Core (bestPathTypeName, pathConNameOfField, pathTypeNameFromTypeName, pathTypeNames)
+import Language.Haskell.TH.Path.Core (bestPathTypeName, pathConNameOfField, pathTypeNameFromTypeName, pathTypeNames')
 import Language.Haskell.TH.Path.Monad (R, typeInfo, pathHints, foldPath, FoldPathControl(..))
 import Language.Haskell.TH.Path.PathType (pathType)
 import Language.Haskell.TH.Syntax as TH (Quasi, VarStrictType)
@@ -74,7 +74,7 @@ pathTypeDecs key =
       doDec (TySynD _ _ typ') =
           do a <- runQ $ newName "a"
              ptype <- view typeInfo >>= runReaderT (expandType typ' >>= vertex Nothing) >>= pathType (varT a)
-             mapM_ (\pname -> tell1 (tySynD pname [PlainTV a] (return ptype))) (pathTypeNames key)
+             mapM_ (\pname -> tell1 (tySynD pname [PlainTV a] (return ptype))) (pathTypeNames' key)
       doDec (NewtypeD _ tname _ con _) = doDataD tname [con]
       doDec (DataD _ tname _ cons _) = doDataD tname cons
       doDec (FamilyD _flavour _name _tvbs _mkind) = return ()
@@ -88,7 +88,7 @@ pathTypeDecs key =
       makeDecs :: Name -> [[Con]] -> m ()
       makeDecs a pconss =
           case filter (/= []) pconss of
-            [pcons] -> mapM_ (\pname -> tell1 (dataD (cxt []) pname [PlainTV a] (List.map return pcons) supers)) (pathTypeNames key)
+            [pcons] -> mapM_ (\pname -> tell1 (dataD (cxt []) pname [PlainTV a] (List.map return pcons) supers)) (pathTypeNames' key)
             [] | length pconss > 1 -> return () -- enum
             [] -> return ()
                   -- FIXME - if there are paths from several different

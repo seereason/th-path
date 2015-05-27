@@ -18,7 +18,6 @@ import Control.Monad.RWS (evalRWST)
 import Data.Function (on)
 import Data.List as List (groupBy, map, sort, sortBy)
 import Data.Map as Map (empty)
-import Data.Maybe (catMaybes)
 import Data.Set as Set (map)
 import Language.Haskell.TH
 import Language.Haskell.TH.Instances ()
@@ -46,17 +45,14 @@ deriveLensInfo st hs = makeTypeGraph st hs >>= \r -> do
       runIO . compareSaveAndReturn changeError "GeneratedLenses.hs"
   (pathTypes :: [Dec]) <-
       evalRWST (allPathKeys >>= mapM pathTypeDecs . toList . Set.map simpleVertex) r Map.empty >>=
-      return . sortBy (compare `on` dataName) . concat . snd >>=
+      return . sort . concat . snd >>=
       runIO . compareSaveAndReturn changeError "GeneratedPathTypes.hs"
-  (dataPathNames :: [Dec]) <-
-      (stringList "dataPathTypes" . List.map show . sort . catMaybes . List.map dataName $ pathTypes) >>=
-      runIO . compareSaveAndReturn changeError "GeneratedDataPathNames.hs"
   (toLensInstances :: [Dec]) <-
       evalRWST (allLensKeys >>= mapM (uncurry pathInstanceDecs) . toList) r Map.empty >>=
-      return . sortBy (compare `on` dataName) . uniqOn instType . concat . snd >>=
+      return . sort . uniqOn instType . concat . snd >>=
       runIO . compareSaveAndReturn changeError "GeneratedPathInstances.hs"
 
-  return $ pathTypes ++ dataPathNames ++ lenses ++ toLensInstances
+  return $ pathTypes ++ lenses ++ toLensInstances
 
 -- | Sort and uniquify by the result of f.
 uniqOn :: forall a b. Ord b => (a -> b) -> [a] -> [a]
@@ -65,22 +61,3 @@ uniqOn f = List.map head . groupBy ((==) `on` f) . sortBy (compare `on` f)
 instType :: Dec -> Type
 instType (InstanceD _ typ _) = typ
 instType _ = error "instType"
-
-dataName :: Dec -> Maybe Name
-dataName (NewtypeD _ x _ _ _) = Just x
-dataName (DataD _ x _ _ _) = Just x
-dataName (InstanceD _ x _) = instTypeName x
-dataName (TySynD x _ _) = Just x
-dataName _ = Nothing
-
-instTypeName :: Type -> Maybe Name
-instTypeName (AppT x _) = instTypeName x
-instTypeName (ConT x) = Just x
-instTypeName _ = Nothing
-
--- | Declare a list of strings with the given name
-stringList :: String -> [String] -> Q [Dec]
-stringList listName names =
-    sequence [ sigD (mkName listName) [t| [String] |]
-             , valD (varP (mkName listName))
-                    (normalB [| $(listE (List.map (litE . stringL) names)) |]) [] ]

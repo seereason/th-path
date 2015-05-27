@@ -21,7 +21,7 @@ import Data.List as List (intercalate, map)
 import Language.Haskell.TH
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.Path.Core (PathType, bestPathTypeName, pathTypeNameFromTypeName, Path_OMap, Path_List, Path_Map, Path_Pair, Path_Maybe)
+import Language.Haskell.TH.Path.Core (bestPathTypeName, pathTypeNameFromTypeName, Path_OMap, Path_List, Path_Map, Path_Pair, Path_Maybe)
 import Language.Haskell.TH.Path.Monad (R, typeInfo, pathHints, reachableFrom, FoldPathControl(..), foldPath)
 import Language.Haskell.TH.TypeGraph.Core (pprint')
 import Language.Haskell.TH.TypeGraph.Expand (E(E), runExpanded)
