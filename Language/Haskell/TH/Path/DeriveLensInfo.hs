@@ -42,16 +42,18 @@ deriveLensInfo :: Q [Type] -> [(Maybe Field, Name, Q LensHint)] -> Q [Dec]
 deriveLensInfo st hs = makeTypeGraph st hs >>= \r -> do
   (lenses :: [Dec]) <-
       evalRWST (allPathKeys >>= mapM_ makePathLenses . toList . Set.map simpleVertex) r Map.empty >>=
-      runIO . compareSaveAndReturn changeError "GeneratedLenses.hs" . concat . snd
+      return . concat . snd >>=
+      runIO . compareSaveAndReturn changeError "GeneratedLenses.hs"
   (pathTypes :: [Dec]) <-
       evalRWST (allPathKeys >>= mapM pathTypeDecs . toList . Set.map simpleVertex) r Map.empty >>=
-      runIO . compareSaveAndReturn changeError "GeneratedPathTypes.hs" . concat . snd
+      return . sortBy (compare `on` dataName) . concat . snd >>=
+      runIO . compareSaveAndReturn changeError "GeneratedPathTypes.hs"
   (dataPathNames :: [Dec]) <-
       (stringList "dataPathTypes" . List.map show . sort . catMaybes . List.map dataName $ pathTypes) >>=
       runIO . compareSaveAndReturn changeError "GeneratedDataPathNames.hs"
   (toLensInstances :: [Dec]) <-
       evalRWST (allLensKeys >>= mapM (uncurry pathInstanceDecs) . toList) r Map.empty >>=
-      return . uniqOn instType . concat . snd >>=
+      return . sortBy (compare `on` dataName) . uniqOn instType . concat . snd >>=
       runIO . compareSaveAndReturn changeError "GeneratedPathInstances.hs"
 
   return $ pathTypes ++ dataPathNames ++ lenses ++ toLensInstances
@@ -67,7 +69,14 @@ instType _ = error "instType"
 dataName :: Dec -> Maybe Name
 dataName (NewtypeD _ x _ _ _) = Just x
 dataName (DataD _ x _ _ _) = Just x
+dataName (InstanceD _ x _) = instTypeName x
+dataName (TySynD x _ _) = Just x
 dataName _ = Nothing
+
+instTypeName :: Type -> Maybe Name
+instTypeName (AppT x _) = instTypeName x
+instTypeName (ConT x) = Just x
+instTypeName _ = Nothing
 
 -- | Declare a list of strings with the given name
 stringList :: String -> [String] -> Q [Dec]
