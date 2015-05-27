@@ -25,8 +25,8 @@ module Language.Haskell.TH.Path.Monad
     , makePathLenses
     , pathHints
     , reachableFrom
-    , isReachable
-    , goalReachable
+    , goalReachableFull
+    , goalReachableSimple
     ) where
 
 import Control.Applicative ((<$>))
@@ -56,7 +56,7 @@ import Language.Haskell.TH.TypeGraph.Free (freeTypeVars)
 import Language.Haskell.TH.TypeGraph.Graph (dissolveM, GraphEdges, graphFromMap, isolate)
 import Language.Haskell.TH.TypeGraph.Hints (HasVertexHints)
 import Language.Haskell.TH.TypeGraph.Info (infoMap, TypeGraphInfo, typeGraphInfo)
-import Language.Haskell.TH.TypeGraph.Monad (typeGraphEdges, vertex)
+import Language.Haskell.TH.TypeGraph.Monad (simpleEdges, simpleVertex, typeGraphEdges, vertex)
 import Language.Haskell.TH.TypeGraph.Vertex (TypeGraphVertex(..), etype, field, typeNames)
 import Prelude hiding (any, concat, concatMap, elem, exp, foldr, mapM_, null, or)
 
@@ -74,6 +74,7 @@ data R
       , _typeInfo :: TypeGraphInfo LensHint
       , _edges :: GraphEdges LensHint TypeGraphVertex
       , _graph :: (Graph, Vertex -> (LensHint, TypeGraphVertex, [TypeGraphVertex]), TypeGraphVertex -> Maybe Vertex)
+      , _gsimple :: (Graph, Vertex -> (LensHint, TypeGraphVertex, [TypeGraphVertex]), TypeGraphVertex -> Maybe Vertex)
       }
 
 $(makeLenses ''R)
@@ -94,7 +95,7 @@ pathHints key = do
 allLensKeys :: (DsMonad m, MonadReader R m) => m (Set (TypeGraphVertex, TypeGraphVertex))
 allLensKeys = do
   pathKeys <- allPathKeys
-  Set.fromList <$> filterM (uncurry goalReachable) [ (g, k) | g <- toList pathKeys, k <- toList pathKeys ]
+  Set.fromList <$> filterM (uncurry goalReachableSimple) [ (g, k) | g <- toList (Set.map simpleVertex pathKeys), k <- toList (Set.map simpleVertex pathKeys) ]
 
 allPathKeys :: forall m. (DsMonad m, MonadReader R m) => m (Set TypeGraphVertex)
 allPathKeys = do
@@ -129,10 +130,10 @@ reachableFrom v = do
     Nothing -> return Set.empty
     Just v' -> return $ Set.map (\(_, key, _) -> key) . Set.map vf $ Set.fromList $ reachable (transposeG g) v'
 
-isReachable :: (Functor m, DsMonad m, MonadReader R m) => TypeGraphVertex -> TypeGraphVertex -> m Bool
-isReachable gkey key0 = do
+isReachable :: (Functor m, DsMonad m, MonadReader R m) =>
+               TypeGraphVertex -> TypeGraphVertex -> (Graph, Vertex -> (LensHint, TypeGraphVertex, [TypeGraphVertex]), TypeGraphVertex -> Maybe Vertex) -> m Bool
+isReachable gkey key0 (g, _vf, kf) = do
   es <- view edges
-  let (g, _vf, kf) = graphFromMap es
   case kf key0 of
     Nothing -> error ("isReachable - unknown key: " ++ pprint' key0)
     Just key -> do
@@ -141,9 +142,11 @@ isReachable gkey key0 = do
       return $ elem gvert (reachable g key)
 
 -- | Can we reach the goal type from the start type in this key?
--- | Can we reach the goal type from the start type in this key?
-goalReachable :: (Functor m, DsMonad m, MonadReader R m) => TypeGraphVertex -> TypeGraphVertex -> m Bool
-goalReachable gkey key0 = isReachable gkey key0
+goalReachableFull :: (Functor m, DsMonad m, MonadReader R m) => TypeGraphVertex -> TypeGraphVertex -> m Bool
+goalReachableFull gkey key0 = view graph >>= isReachable gkey key0
+
+goalReachableSimple :: (Functor m, DsMonad m, MonadReader R m) => TypeGraphVertex -> TypeGraphVertex -> m Bool
+goalReachableSimple gkey key0 = view gsimple >>= isReachable (simpleVertex gkey) (simpleVertex key0)
 
 data FoldPathControl m r
     = FoldPathControl
@@ -196,6 +199,7 @@ makeTypeGraph st hs = do
              , _typeInfo = ti
              , _edges = es
              , _graph = graphFromMap es
+             , _gsimple = graphFromMap (simpleEdges es)
              }
 
 makeHintList :: [(Maybe Field, Name, Q hint)] -> Q [(Maybe Field, Name, hint)]

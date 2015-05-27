@@ -15,8 +15,7 @@ module Language.Haskell.TH.Path.DeriveLensInfo
     ) where
 
 import Control.Monad.RWS (evalRWST)
-import Data.Function (on)
-import Data.List as List (groupBy, map, sort, sortBy)
+import Data.List as List (sort)
 import Data.Map as Map (empty)
 import Data.Set as Set (map)
 import Language.Haskell.TH
@@ -49,15 +48,7 @@ deriveLensInfo st hs = makeTypeGraph st hs >>= \r -> do
       runIO . compareSaveAndReturn changeError "GeneratedPathTypes.hs"
   (toLensInstances :: [Dec]) <-
       evalRWST (allLensKeys >>= mapM (uncurry pathInstanceDecs) . toList) r Map.empty >>=
-      return . sort . uniqOn instType . concat . snd >>=
+      return . sort . concat . snd >>=
       runIO . compareSaveAndReturn changeError "GeneratedPathInstances.hs"
 
   return $ pathTypes ++ lenses ++ toLensInstances
-
--- | Sort and uniquify by the result of f.
-uniqOn :: forall a b. Ord b => (a -> b) -> [a] -> [a]
-uniqOn f = List.map head . groupBy ((==) `on` f) . sortBy (compare `on` f)
-
-instType :: Dec -> Type
-instType (InstanceD _ typ _) = typ
-instType _ = error "instType"

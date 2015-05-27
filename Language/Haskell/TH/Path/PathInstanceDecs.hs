@@ -26,7 +26,7 @@ import Language.Haskell.TH
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Core (Path(..), LensHint(..), bestPathTypeName, fieldLensName, pathConNameOfField, Path_OMap(..), Path_Map(..), Path_Pair(..), Path_Maybe(..))
-import Language.Haskell.TH.Path.Monad (R, typeInfo, goalReachable, pathHints, foldPath, FoldPathControl(..))
+import Language.Haskell.TH.Path.Monad (R, typeInfo, goalReachableSimple, pathHints, foldPath, FoldPathControl(..))
 import Language.Haskell.TH.Path.PathType (pathType)
 import Language.Haskell.TH.Path.Lens (idLens, mat)
 import Language.Haskell.TH.Path.Order (lens_omat)
@@ -118,7 +118,7 @@ testClause gkey typ cl = do
 testPath :: (DsMonad m, MonadReader R m, MonadWriter [[Dec]] m) => TypeGraphVertex -> Type -> m Bool
 testPath gkey typ = do
   key <- view typeInfo >>= runReaderT (expandType typ >>= vertex Nothing)
-  goalReachable gkey key
+  goalReachableSimple gkey key
 
 -- | Return an expression whose type is the path type of the vertex.
 pathValue :: (DsMonad m, MonadReader R m) => TypeGraphVertex -> m Exp
@@ -139,7 +139,7 @@ namedTypeClause gtyp tname gkey ptyp =
                    -- path type synonym instead of the path type of the
                    -- alias type.
                   key' <- view typeInfo >>= runReaderT (expandType typ' >>= vertex Nothing)
-                  ok <- goalReachable gkey key'
+                  ok <- goalReachableSimple gkey key'
                   case ok of
                     False -> return []
                     True -> pathInstanceClauses gtyp key' gkey ptyp
@@ -164,7 +164,7 @@ namedTypeClause gtyp tname gkey ptyp =
             doField :: Name -> VarStrictType -> m [(Con, [ClauseQ])]
             doField cname (fn, _, ft) = do
                     key' <- view typeInfo >>= runReaderT (expandType ft >>= vertex (Just (tname, cname, Right fn)))
-                    ok <- goalReachable gkey key'  -- is the goal type reachable from here?
+                    ok <- goalReachableSimple gkey key'  -- is the goal type reachable from here?
                     case ok of
                       False -> return []  -- Goal type isn't reachable, return empty clause list
                       True ->
