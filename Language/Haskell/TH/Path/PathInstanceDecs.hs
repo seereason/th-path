@@ -10,12 +10,9 @@
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TupleSections #-}
-{-# LANGUAGE TypeFamilies #-}
 {-# OPTIONS_GHC -fno-warn-orphans -fno-warn-missing-signatures #-}
 module Language.Haskell.TH.Path.PathInstanceDecs
-    ( Path(toLens)
-    , PathType
-    , pathInstanceDecs
+    ( pathInstanceDecs
     ) where
 
 import Control.Applicative ((<$>), Applicative(pure))
@@ -28,7 +25,7 @@ import Data.List as List (map)
 import Language.Haskell.TH
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.Path.Core (LensHint(..), bestPathTypeName, fieldLensName, pathConNameOfField, Path_OMap(..), Path_Map(..), Path_Pair(..), Path_Maybe(..))
+import Language.Haskell.TH.Path.Core (Path(..), LensHint(..), bestPathTypeName, fieldLensName, pathConNameOfField, Path_OMap(..), Path_Map(..), Path_Pair(..), Path_Maybe(..))
 import Language.Haskell.TH.Path.Monad (R, typeInfo, goalReachable, pathHints, foldPath, FoldPathControl(..))
 import Language.Haskell.TH.Path.PathType (pathType)
 import Language.Haskell.TH.Path.Lens (idLens, mat)
@@ -44,18 +41,6 @@ import Prelude hiding (any, concat, concatMap, elem, foldr, mapM_, null, or)
 null :: Foldable t => t a -> Bool
 null = foldr (\_ _ -> False) True
 #endif
-
--- | The functional dependency here says that for any given start and
--- end types, there is only one path type that can describe the path
--- from start to end.  The toLens function will typically have several
--- clauses describing different paths for a given (start, goal) pair.
-class Path s a where
-    type PathType s a
-    toLens :: PathType s a -> Traversal' s a
-
--- instance OrderKey k => Path (Order k a) a where
---     type PathType (Order k a) a = (Path_OMap k a)
---     toLens (Path_At k a) = lens_omat k . toLens a
 
 -- | For a given TypeGraphVertex, compute the declaration of the
 -- corresponding Path instance.  Each clause matches some possible value

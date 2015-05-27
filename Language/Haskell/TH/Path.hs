@@ -16,6 +16,5 @@ module Language.Haskell.TH.Path
 
 import Language.Haskell.TH.Path.Core
 import Language.Haskell.TH.Path.DeriveLensInfo
-import Language.Haskell.TH.Path.PathInstanceDecs
 import Language.Haskell.TH.Path.Prune (SinkType)
 import Language.Haskell.TH.Path.View

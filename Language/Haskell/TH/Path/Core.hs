@@ -10,13 +10,12 @@
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TupleSections #-}
+{-# LANGUAGE TypeFamilies #-}
 {-# OPTIONS_GHC -fno-warn-orphans -fno-warn-missing-signatures #-}
 module Language.Haskell.TH.Path.Core
-    ( pathTypeNameFromTypeName
-    , pathTypeNames
-    , bestPathTypeName
-    , pathConNameOfField
-    , fieldLensName
+    ( -- * The Path type class
+      Path(toLens)
+    , PathType
 
     -- * Basic Path Types
     , Path_Pair(..)
@@ -30,6 +29,13 @@ module Language.Haskell.TH.Path.Core
 
     -- * Hint classes
     , SelfPath
+
+    -- * Naming conventions
+    , pathTypeNameFromTypeName
+    , pathTypeNames
+    , bestPathTypeName
+    , pathConNameOfField
+    , fieldLensName
     ) where
 
 import Control.Lens -- (makeLenses, over, view)
@@ -46,6 +52,18 @@ import Language.Haskell.TH.TypeGraph.Hints (HasVertexHints(hasVertexHints), Vert
 import Language.Haskell.TH.TypeGraph.Vertex (TypeGraphVertex(..), etype, syns, typeNames)
 import Prelude hiding (exp)
 import Web.Routes.TH (derivePathInfo)
+
+-- | Instances of @Path s a@ include a 'PathType' which describes all
+-- the different ways to obtain an value of type @a@ (called the goal
+-- type in some places) from an @s@, and a 'toLens' function that
+-- allows you to turn a PathType value into a lens.
+class Path s a where
+    type PathType s a
+    toLens :: PathType s a -> Traversal' s a
+
+-- instance OrderKey k => Path (Order k a) a where
+--     type PathType (Order k a) a = (Path_OMap k a)
+--     toLens (Path_At k a) = lens_omat k . toLens a
 
 -- Primitive path types
 
