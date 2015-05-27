@@ -28,7 +28,7 @@ import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Core (bestPathTypeName, pathConNameOfField, pathTypeNameFromTypeName, pathTypeNames)
 import Language.Haskell.TH.Path.Monad (R, typeInfo, pathHints, foldPath, FoldPathControl(..))
 import Language.Haskell.TH.Path.PathType (pathType)
-import Language.Haskell.TH.Syntax as TH (VarStrictType)
+import Language.Haskell.TH.Syntax as TH (Quasi, VarStrictType)
 import Language.Haskell.TH.TypeGraph.Core (pprint')
 import Language.Haskell.TH.TypeGraph.Expand (expandType)
 import Language.Haskell.TH.TypeGraph.Monad (vertex)
@@ -36,7 +36,7 @@ import Language.Haskell.TH.TypeGraph.Vertex (TypeGraphVertex(..), typeNames)
 import Prelude hiding (any, concat, concatMap, elem, foldr, mapM_, null, or)
 
 -- | Given a type, generate the corresponding path type declarations
-pathTypeDecs :: forall m. (DsMonad m, MonadReader R m, MonadWriter [DecsQ] m) => TypeGraphVertex -> m ()
+pathTypeDecs :: forall m. (DsMonad m, MonadReader R m, MonadWriter [[Dec]] m) => TypeGraphVertex -> m ()
 pathTypeDecs key =
   pathHints key >>= pathTypeDecs'
     where
@@ -61,8 +61,8 @@ pathTypeDecs key =
 
       simplePath :: Name -> Set Name -> m ()
       simplePath pname syns =
-          tell [runQ $ sequence ((newName "a" >>= \a -> dataD (return []) pname [PlainTV a] [normalC pname []] supers)
-                                 : map (\psyn -> newName "a" >>= \a -> tySynD psyn [PlainTV a] (appT (conT pname) (varT a))) (toList syns))]
+          runQ (sequence ((newName "a" >>= \a -> dataD (return []) pname [PlainTV a] [normalC pname []] supers)
+                          : map (\psyn -> newName "a" >>= \a -> tySynD psyn [PlainTV a] (appT (conT pname) (varT a))) (toList syns))) >>= tell . (: [])
 
       doInfo (TyConI dec) =
           -- tell [ [d| z = $(litE (stringL ("doDec " ++ pprint' dec))) |] ] >>
@@ -74,7 +74,7 @@ pathTypeDecs key =
       doDec (TySynD _ _ typ') =
           do a <- runQ $ newName "a"
              ptype <- view typeInfo >>= runReaderT (expandType typ' >>= vertex Nothing) >>= pathType (varT a)
-             mapM_ (\pname -> tell [sequence (tySynD pname [PlainTV a] (return ptype) : [] {-concatMap (goalSynonym key pname) gtypes-})]) (pathTypeNames key)
+             mapM_ (\pname -> tell1 (tySynD pname [PlainTV a] (return ptype))) (pathTypeNames key)
       doDec (NewtypeD _ tname _ con _) = doDataD tname [con]
       doDec (DataD _ tname _ cons _) = doDataD tname cons
       doDec (FamilyD _flavour _name _tvbs _mkind) = return ()
@@ -88,8 +88,7 @@ pathTypeDecs key =
       makeDecs :: Name -> [[Con]] -> m ()
       makeDecs a pconss =
           case filter (/= []) pconss of
-            [pcons] -> mapM_ (\pname -> tell [sequence (dataD (cxt []) pname [PlainTV a] (List.map return pcons) supers
-                                                        : [] {-concatMap (goalSynonym key pname) gtypes-})]) (pathTypeNames key)
+            [pcons] -> mapM_ (\pname -> tell1 (dataD (cxt []) pname [PlainTV a] (List.map return pcons) supers)) (pathTypeNames key)
             [] | length pconss > 1 -> return () -- enum
             [] -> return ()
                   -- FIXME - if there are paths from several different
@@ -123,3 +122,6 @@ pathTypeDecs key =
 
 supers :: [Name]
 supers = [''Eq, ''Ord, ''Read, ''Show, ''Typeable, ''Data]
+
+tell1 :: (Quasi m, MonadWriter [[Dec]] m) => DecQ -> m ()
+tell1 dec = runQ (sequence (map sequence [[dec]])) >>= tell

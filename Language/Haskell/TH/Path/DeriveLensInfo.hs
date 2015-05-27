@@ -45,8 +45,7 @@ deriveLensInfo st hs = makeTypeGraph st hs >>= \r -> do
       runIO . compareSaveAndReturn changeError "GeneratedLenses.hs" . concat . snd
   (pathTypes :: [Dec]) <-
       evalRWST (allPathKeys >>= mapM pathTypeDecs . toList . Set.map simpleVertex) r Map.empty >>=
-      sequence . snd >>=
-      runIO . compareSaveAndReturn changeError "GeneratedPathTypes.hs" . concat
+      runIO . compareSaveAndReturn changeError "GeneratedPathTypes.hs" . concat . snd
   (dataPathNames :: [Dec]) <-
       (stringList "dataPathTypes" . List.map show . sort . catMaybes . List.map dataName $ pathTypes) >>=
       runIO . compareSaveAndReturn changeError "GeneratedDataPathNames.hs"
