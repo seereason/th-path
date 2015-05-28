@@ -105,32 +105,54 @@ pathInstanceClauses key gkey ptyp = do
                   -- let ((_, Substitute lns ltyp) : _) = [x | x@(_, Substitute _ _) <- hints]
                   lkey <- view typeInfo >>= runReaderT (expandType ltyp >>= vertex Nothing)
                   lval <- pathValue lkey
-                  testClause gkey ltyp (clause [wildP] (normalB [|$(pure lns) . toLens $(pure lval)|]) [])
+                  let lns' = if lkey == gkey then pure lns else [|$(pure lns) . toLens $(pure lval)|]
+                  testClause gkey ltyp (clause [wildP] (normalB lns') [])
               , pathyf = return []
               , namedf = \tname -> namedTypeClause tname gkey ptyp
               , maybef = \etyp -> do
                   e <- runQ (newName "e")
-                  testClause gkey etyp (clause [ [p|Path_Maybe $(varP e)|] ] (normalB [|_Just . toLens $(varE e)|]) [])
+                  ekey <- view typeInfo >>= runReaderT (expandType etyp >>= vertex Nothing)
+                  let lns = [|_Just|]
+                      lns' = if ekey == gkey then lns else [|$lns . toLens $(varE e)|]
+                  testClause gkey etyp (clause [ [p|Path_Maybe $(varP e)|] ] (normalB lns') [])
               , listf = \_etyp -> return []
               , orderf = \_ktyp vtyp -> do
                   k <- runQ (newName "k")
                   v <- runQ (newName "v")
-                  testClause gkey vtyp (clause [ [p|Path_At $(varP k) $(varP v)|] ] (normalB [|lens_omat $(varE k) . toLens $(varE v)|]) [])
+                  vkey <- view typeInfo >>= runReaderT (expandType vtyp >>= vertex Nothing)
+                  let lns = [|lens_omat $(varE k)|]
+                      lns' = if vkey == gkey then lns else [|$lns . toLens $(varE v)|]
+                  testClause gkey vtyp (clause [ [p|Path_At $(varP k) $(varP v)|] ] (normalB lns') [])
               , mapf = \_ktyp vtyp -> do
                   k <- runQ (newName "k")
                   v <- runQ (newName "v")
-                  testClause gkey vtyp (clause [ [p|Path_Map $(varP k) $(varP v)|] ] (normalB [|mat $(varE k) . toLens $(varE v)|]) [])
+                  vkey <- view typeInfo >>= runReaderT (expandType vtyp >>= vertex Nothing)
+                  let lns = [|mat $(varE k)|]
+                      lns' = if vkey == gkey then lns else [|$lns . toLens $(varE v)|]
+                  testClause gkey vtyp (clause [ [p|Path_Map $(varP k) $(varP v)|] ] (normalB lns') [])
               , pairf = \ftyp styp -> do
                   f <- runQ (newName "f")
                   s <- runQ (newName "s")
-                  fclause <- testClause gkey ftyp (clause [ [p|Path_First $(varP f)|] ] (normalB [|_1 . toLens $(varE f)|]) [])
-                  sclause <- testClause gkey styp (clause [ [p|Path_Second $(varP s)|] ] (normalB [|_2 . toLens $(varE s)|]) [])
+                  fkey <- view typeInfo >>= runReaderT (expandType ftyp >>= vertex Nothing)
+                  skey <- view typeInfo >>= runReaderT (expandType styp >>= vertex Nothing)
+                  let flns = [|_1|]
+                      slns = [|_2|]
+                      flns' = if fkey == gkey then flns else [|$flns . toLens $(varE f)|]
+                      slns' = if skey == gkey then slns else [|$slns . toLens $(varE s)|]
+                  fclause <- testClause gkey ftyp (clause [ [p|Path_First $(varP f)|] ] (normalB flns') [])
+                  sclause <- testClause gkey styp (clause [ [p|Path_Second $(varP s)|] ] (normalB slns') [])
                   return $ concat $ [fclause, sclause]
               , eitherf = \ltyp rtyp -> do
                   l <- runQ (newName "l")
                   r <- runQ (newName "r")
-                  lclause <- testClause gkey ltyp (clause [ [p|Left $(varP l)|] ] (normalB [|_Left . toLens $(varE l)|]) [])
-                  rclause <- testClause gkey rtyp (clause [ [p|Right $(varP r)|] ] (normalB [|_Right . toLens $(varE r)|]) [])
+                  lkey <- view typeInfo >>= runReaderT (expandType ltyp >>= vertex Nothing)
+                  rkey <- view typeInfo >>= runReaderT (expandType rtyp >>= vertex Nothing)
+                  let llns = [|_Left|]
+                      rlns = [|_Right|]
+                      llns' = if lkey == gkey then llns else [|$llns . toLens $(varE l)|]
+                      rlns' = if rkey == gkey then rlns else [|$rlns . toLens $(varE r)|]
+                  lclause <- testClause gkey ltyp (clause [ [p|Left $(varP l)|] ] (normalB llns') [])
+                  rclause <- testClause gkey rtyp (clause [ [p|Right $(varP r)|] ] (normalB rlns') [])
                   return $ concat [lclause, rclause]
               , otherf = return [ clause [wildP] (normalB [|(error $ $(litE (stringL ("Need to find lens for field type: " ++ pprint (view etype key))))) :: Traversal' $(pure (runExpanded (view etype key))) $(pure (bestType gkey))|]) [] ]
               }
@@ -188,8 +210,8 @@ namedTypeClause tname gkey ptyp =
             -- of some piece of the field value.
             doField :: Name -> VarStrictType -> m [(Con, [ClauseQ])]
             doField cname (fn, _, ft) = do
-                    key' <- view typeInfo >>= runReaderT (expandType ft >>= vertex (Just (tname, cname, Right fn)))
-                    ok <- goalReachableSimple gkey key'  -- is the goal type reachable from here?
+                    fkey <- view typeInfo >>= runReaderT (expandType ft >>= vertex (Just (tname, cname, Right fn)))
+                    ok <- goalReachableSimple gkey fkey  -- is the goal type reachable from here?
                     case ok of
                       False -> return []  -- Goal type isn't reachable, return empty clause list
                       True ->
@@ -198,13 +220,15 @@ namedTypeClause tname gkey ptyp =
                              -- expression for the lens that turns this field value into the
                              -- goal type.
                              clauses <- runQ (newName "x") >>= \x -> return [clause [varP x] (normalB [|toLens $(varE x)|]) []]
-                             let Just pcname = pathConNameOfField key'
-                             ptype' <- pathType (pure (bestType gkey)) key'
+                             let Just pcname = pathConNameOfField fkey
+                             ptype' <- pathType (pure (bestType gkey)) fkey
                              -- This is the new constructor for this field
                              con <- runQ $ normalC pcname [strictType notStrict (return ptype')]
                              -- These are the field's clauses.  Each pattern gets wrapped with the field path constructor,
                              -- and each field lens gets composed with the lens produced for the field's type.
-                             clauses' <- mapM (mapClause (\ pat -> conP pcname [pat]) (\ lns -> [|$(varE (fieldLensName tname fn)) . $lns|])) clauses
+                             clauses' <- mapM (mapClause (\ pat -> conP pcname [pat]) (\ lns -> if view etype fkey == view etype gkey
+                                                                                                then varE (fieldLensName tname fn)
+                                                                                                else [|$(varE (fieldLensName tname fn)) . $lns|])) clauses
                              return [(con, clauses')]
 
 
