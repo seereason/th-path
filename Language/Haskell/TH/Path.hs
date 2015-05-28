@@ -1,7 +1,7 @@
 module Language.Haskell.TH.Path
     ( LensHint(..)
     , Field
-    , View(viewLens{-, ViewType-})
+    , View(viewLens, ViewType)
     , viewInstanceType
     , pathInstances
     , Path_Pair(..)
