@@ -129,8 +129,8 @@ decMakeLens t (DataD _ nameA params cons _) namer = do
         let params'' = map (\x -> case x of (PlainTV n) -> n; (KindedTV n _) -> n) params'
         let appliedT = foldl appT (conT t) (map varT params'')
 
-        let partialName = mkName (nameBase accName ++ "_partial")
-            totalName = mkName (nameBase accName ++ "_total")
+        let -- partialName = mkName (nameBase accName ++ "_partial")
+            -- totalName = mkName (nameBase accName ++ "_total")
             partialBody =
               [| let getter a =
                        $(if ncons == 1
@@ -154,10 +154,10 @@ decMakeLens t (DataD _ nameA params cons _) namer = do
             lensType' = case params'' of
                           [] -> lensType
                           _ -> forallT (map PlainTV params'') (return []) lensType
-        sequence [ sigD accName lensType'
+        sequence [ {- sigD accName lensType'
                  , valD (varP accName) (normalB (if ncons > 1 then [|$(varE partialName)|] else [|$(varE totalName)|])) []
-                 , sigD (if ncons > 1 then partialName else totalName) lensType'
-                 , valD (varP (if ncons > 1 then partialName else totalName)) (normalB (if ncons > 1 then partialBody else totalBody)) [] ]
+                 , -} sigD accName lensType'
+                 , valD (varP accName) (normalB (if ncons > 1 then partialBody else totalBody)) [] ]
 
     conPat :: Con -> PatQ
     conPat (NormalC name _) = recP name []
