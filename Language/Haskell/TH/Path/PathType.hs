@@ -12,6 +12,7 @@
 {-# OPTIONS_GHC -fno-warn-orphans -fno-warn-missing-signatures #-}
 module Language.Haskell.TH.Path.PathType
     ( pathType
+    , pathTypeCall
     ) where
 
 import Control.Lens hiding (cons)
@@ -21,7 +22,7 @@ import Data.List as List (intercalate, map)
 import Language.Haskell.TH
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.Path.Core (bestPathTypeName, pathTypeNameFromTypeName, Path_OMap, Path_List, Path_Map, Path_Pair, Path_Maybe)
+import Language.Haskell.TH.Path.Core (bestPathTypeName, pathTypeNameFromTypeName, PathType, Path_OMap, Path_List, Path_Map, Path_Pair, Path_Maybe)
 import Language.Haskell.TH.Path.Monad (R, typeInfo, pathHints, reachableFrom, FoldPathControl(..), foldPath)
 import Language.Haskell.TH.TypeGraph.Core (pprint')
 import Language.Haskell.TH.TypeGraph.Expand (E(E), runExpanded)
@@ -78,3 +79,10 @@ pathType gtyp key =
                 }
 
       vert typ = view typeInfo >>= runReaderT (vertex Nothing (E typ))
+
+-- | Call the type function PathType.
+pathTypeCall :: (DsMonad m, MonadReader R m) =>
+                TypeQ           -- | The goal type - possibly a type variable
+             -> TypeGraphVertex -- | The type to convert to a path type
+             -> m Type
+pathTypeCall gtyp key = runQ [t|PathType $(let (E typ) = view etype key in return typ) $gtyp|]

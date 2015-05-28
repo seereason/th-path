@@ -73,7 +73,8 @@ pathTypeDecs key =
       -- If we have a type synonym, we can create a path type synonym
       doDec (TySynD _ _ typ') =
           do a <- runQ $ newName "a"
-             ptype <- view typeInfo >>= runReaderT (expandType typ' >>= vertex Nothing) >>= pathType (varT a)
+             key' <- view typeInfo >>= runReaderT (expandType typ' >>= vertex Nothing)
+             ptype <- pathType (varT a) key'
              mapM_ (\pname -> tell1 (tySynD pname [PlainTV a] (return ptype))) (pathTypeNames' key)
       doDec (NewtypeD _ tname _ con _) = doDataD tname [con]
       doDec (DataD _ tname _ cons _) = doDataD tname cons
@@ -112,6 +113,9 @@ pathTypeDecs key =
              let Just pcname = pathConNameOfField key'
              ptype <- case ftype of
                         ConT ftname -> runQ $ appT (conT (pathTypeNameFromTypeName ftname)) (varT a)
+                        -- It would be nice to use pathTypeCall (varT a) key' here, but
+                        -- it can't infer the superclasses for (PathType Foo a) - Ord,
+                        -- Read, Data, etc.
                         _ -> pathType (varT a) key'
              case ptype of
                TupleT 0 -> return []

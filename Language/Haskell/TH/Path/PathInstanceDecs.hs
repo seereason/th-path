@@ -19,15 +19,18 @@ import Control.Applicative ((<$>), Applicative(pure))
 import Control.Lens hiding (cons) -- (makeLenses, over, view)
 import Control.Monad (when)
 import Control.Monad.Reader (MonadReader, runReaderT)
+import Control.Monad.State (MonadState, get, modify)
 import Control.Monad.Writer (MonadWriter, tell)
 import Data.Foldable
 import Data.List as List (map)
+import Data.Set as Set (insert, member, Set)
 import Language.Haskell.TH
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Core (Path(..), LensHint(..), bestPathTypeName, fieldLensName, pathConNameOfField, Path_OMap(..), Path_Map(..), Path_Pair(..), Path_Maybe(..))
-import Language.Haskell.TH.Path.Monad (R, typeInfo, goalReachableSimple, pathHints, foldPath, FoldPathControl(..))
+import Language.Haskell.TH.Path.Monad (R, typeInfo, goalReachableSimple, makePathLenses, pathHints, foldPath, FoldPathControl(..))
 import Language.Haskell.TH.Path.PathType (pathType)
+import Language.Haskell.TH.Path.PathTypeDecs (pathTypeDecs)
 import Language.Haskell.TH.Path.Lens (idLens, mat)
 import Language.Haskell.TH.Path.Order (lens_omat)
 import Language.Haskell.TH.Syntax as TH (VarStrictType)
@@ -46,8 +49,13 @@ null = foldr (\_ _ -> False) True
 -- corresponding Path instance.  Each clause matches some possible value
 -- of the path type, and returns a lens that extracts the value the
 -- path type value specifies.
-pathInstanceDecs :: forall m. (DsMonad m, MonadReader R m, MonadWriter [[Dec]] m) => TypeGraphVertex -> TypeGraphVertex -> m ()
+pathInstanceDecs :: forall m. (DsMonad m, MonadReader R m, MonadState (Set TypeGraphVertex) m, MonadWriter [[Dec]] m) => TypeGraphVertex -> TypeGraphVertex -> m ()
 pathInstanceDecs gkey key = do
+  done <- Set.member key <$> get
+  when (not done) $ do
+    modify (Set.insert key)
+    makePathLenses key
+    pathTypeDecs key
   let gtyp = bestType gkey
   ptyp <- pathType (pure gtyp) key
   (clauses :: [ClauseQ]) <- pathInstanceClauses (pure gtyp) key gkey ptyp
@@ -66,7 +74,7 @@ pathInstanceClauses :: forall m. (DsMonad m, MonadReader R m, MonadWriter [[Dec]
                     -> TypeGraphVertex -- ^ the goal type key
                     -> Type -- ^ the corresponding path type - first type parameter of ToLens
                     -> m [ClauseQ]
-pathInstanceClauses gtyp key gkey ptyp =
+pathInstanceClauses gtyp key gkey ptyp = do
   pathHints key >>= pathInstanceClauses'
     where
       pathInstanceClauses' :: [(TypeGraphVertex, LensHint)] -> m [ClauseQ]
