@@ -3,7 +3,7 @@ module Language.Haskell.TH.Path
     , Field
     , View(viewLens{-, ViewType-})
     , viewInstanceType
-    , deriveLensInfo
+    , pathInstances
     , Path_Pair(..)
     , Path_Maybe(..)
     , Path_Map(..)
@@ -15,6 +15,6 @@ module Language.Haskell.TH.Path
     ) where
 
 import Language.Haskell.TH.Path.Core
-import Language.Haskell.TH.Path.DeriveLensInfo
+import Language.Haskell.TH.Path.Decs
 import Language.Haskell.TH.Path.Prune (SinkType)
 import Language.Haskell.TH.Path.View

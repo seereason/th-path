@@ -11,24 +11,25 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TupleSections #-}
 {-# OPTIONS_GHC -fno-warn-orphans -fno-warn-missing-signatures #-}
-module Language.Haskell.TH.Path.PathInstanceDecs
-    ( pathInstanceDecs
+module Language.Haskell.TH.Path.Decs
+    ( pathInstances
     ) where
 
 import Control.Applicative ((<$>), Applicative(pure))
 import Control.Lens hiding (cons) -- (makeLenses, over, view)
 import Control.Monad (when)
 import Control.Monad.Reader (MonadReader, runReaderT)
+import Control.Monad.RWS (evalRWST)
 import Control.Monad.State (MonadState, get, modify)
 import Control.Monad.Writer (MonadWriter, tell)
 import Data.Foldable
 import Data.List as List (map)
-import Data.Set as Set (insert, member, Set)
+import Data.Set as Set (empty, insert, member, Set)
 import Language.Haskell.TH
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.Path.Core (Path(..), LensHint(..), bestPathTypeName, fieldLensName, pathConNameOfField, Path_OMap(..), Path_Map(..), Path_Pair(..), Path_Maybe(..))
-import Language.Haskell.TH.Path.Monad (R, typeInfo, goalReachableSimple, makePathLenses, pathHints, foldPath, FoldPathControl(..))
+import Language.Haskell.TH.Path.Core (Field, Path(..), LensHint(..), bestPathTypeName, fieldLensName, pathConNameOfField, Path_OMap(..), Path_Map(..), Path_Pair(..), Path_Maybe(..))
+import Language.Haskell.TH.Path.Monad (allLensKeys, foldPath, FoldPathControl(..), goalReachableSimple, makePathLenses, makeTypeGraph, pathHints, R, typeInfo)
 import Language.Haskell.TH.Path.PathType (pathType)
 import Language.Haskell.TH.Path.PathTypeDecs (pathTypeDecs)
 import Language.Haskell.TH.Path.Lens (idLens, mat)
@@ -39,11 +40,23 @@ import Language.Haskell.TH.TypeGraph.Expand (expandType, runExpanded)
 import Language.Haskell.TH.TypeGraph.Monad (vertex)
 import Language.Haskell.TH.TypeGraph.Vertex (bestType, TypeGraphVertex(..), etype)
 import Prelude hiding (any, concat, concatMap, elem, foldr, mapM_, null, or)
+import System.FilePath.Extra (compareSaveAndReturn, changeError)
 
 #if ! MIN_VERSION_base(4,8,0)
 null :: Foldable t => t a -> Bool
 null = foldr (\_ _ -> False) True
 #endif
+
+-- | Create the lenses, path types, and path to lens functions for a
+-- named type and all of its subtypes.  Each lens extracts or updates
+-- a portion of a value.  Each path type describes the correspondence
+-- between a value and the portions of that value available via lens.
+-- Each path to lens function turns a path type value into a lens.
+pathInstances :: Q [Type] -> [(Maybe Field, Name, Q LensHint)] -> Q [Dec]
+pathInstances st hs = do
+  r <- makeTypeGraph st hs
+  (_, decss) <- evalRWST (allLensKeys >>= mapM (uncurry pathInstanceDecs) . toList) r Set.empty
+  runIO . compareSaveAndReturn changeError "GeneratedPathInstances.hs" $ concat decss
 
 -- | For a given TypeGraphVertex, compute the declaration of the
 -- corresponding Path instance.  Each clause matches some possible value
