@@ -80,6 +80,12 @@ pathInstanceClauses gtyp key gkey ptyp = do
       pathInstanceClauses' :: [(TypeGraphVertex, LensHint)] -> m [ClauseQ]
       pathInstanceClauses' _hints | view etype key == view etype gkey = return [clause [wildP] (normalB [|idLens|]) []]
       pathInstanceClauses' hints = foldPath control key hints
+      -- Use this to raise errors when the path patterns aren't exhaustive.
+      -- That is supposed to be impossible, so this is debugging code.
+      -- pathInstanceClauses' hints = do
+      --   x <- runQ (newName "x")
+      --   r <- foldPath control key hints
+      --   return $ r ++ [clause [varP x] (normalB [|error ("toLens (" ++ $(lift (pprint' key)) ++ ") -> (" ++ $(lift (pprint' gkey)) ++ ") - unmatched: " ++ show $(varE x))|]) []]
         where
           control =
             FoldPathControl
