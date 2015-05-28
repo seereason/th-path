@@ -69,9 +69,8 @@ pathInstanceDecs gkey key = do
     modify (Set.insert key)
     makePathLenses key
     pathTypeDecs key
-  let gtyp = bestType gkey
-  ptyp <- pathType (pure gtyp) key
-  (clauses :: [ClauseQ]) <- pathInstanceClauses (pure gtyp) key gkey ptyp
+  ptyp <- pathType (pure (bestType gkey)) key
+  (clauses :: [ClauseQ]) <- pathInstanceClauses key gkey ptyp
   when (not (null clauses)) $
        tell1 (instanceD (pure []) [t|Path $(pure (bestType key)) $(pure (bestType gkey))|]
                 [tySynInstD ''PathType (tySynEqn [pure (bestType key), pure (bestType gkey)] (pure ptyp)),
@@ -82,12 +81,11 @@ pathInstanceDecs gkey key = do
       tell1 dec = runQ (sequence (map sequence [[dec]])) >>= tell
 
 pathInstanceClauses :: forall m. (DsMonad m, MonadReader R m, MonadWriter [[Dec]] m) =>
-                       TypeQ -- ^ the goal type
-                    -> TypeGraphVertex -- ^ the type whose clauses we are generating
+                       TypeGraphVertex -- ^ the type whose clauses we are generating
                     -> TypeGraphVertex -- ^ the goal type key
                     -> Type -- ^ the corresponding path type - first type parameter of ToLens
                     -> m [ClauseQ]
-pathInstanceClauses gtyp key gkey ptyp = do
+pathInstanceClauses key gkey ptyp = do
   pathHints key >>= pathInstanceClauses'
     where
       pathInstanceClauses' :: [(TypeGraphVertex, LensHint)] -> m [ClauseQ]
@@ -109,7 +107,7 @@ pathInstanceClauses gtyp key gkey ptyp = do
                   lval <- pathValue lkey
                   testClause gkey ltyp (clause [wildP] (normalB [|$(pure lns) . toLens $(pure lval)|]) [])
               , pathyf = return []
-              , namedf = \tname -> namedTypeClause gtyp tname gkey ptyp
+              , namedf = \tname -> namedTypeClause tname gkey ptyp
               , maybef = \etyp -> do
                   e <- runQ (newName "e")
                   testClause gkey etyp (clause [ [p|Path_Maybe $(varP e)|] ] (normalB [|_Just . toLens $(varE e)|]) [])
@@ -151,8 +149,8 @@ testPath gkey typ = do
 pathValue :: (DsMonad m, MonadReader R m) => TypeGraphVertex -> m Exp
 pathValue key = maybe (error $ "pathValue - no type name: " ++ pprint' key) (runQ . conE . fst) (bestPathTypeName key)
 
-namedTypeClause :: forall m. (DsMonad m, MonadReader R m, MonadWriter [[Dec]] m) => TypeQ -> Name -> TypeGraphVertex -> Type -> m [ClauseQ]
-namedTypeClause gtyp tname gkey ptyp =
+namedTypeClause :: forall m. (DsMonad m, MonadReader R m, MonadWriter [[Dec]] m) => Name -> TypeGraphVertex -> Type -> m [ClauseQ]
+namedTypeClause tname gkey ptyp =
     -- If encounter a named type and the stack is empty we
     -- need to build the clauses for its declaration.
     do nameInfo <- runQ $ reify tname
@@ -169,7 +167,7 @@ namedTypeClause gtyp tname gkey ptyp =
                   ok <- goalReachableSimple gkey key'
                   case ok of
                     False -> return []
-                    True -> pathInstanceClauses gtyp key' gkey ptyp
+                    True -> pathInstanceClauses key' gkey ptyp
             doDec (NewtypeD _ _ _ con _) = doCons [con]
             doDec (DataD _ _ _ cons _) = doCons cons
             doDec dec = error $ "doName - unexpected Dec: " ++ show dec
@@ -201,7 +199,7 @@ namedTypeClause gtyp tname gkey ptyp =
                              -- goal type.
                              clauses <- runQ (newName "x") >>= \x -> return [clause [varP x] (normalB [|toLens $(varE x)|]) []]
                              let Just pcname = pathConNameOfField key'
-                             ptype' <- pathType gtyp key'
+                             ptype' <- pathType (pure (bestType gkey)) key'
                              -- This is the new constructor for this field
                              con <- runQ $ normalC pcname [strictType notStrict (return ptype')]
                              -- These are the field's clauses.  Each pattern gets wrapped with the field path constructor,
