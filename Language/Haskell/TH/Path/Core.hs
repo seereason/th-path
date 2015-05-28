@@ -45,6 +45,7 @@ import Control.Lens -- (makeLenses, over, view)
 import Data.Default (Default(def))
 import Data.Generics (Data, Typeable)
 import Data.List as List (map)
+import Data.Monoid (Monoid(mempty, mappend))
 import Data.SafeCopy (base, deriveSafeCopy)
 import Data.Set as Set (difference, fromList, map, minView, Set)
 import Language.Haskell.TH
@@ -109,22 +110,27 @@ data LensHint
     -- function with this.  The expression is the lens to use,
     -- and the second element of the pair is the 'b' Type of
     -- the lens.
-    | Normal'
-    -- ^ no effect
     | VertexHint VertexHint
     deriving (Eq, Ord)
+
+-- This type is due for removal, so here is a semi-useful Monoid
+-- instance to satisfy the simpleEdges function.
+instance Monoid LensHint where
+    mempty = VertexHint Normal
+    mappend x@(Substitute _ _) _ = x
+    mappend _ x@(Substitute _ _) = x
+    mappend (VertexHint Normal) x = x
+    mappend x _ = x
 
 instance HasVertexHints LensHint where
     hasVertexHints (VertexHint x) = return [x]
     hasVertexHints (Substitute _exp typ) = return [Divert typ]
-    hasVertexHints _ = return []
 
 instance Default LensHint where
-    def = Normal'
+    def = VertexHint Normal
 
 instance Show LensHint where
     show (Substitute exp typ) = "Substitute (" ++ pprint exp ++ ") (" ++ pprint typ ++ ")"
-    show Normal' = "Normal'"
     show (VertexHint x) = "VertexHint " ++ show x
 
 instance Ppr LensHint where
