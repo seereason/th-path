@@ -79,7 +79,7 @@ pathInstanceDecs gkey key = do
       tell1 :: DecQ -> m ()
       tell1 dec = runQ (sequence (map sequence [[dec]])) >>= tell
 
-pathInstanceClauses :: forall m. (DsMonad m, MonadReader R m, MonadWriter [[Dec]] m) =>
+pathInstanceClauses :: forall m. (DsMonad m, MonadReader R m) =>
                        TypeGraphVertex -- ^ the type whose clauses we are generating
                     -> TypeGraphVertex -- ^ the goal type key
                     -> Type -- ^ the corresponding path type - first type parameter of ToLens
@@ -137,7 +137,7 @@ pathInstanceClauses key gkey ptyp = do
               , otherf = return [ clause [wildP] (normalB [|(error $ $(litE (stringL ("Need to find lens for field type: " ++ pprint (view etype key))))) :: Traversal' $(pure (runExpanded (view etype key))) $(pure (bestType gkey))|]) [] ]
               }
 
-doClause :: (DsMonad m, MonadReader R m, MonadWriter [[Dec]] m) => TypeGraphVertex -> Type -> (PatQ -> PatQ) -> ExpQ -> m [ClauseQ]
+doClause :: (DsMonad m, MonadReader R m) => TypeGraphVertex -> Type -> (PatQ -> PatQ) -> ExpQ -> m [ClauseQ]
 doClause gkey typ pfunc lns = do
   v <- runQ (newName "v")
   key <- view typeInfo >>= runReaderT (expandType typ >>= vertex Nothing)
@@ -145,17 +145,17 @@ doClause gkey typ pfunc lns = do
       testClause gkey typ (clause [ pfunc wildP ] (normalB lns) []) else
       testClause gkey typ (clause [ pfunc (varP v) ] (normalB [|$lns . toLens $(varE v)|]) [])
 
-testClause :: (DsMonad m, MonadReader R m, MonadWriter [[Dec]] m) => TypeGraphVertex -> Type -> ClauseQ -> m [ClauseQ]
+testClause :: (DsMonad m, MonadReader R m) => TypeGraphVertex -> Type -> ClauseQ -> m [ClauseQ]
 testClause gkey typ cl = do
   ok <- testPath gkey typ
   return $ if ok then [cl] else []
 
-testPath :: (DsMonad m, MonadReader R m, MonadWriter [[Dec]] m) => TypeGraphVertex -> Type -> m Bool
+testPath :: (DsMonad m, MonadReader R m) => TypeGraphVertex -> Type -> m Bool
 testPath gkey typ = do
   key <- view typeInfo >>= runReaderT (expandType typ >>= vertex Nothing)
   goalReachableSimple gkey key
 
-namedTypeClause :: forall m. (DsMonad m, MonadReader R m, MonadWriter [[Dec]] m) => Name -> TypeGraphVertex -> Type -> m [ClauseQ]
+namedTypeClause :: forall m. (DsMonad m, MonadReader R m) => Name -> TypeGraphVertex -> Type -> m [ClauseQ]
 namedTypeClause tname gkey ptyp =
     -- If encounter a named type and the stack is empty we
     -- need to build the clauses for its declaration.
