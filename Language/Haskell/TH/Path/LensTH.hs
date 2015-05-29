@@ -93,7 +93,7 @@ decMakeLens :: Name -> Dec -> (Name -> Name -> Maybe String) -> Q [Dec]
 decMakeLens t (NewtypeD cx n ps c ss) namer = decMakeLens t (DataD cx n ps [c] ss) namer
 decMakeLens t (DataD _ nameA params cons _) namer = do
     decs <- makeAccs (length cons) . nub $ concatMap namedFields cons
-    when (null decs) $ qReport False nodefmsg
+    -- when (null decs) $ qReport False nodefmsg
     return decs
 
     where
