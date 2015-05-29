@@ -28,14 +28,13 @@ import Data.Set as Set (empty, insert, member, Set)
 import Language.Haskell.TH
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.Path.Core (Field, Path(..), LensHint(..), bestPathTypeName, fieldLensName, pathConNameOfField, Path_OMap(..), Path_Map(..), Path_Pair(..), Path_Maybe(..))
+import Language.Haskell.TH.Path.Core (Field, Path(..), LensHint(..), fieldLensName, pathConNameOfField, Path_OMap(..), Path_Map(..), Path_Pair(..), Path_Maybe(..))
 import Language.Haskell.TH.Path.Monad (allLensKeys, foldPath, FoldPathControl(..), goalReachableSimple, makePathLenses, makeTypeGraph, pathHints, R, typeInfo)
 import Language.Haskell.TH.Path.PathType (pathType)
 import Language.Haskell.TH.Path.PathTypeDecs (pathTypeDecs)
 import Language.Haskell.TH.Path.Lens (idLens, mat)
 import Language.Haskell.TH.Path.Order (lens_omat)
 import Language.Haskell.TH.Syntax as TH (VarStrictType)
-import Language.Haskell.TH.TypeGraph.Core (pprint')
 import Language.Haskell.TH.TypeGraph.Expand (expandType, runExpanded)
 import Language.Haskell.TH.TypeGraph.Monad (vertex)
 import Language.Haskell.TH.TypeGraph.Vertex (bestType, TypeGraphVertex(..), etype)
@@ -102,12 +101,20 @@ pathInstanceClauses key gkey ptyp = do
             FoldPathControl
               { simplef = return [] -- Simple paths only work if we are at the goal type, and that case is handled above.
               , substf = \lns ltyp -> do
-                  -- let ((_, Substitute lns ltyp) : _) = [x | x@(_, Substitute _ _) <- hints]
+                  -- Ok, we have a type key, and a lens that goes between key and
+                  -- lkey, and we need to create a toLens function for key's path type.
+                  -- The tricky bit is to extract the path value for lkey from the path
+                  -- value we have.
+                  let (AppT (ConT pname) _gtyp) = ptyp
+#if 1
+                  doClause gkey ltyp (\p -> conP pname [p]) (pure lns)
+#else
+                  l <- runQ $ newName "l"
                   lkey <- view typeInfo >>= runReaderT (expandType ltyp >>= vertex Nothing)
-                  lval <- pathValue lkey
                   if lkey == gkey then
                       testClause gkey ltyp (clause [wildP] (normalB (pure lns)) []) else
-                      testClause gkey ltyp (clause [wildP] (normalB [|$(pure lns) . toLens $(pure lval)|]) [])
+                      testClause gkey ltyp (clause [conP pname [varP l]] (normalB [|$(pure lns) . toLens $(varE l)|]) [])
+#endif
               , pathyf = return []
               , namedf = \tname -> namedTypeClause tname gkey ptyp
               , maybef = \etyp -> do
@@ -135,8 +142,8 @@ doClause gkey typ pfunc lns = do
   v <- runQ (newName "v")
   key <- view typeInfo >>= runReaderT (expandType typ >>= vertex Nothing)
   if key == gkey then
-      testClause gkey typ (clause [ (pfunc wildP) ] (normalB lns) []) else
-      testClause gkey typ (clause [ (pfunc (varP v)) ] (normalB [|$lns . toLens $(varE v)|]) [])
+      testClause gkey typ (clause [ pfunc wildP ] (normalB lns) []) else
+      testClause gkey typ (clause [ pfunc (varP v) ] (normalB [|$lns . toLens $(varE v)|]) [])
 
 testClause :: (DsMonad m, MonadReader R m, MonadWriter [[Dec]] m) => TypeGraphVertex -> Type -> ClauseQ -> m [ClauseQ]
 testClause gkey typ cl = do
@@ -147,10 +154,6 @@ testPath :: (DsMonad m, MonadReader R m, MonadWriter [[Dec]] m) => TypeGraphVert
 testPath gkey typ = do
   key <- view typeInfo >>= runReaderT (expandType typ >>= vertex Nothing)
   goalReachableSimple gkey key
-
--- | Return an expression whose type is the path type of the vertex.
-pathValue :: (DsMonad m, MonadReader R m) => TypeGraphVertex -> m Exp
-pathValue key = maybe (error $ "pathValue - no type name: " ++ pprint' key) (runQ . conE . fst) (bestPathTypeName key)
 
 namedTypeClause :: forall m. (DsMonad m, MonadReader R m, MonadWriter [[Dec]] m) => Name -> TypeGraphVertex -> Type -> m [ClauseQ]
 namedTypeClause tname gkey ptyp =

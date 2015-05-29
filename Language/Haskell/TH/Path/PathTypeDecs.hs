@@ -14,7 +14,7 @@ module Language.Haskell.TH.Path.PathTypeDecs
     ( pathTypeDecs
     ) where
 
-import Control.Applicative ((<$>))
+import Control.Applicative ((<$>), pure)
 import Control.Lens hiding (cons) -- (makeLenses, over, view)
 import Control.Monad.Reader (MonadReader, runReaderT)
 import Control.Monad.Writer (MonadWriter, tell)
@@ -45,7 +45,7 @@ pathTypeDecs key =
           control =
             FoldPathControl
               { simplef = maybe (error $ "pathTypeDecs: simple path type has no name: " ++ pprint' key) (uncurry simplePath) (bestPathTypeName key)
-              , substf = \_lns _styp -> maybe (return ()) (uncurry simplePath) (bestPathTypeName key)
+              , substf = \_lns styp -> viewPath styp -- maybe (return ()) (uncurry simplePath) (bestPathTypeName key)
               , pathyf = return ()
               , namedf = \_tname -> doNames
               , maybef = \_etyp -> doNames
@@ -63,6 +63,19 @@ pathTypeDecs key =
       simplePath pname syns =
           runQ (sequence ((newName "a" >>= \a -> dataD (return []) pname [PlainTV a] [normalC pname []] supers)
                           : map (\psyn -> newName "a" >>= \a -> tySynD psyn [PlainTV a] (appT (conT pname) (varT a))) (toList syns))) >>= tell . (: [])
+
+      -- viewPath [t|Text|] = data Path_Branding a = Path_Branding (Path_Text a)
+      viewPath :: Type -> m ()
+      viewPath styp = do
+        let Just (pname, syns) = bestPathTypeName key
+            gname = mkName ("Goal_" ++ nameBase pname)
+        skey <- view typeInfo >>= runReaderT (expandType styp >>= vertex Nothing)
+        a <- runQ $ newName "a"
+        ptype <- pathType (varT a) skey
+        runQ (sequence (dataD (return []) pname [PlainTV a] [ normalC pname [strictType notStrict (pure ptype)]
+                                                            , normalC gname []
+                                                            ] supers
+                         : map (\psyn -> tySynD psyn [PlainTV a] (appT (conT pname) (varT a))) (toList syns))) >>= tell . (: [])
 
       doInfo (TyConI dec) =
           -- tell [ [d| z = $(litE (stringL ("doDec " ++ pprint' dec))) |] ] >>
