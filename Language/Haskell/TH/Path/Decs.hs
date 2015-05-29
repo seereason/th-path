@@ -21,7 +21,7 @@ import Control.Monad (when)
 import Control.Monad.Reader (MonadReader, runReaderT)
 import Control.Monad.RWS (evalRWST)
 import Control.Monad.State (MonadState, get, modify)
-import Control.Monad.Writer (MonadWriter, tell)
+import Control.Monad.Writer (MonadWriter, execWriterT, tell)
 import Data.Foldable
 import Data.List as List (map)
 import Data.Set as Set (empty, insert, member, Set)
@@ -34,8 +34,9 @@ import Language.Haskell.TH.Path.PathType (pathType)
 import Language.Haskell.TH.Path.PathTypeDecs (pathTypeDecs)
 import Language.Haskell.TH.Path.Lens (idLens, mat)
 import Language.Haskell.TH.Path.Order (lens_omat)
-import Language.Haskell.TH.Syntax as TH (VarStrictType)
-import Language.Haskell.TH.TypeGraph.Expand (expandType, runExpanded)
+import Language.Haskell.TH.Syntax as TH (lift, VarStrictType)
+import Language.Haskell.TH.TypeGraph.Core (pprint')
+import Language.Haskell.TH.TypeGraph.Expand (E(E), expandType, runExpanded)
 import Language.Haskell.TH.TypeGraph.Monad (vertex)
 import Language.Haskell.TH.TypeGraph.Vertex (bestType, TypeGraphVertex(..), etype)
 import Prelude hiding (any, concat, concatMap, elem, foldr, mapM_, null, or)
@@ -69,7 +70,7 @@ pathInstanceDecs gkey key = do
     makePathLenses key
     pathTypeDecs key
   ptyp <- pathType (pure (bestType gkey)) key
-  (clauses :: [ClauseQ]) <- pathInstanceClauses key gkey ptyp
+  (clauses :: [ClauseQ]) <- execWriterT $ pathInstanceClauses key gkey ptyp
   when (not (null clauses)) $
        tell1 (instanceD (pure []) [t|Path $(pure (bestType key)) $(pure (bestType gkey))|]
                 [tySynInstD ''PathType (tySynEqn [pure (bestType key), pure (bestType gkey)] (pure ptyp)),
@@ -79,16 +80,18 @@ pathInstanceDecs gkey key = do
       tell1 :: DecQ -> m ()
       tell1 dec = runQ (sequence (map sequence [[dec]])) >>= tell
 
-pathInstanceClauses :: forall m. (DsMonad m, MonadReader R m) =>
+pathInstanceClauses :: forall m. (DsMonad m, MonadReader R m, MonadWriter [ClauseQ] m) =>
                        TypeGraphVertex -- ^ the type whose clauses we are generating
                     -> TypeGraphVertex -- ^ the goal type key
                     -> Type -- ^ the corresponding path type - first type parameter of ToLens
-                    -> m [ClauseQ]
+                    -> m ()
 pathInstanceClauses key gkey ptyp = do
   pathHints key >>= pathInstanceClauses'
+  u <- runQ $ newName "u"
+  tell [clause [varP u] (normalB [|(error $ "Goal " ++ $(lift (pprint' gkey)) ++ " unexpected for " ++ $(lift (pprint' key)) ++ ": " ++ show $(varE u)) :: Lens' $(let E typ = view etype key in pure typ) $(let E typ = view etype gkey in pure typ) |]) []]
     where
-      pathInstanceClauses' :: [(TypeGraphVertex, LensHint)] -> m [ClauseQ]
-      pathInstanceClauses' _hints | view etype key == view etype gkey = return [clause [wildP] (normalB [|idLens|]) []]
+      pathInstanceClauses' :: [(TypeGraphVertex, LensHint)] -> m ()
+      pathInstanceClauses' _hints | view etype key == view etype gkey = tell [clause [wildP] (normalB [|idLens|]) []]
       pathInstanceClauses' hints = foldPath control key hints
       -- Use this to raise errors when the path patterns aren't exhaustive.
       -- That is supposed to be impossible, so this is debugging code.
@@ -97,29 +100,34 @@ pathInstanceClauses key gkey ptyp = do
       --   r <- foldPath control key hints
       --   return $ r ++ [clause [varP x] (normalB [|error ("toLens (" ++ $(lift (pprint' key)) ++ ") -> (" ++ $(lift (pprint' gkey)) ++ ") - unmatched: " ++ show $(varE x))|]) []]
         where
+          control :: FoldPathControl m ()
           control =
             FoldPathControl
-              { simplef = return [] -- Simple paths only work if we are at the goal type, and that case is handled above.
+              { simplef = return () -- Simple paths only work if we are at the goal type, and that case is handled above.
               , substf = \lns ltyp -> do
                   -- Ok, we have a type key, and a lens that goes between key and
                   -- lkey, and we need to create a toLens function for key's path type.
                   -- The tricky bit is to extract the path value for lkey from the path
                   -- value we have.
                   let (AppT (ConT pname) _gtyp) = ptyp
+                      gname = mkName ("Goal_" ++ nameBase pname)
 #if 1
-                  doClause gkey ltyp (\p -> conP pname [p]) (pure lns)
+                  lkey <- view typeInfo >>= runReaderT (expandType ltyp >>= vertex Nothing)
+                  doClause gkey ltyp (\p -> if lkey == gkey then wildP else conP pname [p]) (pure lns)
 #else
                   l <- runQ $ newName "l"
                   lkey <- view typeInfo >>= runReaderT (expandType ltyp >>= vertex Nothing)
-                  if lkey == gkey then
-                      testClause gkey ltyp (clause [wildP] (normalB (pure lns)) []) else
+                  case lkey == gkey of
+                    True -> testClause gkey ltyp (clause [wildP] (normalB (pure lns)) [])
+                    False -> do
                       testClause gkey ltyp (clause [conP pname [varP l]] (normalB [|$(pure lns) . toLens $(varE l)|]) [])
+                      testClause gkey ltyp (clause [conP gname] (normalB [|error $(TH.lift $ show gname ++ " used in instance Path (" ++ pprint' key ++ ") (" ++ pprint' gkey +")") |]) [])
 #endif
-              , pathyf = return []
+              , pathyf = return ()
               , namedf = \tname -> namedTypeClause tname gkey ptyp
               , maybef = \etyp -> do
                   doClause gkey etyp (\p -> [p|Path_Maybe $p|]) [|_Just|]
-              , listf = \_etyp -> return []
+              , listf = \_etyp -> return ()
               , orderf = \_ktyp vtyp -> do
                   k <- runQ (newName "k")
                   doClause gkey vtyp (\p -> [p|Path_At $(varP k) $p|]) [|lens_omat $(varE k)|]
@@ -127,35 +135,35 @@ pathInstanceClauses key gkey ptyp = do
                   k <- runQ (newName "k")
                   doClause gkey vtyp (\p -> [p|Path_Map $(varP k) $p|]) [|mat $(varE k)|]
               , pairf = \ftyp styp -> do
-                  fclause <- doClause gkey ftyp (\p -> [p|Path_First $p|]) [|_1|]
-                  sclause <- doClause gkey styp (\p -> [p|Path_Second $p|]) [|_2|]
-                  return $ concat $ [fclause, sclause]
+                  doClause gkey ftyp (\p -> [p|Path_First $p|]) [|_1|]
+                  doClause gkey styp (\p -> [p|Path_Second $p|]) [|_2|]
               , eitherf = \ltyp rtyp -> do
-                  lclause <- doClause gkey ltyp (\p -> [p|Left $p|]) [|_Left|]
-                  rclause <- doClause gkey rtyp (\p -> [p|Right $p|]) [|_Right|]
-                  return $ concat [lclause, rclause]
-              , otherf = return [ clause [wildP] (normalB [|(error $ $(litE (stringL ("Need to find lens for field type: " ++ pprint (view etype key))))) :: Traversal' $(pure (runExpanded (view etype key))) $(pure (bestType gkey))|]) [] ]
+                  doClause gkey ltyp (\p -> [p|Left $p|]) [|_Left|]
+                  doClause gkey rtyp (\p -> [p|Right $p|]) [|_Right|]
+              , otherf = tell [ clause [wildP] (normalB [|(error $ $(litE (stringL ("Need to find lens for field type: " ++ pprint (view etype key))))) :: Traversal' $(pure (runExpanded (view etype key))) $(pure (bestType gkey))|]) [] ]
               }
 
-doClause :: (DsMonad m, MonadReader R m) => TypeGraphVertex -> Type -> (PatQ -> PatQ) -> ExpQ -> m [ClauseQ]
+doClause :: (DsMonad m, MonadReader R m, MonadWriter [ClauseQ] m) => TypeGraphVertex -> Type -> (PatQ -> PatQ) -> ExpQ -> m ()
 doClause gkey typ pfunc lns = do
   v <- runQ (newName "v")
   key <- view typeInfo >>= runReaderT (expandType typ >>= vertex Nothing)
-  if key == gkey then
-      testClause gkey typ (clause [ pfunc wildP ] (normalB lns) []) else
+  case key == gkey of
+    True -> testClause gkey typ (clause [ pfunc wildP ] (normalB lns) [])
+    False -> do
       testClause gkey typ (clause [ pfunc (varP v) ] (normalB [|$lns . toLens $(varE v)|]) [])
+      when (key == gkey) $ testClause gkey typ (clause [ wildP ] (normalB [|idLens|]) [])
 
-testClause :: (DsMonad m, MonadReader R m) => TypeGraphVertex -> Type -> ClauseQ -> m [ClauseQ]
+testClause :: (DsMonad m, MonadReader R m, MonadWriter [ClauseQ] m) => TypeGraphVertex -> Type -> ClauseQ -> m ()
 testClause gkey typ cl = do
   ok <- testPath gkey typ
-  return $ if ok then [cl] else []
+  when ok $ tell [cl]
 
 testPath :: (DsMonad m, MonadReader R m) => TypeGraphVertex -> Type -> m Bool
 testPath gkey typ = do
   key <- view typeInfo >>= runReaderT (expandType typ >>= vertex Nothing)
   goalReachableSimple gkey key
 
-namedTypeClause :: forall m. (DsMonad m, MonadReader R m) => Name -> TypeGraphVertex -> Type -> m [ClauseQ]
+namedTypeClause :: forall m. (DsMonad m, MonadReader R m, MonadWriter [ClauseQ] m) => Name -> TypeGraphVertex -> Type -> m ()
 namedTypeClause tname gkey ptyp =
     -- If encounter a named type and the stack is empty we
     -- need to build the clauses for its declaration.
@@ -164,7 +172,7 @@ namedTypeClause tname gkey ptyp =
          TyConI dec -> doDec dec
          _ -> error "doNameClauses"
     where
-            doDec :: Dec -> m [ClauseQ]
+            doDec :: Dec -> m ()
             doDec (TySynD _ _ typ') =
                 do -- If we have a type synonym we can use the corresponding
                    -- path type synonym instead of the path type of the
@@ -172,14 +180,16 @@ namedTypeClause tname gkey ptyp =
                   key' <- view typeInfo >>= runReaderT (expandType typ' >>= vertex Nothing)
                   ok <- goalReachableSimple gkey key'
                   case ok of
-                    False -> return []
+                    False -> return ()
                     True -> pathInstanceClauses key' gkey ptyp
             doDec (NewtypeD _ _ _ con _) = doCons [con]
             doDec (DataD _ _ _ cons _) = doCons cons
             doDec dec = error $ "doName - unexpected Dec: " ++ show dec
 
-            doCons :: [Con] -> m [ClauseQ]
-            doCons cons = (concatMap snd . concat) <$> mapM doCon cons
+            doCons :: [Con] -> m ()
+            doCons cons = ((concatMap snd . concat) <$> mapM doCon cons) >>= tell
+                -- clauses <- (concatMap snd . concat) <$> mapM doCon cons
+                -- tell $ clauses ++ [newName "u" >>= \u -> clause [varP u] (normalB [|error $ "Goal " ++ $(lift (pprint' gkey)) ++ " unexpected for " ++ $(lift (show tname)) ++ ": " ++ show $(varE u)|]) []]
 
             -- For each constructor of the original type, we create a list of pairs, a
             -- path type constructor and the clause which recognizes it.
@@ -210,9 +220,13 @@ namedTypeClause tname gkey ptyp =
                              con <- runQ $ normalC pcname [strictType notStrict (return ptype')]
                              -- These are the field's clauses.  Each pattern gets wrapped with the field path constructor,
                              -- and each field lens gets composed with the lens produced for the field's type.
-                             clauses' <- mapM (mapClause (\ pat -> conP pcname [pat]) (\ lns -> if view etype fkey == view etype gkey
-                                                                                                then varE (fieldLensName tname fn)
-                                                                                                else [|$(varE (fieldLensName tname fn)) . $lns|])) clauses
+                             let goal = view etype fkey == view etype gkey
+                             clauses' <- mapM (mapClause (\ pat -> if goal
+                                                                   then wildP
+                                                                   else conP pcname [pat])
+                                                         (\ lns -> if goal
+                                                                   then varE (fieldLensName tname fn)
+                                                                   else [|$(varE (fieldLensName tname fn)) . $lns|])) clauses
                              return [(con, clauses')]
 
 
