@@ -22,7 +22,7 @@ import Data.List as List (intercalate, map)
 import Language.Haskell.TH
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.Path.Core (bestPathTypeName, pathTypeNameFromTypeName, PathType, Path_OMap, Path_List, Path_Map, Path_Pair, Path_Maybe)
+import Language.Haskell.TH.Path.Core (bestPathTypeName, pathTypeNameFromTypeName, PathType, Path_OMap, Path_List, Path_Map, Path_Pair, Path_Maybe, Path_Either)
 import Language.Haskell.TH.Path.Monad (R, typeInfo, pathHints, reachableFrom, FoldPathControl(..), foldPath)
 import Language.Haskell.TH.TypeGraph.Core (pprint')
 import Language.Haskell.TH.TypeGraph.Expand (E(E), runExpanded)
@@ -71,7 +71,7 @@ pathType gtyp key =
                 , eitherf = \ltyp rtyp -> do
                     lpath <- vert ltyp >>= pathType gtyp
                     rpath <- vert rtyp >>= pathType gtyp
-                    runQ [t| Either $(return lpath) $(return rpath)|]
+                    runQ [t| Path_Either $(return lpath) $(return rpath)|]
                 , otherf = do
                     ks <- reachableFrom key
                     error $ "makePathType otherf: " ++ pprint' key ++ "\n" ++

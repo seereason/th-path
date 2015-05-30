@@ -28,7 +28,7 @@ import Data.Set as Set (empty, insert, member, Set)
 import Language.Haskell.TH
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.Path.Core (Field, Path(..), LensHint(..), fieldLensName, pathConNameOfField, Path_OMap(..), Path_Map(..), Path_Pair(..), Path_Maybe(..))
+import Language.Haskell.TH.Path.Core (Field, Path(..), LensHint(..), fieldLensName, pathConNameOfField, Path_OMap(..), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
 import Language.Haskell.TH.Path.Monad (allLensKeys, foldPath, FoldPathControl(..), goalReachableSimple, makePathLenses, makeTypeGraph, pathHints, R, typeInfo)
 import Language.Haskell.TH.Path.PathType (pathType)
 import Language.Haskell.TH.Path.PathTypeDecs (pathTypeDecs)
@@ -130,8 +130,8 @@ pathInstanceClauses key gkey ptyp = do
                   doClause gkey ftyp (\p -> [p|Path_First $p|]) [|_1|]
                   doClause gkey styp (\p -> [p|Path_Second $p|]) [|_2|]
               , eitherf = \ltyp rtyp -> do
-                  doClause gkey ltyp (\p -> [p|Left $p|]) [|_Left|]
-                  doClause gkey rtyp (\p -> [p|Right $p|]) [|_Right|]
+                  doClause gkey ltyp (\p -> [p|Path_Left $p|]) [|_Left|]
+                  doClause gkey rtyp (\p -> [p|Path_Right $p|]) [|_Right|]
               , otherf = tell [ clause [wildP] (normalB [|(error $ $(litE (stringL ("Need to find lens for field type: " ++ pprint (view etype key))))) :: Traversal' $(pure (runExpanded (view etype key))) $(pure (bestType gkey))|]) [] ]
               }
 

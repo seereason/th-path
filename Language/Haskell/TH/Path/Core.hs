@@ -23,6 +23,7 @@ module Language.Haskell.TH.Path.Core
     , Path_Map(..)
     , Path_OMap(..)
     , Path_List(..)
+    , Path_Either(..)
     -- * Hints
     , LensHint(..)
     , Field
@@ -76,6 +77,8 @@ class Path s a where
 
 data Path_Pair a b = Path_First a | Path_Second b | Path_Pair deriving (Eq, Ord, Read, Show, Typeable, Data)
 
+data Path_Either a b = Path_Left a | Path_Right b | Path_Either deriving (Eq, Ord, Read, Show, Typeable, Data)
+
 data Path_Invalid = Path_Invalid deriving (Eq, Ord, Read, Show, Typeable, Data)
 
 -- data SomePath = SomePath deriving (Eq, Ord, Read, Show, Typeable, Data)
@@ -89,18 +92,19 @@ data Path_List a = Path_List deriving (Eq, Ord, Read, Show, Typeable, Data) -- N
 data Path_OMap k a = Path_OMap | Path_At k a deriving (Eq, Ord, Read, Show, Typeable, Data) -- FIXME - Path_OMap constructor should be removed
 
 primitivePathTypeNames :: Set Name
-primitivePathTypeNames = Set.fromList [''Path_Pair, ''Path_List, ''Either, ''Path_Map, ''Path_OMap, ''Path_Maybe]
+primitivePathTypeNames = Set.fromList [''Path_Pair, ''Path_List, ''Path_Either, ''Path_Map, ''Path_OMap, ''Path_Maybe]
 
 $(derivePathInfo ''Path_Pair)
 $(derivePathInfo ''Path_List)
 $(derivePathInfo ''Path_Map)
-$(derivePathInfo ''Either)
+$(derivePathInfo ''Path_Either)
 $(derivePathInfo ''Path_Maybe)
 $(derivePathInfo ''Path_OMap)
 
 $(deriveSafeCopy 0 'base ''Path_Pair)
 $(deriveSafeCopy 0 'base ''Path_List)
 $(deriveSafeCopy 0 'base ''Path_Map)
+$(deriveSafeCopy 0 'base ''Path_Either)
 $(deriveSafeCopy 0 'base ''Path_Maybe)
 $(deriveSafeCopy 0 'base ''Path_OMap)
 
