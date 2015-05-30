@@ -102,7 +102,7 @@ pathTypeDecs key =
       makeDecs :: Name -> [[Con]] -> m ()
       makeDecs a pconss =
           case filter (/= []) pconss of
-            [pcons] -> mapM_ (\pname -> tell1 (dataD (cxt []) pname [PlainTV a] (List.map return pcons) supers)) (pathTypeNames' key)
+            [pcons] -> mapM_ (\pname -> tell1 (dataD (cxt []) pname [PlainTV a] (List.map return (pcons ++ [NormalC pname []])) supers)) (pathTypeNames' key)
             [] | length pconss > 1 -> return () -- enum
             [] -> return ()
                   -- FIXME - if there are paths from several different
