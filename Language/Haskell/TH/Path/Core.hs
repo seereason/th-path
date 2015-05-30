@@ -16,6 +16,7 @@ module Language.Haskell.TH.Path.Core
     ( -- * The Path type class
       Path(toLens)
     , PathType
+    , IdPath(idPath)
 
     -- * Basic Path Types
     , Path_Pair(..)
@@ -61,6 +62,10 @@ import Language.Haskell.TH.TypeGraph.Vertex (TypeGraphVertex(..), etype, syns, t
 import Prelude hiding (exp)
 import Web.Routes.TH (derivePathInfo)
 
+-- | Use idPath to obtain from a path type @s@ the identity value of type @s@.
+class IdPath s where
+    idPath :: s
+
 -- | Instances of @Path s a@ include a 'PathType' which describes all
 -- the different ways to obtain an value of type @a@ (called the goal
 -- type in some places) from an @s@, and a 'toLens' function that
@@ -76,20 +81,19 @@ class Path s a where
 -- Primitive path types
 
 data Path_Pair a b = Path_First a | Path_Second b | Path_Pair deriving (Eq, Ord, Read, Show, Typeable, Data)
-
 data Path_Either a b = Path_Left a | Path_Right b | Path_Either deriving (Eq, Ord, Read, Show, Typeable, Data)
-
 data Path_Invalid = Path_Invalid deriving (Eq, Ord, Read, Show, Typeable, Data)
-
--- data SomePath = SomePath deriving (Eq, Ord, Read, Show, Typeable, Data)
-
 data Path_Maybe a = Path_Just a | Path_Maybe deriving (Eq, Ord, Read, Show, Typeable, Data)
-
 data Path_Map k v = Path_Look k v | Path_Map  deriving (Eq, Ord, Read, Show, Typeable, Data)
-
 data Path_List a = Path_List deriving (Eq, Ord, Read, Show, Typeable, Data) -- No element lookup path - too dangerous, use OMap
+data Path_OMap k a = Path_OMap | Path_At k a deriving (Eq, Ord, Read, Show, Typeable, Data)
 
-data Path_OMap k a = Path_OMap | Path_At k a deriving (Eq, Ord, Read, Show, Typeable, Data) -- FIXME - Path_OMap constructor should be removed
+instance IdPath (Path_Pair a b) where idPath = Path_Pair
+instance IdPath (Path_Maybe a) where idPath = Path_Maybe
+instance IdPath (Path_Either a b) where idPath = Path_Either
+instance IdPath (Path_Map k v) where idPath = Path_Map
+instance IdPath (Path_List a) where idPath = Path_List
+instance IdPath (Path_OMap k a) where idPath = Path_OMap
 
 primitivePathTypeNames :: Set Name
 primitivePathTypeNames = Set.fromList [''Path_Pair, ''Path_List, ''Path_Either, ''Path_Map, ''Path_OMap, ''Path_Maybe]
