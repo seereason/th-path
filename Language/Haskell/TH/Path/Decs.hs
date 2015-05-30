@@ -36,7 +36,7 @@ import Language.Haskell.TH.Path.Lens (idLens, mat)
 import Language.Haskell.TH.Path.Order (lens_omat)
 import Language.Haskell.TH.Syntax as TH (lift, VarStrictType)
 import Language.Haskell.TH.TypeGraph.Core (pprint')
-import Language.Haskell.TH.TypeGraph.Expand (E(E), expandType, runExpanded)
+import Language.Haskell.TH.TypeGraph.Expand (expandType, runExpanded)
 import Language.Haskell.TH.TypeGraph.Monad (vertex)
 import Language.Haskell.TH.TypeGraph.Vertex (bestType, TypeGraphVertex(..), etype)
 import Prelude hiding (any, concat, concatMap, elem, foldr, mapM_, null, or)
@@ -118,14 +118,14 @@ pathInstanceClauses key gkey ptyp = do
               , pathyf = return ()
               , namedf = \tname -> namedTypeClause tname gkey ptyp
               , maybef = \etyp -> do
-                  doClause gkey etyp (\p -> [p|Path_Maybe $p|]) [|_Just|]
+                  doClause gkey etyp (\p -> [p|Path_Just $p|]) [|_Just|]
               , listf = \_etyp -> return ()
               , orderf = \_ktyp vtyp -> do
                   k <- runQ (newName "k")
                   doClause gkey vtyp (\p -> [p|Path_At $(varP k) $p|]) [|lens_omat $(varE k)|]
               , mapf = \_ktyp vtyp -> do
                   k <- runQ (newName "k")
-                  doClause gkey vtyp (\p -> [p|Path_Map $(varP k) $p|]) [|mat $(varE k)|]
+                  doClause gkey vtyp (\p -> [p|Path_Look $(varP k) $p|]) [|mat $(varE k)|]
               , pairf = \ftyp styp -> do
                   doClause gkey ftyp (\p -> [p|Path_First $p|]) [|_1|]
                   doClause gkey styp (\p -> [p|Path_Second $p|]) [|_2|]

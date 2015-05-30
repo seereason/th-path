@@ -80,9 +80,9 @@ data Path_Invalid = Path_Invalid deriving (Eq, Ord, Read, Show, Typeable, Data)
 
 -- data SomePath = SomePath deriving (Eq, Ord, Read, Show, Typeable, Data)
 
-data Path_Maybe a = Path_Maybe a deriving (Eq, Ord, Read, Show, Typeable, Data)
+data Path_Maybe a = Path_Just a deriving (Eq, Ord, Read, Show, Typeable, Data)
 
-data Path_Map k v = Path_Map k v  deriving (Eq, Ord, Read, Show, Typeable, Data)
+data Path_Map k v = Path_Look k v  deriving (Eq, Ord, Read, Show, Typeable, Data)
 
 data Path_List a = Path_Elems deriving (Eq, Ord, Read, Show, Typeable, Data)
 
