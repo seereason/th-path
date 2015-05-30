@@ -87,8 +87,6 @@ pathInstanceClauses :: forall m. (DsMonad m, MonadReader R m, MonadWriter [Claus
                     -> m ()
 pathInstanceClauses key gkey ptyp = do
   pathHints key >>= pathInstanceClauses'
-  u <- runQ $ newName "u"
-  tell [clause [varP u] (normalB [|(error $ "Goal " ++ $(lift (pprint' gkey)) ++ " unexpected for " ++ $(lift (pprint' key)) ++ ": " ++ show $(varE u)) :: Lens' $(let E typ = view etype key in pure typ) $(let E typ = view etype gkey in pure typ) |]) []]
     where
       pathInstanceClauses' :: [(TypeGraphVertex, LensHint)] -> m ()
       pathInstanceClauses' _hints | view etype key == view etype gkey = tell [clause [wildP] (normalB [|idLens|]) []]
