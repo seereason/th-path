@@ -80,11 +80,11 @@ data Path_Invalid = Path_Invalid deriving (Eq, Ord, Read, Show, Typeable, Data)
 
 -- data SomePath = SomePath deriving (Eq, Ord, Read, Show, Typeable, Data)
 
-data Path_Maybe a = Path_Just a deriving (Eq, Ord, Read, Show, Typeable, Data)
+data Path_Maybe a = Path_Just a | Path_Maybe deriving (Eq, Ord, Read, Show, Typeable, Data)
 
-data Path_Map k v = Path_Look k v  deriving (Eq, Ord, Read, Show, Typeable, Data)
+data Path_Map k v = Path_Look k v | Path_Map  deriving (Eq, Ord, Read, Show, Typeable, Data)
 
-data Path_List a = Path_Elems deriving (Eq, Ord, Read, Show, Typeable, Data)
+data Path_List a = Path_List deriving (Eq, Ord, Read, Show, Typeable, Data) -- No element lookup path - too dangerous, use OMap
 
 data Path_OMap k a = Path_OMap | Path_At k a deriving (Eq, Ord, Read, Show, Typeable, Data) -- FIXME - Path_OMap constructor should be removed
 
