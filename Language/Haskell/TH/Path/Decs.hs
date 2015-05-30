@@ -71,10 +71,15 @@ pathInstanceDecs gkey key = do
     pathTypeDecs key
   ptyp <- pathType (pure (bestType gkey)) key
   (clauses :: [ClauseQ]) <- execWriterT $ pathInstanceClauses key gkey ptyp
+  let final = [newName "u" >>= \u ->
+               clause [varP u] (normalB [|(error $ $(lift ("Unexpected goal " ++ pprint' gkey ++ " for " ++ pprint' key ++ ": ")) ++
+                                                   show $(varE u))
+                                             -- :: Lens' $(let E typ = view etype key in pure typ) $(let E typ = view etype gkey in pure typ)
+                                         |]) []]
   when (not (null clauses)) $
        tell1 (instanceD (pure []) [t|Path $(pure (bestType key)) $(pure (bestType gkey))|]
                 [tySynInstD ''PathType (tySynEqn [pure (bestType key), pure (bestType gkey)] (pure ptyp)),
-                 funD 'toLens clauses])
+                 funD 'toLens (clauses ++ final)])
     where
       -- Send a single dec to our funky writer monad
       tell1 :: DecQ -> m ()
