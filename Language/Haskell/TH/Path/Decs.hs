@@ -113,19 +113,8 @@ pathInstanceClauses key gkey ptyp = do
                   -- The tricky bit is to extract the path value for lkey from the path
                   -- value we have.
                   let (AppT (ConT pname) _gtyp) = ptyp
-                      gname = mkName ("Goal_" ++ nameBase pname)
-#if 1
                   lkey <- view typeInfo >>= runReaderT (expandType ltyp >>= vertex Nothing)
                   doClause gkey ltyp (\p -> if lkey == gkey then wildP else conP pname [p]) (pure lns)
-#else
-                  l <- runQ $ newName "l"
-                  lkey <- view typeInfo >>= runReaderT (expandType ltyp >>= vertex Nothing)
-                  case lkey == gkey of
-                    True -> testClause gkey ltyp (clause [wildP] (normalB (pure lns)) [])
-                    False -> do
-                      testClause gkey ltyp (clause [conP pname [varP l]] (normalB [|$(pure lns) . toLens $(varE l)|]) [])
-                      testClause gkey ltyp (clause [conP gname] (normalB [|error $(TH.lift $ show gname ++ " used in instance Path (" ++ pprint' key ++ ") (" ++ pprint' gkey +")") |]) [])
-#endif
               , pathyf = return ()
               , namedf = \tname -> namedTypeClause tname gkey ptyp
               , maybef = \etyp -> do

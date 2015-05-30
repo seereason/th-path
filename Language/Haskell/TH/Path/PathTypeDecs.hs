@@ -68,12 +68,12 @@ pathTypeDecs key =
       viewPath :: Type -> m ()
       viewPath styp = do
         let Just (pname, syns) = bestPathTypeName key
-            gname = mkName ("Goal_" ++ nameBase pname)
+            -- gname = mkName ("Goal_" ++ nameBase pname)
         skey <- view typeInfo >>= runReaderT (expandType styp >>= vertex Nothing)
         a <- runQ $ newName "a"
         ptype <- pathType (varT a) skey
         runQ (sequence (dataD (return []) pname [PlainTV a] [ normalC pname [strictType notStrict (pure ptype)]
-                                                            , normalC gname []
+                                                            -- , normalC gname [strictType notStrict (varT a)]
                                                             ] supers
                          : map (\psyn -> tySynD psyn [PlainTV a] (appT (conT pname) (varT a))) (toList syns))) >>= tell . (: [])
 
