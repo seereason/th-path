@@ -219,9 +219,7 @@ namedTypeClause tname gkey ptyp =
                              -- These are the field's clauses.  Each pattern gets wrapped with the field path constructor,
                              -- and each field lens gets composed with the lens produced for the field's type.
                              let goal = view etype fkey == view etype gkey
-                             clauses' <- mapM (mapClause (\ pat -> if goal
-                                                                   then wildP
-                                                                   else conP pcname [pat])
+                             clauses' <- mapM (mapClause (\ pat -> conP pcname [pat])
                                                          (\ lns -> if goal
                                                                    then varE (fieldLensName tname fn)
                                                                    else [|$(varE (fieldLensName tname fn)) . $lns|])) clauses
