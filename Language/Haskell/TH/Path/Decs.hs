@@ -28,7 +28,7 @@ import Data.Set as Set (empty, insert, member, Set)
 import Language.Haskell.TH
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.Path.Core (Field, Path(..), LensHint(..), fieldLensName, pathConNameOfField, Path_OMap(..), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
+import Language.Haskell.TH.Path.Core (Field, Path(..), LensHint(..), fieldLensName, IdPath(idPath), pathConNameOfField, Path_OMap(..), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
 import Language.Haskell.TH.Path.Monad (allLensKeys, foldPath, FoldPathControl(..), goalReachableSimple, makePathLenses, makeTypeGraph, pathHints, R, typeInfo)
 import Language.Haskell.TH.Path.PathType (pathType)
 import Language.Haskell.TH.Path.PathTypeDecs (pathTypeDecs)
@@ -114,7 +114,7 @@ pathInstanceClauses key gkey ptyp = do
                   -- value we have.
                   let (AppT (ConT pname) _gtyp) = ptyp
                   lkey <- view typeInfo >>= runReaderT (expandType ltyp >>= vertex Nothing)
-                  doClause gkey ltyp (\p -> if lkey == gkey then wildP else conP pname [p]) (pure lns)
+                  doClause gkey ltyp (\p -> conP (mkName (nameBase pname ++ "_View")) [if lkey == gkey then wildP else p]) (pure lns)
               , pathyf = return ()
               , namedf = \tname -> namedTypeClause tname gkey ptyp
               , maybef = \etyp -> do

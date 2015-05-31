@@ -25,7 +25,7 @@ import Data.Set (Set)
 import Language.Haskell.TH
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.Path.Core (bestPathTypeName, pathConNameOfField, pathTypeNameFromTypeName, pathTypeNames')
+import Language.Haskell.TH.Path.Core (bestPathTypeName, IdPath(idPath), pathConNameOfField, pathTypeNameFromTypeName, pathTypeNames')
 import Language.Haskell.TH.Path.Monad (R, typeInfo, pathHints, foldPath, FoldPathControl(..))
 import Language.Haskell.TH.Path.PathType (pathType)
 import Language.Haskell.TH.Syntax as TH (Quasi, VarStrictType)
@@ -72,10 +72,11 @@ pathTypeDecs key =
         skey <- view typeInfo >>= runReaderT (expandType styp >>= vertex Nothing)
         a <- runQ $ newName "a"
         ptype <- pathType (varT a) skey
-        runQ (sequence (dataD (return []) pname [PlainTV a] [ normalC pname [strictType notStrict (pure ptype)]
-                                                            -- , normalC gname [strictType notStrict (varT a)]
+        runQ (sequence (dataD (return []) pname [PlainTV a] [ normalC (mkName (nameBase pname ++ "_View")) [strictType notStrict (pure ptype)]
+                                                            , normalC (mkName (nameBase pname ++ "_Self")) []
                                                             ] supers
                          : map (\psyn -> tySynD psyn [PlainTV a] (appT (conT pname) (varT a))) (toList syns))) >>= tell . (: [])
+        runQ [d|instance IdPath ($(conT pname) a) where idPath = $(conE (mkName (nameBase pname ++ "_Self")))|] >>= tell . (: [])
 
       doInfo (TyConI dec) =
           -- tell [ [d| z = $(litE (stringL ("doDec " ++ pprint' dec))) |] ] >>
