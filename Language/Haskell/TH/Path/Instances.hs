@@ -11,7 +11,7 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TupleSections #-}
 {-# OPTIONS_GHC -fno-warn-orphans -fno-warn-missing-signatures #-}
-module Language.Haskell.TH.Path.Decs
+module Language.Haskell.TH.Path.Instances
     ( pathInstances
     ) where
 
@@ -31,7 +31,6 @@ import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Core (Field, Path(..), LensHint(..), fieldLensName, IdPath(idPath), pathConNameOfField, Path_OMap(..), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
 import Language.Haskell.TH.Path.Monad (allLensKeys, foldPath, FoldPathControl(..), goalReachableSimple, makePathLenses, makeTypeGraph, pathHints, R, typeInfo)
 import Language.Haskell.TH.Path.PathType (pathType)
-import Language.Haskell.TH.Path.PathTypeDecs (pathTypeDecs)
 import Language.Haskell.TH.Path.Lens (idLens, mat)
 import Language.Haskell.TH.Path.Order (lens_omat)
 import Language.Haskell.TH.Syntax as TH (lift, VarStrictType)
@@ -68,18 +67,21 @@ pathInstanceDecs gkey key = do
   when (not done) $ do
     modify (Set.insert key)
     makePathLenses key
-    pathTypeDecs key
   ptyp <- pathType (pure (bestType gkey)) key
-  (clauses :: [ClauseQ]) <- execWriterT $ pathInstanceClauses key gkey ptyp
+  clauses <- execWriterT $ pathInstanceClauses key gkey ptyp
   let final = [newName "u" >>= \u ->
                clause [varP u] (normalB [|(error $ $(lift ("Unexpected goal " ++ pprint' gkey ++ " for " ++ pprint' key ++ ": ")) ++
                                                    show $(varE u))
                                              -- :: Lens' $(let E typ = view etype key in pure typ) $(let E typ = view etype gkey in pure typ)
                                          |]) []]
+  -- clauses' <- runQ $ sequence clauses
+  -- exp <- thePathExp gkey key ptyp clauses'
   when (not (null clauses)) $
        tell1 (instanceD (pure []) [t|Path $(pure (bestType key)) $(pure (bestType gkey))|]
-                [tySynInstD ''PathType (tySynEqn [pure (bestType key), pure (bestType gkey)] (pure ptyp)),
-                 funD 'toLens (clauses ++ final)])
+                [ tySynInstD ''PathType (tySynEqn [pure (bestType key), pure (bestType gkey)] (pure ptyp))
+                , funD 'toLens (clauses ++ final)
+                --, valD (varP 'thePath) (normalB exp) []
+                ])
     where
       -- Send a single dec to our funky writer monad
       tell1 :: DecQ -> m ()

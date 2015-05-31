@@ -10,30 +10,38 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TupleSections #-}
 {-# OPTIONS_GHC -fno-warn-orphans -fno-warn-missing-signatures #-}
-module Language.Haskell.TH.Path.PathTypeDecs
-    ( pathTypeDecs
+module Language.Haskell.TH.Path.Types
+    ( pathTypes
     ) where
 
 import Control.Applicative ((<$>), pure)
 import Control.Lens hiding (cons) -- (makeLenses, over, view)
 import Control.Monad.Reader (MonadReader, runReaderT)
+import Control.Monad.RWS (evalRWST)
 import Control.Monad.Writer (MonadWriter, tell)
 import Data.Foldable
 import Data.Generics (Data, Typeable)
 import Data.List as List (map)
-import Data.Set (Set)
+import Data.Set as Set (empty, map, Set)
 import Language.Haskell.TH
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.Path.Core (bestPathTypeName, IdPath(idPath), pathConNameOfField, pathTypeNameFromTypeName, pathTypeNames')
-import Language.Haskell.TH.Path.Monad (R, typeInfo, pathHints, foldPath, FoldPathControl(..))
+import Language.Haskell.TH.Path.Core (bestPathTypeName, Field, IdPath(idPath), LensHint, pathConNameOfField, pathTypeNameFromTypeName, pathTypeNames')
+import Language.Haskell.TH.Path.Monad (allPathKeys, foldPath, FoldPathControl(..), makeTypeGraph, pathHints, R, typeInfo)
 import Language.Haskell.TH.Path.PathType (pathType)
 import Language.Haskell.TH.Syntax as TH (Quasi, VarStrictType)
 import Language.Haskell.TH.TypeGraph.Core (pprint')
 import Language.Haskell.TH.TypeGraph.Expand (expandType)
-import Language.Haskell.TH.TypeGraph.Monad (vertex)
+import Language.Haskell.TH.TypeGraph.Monad (simpleVertex, vertex)
 import Language.Haskell.TH.TypeGraph.Vertex (TypeGraphVertex(..), typeNames)
 import Prelude hiding (any, concat, concatMap, elem, foldr, mapM_, null, or)
+import System.FilePath.Extra (compareSaveAndReturn, changeError)
+
+pathTypes :: Q [Type] -> [(Maybe Field, Name, Q LensHint)] -> Q [Dec]
+pathTypes st hs = do
+  r <- makeTypeGraph st hs
+  (_, decss) <- evalRWST (allPathKeys >>= mapM pathTypeDecs . toList . Set.map simpleVertex) r Set.empty
+  runIO . compareSaveAndReturn changeError "GeneratedPathTypes.hs" $ concat decss
 
 -- | Given a type, generate the corresponding path type declarations
 pathTypeDecs :: forall m. (DsMonad m, MonadReader R m, MonadWriter [[Dec]] m) => TypeGraphVertex -> m ()
@@ -60,9 +68,10 @@ pathTypeDecs key =
       doNames = mapM_ (\tname -> runQ (reify tname) >>= doInfo) (typeNames key)
 
       simplePath :: Name -> Set Name -> m ()
-      simplePath pname syns =
-          runQ (sequence ((newName "a" >>= \a -> dataD (return []) pname [PlainTV a] [normalC pname []] supers)
-                          : map (\psyn -> newName "a" >>= \a -> tySynD psyn [PlainTV a] (appT (conT pname) (varT a))) (toList syns))) >>= tell . (: [])
+      simplePath pname syns = do
+        runQ (newName "a" >>= \a -> dataD (return []) pname [PlainTV a] [normalC pname []] supers) >>= tell . (: []) . (: [])
+        runQ [d|instance IdPath ($(conT pname) a) where idPath = $(conE (mkName (nameBase pname)))|] >>= tell . (: [])
+        mapM_ (\psyn -> runQ (newName "a" >>= \a -> tySynD psyn [PlainTV a] (appT (conT pname) (varT a))) >>= tell . (: []) . (: [])) (toList syns)
 
       -- viewPath [t|Text|] = data Path_Branding a = Path_Branding (Path_Text a)
       viewPath :: Type -> m ()
@@ -75,7 +84,7 @@ pathTypeDecs key =
         runQ (sequence (dataD (return []) pname [PlainTV a] [ normalC (mkName (nameBase pname ++ "_View")) [strictType notStrict (pure ptype)]
                                                             , normalC (mkName (nameBase pname ++ "_Self")) []
                                                             ] supers
-                         : map (\psyn -> tySynD psyn [PlainTV a] (appT (conT pname) (varT a))) (toList syns))) >>= tell . (: [])
+                         : List.map (\psyn -> tySynD psyn [PlainTV a] (appT (conT pname) (varT a))) (toList syns))) >>= tell . (: [])
         runQ [d|instance IdPath ($(conT pname) a) where idPath = $(conE (mkName (nameBase pname ++ "_Self")))|] >>= tell . (: [])
 
       doInfo (TyConI dec) =
@@ -103,7 +112,9 @@ pathTypeDecs key =
       makeDecs :: Name -> [[Con]] -> m ()
       makeDecs a pconss =
           case filter (/= []) pconss of
-            [pcons] -> mapM_ (\pname -> tell1 (dataD (cxt []) pname [PlainTV a] (List.map return (pcons ++ [NormalC pname []])) supers)) (pathTypeNames' key)
+            [pcons] -> mapM_ (\pname -> do tell1 (dataD (cxt []) pname [PlainTV a] (List.map return (pcons ++ [NormalC pname []])) supers)
+                                           runQ [d|instance IdPath ($(conT pname) a) where idPath = $(conE (mkName (nameBase pname)))|] >>= tell . (: [])
+                             ) (pathTypeNames' key)
             [] | length pconss > 1 -> return () -- enum
             [] -> return ()
                   -- FIXME - if there are paths from several different
@@ -142,4 +153,4 @@ supers :: [Name]
 supers = [''Eq, ''Ord, ''Read, ''Show, ''Typeable, ''Data]
 
 tell1 :: (Quasi m, MonadWriter [[Dec]] m) => DecQ -> m ()
-tell1 dec = runQ (sequence (map sequence [[dec]])) >>= tell
+tell1 dec = runQ (sequence (List.map sequence [[dec]])) >>= tell
