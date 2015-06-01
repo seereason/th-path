@@ -17,7 +17,7 @@ module Language.Haskell.TH.Path.LensTH (
 import Language.Haskell.TH
 import Language.Haskell.TH.Syntax
 import Control.Lens (_Just, Lens', lens, Traversal')
-import Control.Monad (liftM, when, (<=<))
+import Control.Monad (liftM, (<=<))
 import Data.Maybe (catMaybes)
 import Data.List (nub)
 

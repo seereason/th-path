@@ -53,7 +53,6 @@ import Language.Haskell.TH.TypeGraph.Core (pprint')
 import Language.Haskell.TH.TypeGraph.Expand (E(E), expandType, runExpanded)
 import Language.Haskell.TH.TypeGraph.Free (freeTypeVars)
 import Language.Haskell.TH.TypeGraph.Graph (dissolveM, GraphEdges, graphFromMap, isolate)
-import Language.Haskell.TH.TypeGraph.Hints (VertexHint)
 import Language.Haskell.TH.TypeGraph.Info (infoMap, TypeGraphInfo, typeGraphInfo)
 import Language.Haskell.TH.TypeGraph.Monad (simpleEdges, simpleVertex, typeGraphEdges, vertex)
 import Language.Haskell.TH.TypeGraph.Vertex (TypeGraphVertex(..), etype, field, typeNames)
@@ -69,9 +68,9 @@ data R
     = R
       { _startTypes :: [Type]
       , _typeInfo :: TypeGraphInfo
-      , _edges :: GraphEdges VertexHint TypeGraphVertex
-      , _graph :: (Graph, Vertex -> (VertexHint, TypeGraphVertex, [TypeGraphVertex]), TypeGraphVertex -> Maybe Vertex)
-      , _gsimple :: (Graph, Vertex -> (VertexHint, TypeGraphVertex, [TypeGraphVertex]), TypeGraphVertex -> Maybe Vertex)
+      , _edges :: GraphEdges () TypeGraphVertex
+      , _graph :: (Graph, Vertex -> ((), TypeGraphVertex, [TypeGraphVertex]), TypeGraphVertex -> Maybe Vertex)
+      , _gsimple :: (Graph, Vertex -> ((), TypeGraphVertex, [TypeGraphVertex]), TypeGraphVertex -> Maybe Vertex)
       }
 
 $(makeLenses ''R)
@@ -110,7 +109,7 @@ reachableFrom v = do
     Just v' -> return $ Set.map (\(_, key, _) -> key) . Set.map vf $ Set.fromList $ reachable (transposeG g) v'
 
 isReachable :: (Functor m, DsMonad m, MonadReader R m) =>
-               TypeGraphVertex -> TypeGraphVertex -> (Graph, Vertex -> (VertexHint, TypeGraphVertex, [TypeGraphVertex]), TypeGraphVertex -> Maybe Vertex) -> m Bool
+               TypeGraphVertex -> TypeGraphVertex -> (Graph, Vertex -> ((), TypeGraphVertex, [TypeGraphVertex]), TypeGraphVertex -> Maybe Vertex) -> m Bool
 isReachable gkey key0 (g, _vf, kf) = do
   es <- view edges
   case kf key0 of

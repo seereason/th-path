@@ -43,7 +43,6 @@ module Language.Haskell.TH.Path.Core
 import Control.Lens -- (makeLenses, over, view)
 import Data.Generics (Data, Typeable)
 import Data.List as List (map)
-import Data.Monoid (Monoid(mempty, mappend))
 import Data.SafeCopy (base, deriveSafeCopy)
 import Data.Set as Set (difference, fromList, map, minView, Set)
 import Language.Haskell.TH
@@ -52,7 +51,6 @@ import Language.Haskell.TH.Syntax (qReify)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.TypeGraph.Core (pprint')
 import Language.Haskell.TH.TypeGraph.Expand (E(E))
-import Language.Haskell.TH.TypeGraph.Hints (VertexHint(..))
 import Language.Haskell.TH.TypeGraph.Vertex (TypeGraphVertex(..), etype, syns, typeNames)
 import Prelude hiding (exp)
 import Web.Routes.TH (derivePathInfo)
@@ -106,10 +104,6 @@ $(deriveSafeCopy 0 'base ''Path_Map)
 $(deriveSafeCopy 0 'base ''Path_Either)
 $(deriveSafeCopy 0 'base ''Path_Maybe)
 $(deriveSafeCopy 0 'base ''Path_OMap)
-
-instance Monoid VertexHint where
-    mempty = Normal
-    mappend Normal x = x
 
 -- | Instances of this class will be used as their own Path Type.  For
 -- example, a UUID or some enumerated type contained in a record
