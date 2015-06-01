@@ -25,17 +25,16 @@ import Control.Monad.Reader (MonadReader)
 import Control.Monad.State (execStateT, get, modify, StateT)
 import Data.Default (Default(def))
 import Data.Map as Map (alter, keys)
-import Data.Set as Set (empty, insert, Set, singleton)
+import Data.Set as Set (empty, {-insert,-} Set, singleton)
 import Language.Haskell.TH -- (Con, Dec, nameBase, Type)
 import Language.Haskell.TH.KindInference (inferKind)
 import Language.Haskell.TH.Context.Reify (evalContextState, reifyInstancesWithContext)
 import Language.Haskell.TH.Path.View (viewInstanceType)
-import Language.Haskell.TH.TypeGraph.Core (Field, unlifted)
+import Language.Haskell.TH.TypeGraph.Core (unlifted)
 import Language.Haskell.TH.TypeGraph.Expand (E(E), expandType)
 import Language.Haskell.TH.TypeGraph.Graph (cut, cutM, dissolveM, GraphEdges)
-import Language.Haskell.TH.TypeGraph.Hints (HasVertexHints(hasVertexHints), VertexHint(..))
-import Language.Haskell.TH.TypeGraph.Info (TypeGraphInfo, hints)
-import Language.Haskell.TH.TypeGraph.Monad (allVertices, vertex)
+import Language.Haskell.TH.TypeGraph.Info (TypeGraphInfo)
+import Language.Haskell.TH.TypeGraph.Monad (vertex)
 import Language.Haskell.TH.TypeGraph.Vertex (TypeGraphVertex(..), etype)
 import Language.Haskell.TH.Desugar as DS (DsMonad)
 import Language.Haskell.TH.Instances ()
@@ -60,61 +59,51 @@ class HideType a
 -- | Remove any vertices that are labelled with primitive types, and then
 -- apply the hints obtained from the
 -- a new graph which incorporates the information from the hints.
-pruneTypeGraph :: forall m hint. (DsMonad m, Default hint, Eq hint, HasVertexHints hint, MonadReader (TypeGraphInfo hint) m) =>
-                  (GraphEdges hint TypeGraphVertex) -> m (GraphEdges hint TypeGraphVertex)
+pruneTypeGraph :: forall m label. (DsMonad m, Default label, Eq label, MonadReader (TypeGraphInfo label) m) =>
+                  (GraphEdges label TypeGraphVertex) -> m (GraphEdges label TypeGraphVertex)
 pruneTypeGraph edges = do
-  cutPrimitiveTypes edges >>= dissolveHigherOrder >>= execStateT (view hints >>= mapM_ doHint >>
-                                                                  get >>= mapM_ doSink . Map.keys >>
+  cutPrimitiveTypes edges >>= dissolveHigherOrder >>= execStateT (get >>= mapM_ doSink . Map.keys >>
                                                                   get >>= mapM_ doHide . Map.keys >>
                                                                   get >>= mapM_ doView . Map.keys)
     where
-      doSink :: TypeGraphVertex -> StateT (GraphEdges hint TypeGraphVertex) m ()
+      doSink :: TypeGraphVertex -> StateT (GraphEdges label TypeGraphVertex) m ()
       doSink v = do
         let (E typ) = view etype v
         sinkHint <- (not . null) <$> evalContextState (reifyInstancesWithContext ''SinkType [typ])
         when sinkHint (modify $ Map.alter (alterFn (const Set.empty)) v)
 
-      doHide :: TypeGraphVertex -> StateT (GraphEdges hint TypeGraphVertex) m ()
+      doHide :: TypeGraphVertex -> StateT (GraphEdges label TypeGraphVertex) m ()
       doHide v = do
         let (E typ) = view etype v
         hideHint <- (not . null) <$> evalContextState (reifyInstancesWithContext ''HideType [typ])
         when hideHint (modify $ cut (singleton v))
 
-      doView :: TypeGraphVertex -> StateT (GraphEdges hint TypeGraphVertex) m ()
-      doView v = do
-        let (E a) = view etype v
-        evalContextState (viewInstanceType a) >>=
-          maybe (return ())
-                (\b -> do
-                   v' <- expandType b >>= vertex Nothing
-                   modify $ Map.alter (alterFn (const (singleton v'))) v)
+      doView :: TypeGraphVertex -> StateT (GraphEdges label TypeGraphVertex) m ()
+      doView v = let (E a) = view etype v in evalContextState (viewInstanceType a) >>= maybe (return ()) (doDivert v)
 
-      doHint :: (Maybe Field, Name, hint) -> StateT (GraphEdges hint TypeGraphVertex) m ()
-      doHint (fld, tname, hint) = hasVertexHints hint >>= mapM_ (\vh -> expandType (ConT tname) >>= allVertices fld >>= mapM_ (\v -> doVertexHint v vh))
-
-      doVertexHint :: TypeGraphVertex -> VertexHint -> StateT (GraphEdges hint TypeGraphVertex) m ()
-      doVertexHint _ Normal = return ()
-
-      -- Replace all out edges with a single edge to typ'
-      doVertexHint v (Divert typ') = do
+      -- Replace all of v's out edges with a single edge to typ'
+      doDivert v typ' = do
         v' <- expandType typ' >>= vertex Nothing
         modify $ Map.alter (alterFn (const (singleton v'))) v
-      doVertexHint v (Extra typ') = do
+#if 0
+      -- Add an extra out edge from v to typ' (unused)
+      doExtra v typ' = do
         v' <- expandType typ' >>= vertex Nothing
         modify $ Map.alter (alterFn (Set.insert v')) v
+#endif
 
 -- | build the function argument of Map.alter for the GraphEdges map.
-alterFn :: Default hint => (Set TypeGraphVertex -> Set TypeGraphVertex) -> Maybe (hint, Set TypeGraphVertex) -> Maybe (hint, Set TypeGraphVertex)
-alterFn setf (Just (hint, s)) = Just (hint, setf s)
+alterFn :: Default label => (Set TypeGraphVertex -> Set TypeGraphVertex) -> Maybe (label, Set TypeGraphVertex) -> Maybe (label, Set TypeGraphVertex)
+alterFn setf (Just (label, s)) = Just (label, setf s)
 alterFn setf Nothing | null (setf Set.empty) = Nothing
 alterFn setf Nothing = Just (def, setf Set.empty)
 
 -- | Primitive (unlifted) types can not be used as parameters to a
 -- type class, which makes them unusable in this system.
-cutPrimitiveTypes :: (DsMonad m, Default hint, Eq hint, MonadReader (TypeGraphInfo hint) m) => GraphEdges hint TypeGraphVertex -> m (GraphEdges hint TypeGraphVertex)
+cutPrimitiveTypes :: (DsMonad m, Default label, Eq label, MonadReader (TypeGraphInfo label) m) => GraphEdges label TypeGraphVertex -> m (GraphEdges label TypeGraphVertex)
 cutPrimitiveTypes edges = cutM (\v -> let (E typ) = view etype v in unlifted typ) edges
 
-dissolveHigherOrder :: (DsMonad m, Default hint, Eq hint, MonadReader (TypeGraphInfo hint) m) => GraphEdges hint TypeGraphVertex -> m (GraphEdges hint TypeGraphVertex)
+dissolveHigherOrder :: (DsMonad m, Default label, Eq label, MonadReader (TypeGraphInfo label) m) => GraphEdges label TypeGraphVertex -> m (GraphEdges label TypeGraphVertex)
 dissolveHigherOrder edges = dissolveM (\v -> do let (E typ) = view etype v
                                                 kind <- runQ $ inferKind typ
                                                 return $ kind /= Right StarT) edges

@@ -110,7 +110,6 @@ $(deriveSafeCopy 0 'base ''Path_OMap)
 instance Monoid VertexHint where
     mempty = Normal
     mappend Normal x = x
-    mappend x _ = x
 
 -- | Instances of this class will be used as their own Path Type.  For
 -- example, a UUID or some enumerated type contained in a record
