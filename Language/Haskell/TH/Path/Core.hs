@@ -113,32 +113,23 @@ $(deriveSafeCopy 0 'base ''Path_Maybe)
 $(deriveSafeCopy 0 'base ''Path_OMap)
 
 data LensHint
-    = Substitute Exp Type
-    -- ^ Replace the automatically generated pathToLens
-    -- function with this.  The expression is the lens to use,
-    -- and the second element of the pair is the 'b' Type of
-    -- the lens.
-    | VertexHint VertexHint
+    = VertexHint VertexHint
     deriving (Eq, Ord)
 
 -- This type is due for removal, so here is a semi-useful Monoid
 -- instance to satisfy the simpleEdges function.
 instance Monoid LensHint where
     mempty = VertexHint Normal
-    mappend x@(Substitute _ _) _ = x
-    mappend _ x@(Substitute _ _) = x
     mappend (VertexHint Normal) x = x
     mappend x _ = x
 
 instance HasVertexHints LensHint where
     hasVertexHints (VertexHint x) = return [x]
-    hasVertexHints (Substitute _exp typ) = return [Divert typ]
 
 instance Default LensHint where
     def = VertexHint Normal
 
 instance Show LensHint where
-    show (Substitute exp typ) = "Substitute (" ++ pprint exp ++ ") (" ++ pprint typ ++ ")"
     show (VertexHint x) = "VertexHint " ++ show x
 
 instance Ppr LensHint where

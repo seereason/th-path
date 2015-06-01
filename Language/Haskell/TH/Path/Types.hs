@@ -27,7 +27,7 @@ import Language.Haskell.TH
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Core (bestPathTypeName, Field, IdPath(idPath), LensHint, pathConNameOfField, pathTypeNameFromTypeName, pathTypeNames')
-import Language.Haskell.TH.Path.Monad (allPathKeys, foldPath, FoldPathControl(..), makeTypeGraph, pathHints, R, typeInfo)
+import Language.Haskell.TH.Path.Monad (allPathKeys, foldPath, FoldPathControl(..), makeTypeGraph, R, typeInfo)
 import Language.Haskell.TH.Path.PathType (pathType)
 import Language.Haskell.TH.Syntax as TH (Quasi, VarStrictType)
 import Language.Haskell.TH.TypeGraph.Core (pprint')
@@ -46,9 +46,9 @@ pathTypes st hs = do
 -- | Given a type, generate the corresponding path type declarations
 pathTypeDecs :: forall m. (DsMonad m, MonadReader R m, MonadWriter [[Dec]] m) => TypeGraphVertex -> m ()
 pathTypeDecs key =
-  pathHints key >>= pathTypeDecs'
+  pathTypeDecs'
     where
-      pathTypeDecs' hints = foldPath control key hints
+      pathTypeDecs' = foldPath control key
         where
           control =
             FoldPathControl

@@ -23,7 +23,7 @@ import Language.Haskell.TH
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Core (bestPathTypeName, pathTypeNameFromTypeName, PathType, Path_OMap, Path_List, Path_Map, Path_Pair, Path_Maybe, Path_Either)
-import Language.Haskell.TH.Path.Monad (R, typeInfo, pathHints, reachableFrom, FoldPathControl(..), foldPath)
+import Language.Haskell.TH.Path.Monad (R, typeInfo, reachableFrom, FoldPathControl(..), foldPath)
 import Language.Haskell.TH.TypeGraph.Core (pprint')
 import Language.Haskell.TH.TypeGraph.Expand (E(E), runExpanded)
 import Language.Haskell.TH.TypeGraph.Monad (vertex)
@@ -36,13 +36,11 @@ pathType :: (DsMonad m, MonadReader R m) =>
          -> TypeGraphVertex -- | The type to convert to a path type
          -> m Type
 pathType gtyp key =
-  pathHints key >>= pathType'
+  foldPath control key
     where
-      pathType' hints = foldPath control key hints
-        where
           -- Nest the definition of control so it can see this binding of hints,
           -- and call pathType' with a modified hint list.
-          control =
+      control =
               FoldPathControl
                 { simplef = let Just (pname, _syns) = bestPathTypeName key in runQ [t|$(conT pname) $gtyp|]
                 , substf = \_lns _styp ->

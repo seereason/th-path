@@ -28,8 +28,8 @@ import Data.Set as Set (empty, insert, member, Set)
 import Language.Haskell.TH
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.Path.Core (Field, Path(..), LensHint(..), fieldLensName, IdPath(idPath), pathConNameOfField, Path_OMap(..), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
-import Language.Haskell.TH.Path.Monad (allLensKeys, foldPath, FoldPathControl(..), goalReachableSimple, makePathLenses, makeTypeGraph, pathHints, R, typeInfo)
+import Language.Haskell.TH.Path.Core (Field, Path(..), LensHint(..), fieldLensName, pathConNameOfField, Path_OMap(..), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
+import Language.Haskell.TH.Path.Monad (allLensKeys, foldPath, FoldPathControl(..), goalReachableSimple, makePathLenses, makeTypeGraph, R, typeInfo)
 import Language.Haskell.TH.Path.PathType (pathType)
 import Language.Haskell.TH.Path.Lens (idLens, mat)
 import Language.Haskell.TH.Path.Order (lens_omat)
@@ -92,19 +92,16 @@ pathInstanceClauses :: forall m. (DsMonad m, MonadReader R m, MonadWriter [Claus
                     -> TypeGraphVertex -- ^ the goal type key
                     -> Type -- ^ the corresponding path type - first type parameter of ToLens
                     -> m ()
-pathInstanceClauses key gkey ptyp = do
-  pathHints key >>= pathInstanceClauses'
+pathInstanceClauses key gkey _ptyp | view etype key == view etype gkey = tell [clause [wildP] (normalB [|idLens|]) []]
+pathInstanceClauses key gkey ptyp =
+  -- Use this to raise errors when the path patterns aren't exhaustive.
+  -- That is supposed to be impossible, so this is debugging code.
+  -- pathInstanceClauses key gkey ptyp = do
+  --   x <- runQ (newName "x")
+  --   r <- foldPath control key
+  foldPath control key
+  --   return $ r ++ [clause [varP x] (normalB [|error ("toLens (" ++ $(lift (pprint' key)) ++ ") -> (" ++ $(lift (pprint' gkey)) ++ ") - unmatched: " ++ show $(varE x))|]) []]
     where
-      pathInstanceClauses' :: [(TypeGraphVertex, LensHint)] -> m ()
-      pathInstanceClauses' _hints | view etype key == view etype gkey = tell [clause [wildP] (normalB [|idLens|]) []]
-      pathInstanceClauses' hints = foldPath control key hints
-      -- Use this to raise errors when the path patterns aren't exhaustive.
-      -- That is supposed to be impossible, so this is debugging code.
-      -- pathInstanceClauses' hints = do
-      --   x <- runQ (newName "x")
-      --   r <- foldPath control key hints
-      --   return $ r ++ [clause [varP x] (normalB [|error ("toLens (" ++ $(lift (pprint' key)) ++ ") -> (" ++ $(lift (pprint' gkey)) ++ ") - unmatched: " ++ show $(varE x))|]) []]
-        where
           control :: FoldPathControl m ()
           control =
             FoldPathControl

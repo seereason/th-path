@@ -116,10 +116,6 @@ makePathLenses key = do
     _ -> return ()
     where
       make tname = runQ (nameMakeLens tname (\ nameA nameB -> Just (nameBase (fieldLensName nameA nameB))))
-      -- The presence of most hints means we don't need a lens
-      -- noLensHint Self = True
-      -- noLensHint (VertexHint Sink) = True
-      noLensHint (Substitute _ _) = True
       noLensHint _ = False
 
 reachableFrom :: forall m. (DsMonad m, MonadReader R m) => TypeGraphVertex -> m (Set TypeGraphVertex)
@@ -163,16 +159,14 @@ data FoldPathControl m r
       , otherf :: m r
       }
 
-foldPath :: (DsMonad m, MonadReader R m) => FoldPathControl m r -> TypeGraphVertex -> [(TypeGraphVertex, LensHint)] -> m r
-foldPath (FoldPathControl{..}) v hints = do
-  let substs = [x | x@(_, Substitute _ _) <- hints]
+foldPath :: (DsMonad m, MonadReader R m) => FoldPathControl m r -> TypeGraphVertex -> m r
+foldPath (FoldPathControl{..}) v = do
   selfPath <- (not . null) <$> evalContextState (reifyInstancesWithContext ''SelfPath [let (E typ) = view etype v in typ])
   simplePath <- (not . null) <$> evalContextState (reifyInstancesWithContext ''SinkType [let (E typ) = view etype v in typ])
   viewType <- evalContextState (viewInstanceType (let (E typ) = view etype v in typ))
   case runExpanded (view etype v) of
     _ | selfPath -> pathyf
       | simplePath -> simplef
-      | not (null substs) -> let ((_, Substitute exp typ) : _) = substs in substf exp typ
     typ
       | isJust viewType -> do
           let b = fromJust viewType
