@@ -26,18 +26,19 @@ import Data.Set as Set (empty, map, Set)
 import Language.Haskell.TH
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.Path.Core (bestPathTypeName, Field, IdPath(idPath), LensHint, pathConNameOfField, pathTypeNameFromTypeName, pathTypeNames')
+import Language.Haskell.TH.Path.Core (bestPathTypeName, IdPath(idPath), pathConNameOfField, pathTypeNameFromTypeName, pathTypeNames')
 import Language.Haskell.TH.Path.Monad (allPathKeys, foldPath, FoldPathControl(..), makeTypeGraph, R, typeInfo)
 import Language.Haskell.TH.Path.PathType (pathType)
 import Language.Haskell.TH.Syntax as TH (Quasi, VarStrictType)
-import Language.Haskell.TH.TypeGraph.Core (pprint')
+import Language.Haskell.TH.TypeGraph.Core (Field, pprint')
 import Language.Haskell.TH.TypeGraph.Expand (expandType)
+import Language.Haskell.TH.TypeGraph.Hints (VertexHint)
 import Language.Haskell.TH.TypeGraph.Monad (simpleVertex, vertex)
 import Language.Haskell.TH.TypeGraph.Vertex (TypeGraphVertex(..), typeNames)
 import Prelude hiding (any, concat, concatMap, elem, foldr, mapM_, null, or)
 import System.FilePath.Extra (compareSaveAndReturn, changeError)
 
-pathTypes :: Q [Type] -> [(Maybe Field, Name, Q LensHint)] -> Q [Dec]
+pathTypes :: Q [Type] -> [(Maybe Field, Name, Q VertexHint)] -> Q [Dec]
 pathTypes st hs = do
   r <- makeTypeGraph st hs
   (_, decss) <- evalRWST (allPathKeys >>= mapM pathTypeDecs . toList . Set.map simpleVertex) r Set.empty

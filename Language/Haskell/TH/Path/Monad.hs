@@ -50,11 +50,11 @@ import Language.Haskell.TH.Path.LensTH (nameMakeLens)
 import Language.Haskell.TH.Path.Order (Order)
 import Language.Haskell.TH.Path.Prune (pruneTypeGraph, SinkType)
 import Language.Haskell.TH.Path.View (View(viewLens), viewInstanceType)
-import Language.Haskell.TH.TypeGraph.Core (pprint')
+import Language.Haskell.TH.TypeGraph.Core (Field, pprint')
 import Language.Haskell.TH.TypeGraph.Expand (E(E), expandType, runExpanded)
 import Language.Haskell.TH.TypeGraph.Free (freeTypeVars)
 import Language.Haskell.TH.TypeGraph.Graph (dissolveM, GraphEdges, graphFromMap, isolate)
-import Language.Haskell.TH.TypeGraph.Hints (HasVertexHints)
+import Language.Haskell.TH.TypeGraph.Hints (HasVertexHints, VertexHint)
 import Language.Haskell.TH.TypeGraph.Info (infoMap, TypeGraphInfo, typeGraphInfo)
 import Language.Haskell.TH.TypeGraph.Monad (simpleEdges, simpleVertex, typeGraphEdges, vertex)
 import Language.Haskell.TH.TypeGraph.Vertex (TypeGraphVertex(..), etype, field, typeNames)
@@ -70,18 +70,18 @@ data R
     = R
       { _startTypes :: [Type]
       -- ^ Start types
-      , _lensHintMap :: Map TypeGraphVertex [LensHint] -- FIXME: [LensHint] -> Set LensHint
-      , _typeInfo :: TypeGraphInfo LensHint
-      , _edges :: GraphEdges LensHint TypeGraphVertex
-      , _graph :: (Graph, Vertex -> (LensHint, TypeGraphVertex, [TypeGraphVertex]), TypeGraphVertex -> Maybe Vertex)
-      , _gsimple :: (Graph, Vertex -> (LensHint, TypeGraphVertex, [TypeGraphVertex]), TypeGraphVertex -> Maybe Vertex)
+      , _lensHintMap :: Map TypeGraphVertex [VertexHint] -- FIXME: [VertexHint] -> Set VertexHint
+      , _typeInfo :: TypeGraphInfo VertexHint
+      , _edges :: GraphEdges VertexHint TypeGraphVertex
+      , _graph :: (Graph, Vertex -> (VertexHint, TypeGraphVertex, [TypeGraphVertex]), TypeGraphVertex -> Maybe Vertex)
+      , _gsimple :: (Graph, Vertex -> (VertexHint, TypeGraphVertex, [TypeGraphVertex]), TypeGraphVertex -> Maybe Vertex)
       }
 
 $(makeLenses ''R)
 
 -- | Find all the hints that match either the exact key vertex, or the
 -- key _field set to Nothing.
-pathHints :: (DsMonad m, MonadReader R m) => TypeGraphVertex -> m [(TypeGraphVertex, LensHint)]
+pathHints :: (DsMonad m, MonadReader R m) => TypeGraphVertex -> m [(TypeGraphVertex, VertexHint)]
 pathHints key = do
     mp <- view lensHintMap
     let key' = set field Nothing key
@@ -127,7 +127,7 @@ reachableFrom v = do
     Just v' -> return $ Set.map (\(_, key, _) -> key) . Set.map vf $ Set.fromList $ reachable (transposeG g) v'
 
 isReachable :: (Functor m, DsMonad m, MonadReader R m) =>
-               TypeGraphVertex -> TypeGraphVertex -> (Graph, Vertex -> (LensHint, TypeGraphVertex, [TypeGraphVertex]), TypeGraphVertex -> Maybe Vertex) -> m Bool
+               TypeGraphVertex -> TypeGraphVertex -> (Graph, Vertex -> (VertexHint, TypeGraphVertex, [TypeGraphVertex]), TypeGraphVertex -> Maybe Vertex) -> m Bool
 isReachable gkey key0 (g, _vf, kf) = do
   es <- view edges
   case kf key0 of
@@ -181,7 +181,7 @@ foldPath (FoldPathControl{..}) v = do
     AppT (AppT t3 ltyp) rtyp | t3 == ConT ''Either -> eitherf ltyp rtyp
     _ -> otherf
 
-makeTypeGraph :: DsMonad m => Q [Type] -> [(Maybe Field, Name, Q LensHint)] -> m R
+makeTypeGraph :: DsMonad m => Q [Type] -> [(Maybe Field, Name, Q VertexHint)] -> m R
 makeTypeGraph st hs = do
   st' <- runQ st
   hl <- runQ $ makeHintList hs
