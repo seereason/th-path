@@ -14,7 +14,7 @@
 {-# LANGUAGE TupleSections #-}
 {-# OPTIONS_GHC -fno-warn-orphans -fno-warn-missing-signatures #-}
 module Language.Haskell.TH.Path.Monad
-    ( R(..), startTypes, lensHintMap, typeInfo, edges
+    ( R(..), startTypes, typeInfo, edges
 
     , makeTypeGraph
 
@@ -23,7 +23,6 @@ module Language.Haskell.TH.Path.Monad
     , allLensKeys
     , allPathKeys
     , makePathLenses
-    , pathHints
     , reachableFrom
     , goalReachableFull
     , goalReachableSimple
@@ -36,8 +35,8 @@ import Control.Monad.Reader (MonadReader, runReaderT)
 import Control.Monad.Writer (MonadWriter, tell)
 import Data.Default (Default)
 import Data.Graph (Graph, reachable, transposeG, Vertex)
-import Data.List as List (filter, intercalate, map)
-import Data.Map as Map (findWithDefault, fromListWith, keys, lookup, Map, map, mapWithKey)
+import Data.List as List (intercalate, map)
+import Data.Map as Map (keys, lookup, Map, map, mapWithKey)
 import Data.Maybe (fromJust, fromMaybe, isJust, mapMaybe)
 import Data.Set as Set (difference, empty, filter, fromList, map, Set)
 import Language.Haskell.TH
@@ -50,7 +49,7 @@ import Language.Haskell.TH.Path.LensTH (nameMakeLens)
 import Language.Haskell.TH.Path.Order (Order)
 import Language.Haskell.TH.Path.Prune (pruneTypeGraph, SinkType)
 import Language.Haskell.TH.Path.View (View(viewLens), viewInstanceType)
-import Language.Haskell.TH.TypeGraph.Core (Field, pprint')
+import Language.Haskell.TH.TypeGraph.Core (pprint')
 import Language.Haskell.TH.TypeGraph.Expand (E(E), expandType, runExpanded)
 import Language.Haskell.TH.TypeGraph.Free (freeTypeVars)
 import Language.Haskell.TH.TypeGraph.Graph (dissolveM, GraphEdges, graphFromMap, isolate)
@@ -69,8 +68,6 @@ null = foldr (\_ _ -> False) True
 data R
     = R
       { _startTypes :: [Type]
-      -- ^ Start types
-      , _lensHintMap :: Map TypeGraphVertex [VertexHint] -- FIXME: [VertexHint] -> Set VertexHint
       , _typeInfo :: TypeGraphInfo
       , _edges :: GraphEdges VertexHint TypeGraphVertex
       , _graph :: (Graph, Vertex -> (VertexHint, TypeGraphVertex, [TypeGraphVertex]), TypeGraphVertex -> Maybe Vertex)
@@ -78,18 +75,6 @@ data R
       }
 
 $(makeLenses ''R)
-
--- | Find all the hints that match either the exact key vertex, or the
--- key _field set to Nothing.
-pathHints :: (DsMonad m, MonadReader R m) => TypeGraphVertex -> m [(TypeGraphVertex, VertexHint)]
-pathHints key = do
-    mp <- view lensHintMap
-    let key' = set field Nothing key
-    let s1 = Set.fromList $ Map.findWithDefault [] key mp
-        s2 = Set.fromList $ Map.findWithDefault [] key' mp
-    return $ if null (Set.difference s1 s2)
-             then List.map (key',) (toList s2)
-             else List.map (key,) (toList s1)
 
 -- | A lens key is a pair of vertexes corresponding to a Path instance.
 allLensKeys :: (DsMonad m, MonadReader R m) => m (Set (TypeGraphVertex, TypeGraphVertex))
@@ -109,14 +94,12 @@ allPathKeys = do
 
 makePathLenses :: (DsMonad m, MonadReader R m, MonadWriter [[Dec]] m) => TypeGraphVertex -> m ()
 makePathLenses key = do
-  hints <- pathHints key
   simplePath <- (not . null) <$> evalContextState (reifyInstancesWithContext ''SinkType [let (E typ) = view etype key in typ])
-  case (simplePath, List.filter noLensHint (List.map snd hints)) of
-    (False, []) -> mapM make (toList (typeNames key)) >>= tell
+  case simplePath of
+    False -> mapM make (toList (typeNames key)) >>= tell
     _ -> return ()
     where
       make tname = runQ (nameMakeLens tname (\ nameA nameB -> Just (nameBase (fieldLensName nameA nameB))))
-      noLensHint _ = False
 
 reachableFrom :: forall m. (DsMonad m, MonadReader R m) => TypeGraphVertex -> m (Set TypeGraphVertex)
 reachableFrom v = do
@@ -181,26 +164,17 @@ foldPath (FoldPathControl{..}) v = do
     AppT (AppT t3 ltyp) rtyp | t3 == ConT ''Either -> eitherf ltyp rtyp
     _ -> otherf
 
-makeTypeGraph :: DsMonad m => Q [Type] -> [(Maybe Field, Name, Q VertexHint)] -> m R
-makeTypeGraph st hs = do
+makeTypeGraph :: DsMonad m => Q [Type] -> m R
+makeTypeGraph st = do
   st' <- runQ st
-  hl <- runQ $ makeHintList hs
   ti <- typeGraphInfo st'
   es <- runReaderT (makeTypeGraphEdges st') ti
-  hm <- runReaderT (makeHintMap hl) ti
   return $ R { _startTypes = st'
-             , _lensHintMap = hm
              , _typeInfo = ti
              , _edges = es
              , _graph = graphFromMap es
              , _gsimple = graphFromMap (simpleEdges es)
              }
-
-makeHintList :: [(Maybe Field, Name, Q hint)] -> Q [(Maybe Field, Name, hint)]
-makeHintList hs = do
-  mapM (\(fld, tname, hintq) -> do
-          hint <- hintq
-          return (fld, tname, hint)) hs
 
 -- | Build a graph of the subtype relation, omitting any types whose
 -- arity is nonzero and any not reachable from the start types.  (We
@@ -247,6 +221,3 @@ makeTypeGraphEdges st = do
           Map.mapWithKey (\key (hint, gkeys) -> (hint, Set.filter (\gkey -> case view etype key of
                                                                               E (AppT (AppT (ConT mtyp) ityp) _etyp) | elem mtyp [''Map, ''Order] -> E ityp /= view etype gkey
                                                                               _ -> True) gkeys))
-
-makeHintMap :: (Functor m, DsMonad m, MonadReader TypeGraphInfo m) => [(Maybe Field, Name, hint)] -> m (Map TypeGraphVertex [hint])
-makeHintMap hs = Map.fromListWith (++) <$> mapM (\(fld, tname, hint) -> expandType (ConT tname) >>= vertex fld >>= \v -> return (v, [hint])) hs

@@ -34,9 +34,8 @@ import Language.Haskell.TH.Path.PathType (pathType)
 import Language.Haskell.TH.Path.Lens (idLens, mat)
 import Language.Haskell.TH.Path.Order (lens_omat)
 import Language.Haskell.TH.Syntax as TH (lift, VarStrictType)
-import Language.Haskell.TH.TypeGraph.Core (Field, pprint')
+import Language.Haskell.TH.TypeGraph.Core (pprint')
 import Language.Haskell.TH.TypeGraph.Expand (expandType, runExpanded)
-import Language.Haskell.TH.TypeGraph.Hints (VertexHint)
 import Language.Haskell.TH.TypeGraph.Monad (vertex)
 import Language.Haskell.TH.TypeGraph.Vertex (bestType, TypeGraphVertex(..), etype)
 import Prelude hiding (any, concat, concatMap, elem, foldr, mapM_, null, or)
@@ -52,9 +51,9 @@ null = foldr (\_ _ -> False) True
 -- a portion of a value.  Each path type describes the correspondence
 -- between a value and the portions of that value available via lens.
 -- Each path to lens function turns a path type value into a lens.
-pathInstances :: Q [Type] -> [(Maybe Field, Name, Q VertexHint)] -> Q [Dec]
-pathInstances st hs = do
-  r <- makeTypeGraph st hs
+pathInstances :: Q [Type] -> Q [Dec]
+pathInstances st = do
+  r <- makeTypeGraph st
   (_, decss) <- evalRWST (allLensKeys >>= mapM (uncurry pathInstanceDecs) . toList) r Set.empty
   runIO . compareSaveAndReturn changeError "GeneratedPathInstances.hs" $ concat decss
 

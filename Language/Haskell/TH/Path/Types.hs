@@ -30,17 +30,16 @@ import Language.Haskell.TH.Path.Core (bestPathTypeName, IdPath(idPath), pathConN
 import Language.Haskell.TH.Path.Monad (allPathKeys, foldPath, FoldPathControl(..), makeTypeGraph, R, typeInfo)
 import Language.Haskell.TH.Path.PathType (pathType)
 import Language.Haskell.TH.Syntax as TH (Quasi, VarStrictType)
-import Language.Haskell.TH.TypeGraph.Core (Field, pprint')
+import Language.Haskell.TH.TypeGraph.Core (pprint')
 import Language.Haskell.TH.TypeGraph.Expand (expandType)
-import Language.Haskell.TH.TypeGraph.Hints (VertexHint)
 import Language.Haskell.TH.TypeGraph.Monad (simpleVertex, vertex)
 import Language.Haskell.TH.TypeGraph.Vertex (TypeGraphVertex(..), typeNames)
 import Prelude hiding (any, concat, concatMap, elem, foldr, mapM_, null, or)
 import System.FilePath.Extra (compareSaveAndReturn, changeError)
 
-pathTypes :: Q [Type] -> [(Maybe Field, Name, Q VertexHint)] -> Q [Dec]
-pathTypes st hs = do
-  r <- makeTypeGraph st hs
+pathTypes :: Q [Type] -> Q [Dec]
+pathTypes st = do
+  r <- makeTypeGraph st
   (_, decss) <- evalRWST (allPathKeys >>= mapM pathTypeDecs . toList . Set.map simpleVertex) r Set.empty
   runIO . compareSaveAndReturn changeError "GeneratedPathTypes.hs" $ concat decss
 
