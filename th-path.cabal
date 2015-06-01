@@ -1,5 +1,5 @@
 name:               th-path
-version:            0.16
+version:            0.17
 cabal-version:      >= 1.10
 build-type:         Simple
 license:            BSD3
@@ -70,7 +70,7 @@ library
       Language.Haskell.TH.TypeGraph.Unsafe
       Language.Haskell.TH.TypeGraph.Vertex
   else
-    build-depends: th-context >= 0.15, th-typegraph >= 0.17
+    build-depends: th-context >= 0.15, th-typegraph >= 0.18
 
 -- test-suite th-path-tests
 --   type:             exitcode-stdio-1.0
