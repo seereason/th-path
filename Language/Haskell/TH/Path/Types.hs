@@ -81,11 +81,21 @@ pathTypeDecs key =
         skey <- view typeInfo >>= runReaderT (expandType styp >>= vertex Nothing)
         a <- runQ $ newName "a"
         ptype <- pathType (varT a) skey
-        runQ (sequence (dataD (return []) pname [PlainTV a] [ normalC (mkName (nameBase pname ++ "_View")) [strictType notStrict (pure ptype)]
-                                                            , normalC (mkName (nameBase pname ++ "_Self")) []
-                                                            ] supers
+        -- A view type may have a type variable, which
+        -- we need to replace with the goal type a.
+        let ptype' = substitute (VarT a) ptype
+        runQ (sequence (dataD (return []) pname [PlainTV a]
+                              [ normalC (mkName (nameBase pname ++ "_View")) [strictType notStrict (pure ptype')]
+                              , normalC (mkName (nameBase pname ++ "_Self")) []
+                              ] supers
                          : List.map (\psyn -> tySynD psyn [PlainTV a] (appT (conT pname) (varT a))) (toList syns))) >>= tell . (: [])
         runQ [d|instance IdPath ($(conT pname) a) where idPath = $(conE (mkName (nameBase pname ++ "_Self")))|] >>= tell . (: [])
+
+      substitute :: Type -> Type -> Type
+      substitute gtype (AppT x (VarT _)) = (AppT x gtype)
+      substitute gtype (AppT a b) = AppT (substitute gtype a) (substitute gtype b)
+      substitute gtype (VarT _) = gtype
+      substitute _ x = x
 
       doInfo (TyConI dec) =
           -- tell [ [d| z = $(litE (stringL ("doDec " ++ pprint' dec))) |] ] >>

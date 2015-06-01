@@ -41,8 +41,9 @@ viewInstanceType typ =
 -- | Any type that is part of a View instance
 viewTypes :: Q (Set Type)
 viewTypes = evalContextState $ do
-  vInsts <- reifyInstancesWithContext ''View [VarT (mkName "a")]
+  a <- runQ (newName "a" >>= varT)
+  vInsts <- reifyInstancesWithContext ''View [a]
   -- trace ("vInsts a " ++ " -> " ++ show vInsts) (return ())
-  let aTypes = concatMap (\ (InstanceD _ (AppT (ConT _view) a) _) -> [a]) vInsts
+  let aTypes = concatMap (\ (InstanceD _ (AppT (ConT _view) t) _) -> [t]) vInsts
   bTypes <- catMaybes <$> mapM viewInstanceType aTypes
   return $ Set.fromList $ aTypes ++ bTypes
