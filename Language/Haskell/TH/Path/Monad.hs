@@ -54,7 +54,7 @@ import Language.Haskell.TH.TypeGraph.Core (Field, pprint')
 import Language.Haskell.TH.TypeGraph.Expand (E(E), expandType, runExpanded)
 import Language.Haskell.TH.TypeGraph.Free (freeTypeVars)
 import Language.Haskell.TH.TypeGraph.Graph (dissolveM, GraphEdges, graphFromMap, isolate)
-import Language.Haskell.TH.TypeGraph.Hints (HasVertexHints, VertexHint)
+import Language.Haskell.TH.TypeGraph.Hints (VertexHint)
 import Language.Haskell.TH.TypeGraph.Info (infoMap, TypeGraphInfo, typeGraphInfo)
 import Language.Haskell.TH.TypeGraph.Monad (simpleEdges, simpleVertex, typeGraphEdges, vertex)
 import Language.Haskell.TH.TypeGraph.Vertex (TypeGraphVertex(..), etype, field, typeNames)
@@ -71,7 +71,7 @@ data R
       { _startTypes :: [Type]
       -- ^ Start types
       , _lensHintMap :: Map TypeGraphVertex [VertexHint] -- FIXME: [VertexHint] -> Set VertexHint
-      , _typeInfo :: TypeGraphInfo VertexHint
+      , _typeInfo :: TypeGraphInfo
       , _edges :: GraphEdges VertexHint TypeGraphVertex
       , _graph :: (Graph, Vertex -> (VertexHint, TypeGraphVertex, [TypeGraphVertex]), TypeGraphVertex -> Maybe Vertex)
       , _gsimple :: (Graph, Vertex -> (VertexHint, TypeGraphVertex, [TypeGraphVertex]), TypeGraphVertex -> Maybe Vertex)
@@ -185,7 +185,7 @@ makeTypeGraph :: DsMonad m => Q [Type] -> [(Maybe Field, Name, Q VertexHint)] ->
 makeTypeGraph st hs = do
   st' <- runQ st
   hl <- runQ $ makeHintList hs
-  ti <- typeGraphInfo hl st'
+  ti <- typeGraphInfo st'
   es <- runReaderT (makeTypeGraphEdges st') ti
   hm <- runReaderT (makeHintMap hl) ti
   return $ R { _startTypes = st'
@@ -207,7 +207,7 @@ makeHintList hs = do
 -- may also want to eliminate nodes that are not on a path from a
 -- start type to a goal type, though eventually goal types will be
 -- eliminated - all types will be goal types.)
-makeTypeGraphEdges :: forall m hint. (DsMonad m, Default hint, Ord hint, HasVertexHints hint, MonadReader (TypeGraphInfo hint) m) =>
+makeTypeGraphEdges :: forall m hint. (DsMonad m, Default hint, Ord hint, MonadReader TypeGraphInfo m) =>
                       [Type] -> m (GraphEdges hint TypeGraphVertex)
 makeTypeGraphEdges st = do
   im <- view infoMap
@@ -248,5 +248,5 @@ makeTypeGraphEdges st = do
                                                                               E (AppT (AppT (ConT mtyp) ityp) _etyp) | elem mtyp [''Map, ''Order] -> E ityp /= view etype gkey
                                                                               _ -> True) gkeys))
 
-makeHintMap :: (Functor m, DsMonad m, MonadReader (TypeGraphInfo hint) m) => [(Maybe Field, Name, hint)] -> m (Map TypeGraphVertex [hint])
+makeHintMap :: (Functor m, DsMonad m, MonadReader TypeGraphInfo m) => [(Maybe Field, Name, hint)] -> m (Map TypeGraphVertex [hint])
 makeHintMap hs = Map.fromListWith (++) <$> mapM (\(fld, tname, hint) -> expandType (ConT tname) >>= vertex fld >>= \v -> return (v, [hint])) hs

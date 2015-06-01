@@ -59,7 +59,7 @@ class HideType a
 -- | Remove any vertices that are labelled with primitive types, and then
 -- apply the hints obtained from the
 -- a new graph which incorporates the information from the hints.
-pruneTypeGraph :: forall m label. (DsMonad m, Default label, Eq label, MonadReader (TypeGraphInfo label) m) =>
+pruneTypeGraph :: forall m label. (DsMonad m, Default label, Eq label, MonadReader TypeGraphInfo m) =>
                   (GraphEdges label TypeGraphVertex) -> m (GraphEdges label TypeGraphVertex)
 pruneTypeGraph edges = do
   cutPrimitiveTypes edges >>= dissolveHigherOrder >>= execStateT (get >>= mapM_ doSink . Map.keys >>
@@ -100,10 +100,10 @@ alterFn setf Nothing = Just (def, setf Set.empty)
 
 -- | Primitive (unlifted) types can not be used as parameters to a
 -- type class, which makes them unusable in this system.
-cutPrimitiveTypes :: (DsMonad m, Default label, Eq label, MonadReader (TypeGraphInfo label) m) => GraphEdges label TypeGraphVertex -> m (GraphEdges label TypeGraphVertex)
+cutPrimitiveTypes :: (DsMonad m, Default label, Eq label, MonadReader TypeGraphInfo m) => GraphEdges label TypeGraphVertex -> m (GraphEdges label TypeGraphVertex)
 cutPrimitiveTypes edges = cutM (\v -> let (E typ) = view etype v in unlifted typ) edges
 
-dissolveHigherOrder :: (DsMonad m, Default label, Eq label, MonadReader (TypeGraphInfo label) m) => GraphEdges label TypeGraphVertex -> m (GraphEdges label TypeGraphVertex)
+dissolveHigherOrder :: (DsMonad m, Default label, Eq label, MonadReader TypeGraphInfo m) => GraphEdges label TypeGraphVertex -> m (GraphEdges label TypeGraphVertex)
 dissolveHigherOrder edges = dissolveM (\v -> do let (E typ) = view etype v
                                                 kind <- runQ $ inferKind typ
                                                 return $ kind /= Right StarT) edges
