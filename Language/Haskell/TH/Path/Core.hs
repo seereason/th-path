@@ -55,17 +55,24 @@ import Language.Haskell.TH.TypeGraph.Vertex (TypeGraphVertex(..), etype, syns, t
 import Prelude hiding (exp)
 import Web.Routes.TH (derivePathInfo)
 
--- | Use idPath to obtain from a path type @s@ the identity value of type @s@.
-class IdPath s where
-    idPath :: s
-
--- | Instances of @Path s a@ include a 'PathType' which describes all
--- the different ways to obtain an value of type @a@ (called the goal
--- type in some places) from an @s@, and a 'toLens' function that
--- allows you to turn a PathType value into a lens.
+-- | If there is an instance of 'Path' for a pair of types @s@ and
+-- @a@, that means there is at least one way to obtain an @a@ from an
+-- @s@.
 class Path s a where
     type PathType s a
+    -- ^ Each instance defines this type function which returns the
+    -- path type.  Each value of this type represents a different way
+    -- of obtaining the @a@ from the @s@.  For example, if @s@ is a
+    -- record with two fields of type 'Int', the type @PathType s Int@
+    -- would have distinct values for those two fields, and the lenses
+    -- returned by 'toLens' would access those two fields.
     toLens :: PathType s a -> Traversal' s a
+    -- ^ Function to turn a PathType into a lens to access (one of)
+    -- the @a@ values.
+
+class IdPath s where
+    idPath :: s -- ^ The identity path for type s.  @toLens idPath@
+                -- returns @iso id id@.
 
 -- instance OrderKey k => Path (Order k a) a where
 --     type PathType (Order k a) a = (Path_OMap k a)
@@ -73,6 +80,8 @@ class Path s a where
 
 -- Primitive path types
 
+-- | A path type with constructors to extract either @fst@, @snd@, or
+-- the pair itself.
 data Path_Pair a b = Path_First a | Path_Second b | Path_Pair deriving (Eq, Ord, Read, Show, Typeable, Data)
 data Path_Either a b = Path_Left a | Path_Right b | Path_Either deriving (Eq, Ord, Read, Show, Typeable, Data)
 data Path_Invalid = Path_Invalid deriving (Eq, Ord, Read, Show, Typeable, Data)
@@ -105,9 +114,11 @@ $(deriveSafeCopy 0 'base ''Path_Either)
 $(deriveSafeCopy 0 'base ''Path_Maybe)
 $(deriveSafeCopy 0 'base ''Path_OMap)
 
--- | Instances of this class will be used as their own Path Type.  For
--- example, a UUID or some enumerated type contained in a record
--- could be used directly to reference the object that contains it.
+-- | Types for which
+-- a 'SelfPath' instance is declared will be used as their own Path
+-- Type.  For example, a UUID or some enumerated type contained in a
+-- record could be used directly to reference the object that contains
+-- it.
 class SelfPath a
 
 -- | Find all the names of the (non-primitive) path types.

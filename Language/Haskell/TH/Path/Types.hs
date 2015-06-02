@@ -37,6 +37,8 @@ import Language.Haskell.TH.TypeGraph.Vertex (TypeGraphVertex(..), typeNames)
 import Prelude hiding (any, concat, concatMap, elem, foldr, mapM_, null, or)
 import System.FilePath.Extra (compareSaveAndReturn, changeError)
 
+-- | Construct a graph of all types reachable from the types in the
+-- argument, and construct the corresponding path types.
 pathTypes :: Q [Type] -> Q [Dec]
 pathTypes st = do
   r <- makeTypeGraph st

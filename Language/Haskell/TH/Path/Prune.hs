@@ -48,9 +48,10 @@ null :: Foldable t => t a -> Bool
 null = foldr (\_ _ -> False) True
 #endif
 
--- | If a type is an instance of this class no paths that lead to the
--- internal stucture of the value will be created - the value is
--- considered atomic.
+-- | 'Path' instances can be customized by declaring types to be
+-- instances of this class and the ones that follow.  If a type is an
+-- instance of 'SinkType', no paths that lead to the internal stucture
+-- of the value will be created - the value is considered atomic.
 class SinkType a
 
 -- | Like SinkType, but no paths out or into the type will be created.

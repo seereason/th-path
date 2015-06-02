@@ -20,16 +20,19 @@ import Language.Haskell.TH.Context.Reify (InstMap, {-testContext,-} reifyInstanc
 import Language.Haskell.TH.Desugar as DS (DsMonad)
 import Language.Haskell.TH.TypeGraph (E)
 
--- | If there is an instance of View for a pair of types, when @a@
+-- | If there is an instance of View for a type @a@, then when @a@
 -- appears in the data, the lens returned by 'viewLens' is used to
--- compute the @b@ value, and that value is used instead - to generate
--- a User Interface, for example.  Then the resulting @b@ value is
--- transformed back into an @a@ and stored in the database.  An
--- instance of View is equivalent to a Substitute hint.
+-- compute the value of type @ViewType a@, and that value is used
+-- instead.  For exmaple, a 'View' could be used to modify the value
+-- obtained from a database so that it is more suitable to the user
+-- interface that uses that value.  Then the @ViewType a@ value is
+-- transformed back into an @a@ and stored in the database.
 class View a where
     type ViewType a
     viewLens :: Lens' a (ViewType a)
 
+-- | Determine whether there is a 'View' instance for a type and if so
+-- return @ViewType a@.
 viewInstanceType :: (DsMonad m, MonadState (InstMap (E Pred)) m) => Type -> m (Maybe Type)
 viewInstanceType typ =
     do vInsts <- runQ $ reifyInstances ''ViewType [typ]
@@ -38,7 +41,7 @@ viewInstanceType typ =
          [] -> return Nothing
          _ -> error $ "Unexpected view instance(s): " ++ show vInsts
 
--- | Any type that is part of a View instance
+-- | Return all types which have a 'View' instance.
 viewTypes :: Q (Set Type)
 viewTypes = evalContextState $ do
   a <- runQ (newName "a" >>= varT)

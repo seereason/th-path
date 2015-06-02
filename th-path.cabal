@@ -10,8 +10,13 @@ maintainer:         David Fox <dsf@seereason.com>
 homepage:           https://github.com/seereason/th-path
 bug-reports:        https://github.com/seereason/th-path/issues
 stability:          experimental
-synopsis:           Paths within types
-description:        A Path type represents a mapping from a type to some piece of that type
+synopsis:           A library to facilitate the creation of lenses into a data structure.
+description:
+  The th-path package traverses the subtype graph and creates
+  instances of 'Path'.  These allow you to describe, retrieve, and
+  update deeply nested values in a data type.  It also has a
+  'View' mechanism which transforms the appearance of a value
+  using any @Iso@ lens.
 
 flag local-th-context
   Description: Link to local source repo for th-context and th-typegraph packages

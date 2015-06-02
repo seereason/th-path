@@ -46,11 +46,8 @@ null :: Foldable t => t a -> Bool
 null = foldr (\_ _ -> False) True
 #endif
 
--- | Create the lenses, path types, and path to lens functions for a
--- named type and all of its subtypes.  Each lens extracts or updates
--- a portion of a value.  Each path type describes the correspondence
--- between a value and the portions of that value available via lens.
--- Each path to lens function turns a path type value into a lens.
+-- | Construct the 'Path' instances for all types reachable from the
+-- types in the argument.
 pathInstances :: Q [Type] -> Q [Dec]
 pathInstances st = do
   r <- makeTypeGraph st

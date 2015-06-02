@@ -1,16 +1,25 @@
+-- | A library to facilitate the creation of lenses into a data
+-- structure.
 module Language.Haskell.TH.Path
-    ( View(viewLens, ViewType)
-    , viewInstanceType
-    , pathInstances
-    , pathTypes
+    ( -- * Path Classes
+      Path(toLens)
+    , PathType
+    , idPath
+    -- * Primitive Path Types
     , Path_Pair(..)
+    , Path_Either(..)
     , Path_Maybe(..)
     , Path_Map(..)
     , Path_OMap(..)
     , Path_List(..)
-    , Path(toLens)
-    , PathType
+    -- * Hint classes
     , SinkType
+    , SelfPath
+    , View(viewLens, ViewType)
+    , viewInstanceType
+    -- * Template Haskell
+    , pathInstances
+    , pathTypes
     ) where
 
 import Language.Haskell.TH.Path.Core
