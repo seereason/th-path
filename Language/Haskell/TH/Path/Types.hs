@@ -86,10 +86,10 @@ pathTypeDecs key =
         let ptype' = substitute (VarT a) ptype
         runQ (sequence (dataD (return []) pname [PlainTV a]
                               [ normalC (mkName (nameBase pname ++ "_View")) [strictType notStrict (pure ptype')]
-                              , normalC (mkName (nameBase pname ++ "_Self")) []
+                              , normalC (mkName (nameBase pname)) []
                               ] supers
                          : List.map (\psyn -> tySynD psyn [PlainTV a] (appT (conT pname) (varT a))) (toList syns))) >>= tell . (: [])
-        runQ [d|instance IdPath ($(conT pname) a) where idPath = $(conE (mkName (nameBase pname ++ "_Self")))|] >>= tell . (: [])
+        runQ [d|instance IdPath ($(conT pname) a) where idPath = $(conE (mkName (nameBase pname)))|] >>= tell . (: [])
 
       substitute :: Type -> Type -> Type
       substitute gtype (AppT x (VarT _)) = (AppT x gtype)
