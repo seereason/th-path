@@ -33,7 +33,7 @@ import Prelude hiding (any, concat, concatMap, elem, foldr, mapM_, null, or)
 -- | Given a type, generate the corresponding path type.
 pathType :: (DsMonad m, MonadReader R m) =>
             TypeQ
-         -> TypeGraphVertex -- | The type to convert to a path type
+         -> TypeGraphVertex -- ^ The type to convert to a path type
          -> m Type
 pathType gtyp key =
   foldPath control key
@@ -80,7 +80,7 @@ pathType gtyp key =
 
 -- | Call the type function PathType.
 pathTypeCall :: (DsMonad m, MonadReader R m) =>
-                TypeQ           -- | The goal type - possibly a type variable
-             -> TypeGraphVertex -- | The type to convert to a path type
+                TypeQ           -- ^ The goal type - possibly a type variable
+             -> TypeGraphVertex -- ^ The type to convert to a path type
              -> m Type
 pathTypeCall gtyp key = runQ [t|PathType $(let (E typ) = view etype key in return typ) $gtyp|]
