@@ -28,7 +28,7 @@ import Data.Map as Map (alter, keys)
 import Data.Set as Set (empty, {-insert,-} Set, singleton)
 import Language.Haskell.TH -- (Con, Dec, nameBase, Type)
 import Language.Haskell.TH.KindInference (inferKind)
-import Language.Haskell.TH.Context.Reify (evalContextState, reifyInstancesWithContext)
+import Language.Haskell.TH.Context.Reify (evalContext, reifyInstancesWithContext)
 import Language.Haskell.TH.Path.View (viewInstanceType)
 import Language.Haskell.TH.TypeGraph.Core (unlifted)
 import Language.Haskell.TH.TypeGraph.Expand (E(E), expandType)
@@ -70,17 +70,17 @@ pruneTypeGraph edges = do
       doSink :: TypeGraphVertex -> StateT (GraphEdges label TypeGraphVertex) m ()
       doSink v = do
         let (E typ) = view etype v
-        sinkHint <- (not . null) <$> evalContextState (reifyInstancesWithContext ''SinkType [typ])
+        sinkHint <- (not . null) <$> evalContext (reifyInstancesWithContext ''SinkType [typ])
         when sinkHint (modify $ Map.alter (alterFn (const Set.empty)) v)
 
       doHide :: TypeGraphVertex -> StateT (GraphEdges label TypeGraphVertex) m ()
       doHide v = do
         let (E typ) = view etype v
-        hideHint <- (not . null) <$> evalContextState (reifyInstancesWithContext ''HideType [typ])
+        hideHint <- (not . null) <$> evalContext (reifyInstancesWithContext ''HideType [typ])
         when hideHint (modify $ cut (singleton v))
 
       doView :: TypeGraphVertex -> StateT (GraphEdges label TypeGraphVertex) m ()
-      doView v = let (E a) = view etype v in evalContextState (viewInstanceType a) >>= maybe (return ()) (doDivert v)
+      doView v = let (E a) = view etype v in evalContext (viewInstanceType a) >>= maybe (return ()) (doDivert v)
 
       -- Replace all of v's out edges with a single edge to typ'
       doDivert v typ' = do

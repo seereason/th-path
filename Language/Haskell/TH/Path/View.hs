@@ -16,7 +16,7 @@ import Control.Monad.State (MonadState)
 import Data.Maybe (catMaybes)
 import Data.Set as Set (fromList, Set)
 import Language.Haskell.TH
-import Language.Haskell.TH.Context.Reify (InstMap, {-testContext,-} reifyInstancesWithContext, evalContextState)
+import Language.Haskell.TH.Context.Reify (InstMap, {-testContext,-} reifyInstancesWithContext, evalContext)
 import Language.Haskell.TH.Desugar as DS (DsMonad)
 import Language.Haskell.TH.TypeGraph (E)
 
@@ -43,7 +43,7 @@ viewInstanceType typ =
 
 -- | Return all types which have a 'View' instance.
 viewTypes :: Q (Set Type)
-viewTypes = evalContextState $ do
+viewTypes = evalContext $ do
   a <- runQ (newName "a" >>= varT)
   vInsts <- reifyInstancesWithContext ''View [a]
   -- trace ("vInsts a " ++ " -> " ++ show vInsts) (return ())

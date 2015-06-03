@@ -40,7 +40,7 @@ import Data.Map as Map (keys, lookup, Map, map, mapWithKey)
 import Data.Maybe (fromJust, fromMaybe, isJust, mapMaybe)
 import Data.Set as Set (difference, empty, filter, fromList, map, Set)
 import Language.Haskell.TH
-import Language.Haskell.TH.Context.Reify (evalContextState, reifyInstancesWithContext)
+import Language.Haskell.TH.Context.Reify (evalContext, reifyInstancesWithContext)
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.KindInference (inferKind)
@@ -93,7 +93,7 @@ allPathKeys = do
 
 makePathLenses :: (DsMonad m, MonadReader R m, MonadWriter [[Dec]] m) => TypeGraphVertex -> m ()
 makePathLenses key = do
-  simplePath <- (not . null) <$> evalContextState (reifyInstancesWithContext ''SinkType [let (E typ) = view etype key in typ])
+  simplePath <- (not . null) <$> evalContext (reifyInstancesWithContext ''SinkType [let (E typ) = view etype key in typ])
   case simplePath of
     False -> mapM make (toList (typeNames key)) >>= tell
     _ -> return ()
@@ -143,9 +143,9 @@ data FoldPathControl m r
 
 foldPath :: (DsMonad m, MonadReader R m) => FoldPathControl m r -> TypeGraphVertex -> m r
 foldPath (FoldPathControl{..}) v = do
-  selfPath <- (not . null) <$> evalContextState (reifyInstancesWithContext ''SelfPath [let (E typ) = view etype v in typ])
-  simplePath <- (not . null) <$> evalContextState (reifyInstancesWithContext ''SinkType [let (E typ) = view etype v in typ])
-  viewType <- evalContextState (viewInstanceType (let (E typ) = view etype v in typ))
+  selfPath <- (not . null) <$> evalContext (reifyInstancesWithContext ''SelfPath [let (E typ) = view etype v in typ])
+  simplePath <- (not . null) <$> evalContext (reifyInstancesWithContext ''SinkType [let (E typ) = view etype v in typ])
+  viewType <- evalContext (viewInstanceType (let (E typ) = view etype v in typ))
   case runExpanded (view etype v) of
     _ | selfPath -> pathyf
       | simplePath -> simplef
