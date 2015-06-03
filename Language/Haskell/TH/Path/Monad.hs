@@ -3,6 +3,7 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE MultiWayIf #-}
@@ -12,6 +13,7 @@
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TupleSections #-}
+{-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -fno-warn-orphans -fno-warn-missing-signatures #-}
 module Language.Haskell.TH.Path.Monad
     ( R(..), startTypes, typeInfo, edges
@@ -31,7 +33,7 @@ module Language.Haskell.TH.Path.Monad
 import Control.Applicative ((<$>))
 import Control.Lens -- (makeLenses, over, view)
 import Control.Monad (filterM)
-import Control.Monad.Reader (MonadReader, runReaderT)
+import Control.Monad.Reader (ask, local, MonadReader, ReaderT, runReaderT)
 import Control.Monad.Writer (MonadWriter, tell)
 import Data.Default (Default)
 import Data.Graph (Graph, reachable, transposeG, Vertex)
@@ -48,6 +50,7 @@ import Language.Haskell.TH.Path.Core
 import Language.Haskell.TH.Path.LensTH (nameMakeLens)
 import Language.Haskell.TH.Path.Order (Order)
 import Language.Haskell.TH.Path.Prune (pruneTypeGraph, SinkType)
+import Language.Haskell.TH.Path.Stack (HasStack(withStack), push, StackElement(StackElement))
 import Language.Haskell.TH.Path.View (View(viewLens), viewInstanceType)
 import Language.Haskell.TH.TypeGraph.Core (pprint')
 import Language.Haskell.TH.TypeGraph.Expand (E(E), expandType, runExpanded)
@@ -71,9 +74,14 @@ data R
       , _edges :: GraphEdges () TypeGraphVertex
       , _graph :: (Graph, Vertex -> ((), TypeGraphVertex, [TypeGraphVertex]), TypeGraphVertex -> Maybe Vertex)
       , _gsimple :: (Graph, Vertex -> ((), TypeGraphVertex, [TypeGraphVertex]), TypeGraphVertex -> Maybe Vertex)
+      , _stack :: [StackElement]
       }
 
 $(makeLenses ''R)
+
+instance Monad m => HasStack (ReaderT R m) where
+    withStack f = ask >>= f . view stack
+    push fld con dec action = local (stack %~ (\s -> StackElement fld con dec : s)) action
 
 -- | A lens key is a pair of vertexes corresponding to a Path instance.
 allLensKeys :: (DsMonad m, MonadReader R m) => m (Set (TypeGraphVertex, TypeGraphVertex))
@@ -173,6 +181,7 @@ makeTypeGraph st = do
              , _edges = es
              , _graph = graphFromMap es
              , _gsimple = graphFromMap (simpleEdges es)
+             , _stack = []
              }
 
 -- | Build a graph of the subtype relation, omitting any types whose

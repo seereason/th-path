@@ -1,5 +1,5 @@
 name:               th-path
-version:            0.17
+version:            0.18
 cabal-version:      >= 1.10
 build-type:         Simple
 license:            BSD3
@@ -56,6 +56,7 @@ library
     Language.Haskell.TH.Path.Order
     Language.Haskell.TH.Path.PathType
     Language.Haskell.TH.Path.Prune
+    Language.Haskell.TH.Path.Stack
     Language.Haskell.TH.Path.Types
     Language.Haskell.TH.Path.View
   default-language: Haskell2010
