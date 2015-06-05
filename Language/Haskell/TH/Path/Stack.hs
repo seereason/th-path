@@ -21,13 +21,7 @@ module Language.Haskell.TH.Path.Stack
       -- * Stack+instance map monad
     , StackT
     , execStackT
-      -- * Subtype traversal
-    -- , visitSubtypes
-    -- , findSubtypes
-    -- , evalSubtypes
-    -- , enumerateSubtypes
       -- * Stack operations
-    , fieldNameString
     , stackAccessor
     , makeLenses
     ) where
@@ -40,18 +34,14 @@ import Control.Monad.RWS (RWST)
 import Control.Monad.State (StateT, evalStateT, get)
 import Control.Monad.Trans (lift)
 import Control.Monad.Writer (WriterT, runWriterT, execWriterT, tell)
-import Data.Char (isUpper, toUpper)
+import Data.Char (toUpper)
 import Data.Generics (Data, Typeable)
-import Data.List (groupBy)
 import Data.Map as Map (keys)
-import Data.List (elemIndex)
 import Data.Maybe (fromMaybe)
 import Data.Monoid (Monoid)
 import Language.Haskell.Exts.Syntax ()
 import Language.Haskell.TH
-import Language.Haskell.TH.TypeGraph.Core
-    (FieldType(FieldType, fPos, fNameAndType),
-     fName, fType, constructorFields, constructorName)
+import Language.Haskell.TH.TypeGraph.Core (FieldType(..), fName, fType, constructorFields, constructorName)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Syntax hiding (lift)
 import Language.Haskell.TH.TypeGraph (E(E), etype, simpleEdges, typeGraphInfo, typeGraphEdges)
@@ -132,53 +122,6 @@ type StackT m = ReaderT [StackElement] m
 
 execStackT :: Monad m => StackT m a -> m a
 execStackT action = runReaderT action []
-
--- | Return a string which describes a record field:
---  1. If there is a field name, use that
---  2. If the constructor has one field, use the constructor name
---  3. If the field is a named type, use it
---  4. Otherwise, use the constructor and the field position
-fieldNameString :: (Quasi m, HasStack m) => m [Hint] -> m String
-fieldNameString lookHints =
-    do hs <- lookHints
-       withStack (return . title hs)
-    where
-      title :: [Hint] -> [StackElement] -> String
-      title hs (StackElement fld con dec : _) =
-          useFieldPos `fromMaybe` useFieldType `fromMaybe` useConName `fromMaybe` useFieldName `fromMaybe` useHint hs
-          where
-            useFieldName :: Maybe String
-            useFieldName = fmap (camelWords . nameBase) (fName fld)
-            useConName :: Maybe String
-            useConName = fmap (camelWords . nameBase) $ if constructorCount dec == 1 then Just (constructorName con) else Nothing
-            useFieldType :: Maybe String
-            useFieldType = fmap (camelWords . nameBase) $ doType (fType fld)
-            useFieldPos :: String
-            useFieldPos = camelWords (nameBase (constructorName con)) ++ "." ++ maybe (error "elemIndex") show (elemIndex fld (constructorFields con))
-            useHint [] = Nothing
-            useHint (Title s : _) = Just s
-            useHint (_ : more) = useHint more
-      title _hs stk = "fieldNameString - bad stack: " ++ prettyStack stk
-      doType (ForallT _ _ typ) = doType typ
-      doType (ConT name) = Just name
-      doType _ = Nothing
-      constructorCount :: Dec -> Int
-      constructorCount (NewtypeD _ _ _ _ _) = 1
-      constructorCount (DataD _ _ _ cons _) = length cons
-      constructorCount dec = error $ "constructorCount: " ++ show dec
-
--- | Convert a camel case string (no whitespace) into a natural
--- language looking phrase:
---   camelWords3 "aCamelCaseFOObar123" -> "A Camel Case FOObar123"
-camelWords :: String -> String
-camelWords s =
-    case groupBy (\ a b -> isUpper a == isUpper b) s of -- "aCamelCaseFOObar123"
-      (x : xs) -> concat $ capitalize x : map (\ (c : cs) -> if isUpper c then ' ' : c : cs else c : cs) xs
-      [] -> ""
-
-capitalize :: String -> String
-capitalize [] = []
-capitalize (c:cs) = (toUpper c) : cs
 
 -- | Re-implementation of stack accessor in terms of stackLens
 stackAccessor :: (Quasi m, HasStack m) => ExpQ -> Type -> m Exp

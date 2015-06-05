@@ -221,8 +221,10 @@ mapClause :: (DsMonad m, MonadReader R m) => (PatQ -> PatQ) -> (ExpQ -> ExpQ) ->
 mapClause patf lnsf clauseq =
     runQ clauseq >>= \(Clause [pat] (NormalB lns) xs) -> return $ clause [patf (pure pat)] (normalB (lnsf (pure lns))) (List.map pure xs)
 
+#if 0
 -- | Apply arity 2 functions to the clause pattern and expression
 mapClause2 :: (DsMonad m, MonadReader R m) => (PatQ -> PatQ -> PatQ) -> (ExpQ -> ExpQ -> ExpQ) -> Clause -> Clause -> m Clause
 mapClause2 patf lnsf (Clause [pat1] (NormalB lns1) xs) (Clause [pat2] (NormalB lns2) ys) =
     runQ $ clause [patf (pure pat1) (pure pat2)] (normalB (lnsf (pure lns1) (pure lns2))) (List.map pure (xs ++ ys))
 mapClause2 _ _ x1 x2 = error $ "mapClause - unexpected Clause: " ++ show x1 ++ ", " ++ show x2
+#endif
