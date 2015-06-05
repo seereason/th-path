@@ -41,11 +41,11 @@ import Data.Maybe (fromMaybe)
 import Data.Monoid (Monoid)
 import Language.Haskell.Exts.Syntax ()
 import Language.Haskell.TH
-import Language.Haskell.TH.TypeGraph.Core (FieldType(..), fName, fType, constructorFields, constructorName)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Syntax hiding (lift)
 import Language.Haskell.TH.TypeGraph (E(E), etype, simpleEdges, typeGraphInfo, typeGraphEdges)
 import Language.Haskell.TH.TypeGraph.Graph (GraphEdges)
+import Language.Haskell.TH.TypeGraph.Shape (FieldType(..), fName, fType, constructorFields, constructorName)
 import Language.Haskell.TH.TypeGraph.Vertex (TypeGraphVertex)
 import Prelude hiding ((.))
 
@@ -163,10 +163,13 @@ fieldLens e@(StackElement fld con _) =
                      let n = length $ constructorFields con
                      as <- mapM newName (map (\ p -> "_a" ++ show p) [1..n])
                      [| lens -- \ (Con _ _ _ x _ _) -> x
-                             $(lamE [conP cname (set (nthLens (fPos fld)) (varP f) (repeat wildP))] [| $(varE f) :: $(pure (fType fld)) |])
+                             $(lamE [conP cname (set (fLens fld) (varP f) (repeat wildP))] [| $(varE f) :: $(pure (fType fld)) |])
                              -- \ x (Con a b c _ d e) -> Con a b c x d e
-                             $(lamE [conP cname (map varP as), varP f] (foldl appE (conE cname) (set (nthLens (fPos fld)) (varE f) (map varE as)))) |]
+                             $(lamE [conP cname (map varP as), varP f] (foldl appE (conE cname) (set (fLens fld) (varE f) (map varE as)))) |]
        [| $(pure lns) {- :: Lens $(pure top) $(pure (fType fld)) -} |]
+    where
+      fLens (Positional n _) = nthLens n
+      fLens (Named _) = undefined -- FIXME
 
 -- Generate lenses to access the fields of the row types.
 makeLenses :: [Dec] -> Q [Dec]
@@ -186,7 +189,7 @@ makeLenses decs =
 
       -- (mkName $ nameBase $ tName dec) dec lensNamer) >>= tell
       doField :: Name -> FieldType -> StackT (WriterT [Dec] Q) ()
-      doField typeName (FieldType {fNameAndType = Right (fieldName, _, fieldType)}) =
+      doField typeName (Named (fieldName, _, fieldType)) =
           doFieldType typeName fieldName fieldType
       doField _ _ = return ()
       doFieldType typeName fieldName (ForallT _ _ typ) = doFieldType typeName fieldName typ
