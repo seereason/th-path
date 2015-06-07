@@ -31,7 +31,7 @@ import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Core (Path(..), fieldLensName, pathConNameOfField, Path_OMap(..), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
 import Language.Haskell.TH.Path.Monad (allLensKeys, foldPath, FoldPathControl(..), goalReachableSimple, makePathLenses, makeTypeGraph, R, typeInfo)
 import Language.Haskell.TH.Path.PathType (pathType)
-import Language.Haskell.TH.Path.Lens (idLens, mat)
+import Language.Haskell.TH.Path.Lens (mat)
 import Language.Haskell.TH.Path.Order (lens_omat)
 import Language.Haskell.TH.Syntax as TH (lift, VarStrictType)
 import Language.Haskell.TH.TypeGraph.Core (pprint')
@@ -89,7 +89,7 @@ pathInstanceClauses :: forall m. (DsMonad m, MonadReader R m, MonadWriter [Claus
                     -> TypeGraphVertex -- ^ the goal type key
                     -> Type -- ^ the corresponding path type - first type parameter of ToLens
                     -> m ()
-pathInstanceClauses key gkey _ptyp | view etype key == view etype gkey = tell [clause [wildP] (normalB [|idLens|]) []]
+pathInstanceClauses key gkey _ptyp | view etype key == view etype gkey = tell [clause [wildP] (normalB [|iso id id|]) []]
 pathInstanceClauses key gkey ptyp =
   -- Use this to raise errors when the path patterns aren't exhaustive.
   -- That is supposed to be impossible, so this is debugging code.
@@ -139,7 +139,7 @@ doClause gkey typ pfunc lns = do
     True -> testClause gkey typ (clause [ pfunc wildP ] (normalB lns) [])
     False -> do
       testClause gkey typ (clause [ pfunc (varP v) ] (normalB [|$lns . toLens $(varE v)|]) [])
-      when (key == gkey) $ testClause gkey typ (clause [ wildP ] (normalB [|idLens|]) [])
+      when (key == gkey) $ testClause gkey typ (clause [ wildP ] (normalB [|iso id id|]) [])
 
 testClause :: (DsMonad m, MonadReader R m, MonadWriter [ClauseQ] m) => TypeGraphVertex -> Type -> ClauseQ -> m ()
 testClause gkey typ cl = do

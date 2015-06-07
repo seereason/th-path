@@ -45,23 +45,21 @@ idLens = iso id id
 dummyLens :: b -> Lens' a b
 dummyLens v = lens (const v) const
 
--- Similar to an isomorphism, but fails silently.
--- next round of lenses will fix this.
+-- | A lens that assumes usable round trip Read/Show instances for
+-- a.  Similar to an isomorphism, but fails silently.
 readShowLens :: (Show a, Read a) => Lens' a String
 readShowLens = lens show (\r v ->
                            case maybeRead v of
                              Nothing -> r
                              Just r' -> r')
 
-
+-- | A lens for 'Maybe' values whose getter turns Nothing into the
+-- empty string and whose setter returns Nothing whenever read fails.
 lens_mrs :: (Show a, Read a) => Lens' (Maybe a) String
 lens_mrs = lens getter setter
   where getter Nothing = ""
         getter (Just x) = show x
-        setter _ x =
-          case reads x of
-            [(b,_)] -> Just b
-            _ -> Nothing
+        setter _ x = maybeRead x
 
 readOnlyLens :: Lens' a a
 readOnlyLens = iso id (error "Lens.readOnlyLens: TROUBLE ignoring write to readOnlyLens")
