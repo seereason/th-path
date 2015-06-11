@@ -152,24 +152,21 @@ fieldLens :: StackElement -> Q Exp
 fieldLens e@(StackElement fld con _) =
     do lns <-
            case fName fld of
-              Just fieldName ->
+              Right fieldName ->
                   -- Use the field name to build an accessor
                   let lensName = lensNamer (nameBase fieldName) in
                   lookupValueName lensName >>= maybe (error ("fieldLensName - missing lens: " ++ lensName)) varE
-              Nothing ->
+              Left fieldPos ->
                   -- Build a pattern expression to extract the field
                   do cname <- lookupValueName (nameBase $ constructorName con) >>= return . fromMaybe (error $ "fieldLens: " ++ show e)
                      f <- newName "f"
                      let n = length $ constructorFields con
                      as <- mapM newName (map (\ p -> "_a" ++ show p) [1..n])
                      [| lens -- \ (Con _ _ _ x _ _) -> x
-                             $(lamE [conP cname (set (fLens fld) (varP f) (repeat wildP))] [| $(varE f) :: $(pure (fType fld)) |])
+                             $(lamE [conP cname (set (nthLens fieldPos) (varP f) (repeat wildP))] [| $(varE f) :: $(pure (fType fld)) |])
                              -- \ x (Con a b c _ d e) -> Con a b c x d e
-                             $(lamE [conP cname (map varP as), varP f] (foldl appE (conE cname) (set (fLens fld) (varE f) (map varE as)))) |]
+                             $(lamE [conP cname (map varP as), varP f] (foldl appE (conE cname) (set (nthLens fieldPos) (varE f) (map varE as)))) |]
        [| $(pure lns) {- :: Lens $(pure top) $(pure (fType fld)) -} |]
-    where
-      fLens (Positional n _) = nthLens n
-      fLens (Named _) = undefined -- FIXME
 
 -- Generate lenses to access the fields of the row types.
 makeLenses :: [Dec] -> Q [Dec]
