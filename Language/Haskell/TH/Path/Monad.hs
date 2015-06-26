@@ -52,13 +52,11 @@ import Language.Haskell.TH.Path.Order (Order)
 import Language.Haskell.TH.Path.Prune (pruneTypeGraph, SinkType)
 import Language.Haskell.TH.Path.Stack (HasStack(withStack), push, StackElement(StackElement))
 import Language.Haskell.TH.Path.View (View(viewLens), viewInstanceType)
-import Language.Haskell.TH.TypeGraph.Core (pprint')
-import Language.Haskell.TH.TypeGraph.Expand (E(E), expandType, runExpanded)
-import Language.Haskell.TH.TypeGraph.Free (freeTypeVars)
-import Language.Haskell.TH.TypeGraph.Graph (dissolveM, GraphEdges, graphFromMap, isolate)
-import Language.Haskell.TH.TypeGraph.Info (infoMap, TypeGraphInfo, typeGraphInfo)
-import Language.Haskell.TH.TypeGraph.Monad (simpleEdges, simpleVertex, typeGraphEdges, vertex)
-import Language.Haskell.TH.TypeGraph.Vertex (TypeGraphVertex(..), etype, field, typeNames)
+import Language.Haskell.TH.TypeGraph (pprint', unlifted, E(E), expandType, runExpanded, freeTypeVars,
+                                      dissolveM, GraphEdges, graphFromMap, isolate,
+                                      infoMap, TypeGraphInfo, typeGraphInfo,
+                                      simpleEdges, simpleVertex, typeGraphEdges, vertex,
+                                      TypeGraphVertex(..), etype, field, typeNames)
 import Prelude hiding (any, concat, concatMap, elem, exp, foldr, mapM_, null, or)
 
 import Data.Foldable

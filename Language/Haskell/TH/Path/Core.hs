@@ -49,9 +49,7 @@ import Language.Haskell.TH
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Syntax (qReify)
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.TypeGraph.Core (pprint')
-import Language.Haskell.TH.TypeGraph.Expand (E(E))
-import Language.Haskell.TH.TypeGraph.Vertex (TypeGraphVertex(..), etype, syns, typeNames)
+import Language.Haskell.TH.TypeGraph (pprint', E(E), TypeGraphVertex, etype, field, syns, typeNames)
 import Prelude hiding (exp)
 import Web.Routes.TH (derivePathInfo)
 
@@ -149,7 +147,7 @@ bestPathTypeName v =
 
 -- | Path type constructor for the field described by key in the parent type named tname.
 pathConNameOfField :: TypeGraphVertex -> Maybe Name
-pathConNameOfField key = maybe Nothing (\ (tname, _, Right fname') -> Just $ mkName $ "Path_" ++ nameBase tname ++ "_" ++ nameBase fname') (_field key)
+pathConNameOfField key = maybe Nothing (\ (tname, _, Right fname') -> Just $ mkName $ "Path_" ++ nameBase tname ++ "_" ++ nameBase fname') (key ^. field)
 
 fieldLensName :: Name -> Name -> Name
 fieldLensName tname fname' = mkName ("lens_" ++ nameBase tname ++ "_" ++ nameBase fname')
