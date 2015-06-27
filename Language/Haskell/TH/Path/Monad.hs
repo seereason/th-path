@@ -35,35 +35,28 @@ import Control.Lens -- (makeLenses, over, view)
 import Control.Monad (filterM)
 import Control.Monad.Reader (ask, local, MonadReader, ReaderT, runReaderT)
 import Control.Monad.Writer (MonadWriter, tell)
-import Data.Default (Default)
+import Data.Foldable.Compat
 import Data.Graph (Graph, reachable, transposeG, Vertex)
 import Data.List as List (intercalate, map)
-import Data.Map as Map (keys, Map, map, mapWithKey)
+import Data.Map as Map (keys, Map)
 import Data.Maybe (fromJust, fromMaybe, isJust, mapMaybe)
-import Data.Set as Set (difference, empty, filter, fromList, map, Set)
+import Data.Set as Set (empty, fromList, map, Set)
 import Language.Haskell.TH
 import Language.Haskell.TH.Context.Reify (evalContext, reifyInstancesWithContext)
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.KindInference (inferKind)
 import Language.Haskell.TH.Path.Core (fieldLensName, SelfPath)
+import Language.Haskell.TH.Path.Graph (makeTypeGraphEdges)
 import Language.Haskell.TH.Path.LensTH (nameMakeLens)
 import Language.Haskell.TH.Path.Order (Order)
-import Language.Haskell.TH.Path.Prune (pruneTypeGraph, SinkType)
+import Language.Haskell.TH.Path.Prune (SinkType)
 import Language.Haskell.TH.Path.Stack (HasStack(withStack), push, StackElement(StackElement))
 import Language.Haskell.TH.Path.View (View(viewLens), viewInstanceType)
-import Language.Haskell.TH.TypeGraph (pprint', unlifted, E(E), expandType, runExpanded, freeTypeVars,
-                                      dissolveM, GraphEdges, graphFromMap, isolate,
-                                      TypeGraphInfo, typeGraphInfo,
-                                      simpleEdges, simpleVertex, typeGraphEdges, vertex,
-                                      TypeGraphVertex, etype, field, typeNames)
+import Language.Haskell.TH.TypeGraph (pprint', E(E), expandType, runExpanded,
+                                      GraphEdges, graphFromMap, TypeGraphInfo, typeGraphInfo,
+                                      simpleEdges, simpleVertex, vertex,
+                                      TypeGraphVertex, etype, typeNames)
 import Prelude hiding (any, concat, concatMap, elem, exp, foldr, mapM_, null, or)
-
-import Data.Foldable
-#if ! MIN_VERSION_base(4,8,0)
-null :: Foldable t => t a -> Bool
-null = foldr (\_ _ -> False) True
-#endif
 
 data R
     = R
@@ -181,47 +174,3 @@ makeTypeGraph st = do
              , _gsimple = graphFromMap (simpleEdges es)
              , _stack = []
              }
-
--- | Build a graph of the subtype relation, omitting any types whose
--- arity is nonzero and any not reachable from the start types.  (We
--- may also want to eliminate nodes that are not on a path from a
--- start type to a goal type, though eventually goal types will be
--- eliminated - all types will be goal types.)
-makeTypeGraphEdges :: forall m hint. (DsMonad m, Default hint, Ord hint, MonadReader TypeGraphInfo m) =>
-                      [Type] -> m (GraphEdges hint TypeGraphVertex)
-makeTypeGraphEdges st = do
-  -- im <- view infoMap
-  -- Dissolve the vertices for types whose arity is not zero.  Each of
-  -- their in-edges become connected to each of their out-edges.
-  let victim :: TypeGraphVertex -> m Bool
-      victim v = do
-        let (E etyp) = view etype v
-        k <- runQ $ inferKind etyp
-        fv <- runQ $ freeTypeVars etyp
-        prim <- unlifted etyp
-        return $ k /= Right StarT || fv /= Set.empty || prim
-  edges' <- typeGraphEdges >>= pruneTypeGraph >>= dissolveM victim >>= return . removePathsToOrderKeys . removeUnnamedFieldEdges
-  let (g, vf, kf) = graphFromMap edges'
-  -- Isolate all nodes that are not reachable from the start types.
-  kernel <- mapM expandType st >>= mapM (vertex Nothing) >>= return . mapMaybe kf
-  let keep :: Set TypeGraphVertex
-      keep = Set.map (\(_, key, _) -> key) $ Set.map vf $ Set.fromList $ concatMap (reachable g) kernel
-      victims = difference (Set.fromList (Map.keys edges')) keep
-      edges'' :: GraphEdges hint TypeGraphVertex
-      edges'' = isolate victims edges'
-  -- trace (pprint edges'') (return ())
-  return edges''
-    where
-      removeUnnamedFieldEdges :: (GraphEdges hint TypeGraphVertex) -> (GraphEdges hint TypeGraphVertex)
-      removeUnnamedFieldEdges =
-          -- If the _field field of the goal key is a Left it is a
-          -- positional field rather than named - we don't make lenses
-          -- for such fields so we don't want their edges in our graph.
-          Map.map (\(hint, gkeys) -> (hint, Set.filter (\gkey -> maybe True (\(_, _, fld) -> either (const False) (const True) fld) (view field gkey)) gkeys))
-      removePathsToOrderKeys :: (GraphEdges hint TypeGraphVertex) -> (GraphEdges hint TypeGraphVertex)
-      removePathsToOrderKeys =
-          -- The graph will initially include edges from (Map a b) to a, but we
-          -- only create lenses to the b values of a map, so remove the edge to a.
-          Map.mapWithKey (\key (hint, gkeys) -> (hint, Set.filter (\gkey -> case view etype key of
-                                                                              E (AppT (AppT (ConT mtyp) ityp) _etyp) | elem mtyp [''Map, ''Order] -> E ityp /= view etype gkey
-                                                                              _ -> True) gkeys))

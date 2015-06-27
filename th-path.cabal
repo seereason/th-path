@@ -28,6 +28,7 @@ library
   build-depends:
     applicative-extras,
     base >= 4.2 && < 5,
+    base-compat,
     containers,
     data-default,
     filemanip-extra,
@@ -49,6 +50,7 @@ library
   exposed-modules:
     Language.Haskell.TH.Path
     Language.Haskell.TH.Path.Core
+    Language.Haskell.TH.Path.Graph
     Language.Haskell.TH.Path.Instances
     Language.Haskell.TH.Path.Lens
     Language.Haskell.TH.Path.LensTH

@@ -24,6 +24,7 @@ import Control.Monad (when)
 import Control.Monad.Reader (MonadReader)
 import Control.Monad.State (execStateT, get, modify, StateT)
 import Data.Default (Default(def))
+import Data.Foldable.Compat
 import Data.Map as Map (alter, keys)
 import Data.Set as Set (empty, {-insert,-} Set, singleton)
 import Language.Haskell.TH -- (Con, Dec, nameBase, Type)
@@ -31,18 +32,10 @@ import Language.Haskell.TH.KindInference (inferKind)
 import Language.Haskell.TH.Context.Reify (evalContext, reifyInstancesWithContext)
 import Language.Haskell.TH.Path.View (viewInstanceType)
 import Language.Haskell.TH.TypeGraph (unlifted, E(E), expandType, cut, cutM, dissolveM,
-                                      GraphEdges, TypeGraphInfo, vertex, TypeGraphVertex(..), etype)
+                                      GraphEdges, TypeGraphInfo, vertex, TypeGraphVertex, etype)
 import Language.Haskell.TH.Desugar as DS (DsMonad)
 import Language.Haskell.TH.Instances ()
 import Prelude hiding (foldr, mapM_, null)
-
-import Data.Foldable
-#if MIN_VERSION_base(4,8,0)
-import Data.Foldable (null)
-#else
-null :: Foldable t => t a -> Bool
-null = foldr (\_ _ -> False) True
-#endif
 
 -- | 'Path' instances can be customized by declaring types to be
 -- instances of this class and the ones that follow.  If a type is an
