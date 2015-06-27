@@ -24,7 +24,7 @@ import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Core (bestPathTypeName, pathTypeNameFromTypeName, PathType, Path_OMap, Path_List, Path_Map, Path_Pair, Path_Maybe, Path_Either)
 import Language.Haskell.TH.Path.Monad (R, typeInfo, reachableFrom, FoldPathControl(..), foldPath)
-import Language.Haskell.TH.TypeGraph (pprint', E(E), runExpanded, vertex, TypeGraphVertex(..), etype)
+import Language.Haskell.TH.TypeGraph (pprint', E(E), runExpanded, vertex, TypeGraphVertex, etype)
 import Prelude hiding (any, concat, concatMap, elem, foldr, mapM_, null, or)
 
 -- | Given a type, generate the corresponding path type.

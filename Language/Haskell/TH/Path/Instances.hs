@@ -34,7 +34,7 @@ import Language.Haskell.TH.Path.PathType (pathType)
 import Language.Haskell.TH.Path.Lens (mat)
 import Language.Haskell.TH.Path.Order (lens_omat)
 import Language.Haskell.TH.Syntax as TH (lift, VarStrictType)
-import Language.Haskell.TH.TypeGraph (pprint', expandType, runExpanded, vertex, bestType, TypeGraphVertex(..), etype)
+import Language.Haskell.TH.TypeGraph (pprint', expandType, runExpanded, vertex, bestType, TypeGraphVertex, etype)
 import Prelude hiding (any, concat, concatMap, elem, foldr, mapM_, null, or)
 import System.FilePath.Extra (compareSaveAndReturn, changeError)
 

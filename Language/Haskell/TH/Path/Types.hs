@@ -30,7 +30,7 @@ import Language.Haskell.TH.Path.Core (bestPathTypeName, IdPath(idPath), pathConN
 import Language.Haskell.TH.Path.Monad (allPathKeys, foldPath, FoldPathControl(..), makeTypeGraph, R, typeInfo)
 import Language.Haskell.TH.Path.PathType (pathType)
 import Language.Haskell.TH.Syntax as TH (Quasi, VarStrictType)
-import Language.Haskell.TH.TypeGraph (pprint', expandType, simpleVertex, vertex, TypeGraphVertex(..), typeNames)
+import Language.Haskell.TH.TypeGraph (pprint', expandType, simpleVertex, vertex, TypeGraphVertex, typeNames)
 import Prelude hiding (any, concat, concatMap, elem, foldr, mapM_, null, or)
 import System.FilePath.Extra (compareSaveAndReturn, changeError)
 

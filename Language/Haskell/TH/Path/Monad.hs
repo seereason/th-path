@@ -38,7 +38,7 @@ import Control.Monad.Writer (MonadWriter, tell)
 import Data.Default (Default)
 import Data.Graph (Graph, reachable, transposeG, Vertex)
 import Data.List as List (intercalate, map)
-import Data.Map as Map (keys, lookup, Map, map, mapWithKey)
+import Data.Map as Map (keys, Map, map, mapWithKey)
 import Data.Maybe (fromJust, fromMaybe, isJust, mapMaybe)
 import Data.Set as Set (difference, empty, filter, fromList, map, Set)
 import Language.Haskell.TH
@@ -46,7 +46,7 @@ import Language.Haskell.TH.Context.Reify (evalContext, reifyInstancesWithContext
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.KindInference (inferKind)
-import Language.Haskell.TH.Path.Core
+import Language.Haskell.TH.Path.Core (fieldLensName, SelfPath)
 import Language.Haskell.TH.Path.LensTH (nameMakeLens)
 import Language.Haskell.TH.Path.Order (Order)
 import Language.Haskell.TH.Path.Prune (pruneTypeGraph, SinkType)
@@ -54,9 +54,9 @@ import Language.Haskell.TH.Path.Stack (HasStack(withStack), push, StackElement(S
 import Language.Haskell.TH.Path.View (View(viewLens), viewInstanceType)
 import Language.Haskell.TH.TypeGraph (pprint', unlifted, E(E), expandType, runExpanded, freeTypeVars,
                                       dissolveM, GraphEdges, graphFromMap, isolate,
-                                      infoMap, TypeGraphInfo, typeGraphInfo,
+                                      TypeGraphInfo, typeGraphInfo,
                                       simpleEdges, simpleVertex, typeGraphEdges, vertex,
-                                      TypeGraphVertex(..), etype, field, typeNames)
+                                      TypeGraphVertex, etype, field, typeNames)
 import Prelude hiding (any, concat, concatMap, elem, exp, foldr, mapM_, null, or)
 
 import Data.Foldable
@@ -190,7 +190,7 @@ makeTypeGraph st = do
 makeTypeGraphEdges :: forall m hint. (DsMonad m, Default hint, Ord hint, MonadReader TypeGraphInfo m) =>
                       [Type] -> m (GraphEdges hint TypeGraphVertex)
 makeTypeGraphEdges st = do
-  im <- view infoMap
+  -- im <- view infoMap
   -- Dissolve the vertices for types whose arity is not zero.  Each of
   -- their in-edges become connected to each of their out-edges.
   let victim :: TypeGraphVertex -> m Bool
@@ -198,9 +198,7 @@ makeTypeGraphEdges st = do
         let (E etyp) = view etype v
         k <- runQ $ inferKind etyp
         fv <- runQ $ freeTypeVars etyp
-        let prim = case etyp of
-                     ConT tname -> maybe False (\ x -> case x of PrimTyConI _ _ _ -> True; _ -> False) (Map.lookup tname im)
-                     _ -> False
+        prim <- unlifted etyp
         return $ k /= Right StarT || fv /= Set.empty || prim
   edges' <- typeGraphEdges >>= pruneTypeGraph >>= dissolveM victim >>= return . removePathsToOrderKeys . removeUnnamedFieldEdges
   let (g, vf, kf) = graphFromMap edges'
