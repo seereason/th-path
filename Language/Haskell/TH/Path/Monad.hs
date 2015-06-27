@@ -17,9 +17,6 @@
 {-# OPTIONS_GHC -fno-warn-orphans -fno-warn-missing-signatures #-}
 module Language.Haskell.TH.Path.Monad
     ( R(..), startTypes, typeInfo, edges
-
-    , makeTypeGraph
-
     , FoldPathControl(..)
     , foldPath
     , allLensKeys
@@ -46,15 +43,13 @@ import Language.Haskell.TH.Context.Reify (evalContext, reifyInstancesWithContext
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Core (fieldLensName, SelfPath)
-import Language.Haskell.TH.Path.Graph (makeTypeGraphEdges)
 import Language.Haskell.TH.Path.LensTH (nameMakeLens)
 import Language.Haskell.TH.Path.Order (Order)
 import Language.Haskell.TH.Path.Prune (SinkType)
 import Language.Haskell.TH.Path.Stack (HasStack(withStack), push, StackElement(StackElement))
 import Language.Haskell.TH.Path.View (View(viewLens), viewInstanceType)
 import Language.Haskell.TH.TypeGraph (pprint', E(E), expandType, runExpanded,
-                                      GraphEdges, graphFromMap, TypeGraphInfo, typeGraphInfo,
-                                      simpleEdges, simpleVertex, vertex,
+                                      GraphEdges, TypeGraphInfo, simpleVertex, vertex,
                                       TypeGraphVertex, etype, typeNames)
 import Prelude hiding (any, concat, concatMap, elem, exp, foldr, mapM_, null, or)
 
@@ -161,16 +156,3 @@ foldPath (FoldPathControl{..}) v = do
     AppT t1 vtyp | t1 == ConT ''Maybe -> maybef vtyp
     AppT (AppT t3 ltyp) rtyp | t3 == ConT ''Either -> eitherf ltyp rtyp
     _ -> otherf
-
-makeTypeGraph :: DsMonad m => Q [Type] -> m R
-makeTypeGraph st = do
-  st' <- runQ st
-  ti <- typeGraphInfo st'
-  es <- runReaderT (makeTypeGraphEdges st') ti
-  return $ R { _startTypes = st'
-             , _typeInfo = ti
-             , _edges = es
-             , _graph = graphFromMap es
-             , _gsimple = graphFromMap (simpleEdges es)
-             , _stack = []
-             }
