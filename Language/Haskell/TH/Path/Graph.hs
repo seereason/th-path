@@ -128,8 +128,7 @@ data VertexStatus typ
 instance Default (VertexStatus typ) where
     def = Vertex
 
--- type Edges = Edges
-type Edges = GraphEdges () TypeGraphVertex
+--- type Edges = GraphEdges () TypeGraphVertex
 
 -- | Return the set of edges implied by the subtype relationship among
 -- a set of types.  This is just the nodes of the type graph.  The
@@ -148,11 +147,11 @@ typeGraphEdges'
            -- lens returned by @View's@ method to convert between @a@
            -- and @b@ (i.e. to implement the edge in the type graph.)
     -> [Type]
-    -> m Edges
+    -> m (GraphEdges () TypeGraphVertex)
 typeGraphEdges' augment types = do
-  execStateT (mapM_ (\typ -> vert typ >>= doNode) types) (mempty :: Edges)
+  execStateT (mapM_ (\typ -> vert typ >>= doNode) types) (mempty :: GraphEdges () TypeGraphVertex)
     where
-      doNode :: TypeGraphVertex -> StateT Edges m ()
+      doNode :: TypeGraphVertex -> StateT (GraphEdges () TypeGraphVertex) m ()
       doNode typ = do
         mp <- get
         status <- lift (augment typ)
@@ -165,13 +164,13 @@ typeGraphEdges' augment types = do
               (Extra typ') -> vert typ' >>= \typ'' -> addNode typ >> doEdges typ >> addEdge typ typ'' >> doNode typ''
               Vertex -> addNode typ >> doEdges typ
 
-      addNode :: TypeGraphVertex -> StateT Edges m ()
+      addNode :: TypeGraphVertex -> StateT (GraphEdges () TypeGraphVertex) m ()
       -- addNode a = expandType a >>= \ a' -> modify $ Map.insertWith (flip const) a' Set.empty
       addNode a = modify $ Map.alter (maybe (Just (def, Set.empty)) Just) a
-      addEdge :: TypeGraphVertex -> TypeGraphVertex -> StateT Edges m ()
+      addEdge :: TypeGraphVertex -> TypeGraphVertex -> StateT (GraphEdges () TypeGraphVertex) m ()
       addEdge a b = modify $ Map.update (\(lbl, s) -> Just (lbl, Set.insert b s)) a
 
-      doEdges :: TypeGraphVertex -> StateT Edges m ()
+      doEdges :: TypeGraphVertex -> StateT (GraphEdges () TypeGraphVertex) m ()
       doEdges typ =
           case view etype typ of
             E (ForallT _ _ typ') -> vert typ' >>= \typ'' -> addEdge typ typ'' >> doNode typ''
@@ -188,28 +187,28 @@ typeGraphEdges' augment types = do
                 TyConI dec -> doDec typ dec
                 _ -> return ()
             _typ -> return ({-trace ("Unrecognized type: " ++ pprint' typ)-} ())
-      doDec :: TypeGraphVertex -> Dec -> StateT Edges m ()
+      doDec :: TypeGraphVertex -> Dec -> StateT (GraphEdges () TypeGraphVertex) m ()
       doDec typ dec@(NewtypeD _ tname _ con _) = doCon typ tname dec con
       doDec typ dec@(DataD _ tname _ cons _) = mapM_ (doCon typ tname dec) cons
       doDec typ (TySynD _tname _tvars typ') = vert typ' >>= \typ'' -> addEdge typ typ'' >> doNode typ''
       doDec _ _ = return ()
 
-      doCon :: TypeGraphVertex -> Name -> Dec -> Con -> StateT Edges m ()
+      doCon :: TypeGraphVertex -> Name -> Dec -> Con -> StateT (GraphEdges () TypeGraphVertex) m ()
       doCon typ tname dec (ForallC _ _ con) = doCon typ tname dec con
       doCon typ tname dec (NormalC cname fields) = mapM_ (doField typ tname dec cname) (zip (List.map Left ([1..] :: [Int])) (List.map snd fields))
       doCon typ tname dec (RecC cname fields) = mapM_ (doField typ tname dec cname) (List.map (\ (fname, _, typ') -> (Right fname, typ')) fields)
       doCon typ tname dec (InfixC (_, lhs) cname (_, rhs)) = mapM_ (doField typ tname dec cname) [(Left 1, lhs), (Left 2, rhs)]
 
-      doField :: TypeGraphVertex -> Name -> Dec -> Name -> (Either Int Name, Type) -> StateT Edges m ()
+      doField :: TypeGraphVertex -> Name -> Dec -> Name -> (Either Int Name, Type) -> StateT (GraphEdges () TypeGraphVertex) m ()
       doField typ tname _dec cname (fld, ftype) = fieldVert (tname, cname, fld) ftype >>= \ftype' -> addEdge typ ftype' >> doNode ftype'
 
-      vert :: Type -> StateT Edges m TypeGraphVertex
+      vert :: Type -> StateT (GraphEdges () TypeGraphVertex) m TypeGraphVertex
       vert typ = do
         r <- ask
         typ' <- expandType typ
         runReaderT (vertex Nothing typ') (view typeInfo r)
 
-      fieldVert :: (Name, Name, Either Int Name) -> Type -> StateT Edges m TypeGraphVertex
+      fieldVert :: (Name, Name, Either Int Name) -> Type -> StateT (GraphEdges () TypeGraphVertex) m TypeGraphVertex
       fieldVert fld typ = do
         r <- ask
         typ' <- expandType typ
