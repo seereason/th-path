@@ -27,7 +27,7 @@ module Language.Haskell.TH.Path.Monad
     , goalReachableSimple
     ) where
 
-import Control.Applicative ((<$>))
+import Control.Applicative
 import Control.Lens -- (makeLenses, over, view)
 import Control.Monad (filterM)
 import Control.Monad.Reader (ask, local, MonadReader, ReaderT, runReaderT)

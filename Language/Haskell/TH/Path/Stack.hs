@@ -26,7 +26,7 @@ module Language.Haskell.TH.Path.Stack
     , makeLenses
     ) where
 
-import Control.Applicative ((<$>), pure)
+import Control.Applicative
 import Control.Category ((.))
 import Control.Lens (iso, Lens', lens, set, view)
 import Control.Monad.Reader (ReaderT, runReaderT, ask, local)
@@ -38,7 +38,7 @@ import Data.Char (toUpper)
 import Data.Generics (Data, Typeable)
 import Data.Map as Map (keys)
 import Data.Maybe (fromMaybe, mapMaybe)
-import Data.Monoid (Monoid)
+import Data.Monoid
 import Language.Haskell.Exts.Syntax ()
 import Language.Haskell.TH
 import Language.Haskell.TH.Instances ()
@@ -47,10 +47,6 @@ import Language.Haskell.TH.TypeGraph (E(E), etype, simpleEdges, typeGraphInfo, t
 import Language.Haskell.TH.TypeGraph.Graph (GraphEdges)
 import Language.Haskell.TH.TypeGraph.Shape (FieldType(..), fName, fType, constructorFields, constructorName, declarationType)
 import Language.Haskell.TH.TypeGraph.Vertex (TypeGraphVertex)
-import Prelude hiding ((.))
-
-
-import Control.Applicative ((<*>))
 import Prelude hiding ((.))
 
 -- | Hints about alternative ways to handle page rendering, returned

@@ -14,7 +14,7 @@ module Language.Haskell.TH.Path.Types
     ( pathTypes
     ) where
 
-import Control.Applicative ((<$>), pure)
+import Control.Applicative
 import Control.Lens hiding (cons) -- (makeLenses, over, view)
 import Control.Monad.Reader (MonadReader, runReaderT)
 import Control.Monad.RWS (evalRWST)

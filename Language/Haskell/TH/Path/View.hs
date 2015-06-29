@@ -10,15 +10,14 @@ module Language.Haskell.TH.Path.View
     , viewTypes
     ) where
 
-import Control.Applicative ((<$>))
+import Control.Applicative
 import Control.Lens (Lens')
 import Control.Monad.State (MonadState)
 import Data.Maybe (catMaybes)
 import Data.Set as Set (fromList, Set)
 import Language.Haskell.TH
-import Language.Haskell.TH.Context.Reify (InstMap, {-testContext,-} reifyInstancesWithContext, evalContext)
+import Language.Haskell.TH.Context.Reify (reifyInstancesWithContext, evalContext, S)
 import Language.Haskell.TH.Desugar as DS (DsMonad)
-import Language.Haskell.TH.TypeGraph (E)
 
 -- | If there is an instance of View for a type @a@, then when @a@
 -- appears in the data, the lens returned by 'viewLens' is used to
@@ -33,7 +32,7 @@ class View a where
 
 -- | Determine whether there is a 'View' instance for a type and if so
 -- return @ViewType a@.
-viewInstanceType :: (DsMonad m, MonadState (InstMap (E Pred)) m) => Type -> m (Maybe Type)
+viewInstanceType :: (DsMonad m, MonadState S m) => Type -> m (Maybe Type)
 viewInstanceType typ =
     do vInsts <- runQ $ reifyInstances ''ViewType [typ]
        case vInsts of

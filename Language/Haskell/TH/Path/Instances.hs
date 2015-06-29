@@ -15,7 +15,7 @@ module Language.Haskell.TH.Path.Instances
     ( pathInstances
     ) where
 
-import Control.Applicative ((<$>), Applicative(pure))
+import Control.Applicative
 import Control.Lens hiding (cons) -- (makeLenses, over, view)
 import Control.Monad (when)
 import Control.Monad.Reader (MonadReader, runReaderT)
