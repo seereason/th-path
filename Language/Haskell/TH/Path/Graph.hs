@@ -13,7 +13,6 @@
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TupleSections #-}
-{-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -fno-warn-orphans -fno-warn-missing-signatures #-}
 module Language.Haskell.TH.Path.Graph
     ( makeTypeGraphEdges
@@ -35,7 +34,7 @@ import Control.Applicative
 import Control.Lens -- (makeLenses, over, view)
 import Control.Monad (when)
 import Control.Monad.Reader (ask, MonadReader, runReaderT)
-import Control.Monad.State (execStateT, modify, MonadState, StateT)
+import Control.Monad.State (execStateT, modify, StateT)
 import Control.Monad.Trans (lift)
 import Data.Default (Default(def))
 import Data.Foldable (mapM_)
@@ -46,7 +45,7 @@ import Data.Maybe (mapMaybe)
 import Data.Set as Set (difference, empty, filter, fromList, insert, map, member, Set, singleton, toList, unions)
 import Language.Haskell.Exts.Syntax ()
 import Language.Haskell.TH
-import Language.Haskell.TH.Context (S, visited)
+import Language.Haskell.TH.Context (HasSet(getSet, modifySet))
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.KindInference (inferKind)
@@ -141,7 +140,7 @@ instance Default (VertexStatus typ) where
 -- type aliases are expanded by the th-desugar package to make them
 -- suitable for use as map keys.
 typeGraphEdges'
-    :: forall m. (DsMonad m, MonadState S m, MonadReader R m) =>
+    :: forall m. (DsMonad m, MonadReader R m, HasSet TypeGraphVertex m) =>
        (TypeGraphVertex -> m (Set TypeGraphVertex))
            -- ^ This function is applied to every expanded type before
            -- use, and the result is used instead.  If it returns
@@ -158,10 +157,10 @@ typeGraphEdges' augment types = do
   execStateT (mapM_ (\typ -> typeVertex typ >>= doNode) types) (mempty :: GraphEdges () TypeGraphVertex)
     where
       doNode v = do
-        s <- lift $ use visited
+        s <- lift $ getSet
         when (not (member v s)) $
              do trace ("  visiting " ++ pprint' v) (return ())
-                lift $ visited %= insert v
+                lift $ modifySet (insert v)
                 doNode' v
       doNode' :: TypeGraphVertex -> StateT (GraphEdges () TypeGraphVertex) m ()
       doNode' typ = do
@@ -213,15 +212,13 @@ adjacent typ =
 -- with no field specified.
 typeVertex :: (MonadReader R m, DsMonad m) => Type -> m TypeGraphVertex
 typeVertex typ = do
-        r <- ask
         typ' <- expandType typ
-        runReaderT (vertex Nothing typ') (view typeInfo r)
-      -- vert typ = expandType typ >>= vertex Nothing
+        ask >>= runReaderT (vertex Nothing typ') . view typeInfo
+        -- magnify typeInfo $ vertex Nothing typ'
 
 -- | Return the TypeGraphVertex associated with a particular type and field.
 fieldVertex :: (MonadReader R m, DsMonad m) => (Name, Name, Either Int Name) -> Type -> m TypeGraphVertex
 fieldVertex fld typ = do
-        r <- ask
         typ' <- expandType typ
-        runReaderT (vertex (Just fld) typ') (view typeInfo r)
-      -- fieldVert fld typ = expandType typ >>= vertex (Just fld)
+        ask >>= runReaderT (vertex (Just fld) typ') . view typeInfo
+        -- magnify typeInfo $ vertex (Just fld) typ'
