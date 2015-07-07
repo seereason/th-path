@@ -37,7 +37,7 @@ import Control.Monad.Writer (WriterT, runWriterT, execWriterT, tell)
 import Data.Char (toUpper)
 import Data.Generics (Data, Typeable)
 import Data.Map as Map (keys)
-import Data.Maybe (fromMaybe, mapMaybe)
+import Data.Maybe (fromMaybe)
 import Data.Monoid
 import Language.Haskell.Exts.Syntax ()
 import Language.Haskell.TH
@@ -45,7 +45,7 @@ import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Syntax hiding (lift)
 import Language.Haskell.TH.TypeGraph (E(E), etype, simpleEdges, typeGraphInfo, typeGraphEdges)
 import Language.Haskell.TH.TypeGraph.Graph (GraphEdges)
-import Language.Haskell.TH.TypeGraph.Shape (FieldType(..), fName, fType, constructorFields, constructorName, declarationType)
+import Language.Haskell.TH.TypeGraph.Shape (FieldType(..), fName, fType, constructorFields, constructorName)
 import Language.Haskell.TH.TypeGraph.Vertex (TypeGraphVertex)
 import Prelude hiding ((.))
 
@@ -165,9 +165,9 @@ fieldLens e@(StackElement fld con _) =
        [| $(pure lns) {- :: Lens $(pure top) $(pure (fType fld)) -} |]
 
 -- Generate lenses to access the fields of the row types.
-makeLenses :: [Dec] -> Q [Dec]
-makeLenses decs =
-    execWriterT $ execStackT $ typeGraphInfo (mapMaybe declarationType decs) >>= runReaderT typeGraphEdges >>= \ (g :: GraphEdges () TypeGraphVertex) -> (mapM doType . map (view etype) . Map.keys . simpleEdges $ g)
+makeLenses :: [Name] -> Q [Dec]
+makeLenses typeNames =
+    execWriterT $ execStackT $ typeGraphInfo (map ConT typeNames ) >>= runReaderT typeGraphEdges >>= \ (g :: GraphEdges () TypeGraphVertex) -> (mapM doType . map (view etype) . Map.keys . simpleEdges $ g)
     where
       doType (E (ConT name)) = qReify name >>= doInfo
       doType _ = return ()
