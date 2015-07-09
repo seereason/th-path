@@ -24,7 +24,6 @@ module Language.Haskell.TH.Path.Graph
     , fieldVertex
     ) where
 
-import Debug.Trace
 #if __GLASGOW_HASKELL__ < 709
 import Control.Applicative
 import Data.Monoid (mempty)
@@ -54,7 +53,7 @@ import Language.Haskell.TH.Path.Monad (R(..), typeInfo)
 import Language.Haskell.TH.Path.Order (Order)
 import Language.Haskell.TH.Path.Prune (pruneTypeGraph)
 import Language.Haskell.TH.Syntax (Quasi(..))
-import Language.Haskell.TH.TypeGraph (pprint', unlifted, E(E), expandType, freeTypeVars,
+import Language.Haskell.TH.TypeGraph (unlifted, E(E), expandType, freeTypeVars,
                                       dissolveM, GraphEdges, graphFromMap, isolate,
                                       TypeGraphInfo, typeGraphInfo,
                                       simpleEdges, typeGraphEdges, vertex,
@@ -159,8 +158,7 @@ typeGraphEdges' augment types = do
       doNode v = do
         s <- lift $ getSet
         when (not (member v s)) $
-             do trace ("  visiting " ++ pprint' v) (return ())
-                lift $ modifySet (insert v)
+             do lift $ modifySet (insert v)
                 doNode' v
       doNode' :: TypeGraphVertex -> StateT (GraphEdges () TypeGraphVertex) m ()
       doNode' typ = do

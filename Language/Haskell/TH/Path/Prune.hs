@@ -22,7 +22,7 @@ import Control.Applicative ((<$>))
 import Control.Lens -- (makeLenses, view)
 import Control.Monad (when)
 import Control.Monad.Reader (MonadReader)
-import Control.Monad.State (execStateT, get, modify, StateT)
+import Control.Monad.Writer (execWriterT, listen, MonadWriter, pass, tell, WriterT)
 import Data.Default (Default(def))
 import Data.Foldable.Compat
 import Data.Map as Map (alter, keys)
@@ -36,6 +36,12 @@ import Language.Haskell.TH.TypeGraph (unlifted, E(E), expandType, cut, cutM, dis
 import Language.Haskell.TH.Desugar as DS (DsMonad)
 import Language.Haskell.TH.Instances ()
 import Prelude hiding (foldr, mapM_, null)
+
+listen_ :: MonadWriter w m => m w
+listen_ = snd <$> listen (return ())
+
+pass_ :: MonadWriter w m => m (w -> w) -> m ()
+pass_ f = pass (((),) <$> f)
 
 -- | 'Path' instances can be customized by declaring types to be
 -- instances of this class and the ones that follow.  If a type is an
@@ -52,34 +58,36 @@ class HideType a
 pruneTypeGraph :: forall m label. (DsMonad m, Default label, Eq label, MonadReader TypeGraphInfo m) =>
                   (GraphEdges label TypeGraphVertex) -> m (GraphEdges label TypeGraphVertex)
 pruneTypeGraph edges = do
-  cutPrimitiveTypes edges >>= dissolveHigherOrder >>= execStateT (get >>= mapM_ doSink . Map.keys >>
-                                                                  get >>= mapM_ doHide . Map.keys >>
-                                                                  get >>= mapM_ doView . Map.keys)
+  cutPrimitiveTypes edges >>= dissolveHigherOrder >>= \g ->
+      execWriterT (tell g >>
+                   listen_ >>= mapM_ doSink . Map.keys >>
+                   listen_ >>= mapM_ doHide . Map.keys >>
+                   listen_ >>= mapM_ doView . Map.keys)
     where
-      doSink :: TypeGraphVertex -> StateT (GraphEdges label TypeGraphVertex) m ()
+      doSink :: TypeGraphVertex -> WriterT (GraphEdges label TypeGraphVertex) m ()
       doSink v = do
         let (E typ) = view etype v
         sinkHint <- (not . null) <$> evalContext (reifyInstancesWithContext ''SinkType [typ])
-        when sinkHint (modify $ Map.alter (alterFn (const Set.empty)) v)
+        when sinkHint (pass_ (return (Map.alter (alterFn (const Set.empty)) v)))
 
-      doHide :: TypeGraphVertex -> StateT (GraphEdges label TypeGraphVertex) m ()
+      doHide :: TypeGraphVertex -> WriterT (GraphEdges label TypeGraphVertex) m ()
       doHide v = do
         let (E typ) = view etype v
         hideHint <- (not . null) <$> evalContext (reifyInstancesWithContext ''HideType [typ])
-        when hideHint (modify $ cut (singleton v))
+        when hideHint (pass_ (return (cut (singleton v))))
 
-      doView :: TypeGraphVertex -> StateT (GraphEdges label TypeGraphVertex) m ()
+      doView :: TypeGraphVertex -> WriterT (GraphEdges label TypeGraphVertex) m ()
       doView v = let (E a) = view etype v in evalContext (viewInstanceType a) >>= maybe (return ()) (doDivert v)
 
       -- Replace all of v's out edges with a single edge to typ'
       doDivert v typ' = do
         v' <- expandType typ' >>= vertex Nothing
-        modify $ Map.alter (alterFn (const (singleton v'))) v
+        pass_ (return (Map.alter (alterFn (const (singleton v'))) v))
 #if 0
       -- Add an extra out edge from v to typ' (unused)
       doExtra v typ' = do
         v' <- expandType typ' >>= vertex Nothing
-        modify $ Map.alter (alterFn (Set.insert v')) v
+        pass_ (return (Map.alter (alterFn (Set.insert v')) v))
 #endif
 
 -- | build the function argument of Map.alter for the GraphEdges map.

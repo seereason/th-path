@@ -24,6 +24,7 @@ module Language.Haskell.TH.Path.Stack
       -- * Stack operations
     , stackAccessor
     , makeLenses
+    , traceIndented
     ) where
 
 import Control.Applicative
@@ -39,6 +40,7 @@ import Data.Generics (Data, Typeable)
 import Data.Map as Map (keys)
 import Data.Maybe (fromMaybe)
 import Data.Monoid
+import Debug.Trace (trace)
 import Language.Haskell.Exts.Syntax ()
 import Language.Haskell.TH
 import Language.Haskell.TH.Instances ()
@@ -91,6 +93,9 @@ instance (HasStack m, Monoid w) => HasStack (WriterT w m) where
         do (r, w') <- lift $ push fld con dec (runWriterT action)
            tell w'
            return r
+
+traceIndented :: HasStack m => String -> m ()
+traceIndented s = withStack $ \stk -> trace (replicate (length stk) ' ' ++ s) (return ())
 
 prettyStack :: [StackElement] -> String
 prettyStack = prettyStack' . reverse
