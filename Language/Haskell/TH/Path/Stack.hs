@@ -127,9 +127,13 @@ execStackT action = runReaderT action []
 -- | Re-implementation of stack accessor in terms of stackLens
 stackAccessor :: (Quasi m, HasStack m) => ExpQ -> Type -> m Exp
 stackAccessor value typ0 =
-    do lns <- withStack (runQ . stackLens)
-       typ <- stackType
-       runQ [| view $(pure lns) $value :: $(pure (fromMaybe typ0 typ)) |]
+    withStack f
+    where
+      f [] = runQ value
+      f stk = do
+        lns <- runQ $ stackLens stk
+        Just typ <- stackType
+        runQ [| view $(pure lns) $value :: $(pure typ) |]
 
 stackType :: HasStack m => m (Maybe Type)
 stackType =
