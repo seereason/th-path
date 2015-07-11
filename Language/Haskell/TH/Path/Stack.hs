@@ -13,8 +13,7 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# OPTIONS_GHC -Wall #-}
 module Language.Haskell.TH.Path.Stack
-    ( Hint(..)
-    , HasStack(push, withStack)
+    ( HasStack(push, withStack)
     , StackElement(..)
     , prettyStack
     , foldField
@@ -50,21 +49,6 @@ import Language.Haskell.TH.TypeGraph.Graph (GraphEdges)
 import Language.Haskell.TH.TypeGraph.Shape (FieldType(..), fName, fType, constructorFields, constructorName)
 import Language.Haskell.TH.TypeGraph.Vertex (TypeGraphVertex)
 import Prelude hiding ((.))
-
--- | Hints about alternative ways to handle page rendering, returned
--- by the siteHints function in the Site record.  This should be
--- transitioned to the class/instance mechanism used in the View
--- module.
-data Hint
-    = HideColumn -- ^ In the 'list' or 'table' view, hide the column that would have contained this value
-    | Div -- ^ In the single record view, put this value in a div at the bottom with no label
-    | HideField  -- ^ In the record view hide this value
-    | Link -- ^ Hyperlink this value to the parent record
-    | Area -- ^ Make a field a text area
-    | TimeStamp -- ^ This UTCTime field will receive the current time when the value is created
-    | Flatten -- ^ Don't generate a label for this record, or indent its fields
-    | Title String -- ^ Use the given string for the field title
-    deriving (Eq, Ord, Show)
 
 -- | The information required to extact a field value from a value.
 -- We keep a stack of these as we traverse a declaration.  Generally,
