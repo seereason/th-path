@@ -13,8 +13,9 @@ module Language.Haskell.TH.Path.View
 import Control.Applicative
 import Control.Lens (Lens')
 import Control.Monad.State (MonadState)
-import Data.Maybe (catMaybes)
+import Data.List (intercalate)
 import Data.Set as Set (fromList, Set)
+-- import Debug.Trace (trace)
 import Language.Haskell.TH
 import Language.Haskell.TH.Context.Reify (reifyInstancesWithContext, evalContext, S)
 import Language.Haskell.TH.Desugar as DS (DsMonad)
@@ -41,12 +42,10 @@ viewInstanceType typ =
          [] -> return Nothing
          _ -> error $ "Unexpected view instance(s): " ++ show vInsts
 
--- | Return all types which have a 'View' instance.
+-- | Retrieve every View instance known to the Q monad and return the
+-- union of all of their a and b types.
 viewTypes :: Q (Set Type)
 viewTypes = evalContext $ do
-  a <- runQ (newName "a" >>= varT)
-  vInsts <- reifyInstancesWithContext ''View [a]
-  -- trace ("vInsts a " ++ " -> " ++ show vInsts) (return ())
-  let aTypes = concatMap (\ (InstanceD _ (AppT (ConT _view) t) _) -> [t]) vInsts
-  bTypes <- catMaybes <$> mapM viewInstanceType aTypes
-  return $ Set.fromList $ aTypes ++ bTypes
+  FamilyI _ tySynInsts <- runQ $ reify ''ViewType
+  return $ Set.fromList $ {- t1 $ -} concatMap (\ (TySynInstD vt (TySynEqn [a] b)) -> [a, b]) tySynInsts
+    -- where t1 x = trace (intercalate "\n  " ("viewTypes:" : map show x)) x
