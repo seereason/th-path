@@ -22,7 +22,7 @@ module Language.Haskell.TH.Path.Stack
     , execStackT
       -- * Stack operations
     , stackAccessor
-    , makeLenses
+    , makeLenses'
     , traceIndented
     ) where
 
@@ -159,9 +159,15 @@ fieldLens e@(StackElement fld con _) =
                              $(lamE [conP cname (map varP as), varP f] (foldl appE (conE cname) (set (nthLens fieldPos) (varE f) (map varE as)))) |]
        [| $(pure lns) {- :: Lens $(pure top) $(pure (fType fld)) -} |]
 
--- Generate lenses to access the fields of the row types.
-makeLenses :: [Name] -> Q [Dec]
-makeLenses typeNames =
+-- | Generate lenses to access the fields of the row types.  Like
+-- Control.Lens.TH.makeLenses, but makes lenses for every field, and
+-- instead of removing the prefix '_' to form the lens name it adds
+-- the prefix "lens" and capitalizes the first letter of the field.
+-- The only reason for this function is backwards compatibility, the
+-- fields should be changed so they begin with _ and the regular
+-- makeLenses should be used.
+makeLenses' :: [Name] -> Q [Dec]
+makeLenses' typeNames =
     execWriterT $ execStackT $ typeGraphInfo (map ConT typeNames ) >>= runReaderT typeGraphEdges >>= \ (g :: GraphEdges () TypeGraphVertex) -> (mapM doType . map (view etype) . Map.keys . simpleEdges $ g)
     where
       doType (E (ConT name)) = qReify name >>= doInfo
