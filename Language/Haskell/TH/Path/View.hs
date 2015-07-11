@@ -18,6 +18,7 @@ import Data.Set as Set (fromList, Set)
 import Language.Haskell.TH
 import Language.Haskell.TH.Context.Reify (reifyInstancesWithContext, evalContext, S)
 import Language.Haskell.TH.Desugar as DS (DsMonad)
+import Language.Haskell.TH.TypeGraph.Shape (pprint')
 
 -- | If there is an instance of View for a type @a@, then when @a@
 -- appears in the data, the lens returned by 'viewLens' is used to

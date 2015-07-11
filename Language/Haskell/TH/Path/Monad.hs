@@ -48,9 +48,12 @@ import Language.Haskell.TH.Path.Order (Order)
 import Language.Haskell.TH.Path.Prune (SinkType)
 import Language.Haskell.TH.Path.Stack (HasStack(withStack), push, StackElement(StackElement))
 import Language.Haskell.TH.Path.View (View(viewLens), viewInstanceType)
-import Language.Haskell.TH.TypeGraph (pprint', E(E), expandType, runExpanded,
-                                      GraphEdges, TypeGraphInfo, simpleVertex, vertex,
-                                      TypeGraphVertex, etype, typeNames)
+import Language.Haskell.TH.TypeGraph.Expand (E(E), expandType, runExpanded)
+import Language.Haskell.TH.TypeGraph.Graph (GraphEdges)
+import Language.Haskell.TH.TypeGraph.Info (TypeGraphInfo)
+import Language.Haskell.TH.TypeGraph.Monad (simpleVertex, vertex)
+import Language.Haskell.TH.TypeGraph.Shape (pprint')
+import Language.Haskell.TH.TypeGraph.Vertex (TypeGraphVertex, etype, typeNames)
 import Prelude hiding (any, concat, concatMap, elem, exp, foldr, mapM_, null, or)
 
 data R

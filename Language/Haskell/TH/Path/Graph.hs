@@ -53,11 +53,13 @@ import Language.Haskell.TH.Path.Monad (R(..), typeInfo)
 import Language.Haskell.TH.Path.Order (Order)
 import Language.Haskell.TH.Path.Prune (pruneTypeGraph)
 import Language.Haskell.TH.Syntax (Quasi(..))
-import Language.Haskell.TH.TypeGraph (unlifted, E(E), expandType, freeTypeVars,
-                                      dissolveM, GraphEdges, graphFromMap, isolate,
-                                      TypeGraphInfo, typeGraphInfo,
-                                      simpleEdges, typeGraphEdges, vertex,
-                                      TypeGraphVertex, etype, field)
+import Language.Haskell.TH.TypeGraph.Expand (E(E), expandType)
+import Language.Haskell.TH.TypeGraph.Free (freeTypeVars)
+import Language.Haskell.TH.TypeGraph.Graph (dissolveM, GraphEdges, graphFromMap, isolate)
+import Language.Haskell.TH.TypeGraph.Info (TypeGraphInfo, typeGraphInfo)
+import Language.Haskell.TH.TypeGraph.Monad (simpleEdges, typeGraphEdges, vertex)
+import Language.Haskell.TH.TypeGraph.Shape (unlifted)
+import Language.Haskell.TH.TypeGraph.Vertex (TypeGraphVertex, etype, field)
 import Prelude hiding (any, concat, exp, foldr, mapM_, null, or)
 
 makeTypeGraph :: DsMonad m => Q [Type] -> m R

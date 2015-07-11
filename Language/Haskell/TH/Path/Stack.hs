@@ -44,10 +44,12 @@ import Language.Haskell.Exts.Syntax ()
 import Language.Haskell.TH
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Syntax hiding (lift)
-import Language.Haskell.TH.TypeGraph (E(E), etype, simpleEdges, typeGraphInfo, typeGraphEdges)
+import Language.Haskell.TH.TypeGraph.Expand (E(E))
 import Language.Haskell.TH.TypeGraph.Graph (GraphEdges)
+import Language.Haskell.TH.TypeGraph.Info (typeGraphInfo)
+import Language.Haskell.TH.TypeGraph.Monad (simpleEdges, typeGraphEdges)
 import Language.Haskell.TH.TypeGraph.Shape (FieldType(..), fName, fType, constructorFields, constructorName)
-import Language.Haskell.TH.TypeGraph.Vertex (TypeGraphVertex)
+import Language.Haskell.TH.TypeGraph.Vertex (etype, TypeGraphVertex)
 import Prelude hiding ((.))
 
 -- | The information required to extact a field value from a value.

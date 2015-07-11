@@ -49,7 +49,9 @@ import Language.Haskell.TH
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Syntax (qReify)
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.TypeGraph (pprint', E(E), TypeGraphVertex, etype, field, syns, typeNames)
+import Language.Haskell.TH.TypeGraph.Expand (E(E))
+import Language.Haskell.TH.TypeGraph.Shape (pprint')
+import Language.Haskell.TH.TypeGraph.Vertex (TypeGraphVertex, etype, field, syns, typeNames)
 import Prelude hiding (exp)
 import Web.Routes.TH (derivePathInfo)
 
