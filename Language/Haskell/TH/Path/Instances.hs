@@ -29,14 +29,14 @@ import Language.Haskell.TH
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Core (Path(..), fieldLensName, pathConNameOfField, Path_OMap(..), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
-import Language.Haskell.TH.Path.Graph (makeTypeGraph)
+import Language.Haskell.TH.Path.Graph (foldPath, FoldPathControl(..), makePathLenses, makeTypeGraph)
 import Language.Haskell.TH.Path.PathType (pathType)
 import Language.Haskell.TH.Path.Lens (mat)
 import Language.Haskell.TH.Path.Order (lens_omat)
 import Language.Haskell.TH.Syntax as TH (lift, VarStrictType)
 import Language.Haskell.TH.TypeGraph.Expand (expandType, runExpanded)
-import Language.Haskell.TH.TypeGraph.Graph (allLensKeys, foldPath, FoldPathControl(..), goalReachableSimple, makePathLenses, TypeGraph, typeInfo)
-import Language.Haskell.TH.TypeGraph.Info (vertex)
+import Language.Haskell.TH.TypeGraph.Graph (allLensKeys, goalReachableSimple, TypeGraph, typeInfo)
+import Language.Haskell.TH.TypeGraph.Info (makeTypeInfo, vertex)
 import Language.Haskell.TH.TypeGraph.Shape (pprint')
 import Language.Haskell.TH.TypeGraph.Vertex (bestType, etype, TypeGraphVertex)
 import Prelude hiding (any, concat, concatMap, elem, foldr, mapM_, null, or)
@@ -51,7 +51,7 @@ null = foldr (\_ _ -> False) True
 -- types in the argument.
 pathInstances :: Q [Type] -> Q [Dec]
 pathInstances st = do
-  r <- st >>= makeTypeGraph
+  r <- st >>= makeTypeInfo >>= makeTypeGraph
   (_, decss) <- evalRWST (allLensKeys >>= mapM (uncurry pathInstanceDecs) . toList) r Set.empty
   runIO . compareSaveAndReturn changeError "GeneratedPathInstances.hs" $ concat decss
 

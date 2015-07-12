@@ -22,6 +22,9 @@ module Language.Haskell.TH.Path.Graph
     , adjacent
     , typeVertex
     , fieldVertex
+    , makePathLenses
+    , FoldPathControl(..)
+    , foldPath
     ) where
 
 #if __GLASGOW_HASKELL__ < 709
@@ -35,40 +38,44 @@ import Control.Monad (when)
 import Control.Monad.Reader (ask, MonadReader, runReaderT)
 import Control.Monad.State (execStateT, modify, StateT)
 import Control.Monad.Trans (lift)
+import Control.Monad.Writer (MonadWriter, tell)
 import Data.Default (Default(def))
-import Data.Foldable (mapM_)
-import Data.Graph (reachable)
+import Data.Foldable as Foldable (concatMap, elem, mapM_, null, toList)
+import Data.Graph hiding (edges)
 import Data.List as List (map)
 import Data.Map as Map (alter, keys, Map, map, mapWithKey, update)
 import Data.Maybe (mapMaybe)
+import Data.Maybe (fromJust, isJust)
 import Data.Set as Set (difference, empty, filter, fromList, insert, map, member, Set, singleton, toList, unions)
 import Language.Haskell.Exts.Syntax ()
 import Language.Haskell.TH
 import Language.Haskell.TH.Context (HasSet(getSet, modifySet))
+import Language.Haskell.TH.Context.Reify (evalContext, reifyInstancesWithContext)
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.KindInference (inferKind)
-import Language.Haskell.TH.Instances ()
+import Language.Haskell.TH.Path.Core (fieldLensName, SelfPath)
+import Language.Haskell.TH.Path.LensTH (nameMakeLens)
 import Language.Haskell.TH.Path.Order (Order)
-import Language.Haskell.TH.Path.Prune (pruneTypeGraph)
+import Language.Haskell.TH.Path.Prune (pruneTypeGraph, SinkType)
+import Language.Haskell.TH.Path.View (View(viewLens), viewInstanceType)
 import Language.Haskell.TH.Syntax (Quasi(..))
 import Language.Haskell.TH.TypeGraph.Edges (dissolveM, GraphEdges, isolate, simpleEdges, typeGraphEdges)
-import Language.Haskell.TH.TypeGraph.Expand (E(E), expandType)
+import Language.Haskell.TH.TypeGraph.Expand (E(E), expandType, runExpanded)
 import Language.Haskell.TH.TypeGraph.Free (freeTypeVars)
 import Language.Haskell.TH.TypeGraph.Graph (graphFromMap, TypeGraph(..), typeInfo)
-import Language.Haskell.TH.TypeGraph.Info (TypeGraphInfo, typeGraphInfo, vertex)
+import Language.Haskell.TH.TypeGraph.Info (startTypes, TypeInfo, vertex)
 import Language.Haskell.TH.TypeGraph.Shape (unlifted)
-import Language.Haskell.TH.TypeGraph.Vertex (TypeGraphVertex, etype, field)
-import Prelude hiding (any, concat, exp, foldr, mapM_, null, or)
+import Language.Haskell.TH.TypeGraph.Vertex (TypeGraphVertex, etype, field, typeNames)
+import Prelude hiding (any, concat, concatMap, elem, exp, foldr, mapM_, null, or)
 
 -- FIXME: pass in ti, pass in makeTypeGraphEdges, remove Q, move to TypeGraph.Graph
-makeTypeGraph :: DsMonad m => [Type] -> m TypeGraph
-makeTypeGraph st = do
-  ti <- typeGraphInfo st
-  es <- runReaderT (makeTypeGraphEdges st) ti
+makeTypeGraph :: DsMonad m => TypeInfo -> m TypeGraph
+makeTypeGraph ti = do
+  -- ti <- typeInfo st
+  es <- runReaderT makeTypeGraphEdges ti
   return $ TypeGraph
-             { _startTypes = st
-             , _typeInfo = ti
+             { _typeInfo = ti
              , _edges = es
              , _graph = graphFromMap es
              , _gsimple = graphFromMap (simpleEdges es)
@@ -80,16 +87,16 @@ makeTypeGraph st = do
 -- may also want to eliminate nodes that are not on a path from a
 -- start type to a goal type, though eventually goal types will be
 -- eliminated - all types will be goal types.)
-makeTypeGraphEdges :: forall m hint. (DsMonad m, Default hint, Ord hint, MonadReader TypeGraphInfo m) =>
-                      [Type] -> m (GraphEdges hint TypeGraphVertex)
-makeTypeGraphEdges st = do
+makeTypeGraphEdges :: forall m hint. (DsMonad m, Default hint, Ord hint, MonadReader TypeInfo m) =>
+                      m (GraphEdges hint TypeGraphVertex)
+makeTypeGraphEdges = do
   -- im <- view infoMap
   -- Dissolve the vertices for types whose arity is not zero.  Each of
   -- their in-edges become connected to each of their out-edges.
   edges' <- typeGraphEdges >>= pruneTypeGraph >>= dissolveM victim >>= return . removePathsToOrderKeys . removeUnnamedFieldEdges
   let (g, vf, kf) = graphFromMap edges'
   -- Isolate all nodes that are not reachable from the start types.
-  kernel <- mapM expandType st >>= mapM (vertex Nothing) >>= return . mapMaybe kf
+  kernel <- view startTypes >>= mapM expandType >>= mapM (vertex Nothing) >>= return . mapMaybe kf
   let -- Remove all edges involving unreachable vertices, but not the
       -- vertices themselves - they might still be queried.
       keep :: Set TypeGraphVertex
@@ -224,3 +231,49 @@ fieldVertex fld typ = do
         typ' <- expandType typ
         ask >>= runReaderT (vertex (Just fld) typ') . view typeInfo
         -- magnify typeInfo $ vertex (Just fld) typ'
+
+makePathLenses :: (DsMonad m, MonadReader TypeGraph m, MonadWriter [[Dec]] m) => TypeGraphVertex -> m ()
+makePathLenses key = do
+  simplePath <- (not . null) <$> evalContext (reifyInstancesWithContext ''SinkType [let (E typ) = view etype key in typ])
+  case simplePath of
+    False -> mapM make (Foldable.toList (typeNames key)) >>= tell
+    _ -> return ()
+    where
+      make tname = runQ (nameMakeLens tname (\ nameA nameB -> Just (nameBase (fieldLensName nameA nameB))))
+
+data FoldPathControl m r
+    = FoldPathControl
+      { simplef :: m r
+      , pathyf :: m r
+      , substf :: Exp -> Type -> m r
+      , namedf :: Name -> m r
+      , maybef :: Type -> m r
+      , listf :: Type -> m r
+      , orderf :: Type -> Type -> m r
+      , mapf :: Type -> Type -> m r
+      , pairf :: Type -> Type -> m r
+      , eitherf :: Type -> Type -> m r
+      , otherf :: m r
+      }
+
+foldPath :: (DsMonad m, MonadReader TypeGraph m) => FoldPathControl m r -> TypeGraphVertex -> m r
+foldPath (FoldPathControl{..}) v = do
+  selfPath <- (not . null) <$> evalContext (reifyInstancesWithContext ''SelfPath [let (E typ) = view etype v in typ])
+  simplePath <- (not . null) <$> evalContext (reifyInstancesWithContext ''SinkType [let (E typ) = view etype v in typ])
+  viewType <- evalContext (viewInstanceType (let (E typ) = view etype v in typ))
+  case runExpanded (view etype v) of
+    _ | selfPath -> pathyf
+      | simplePath -> simplef
+    typ
+      | isJust viewType -> do
+          let b = fromJust viewType
+          expr <- runQ [|viewLens :: Lens' $(return typ) $(return b)|]
+          substf expr b
+    ConT tname -> namedf tname
+    AppT (AppT mtyp ityp) etyp | mtyp == ConT ''Order -> orderf ityp etyp
+    AppT ListT etyp -> listf etyp
+    AppT (AppT t3 ktyp) vtyp | t3 == ConT ''Map -> mapf ktyp vtyp
+    AppT (AppT (TupleT 2) ftyp) styp -> pairf ftyp styp
+    AppT t1 vtyp | t1 == ConT ''Maybe -> maybef vtyp
+    AppT (AppT t3 ltyp) rtyp | t3 == ConT ''Either -> eitherf ltyp rtyp
+    _ -> otherf
