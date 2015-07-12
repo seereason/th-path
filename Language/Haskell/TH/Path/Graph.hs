@@ -15,16 +15,11 @@
 {-# LANGUAGE TupleSections #-}
 {-# OPTIONS_GHC -fno-warn-orphans -fno-warn-missing-signatures #-}
 module Language.Haskell.TH.Path.Graph
-    ( makeTypeGraphEdges
-    , makeTypeGraph
-    , VertexStatus(..)
-    , typeGraphEdges'
-    , adjacent
-    , typeVertex
-    , fieldVertex
-    , makePathLenses
+    ( makePathLenses
+    , makeTypeGraphEdges
     , FoldPathControl(..)
     , foldPath
+    , SinkType
     ) where
 
 #if __GLASGOW_HASKELL__ < 709
@@ -35,21 +30,17 @@ import Control.Applicative
 #endif
 import Control.Lens -- (makeLenses, over, view)
 import Control.Monad (when)
-import Control.Monad.Reader (ask, MonadReader, runReaderT)
-import Control.Monad.State (execStateT, modify, StateT)
-import Control.Monad.Trans (lift)
-import Control.Monad.Writer (MonadWriter, tell)
+import Control.Monad.Reader (MonadReader)
+import Control.Monad.Writer (execWriterT, MonadWriter, tell, WriterT)
 import Data.Default (Default(def))
-import Data.Foldable as Foldable (concatMap, elem, mapM_, null, toList)
+import Data.Foldable as Foldable (toList)
+import Data.Foldable.Compat
 import Data.Graph hiding (edges)
-import Data.List as List (map)
-import Data.Map as Map (alter, keys, Map, map, mapWithKey, update)
-import Data.Maybe (mapMaybe)
-import Data.Maybe (fromJust, isJust)
-import Data.Set as Set (difference, empty, filter, fromList, insert, map, member, Set, singleton, toList, unions)
+import Data.Map as Map (alter, keys, Map, map, mapWithKey)
+import Data.Maybe (fromJust, isJust, mapMaybe)
+import Data.Set as Set (difference, empty, filter, fromList, map, Set, singleton)
 import Language.Haskell.Exts.Syntax ()
 import Language.Haskell.TH
-import Language.Haskell.TH.Context (HasSet(getSet, modifySet))
 import Language.Haskell.TH.Context.Reify (evalContext, reifyInstancesWithContext)
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
@@ -57,30 +48,16 @@ import Language.Haskell.TH.KindInference (inferKind)
 import Language.Haskell.TH.Path.Core (fieldLensName, SelfPath)
 import Language.Haskell.TH.Path.LensTH (nameMakeLens)
 import Language.Haskell.TH.Path.Order (Order)
-import Language.Haskell.TH.Path.Prune (pruneTypeGraph, SinkType)
 import Language.Haskell.TH.Path.View (View(viewLens), viewInstanceType)
-import Language.Haskell.TH.Syntax (Quasi(..))
-import Language.Haskell.TH.TypeGraph.Edges (dissolveM, GraphEdges, isolate, simpleEdges, typeGraphEdges)
+import Language.Haskell.TH.TypeGraph.Edges (cut, cutM, dissolveM, GraphEdges, isolate, typeGraphEdges)
 import Language.Haskell.TH.TypeGraph.Expand (E(E), expandType, runExpanded)
 import Language.Haskell.TH.TypeGraph.Free (freeTypeVars)
-import Language.Haskell.TH.TypeGraph.Graph (graphFromMap, TypeGraph(..), typeInfo)
+import Language.Haskell.TH.TypeGraph.Graph (graphFromMap, TypeGraph(..))
 import Language.Haskell.TH.TypeGraph.Info (startTypes, TypeInfo, vertex)
+import Language.Haskell.TH.TypeGraph.Prelude (listen_, pass_)
 import Language.Haskell.TH.TypeGraph.Shape (unlifted)
 import Language.Haskell.TH.TypeGraph.Vertex (TypeGraphVertex, etype, field, typeNames)
 import Prelude hiding (any, concat, concatMap, elem, exp, foldr, mapM_, null, or)
-
--- FIXME: pass in ti, pass in makeTypeGraphEdges, remove Q, move to TypeGraph.Graph
-makeTypeGraph :: DsMonad m => TypeInfo -> m TypeGraph
-makeTypeGraph ti = do
-  -- ti <- typeInfo st
-  es <- runReaderT makeTypeGraphEdges ti
-  return $ TypeGraph
-             { _typeInfo = ti
-             , _edges = es
-             , _graph = graphFromMap es
-             , _gsimple = graphFromMap (simpleEdges es)
-             , _stack = []
-             }
 
 -- | Build a graph of the subtype relation, omitting any types whose
 -- arity is nonzero and any not reachable from the start types.  (We
@@ -129,109 +106,6 @@ makeTypeGraphEdges = do
                                                                               E (AppT (AppT (ConT mtyp) ityp) _etyp) | elem mtyp [''Map, ''Order] -> E ityp /= view etype gkey
                                                                               _ -> True) gkeys))
 
--- type TypeGraphEdges typ = Map typ (Set typ)
-
--- | When a VertexStatus value is associated with a Type it describes
--- alterations in the type graph from the usual default.
-data VertexStatus typ
-    = Vertex      -- ^ normal case
-    | Sink        -- ^ out degree zero - don't create any outgoing edges
-    | Divert typ  -- ^ replace all outgoing edges with an edge to an alternate type
-    | Extra typ   -- ^ add an extra outgoing edge to the given type
-    deriving Show
-
-instance Default (VertexStatus typ) where
-    def = Vertex
-
---- type Edges = GraphEdges () TypeGraphVertex
-
--- | Return the set of edges implied by the subtype relationship among
--- a set of types.  This is just the nodes of the type graph.  The
--- type aliases are expanded by the th-desugar package to make them
--- suitable for use as map keys.
-typeGraphEdges'
-    :: forall m. (DsMonad m, MonadReader TypeGraph m, HasSet TypeGraphVertex m) =>
-       (TypeGraphVertex -> m (Set TypeGraphVertex))
-           -- ^ This function is applied to every expanded type before
-           -- use, and the result is used instead.  If it returns
-           -- NoVertex, no vertices or edges are added to the graph.
-           -- If it returns Sink no outgoing edges are added.  The
-           -- current use case Substitute is to see if there is an
-           -- instance of class @View a b@ where @a@ is the type
-           -- passed to @doType@, and replace it with @b@, and use the
-           -- lens returned by @View's@ method to convert between @a@
-           -- and @b@ (i.e. to implement the edge in the type graph.)
-    -> [Type]
-    -> m (GraphEdges () TypeGraphVertex)
-typeGraphEdges' augment types = do
-  execStateT (mapM_ (\typ -> typeVertex typ >>= doNode) types) (mempty :: GraphEdges () TypeGraphVertex)
-    where
-      doNode v = do
-        s <- lift $ getSet
-        when (not (member v s)) $
-             do lift $ modifySet (insert v)
-                doNode' v
-      doNode' :: TypeGraphVertex -> StateT (GraphEdges () TypeGraphVertex) m ()
-      doNode' typ = do
-        addNode typ
-        vs <- lift $ augment typ
-        mapM_ (addEdge typ) (Set.toList vs)
-        mapM_ doNode (Set.toList vs)
-
-      addNode :: TypeGraphVertex -> StateT (GraphEdges () TypeGraphVertex) m ()
-      addNode a = modify $ Map.alter (maybe (Just (def, Set.empty)) Just) a
-
-      addEdge :: TypeGraphVertex -> TypeGraphVertex -> StateT (GraphEdges () TypeGraphVertex) m ()
-      addEdge a b = modify $ Map.update (\(lbl, s) -> Just (lbl, Set.insert b s)) a
-
--- | Return the set of adjacent vertices according to the default type
--- graph - i.e. the one determined only by the type definitions, not
--- by any additional hinting function.
-adjacent :: forall m. (MonadReader TypeGraph m, DsMonad m) => TypeGraphVertex -> m (Set TypeGraphVertex)
-adjacent typ =
-    case view etype typ of
-      E (ForallT _ _ typ') -> typeVertex typ' >>= adjacent
-      E (AppT c e) ->
-          typeVertex c >>= \c' ->
-          typeVertex e >>= \e' ->
-          return $ Set.fromList [c', e']
-      E (ConT name) -> do
-        info <- qReify name
-        case info of
-          TyConI dec -> doDec dec
-          _ -> return mempty
-      _typ -> return $ {-trace ("Unrecognized type: " ++ pprint' typ)-} mempty
-    where
-      doDec :: Dec -> m (Set TypeGraphVertex)
-      doDec dec@(NewtypeD _ tname _ con _) = doCon tname dec con
-      doDec dec@(DataD _ tname _ cns _) = Set.unions <$> mapM (doCon tname dec) cns
-      doDec (TySynD _tname _tvars typ') = singleton <$> typeVertex typ'
-      doDec _ = return mempty
-
-      doCon :: Name -> Dec -> Con -> m (Set TypeGraphVertex)
-      doCon tname dec (ForallC _ _ con) = doCon tname dec con
-      doCon tname dec (NormalC cname fields) = Set.unions <$> mapM (doField tname dec cname) (zip (List.map Left ([1..] :: [Int])) (List.map snd fields))
-      doCon tname dec (RecC cname fields) = Set.unions <$> mapM (doField tname dec cname) (List.map (\ (fname, _, typ') -> (Right fname, typ')) fields)
-      doCon tname dec (InfixC (_, lhs) cname (_, rhs)) = Set.unions <$> mapM (doField tname dec cname) [(Left 1, lhs), (Left 2, rhs)]
-
-      doField :: Name -> Dec -> Name -> (Either Int Name, Type) -> m (Set TypeGraphVertex)
-      doField tname _dec cname (fld, ftype) = Set.singleton <$> fieldVertex (tname, cname, fld) ftype
-
--- | Return the TypeGraphVertex associated with a particular type,
--- with no field specified.
-typeVertex :: (MonadReader TypeGraph m, DsMonad m) => Type -> m TypeGraphVertex
-typeVertex typ = do
-        typ' <- expandType typ
-        ask >>= runReaderT (vertex Nothing typ') . view typeInfo
-        -- magnify typeInfo $ vertex Nothing typ'
-
--- | Return the TypeGraphVertex associated with a particular type and field.
-fieldVertex :: (MonadReader TypeGraph m, DsMonad m) => (Name, Name, Either Int Name) -> Type -> m TypeGraphVertex
-fieldVertex fld typ = do
-        typ' <- expandType typ
-        ask >>= runReaderT (vertex (Just fld) typ') . view typeInfo
-        -- magnify typeInfo $ vertex (Just fld) typ'
-
 makePathLenses :: (DsMonad m, MonadReader TypeGraph m, MonadWriter [[Dec]] m) => TypeGraphVertex -> m ()
 makePathLenses key = do
   simplePath <- (not . null) <$> evalContext (reifyInstancesWithContext ''SinkType [let (E typ) = view etype key in typ])
@@ -277,3 +151,66 @@ foldPath (FoldPathControl{..}) v = do
     AppT t1 vtyp | t1 == ConT ''Maybe -> maybef vtyp
     AppT (AppT t3 ltyp) rtyp | t3 == ConT ''Either -> eitherf ltyp rtyp
     _ -> otherf
+
+-- | 'Path' instances can be customized by declaring types to be
+-- instances of this class and the ones that follow.  If a type is an
+-- instance of 'SinkType', no paths that lead to the internal stucture
+-- of the value will be created - the value is considered atomic.
+class SinkType a
+
+-- | Like SinkType, but no paths out or into the type will be created.
+class HideType a
+
+-- | Remove any vertices that are labelled with primitive types, and then
+-- apply the hints obtained from the
+-- a new graph which incorporates the information from the hints.
+pruneTypeGraph :: forall m label. (DsMonad m, Default label, Eq label, MonadReader TypeInfo m) =>
+                  (GraphEdges label TypeGraphVertex) -> m (GraphEdges label TypeGraphVertex)
+pruneTypeGraph edges = do
+  cutPrimitiveTypes edges >>= dissolveHigherOrder >>= \g ->
+      execWriterT (tell g >>
+                   listen_ >>= mapM_ doSink . Map.keys >>
+                   listen_ >>= mapM_ doHide . Map.keys >>
+                   listen_ >>= mapM_ doView . Map.keys)
+    where
+      doSink :: TypeGraphVertex -> WriterT (GraphEdges label TypeGraphVertex) m ()
+      doSink v = do
+        let (E typ) = view etype v
+        sinkHint <- (not . null) <$> evalContext (reifyInstancesWithContext ''SinkType [typ])
+        when sinkHint (pass_ (return (Map.alter (alterFn (const Set.empty)) v)))
+
+      doHide :: TypeGraphVertex -> WriterT (GraphEdges label TypeGraphVertex) m ()
+      doHide v = do
+        let (E typ) = view etype v
+        hideHint <- (not . null) <$> evalContext (reifyInstancesWithContext ''HideType [typ])
+        when hideHint (pass_ (return (cut (singleton v))))
+
+      doView :: TypeGraphVertex -> WriterT (GraphEdges label TypeGraphVertex) m ()
+      doView v = let (E a) = view etype v in evalContext (viewInstanceType a) >>= maybe (return ()) (doDivert v)
+
+      -- Replace all of v's out edges with a single edge to typ'
+      doDivert v typ' = do
+        v' <- expandType typ' >>= vertex Nothing
+        pass_ (return (Map.alter (alterFn (const (singleton v'))) v))
+#if 0
+      -- Add an extra out edge from v to typ' (unused)
+      doExtra v typ' = do
+        v' <- expandType typ' >>= vertex Nothing
+        pass_ (return (Map.alter (alterFn (Set.insert v')) v))
+#endif
+
+-- | build the function argument of Map.alter for the GraphEdges map.
+alterFn :: Default label => (Set TypeGraphVertex -> Set TypeGraphVertex) -> Maybe (label, Set TypeGraphVertex) -> Maybe (label, Set TypeGraphVertex)
+alterFn setf (Just (label, s)) = Just (label, setf s)
+alterFn setf Nothing | null (setf Set.empty) = Nothing
+alterFn setf Nothing = Just (def, setf Set.empty)
+
+-- | Primitive (unlifted) types can not be used as parameters to a
+-- type class, which makes them unusable in this system.
+cutPrimitiveTypes :: (DsMonad m, Default label, Eq label, MonadReader TypeInfo m) => GraphEdges label TypeGraphVertex -> m (GraphEdges label TypeGraphVertex)
+cutPrimitiveTypes edges = cutM (\v -> let (E typ) = view etype v in unlifted typ) edges
+
+dissolveHigherOrder :: (DsMonad m, Default label, Eq label, MonadReader TypeInfo m) => GraphEdges label TypeGraphVertex -> m (GraphEdges label TypeGraphVertex)
+dissolveHigherOrder edges = dissolveM (\v -> do let (E typ) = view etype v
+                                                kind <- runQ $ inferKind typ
+                                                return $ kind /= Right StarT) edges

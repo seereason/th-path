@@ -10,16 +10,14 @@ module Language.Haskell.TH.Path.View
     , viewTypes
     ) where
 
-import Control.Applicative
 import Control.Lens (Lens')
 import Control.Monad.State (MonadState)
 import Data.List (intercalate)
 import Data.Set as Set (fromList, Set)
 import Debug.Trace (trace)
 import Language.Haskell.TH
-import Language.Haskell.TH.Context.Reify (reifyInstancesWithContext, evalContext, S)
+import Language.Haskell.TH.Context.Reify (evalContext, S)
 import Language.Haskell.TH.Desugar as DS (DsMonad)
-import Language.Haskell.TH.TypeGraph.Shape (pprint')
 
 -- | If there is an instance of View for a type @a@, then when @a@
 -- appears in the data, the lens returned by 'viewLens' is used to
@@ -47,5 +45,5 @@ viewInstanceType typ =
 viewTypes :: Q (Set Type)
 viewTypes = evalContext $ do
   FamilyI _ tySynInsts <- runQ $ reify ''ViewType
-  return $ Set.fromList $ t1 $ concatMap (\ (TySynInstD vt (TySynEqn [a] b)) -> [a, b]) tySynInsts
+  return $ Set.fromList $ t1 $ concatMap (\ (TySynInstD _vt (TySynEqn [a] b)) -> [a, b]) tySynInsts
     where t1 x = trace (intercalate "\n  " ("Language.Haskell.TH.Path.View - viewTypes:" : map show x)) x

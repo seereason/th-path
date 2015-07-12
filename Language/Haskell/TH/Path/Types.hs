@@ -27,11 +27,11 @@ import Language.Haskell.TH
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Core (bestPathTypeName, IdPath(idPath), pathConNameOfField, pathTypeNameFromTypeName, pathTypeNames')
-import Language.Haskell.TH.Path.Graph (foldPath, FoldPathControl(..), makeTypeGraph)
+import Language.Haskell.TH.Path.Graph (foldPath, FoldPathControl(..), makeTypeGraphEdges)
 import Language.Haskell.TH.Path.PathType (pathType)
 import Language.Haskell.TH.Syntax as TH (Quasi, VarStrictType)
 import Language.Haskell.TH.TypeGraph.Expand (expandType)
-import Language.Haskell.TH.TypeGraph.Graph (allPathKeys, edges, TypeGraph, typeInfo)
+import Language.Haskell.TH.TypeGraph.Graph (allPathKeys, edges, makeTypeGraph, TypeGraph, typeInfo)
 import Language.Haskell.TH.TypeGraph.Info (makeTypeInfo, vertex)
 import Language.Haskell.TH.TypeGraph.Shape (pprint')
 import Language.Haskell.TH.TypeGraph.Vertex (simpleVertex, TypeGraphVertex, typeNames)
@@ -42,7 +42,7 @@ import System.FilePath.Extra (compareSaveAndReturn, changeError)
 -- argument, and construct the corresponding path types.
 pathTypes :: Q [Type] -> Q [Dec]
 pathTypes st = do
-  r <- st >>= makeTypeInfo >>= makeTypeGraph
+  r <- st >>= makeTypeInfo >>= makeTypeGraph makeTypeGraphEdges
   runIO $ putStr (pprint (view edges r))
   (_, decss) <- evalRWST (allPathKeys >>= mapM pathTypeDecs . toList . Set.map simpleVertex) r Set.empty
   runIO . compareSaveAndReturn changeError "GeneratedPathTypes.hs" $ concat decss

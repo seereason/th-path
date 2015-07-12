@@ -29,7 +29,6 @@ import Data.List as List (partition, elem, foldl, foldl', foldr, filter)
 import qualified Data.ListLike as LL
 import Data.Map as Map (Map, (!))
 import qualified Data.Map as Map
-import Data.Monoid (Monoid(mempty, mappend))
 import Data.SafeCopy (SafeCopy(..), contain, safeGet, safePut)
 import Data.Typeable (Typeable)
 import Language.Haskell.TH
