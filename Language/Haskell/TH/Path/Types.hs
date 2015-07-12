@@ -28,13 +28,13 @@ import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Core (bestPathTypeName, IdPath(idPath), pathConNameOfField, pathTypeNameFromTypeName, pathTypeNames')
 import Language.Haskell.TH.Path.Graph (makeTypeGraph)
-import Language.Haskell.TH.Path.Monad (allPathKeys, edges, foldPath, FoldPathControl(..), R, typeInfo)
 import Language.Haskell.TH.Path.PathType (pathType)
 import Language.Haskell.TH.Syntax as TH (Quasi, VarStrictType)
 import Language.Haskell.TH.TypeGraph.Expand (expandType)
-import Language.Haskell.TH.TypeGraph.Monad (simpleVertex, vertex)
+import Language.Haskell.TH.TypeGraph.Graph (allPathKeys, edges, foldPath, FoldPathControl(..), TypeGraph, typeInfo)
+import Language.Haskell.TH.TypeGraph.Info (vertex)
 import Language.Haskell.TH.TypeGraph.Shape (pprint')
-import Language.Haskell.TH.TypeGraph.Vertex (TypeGraphVertex, typeNames)
+import Language.Haskell.TH.TypeGraph.Vertex (simpleVertex, TypeGraphVertex, typeNames)
 import Prelude hiding (any, concat, concatMap, elem, foldr, mapM_, null, or)
 import System.FilePath.Extra (compareSaveAndReturn, changeError)
 
@@ -42,12 +42,13 @@ import System.FilePath.Extra (compareSaveAndReturn, changeError)
 -- argument, and construct the corresponding path types.
 pathTypes :: Q [Type] -> Q [Dec]
 pathTypes st = do
-  r <- makeTypeGraph st
+  r <- st >>= makeTypeGraph
+  runIO $ putStr (pprint (view edges r))
   (_, decss) <- evalRWST (allPathKeys >>= mapM pathTypeDecs . toList . Set.map simpleVertex) r Set.empty
   runIO . compareSaveAndReturn changeError "GeneratedPathTypes.hs" $ concat decss
 
 -- | Given a type, generate the corresponding path type declarations
-pathTypeDecs :: forall m. (DsMonad m, MonadReader R m, MonadWriter [[Dec]] m) => TypeGraphVertex -> m ()
+pathTypeDecs :: forall m. (DsMonad m, MonadReader TypeGraph m, MonadWriter [[Dec]] m) => TypeGraphVertex -> m ()
 pathTypeDecs key =
   pathTypeDecs'
     where
@@ -136,7 +137,7 @@ pathTypeDecs key =
             pconss' ->
                 makeDecs a [concat pconss']
 
-      doCon :: (DsMonad m, MonadReader R m) => Name -> Name -> Con -> m [Con]
+      doCon :: (DsMonad m, MonadReader TypeGraph m) => Name -> Name -> Con -> m [Con]
       doCon a tname (ForallC _ _ con) = doCon a tname con
       doCon _ _ (NormalC _ _) = return []
       doCon _ _ (InfixC _ _ _) = return []
@@ -145,7 +146,7 @@ pathTypeDecs key =
       -- Each field of the original type turns into zero or more (Con, Clause)
       -- pairs, each of which may or may not have a field representing the path type
       -- of some piece of the field value.  FIXME: This exact code is in PathTypes.hs
-      doField :: (DsMonad m, MonadReader R m) => Name -> Name -> Name -> VarStrictType -> m [Con]
+      doField :: (DsMonad m, MonadReader TypeGraph m) => Name -> Name -> Name -> VarStrictType -> m [Con]
       doField a tname cname (fname', _, ftype) =
           do key' <- view typeInfo >>= runReaderT (expandType ftype >>= vertex (Just (tname, cname, Right fname')))
              let Just pcname = pathConNameOfField key'

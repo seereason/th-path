@@ -49,25 +49,25 @@ import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.KindInference (inferKind)
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.Path.Monad (R(..), typeInfo)
 import Language.Haskell.TH.Path.Order (Order)
 import Language.Haskell.TH.Path.Prune (pruneTypeGraph)
 import Language.Haskell.TH.Syntax (Quasi(..))
+import Language.Haskell.TH.TypeGraph.Edges (dissolveM, GraphEdges, isolate, simpleEdges, typeGraphEdges)
 import Language.Haskell.TH.TypeGraph.Expand (E(E), expandType)
 import Language.Haskell.TH.TypeGraph.Free (freeTypeVars)
-import Language.Haskell.TH.TypeGraph.Graph (dissolveM, GraphEdges, graphFromMap, isolate)
-import Language.Haskell.TH.TypeGraph.Info (TypeGraphInfo, typeGraphInfo)
-import Language.Haskell.TH.TypeGraph.Monad (simpleEdges, typeGraphEdges, vertex)
+import Language.Haskell.TH.TypeGraph.Graph (graphFromMap, TypeGraph(..), typeInfo)
+import Language.Haskell.TH.TypeGraph.Info (TypeGraphInfo, typeGraphInfo, vertex)
 import Language.Haskell.TH.TypeGraph.Shape (unlifted)
 import Language.Haskell.TH.TypeGraph.Vertex (TypeGraphVertex, etype, field)
 import Prelude hiding (any, concat, exp, foldr, mapM_, null, or)
 
-makeTypeGraph :: DsMonad m => Q [Type] -> m R
+-- FIXME: pass in ti, pass in makeTypeGraphEdges, remove Q, move to TypeGraph.Graph
+makeTypeGraph :: DsMonad m => [Type] -> m TypeGraph
 makeTypeGraph st = do
-  st' <- runQ st
-  ti <- typeGraphInfo st'
-  es <- runReaderT (makeTypeGraphEdges st') ti
-  return $ R { _startTypes = st'
+  ti <- typeGraphInfo st
+  es <- runReaderT (makeTypeGraphEdges st) ti
+  return $ TypeGraph
+             { _startTypes = st
              , _typeInfo = ti
              , _edges = es
              , _graph = graphFromMap es
@@ -86,18 +86,13 @@ makeTypeGraphEdges st = do
   -- im <- view infoMap
   -- Dissolve the vertices for types whose arity is not zero.  Each of
   -- their in-edges become connected to each of their out-edges.
-  let victim :: TypeGraphVertex -> m Bool
-      victim v = do
-        let (E etyp) = view etype v
-        k <- runQ $ inferKind etyp
-        fv <- runQ $ freeTypeVars etyp
-        prim' <- unlifted etyp
-        return $ k /= Right StarT || fv /= Set.empty || prim'
   edges' <- typeGraphEdges >>= pruneTypeGraph >>= dissolveM victim >>= return . removePathsToOrderKeys . removeUnnamedFieldEdges
   let (g, vf, kf) = graphFromMap edges'
   -- Isolate all nodes that are not reachable from the start types.
   kernel <- mapM expandType st >>= mapM (vertex Nothing) >>= return . mapMaybe kf
-  let keep :: Set TypeGraphVertex
+  let -- Remove all edges involving unreachable vertices, but not the
+      -- vertices themselves - they might still be queried.
+      keep :: Set TypeGraphVertex
       keep = Set.map (\(_, key, _) -> key) $ Set.map vf $ Set.fromList $ concatMap (reachable g) kernel
       victims = difference (Set.fromList (Map.keys edges')) keep
       edges'' :: GraphEdges hint TypeGraphVertex
@@ -105,6 +100,13 @@ makeTypeGraphEdges st = do
   -- trace (pprint edges'') (return ())
   return edges''
     where
+      victim :: TypeGraphVertex -> m Bool
+      victim v = do
+        let (E etyp) = view etype v
+        k <- runQ $ inferKind etyp
+        fv <- runQ $ freeTypeVars etyp
+        prim' <- unlifted etyp
+        return $ k /= Right StarT || fv /= Set.empty || prim'
       removeUnnamedFieldEdges :: (GraphEdges hint TypeGraphVertex) -> (GraphEdges hint TypeGraphVertex)
       removeUnnamedFieldEdges =
           -- If the _field field of the goal key is a Left it is a
@@ -141,7 +143,7 @@ instance Default (VertexStatus typ) where
 -- type aliases are expanded by the th-desugar package to make them
 -- suitable for use as map keys.
 typeGraphEdges'
-    :: forall m. (DsMonad m, MonadReader R m, HasSet TypeGraphVertex m) =>
+    :: forall m. (DsMonad m, MonadReader TypeGraph m, HasSet TypeGraphVertex m) =>
        (TypeGraphVertex -> m (Set TypeGraphVertex))
            -- ^ This function is applied to every expanded type before
            -- use, and the result is used instead.  If it returns
@@ -178,7 +180,7 @@ typeGraphEdges' augment types = do
 -- | Return the set of adjacent vertices according to the default type
 -- graph - i.e. the one determined only by the type definitions, not
 -- by any additional hinting function.
-adjacent :: forall m. (MonadReader R m, DsMonad m) => TypeGraphVertex -> m (Set TypeGraphVertex)
+adjacent :: forall m. (MonadReader TypeGraph m, DsMonad m) => TypeGraphVertex -> m (Set TypeGraphVertex)
 adjacent typ =
     case view etype typ of
       E (ForallT _ _ typ') -> typeVertex typ' >>= adjacent
@@ -210,14 +212,14 @@ adjacent typ =
 
 -- | Return the TypeGraphVertex associated with a particular type,
 -- with no field specified.
-typeVertex :: (MonadReader R m, DsMonad m) => Type -> m TypeGraphVertex
+typeVertex :: (MonadReader TypeGraph m, DsMonad m) => Type -> m TypeGraphVertex
 typeVertex typ = do
         typ' <- expandType typ
         ask >>= runReaderT (vertex Nothing typ') . view typeInfo
         -- magnify typeInfo $ vertex Nothing typ'
 
 -- | Return the TypeGraphVertex associated with a particular type and field.
-fieldVertex :: (MonadReader R m, DsMonad m) => (Name, Name, Either Int Name) -> Type -> m TypeGraphVertex
+fieldVertex :: (MonadReader TypeGraph m, DsMonad m) => (Name, Name, Either Int Name) -> Type -> m TypeGraphVertex
 fieldVertex fld typ = do
         typ' <- expandType typ
         ask >>= runReaderT (vertex (Just fld) typ') . view typeInfo
