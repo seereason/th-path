@@ -73,7 +73,7 @@ pathType gtyp key =
                     runQ [t| Path_Either $(return lpath) $(return rpath)|]
                 , otherf = do
                     ks <- reachableFrom key
-                    error $ "makePathType otherf: " ++ pprint' key ++ "\n" ++
+                    error $ "pathType otherf: " ++ pprint' key ++ "\n" ++
                             intercalate "\n  " ("reachable from:" : List.map pprint' (toList ks))
                 }
 

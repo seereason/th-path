@@ -36,9 +36,9 @@ import Data.Default (Default(def))
 import Data.Foldable as Foldable (toList)
 import Data.Foldable.Compat
 import Data.Graph hiding (edges)
-import Data.Map as Map (alter, keys, Map, map, mapWithKey)
+import Data.Map as Map (alter, keys, lookup, Map, map, mapWithKey)
 import Data.Maybe (fromJust, isJust, mapMaybe)
-import Data.Set as Set (difference, empty, filter, fromList, map, Set, singleton)
+import Data.Set as Set (difference, empty, filter, fromList, map, Set, singleton, minView)
 import Language.Haskell.Exts.Syntax ()
 import Language.Haskell.TH
 import Language.Haskell.TH.Context.Reify (evalContext, reifyInstancesWithContext)
@@ -52,8 +52,8 @@ import Language.Haskell.TH.Path.View (View(viewLens), viewInstanceType)
 import Language.Haskell.TH.TypeGraph.Edges (cut, cutM, dissolveM, GraphEdges, isolate, typeGraphEdges)
 import Language.Haskell.TH.TypeGraph.Expand (E(E), expandType, runExpanded)
 import Language.Haskell.TH.TypeGraph.Free (freeTypeVars)
-import Language.Haskell.TH.TypeGraph.Graph (graphFromMap, TypeGraph(..))
-import Language.Haskell.TH.TypeGraph.Info (startTypes, TypeInfo, vertex)
+import Language.Haskell.TH.TypeGraph.Graph (graphFromMap, TypeGraph(..), typeInfo)
+import Language.Haskell.TH.TypeGraph.Info (startTypes, synonyms, TypeInfo, vertex)
 import Language.Haskell.TH.TypeGraph.Prelude (listen_, pass_)
 import Language.Haskell.TH.TypeGraph.Shape (unlifted)
 import Language.Haskell.TH.TypeGraph.Vertex (TypeGraphVertex, etype, field, typeNames)
@@ -135,6 +135,7 @@ foldPath (FoldPathControl{..}) v = do
   selfPath <- (not . null) <$> evalContext (reifyInstancesWithContext ''SelfPath [let (E typ) = view etype v in typ])
   simplePath <- (not . null) <$> evalContext (reifyInstancesWithContext ''SinkType [let (E typ) = view etype v in typ])
   viewType <- evalContext (viewInstanceType (let (E typ) = view etype v in typ))
+  syns <- Map.lookup (view etype v) <$> view (typeInfo . synonyms)
   case runExpanded (view etype v) of
     _ | selfPath -> pathyf
       | simplePath -> simplef
@@ -144,6 +145,7 @@ foldPath (FoldPathControl{..}) v = do
           expr <- runQ [|viewLens :: Lens' $(return typ) $(return b)|]
           substf expr b
     ConT tname -> namedf tname
+    _ | maybe False (not . null) syns -> namedf (fst (fromJust (Set.minView (fromJust syns)))) -- yes, I'm sure
     AppT (AppT mtyp ityp) etyp | mtyp == ConT ''Order -> orderf ityp etyp
     AppT ListT etyp -> listf etyp
     AppT (AppT t3 ktyp) vtyp | t3 == ConT ''Map -> mapf ktyp vtyp
