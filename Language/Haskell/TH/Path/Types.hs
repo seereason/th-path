@@ -43,7 +43,7 @@ import System.FilePath.Extra (compareSaveAndReturn, changeError)
 pathTypes :: Q [Type] -> Q [Dec]
 pathTypes st = do
   r <- st >>= makeTypeInfo >>= makeTypeGraph makeTypeGraphEdges
-  runIO $ putStr (pprint (view edges r))
+  runIO $ putStr ("Language.Haskell.TH.Path.Types.pathTypes - " ++ pprint (view edges r))
   (_, decss) <- evalRWST (allPathKeys >>= mapM pathTypeDecs . toList . Set.map simpleVertex) r Set.empty
   runIO . compareSaveAndReturn changeError "GeneratedPathTypes.hs" $ concat decss
 
