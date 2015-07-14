@@ -37,9 +37,11 @@ import Data.Default (Default(def))
 import Data.Foldable as Foldable (toList)
 import Data.Foldable.Compat
 import Data.Graph hiding (edges)
-import Data.Map as Map (alter, keys, lookup, Map)
+import Data.List as List (intercalate, map)
+import Data.Map as Map (alter, fromList, keys, lookup, Map, toList)
 import Data.Maybe (fromJust, isJust, mapMaybe)
-import Data.Set as Set (difference, empty, fromList, map, Set, singleton, minView)
+import Data.Set as Set (difference, empty, fromList, map, member, minView, Set, singleton, toList)
+import Debug.Trace (trace)
 import Language.Haskell.Exts.Syntax ()
 import Language.Haskell.TH
 import Language.Haskell.TH.Context.Reify (evalContext, reifyInstancesWithContext)
@@ -50,12 +52,12 @@ import Language.Haskell.TH.Path.Core (fieldLensName, SelfPath)
 import Language.Haskell.TH.Path.LensTH (nameMakeLens)
 import Language.Haskell.TH.Path.Order (Order)
 import Language.Haskell.TH.Path.View (View(viewLens), viewInstanceType)
-import Language.Haskell.TH.TypeGraph.Edges (cut, cutEdges, cutM, dissolveM, GraphEdges, isolate, typeGraphEdges)
+import Language.Haskell.TH.TypeGraph.Edges (cut, cutM, dissolveM, GraphEdges, isolate, linkM, typeGraphEdges)
 import Language.Haskell.TH.TypeGraph.Expand (E(E), expandType, runExpanded)
 import Language.Haskell.TH.TypeGraph.Free (freeTypeVars)
 import Language.Haskell.TH.TypeGraph.Graph (graphFromMap, TypeGraph(..), typeInfo)
 import Language.Haskell.TH.TypeGraph.Info (startTypes, synonyms, TypeInfo, vertex)
-import Language.Haskell.TH.TypeGraph.Shape (unlifted)
+import Language.Haskell.TH.TypeGraph.Shape (pprint', unlifted)
 import Language.Haskell.TH.TypeGraph.Vertex (TypeGraphVertex, etype, field, typeNames)
 import Prelude hiding (any, concat, concatMap, elem, exp, foldr, mapM_, null, or)
 
@@ -67,15 +69,21 @@ import Prelude hiding (any, concat, concatMap, elem, exp, foldr, mapM_, null, or
 makeTypeGraphEdges :: forall m hint. (DsMonad m, Default hint, Ord hint, MonadReader TypeInfo m) =>
                       m (GraphEdges hint TypeGraphVertex)
 makeTypeGraphEdges =
-  typeGraphEdges >>=
-  cutM isUnlifted >>=
-  dissolveM higherOrder >>=
-  pruneTypeGraph >>=
-  dissolveM hasFreeVars >>=
-  dissolveM isUnlifted >>= -- looks redundant
-  return . cutEdges isMapOrOrder . cutEdges isAnonymous >>=
-  isolateUnreachable >>= t1
+  typeGraphEdges                   >>= \e1 -> tr "initial" mempty e1 >>=
+  cutM isUnlifted                  >>= \e2 -> tr "unlifted" e1 e2 >>=
+  dissolveM higherOrder            >>= \e3 -> tr "higherOrder" e2 e3 >>=
+  -- viewEdges must not be applied until we have removed higher order types - otherwise
+  -- we get a compiler error: "Expecting one more argument to..."
+  linkM viewEdges                  >>= \e3a -> tr "view edges" e3 e3a >>=
+  pruneTypeGraph                   >>= \e4 -> tr "prune" e3a e4 >>=
+  dissolveM hasFreeVars            >>= \e5 -> tr "freeVars" e4 e5 >>=
+  dissolveM isUnlifted             >>= \e6 -> tr "unlifted2" e5 e6 >>= -- looks redundant
+  -- return . cutEdges isAnonymous >>= \e7 -> tr "anonymous" e6 e7 >>=
+  isolateUnreachable               >>= \e8 -> t2 e6 e8
     where
+      viewEdges :: TypeGraphVertex -> m (Maybe (Set TypeGraphVertex))
+      viewEdges v = viewInstanceType (runExpanded (view etype v)) >>= maybe (return Nothing) (\t -> expandType t >>= vertex Nothing >>= return . Just . singleton)
+
       higherOrder :: TypeGraphVertex -> m Bool
       higherOrder v = (/= Right StarT) <$> runQ (inferKind (runExpanded (view etype v)))
       hasFreeVars :: TypeGraphVertex -> m Bool
@@ -83,33 +91,50 @@ makeTypeGraphEdges =
       -- Primitive (unlifted) types can not be used as parameters to a
       -- type class, which makes them unusable in this system.
       isUnlifted :: TypeGraphVertex -> m Bool
-      isUnlifted v = do
-        let (E etyp) = view etype v
-        unlifted etyp
-      -- If the _field field of the goal key is a Left it is a
-      -- positional field rather than named - we don't make lenses
-      -- for such fields so we don't want their edges in our graph.
+      isUnlifted v = {- t2 v <$> -} unlifted (runExpanded (view etype v))
+      -- We don't make lenses for fields that have no name, except
+      -- for special cases like Either, Maybe, Map, Order.
       isAnonymous :: TypeGraphVertex -> TypeGraphVertex -> Bool
-      isAnonymous _ b = maybe True (\(_, _, fld) -> either (const False) (const True) fld) (view field b)
-      -- The graph will initially include edges from (Map a b) to
-      -- a, and (Order a b) to a, but we only create lenses to the
-      -- b values of a map, so remove the edge to a.
-      isMapOrOrder :: TypeGraphVertex -> TypeGraphVertex -> Bool
-      isMapOrOrder a b =
+      isAnonymous a b =
           case view etype a of
-            E (AppT (AppT (ConT mtyp) ityp) _etyp) | elem mtyp [''Map, ''Order] -> E ityp /= view etype b
-            _ -> True
+            E (AppT ListT _etyp) -> False
+            E (AppT (AppT (TupleT 2) _) _) -> False
+            E (AppT (AppT (AppT (TupleT 3) _) _) _)-> False
+            E (AppT (AppT (AppT (AppT (TupleT 4) _) _) _) _)-> False
+            E (AppT (AppT (ConT mtyp) ityp) etyp)
+              -- Special case - the second field of the Map and Order types is not anonymous,
+              -- we recognize these and generate code for them specifically
+              | elem mtyp [''Either] -> False
+              | elem mtyp [''Map, ''Order] && view etype b == E ityp -> True
+              | elem mtyp [''Map, ''Order] && view etype b == E etyp -> False
+            _ -> maybe True (\(_, _, fld) -> either (const True) (const False) fld) (view field b)
+
       isolateUnreachable :: GraphEdges hint TypeGraphVertex -> m (GraphEdges hint TypeGraphVertex)
       isolateUnreachable es = do
         let (g, vf, kf) = graphFromMap es
         (kernel :: [Vertex]) <- view startTypes >>= mapM expandType >>= mapM (vertex Nothing) >>= return . mapMaybe kf
         let keep :: Set TypeGraphVertex
             keep = Set.map (\(_, key, _) -> key) $ Set.map vf $ Set.fromList $ concatMap (reachable g) kernel
-            victims = difference (Set.fromList (Map.keys es)) keep
-        return $ isolate victims es
+            victims = {- t3 $ -} Set.difference (Set.fromList (Map.keys es)) keep
+        return $ isolate (flip member victims) es
 
-      t1 :: GraphEdges hint TypeGraphVertex -> m (GraphEdges hint TypeGraphVertex)
-      t1 edges = runQ (runIO (putStr ("Language.Haskell.TH.Path.Graph.makeTypeGraphEdges - " ++ pprint edges))) >> return edges
+      tr :: String -> GraphEdges hint TypeGraphVertex -> GraphEdges hint TypeGraphVertex -> m (GraphEdges hint TypeGraphVertex)
+      tr s old new =
+          runQ (runIO (putStr ("\n\f\nLanguage.Haskell.TH.Path.Graph.makeTypeGraphEdges " ++ s ++
+                               " - added " ++ indent "+" (pprint (diff new old)) ++
+                               "\nremoved " ++  indent "-" (pprint (diff old new))))) >> return new
+
+      indent s t = unlines . List.map (s ++) . lines $ t
+
+      t2 :: Monad m => GraphEdges hint TypeGraphVertex -> GraphEdges hint TypeGraphVertex -> m (GraphEdges hint TypeGraphVertex)
+      t2 old new = trace ("\n\f\nLanguage.Haskell.TH.Path.Graph.makeTypeGraphEdges " ++ pprint old ++ "\nunreachable " ++ pprint (diff new old)) (return new)
+
+      t3 :: Set TypeGraphVertex -> Set TypeGraphVertex
+      t3 s = trace (intercalate "\n  " ("unreachable:" : Set.toList (Set.map pprint' s))) s
+
+      -- Exact difference between two maps
+      diff m1 m2 = Map.fromList $ Set.toList $ Set.difference (Set.fromList (Map.toList m1))
+                                                              (Set.fromList (Map.toList m2))
 
 makePathLenses :: (DsMonad m, MonadReader TypeGraph m, MonadWriter [[Dec]] m) => TypeGraphVertex -> m ()
 makePathLenses key = do
@@ -173,23 +198,36 @@ class HideType a
 -- a new graph which incorporates the information from the hints.
 pruneTypeGraph :: forall m label. (DsMonad m, Default label, Eq label, MonadReader TypeInfo m) =>
                   (GraphEdges label TypeGraphVertex) -> m (GraphEdges label TypeGraphVertex)
-pruneTypeGraph edges = do
-  execStateT (get >>= mapM_ doSink . Map.keys >>
-              get >>= mapM_ doHide . Map.keys >>
-              get >>= mapM_ doView . Map.keys) edges
+pruneTypeGraph edges =
+  doSink edges >>=
+  execStateT (get >>= mapM_ doHide . Map.keys) >>=
+  execStateT (get >>= mapM_ doView . Map.keys)
     where
-      doSink :: TypeGraphVertex -> StateT (GraphEdges label TypeGraphVertex) m ()
-      doSink v = do
-        let (E typ) = view etype v
-        sinkHint <- (not . null) <$> evalContext (reifyInstancesWithContext ''SinkType [typ])
-        when sinkHint (modify (Map.alter (alterFn (const Set.empty)) v))
+      doSink :: (GraphEdges label TypeGraphVertex) -> m (GraphEdges label TypeGraphVertex)
+      doSink es =
+          execStateT (mapM_ (\v -> do
+                               let (E typ) = view etype v
+                               sinkHint <- (not . null) <$> evalContext (reifyInstancesWithContext ''SinkType [typ])
+                               when sinkHint (modify (Map.alter (alterFn (const Set.empty)) v))) (Map.keys es)) es
 
+{-
+      sinkP :: TypeGraphVertex -> m Bool
+      sinkP v = do
+        let (E typ) = view etype v
+        (not . null) <$> evalContext (reifyInstancesWithContext ''SinkType [typ])
+-}
       doHide :: TypeGraphVertex -> StateT (GraphEdges label TypeGraphVertex) m ()
       doHide v = do
         let (E typ) = view etype v
         hideHint <- (not . null) <$> evalContext (reifyInstancesWithContext ''HideType [typ])
-        when hideHint (modify (cut (singleton v)))
+        when hideHint (modify (cut (== v)))
 
+{-
+      hideP :: TypeGraphVertex -> m Bool
+      hideP v = do
+        let (E typ) = view etype v
+        (not . null) <$> evalContext (reifyInstancesWithContext ''HideType [typ])
+-}
       doView :: TypeGraphVertex -> StateT (GraphEdges label TypeGraphVertex) m ()
       doView v = let (E a) = view etype v in evalContext (viewInstanceType a) >>= maybe (return ()) (doDivert v)
 

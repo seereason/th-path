@@ -11,12 +11,11 @@ module Language.Haskell.TH.Path.View
     ) where
 
 import Control.Lens (Lens')
-import Control.Monad.State (MonadState)
 import Data.List (intercalate)
 import Data.Set as Set (fromList, Set)
 import Debug.Trace (trace)
 import Language.Haskell.TH
-import Language.Haskell.TH.Context.Reify (evalContext, S)
+import Language.Haskell.TH.Context.Reify (evalContext)
 import Language.Haskell.TH.Desugar as DS (DsMonad)
 
 -- | If there is an instance of View for a type @a@, then when @a@
@@ -32,7 +31,7 @@ class View a where
 
 -- | Determine whether there is a 'View' instance for a type and if so
 -- return @ViewType a@.
-viewInstanceType :: (DsMonad m, MonadState S m) => Type -> m (Maybe Type)
+viewInstanceType :: DsMonad m => Type -> m (Maybe Type)
 viewInstanceType typ =
     do vInsts <- runQ $ reifyInstances ''ViewType [typ]
        case vInsts of

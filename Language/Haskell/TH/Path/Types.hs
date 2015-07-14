@@ -23,6 +23,7 @@ import Data.Foldable
 import Data.Generics (Data, Typeable)
 import Data.List as List (map)
 import Data.Set as Set (empty, map, Set)
+import Debug.Trace (trace)
 import Language.Haskell.TH
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
@@ -43,7 +44,7 @@ import System.FilePath.Extra (compareSaveAndReturn, changeError)
 pathTypes :: Q [Type] -> Q [Dec]
 pathTypes st = do
   r <- st >>= makeTypeInfo >>= makeTypeGraph makeTypeGraphEdges
-  runIO $ putStr ("Language.Haskell.TH.Path.Types.pathTypes - " ++ pprint (view edges r))
+  runIO $ putStr ("\nLanguage.Haskell.TH.Path.Types.pathTypes - " ++ pprint (view edges r))
   (_, decss) <- evalRWST (allPathKeys >>= mapM pathTypeDecs . toList . Set.map simpleVertex) r Set.empty
   runIO . compareSaveAndReturn changeError "GeneratedPathTypes.hs" $ concat decss
 
@@ -111,8 +112,9 @@ pathTypeDecs key =
       doDec (TySynD _ _ typ') =
           do a <- runQ $ newName "a"
              key' <- view typeInfo >>= runReaderT (expandType typ' >>= vertex Nothing)
-             ptype <- pathType (varT a) key'
-             mapM_ (\pname -> tell1 (tySynD pname [PlainTV a] (return ptype))) (pathTypeNames' key)
+             -- ptype <- pathType (varT a) key'
+             mapM_ (\pname -> tell1 (newtypeD (cxt []) pname [PlainTV a] (normalC pname [strictType notStrict (varT a)]) supers)
+                   ) (pathTypeNames' key)
       doDec (NewtypeD _ tname _ con _) = doDataD tname [con]
       doDec (DataD _ tname _ cons _) = doDataD tname cons
       doDec (FamilyD _flavour _name _tvbs _mkind) = return ()

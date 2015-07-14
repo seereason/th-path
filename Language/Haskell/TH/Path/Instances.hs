@@ -20,7 +20,7 @@ import Control.Lens hiding (cons) -- (makeLenses, over, view)
 import Control.Monad (when)
 import Control.Monad.Reader (MonadReader, runReaderT)
 import Control.Monad.RWS (evalRWST)
-import Control.Monad.State (MonadState, get, modify)
+import Control.Monad.State (evalStateT, get, modify, MonadState, StateT)
 import Control.Monad.Writer (MonadWriter, execWriterT, tell)
 import Data.Foldable
 import Data.List as List (map)
@@ -35,7 +35,7 @@ import Language.Haskell.TH.Path.Lens (mat)
 import Language.Haskell.TH.Path.Order (lens_omat)
 import Language.Haskell.TH.Syntax as TH (lift, VarStrictType)
 import Language.Haskell.TH.TypeGraph.Expand (expandType, runExpanded)
-import Language.Haskell.TH.TypeGraph.Graph (allLensKeys, goalReachableSimple, makeTypeGraph, TypeGraph, typeInfo)
+import Language.Haskell.TH.TypeGraph.Graph (allLensKeys, edges, goalReachableSimple, makeTypeGraph, TypeGraph, typeInfo)
 import Language.Haskell.TH.TypeGraph.Info (makeTypeInfo, vertex)
 import Language.Haskell.TH.TypeGraph.Shape (pprint')
 import Language.Haskell.TH.TypeGraph.Vertex (bestType, etype, TypeGraphVertex)
@@ -52,6 +52,7 @@ null = foldr (\_ _ -> False) True
 pathInstances :: Q [Type] -> Q [Dec]
 pathInstances st = do
   r <- st >>= makeTypeInfo >>= makeTypeGraph makeTypeGraphEdges
+  runIO $ putStr ("\nLanguage.Haskell.TH.Path.Types.pathInstances - " ++ pprint (view edges r))
   (_, decss) <- evalRWST (allLensKeys >>= mapM (uncurry pathInstanceDecs) . toList) r Set.empty
   runIO . compareSaveAndReturn changeError "GeneratedPathInstances.hs" $ concat decss
 
@@ -61,12 +62,13 @@ pathInstances st = do
 -- path type value specifies.
 pathInstanceDecs :: forall m. (DsMonad m, MonadReader TypeGraph m, MonadState (Set TypeGraphVertex) m, MonadWriter [[Dec]] m) => TypeGraphVertex -> TypeGraphVertex -> m ()
 pathInstanceDecs gkey key = do
+  runQ $ runIO $ putStrLn $ "Language.Haskell.TH.Path.Instances.pathInstanceDecs (" ++ pprint' gkey ++ ") (" ++ pprint' key ++ ")"
   done <- Set.member key <$> get
   when (not done) $ do
     modify (Set.insert key)
     makePathLenses key
   ptyp <- pathType (pure (bestType gkey)) key
-  clauses <- execWriterT $ pathInstanceClauses key gkey ptyp
+  clauses <- execWriterT $ evalStateT (pathInstanceClauses key gkey ptyp) mempty
   let final = [newName "u" >>= \u ->
                clause [varP u] (normalB [|(error $ $(lift ("Unexpected goal " ++ pprint' gkey ++ " for " ++ pprint' key ++ ": ")) ++
                                                    show $(varE u))
@@ -89,7 +91,7 @@ pathInstanceClauses :: forall m. (DsMonad m, MonadReader TypeGraph m, MonadWrite
                        TypeGraphVertex -- ^ the type whose clauses we are generating
                     -> TypeGraphVertex -- ^ the goal type key
                     -> Type -- ^ the corresponding path type - first type parameter of ToLens
-                    -> m ()
+                    -> StateT (Set Name) m ()
 pathInstanceClauses key gkey _ptyp | view etype key == view etype gkey = tell [clause [wildP] (normalB [|iso id id|]) []]
 pathInstanceClauses key gkey ptyp =
   -- Use this to raise errors when the path patterns aren't exhaustive.
@@ -100,7 +102,7 @@ pathInstanceClauses key gkey ptyp =
   foldPath control key
   --   return $ r ++ [clause [varP x] (normalB [|error ("toLens (" ++ $(lift (pprint' key)) ++ ") -> (" ++ $(lift (pprint' gkey)) ++ ") - unmatched: " ++ show $(varE x))|]) []]
     where
-          control :: FoldPathControl m ()
+          control :: FoldPathControl (StateT (Set Name) m) ()
           control =
             FoldPathControl
               { simplef = return () -- Simple paths only work if we are at the goal type, and that case is handled above.
@@ -113,9 +115,13 @@ pathInstanceClauses key gkey ptyp =
                   lkey <- view typeInfo >>= runReaderT (expandType ltyp >>= vertex Nothing)
                   doClause gkey ltyp (\p -> conP (mkName (nameBase pname ++ "_View")) [if lkey == gkey then wildP else p]) (pure lns)
               , pathyf = return ()
-              , namedf = \tname -> namedTypeClause tname gkey ptyp
+              , namedf = \tname ->
+                         get >>= \s -> if Set.member tname s
+                                       then return ()
+                                       else modify (Set.insert tname) >>
+                                            namedTypeClause tname gkey ptyp
               , maybef = \etyp -> do
-                  doClause gkey etyp (\p -> [p|Path_Just $p|]) [|_Just|]
+                   doClause gkey etyp (\p -> [p|Path_Just $p|]) [|_Just|]
               , listf = \_etyp -> return ()
               , orderf = \_ktyp vtyp -> do
                   k <- runQ (newName "k")
@@ -152,7 +158,7 @@ testPath gkey typ = do
   key <- view typeInfo >>= runReaderT (expandType typ >>= vertex Nothing)
   goalReachableSimple gkey key
 
-namedTypeClause :: forall m. (DsMonad m, MonadReader TypeGraph m, MonadWriter [ClauseQ] m) => Name -> TypeGraphVertex -> Type -> m ()
+namedTypeClause :: forall m. (DsMonad m, MonadReader TypeGraph m, MonadWriter [ClauseQ] m) => Name -> TypeGraphVertex -> Type -> StateT (Set Name) m ()
 namedTypeClause tname gkey ptyp =
     -- If encounter a named type and the stack is empty we
     -- need to build the clauses for its declaration.
@@ -161,7 +167,7 @@ namedTypeClause tname gkey ptyp =
          TyConI dec -> doDec dec
          _ -> error "doNameClauses"
     where
-            doDec :: Dec -> m ()
+            doDec :: Dec -> StateT (Set Name) m ()
             doDec (TySynD _ _ typ') =
                 do -- If we have a type synonym we can use the corresponding
                    -- path type synonym instead of the path type of the
@@ -175,14 +181,14 @@ namedTypeClause tname gkey ptyp =
             doDec (DataD _ _ _ cons _) = doCons cons
             doDec dec = error $ "doName - unexpected Dec: " ++ show dec
 
-            doCons :: [Con] -> m ()
+            doCons :: [Con] -> StateT (Set Name) m ()
             doCons cons = ((concatMap snd . concat) <$> mapM doCon cons) >>= tell
                 -- clauses <- (concatMap snd . concat) <$> mapM doCon cons
                 -- tell $ clauses ++ [newName "u" >>= \u -> clause [varP u] (normalB [|error $ "Goal " ++ $(lift (pprint' gkey)) ++ " unexpected for " ++ $(lift (show tname)) ++ ": " ++ show $(varE u)|]) []]
 
             -- For each constructor of the original type, we create a list of pairs, a
             -- path type constructor and the clause which recognizes it.
-            doCon :: Con -> m [(Con, [ClauseQ])]
+            doCon :: Con -> StateT (Set Name) m [(Con, [ClauseQ])]
             doCon (ForallC _ _ con) = doCon con
             doCon (NormalC _ _) = return []
             doCon (InfixC _ _ _) = return []
@@ -191,7 +197,7 @@ namedTypeClause tname gkey ptyp =
             -- Each field of the original type turns into zero or more (Con, Clause)
             -- pairs, each of which may or may not have a field representing the path type
             -- of some piece of the field value.
-            doField :: Name -> VarStrictType -> m [(Con, [ClauseQ])]
+            doField :: Name -> VarStrictType -> StateT (Set Name) m [(Con, [ClauseQ])]
             doField cname (fn, _, ft) = do
                     fkey <- view typeInfo >>= runReaderT (expandType ft >>= vertex (Just (tname, cname, Right fn)))
                     ok <- goalReachableSimple gkey fkey  -- is the goal type reachable from here?
