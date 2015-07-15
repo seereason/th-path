@@ -112,9 +112,8 @@ pathTypeDecs key =
       doDec (TySynD _ _ typ') =
           do a <- runQ $ newName "a"
              key' <- view typeInfo >>= runReaderT (expandType typ' >>= vertex Nothing)
-             -- ptype <- pathType (varT a) key'
-             mapM_ (\pname -> tell1 (newtypeD (cxt []) pname [PlainTV a] (normalC pname [strictType notStrict (varT a)]) supers)
-                   ) (pathTypeNames' key)
+             ptype <- pathType (varT a) key'
+             mapM_ (\pname -> tell1 (tySynD pname [PlainTV a] (return ptype))) (pathTypeNames' key)
       doDec (NewtypeD _ tname _ con _) = doDataD tname [con]
       doDec (DataD _ tname _ cons _) = doDataD tname cons
       doDec (FamilyD _flavour _name _tvbs _mkind) = return ()
