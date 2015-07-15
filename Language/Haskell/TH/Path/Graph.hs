@@ -36,8 +36,8 @@ import Control.Monad.Writer (MonadWriter, tell)
 import Data.Default (Default(def))
 import Data.Foldable as Foldable (toList)
 import Data.Foldable.Compat
-import Data.Graph hiding (edges)
-import Data.List as List (intercalate, map)
+import Data.Graph as Graph (reachable)
+import Data.List as List (filter, intercalate, map)
 import Data.Map as Map (alter, fromList, keys, lookup, Map, toList)
 import Data.Maybe (fromJust, isJust, mapMaybe)
 import Data.Set as Set (difference, empty, fromList, map, member, minView, Set, singleton, toList)
@@ -52,13 +52,14 @@ import Language.Haskell.TH.Path.Core (fieldLensName, SelfPath)
 import Language.Haskell.TH.Path.LensTH (nameMakeLens)
 import Language.Haskell.TH.Path.Order (Order)
 import Language.Haskell.TH.Path.View (View(viewLens), viewInstanceType)
-import Language.Haskell.TH.TypeGraph.Edges (cut, cutM, dissolveM, GraphEdges, isolate, linkM, typeGraphEdges)
+import Language.Haskell.TH.TypeGraph.Edges (cut, cutM, cutEdgesM, dissolveM, GraphEdges, isolate, linkM, simpleEdges, typeGraphEdges)
 import Language.Haskell.TH.TypeGraph.Expand (E(E), expandType, runExpanded)
 import Language.Haskell.TH.TypeGraph.Free (freeTypeVars)
 import Language.Haskell.TH.TypeGraph.Graph (graphFromMap, TypeGraph(..), typeInfo)
-import Language.Haskell.TH.TypeGraph.Info (startTypes, synonyms, TypeInfo, vertex)
-import Language.Haskell.TH.TypeGraph.Shape (pprint', unlifted)
-import Language.Haskell.TH.TypeGraph.Vertex (TypeGraphVertex, etype, field, typeNames)
+import Language.Haskell.TH.TypeGraph.Info (startTypes, synonyms, TypeInfo, vertex, fieldVertex)
+import Language.Haskell.TH.TypeGraph.Prelude (constructorName, pprint', unlifted)
+import Language.Haskell.TH.TypeGraph.Shape (constructorFieldTypes, FieldType(..))
+import Language.Haskell.TH.TypeGraph.Vertex (etype, simpleVertex, TypeGraphVertex(TypeGraphVertex, _etype), typeNames)
 import Prelude hiding (any, concat, concatMap, elem, exp, foldr, mapM_, null, or)
 
 -- | Build a graph of the subtype relation, omitting any types whose
@@ -66,20 +67,20 @@ import Prelude hiding (any, concat, concatMap, elem, exp, foldr, mapM_, null, or
 -- may also want to eliminate nodes that are not on a path from a
 -- start type to a goal type, though eventually goal types will be
 -- eliminated - all types will be goal types.)
-makeTypeGraphEdges :: forall m hint. (DsMonad m, Default hint, Ord hint, MonadReader TypeInfo m) =>
+makeTypeGraphEdges :: forall m hint. (DsMonad m, Default hint, Ord hint, Monoid hint, MonadReader TypeInfo m) =>
                       m (GraphEdges hint TypeGraphVertex)
 makeTypeGraphEdges =
-  typeGraphEdges                   >>= \e1 -> tr "initial" mempty e1 >>=
-  cutM isUnlifted                  >>= \e2 -> tr "unlifted" e1 e2 >>=
-  dissolveM higherOrder            >>= \e3 -> tr "higherOrder" e2 e3 >>=
+  typeGraphEdges                   >>= -- \e1 -> tr "initial" mempty e1 >>=
+  cutM isUnlifted                  >>= -- \e2 -> tr "unlifted" e1 e2 >>=
+  dissolveM higherOrder            >>= -- \e3 -> tr "higherOrder" e2 e3 >>=
   -- viewEdges must not be applied until we have removed higher order types - otherwise
   -- we get a compiler error: "Expecting one more argument to..."
-  linkM viewEdges                  >>= \e3a -> tr "view edges" e3 e3a >>=
-  pruneTypeGraph                   >>= \e4 -> tr "prune" e3a e4 >>=
-  dissolveM hasFreeVars            >>= \e5 -> tr "freeVars" e4 e5 >>=
-  dissolveM isUnlifted             >>= \e6 -> tr "unlifted2" e5 e6 >>= -- looks redundant
-  -- return . cutEdges isAnonymous >>= \e7 -> tr "anonymous" e6 e7 >>=
-  isolateUnreachable               >>= \e8 -> t2 e6 e8
+  linkM viewEdges                  >>= -- \e3a -> tr "view edges" e3 e3a >>=
+  pruneTypeGraph                   >>= -- \e4 -> tr "prune" e3a e4 >>=
+  dissolveM hasFreeVars            >>= -- \e5 -> tr "freeVars" e4 e5 >>=
+  dissolveM isUnlifted             >>= -- \e6 -> tr "unlifted2" e5 e6 >>= -- looks redundant
+  cutEdgesM anonymous              >>= -- \e7 -> tr "anonymous" e6 e7 >>=
+  isolateUnreachable --               >>= \e8 -> tr "unreachable" e7 e8
     where
       viewEdges :: TypeGraphVertex -> m (Maybe (Set TypeGraphVertex))
       viewEdges v = viewInstanceType (runExpanded (view etype v)) >>= maybe (return Nothing) (\t -> expandType t >>= vertex Nothing >>= return . Just . singleton)
@@ -91,9 +92,10 @@ makeTypeGraphEdges =
       -- Primitive (unlifted) types can not be used as parameters to a
       -- type class, which makes them unusable in this system.
       isUnlifted :: TypeGraphVertex -> m Bool
-      isUnlifted v = {- t2 v <$> -} unlifted (runExpanded (view etype v))
+      isUnlifted v = unlifted (runExpanded (view etype v))
       -- We don't make lenses for fields that have no name, except
       -- for special cases like Either, Maybe, Map, Order.
+#if 0
       isAnonymous :: TypeGraphVertex -> TypeGraphVertex -> Bool
       isAnonymous a b =
           case view etype a of
@@ -126,11 +128,11 @@ makeTypeGraphEdges =
 
       indent s t = unlines . List.map (s ++) . lines $ t
 
-      t2 :: Monad m => GraphEdges hint TypeGraphVertex -> GraphEdges hint TypeGraphVertex -> m (GraphEdges hint TypeGraphVertex)
-      t2 old new = trace ("\n\f\nLanguage.Haskell.TH.Path.Graph.makeTypeGraphEdges " ++ pprint old ++ "\nunreachable " ++ pprint (diff new old)) (return new)
+      -- t2 :: Monad m => GraphEdges hint TypeGraphVertex -> GraphEdges hint TypeGraphVertex -> m (GraphEdges hint TypeGraphVertex)
+      -- t2 old new = trace ("\n\f\nLanguage.Haskell.TH.Path.Graph.makeTypeGraphEdges " ++ pprint old ++ "\nunreachable " ++ pprint (diff new old)) (return new)
 
-      t3 :: Set TypeGraphVertex -> Set TypeGraphVertex
-      t3 s = trace (intercalate "\n  " ("unreachable:" : Set.toList (Set.map pprint' s))) s
+      -- t3 :: Set TypeGraphVertex -> Set TypeGraphVertex
+      -- t3 s = trace (intercalate "\n  " ("unreachable:" : Set.toList (Set.map pprint' s))) s
 
       -- Exact difference between two maps
       diff m1 m2 = Map.fromList $ Set.toList $ Set.difference (Set.fromList (Map.toList m1))

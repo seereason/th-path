@@ -24,7 +24,9 @@ import Control.Monad.State (evalStateT, get, modify, MonadState, StateT)
 import Control.Monad.Writer (MonadWriter, execWriterT, tell)
 import Data.Foldable
 import Data.List as List (map)
-import Data.Set as Set (empty, insert, member, Set)
+import Data.Map as Map (toList)
+import Data.Set as Set (empty, insert, member, Set, toList)
+import Debug.Trace (trace)
 import Language.Haskell.TH
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
@@ -37,7 +39,7 @@ import Language.Haskell.TH.Syntax as TH (lift, VarStrictType)
 import Language.Haskell.TH.TypeGraph.Expand (expandType, runExpanded)
 import Language.Haskell.TH.TypeGraph.Graph (allLensKeys, edges, goalReachableSimple, makeTypeGraph, TypeGraph, typeInfo)
 import Language.Haskell.TH.TypeGraph.Info (makeTypeInfo, vertex)
-import Language.Haskell.TH.TypeGraph.Shape (pprint')
+import Language.Haskell.TH.TypeGraph.Prelude (pprint')
 import Language.Haskell.TH.TypeGraph.Vertex (bestType, etype, TypeGraphVertex)
 import Prelude hiding (any, concat, concatMap, elem, foldr, mapM_, null, or)
 import System.FilePath.Extra (compareSaveAndReturn, changeError)
@@ -48,13 +50,46 @@ null = foldr (\_ _ -> False) True
 #endif
 
 -- | Construct the 'Path' instances for all types reachable from the
--- types in the argument.
+-- argument types.  Each edge in the type graph corresponds to a Path instance.
 pathInstances :: Q [Type] -> Q [Dec]
 pathInstances st = do
   r <- st >>= makeTypeInfo >>= makeTypeGraph makeTypeGraphEdges
   runIO $ putStr ("\nLanguage.Haskell.TH.Path.Types.pathInstances - " ++ pprint (view edges r))
-  (_, decss) <- evalRWST (allLensKeys >>= mapM (uncurry pathInstanceDecs) . toList) r Set.empty
+#if 0
+  (_, decss) <- evalRWST pathInstanceDecs' r Set.empty
+#else
+  (_, decss) <- evalRWST (allLensKeys >>= mapM (uncurry pathInstanceDecs) . Set.toList) r Set.empty
+#endif
   runIO . compareSaveAndReturn changeError "GeneratedPathInstances.hs" $ concat decss
+
+#if 0
+pathInstanceDecs' :: forall m. (DsMonad m, MonadReader TypeGraph m, MonadState (Set TypeGraphVertex) m, MonadWriter [[Dec]] m) => m ()
+pathInstanceDecs' = do
+  unsimplifiedEdges <- view edges
+  let unsimplifiedKeys <- Map.keys unsimplifiedEdges
+      simplifiedKeys = Set.map simpleVertex unsimplifiedKeys
+      keyMap :: Map TypeGraphVertex (Set TypeGraphVertex)
+      keyMap = foldr Set.union mempty (Map.fromList (map (\a -> (simpleVertex a, singleton a)) unsimplifiedKeys))
+  mapM (\ (a, (hint, s)) -> mapM (\b -> pathType (pure (bestType b)) a >>= \ptyp ->
+                                        doClauses keyMap (simpleVertex a) b >>= \clauses ->
+                                        case clauses of
+                                          [] -> return []
+                                          _ -> runQ [d|instance Path $(pure (bestType a)) $(pure (bestType b)) where
+                                                          type PathType $(pure (bestType a)) $(pure (bestType b)) =
+                                                              $(pure ptyp) |] >>= mapM (insertClauses clauses)) (Set.toList s)) (Map.toList es) >>= tell . concat
+    where
+      -- There is a clause of the toLens function for every pair of
+      -- types a b where according to the typegraph we can reach b
+      -- from a.
+      insertClauses cl (InstanceD c t ds) = return $ InstanceD c t (ds ++ cl)
+      -- Clauses corresponding to all the edges from simplified a to unsimplified b
+      doClauses keyMap a b =
+          case Map.lookup a keyMap of
+            Just bs@(_ : _) -> map (doClause a) bs
+            _ -> return []
+      doClause a b = newName "u" >>= \u ->
+                     clause [varP u] (normalB [|error $ $(lift "clause (" ++ pprint' a ++ ") (" ++ pprint' b ++ ")")|]) []
+#endif
 
 -- | For a given TypeGraphVertex, compute the declaration of the
 -- corresponding Path instance.  Each clause matches some possible value
@@ -62,7 +97,7 @@ pathInstances st = do
 -- path type value specifies.
 pathInstanceDecs :: forall m. (DsMonad m, MonadReader TypeGraph m, MonadState (Set TypeGraphVertex) m, MonadWriter [[Dec]] m) => TypeGraphVertex -> TypeGraphVertex -> m ()
 pathInstanceDecs gkey key = do
-  runQ $ runIO $ putStrLn $ "Language.Haskell.TH.Path.Instances.pathInstanceDecs (" ++ pprint' gkey ++ ") (" ++ pprint' key ++ ")"
+  runQ $ runIO $ putStrLn $ "Language.Haskell.TH.Path.Instances.pathInstanceDecs (" ++ pprint' key ++ ") -> (" ++ pprint' gkey ++ ")"
   done <- Set.member key <$> get
   when (not done) $ do
     modify (Set.insert key)
@@ -82,10 +117,10 @@ pathInstanceDecs gkey key = do
                 , funD 'toLens (clauses ++ final)
                 --, valD (varP 'thePath) (normalB exp) []
                 ])
-    where
-      -- Send a single dec to our funky writer monad
-      tell1 :: DecQ -> m ()
-      tell1 dec = runQ (sequence (map sequence [[dec]])) >>= tell
+
+-- | Send a single dec to our funky writer monad
+tell1 :: (DsMonad m, MonadWriter [[Dec]] m) => DecQ -> m ()
+tell1 dec = runQ (sequence (map sequence [[dec]])) >>= tell
 
 pathInstanceClauses :: forall m. (DsMonad m, MonadReader TypeGraph m, MonadWriter [ClauseQ] m) =>
                        TypeGraphVertex -- ^ the type whose clauses we are generating

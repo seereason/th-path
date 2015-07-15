@@ -27,7 +27,7 @@ import Language.Haskell.TH.Path.Graph (FoldPathControl(..), foldPath)
 import Language.Haskell.TH.TypeGraph.Expand (E(E), runExpanded)
 import Language.Haskell.TH.TypeGraph.Graph (TypeGraph, typeInfo, reachableFrom)
 import Language.Haskell.TH.TypeGraph.Info (vertex)
-import Language.Haskell.TH.TypeGraph.Shape (pprint')
+import Language.Haskell.TH.TypeGraph.Prelude (pprint')
 import Language.Haskell.TH.TypeGraph.Vertex (TypeGraphVertex, etype)
 import Prelude hiding (any, concat, concatMap, elem, foldr, mapM_, null, or)
 
