@@ -93,32 +93,50 @@ makeTypeGraphEdges =
       -- type class, which makes them unusable in this system.
       isUnlifted :: TypeGraphVertex -> m Bool
       isUnlifted v = unlifted (runExpanded (view etype v))
-      -- We don't make lenses for fields that have no name, except
-      -- for special cases like Either, Maybe, Map, Order.
-#if 0
-      isAnonymous :: TypeGraphVertex -> TypeGraphVertex -> Bool
-      isAnonymous a b =
-          case view etype a of
-            E (AppT ListT _etyp) -> False
-            E (AppT (AppT (TupleT 2) _) _) -> False
-            E (AppT (AppT (AppT (TupleT 3) _) _) _)-> False
-            E (AppT (AppT (AppT (AppT (TupleT 4) _) _) _) _)-> False
-            E (AppT (AppT (ConT mtyp) ityp) etyp)
-              -- Special case - the second field of the Map and Order types is not anonymous,
-              -- we recognize these and generate code for them specifically
-              | elem mtyp [''Either] -> False
-              | elem mtyp [''Map, ''Order] && view etype b == E ityp -> True
-              | elem mtyp [''Map, ''Order] && view etype b == E etyp -> False
-            _ -> maybe True (\(_, _, fld) -> either (const True) (const False) fld) (view field b)
 
-      isolateUnreachable :: GraphEdges hint TypeGraphVertex -> m (GraphEdges hint TypeGraphVertex)
+      -- Ignore unnamed fields of records
+      anonymous :: TypeGraphVertex -> TypeGraphVertex -> m Bool
+      anonymous (TypeGraphVertex {_etype = E (ConT aname)}) b =
+          runQ (reify aname) >>= doInfo >>= \r -> case r of
+                                                    [True] -> return True
+                                                    [False] -> return False
+                                                    [] -> return False
+                                                    _ -> error $ "Unexpected result in makeTypeGraphEdges/notAnonymous: " ++ show r
+          where
+            doInfo :: Info -> m [Bool]
+            doInfo (TyConI dec) = doDec dec
+            doInfo _ = return []
+            doDec :: Dec -> m [Bool]
+            doDec (DataD _ _ _ cs _) = concat <$> mapM doCon cs
+            doDec _ = return []
+            doCon :: Con -> m [Bool]
+            doCon (ForallC _ _ con) = doCon con
+            doCon con = concat <$> mapM doField (List.map (con,) (constructorFieldTypes con))
+            -- Find the vertex for b and test it
+            doField :: (Con, FieldType) -> m [Bool]
+            doField (con, (Named (fname, _, ftype))) = do
+              etyp <- expandType ftype
+              b' <- fieldVertex etyp (aname, constructorName con, Right fname)
+              return $ if b == b' then [False] else []
+            doField (con, (Positional i (_, ftype))) = do
+              etyp <- expandType ftype
+              b' <- fieldVertex etyp (aname, constructorName con, Left i)
+              return $ if b == b' then [True] else []
+      anonymous _ _ = return False
+
+      isolateUnreachable :: Monoid hint => GraphEdges hint TypeGraphVertex -> m (GraphEdges hint TypeGraphVertex)
       isolateUnreachable es = do
-        let (g, vf, kf) = graphFromMap es
-        (kernel :: [Vertex]) <- view startTypes >>= mapM expandType >>= mapM (vertex Nothing) >>= return . mapMaybe kf
+        st <- view startTypes >>= mapM expandType >>= mapM (vertex Nothing)
+        let (g, vf, kf) = graphFromMap (simpleEdges es)
         let keep :: Set TypeGraphVertex
-            keep = Set.map (\(_, key, _) -> key) $ Set.map vf $ Set.fromList $ concatMap (reachable g) kernel
-            victims = {- t3 $ -} Set.difference (Set.fromList (Map.keys es)) keep
-        return $ isolate (flip member victims) es
+            keep = Set.map (\(_, key, _) -> key) $ Set.map vf $ Set.fromList $ concatMap (reachable g) (mapMaybe kf st)
+            -- Discard any nodes whose simplified version is not in keep
+            victims = List.filter (\ v -> not (Set.member (simpleVertex v) keep)) (Map.keys es)
+            -- victims = {- t3 $ -} Set.difference (Set.fromList (Map.keys es)) keep
+        -- trace ("isolateUnreachable - " ++ pprint es ++ "\n" ++
+        --        intercalate "\n  " ("startTypes:" : List.map pprint' st) ++ "\n" ++
+        --        intercalate "\n  " ("Unreachable:" : List.map pprint' victims)) (return ())
+        return $ isolate (flip member (Set.fromList victims)) es
 
       tr :: String -> GraphEdges hint TypeGraphVertex -> GraphEdges hint TypeGraphVertex -> m (GraphEdges hint TypeGraphVertex)
       tr s old new =
