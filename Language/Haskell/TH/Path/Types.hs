@@ -32,7 +32,7 @@ import Language.Haskell.TH.Path.Graph (foldPath, FoldPathControl(..), makeTypeGr
 import Language.Haskell.TH.Path.PathType (pathType)
 import Language.Haskell.TH.Syntax as TH (Quasi, VarStrictType)
 import Language.Haskell.TH.TypeGraph.Expand (expandType)
-import Language.Haskell.TH.TypeGraph.Graph (allPathKeys, edges, makeTypeGraph, TypeGraph, typeInfo)
+import Language.Haskell.TH.TypeGraph.Graph (allPathStarts, edges, makeTypeGraph, TypeGraph, typeInfo)
 import Language.Haskell.TH.TypeGraph.Info (makeTypeInfo, vertex)
 import Language.Haskell.TH.TypeGraph.Prelude (pprint')
 import Language.Haskell.TH.TypeGraph.Vertex (simpleVertex, TypeGraphVertex, typeNames)
@@ -45,7 +45,7 @@ pathTypes :: Q [Type] -> Q [Dec]
 pathTypes st = do
   r <- st >>= makeTypeInfo >>= makeTypeGraph makeTypeGraphEdges
   runIO $ putStr ("\nLanguage.Haskell.TH.Path.Types.pathTypes - " ++ pprint (view edges r))
-  (_, decss) <- evalRWST (allPathKeys >>= mapM pathTypeDecs . toList . Set.map simpleVertex) r Set.empty
+  (_, decss) <- evalRWST (allPathStarts >>= mapM pathTypeDecs . toList . Set.map simpleVertex) r Set.empty
   runIO . compareSaveAndReturn changeError "GeneratedPathTypes.hs" $ concat decss
 
 -- | Given a type, generate the corresponding path type declarations

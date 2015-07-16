@@ -37,7 +37,7 @@ import Language.Haskell.TH.Path.Lens (mat)
 import Language.Haskell.TH.Path.Order (lens_omat)
 import Language.Haskell.TH.Syntax as TH (lift, VarStrictType)
 import Language.Haskell.TH.TypeGraph.Expand (expandType, runExpanded)
-import Language.Haskell.TH.TypeGraph.Graph (allLensKeys, edges, goalReachableSimple, makeTypeGraph, TypeGraph, typeInfo)
+import Language.Haskell.TH.TypeGraph.Graph (allPathKeys, edges, goalReachableSimple, makeTypeGraph, TypeGraph, typeInfo)
 import Language.Haskell.TH.TypeGraph.Info (makeTypeInfo, vertex)
 import Language.Haskell.TH.TypeGraph.Prelude (pprint')
 import Language.Haskell.TH.TypeGraph.Vertex (bestType, etype, TypeGraphVertex)
@@ -58,7 +58,7 @@ pathInstances st = do
 #if 0
   (_, decss) <- evalRWST pathInstanceDecs' r Set.empty
 #else
-  (_, decss) <- evalRWST (allLensKeys >>= mapM (uncurry pathInstanceDecs) . Set.toList) r Set.empty
+  (_, decss) <- evalRWST (allPathKeys >>= mapM (uncurry pathInstanceDecs) . Set.toList) r Set.empty
 #endif
   runIO . compareSaveAndReturn changeError "GeneratedPathInstances.hs" $ concat decss
 
