@@ -195,7 +195,12 @@ foldPath (FoldPathControl{..}) v = do
           expr <- runQ [|viewLens :: Lens' $(return typ) $(return b)|]
           substf expr b
     ConT tname -> namedf tname
-    _ | maybe False (not . null) syns -> namedf (fst (fromJust (Set.minView (fromJust syns)))) -- yes, I'm sure
+#if 0
+    -- This seemed like a good idea at one point, but now it either
+    -- makes no difference (in PathType.hs and Types.hs) or makes
+    -- things worse (in Instances.hs.)
+    _ | maybe False (not . null) syns -> namedf (fst (fromJust (Set.minView (fromJust syns))))
+#endif
     AppT (AppT mtyp ityp) etyp | mtyp == ConT ''Order -> orderf ityp etyp
     AppT ListT etyp -> listf etyp
     AppT (AppT t3 ktyp) vtyp | t3 == ConT ''Map -> mapf ktyp vtyp
