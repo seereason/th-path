@@ -44,14 +44,13 @@ import Control.Lens -- (makeLenses, over, view)
 import Data.Generics (Data, Typeable)
 import Data.List as List (map)
 import Data.SafeCopy (base, deriveSafeCopy)
-import Data.Set as Set (difference, fromList, map, minView, Set)
+import Data.Set as Set (delete, difference, fromList, map, minView, null, Set)
 import Language.Haskell.TH
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Syntax (qReify)
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.TypeGraph.Expand (E(E))
 import Language.Haskell.TH.TypeGraph.Prelude (pprint')
-import Language.Haskell.TH.TypeGraph.Vertex (TypeGraphVertex, etype, field, syns, typeNames)
+import Language.Haskell.TH.TypeGraph.Vertex (bestType, TypeGraphVertex, TGV, vsimple, etype, field, syns, typeNames)
 import Prelude hiding (exp)
 import Web.Routes.TH (derivePathInfo)
 
@@ -133,22 +132,23 @@ pathTypeNames = do
 
 -- Naming conventions
 
-pathTypeNameFromTypeName :: Name -> Name
-pathTypeNameFromTypeName tname = mkName $ "Path_" ++ nameBase tname
-
-pathTypeNames' :: TypeGraphVertex -> Set Name
+pathTypeNames' :: TypeGraphVertex v => v -> Set Name
 pathTypeNames' = Set.map pathTypeNameFromTypeName . typeNames
 
 -- | If the type is (ConT name) return name, otherwise return a type
 -- synonym name.
-bestPathTypeName :: TypeGraphVertex -> Maybe (Name, Set Name)
+bestPathTypeName :: TypeGraphVertex v => v -> Maybe (Name, Set Name)
 bestPathTypeName v =
-    case view etype v of
-      E (ConT tname) -> Just (pathTypeNameFromTypeName tname, Set.map pathTypeNameFromTypeName (view syns v))
-      _ -> Set.minView (Set.map pathTypeNameFromTypeName (view syns v))
+    case (bestType v, typeNames v) of
+      (ConT tname, names) -> Just (pathTypeNameFromTypeName tname, Set.map pathTypeNameFromTypeName (Set.delete tname names))
+      (t, s) | Set.null s -> Nothing
+      (t, s) -> error "bestPathTypeName - unexpected name"
+
+pathTypeNameFromTypeName :: Name -> Name
+pathTypeNameFromTypeName tname = mkName $ "Path_" ++ nameBase tname
 
 -- | Path type constructor for the field described by key in the parent type named tname.
-pathConNameOfField :: TypeGraphVertex -> Maybe Name
+pathConNameOfField :: TGV -> Maybe Name
 pathConNameOfField key = maybe Nothing (\ (tname, _, Right fname') -> Just $ mkName $ "Path_" ++ nameBase tname ++ "_" ++ nameBase fname') (key ^. field)
 
 fieldLensName :: Name -> Name -> Name

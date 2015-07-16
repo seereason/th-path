@@ -12,6 +12,7 @@
 {-# OPTIONS_GHC -fno-warn-orphans -fno-warn-missing-signatures #-}
 module Language.Haskell.TH.Path.PathType
     ( pathType
+    , pathType'
     , pathTypeCall
     ) where
 
@@ -25,16 +26,16 @@ import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Core (bestPathTypeName, pathTypeNameFromTypeName, PathType, Path_OMap, Path_List, Path_Map, Path_Pair, Path_Maybe, Path_Either)
 import Language.Haskell.TH.Path.Graph (FoldPathControl(..), foldPath)
 import Language.Haskell.TH.TypeGraph.Expand (E(E), runExpanded)
-import Language.Haskell.TH.TypeGraph.Graph (TypeGraph, typeInfo, reachableFrom)
-import Language.Haskell.TH.TypeGraph.Info (vertex)
+import Language.Haskell.TH.TypeGraph.Graph (TypeGraph, typeInfo, reachableFromSimple)
+import Language.Haskell.TH.TypeGraph.Info (typeVertex)
 import Language.Haskell.TH.TypeGraph.Prelude (pprint')
-import Language.Haskell.TH.TypeGraph.Vertex (TypeGraphVertex, etype)
+import Language.Haskell.TH.TypeGraph.Vertex (simpleVertex, TGV, TGVSimple, vsimple, TypeGraphVertex, etype)
 import Prelude hiding (any, concat, concatMap, elem, foldr, mapM_, null, or)
 
 -- | Given a type, generate the corresponding path type.
 pathType :: (DsMonad m, MonadReader TypeGraph m) =>
             TypeQ
-         -> TypeGraphVertex -- ^ The type to convert to a path type
+         -> TGVSimple -- ^ The type to convert to a path type
          -> m Type
 pathType gtyp key =
   foldPath control key
@@ -72,16 +73,19 @@ pathType gtyp key =
                     rpath <- vert rtyp >>= pathType gtyp
                     runQ [t| Path_Either $(return lpath) $(return rpath)|]
                 , otherf = do
-                    ks <- reachableFrom key
+                    ks <- reachableFromSimple key
                     error $ "pathType otherf: " ++ pprint' key ++ "\n" ++
                             intercalate "\n  " ("reachable from:" : List.map pprint' (toList ks))
                 }
 
-      vert typ = view typeInfo >>= runReaderT (vertex Nothing (E typ))
+      vert typ = view typeInfo >>= runReaderT (typeVertex (E typ))
+
+pathType' :: (DsMonad m, MonadReader TypeGraph m) => TypeQ -> TGV -> m Type
+pathType' gtyp key = pathType gtyp (simpleVertex key)
 
 -- | Call the type function PathType.
 pathTypeCall :: (DsMonad m, MonadReader TypeGraph m) =>
                 TypeQ           -- ^ The goal type - possibly a type variable
-             -> TypeGraphVertex -- ^ The type to convert to a path type
+             -> TGV -- ^ The type to convert to a path type
              -> m Type
-pathTypeCall gtyp key = runQ [t|PathType $(let (E typ) = view etype key in return typ) $gtyp|]
+pathTypeCall gtyp key = runQ [t|PathType $(let (E typ) = view (vsimple . etype) key in return typ) $gtyp|]

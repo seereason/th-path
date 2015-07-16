@@ -32,15 +32,15 @@ import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Core (Path(..), fieldLensName, pathConNameOfField, Path_OMap(..), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
 import Language.Haskell.TH.Path.Graph (foldPath, FoldPathControl(..), makePathLenses, makeTypeGraphEdges)
-import Language.Haskell.TH.Path.PathType (pathType)
+import Language.Haskell.TH.Path.PathType (pathType, pathType')
 import Language.Haskell.TH.Path.Lens (mat)
 import Language.Haskell.TH.Path.Order (lens_omat)
 import Language.Haskell.TH.Syntax as TH (lift, VarStrictType)
 import Language.Haskell.TH.TypeGraph.Expand (expandType, runExpanded)
-import Language.Haskell.TH.TypeGraph.Graph (allPathKeys, edges, goalReachableSimple, makeTypeGraph, TypeGraph, typeInfo)
-import Language.Haskell.TH.TypeGraph.Info (makeTypeInfo, vertex)
+import Language.Haskell.TH.TypeGraph.Graph (allPathKeys, edges, goalReachableSimple, goalReachableSimple', makeTypeGraph, TypeGraph, typeInfo)
+import Language.Haskell.TH.TypeGraph.Info (fieldVertex, makeTypeInfo, typeVertex')
 import Language.Haskell.TH.TypeGraph.Prelude (pprint')
-import Language.Haskell.TH.TypeGraph.Vertex (bestType, etype, TypeGraphVertex)
+import Language.Haskell.TH.TypeGraph.Vertex (bestType, etype, simpleVertex, TGV, TGVSimple, TypeGraphVertex, vsimple)
 import Prelude hiding (any, concat, concatMap, elem, foldr, mapM_, null, or)
 import System.FilePath.Extra (compareSaveAndReturn, changeError)
 
@@ -90,14 +90,14 @@ pathInstanceDecs' = do
 -- corresponding Path instance.  Each clause matches some possible value
 -- of the path type, and returns a lens that extracts the value the
 -- path type value specifies.
-pathInstanceDecs :: forall m. (DsMonad m, MonadReader TypeGraph m, MonadState (Set TypeGraphVertex) m, MonadWriter [[Dec]] m) => TypeGraphVertex -> TypeGraphVertex -> m ()
+pathInstanceDecs :: forall m. (DsMonad m, MonadReader TypeGraph m, MonadState (Set TGV) m, MonadWriter [[Dec]] m) => TGV -> TGV -> m ()
 pathInstanceDecs gkey key = do
   runQ $ runIO $ putStrLn $ "Language.Haskell.TH.Path.Instances.pathInstanceDecs (" ++ pprint' key ++ ") -> (" ++ pprint' gkey ++ ")"
   done <- Set.member key <$> get
   when (not done) $ do
     modify (Set.insert key)
     makePathLenses key
-  ptyp <- pathType (pure (bestType gkey)) key
+  ptyp <- pathType' (pure (bestType gkey)) key
   clauses <- execWriterT $ evalStateT (pathInstanceClauses key gkey ptyp) mempty
   let final = [newName "u" >>= \u ->
                clause [varP u] (normalB [|(error $ $(lift ("Unexpected goal " ++ pprint' gkey ++ " for " ++ pprint' key ++ ": ")) ++
@@ -118,18 +118,20 @@ tell1 :: (DsMonad m, MonadWriter [[Dec]] m) => DecQ -> m ()
 tell1 dec = runQ (sequence (map sequence [[dec]])) >>= tell
 
 pathInstanceClauses :: forall m. (DsMonad m, MonadReader TypeGraph m, MonadWriter [ClauseQ] m) =>
-                       TypeGraphVertex -- ^ the type whose clauses we are generating
-                    -> TypeGraphVertex -- ^ the goal type key
+                       TGV -- ^ the type whose clauses we are generating
+                    -> TGV -- ^ the goal type key
                     -> Type -- ^ the corresponding path type - first type parameter of ToLens
                     -> StateT (Set Name) m ()
-pathInstanceClauses key gkey _ptyp | view etype key == view etype gkey = tell [clause [wildP] (normalB [|iso id id|]) []]
+pathInstanceClauses key gkey _ptyp
+    | view (vsimple . etype) key == view (vsimple . etype) gkey =
+        tell [clause [wildP] (normalB [|iso id id|]) []]
 pathInstanceClauses key gkey ptyp =
   -- Use this to raise errors when the path patterns aren't exhaustive.
   -- That is supposed to be impossible, so this is debugging code.
   -- pathInstanceClauses key gkey ptyp = do
   --   x <- runQ (newName "x")
   --   r <- foldPath control key
-  foldPath control key
+  foldPath control (simpleVertex key)
   --   return $ r ++ [clause [varP x] (normalB [|error ("toLens (" ++ $(lift (pprint' key)) ++ ") -> (" ++ $(lift (pprint' gkey)) ++ ") - unmatched: " ++ show $(varE x))|]) []]
     where
           control :: FoldPathControl (StateT (Set Name) m) ()
@@ -142,7 +144,7 @@ pathInstanceClauses key gkey ptyp =
                   -- The tricky bit is to extract the path value for lkey from the path
                   -- value we have.
                   let (AppT (ConT pname) _gtyp) = ptyp
-                  lkey <- view typeInfo >>= runReaderT (expandType ltyp >>= vertex Nothing)
+                  lkey <- view typeInfo >>= runReaderT (expandType ltyp >>= typeVertex')
                   doClause gkey ltyp (\p -> conP (mkName (nameBase pname ++ "_View")) [if lkey == gkey then wildP else p]) (pure lns)
               , pathyf = return ()
               , namedf = \tname ->
@@ -165,30 +167,30 @@ pathInstanceClauses key gkey ptyp =
               , eitherf = \ltyp rtyp -> do
                   doClause gkey ltyp (\p -> [p|Path_Left $p|]) [|_Left|]
                   doClause gkey rtyp (\p -> [p|Path_Right $p|]) [|_Right|]
-              , otherf = tell [ clause [wildP] (normalB [|(error $ $(litE (stringL ("Need to find lens for field type: " ++ pprint (view etype key))))) :: Traversal' $(pure (runExpanded (view etype key))) $(pure (bestType gkey))|]) [] ]
+              , otherf = tell [ clause [wildP] (normalB [|(error $ $(litE (stringL ("Need to find lens for field type: " ++ pprint (view (vsimple . etype) key))))) :: Traversal' $(pure (runExpanded (view (vsimple . etype) key))) $(pure (bestType gkey))|]) [] ]
               }
 
-doClause :: (DsMonad m, MonadReader TypeGraph m, MonadWriter [ClauseQ] m) => TypeGraphVertex -> Type -> (PatQ -> PatQ) -> ExpQ -> m ()
+doClause :: (DsMonad m, MonadReader TypeGraph m, MonadWriter [ClauseQ] m) => TGV -> Type -> (PatQ -> PatQ) -> ExpQ -> m ()
 doClause gkey typ pfunc lns = do
   v <- runQ (newName "v")
-  key <- view typeInfo >>= runReaderT (expandType typ >>= vertex Nothing)
+  key <- view typeInfo >>= runReaderT (expandType typ >>= typeVertex')
   case key == gkey of
     True -> testClause gkey typ (clause [ pfunc wildP ] (normalB lns) [])
     False -> do
       testClause gkey typ (clause [ pfunc (varP v) ] (normalB [|$lns . toLens $(varE v)|]) [])
       when (key == gkey) $ testClause gkey typ (clause [ wildP ] (normalB [|iso id id|]) [])
 
-testClause :: (DsMonad m, MonadReader TypeGraph m, MonadWriter [ClauseQ] m) => TypeGraphVertex -> Type -> ClauseQ -> m ()
+testClause :: (DsMonad m, MonadReader TypeGraph m, MonadWriter [ClauseQ] m) => TGV -> Type -> ClauseQ -> m ()
 testClause gkey typ cl = do
   ok <- testPath gkey typ
   when ok $ tell [cl]
 
-testPath :: (DsMonad m, MonadReader TypeGraph m) => TypeGraphVertex -> Type -> m Bool
+testPath :: (DsMonad m, MonadReader TypeGraph m) => TGV -> Type -> m Bool
 testPath gkey typ = do
-  key <- view typeInfo >>= runReaderT (expandType typ >>= vertex Nothing)
-  goalReachableSimple gkey key
+  key <- view typeInfo >>= runReaderT (expandType typ >>= typeVertex')
+  goalReachableSimple' gkey key
 
-namedTypeClause :: forall m. (DsMonad m, MonadReader TypeGraph m, MonadWriter [ClauseQ] m) => Name -> TypeGraphVertex -> Type -> StateT (Set Name) m ()
+namedTypeClause :: forall m. (DsMonad m, MonadReader TypeGraph m, MonadWriter [ClauseQ] m) => Name -> TGV -> Type -> StateT (Set Name) m ()
 namedTypeClause tname gkey ptyp =
     -- If encounter a named type and the stack is empty we
     -- need to build the clauses for its declaration.
@@ -202,8 +204,8 @@ namedTypeClause tname gkey ptyp =
                 do -- If we have a type synonym we can use the corresponding
                    -- path type synonym instead of the path type of the
                    -- alias type.
-                  key' <- view typeInfo >>= runReaderT (expandType typ' >>= vertex Nothing)
-                  ok <- goalReachableSimple gkey key'
+                  key' <- view typeInfo >>= runReaderT (expandType typ' >>= typeVertex')
+                  ok <- goalReachableSimple' gkey key'
                   case ok of
                     False -> return ()
                     True -> pathInstanceClauses key' gkey ptyp
@@ -229,8 +231,8 @@ namedTypeClause tname gkey ptyp =
             -- of some piece of the field value.
             doField :: Name -> VarStrictType -> StateT (Set Name) m [(Con, [ClauseQ])]
             doField cname (fn, _, ft) = do
-                    fkey <- view typeInfo >>= runReaderT (expandType ft >>= vertex (Just (tname, cname, Right fn)))
-                    ok <- goalReachableSimple gkey fkey  -- is the goal type reachable from here?
+                    fkey <- view typeInfo >>= runReaderT (expandType ft >>= fieldVertex (tname, cname, Right fn))
+                    ok <- goalReachableSimple' gkey fkey  -- is the goal type reachable from here?
                     case ok of
                       False -> return []  -- Goal type isn't reachable, return empty clause list
                       True ->
@@ -240,12 +242,12 @@ namedTypeClause tname gkey ptyp =
                              -- goal type.
                              clauses <- runQ (newName "x") >>= \x -> return [clause [varP x] (normalB [|toLens $(varE x)|]) []]
                              let Just pcname = pathConNameOfField fkey
-                             ptype' <- pathType (pure (bestType gkey)) fkey
+                             ptype' <- pathType (pure (bestType gkey)) (simpleVertex fkey)
                              -- This is the new constructor for this field
                              con <- runQ $ normalC pcname [strictType notStrict (return ptype')]
                              -- These are the field's clauses.  Each pattern gets wrapped with the field path constructor,
                              -- and each field lens gets composed with the lens produced for the field's type.
-                             let goal = view etype fkey == view etype gkey
+                             let goal = view (vsimple . etype) fkey == view (vsimple . etype) gkey
                              clauses' <- mapM (mapClause (\ pat -> conP pcname [pat])
                                                          (\ lns -> if goal
                                                                    then varE (fieldLensName tname fn)
