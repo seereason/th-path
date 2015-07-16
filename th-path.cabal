@@ -27,7 +27,7 @@ library
   hs-source-dirs: .
   build-depends:
     applicative-extras,
-    base >= 4.2 && < 5,
+    base >= 4.8 && < 5,
     base-compat,
     containers,
     data-default,
@@ -40,7 +40,7 @@ library
     safe,
     safecopy,
     syb,
-    template-haskell >= 2.9,
+    template-haskell >= 2.10,
     text,
     th-desugar,
     th-kinds,

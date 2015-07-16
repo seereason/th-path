@@ -44,11 +44,6 @@ import Language.Haskell.TH.TypeGraph.Vertex (bestType, etype, TypeGraphVertex)
 import Prelude hiding (any, concat, concatMap, elem, foldr, mapM_, null, or)
 import System.FilePath.Extra (compareSaveAndReturn, changeError)
 
-#if ! MIN_VERSION_base(4,8,0)
-null :: Foldable t => t a -> Bool
-null = foldr (\_ _ -> False) True
-#endif
-
 -- | Construct the 'Path' instances for all types reachable from the
 -- argument types.  Each edge in the type graph corresponds to a Path instance.
 pathInstances :: Q [Type] -> Q [Dec]
