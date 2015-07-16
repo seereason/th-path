@@ -60,6 +60,7 @@ library
   default-language: Haskell2010
   if flag(local-th-context)
     hs-source-dirs: th-context, th-typegraph
+    build-depends: set-extra
     exposed-modules:
       Language.Haskell.TH.Context
       Language.Haskell.TH.Context.Reify
