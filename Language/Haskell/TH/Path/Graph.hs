@@ -13,11 +13,9 @@
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TupleSections #-}
-{-# OPTIONS_GHC -fno-warn-orphans -fno-warn-missing-signatures #-}
+{-# OPTIONS_GHC -Wall -fno-warn-orphans #-}
 module Language.Haskell.TH.Path.Graph
-    ( makePathLenses
-    , fieldLensName
-    , makeTypeGraphEdges
+    ( makeTypeGraphEdges
     , FoldPathControl(..)
     , foldPath
     -- * Hint classes
@@ -35,9 +33,7 @@ import Control.Lens -- (makeLenses, over, view)
 import Control.Monad (when)
 import Control.Monad.Reader (MonadReader)
 import Control.Monad.State (execStateT, get, modify, StateT)
-import Control.Monad.Writer (MonadWriter, tell)
 import Data.Default (Default(def))
-import Data.Foldable as Foldable (toList)
 import Data.Foldable.Compat
 import Data.Graph as Graph (reachable)
 import Data.List as List (filter, map)
@@ -50,7 +46,6 @@ import Language.Haskell.TH.Context.Reify (evalContext, reifyInstancesWithContext
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.KindInference (inferKind)
-import Language.Haskell.TH.Path.Lens (nameMakeLens)
 import Language.Haskell.TH.Path.Order (Order)
 import Language.Haskell.TH.Path.View (View(viewLens), viewInstanceType)
 import Language.Haskell.TH.TypeGraph.Edges (cut, cutM, cutEdges, cutEdgesM, dissolveM, GraphEdges, isolate, linkM, simpleEdges, typeGraphEdges)
@@ -60,7 +55,7 @@ import Language.Haskell.TH.TypeGraph.Graph (graphFromMap, TypeGraph(..))
 import Language.Haskell.TH.TypeGraph.Info (startTypes, TypeInfo, fieldVertex, typeVertex, typeVertex')
 import Language.Haskell.TH.TypeGraph.Prelude (constructorName, unlifted)
 import Language.Haskell.TH.TypeGraph.Shape (constructorFieldTypes, FieldType(..))
-import Language.Haskell.TH.TypeGraph.Vertex (etype, simpleVertex, TGV(TGV, _vsimple), vsimple, TGVSimple(TGVSimple, _etype), typeNames)
+import Language.Haskell.TH.TypeGraph.Vertex (etype, simpleVertex, TGV(TGV, _vsimple), vsimple, TGVSimple(TGVSimple, _etype))
 import Prelude hiding (any, concat, concatMap, elem, exp, foldr, mapM_, null, or)
 
 #if 0
@@ -166,25 +161,6 @@ makeTypeGraphEdges =
       diff m1 m2 = Map.fromList $ Set.toList $ Set.difference (Set.fromList (Map.toList m1))
                                                               (Set.fromList (Map.toList m2))
 #endif
-
-#if 1
-makePathLenses :: (DsMonad m, MonadReader TypeGraph m, MonadWriter [Dec] m) => TGVSimple -> Set TGV -> m ()
-makePathLenses key gkeys = do
-  simplePath <- (not . null) <$> evalContext (reifyInstancesWithContext ''SinkType [let (E typ) = view etype key in typ])
-  case simplePath of
-    False -> mapM make (Foldable.toList (typeNames key)) >>= tell . concat
-    _ -> return ()
-    where
-      make tname = runQ (nameMakeLens tname (\ nameA nameB -> Just (nameBase (fieldLensName nameA nameB))))
-#else
-makePathLenses :: (DsMonad m, MonadReader TypeGraph m, MonadWriter [Dec] m) => TGVSimple -> Set TGV -> m ()
-makePathLenses key gkeys = do
-  mapM make (Foldable.toList (typeNames key)) >>= tell . concat
-  Set.mapM_ (\gkey -> 
-#endif
-
-fieldLensName :: Name -> Name -> Name
-fieldLensName tname fname' = mkName ("lens_" ++ nameBase tname ++ "_" ++ nameBase fname')
 
 data FoldPathControl m r
     = FoldPathControl

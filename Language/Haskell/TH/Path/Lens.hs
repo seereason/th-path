@@ -11,7 +11,9 @@ routine to scour data type definitions and generate
 accessor objects for them automatically.
 -}
 module Language.Haskell.TH.Path.Lens
-    ( nameMakeLens
+    ( makePathLens
+    , fieldLensName -- Imported by Path.Instance
+    , nameMakeLens -- Imported by Appraisal.ReportMap
     ) where
 
 import Language.Haskell.TH
@@ -20,6 +22,12 @@ import Control.Lens (_Just, Lens', lens, Traversal')
 import Control.Monad (liftM)
 import Data.Maybe (catMaybes)
 import Data.List (nub)
+
+makePathLens :: Quasi m => Name -> m [Dec]
+makePathLens tname = runQ (nameMakeLens tname (\ nameA nameB -> Just (nameBase (fieldLensName nameA nameB))))
+
+fieldLensName :: Name -> Name -> Name
+fieldLensName tname fname' = mkName ("lens_" ++ nameBase tname ++ "_" ++ nameBase fname')
 
 -- |@nameMakeLens n f@ where @n@ is the name of a data type
 -- declared with @data@ and @f@ is a function from names of fields

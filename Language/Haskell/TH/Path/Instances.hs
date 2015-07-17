@@ -27,19 +27,22 @@ import Data.Foldable as Foldable
 import Data.List as List (map)
 import Data.Map as Map (toList)
 import Data.Set.Extra as Set (empty, insert, mapM_, member, Set)
+-- import Debug.Trace (trace)
 import Language.Haskell.TH
+import Language.Haskell.TH.Context.Reify (evalContext, reifyInstancesWithContext)
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Core (mat, Path(..), Path_OMap(..), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
-import Language.Haskell.TH.Path.Graph (fieldLensName, foldPath, FoldPathControl(..), makePathLenses, makeTypeGraphEdges)
+import Language.Haskell.TH.Path.Graph (foldPath, FoldPathControl(..), makeTypeGraphEdges, SinkType)
+import Language.Haskell.TH.Path.Lens (fieldLensName, makePathLens)
 import Language.Haskell.TH.Path.PathType (pathType, pathConNameOfField)
 import Language.Haskell.TH.Path.Order (lens_omat)
 import Language.Haskell.TH.Syntax as TH (lift, VarStrictType)
-import Language.Haskell.TH.TypeGraph.Expand (expandType, runExpanded)
+import Language.Haskell.TH.TypeGraph.Expand (E(E), expandType, runExpanded)
 import Language.Haskell.TH.TypeGraph.Graph (allLensKeys, allPathKeys, goalReachableSimple, makeTypeGraph, TypeGraph, typeInfo)
 import Language.Haskell.TH.TypeGraph.Info (fieldVertex, makeTypeInfo, typeVertex)
 import Language.Haskell.TH.TypeGraph.Prelude (pprint')
-import Language.Haskell.TH.TypeGraph.Vertex (bestType, etype, simpleVertex, TGV, TGVSimple, vsimple)
+import Language.Haskell.TH.TypeGraph.Vertex (bestType, etype, simpleVertex, TGV, TGVSimple, typeNames, vsimple)
 import Prelude hiding (any, concat, concatMap, elem, foldr, mapM_, null, or)
 import System.FilePath.Extra (compareSaveAndReturn, changeError)
 
@@ -57,8 +60,13 @@ pathInstances st = do
   runIO $ putStr ("\nPathInstances finished\n")
   return decs
 
-pathLensDecs :: forall m. (DsMonad m, MonadReader TypeGraph m, MonadWriter [Dec] m) => TGVSimple -> Set TGV -> m ()
-pathLensDecs key gkeys = makePathLenses key gkeys
+pathLensDecs :: (DsMonad m, MonadReader TypeGraph m, MonadWriter [Dec] m) => TGVSimple -> Set TGV -> m ()
+pathLensDecs key gkeys = do
+  simplePath <- (not . null) <$> evalContext (reifyInstancesWithContext ''SinkType [let (E typ) = view etype key in typ])
+  case simplePath of
+    False -> mapM makePathLens (Foldable.toList (typeNames key)) >>= {- t1 >>= -} tell . concat
+    _ -> return ()
+    -- where t1 x = trace (pprint' x) (return x)
 
 pathInstanceDecs :: forall m. (DsMonad m, MonadReader TypeGraph m, MonadWriter [Dec] m) => TGVSimple -> Set TGVSimple -> m ()
 pathInstanceDecs key gkeys = Set.mapM_ (pathInstanceDecs' key) gkeys
@@ -69,7 +77,6 @@ pathInstanceDecs key gkeys = Set.mapM_ (pathInstanceDecs' key) gkeys
 -- path type value specifies.
 pathInstanceDecs' :: forall m. (DsMonad m, MonadReader TypeGraph m, MonadWriter [Dec] m) => TGVSimple -> TGVSimple -> m ()
 pathInstanceDecs' key gkey = do
-  -- makePathLenses key
   ptyp <- pathType (pure (bestType gkey)) key
   clauses <- execWriterT $ evalStateT (pathInstanceClauses key gkey ptyp) mempty
   let final = [newName "u" >>= \u ->
