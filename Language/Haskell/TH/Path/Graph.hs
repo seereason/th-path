@@ -16,6 +16,7 @@
 {-# OPTIONS_GHC -fno-warn-orphans -fno-warn-missing-signatures #-}
 module Language.Haskell.TH.Path.Graph
     ( makePathLenses
+    , fieldLensName
     , makeTypeGraphEdges
     , FoldPathControl(..)
     , foldPath
@@ -37,30 +38,38 @@ import Data.Default (Default(def))
 import Data.Foldable as Foldable (toList)
 import Data.Foldable.Compat
 import Data.Graph as Graph (reachable)
-import Data.List as List (filter, intercalate, map)
-import Data.Map as Map (alter, fromList, keys, lookup, Map, toList)
+import Data.List as List (filter, map)
+import Data.Map as Map (alter, keys, Map)
 import Data.Maybe (fromJust, isJust, mapMaybe)
-import Data.Set as Set (difference, empty, fromList, map, member, minView, Set, singleton, toList)
-import Debug.Trace (trace)
+import Data.Set as Set (empty, fromList, map, member, Set, singleton)
 import Language.Haskell.Exts.Syntax ()
 import Language.Haskell.TH
 import Language.Haskell.TH.Context.Reify (evalContext, reifyInstancesWithContext)
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.KindInference (inferKind)
-import Language.Haskell.TH.Path.Core (fieldLensName, SelfPath)
+import Language.Haskell.TH.Path.Core (SelfPath)
 import Language.Haskell.TH.Path.LensTH (nameMakeLens)
 import Language.Haskell.TH.Path.Order (Order)
 import Language.Haskell.TH.Path.View (View(viewLens), viewInstanceType)
-import Language.Haskell.TH.TypeGraph.Edges (cut, cutM, cutEdgesM, dissolveM, GraphEdges, isolate, linkM, simpleEdges, typeGraphEdges)
+import Language.Haskell.TH.TypeGraph.Edges (cut, cutM, cutEdges, cutEdgesM, dissolveM, GraphEdges, isolate, linkM, simpleEdges, typeGraphEdges)
 import Language.Haskell.TH.TypeGraph.Expand (E(E), expandType, runExpanded)
 import Language.Haskell.TH.TypeGraph.Free (freeTypeVars)
-import Language.Haskell.TH.TypeGraph.Graph (graphFromMap, TypeGraph(..), typeInfo)
-import Language.Haskell.TH.TypeGraph.Info (startTypes, synonyms, TypeInfo, fieldVertex, typeVertex, typeVertex')
-import Language.Haskell.TH.TypeGraph.Prelude (constructorName, pprint', unlifted)
+import Language.Haskell.TH.TypeGraph.Graph (graphFromMap, TypeGraph(..))
+import Language.Haskell.TH.TypeGraph.Info (startTypes, TypeInfo, fieldVertex, typeVertex, typeVertex')
+import Language.Haskell.TH.TypeGraph.Prelude (constructorName, unlifted)
 import Language.Haskell.TH.TypeGraph.Shape (constructorFieldTypes, FieldType(..))
 import Language.Haskell.TH.TypeGraph.Vertex (etype, simpleVertex, TGV(TGV, _vsimple), vsimple, TGVSimple(TGVSimple, _etype), typeNames)
 import Prelude hiding (any, concat, concatMap, elem, exp, foldr, mapM_, null, or)
+
+#if 0
+import Data.Map as Map (fromList, lookup, toList)
+import Data.Set as Set (difference, toList)
+import Debug.Trace (trace)
+import Language.Haskell.TH.TypeGraph.Prelude (pprint')
+import Language.Haskell.TH.TypeGraph.Graph (typeInfo)
+import Language.Haskell.TH.TypeGraph.Info (synonyms)
+#endif
 
 -- | Build a graph of the subtype relation, omitting any types whose
 -- arity is nonzero and any not reachable from the start types.  (We
@@ -70,7 +79,8 @@ import Prelude hiding (any, concat, concatMap, elem, exp, foldr, mapM_, null, or
 makeTypeGraphEdges :: forall m hint. (DsMonad m, Default hint, Ord hint, Monoid hint, MonadReader TypeInfo m) =>
                       m (GraphEdges hint TGV)
 makeTypeGraphEdges =
-  typeGraphEdges                   >>= -- \e1 -> tr "initial" mempty e1 >>=
+  typeGraphEdges                   >>= -- \e1 ->  tr "initial" mempty e1 >>=
+  return . cutEdges isMapKey       >>=
   cutM isUnlifted                  >>= -- \e2 -> tr "unlifted" e1 e2 >>=
   dissolveM higherOrder            >>= -- \e3 -> tr "higherOrder" e2 e3 >>=
   -- viewEdges must not be applied until we have removed higher order types - otherwise
@@ -80,7 +90,7 @@ makeTypeGraphEdges =
   dissolveM hasFreeVars            >>= -- \e5 -> tr "freeVars" e4 e5 >>=
   dissolveM isUnlifted             >>= -- \e6 -> tr "unlifted2" e5 e6 >>= -- looks redundant
   cutEdgesM anonymous              >>= -- \e7 -> tr "anonymous" e6 e7 >>=
-  isolateUnreachable --               >>= \e8 -> tr "unreachable" e7 e8
+  isolateUnreachable           --  >>= \e8 -> tr "unreachable" e7 e8
     where
       viewEdges :: TGV -> m (Maybe (Set TGV))
       viewEdges v = viewInstanceType (runExpanded (view (vsimple . etype) v)) >>= maybe (return Nothing) (\t -> expandType t >>= typeVertex' >>= return . Just . singleton)
@@ -94,7 +104,12 @@ makeTypeGraphEdges =
       isUnlifted :: TGV -> m Bool
       isUnlifted v = unlifted (runExpanded (view (vsimple . etype) v))
 
-      -- Ignore unnamed fields of records
+      isMapKey :: TGV -> TGV -> Bool
+      isMapKey (TGV {_vsimple = TGVSimple {_etype = E (AppT a@(AppT (ConT name) _) _b)}}) a' |
+          (name == ''Order || name == ''Map) && a == runExpanded (view (vsimple . etype) a') = True
+      isMapKey _ _ = False
+
+      -- Ignore unnamed fields of records, and the key types of Map or Order types.
       anonymous :: TGV -> TGV -> m Bool
       anonymous (TGV {_vsimple = TGVSimple {_etype = E (ConT aname)}}) b =
           runQ (reify aname) >>= doInfo >>= \r -> case r of
@@ -137,7 +152,7 @@ makeTypeGraphEdges =
         --        intercalate "\n  " ("startTypes:" : List.map pprint' st) ++ "\n" ++
         --        intercalate "\n  " ("Unreachable:" : List.map pprint' victims)) (return ())
         return $ isolate (flip member (Set.fromList victims)) es
-
+#if 0
       tr :: String -> GraphEdges hint TGV -> GraphEdges hint TGV -> m (GraphEdges hint TGV)
       tr s old new =
           runQ (runIO (putStr ("\n\f\nLanguage.Haskell.TH.Path.Graph.makeTypeGraphEdges " ++ s ++
@@ -146,24 +161,29 @@ makeTypeGraphEdges =
 
       indent s t = unlines . List.map (s ++) . lines $ t
 
-      -- t2 :: Monad m => GraphEdges hint TGV -> GraphEdges hint TGV -> m (GraphEdges hint TGV)
-      -- t2 old new = trace ("\n\f\nLanguage.Haskell.TH.Path.Graph.makeTypeGraphEdges " ++ pprint old ++ "\nunreachable " ++ pprint (diff new old)) (return new)
-
-      -- t3 :: Set TGV -> Set TGV
-      -- t3 s = trace (intercalate "\n  " ("unreachable:" : Set.toList (Set.map pprint' s))) s
-
       -- Exact difference between two maps
       diff m1 m2 = Map.fromList $ Set.toList $ Set.difference (Set.fromList (Map.toList m1))
                                                               (Set.fromList (Map.toList m2))
+#endif
 
-makePathLenses :: (DsMonad m, MonadReader TypeGraph m, MonadWriter [[Dec]] m) => TGV -> m ()
-makePathLenses key = do
-  simplePath <- (not . null) <$> evalContext (reifyInstancesWithContext ''SinkType [let (E typ) = view (vsimple . etype) key in typ])
+#if 1
+makePathLenses :: (DsMonad m, MonadReader TypeGraph m, MonadWriter [Dec] m) => TGVSimple -> Set TGV -> m ()
+makePathLenses key gkeys = do
+  simplePath <- (not . null) <$> evalContext (reifyInstancesWithContext ''SinkType [let (E typ) = view etype key in typ])
   case simplePath of
-    False -> mapM make (Foldable.toList (typeNames key)) >>= tell
+    False -> mapM make (Foldable.toList (typeNames key)) >>= tell . concat
     _ -> return ()
     where
       make tname = runQ (nameMakeLens tname (\ nameA nameB -> Just (nameBase (fieldLensName nameA nameB))))
+#else
+makePathLenses :: (DsMonad m, MonadReader TypeGraph m, MonadWriter [Dec] m) => TGVSimple -> Set TGV -> m ()
+makePathLenses key gkeys = do
+  mapM make (Foldable.toList (typeNames key)) >>= tell . concat
+  Set.mapM_ (\gkey -> 
+#endif
+
+fieldLensName :: Name -> Name -> Name
+fieldLensName tname fname' = mkName ("lens_" ++ nameBase tname ++ "_" ++ nameBase fname')
 
 data FoldPathControl m r
     = FoldPathControl
@@ -185,7 +205,9 @@ foldPath (FoldPathControl{..}) v = do
   selfPath <- (not . null) <$> evalContext (reifyInstancesWithContext ''SelfPath [let (E typ) = view etype v in typ])
   simplePath <- (not . null) <$> evalContext (reifyInstancesWithContext ''SinkType [let (E typ) = view etype v in typ])
   viewType <- evalContext (viewInstanceType (let (E typ) = view etype v in typ))
+#if 0
   syns <- Map.lookup (view etype v) <$> view (typeInfo . synonyms)
+#endif
   case runExpanded (view etype v) of
     _ | selfPath -> pathyf
       | simplePath -> simplef

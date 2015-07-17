@@ -37,20 +37,19 @@ module Language.Haskell.TH.Path.Core
     , pathTypeNames'
     , bestPathTypeName
     , pathConNameOfField
-    , fieldLensName
     ) where
 
 import Control.Lens -- (makeLenses, over, view)
 import Data.Generics (Data, Typeable)
 import Data.List as List (map)
 import Data.SafeCopy (base, deriveSafeCopy)
-import Data.Set as Set (delete, difference, fromList, map, minView, null, Set)
+import Data.Set as Set (delete, difference, fromList, map, null, Set)
 import Language.Haskell.TH
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Syntax (qReify)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.TypeGraph.Prelude (pprint')
-import Language.Haskell.TH.TypeGraph.Vertex (bestType, TypeGraphVertex, TGV, vsimple, etype, field, syns, typeNames)
+import Language.Haskell.TH.TypeGraph.Vertex (bestType, TypeGraphVertex, TGV, field, typeNames)
 import Prelude hiding (exp)
 import Web.Routes.TH (derivePathInfo)
 
@@ -141,8 +140,8 @@ bestPathTypeName :: TypeGraphVertex v => v -> Maybe (Name, Set Name)
 bestPathTypeName v =
     case (bestType v, typeNames v) of
       (ConT tname, names) -> Just (pathTypeNameFromTypeName tname, Set.map pathTypeNameFromTypeName (Set.delete tname names))
-      (t, s) | Set.null s -> Nothing
-      (t, s) -> error "bestPathTypeName - unexpected name"
+      (_t, s) | Set.null s -> Nothing
+      (_t, _s) -> error "bestPathTypeName - unexpected name"
 
 pathTypeNameFromTypeName :: Name -> Name
 pathTypeNameFromTypeName tname = mkName $ "Path_" ++ nameBase tname
@@ -150,6 +149,3 @@ pathTypeNameFromTypeName tname = mkName $ "Path_" ++ nameBase tname
 -- | Path type constructor for the field described by key in the parent type named tname.
 pathConNameOfField :: TGV -> Maybe Name
 pathConNameOfField key = maybe Nothing (\ (tname, _, Right fname') -> Just $ mkName $ "Path_" ++ nameBase tname ++ "_" ++ nameBase fname') (key ^. field)
-
-fieldLensName :: Name -> Name -> Name
-fieldLensName tname fname' = mkName ("lens_" ++ nameBase tname ++ "_" ++ nameBase fname')

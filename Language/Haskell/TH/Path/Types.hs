@@ -23,7 +23,7 @@ import Data.Foldable
 import Data.Generics (Data, Typeable)
 import Data.List as List (map)
 import Data.Set as Set (empty, map, Set)
-import Debug.Trace (trace)
+-- import Debug.Trace (trace)
 import Language.Haskell.TH
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
@@ -32,10 +32,10 @@ import Language.Haskell.TH.Path.Graph (foldPath, FoldPathControl(..), makeTypeGr
 import Language.Haskell.TH.Path.PathType (pathType)
 import Language.Haskell.TH.Syntax as TH (Quasi, VarStrictType)
 import Language.Haskell.TH.TypeGraph.Expand (expandType)
-import Language.Haskell.TH.TypeGraph.Graph (allPathStarts, edges, makeTypeGraph, TypeGraph, typeInfo)
+import Language.Haskell.TH.TypeGraph.Graph (allPathStarts, makeTypeGraph, TypeGraph, typeInfo)
 import Language.Haskell.TH.TypeGraph.Info (makeTypeInfo, typeVertex, fieldVertex)
 import Language.Haskell.TH.TypeGraph.Prelude (pprint')
-import Language.Haskell.TH.TypeGraph.Vertex (simpleVertex, TGV, TGVSimple, TypeGraphVertex, typeNames)
+import Language.Haskell.TH.TypeGraph.Vertex (simpleVertex, TGVSimple, typeNames)
 import Prelude hiding (any, concat, concatMap, elem, foldr, mapM_, null, or)
 import System.FilePath.Extra (compareSaveAndReturn, changeError)
 
@@ -44,7 +44,7 @@ import System.FilePath.Extra (compareSaveAndReturn, changeError)
 pathTypes :: Q [Type] -> Q [Dec]
 pathTypes st = do
   r <- st >>= makeTypeInfo >>= makeTypeGraph makeTypeGraphEdges
-  runIO $ putStr ("\nLanguage.Haskell.TH.Path.Types.pathTypes - " ++ pprint (view edges r))
+  -- runIO $ putStr ("\nLanguage.Haskell.TH.Path.Types.pathTypes - " ++ pprint (view edges r))
   (_, decss) <- evalRWST (allPathStarts >>= mapM pathTypeDecs . toList . Set.map simpleVertex) r Set.empty
   runIO . compareSaveAndReturn changeError "GeneratedPathTypes.hs" $ concat decss
 

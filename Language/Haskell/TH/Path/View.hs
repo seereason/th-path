@@ -11,9 +11,8 @@ module Language.Haskell.TH.Path.View
     ) where
 
 import Control.Lens (Lens')
-import Data.List (intercalate)
 import Data.Set as Set (fromList, Set)
-import Debug.Trace (trace)
+-- import Debug.Trace (trace)
 import Language.Haskell.TH
 import Language.Haskell.TH.Context.Reify (evalContext)
 import Language.Haskell.TH.Desugar as DS (DsMonad)
@@ -44,5 +43,4 @@ viewInstanceType typ =
 viewTypes :: Q (Set Type)
 viewTypes = evalContext $ do
   FamilyI _ tySynInsts <- runQ $ reify ''ViewType
-  return $ Set.fromList $ t1 $ concatMap (\ (TySynInstD _vt (TySynEqn [a] b)) -> [a, b]) tySynInsts
-    where t1 x = trace (intercalate "\n  " ("Language.Haskell.TH.Path.View - viewTypes:" : map show x)) x
+  return $ Set.fromList $ concatMap (\ (TySynInstD _vt (TySynEqn [a] b)) -> [a, b]) tySynInsts
