@@ -39,6 +39,7 @@ library
     mtl,
     safe,
     safecopy,
+    set-extra,
     syb,
     template-haskell >= 2.10,
     text,
