@@ -52,7 +52,6 @@ library
     Language.Haskell.TH.Path.Graph
     Language.Haskell.TH.Path.Instances
     Language.Haskell.TH.Path.Lens
-    Language.Haskell.TH.Path.LensTH
     Language.Haskell.TH.Path.Order
     Language.Haskell.TH.Path.PathType
     Language.Haskell.TH.Path.Types

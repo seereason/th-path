@@ -14,22 +14,31 @@ module Language.Haskell.TH.Path.PathType
     ( pathType
     , pathType'
     , pathTypeCall
+
+    -- * Naming conventions
+    , pathTypeNameFromTypeName
+    , bestPathTypeName
+    , pathConNameOfField
     ) where
+
+import Data.List as List (map)
+import Data.Set as Set (delete, map, null, Set)
+import Prelude hiding (exp)
 
 import Control.Lens hiding (cons)
 import Control.Monad.Reader (MonadReader, runReaderT)
 import Data.Foldable
-import Data.List as List (intercalate, map)
+import Data.List as List (intercalate)
 import Language.Haskell.TH
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.Path.Core (bestPathTypeName, pathTypeNameFromTypeName, PathType, Path_OMap, Path_List, Path_Map, Path_Pair, Path_Maybe, Path_Either)
+import Language.Haskell.TH.Path.Core (PathType, Path_OMap, Path_List, Path_Map, Path_Pair, Path_Maybe, Path_Either)
 import Language.Haskell.TH.Path.Graph (FoldPathControl(..), foldPath)
 import Language.Haskell.TH.TypeGraph.Expand (E(E), runExpanded)
 import Language.Haskell.TH.TypeGraph.Graph (TypeGraph, typeInfo, reachableFromSimple)
 import Language.Haskell.TH.TypeGraph.Info (typeVertex)
 import Language.Haskell.TH.TypeGraph.Prelude (pprint')
-import Language.Haskell.TH.TypeGraph.Vertex (simpleVertex, TGV, TGVSimple, vsimple, etype)
+import Language.Haskell.TH.TypeGraph.Vertex (bestType, TypeGraphVertex, TGV, field, typeNames, simpleVertex, TGVSimple, vsimple, etype)
 import Prelude hiding (any, concat, concatMap, elem, foldr, mapM_, null, or)
 
 -- | Given a type, generate the corresponding path type.
@@ -80,6 +89,7 @@ pathType gtyp key =
 
       vert typ = view typeInfo >>= runReaderT (typeVertex (E typ))
 
+-- | pathType for the simplified vertex
 pathType' :: (DsMonad m, MonadReader TypeGraph m) => TypeQ -> TGV -> m Type
 pathType' gtyp key = pathType gtyp (simpleVertex key)
 
@@ -89,3 +99,21 @@ pathTypeCall :: (DsMonad m, MonadReader TypeGraph m) =>
              -> TGV -- ^ The type to convert to a path type
              -> m Type
 pathTypeCall gtyp key = runQ [t|PathType $(let (E typ) = view (vsimple . etype) key in return typ) $gtyp|]
+
+-- Naming conventions
+
+-- | Path type constructor for the field described by key in the parent type named tname.
+pathConNameOfField :: TGV -> Maybe Name
+pathConNameOfField key = maybe Nothing (\ (tname, _, Right fname') -> Just $ mkName $ "Path_" ++ nameBase tname ++ "_" ++ nameBase fname') (key ^. field)
+
+-- | If the type is (ConT name) return name, otherwise return a type
+-- synonym name.
+bestPathTypeName :: TypeGraphVertex v => v -> Maybe (Name, Set Name)
+bestPathTypeName v =
+    case (bestType v, typeNames v) of
+      (ConT tname, names) -> Just (pathTypeNameFromTypeName tname, Set.map pathTypeNameFromTypeName (Set.delete tname names))
+      (_t, s) | Set.null s -> Nothing
+      (_t, _s) -> error "bestPathTypeName - unexpected name"
+
+pathTypeNameFromTypeName :: Name -> Name
+pathTypeNameFromTypeName tname = mkName $ "Path_" ++ nameBase tname

@@ -20,7 +20,9 @@ module Language.Haskell.TH.Path.Graph
     , makeTypeGraphEdges
     , FoldPathControl(..)
     , foldPath
+    -- * Hint classes
     , SinkType
+    , SelfPath
     ) where
 
 #if __GLASGOW_HASKELL__ < 709
@@ -48,8 +50,7 @@ import Language.Haskell.TH.Context.Reify (evalContext, reifyInstancesWithContext
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.KindInference (inferKind)
-import Language.Haskell.TH.Path.Core (SelfPath)
-import Language.Haskell.TH.Path.LensTH (nameMakeLens)
+import Language.Haskell.TH.Path.Lens (nameMakeLens)
 import Language.Haskell.TH.Path.Order (Order)
 import Language.Haskell.TH.Path.View (View(viewLens), viewInstanceType)
 import Language.Haskell.TH.TypeGraph.Edges (cut, cutM, cutEdges, cutEdgesM, dissolveM, GraphEdges, isolate, linkM, simpleEdges, typeGraphEdges)
@@ -239,6 +240,13 @@ class SinkType a
 
 -- | Like SinkType, but no paths out or into the type will be created.
 class HideType a
+
+-- | Types for which
+-- a 'SelfPath' instance is declared will be used as their own Path
+-- Type.  For example, a UUID or some enumerated type contained in a
+-- record could be used directly to reference the object that contains
+-- it.
+class SelfPath a
 
 -- | Remove any vertices that are labelled with primitive types, and then
 -- apply the hints obtained from the

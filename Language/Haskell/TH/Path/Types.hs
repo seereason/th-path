@@ -27,15 +27,15 @@ import Data.Set as Set (empty, map, Set)
 import Language.Haskell.TH
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.Path.Core (bestPathTypeName, IdPath(idPath), pathConNameOfField, pathTypeNameFromTypeName, pathTypeNames')
+import Language.Haskell.TH.Path.Core (IdPath(idPath))
 import Language.Haskell.TH.Path.Graph (foldPath, FoldPathControl(..), makeTypeGraphEdges)
-import Language.Haskell.TH.Path.PathType (pathType)
+import Language.Haskell.TH.Path.PathType (pathType, pathConNameOfField, bestPathTypeName, pathTypeNameFromTypeName)
 import Language.Haskell.TH.Syntax as TH (Quasi, VarStrictType)
 import Language.Haskell.TH.TypeGraph.Expand (expandType)
 import Language.Haskell.TH.TypeGraph.Graph (allPathStarts, makeTypeGraph, TypeGraph, typeInfo)
 import Language.Haskell.TH.TypeGraph.Info (makeTypeInfo, typeVertex, fieldVertex)
 import Language.Haskell.TH.TypeGraph.Prelude (pprint')
-import Language.Haskell.TH.TypeGraph.Vertex (simpleVertex, TGVSimple, typeNames)
+import Language.Haskell.TH.TypeGraph.Vertex (simpleVertex, TGVSimple, TypeGraphVertex, typeNames)
 import Prelude hiding (any, concat, concatMap, elem, foldr, mapM_, null, or)
 import System.FilePath.Extra (compareSaveAndReturn, changeError)
 
@@ -169,3 +169,6 @@ supers = [''Eq, ''Ord, ''Read, ''Show, ''Typeable, ''Data]
 
 tell1 :: (Quasi m, MonadWriter [[Dec]] m) => DecQ -> m ()
 tell1 dec = runQ (sequence (List.map sequence [[dec]])) >>= tell
+
+pathTypeNames' :: TypeGraphVertex v => v -> Set Name
+pathTypeNames' = Set.map pathTypeNameFromTypeName . typeNames
