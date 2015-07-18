@@ -35,7 +35,7 @@ import Language.Haskell.TH.TypeGraph.Expand (expandType)
 import Language.Haskell.TH.TypeGraph.Graph (allPathStarts, makeTypeGraph, TypeGraph, typeInfo)
 import Language.Haskell.TH.TypeGraph.Info (makeTypeInfo, typeVertex, fieldVertex)
 import Language.Haskell.TH.TypeGraph.Prelude (pprint')
-import Language.Haskell.TH.TypeGraph.Vertex (simpleVertex, TGVSimple, TypeGraphVertex, typeNames)
+import Language.Haskell.TH.TypeGraph.Vertex (vsimple, TGVSimple, TypeGraphVertex, typeNames)
 import Prelude hiding (any, concat, concatMap, elem, foldr, mapM_, null, or)
 import System.FilePath.Extra (compareSaveAndReturn, changeError)
 
@@ -45,7 +45,7 @@ pathTypes :: Q [Type] -> Q [Dec]
 pathTypes st = do
   r <- st >>= makeTypeInfo >>= \ti -> runReaderT (makeTypeGraphEdges >>= makeTypeGraph) ti
   -- runIO $ putStr ("\nLanguage.Haskell.TH.Path.Types.pathTypes - " ++ pprint (view edges r))
-  (_, decss) <- evalRWST (allPathStarts >>= mapM pathTypeDecs . toList . Set.map simpleVertex) r Set.empty
+  (_, decss) <- evalRWST (allPathStarts >>= mapM pathTypeDecs . toList . Set.map (view vsimple)) r Set.empty
   runIO . compareSaveAndReturn changeError "GeneratedPathTypes.hs" $ concat decss
 
 -- | Given a type, generate the corresponding path type declarations
@@ -156,7 +156,7 @@ pathTypeDecs key =
                         -- It would be nice to use pathTypeCall (varT a) key' here, but
                         -- it can't infer the superclasses for (PathType Foo a) - Ord,
                         -- Read, Data, etc.
-                        _ -> pathType (varT a) (simpleVertex key')
+                        _ -> pathType (varT a) (view vsimple key')
              case ptype of
                TupleT 0 -> return []
                -- Given the list of clauses for a field's path type, create new

@@ -42,7 +42,7 @@ import Language.Haskell.TH.TypeGraph.Expand (E(E), expandType, runExpanded)
 import Language.Haskell.TH.TypeGraph.Graph (allLensKeys, allPathKeys, goalReachableSimple, makeTypeGraph, TypeGraph, typeInfo)
 import Language.Haskell.TH.TypeGraph.Info (fieldVertex, makeTypeInfo, typeVertex)
 import Language.Haskell.TH.TypeGraph.Prelude (pprint')
-import Language.Haskell.TH.TypeGraph.Vertex (bestType, etype, simpleVertex, TGV, TGVSimple, typeNames, vsimple)
+import Language.Haskell.TH.TypeGraph.Vertex (bestType, etype, TGV, TGVSimple, typeNames, vsimple)
 import Prelude hiding (any, concat, concatMap, elem, foldr, mapM_, null, or)
 import System.FilePath.Extra (compareSaveAndReturn, changeError)
 
@@ -212,7 +212,7 @@ namedTypeClause tname gkey ptyp =
             doField :: Name -> VarStrictType -> StateT (Set Name) m [(Con, [ClauseQ])]
             doField cname (fn, _, ft) = do
                     fkey <- view typeInfo >>= runReaderT (expandType ft >>= fieldVertex (tname, cname, Right fn))
-                    ok <- goalReachableSimple gkey (simpleVertex fkey)  -- is the goal type reachable from here?
+                    ok <- goalReachableSimple gkey (view vsimple fkey)  -- is the goal type reachable from here?
                     case ok of
                       False -> return []  -- Goal type isn't reachable, return empty clause list
                       True ->
@@ -222,7 +222,7 @@ namedTypeClause tname gkey ptyp =
                              -- goal type.
                              clauses <- runQ (newName "x") >>= \x -> return [clause [varP x] (normalB [|toLens $(varE x)|]) []]
                              let Just pcname = pathConNameOfField fkey
-                             ptype' <- pathType (pure (bestType gkey)) (simpleVertex fkey)
+                             ptype' <- pathType (pure (bestType gkey)) (view vsimple fkey)
                              -- This is the new constructor for this field
                              con <- runQ $ normalC pcname [strictType notStrict (return ptype')]
                              -- These are the field's clauses.  Each pattern gets wrapped with the field path constructor,
@@ -253,11 +253,11 @@ pathInstanceDecs' :: forall m. (DsMonad m, MonadReader TypeGraph m, MonadState (
 pathInstanceDecs' = do
   unsimplifiedEdges <- view edges
   let unsimplifiedKeys <- Map.keys unsimplifiedEdges
-      simplifiedKeys = Set.map simpleVertex unsimplifiedKeys
+      simplifiedKeys = Set.map (view vsimple) unsimplifiedKeys
       keyMap :: Map TypeGraphVertex (Set TypeGraphVertex)
-      keyMap = foldr Set.union mempty (Map.fromList (map (\a -> (simpleVertex a, singleton a)) unsimplifiedKeys))
+      keyMap = foldr Set.union mempty (Map.fromList (map (\a -> (view vsimple a, singleton a)) unsimplifiedKeys))
   mapM (\ (a, (hint, s)) -> mapM (\b -> pathType (pure (bestType b)) a >>= \ptyp ->
-                                        doClauses keyMap (simpleVertex a) b >>= \clauses ->
+                                        doClauses keyMap (view vsimple a) b >>= \clauses ->
                                         case clauses of
                                           [] -> return []
                                           _ -> runQ [d|instance Path $(pure (bestType a)) $(pure (bestType b)) where

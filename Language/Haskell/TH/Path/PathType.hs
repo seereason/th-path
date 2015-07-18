@@ -38,7 +38,7 @@ import Language.Haskell.TH.TypeGraph.Expand (E(E), runExpanded)
 import Language.Haskell.TH.TypeGraph.Graph (TypeGraph, typeInfo, reachableFromSimple)
 import Language.Haskell.TH.TypeGraph.Info (typeVertex)
 import Language.Haskell.TH.TypeGraph.Prelude (pprint')
-import Language.Haskell.TH.TypeGraph.Vertex (bestType, TypeGraphVertex, TGV, field, typeNames, simpleVertex, TGVSimple, vsimple, etype)
+import Language.Haskell.TH.TypeGraph.Vertex (bestType, TypeGraphVertex, TGV, field, typeNames, TGVSimple, vsimple, etype)
 import Prelude hiding (any, concat, concatMap, elem, foldr, mapM_, null, or)
 
 -- | Given a type, generate the corresponding path type.
@@ -91,7 +91,7 @@ pathType gtyp key =
 
 -- | pathType for the simplified vertex
 pathType' :: (DsMonad m, MonadReader TypeGraph m) => TypeQ -> TGV -> m Type
-pathType' gtyp key = pathType gtyp (simpleVertex key)
+pathType' gtyp key = pathType gtyp (view vsimple key)
 
 -- | Call the type function PathType.
 pathTypeCall :: (DsMonad m, MonadReader TypeGraph m) =>

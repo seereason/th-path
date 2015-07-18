@@ -54,7 +54,7 @@ import Language.Haskell.TH.TypeGraph.Graph (graphFromMap, TypeGraph)
 import Language.Haskell.TH.TypeGraph.Info (startTypes, TypeInfo, fieldVertex, typeVertex, typeVertex')
 import Language.Haskell.TH.TypeGraph.Prelude (constructorName, unlifted)
 import Language.Haskell.TH.TypeGraph.Shape (constructorFieldTypes, FieldType(..))
-import Language.Haskell.TH.TypeGraph.Vertex (etype, simpleVertex, TGV(TGV, _vsimple), vsimple, TGVSimple(TGVSimple, _etype))
+import Language.Haskell.TH.TypeGraph.Vertex (etype, TGV(TGV, _vsimple), vsimple, TGVSimple(TGVSimple, _etype))
 import Prelude hiding (any, concat, concatMap, elem, exp, foldr, mapM_, null, or)
 
 #if 0
@@ -141,7 +141,7 @@ makeTypeGraphEdges =
         let keep :: Set TGVSimple
             keep = Set.map (\(_, key, _) -> key) $ Set.map vf $ Set.fromList $ concatMap (reachable g) (mapMaybe kf st)
             -- Discard any nodes whose simplified version is not in keep
-            victims = List.filter (\ v -> not (Set.member (simpleVertex v) keep)) (Map.keys es)
+            victims = List.filter (\ v -> not (Set.member (view vsimple v) keep)) (Map.keys es)
             -- victims = {- t3 $ -} Set.difference (Set.fromList (Map.keys es)) keep
         -- trace ("isolateUnreachable - " ++ pprint es ++ "\n" ++
         --        intercalate "\n  " ("startTypes:" : List.map pprint' st) ++ "\n" ++
