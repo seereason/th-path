@@ -50,7 +50,7 @@ import System.FilePath.Extra (compareSaveAndReturn, changeError)
 -- argument types.  Each edge in the type graph corresponds to a Path instance.
 pathInstances :: Q [Type] -> Q [Dec]
 pathInstances st = do
-  r <- st >>= makeTypeInfo >>= makeTypeGraph makeTypeGraphEdges
+  r <- st >>= makeTypeInfo >>= \ti -> runReaderT (makeTypeGraphEdges >>= makeTypeGraph) ti
   -- runIO $ putStr ("\nLanguage.Haskell.TH.Path.Types.pathInstances - type graph " ++ pprint (view edges r))
   (_, decs) <- evalRWST (do lmp <- allLensKeys
                             pmp <- allPathKeys
