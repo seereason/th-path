@@ -20,6 +20,7 @@ module Language.Haskell.TH.Path.Graph
     , foldPath
     -- * Hint classes
     , SinkType
+    , HideType
     , SelfPath
     ) where
 
@@ -30,15 +31,15 @@ import Data.Monoid (mempty)
 import Control.Applicative
 #endif
 import Control.Lens -- (makeLenses, over, view)
-import Control.Monad (when)
+import Control.Monad (filterM)
 import Control.Monad.Reader (MonadReader)
 import Control.Monad.State (execStateT, get, modify, StateT)
 import Data.Foldable.Compat
 import Data.Graph as Graph (reachable)
 import Data.List as List (filter, map)
-import Data.Map as Map (alter, filterWithKey, keys, Map)
+import Data.Map as Map (alter, filterWithKey, keys, Map, mapWithKey)
 import Data.Maybe (fromJust, isJust, mapMaybe)
-import Data.Set as Set (empty, fromList, map, member, Set, singleton)
+import Data.Set as Set (difference, empty, fromList, map, member, Set, singleton)
 import Language.Haskell.Exts.Syntax ()
 import Language.Haskell.TH
 import Language.Haskell.TH.Context.Reify (evalContext, reifyInstancesWithContext)
@@ -83,7 +84,7 @@ typeGraphEdges' = do
   e4 <- pruneTypeGraph e3a                  -- ; _tr "prune" e3a e4
   e5 <- dissolveM hasFreeVars e4            -- ; _tr "freeVars" e4 e5
   e6 <- dissolveM isUnlifted e5             -- ; _tr "unlifted2" e5 e6   -- looks redundant
-  e7 <- cutEdgesM anonymous e6              -- ; _tr "anonymous" e6 e7
+  e7 <- return {-cutEdgesM anonymous-} e6              -- ; _tr "anonymous" e6 e7
   e8 <- isolateUnreachable e7               -- ; _tr "unreachable" e7 e8
   runQ (runIO (putStr ("typeGraphEdges' final - " ++ pprint e8)))
   return e8
@@ -232,16 +233,24 @@ class SelfPath a
 pruneTypeGraph :: forall m. (DsMonad m, MonadReader TypeInfo m) =>
                   (GraphEdges TGV) -> m (GraphEdges TGV)
 pruneTypeGraph edges =
-  doSink edges >>=
-  execStateT (get >>= mapM_ doHide . Map.keys) >>=
-  execStateT (get >>= mapM_ doView . Map.keys)
+  doSink edges >>= doHide
+  -- execStateT (get >>= mapM_ doHide . Map.keys) edges >>=
+  -- execStateT (get >>= mapM_ doView . Map.keys)
     where
       doSink :: (GraphEdges TGV) -> m (GraphEdges TGV)
       doSink es =
-          execStateT (mapM_ (\v -> do
-                               let (E typ) = view (vsimple . etype) v
-                               sinkHint <- (not . null) <$> evalContext (reifyInstancesWithContext ''SinkType [typ])
-                               when sinkHint (modify (Map.alter (alterFn (const Set.empty)) v))) (Map.keys es)) es
+          execStateT (do victims <- get >>= filterM (sink . view (vsimple . etype)) . Map.keys >>= return . Set.fromList
+                         modify (Map.mapWithKey (\k s -> if Set.member k victims then Set.empty else s))) es
+
+      sink (E typ) = (not . null) <$> evalContext (reifyInstancesWithContext ''SinkType [typ])
+
+      doHide :: (GraphEdges TGV) -> m (GraphEdges TGV)
+      doHide es =
+          execStateT (do victims <- get >>= filterM (hidden . view (vsimple . etype)) . Map.keys >>= return . Set.fromList
+                         modify (Map.mapWithKey (\k s -> Set.difference s victims))
+                         modify (Map.filterWithKey (\k _ -> not (Set.member k victims)))) es
+
+      hidden (E typ) = (not . null) <$> evalContext (reifyInstancesWithContext ''HideType [typ])
 
 {-
       sinkP :: TGV -> m Bool
@@ -249,12 +258,13 @@ pruneTypeGraph edges =
         let (E typ) = view (vsimple . etype) v
         (not . null) <$> evalContext (reifyInstancesWithContext ''SinkType [typ])
 -}
+{-
       doHide :: TGV -> StateT (GraphEdges TGV) m ()
       doHide v = do
         let (E typ) = view (vsimple . etype) v
         hideHint <- (not . null) <$> evalContext (reifyInstancesWithContext ''HideType [typ])
         when hideHint (modify (cut (== v)))
-
+-}
 {-
       hideP :: TGV -> m Bool
       hideP v = do
