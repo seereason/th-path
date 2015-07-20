@@ -26,17 +26,18 @@ import Control.Monad.Writer (MonadWriter, execWriterT, tell)
 import Data.Foldable as Foldable
 import Data.List as List (map)
 import Data.Map as Map (toList)
-import Data.Set.Extra as Set (empty, insert, mapM_, member, Set)
+import Data.Set.Extra as Set (empty, insert, mapM_, member, Set, singleton)
 -- import Debug.Trace (trace)
 import Language.Haskell.TH
 import Language.Haskell.TH.Context.Reify (evalContext, reifyInstancesWithContext)
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Core (mat, Path(..), Path_OMap(..), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
-import Language.Haskell.TH.Path.Graph (foldPath, FoldPathControl(..), makeTypeGraphEdges, SinkType)
+import Language.Haskell.TH.Path.Graph (foldPath, FoldPathControl(..), typeGraphEdges', SinkType)
 import Language.Haskell.TH.Path.Lens (fieldLensName, makePathLens)
 import Language.Haskell.TH.Path.PathType (pathType, pathConNameOfField)
 import Language.Haskell.TH.Path.Order (lens_omat)
+import Language.Haskell.TH.Path.View (viewInstanceType)
 import Language.Haskell.TH.Syntax as TH (lift, VarStrictType)
 import Language.Haskell.TH.TypeGraph.Expand (E(E), expandType, runExpanded)
 import Language.Haskell.TH.TypeGraph.Graph (allLensKeys, allPathKeys, goalReachableSimple, makeTypeGraph, TypeGraph, typeInfo)
@@ -50,7 +51,7 @@ import System.FilePath.Extra (compareSaveAndReturn, changeError)
 -- argument types.  Each edge in the type graph corresponds to a Path instance.
 pathInstances :: Q [Type] -> Q [Dec]
 pathInstances st = do
-  r <- st >>= makeTypeInfo >>= \ti -> runReaderT (makeTypeGraphEdges >>= makeTypeGraph) ti
+  r <- st >>= makeTypeInfo (\t -> maybe mempty singleton <$> runQ (viewInstanceType t)) >>= \ti -> runReaderT (typeGraphEdges' >>= makeTypeGraph) ti
   -- runIO $ putStr ("\nLanguage.Haskell.TH.Path.Types.pathInstances - type graph " ++ pprint (view edges r))
   (_, decs) <- evalRWST (do lmp <- allLensKeys
                             pmp <- allPathKeys

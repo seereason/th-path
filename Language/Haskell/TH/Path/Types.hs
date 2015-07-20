@@ -22,14 +22,15 @@ import Control.Monad.Writer (MonadWriter, tell)
 import Data.Foldable
 import Data.Generics (Data, Typeable)
 import Data.List as List (map)
-import Data.Set as Set (empty, map, Set)
+import Data.Set as Set (empty, map, Set, singleton)
 -- import Debug.Trace (trace)
 import Language.Haskell.TH
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Core (IdPath(idPath))
-import Language.Haskell.TH.Path.Graph (foldPath, FoldPathControl(..), makeTypeGraphEdges)
+import Language.Haskell.TH.Path.Graph (foldPath, FoldPathControl(..), typeGraphEdges')
 import Language.Haskell.TH.Path.PathType (pathType, pathConNameOfField, bestPathTypeName, pathTypeNameFromTypeName)
+import Language.Haskell.TH.Path.View (viewInstanceType)
 import Language.Haskell.TH.Syntax as TH (Quasi, VarStrictType)
 import Language.Haskell.TH.TypeGraph.Expand (expandType)
 import Language.Haskell.TH.TypeGraph.Graph (allPathStarts, makeTypeGraph, TypeGraph, typeInfo)
@@ -43,7 +44,7 @@ import System.FilePath.Extra (compareSaveAndReturn, changeError)
 -- argument, and construct the corresponding path types.
 pathTypes :: Q [Type] -> Q [Dec]
 pathTypes st = do
-  r <- st >>= makeTypeInfo >>= \ti -> runReaderT (makeTypeGraphEdges >>= makeTypeGraph) ti
+  r <- st >>= makeTypeInfo (\t -> maybe mempty singleton <$> runQ (viewInstanceType t)) >>= \ti -> runReaderT (typeGraphEdges' >>= makeTypeGraph) ti
   -- runIO $ putStr ("\nLanguage.Haskell.TH.Path.Types.pathTypes - " ++ pprint (view edges r))
   (_, decss) <- evalRWST (allPathStarts >>= mapM pathTypeDecs . toList . Set.map (view vsimple)) r Set.empty
   runIO . compareSaveAndReturn changeError "GeneratedPathTypes.hs" $ concat decss

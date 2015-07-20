@@ -15,7 +15,7 @@
 {-# LANGUAGE TupleSections #-}
 {-# OPTIONS_GHC -Wall -fno-warn-orphans #-}
 module Language.Haskell.TH.Path.Graph
-    ( makeTypeGraphEdges
+    ( typeGraphEdges'
     , FoldPathControl(..)
     , foldPath
     -- * Hint classes
@@ -71,21 +71,22 @@ import Language.Haskell.TH.TypeGraph.Info (synonyms)
 -- may also want to eliminate nodes that are not on a path from a
 -- start type to a goal type, though eventually goal types will be
 -- eliminated - all types will be goal types.)
-makeTypeGraphEdges :: forall m. (DsMonad m, MonadReader TypeInfo m) =>
-                      m (GraphEdges TGV)
-makeTypeGraphEdges =
-  typeGraphEdges                   >>= -- \e1 ->  tr "initial" mempty e1 >>=
-  return . cutEdges isMapKey       >>=
-  cutM isUnlifted                  >>= -- \e2 -> tr "unlifted" e1 e2 >>=
-  dissolveM higherOrder            >>= -- \e3 -> tr "higherOrder" e2 e3 >>=
+typeGraphEdges' :: forall m. (DsMonad m, MonadReader TypeInfo m) => m (GraphEdges TGV)
+typeGraphEdges' = do
+  e1 <- typeGraphEdges                      -- ; _tr "initial" mempty e1
+  e1a <- return (cutEdges isMapKey e1)
+  e2 <- cutM isUnlifted e1a                 -- ; _tr "unlifted" e1 e2
+  e3 <- dissolveM higherOrder e2            -- ; _tr "higherOrder" e2 e3
   -- viewEdges must not be applied until we have removed higher order types - otherwise
   -- we get a compiler error: "Expecting one more argument to..."
-  linkM viewEdges                  >>= -- \e3a -> tr "view edges" e3 e3a >>=
-  pruneTypeGraph                   >>= -- \e4 -> tr "prune" e3a e4 >>=
-  dissolveM hasFreeVars            >>= -- \e5 -> tr "freeVars" e4 e5 >>=
-  dissolveM isUnlifted             >>= -- \e6 -> tr "unlifted2" e5 e6 >>= -- looks redundant
-  cutEdgesM anonymous              >>= -- \e7 -> tr "anonymous" e6 e7 >>=
-  isolateUnreachable           --  >>= \e8 -> tr "unreachable" e7 e8
+  e3a <- linkM viewEdges e3                 -- ; _tr "view edges" e3 e3a
+  e4 <- pruneTypeGraph e3a                  -- ; _tr "prune" e3a e4
+  e5 <- dissolveM hasFreeVars e4            -- ; _tr "freeVars" e4 e5
+  e6 <- dissolveM isUnlifted e5             -- ; _tr "unlifted2" e5 e6   -- looks redundant
+  e7 <- cutEdgesM anonymous e6              -- ; _tr "anonymous" e6 e7
+  e8 <- isolateUnreachable e7               -- ; _tr "unreachable" e7 e8
+  runQ (runIO (putStr ("typeGraphEdges' final - " ++ pprint e8)))
+  return e8
     where
       viewEdges :: TGV -> m (Maybe (Set TGV))
       viewEdges v = viewInstanceType (runExpanded (view (vsimple . etype) v)) >>= maybe (return Nothing) (\t -> expandType t >>= typeVertex' >>= return . Just . singleton)
