@@ -36,7 +36,7 @@ import Control.Monad.State (execStateT, get, modify, StateT)
 import Data.Foldable.Compat
 import Data.Graph as Graph (reachable)
 import Data.List as List (filter, map)
-import Data.Map as Map (alter, keys, Map)
+import Data.Map as Map (alter, filterWithKey, keys, Map)
 import Data.Maybe (fromJust, isJust, mapMaybe)
 import Data.Set as Set (empty, fromList, map, member, Set, singleton)
 import Language.Haskell.Exts.Syntax ()
@@ -142,12 +142,14 @@ typeGraphEdges' = do
         let keep :: Set TGVSimple
             keep = Set.map (\(_, key, _) -> key) $ Set.map vf $ Set.fromList $ concatMap (reachable g) (mapMaybe kf st)
             -- Discard any nodes whose simplified version is not in keep
-            victims = List.filter (\ v -> not (Set.member (view vsimple v) keep)) (Map.keys es)
+            victims = Set.fromList $ List.filter (\ v -> not (Set.member (view vsimple v) keep)) (Map.keys es)
             -- victims = {- t3 $ -} Set.difference (Set.fromList (Map.keys es)) keep
         -- trace ("isolateUnreachable - " ++ pprint es ++ "\n" ++
         --        intercalate "\n  " ("startTypes:" : List.map pprint' st) ++ "\n" ++
         --        intercalate "\n  " ("Unreachable:" : List.map pprint' victims)) (return ())
-        return $ isolate (flip member (Set.fromList victims)) es
+        let es' = isolate (flip member victims) es
+            es'' = Map.filterWithKey (\k _ -> not (Set.member k victims)) es'
+        return es''
 #if 0
       tr :: String -> GraphEdges TGV -> GraphEdges TGV -> m (GraphEdges TGV)
       tr s old new =
