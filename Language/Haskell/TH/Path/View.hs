@@ -12,10 +12,11 @@ module Language.Haskell.TH.Path.View
 
 import Control.Lens (Lens')
 import Data.Set as Set (fromList, Set)
--- import Debug.Trace (trace)
 import Language.Haskell.TH
 import Language.Haskell.TH.Context.Reify (evalContext)
 import Language.Haskell.TH.Desugar as DS (DsMonad)
+import Language.Haskell.TH.TypeGraph.Free (typeArity)
+import Language.Haskell.TH.TypeGraph.Prelude (pprint', unlifted)
 
 -- | If there is an instance of View for a type @a@, then when @a@
 -- appears in the data, the lens returned by 'viewLens' is used to
@@ -32,11 +33,16 @@ class View a where
 -- return @ViewType a@.
 viewInstanceType :: DsMonad m => Type -> m (Maybe Type)
 viewInstanceType typ =
-    do vInsts <- runQ $ reifyInstances ''ViewType [typ]
-       case vInsts of
-         [TySynInstD _ (TySynEqn [_typ] type2)] -> return $ Just type2
-         [] -> return Nothing
-         _ -> error $ "Unexpected view instance(s): " ++ show vInsts
+    do prim <- unlifted typ
+       arity <- typeArity typ
+       case arity == 0 && not prim of
+         True -> do
+           vInsts <- runQ $ reifyInstances ''ViewType [typ]
+           case vInsts of
+             [TySynInstD _ (TySynEqn [_typ] type2)] -> return $ Just type2
+             [] -> return Nothing
+             _ -> error $ "Unexpected view instance(s): " ++ show vInsts
+         _ -> return Nothing
 
 -- | Retrieve every View instance known to the Q monad and return the
 -- union of all of their a and b types.
