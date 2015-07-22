@@ -33,11 +33,11 @@ import Control.Applicative
 import Control.Lens -- (makeLenses, over, view)
 import Control.Monad (filterM)
 import Control.Monad.Reader (MonadReader)
-import Control.Monad.State (execStateT, get, modify, StateT)
+import Control.Monad.State (execStateT, get, modify)
 import Data.Foldable.Compat
 import Data.Graph as Graph (reachable)
-import Data.List as List (filter, map)
-import Data.Map as Map (alter, filterWithKey, keys, Map, mapWithKey)
+import Data.List as List (filter)
+import Data.Map as Map (filterWithKey, keys, Map, mapWithKey)
 import Data.Maybe (fromJust, isJust, mapMaybe)
 import Data.Set as Set (difference, empty, fromList, map, member, Set, singleton)
 import Language.Haskell.Exts.Syntax ()
@@ -48,13 +48,12 @@ import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.KindInference (inferKind)
 import Language.Haskell.TH.Path.Order (Order)
 import Language.Haskell.TH.Path.View (View(viewLens), viewInstanceType)
-import Language.Haskell.TH.TypeGraph.Edges (cut, cutM, cutEdges, cutEdgesM, dissolveM, GraphEdges, isolate, linkM, simpleEdges, typeGraphEdges)
+import Language.Haskell.TH.TypeGraph.Edges ({-cut, cutEdgesM,-} cutEdges, cutM, dissolveM, GraphEdges, isolate, linkM, simpleEdges, typeGraphEdges)
 import Language.Haskell.TH.TypeGraph.Expand (E(E), expandType, runExpanded)
 import Language.Haskell.TH.TypeGraph.Free (freeTypeVars)
 import Language.Haskell.TH.TypeGraph.Graph (graphFromMap, TypeGraph)
-import Language.Haskell.TH.TypeGraph.Info (startTypes, TypeInfo, fieldVertex, typeVertex, typeVertex')
-import Language.Haskell.TH.TypeGraph.Prelude (constructorName, unlifted)
-import Language.Haskell.TH.TypeGraph.Shape (constructorFieldTypes, FieldType(..))
+import Language.Haskell.TH.TypeGraph.Info (startTypes, TypeInfo, typeVertex, typeVertex')
+import Language.Haskell.TH.TypeGraph.Prelude (unlifted)
 import Language.Haskell.TH.TypeGraph.Vertex (etype, TGV(TGV, _vsimple), vsimple, TGVSimple(TGVSimple, _etype))
 import Prelude hiding (any, concat, concatMap, elem, exp, foldr, mapM_, null, or)
 
@@ -106,36 +105,6 @@ typeGraphEdges' = do
           (name == ''Order || name == ''Map) && a == runExpanded (view (vsimple . etype) a') = True
       isMapKey _ _ = False
 
-      -- Ignore unnamed fields of records, and the key types of Map or Order types.
-      anonymous :: TGV -> TGV -> m Bool
-      anonymous (TGV {_vsimple = TGVSimple {_etype = E (ConT aname)}}) b =
-          runQ (reify aname) >>= doInfo >>= \r -> case r of
-                                                    [True] -> return True
-                                                    [False] -> return False
-                                                    [] -> return False
-                                                    _ -> error $ "Unexpected result in makeTypeGraphEdges/notAnonymous: " ++ show r
-          where
-            doInfo :: Info -> m [Bool]
-            doInfo (TyConI dec) = doDec dec
-            doInfo _ = return []
-            doDec :: Dec -> m [Bool]
-            doDec (DataD _ _ _ cs _) = concat <$> mapM doCon cs
-            doDec _ = return []
-            doCon :: Con -> m [Bool]
-            doCon (ForallC _ _ con) = doCon con
-            doCon con = concat <$> mapM doField (List.map (con,) (constructorFieldTypes con))
-            -- Find the vertex for b and test it
-            doField :: (Con, FieldType) -> m [Bool]
-            doField (con, (Named (fname, _, ftype))) = do
-              etyp <- expandType ftype
-              b' <- fieldVertex (aname, constructorName con, Right fname) etyp
-              return $ if b == b' then [False] else []
-            doField (con, (Positional i (_, ftype))) = do
-              etyp <- expandType ftype
-              b' <- fieldVertex (aname, constructorName con, Left i) etyp
-              return $ if b == b' then [True] else []
-      anonymous _ _ = return False
-
       isolateUnreachable :: GraphEdges TGV -> m (GraphEdges TGV)
       isolateUnreachable es = do
         st <- view startTypes >>= mapM expandType >>= mapM typeVertex
@@ -185,9 +154,6 @@ foldPath (FoldPathControl{..}) v = do
   selfPath <- (not . null) <$> evalContext (reifyInstancesWithContext ''SelfPath [let (E typ) = view etype v in typ])
   simplePath <- (not . null) <$> evalContext (reifyInstancesWithContext ''SinkType [let (E typ) = view etype v in typ])
   viewType <- evalContext (viewInstanceType (let (E typ) = view etype v in typ))
-#if 0
-  syns <- Map.lookup (view etype v) <$> view (typeInfo . synonyms)
-#endif
   case runExpanded (view etype v) of
     _ | selfPath -> pathyf
       | simplePath -> simplef
@@ -197,12 +163,6 @@ foldPath (FoldPathControl{..}) v = do
           expr <- runQ [|viewLens :: Lens' $(return typ) $(return b)|]
           substf expr b
     ConT tname -> namedf tname
-#if 0
-    -- This seemed like a good idea at one point, but now it either
-    -- makes no difference (in PathType.hs and Types.hs) or makes
-    -- things worse (in Instances.hs.)
-    _ | maybe False (not . null) syns -> namedf (fst (fromJust (Set.minView (fromJust syns))))
-#endif
     AppT (AppT mtyp ityp) etyp | mtyp == ConT ''Order -> orderf ityp etyp
     AppT ListT etyp -> listf etyp
     AppT (AppT t3 ktyp) vtyp | t3 == ConT ''Map -> mapf ktyp vtyp
@@ -247,46 +207,7 @@ pruneTypeGraph edges =
       doHide :: (GraphEdges TGV) -> m (GraphEdges TGV)
       doHide es =
           execStateT (do victims <- get >>= filterM (hidden . view (vsimple . etype)) . Map.keys >>= return . Set.fromList
-                         modify (Map.mapWithKey (\k s -> Set.difference s victims))
+                         modify (Map.mapWithKey (\_ s -> Set.difference s victims))
                          modify (Map.filterWithKey (\k _ -> not (Set.member k victims)))) es
 
       hidden (E typ) = (not . null) <$> evalContext (reifyInstancesWithContext ''HideType [typ])
-
-{-
-      sinkP :: TGV -> m Bool
-      sinkP v = do
-        let (E typ) = view (vsimple . etype) v
-        (not . null) <$> evalContext (reifyInstancesWithContext ''SinkType [typ])
--}
-{-
-      doHide :: TGV -> StateT (GraphEdges TGV) m ()
-      doHide v = do
-        let (E typ) = view (vsimple . etype) v
-        hideHint <- (not . null) <$> evalContext (reifyInstancesWithContext ''HideType [typ])
-        when hideHint (modify (cut (== v)))
--}
-{-
-      hideP :: TGV -> m Bool
-      hideP v = do
-        let (E typ) = view (vsimple . etype) v
-        (not . null) <$> evalContext (reifyInstancesWithContext ''HideType [typ])
--}
-      doView :: TGV -> StateT (GraphEdges TGV) m ()
-      doView v = let (E a) = view (vsimple . etype) v in evalContext (viewInstanceType a) >>= maybe (return ()) (doDivert v)
-
-      -- Replace all of v's out edges with a single edge to typ'
-      doDivert v typ' = do
-        v' <- expandType typ' >>= typeVertex'
-        modify (Map.alter (alterFn (const (singleton v'))) v)
-#if 0
-      -- Add an extra out edge from v to typ' (unused)
-      doExtra v typ' = do
-        v' <- expandType typ' >>= typeVertex'
-        modify (Map.alter (alterFn (Set.insert v')) v)
-#endif
-
--- | build the function argument of Map.alter for the GraphEdges map.
-alterFn :: (Set TGV -> Set TGV) -> Maybe (Set TGV) -> Maybe (Set TGV)
-alterFn setf (Just s) = Just (setf s)
-alterFn setf Nothing | null (setf Set.empty) = Nothing
-alterFn setf Nothing = Just (setf Set.empty)

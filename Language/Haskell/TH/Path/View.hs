@@ -16,7 +16,7 @@ import Language.Haskell.TH
 import Language.Haskell.TH.Context.Reify (evalContext)
 import Language.Haskell.TH.Desugar as DS (DsMonad)
 import Language.Haskell.TH.TypeGraph.Free (typeArity)
-import Language.Haskell.TH.TypeGraph.Prelude (pprint', unlifted)
+import Language.Haskell.TH.TypeGraph.Prelude (unlifted)
 
 -- | If there is an instance of View for a type @a@, then when @a@
 -- appears in the data, the lens returned by 'viewLens' is used to
