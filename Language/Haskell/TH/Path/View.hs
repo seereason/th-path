@@ -13,7 +13,7 @@ module Language.Haskell.TH.Path.View
 import Control.Lens (Lens')
 import Data.Set as Set (fromList, Set)
 import Language.Haskell.TH
-import Language.Haskell.TH.Context.Reify (evalContext)
+import Language.Haskell.TH.Context.Reify (evalContext_)
 import Language.Haskell.TH.Desugar as DS (DsMonad)
 import Language.Haskell.TH.TypeGraph.Free (typeArity)
 import Language.Haskell.TH.TypeGraph.Prelude (unlifted)
@@ -47,6 +47,6 @@ viewInstanceType typ =
 -- | Retrieve every View instance known to the Q monad and return the
 -- union of all of their a and b types.
 viewTypes :: Q (Set Type)
-viewTypes = evalContext $ do
+viewTypes = evalContext_ $ do
   FamilyI _ tySynInsts <- runQ $ reify ''ViewType
   return $ Set.fromList $ concatMap (\ (TySynInstD _vt (TySynEqn [a] b)) -> [a, b]) tySynInsts

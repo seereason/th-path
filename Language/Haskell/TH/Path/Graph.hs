@@ -42,7 +42,7 @@ import Data.Maybe (fromJust, isJust, mapMaybe)
 import Data.Set as Set (difference, empty, fromList, map, member, Set, singleton)
 import Language.Haskell.Exts.Syntax ()
 import Language.Haskell.TH
-import Language.Haskell.TH.Context.Reify (evalContext, reifyInstancesWithContext)
+import Language.Haskell.TH.Context.Reify (evalContext_, reifyInstancesWithContext)
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.KindInference (inferKind)
@@ -151,9 +151,9 @@ data FoldPathControl m r
 
 foldPath :: (DsMonad m, MonadReader TypeGraph m) => FoldPathControl m r -> TGVSimple -> m r
 foldPath (FoldPathControl{..}) v = do
-  selfPath <- (not . null) <$> evalContext (reifyInstancesWithContext ''SelfPath [let (E typ) = view etype v in typ])
-  simplePath <- (not . null) <$> evalContext (reifyInstancesWithContext ''SinkType [let (E typ) = view etype v in typ])
-  viewType <- evalContext (viewInstanceType (let (E typ) = view etype v in typ))
+  selfPath <- (not . null) <$> evalContext_ (reifyInstancesWithContext ''SelfPath [let (E typ) = view etype v in typ])
+  simplePath <- (not . null) <$> evalContext_ (reifyInstancesWithContext ''SinkType [let (E typ) = view etype v in typ])
+  viewType <- evalContext_ (viewInstanceType (let (E typ) = view etype v in typ))
   case runExpanded (view etype v) of
     _ | selfPath -> pathyf
       | simplePath -> simplef
@@ -202,7 +202,7 @@ pruneTypeGraph edges =
           execStateT (do victims <- get >>= filterM (sink . view (vsimple . etype)) . Map.keys >>= return . Set.fromList
                          modify (Map.mapWithKey (\k s -> if Set.member k victims then Set.empty else s))) es
 
-      sink (E typ) = (not . null) <$> evalContext (reifyInstancesWithContext ''SinkType [typ])
+      sink (E typ) = (not . null) <$> evalContext_ (reifyInstancesWithContext ''SinkType [typ])
 
       doHide :: (GraphEdges TGV) -> m (GraphEdges TGV)
       doHide es =
@@ -210,4 +210,4 @@ pruneTypeGraph edges =
                          modify (Map.mapWithKey (\_ s -> Set.difference s victims))
                          modify (Map.filterWithKey (\k _ -> not (Set.member k victims)))) es
 
-      hidden (E typ) = (not . null) <$> evalContext (reifyInstancesWithContext ''HideType [typ])
+      hidden (E typ) = (not . null) <$> evalContext_ (reifyInstancesWithContext ''HideType [typ])
