@@ -30,19 +30,21 @@ import Control.Monad.Reader (MonadReader, runReaderT)
 import Data.Foldable
 import Data.List as List (intercalate)
 import Language.Haskell.TH
+import Language.Haskell.TH.Context (InstMap)
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Core (PathType, Path_OMap, Path_List, Path_Map, Path_Pair, Path_Maybe, Path_Either)
 import Language.Haskell.TH.Path.Graph (FoldPathControl(..), foldPath)
-import Language.Haskell.TH.TypeGraph.Expand (E(E), runExpanded)
-import Language.Haskell.TH.TypeGraph.Graph (TypeGraph, typeInfo, reachableFromSimple)
-import Language.Haskell.TH.TypeGraph.Info (typeVertex)
+import Language.Haskell.TH.TypeGraph.Expand (E(E, unE), ExpandMap)
+import Language.Haskell.TH.TypeGraph.HasState (HasState)
 import Language.Haskell.TH.TypeGraph.Prelude (pprint')
+import Language.Haskell.TH.TypeGraph.TypeGraph (TypeGraph, typeInfo, reachableFromSimple)
+import Language.Haskell.TH.TypeGraph.TypeInfo (typeVertex)
 import Language.Haskell.TH.TypeGraph.Vertex (bestType, TypeGraphVertex, TGV, field, typeNames, TGVSimple, vsimple, etype)
 import Prelude hiding (any, concat, concatMap, elem, foldr, mapM_, null, or)
 
 -- | Given a type, generate the corresponding path type.
-pathType :: (DsMonad m, MonadReader TypeGraph m) =>
+pathType :: (DsMonad m, MonadReader TypeGraph m, HasState ExpandMap m, HasState InstMap m) =>
             TypeQ
          -> TGVSimple -- ^ The type to convert to a path type
          -> m Type
@@ -57,7 +59,7 @@ pathType gtyp key =
                 , substf = \_lns _styp ->
                     -- This is safe because hint types are now required to have a name
                     let Just (pname, _syns) = bestPathTypeName key in runQ [t|$(conT pname) $gtyp|]
-                , pathyf = return $ runExpanded $ view etype key
+                , pathyf = return $ unE $ view etype key
                 , namedf = \tname -> runQ $ [t|$(conT (pathTypeNameFromTypeName tname)) $gtyp|]
                 , maybef = \etyp -> do
                     epath <- vert etyp >>= pathType gtyp
@@ -90,7 +92,7 @@ pathType gtyp key =
       vert typ = view typeInfo >>= runReaderT (typeVertex (E typ))
 
 -- | pathType for the simplified vertex
-pathType' :: (DsMonad m, MonadReader TypeGraph m) => TypeQ -> TGV -> m Type
+pathType' :: (DsMonad m, MonadReader TypeGraph m, HasState ExpandMap m, HasState InstMap m) => TypeQ -> TGV -> m Type
 pathType' gtyp key = pathType gtyp (view vsimple key)
 
 -- | Call the type function PathType.

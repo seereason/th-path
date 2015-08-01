@@ -17,14 +17,14 @@ module Language.Haskell.TH.Path.Types
 import Control.Applicative
 import Control.Lens hiding (cons) -- (makeLenses, over, view)
 import Control.Monad.Reader (MonadReader, runReaderT)
-import Control.Monad.RWS (evalRWST)
-import Control.Monad.Writer (MonadWriter, tell)
+import Control.Monad.Writer (MonadWriter, execWriterT, tell)
 import Data.Foldable
 import Data.Generics (Data, Typeable)
 import Data.List as List (map)
-import Data.Set as Set (empty, map, Set, singleton)
+import Data.Set as Set (map, Set, singleton)
 -- import Debug.Trace (trace)
 import Language.Haskell.TH
+import Language.Haskell.TH.Context (InstMap)
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Core (IdPath(idPath))
@@ -32,25 +32,26 @@ import Language.Haskell.TH.Path.Graph (foldPath, FoldPathControl(..), typeGraphE
 import Language.Haskell.TH.Path.PathType (pathType, pathConNameOfField, bestPathTypeName, pathTypeNameFromTypeName)
 import Language.Haskell.TH.Path.View (viewInstanceType)
 import Language.Haskell.TH.Syntax as TH (Quasi, VarStrictType)
-import Language.Haskell.TH.TypeGraph.Expand (expandType)
-import Language.Haskell.TH.TypeGraph.Graph (allPathStarts, makeTypeGraph, TypeGraph, typeInfo)
-import Language.Haskell.TH.TypeGraph.Info (makeTypeInfo, typeVertex, fieldVertex)
+import Language.Haskell.TH.TypeGraph.Expand (ExpandMap, expandType)
+import Language.Haskell.TH.TypeGraph.HasState (HasState)
 import Language.Haskell.TH.TypeGraph.Prelude (pprint')
+import Language.Haskell.TH.TypeGraph.TypeGraph (allPathStarts, makeTypeGraph, TypeGraph, typeInfo)
+import Language.Haskell.TH.TypeGraph.TypeInfo (makeTypeInfo, typeVertex, fieldVertex)
 import Language.Haskell.TH.TypeGraph.Vertex (vsimple, TGVSimple, TypeGraphVertex, typeNames)
 import Prelude hiding (any, concat, concatMap, elem, foldr, mapM_, null, or)
 import System.FilePath.Extra (compareSaveAndReturn, changeError)
 
 -- | Construct a graph of all types reachable from the types in the
 -- argument, and construct the corresponding path types.
-pathTypes :: Q [Type] -> Q [Dec]
+pathTypes :: (DsMonad m, HasState ExpandMap m, HasState InstMap m) => m [Type] -> m [Dec]
 pathTypes st = do
   r <- st >>= makeTypeInfo (\t -> maybe mempty singleton <$> runQ (viewInstanceType t)) >>= \ti -> runReaderT (typeGraphEdges' >>= makeTypeGraph) ti
   -- runIO $ putStr ("\nLanguage.Haskell.TH.Path.Types.pathTypes - " ++ pprint (view edges r))
-  (_, decss) <- evalRWST (allPathStarts >>= mapM pathTypeDecs . toList . Set.map (view vsimple)) r Set.empty
-  runIO . compareSaveAndReturn changeError "GeneratedPathTypes.hs" $ concat decss
+  decss <- execWriterT $ runReaderT (allPathStarts >>= mapM pathTypeDecs . toList . Set.map (view vsimple)) r
+  runQ . runIO . compareSaveAndReturn changeError "GeneratedPathTypes.hs" $ concat decss
 
 -- | Given a type, generate the corresponding path type declarations
-pathTypeDecs :: forall m. (DsMonad m, MonadReader TypeGraph m, MonadWriter [[Dec]] m) => TGVSimple -> m ()
+pathTypeDecs :: forall m. (DsMonad m, MonadReader TypeGraph m, MonadWriter [[Dec]] m, HasState ExpandMap m, HasState InstMap m) => TGVSimple -> m ()
 pathTypeDecs key =
   pathTypeDecs'
     where

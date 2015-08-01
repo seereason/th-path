@@ -1,5 +1,5 @@
 name:               th-path
-version:            0.19
+version:            0.20
 cabal-version:      >= 1.10
 build-type:         Simple
 license:            BSD3
@@ -47,7 +47,7 @@ library
     th-kinds,
     th-orphans,
     web-routes-th
-  ghc-options:      -Wall
+  ghc-options:      -Wall -O2
   exposed-modules:
     Language.Haskell.TH.Path.Core
     Language.Haskell.TH.Path.Graph
@@ -76,7 +76,7 @@ library
       Language.Haskell.TH.TypeGraph.Unsafe
       Language.Haskell.TH.TypeGraph.Vertex
   else
-    build-depends: th-context >= 0.18, th-typegraph >= 0.21
+    build-depends: th-context >= 0.20, th-typegraph >= 0.24
 
 -- test-suite th-path-tests
 --   type:             exitcode-stdio-1.0

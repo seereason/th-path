@@ -20,16 +20,16 @@ import Control.Lens hiding (cons) -- (makeLenses, over, view)
 import Control.Monad (when)
 import Control.Monad as List (mapM)
 import Control.Monad.Reader (MonadReader, runReaderT)
-import Control.Monad.RWS (evalRWST)
 import Control.Monad.State (evalStateT, get, modify, StateT)
+import Control.Monad.Trans as Monad (lift)
 import Control.Monad.Writer (MonadWriter, execWriterT, tell)
 import Data.Foldable as Foldable
 import Data.List as List (map)
 import Data.Map as Map (toList)
-import Data.Set.Extra as Set (empty, insert, mapM_, member, Set, singleton)
+import Data.Set.Extra as Set (insert, mapM_, member, Set, singleton)
 -- import Debug.Trace (trace)
 import Language.Haskell.TH
-import Language.Haskell.TH.Context.Reify (evalContext, reifyInstancesWithContext)
+import Language.Haskell.TH.Context (InstMap, reifyInstancesWithContext)
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Core (mat, Path(..), Path_OMap(..), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
@@ -39,49 +39,54 @@ import Language.Haskell.TH.Path.PathType (pathType, pathConNameOfField)
 import Language.Haskell.TH.Path.Order (lens_omat)
 import Language.Haskell.TH.Path.View (viewInstanceType)
 import Language.Haskell.TH.Syntax as TH (lift, VarStrictType)
-import Language.Haskell.TH.TypeGraph.Expand (E(E), expandType, runExpanded)
-import Language.Haskell.TH.TypeGraph.Graph (allLensKeys, allPathKeys, goalReachableSimple, makeTypeGraph, TypeGraph, typeInfo)
-import Language.Haskell.TH.TypeGraph.Info (fieldVertex, makeTypeInfo, typeVertex)
+import Language.Haskell.TH.TypeGraph.Expand (E(E, unE), ExpandMap, expandType)
+import Language.Haskell.TH.TypeGraph.HasState (HasState(getState, modifyState))
 import Language.Haskell.TH.TypeGraph.Prelude (pprint')
+import Language.Haskell.TH.TypeGraph.TypeGraph (allLensKeys, allPathKeys, goalReachableSimple, makeTypeGraph, TypeGraph, typeInfo)
+import Language.Haskell.TH.TypeGraph.TypeInfo (fieldVertex, makeTypeInfo, typeVertex)
 import Language.Haskell.TH.TypeGraph.Vertex (bestType, etype, TGV, TGVSimple, typeNames, vsimple)
 import Prelude hiding (any, concat, concatMap, elem, foldr, mapM_, null, or)
 import System.FilePath.Extra (compareSaveAndReturn, changeError)
 
 -- | Construct the 'Path' instances for all types reachable from the
 -- argument types.  Each edge in the type graph corresponds to a Path instance.
-pathInstances :: Q [Type] -> Q [Dec]
+pathInstances :: (DsMonad m, HasState ExpandMap m, HasState InstMap m) => m [Type] -> m [Dec]
 pathInstances st = do
   r <- st >>= makeTypeInfo (\t -> maybe mempty singleton <$> runQ (viewInstanceType t)) >>= \ti -> runReaderT (typeGraphEdges' >>= makeTypeGraph) ti
   -- runIO $ putStr ("\nLanguage.Haskell.TH.Path.Types.pathInstances - type graph " ++ pprint (view edges r))
-  (_, decs) <- evalRWST (do lmp <- allLensKeys
-                            pmp <- allPathKeys
-                            Foldable.mapM_ (uncurry pathLensDecs) (Map.toList lmp)
-                            Foldable.mapM_ (uncurry pathInstanceDecs) (Map.toList pmp)) r Set.empty
-  _ <- runIO . compareSaveAndReturn changeError "GeneratedPathInstances.hs" $ decs
-  runIO $ putStr ("\nPathInstances finished\n")
+  decs <- execWriterT $ flip runReaderT r $
+          do lmp <- allLensKeys
+             pmp <- allPathKeys
+             Foldable.mapM_ (uncurry pathLensDecs) (Map.toList lmp)
+             Foldable.mapM_ (uncurry pathInstanceDecs) (Map.toList pmp)
+  _ <- runQ . runIO . compareSaveAndReturn changeError "GeneratedPathInstances.hs" $ decs
+  runQ . runIO $ putStr ("\nPathInstances finished\n")
   return decs
 
-pathLensDecs :: (DsMonad m, MonadReader TypeGraph m, MonadWriter [Dec] m) => TGVSimple -> Set TGV -> m ()
+pathLensDecs :: (DsMonad m, MonadReader TypeGraph m, MonadWriter [Dec] m, HasState ExpandMap m, HasState InstMap m) =>
+                TGVSimple -> Set TGV -> m ()
 pathLensDecs key gkeys = do
-  simplePath <- (not . null) <$> evalContext (reifyInstancesWithContext ''SinkType [let (E typ) = view etype key in typ])
+  simplePath <- (not . null) <$> reifyInstancesWithContext ''SinkType [let (E typ) = view etype key in typ]
   case simplePath of
     False -> mapM makePathLens (Foldable.toList (typeNames key)) >>= {- t1 >>= -} tell . concat
     _ -> return ()
     -- where t1 x = trace (pprint' x) (return x)
 
-pathInstanceDecs :: forall m. (DsMonad m, MonadReader TypeGraph m, MonadWriter [Dec] m) => TGVSimple -> Set TGVSimple -> m ()
+pathInstanceDecs :: forall m. (DsMonad m, MonadReader TypeGraph m, MonadWriter [Dec] m, HasState ExpandMap m, HasState InstMap m) =>
+                    TGVSimple -> Set TGVSimple -> m ()
 pathInstanceDecs key gkeys = Set.mapM_ (pathInstanceDecs' key) gkeys
 
 -- | For a given TypeGraphVertex, compute the declaration of the
 -- corresponding Path instance.  Each clause matches some possible value
 -- of the path type, and returns a lens that extracts the value the
 -- path type value specifies.
-pathInstanceDecs' :: forall m. (DsMonad m, MonadReader TypeGraph m, MonadWriter [Dec] m) => TGVSimple -> TGVSimple -> m ()
+pathInstanceDecs' :: forall m. (DsMonad m, MonadReader TypeGraph m, MonadWriter [Dec] m, HasState ExpandMap m, HasState InstMap m) =>
+                     TGVSimple -> TGVSimple -> m ()
 pathInstanceDecs' key gkey = do
   ptyp <- pathType (pure (bestType gkey)) key
   clauses <- execWriterT $ evalStateT (pathInstanceClauses key gkey ptyp) mempty
   let final = [newName "u" >>= \u ->
-               clause [varP u] (normalB [|(error $ $(lift ("Unexpected goal " ++ pprint' gkey ++ " for " ++ pprint' key ++ ": ")) ++
+               clause [varP u] (normalB [|(error $ $(TH.lift ("Unexpected goal " ++ pprint' gkey ++ " for " ++ pprint' key ++ ": ")) ++
                                                    show $(varE u))
                                              -- :: Lens' $(let E typ = view etype key in pure typ) $(let E typ = view etype gkey in pure typ)
                                          |]) []]
@@ -98,7 +103,15 @@ pathInstanceDecs' key gkey = do
 tell1 :: (DsMonad m, MonadWriter [Dec] m) => DecQ -> m ()
 tell1 dec = runQ (sequence ([dec])) >>= tell
 
-pathInstanceClauses :: forall m. (DsMonad m, MonadReader TypeGraph m, MonadWriter [ClauseQ] m) =>
+instance (Monad m, HasState InstMap m) => HasState InstMap (StateT (Set Name) m) where
+    getState = Monad.lift getState
+    modifyState f = Monad.lift $ modifyState f
+
+instance (Monad m, HasState ExpandMap m) => HasState ExpandMap (StateT (Set Name) m) where
+    getState = Monad.lift getState
+    modifyState f = Monad.lift $ modifyState f
+
+pathInstanceClauses :: forall m. (DsMonad m, MonadReader TypeGraph m, MonadWriter [ClauseQ] m, HasState InstMap m, HasState ExpandMap m) =>
                        TGVSimple -- ^ the type whose clauses we are generating
                     -> TGVSimple -- ^ the goal type key
                     -> Type -- ^ the corresponding path type - first type parameter of ToLens
@@ -148,10 +161,11 @@ pathInstanceClauses key gkey ptyp =
               , eitherf = \ltyp rtyp -> do
                   doClause gkey ltyp (\p -> [p|Path_Left $p|]) [|_Left|]
                   doClause gkey rtyp (\p -> [p|Path_Right $p|]) [|_Right|]
-              , otherf = tell [ clause [wildP] (normalB [|(error $ $(litE (stringL ("Need to find lens for field type: " ++ pprint (view etype key))))) :: Traversal' $(pure (runExpanded (view etype key))) $(pure (bestType gkey))|]) [] ]
+              , otherf = tell [ clause [wildP] (normalB [|(error $ $(litE (stringL ("Need to find lens for field type: " ++ pprint (view etype key))))) :: Traversal' $(pure (unE (view etype key))) $(pure (bestType gkey))|]) [] ]
               }
 
-doClause :: (DsMonad m, MonadReader TypeGraph m, MonadWriter [ClauseQ] m) => TGVSimple -> Type -> (PatQ -> PatQ) -> ExpQ -> m ()
+doClause :: (DsMonad m, MonadReader TypeGraph m, MonadWriter [ClauseQ] m, HasState InstMap m, HasState ExpandMap m) =>
+            TGVSimple -> Type -> (PatQ -> PatQ) -> ExpQ -> m ()
 doClause gkey typ pfunc lns = do
   v <- runQ (newName "v")
   key <- view typeInfo >>= runReaderT (expandType typ >>= typeVertex)
@@ -161,17 +175,19 @@ doClause gkey typ pfunc lns = do
       testClause gkey typ (clause [ pfunc (varP v) ] (normalB [|$lns . toLens $(varE v)|]) [])
       when (key == gkey) $ testClause gkey typ (clause [ wildP ] (normalB [|iso id id|]) [])
 
-testClause :: (DsMonad m, MonadReader TypeGraph m, MonadWriter [ClauseQ] m) => TGVSimple -> Type -> ClauseQ -> m ()
+testClause :: (DsMonad m, MonadReader TypeGraph m, MonadWriter [ClauseQ] m, HasState InstMap m, HasState ExpandMap m) =>
+              TGVSimple -> Type -> ClauseQ -> m ()
 testClause gkey typ cl = do
   ok <- testPath gkey typ
   when ok $ tell [cl]
 
-testPath :: (DsMonad m, MonadReader TypeGraph m) => TGVSimple -> Type -> m Bool
+testPath :: (DsMonad m, MonadReader TypeGraph m, HasState InstMap m, HasState ExpandMap m) => TGVSimple -> Type -> m Bool
 testPath gkey typ = do
   key <- view typeInfo >>= runReaderT (expandType typ >>= typeVertex)
   goalReachableSimple gkey key
 
-namedTypeClause :: forall m. (DsMonad m, MonadReader TypeGraph m, MonadWriter [ClauseQ] m) => Name -> TGVSimple -> Type -> StateT (Set Name) m ()
+namedTypeClause :: forall m. (DsMonad m, MonadReader TypeGraph m, MonadWriter [ClauseQ] m, HasState InstMap m, HasState ExpandMap m) =>
+                   Name -> TGVSimple -> Type -> StateT (Set Name) m ()
 namedTypeClause tname gkey ptyp =
     -- If encounter a named type and the stack is empty we
     -- need to build the clauses for its declaration.

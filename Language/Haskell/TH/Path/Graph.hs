@@ -34,6 +34,7 @@ import Control.Lens -- (makeLenses, over, view)
 import Control.Monad (filterM)
 import Control.Monad.Reader (MonadReader)
 import Control.Monad.State (execStateT, get, modify)
+import Control.Monad.Trans (lift)
 import Data.Foldable.Compat
 import Data.Graph as Graph (reachable)
 import Data.List as List (filter)
@@ -42,18 +43,19 @@ import Data.Maybe (fromJust, isJust, mapMaybe)
 import Data.Set as Set (difference, empty, fromList, map, member, Set, singleton)
 import Language.Haskell.Exts.Syntax ()
 import Language.Haskell.TH
-import Language.Haskell.TH.Context.Reify (evalContext_, reifyInstancesWithContext)
+import Language.Haskell.TH.Context (InstMap, reifyInstancesWithContext)
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.KindInference (inferKind)
 import Language.Haskell.TH.Path.Order (Order)
 import Language.Haskell.TH.Path.View (View(viewLens), viewInstanceType)
 import Language.Haskell.TH.TypeGraph.Edges ({-cut, cutEdgesM,-} cutEdges, cutM, dissolveM, GraphEdges, isolate, linkM, simpleEdges, typeGraphEdges)
-import Language.Haskell.TH.TypeGraph.Expand (E(E), expandType, runExpanded)
+import Language.Haskell.TH.TypeGraph.Expand (E(E, unE), ExpandMap, expandType)
 import Language.Haskell.TH.TypeGraph.Free (freeTypeVars)
-import Language.Haskell.TH.TypeGraph.Graph (graphFromMap, TypeGraph)
-import Language.Haskell.TH.TypeGraph.Info (startTypes, TypeInfo, typeVertex, typeVertex')
+import Language.Haskell.TH.TypeGraph.HasState (HasState)
 import Language.Haskell.TH.TypeGraph.Prelude (unlifted)
+import Language.Haskell.TH.TypeGraph.TypeGraph (graphFromMap, TypeGraph)
+import Language.Haskell.TH.TypeGraph.TypeInfo (startTypes, TypeInfo, typeVertex, typeVertex')
 import Language.Haskell.TH.TypeGraph.Vertex (etype, TGV(TGV, _vsimple), vsimple, TGVSimple(TGVSimple, _etype))
 import Prelude hiding (any, concat, concatMap, elem, exp, foldr, mapM_, null, or)
 
@@ -71,7 +73,7 @@ import Language.Haskell.TH.TypeGraph.Info (synonyms)
 -- may also want to eliminate nodes that are not on a path from a
 -- start type to a goal type, though eventually goal types will be
 -- eliminated - all types will be goal types.)
-typeGraphEdges' :: forall m. (DsMonad m, MonadReader TypeInfo m) => m (GraphEdges TGV)
+typeGraphEdges' :: forall m. (DsMonad m, MonadReader TypeInfo m, HasState InstMap m, HasState ExpandMap m) => m (GraphEdges TGV)
 typeGraphEdges' = do
   e1 <- typeGraphEdges                      -- ; _tr "initial" mempty e1
   e1a <- return (cutEdges isMapKey e1)
@@ -89,20 +91,20 @@ typeGraphEdges' = do
   return e8
     where
       viewEdges :: TGV -> m (Maybe (Set TGV))
-      viewEdges v = viewInstanceType (runExpanded (view (vsimple . etype) v)) >>= maybe (return Nothing) (\t -> expandType t >>= typeVertex' >>= return . Just . singleton)
+      viewEdges v = viewInstanceType (unE (view (vsimple . etype) v)) >>= maybe (return Nothing) (\t -> expandType t >>= typeVertex' >>= return . Just . singleton)
 
       higherOrder :: TGV -> m Bool
-      higherOrder v = (/= Right StarT) <$> runQ (inferKind (runExpanded (view (vsimple . etype) v)))
+      higherOrder v = (/= Right StarT) <$> runQ (inferKind (unE (view (vsimple . etype) v)))
       hasFreeVars :: TGV -> m Bool
-      hasFreeVars v = (/= Set.empty) <$> runQ (freeTypeVars (runExpanded (view (vsimple . etype) v)))
+      hasFreeVars v = (/= Set.empty) <$> runQ (freeTypeVars (unE (view (vsimple . etype) v)))
       -- Primitive (unlifted) types can not be used as parameters to a
       -- type class, which makes them unusable in this system.
       isUnlifted :: TGV -> m Bool
-      isUnlifted v = unlifted (runExpanded (view (vsimple . etype) v))
+      isUnlifted v = unlifted (unE (view (vsimple . etype) v))
 
       isMapKey :: TGV -> TGV -> Bool
       isMapKey (TGV {_vsimple = TGVSimple {_etype = E (AppT a@(AppT (ConT name) _) _b)}}) a' |
-          (name == ''Order || name == ''Map) && a == runExpanded (view (vsimple . etype) a') = True
+          (name == ''Order || name == ''Map) && a == unE (view (vsimple . etype) a') = True
       isMapKey _ _ = False
 
       isolateUnreachable :: GraphEdges TGV -> m (GraphEdges TGV)
@@ -149,12 +151,12 @@ data FoldPathControl m r
       , otherf :: m r
       }
 
-foldPath :: (DsMonad m, MonadReader TypeGraph m) => FoldPathControl m r -> TGVSimple -> m r
+foldPath :: (DsMonad m, MonadReader TypeGraph m, HasState InstMap m, HasState ExpandMap m) => FoldPathControl m r -> TGVSimple -> m r
 foldPath (FoldPathControl{..}) v = do
-  selfPath <- (not . null) <$> evalContext_ (reifyInstancesWithContext ''SelfPath [let (E typ) = view etype v in typ])
-  simplePath <- (not . null) <$> evalContext_ (reifyInstancesWithContext ''SinkType [let (E typ) = view etype v in typ])
-  viewType <- evalContext_ (viewInstanceType (let (E typ) = view etype v in typ))
-  case runExpanded (view etype v) of
+  selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [let (E typ) = view etype v in typ]
+  simplePath <- (not . null) <$> reifyInstancesWithContext ''SinkType [let (E typ) = view etype v in typ]
+  viewType <- viewInstanceType (let (E typ) = view etype v in typ)
+  case unE (view etype v) of
     _ | selfPath -> pathyf
       | simplePath -> simplef
     typ
@@ -190,7 +192,7 @@ class SelfPath a
 -- | Remove any vertices that are labelled with primitive types, and then
 -- apply the hints obtained from the
 -- a new graph which incorporates the information from the hints.
-pruneTypeGraph :: forall m. (DsMonad m, MonadReader TypeInfo m) =>
+pruneTypeGraph :: forall m. (DsMonad m, MonadReader TypeInfo m, HasState InstMap m, HasState ExpandMap m) =>
                   (GraphEdges TGV) -> m (GraphEdges TGV)
 pruneTypeGraph edges =
   doSink edges >>= doHide
@@ -202,7 +204,7 @@ pruneTypeGraph edges =
           execStateT (do victims <- get >>= filterM (sink . view (vsimple . etype)) . Map.keys >>= return . Set.fromList
                          modify (Map.mapWithKey (\k s -> if Set.member k victims then Set.empty else s))) es
 
-      sink (E typ) = (not . null) <$> evalContext_ (reifyInstancesWithContext ''SinkType [typ])
+      sink (E typ) = (not . null) <$> lift (reifyInstancesWithContext ''SinkType [typ])
 
       doHide :: (GraphEdges TGV) -> m (GraphEdges TGV)
       doHide es =
@@ -210,4 +212,4 @@ pruneTypeGraph edges =
                          modify (Map.mapWithKey (\_ s -> Set.difference s victims))
                          modify (Map.filterWithKey (\k _ -> not (Set.member k victims)))) es
 
-      hidden (E typ) = (not . null) <$> evalContext_ (reifyInstancesWithContext ''HideType [typ])
+      hidden (E typ) = (not . null) <$> lift (reifyInstancesWithContext ''HideType [typ])
