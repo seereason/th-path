@@ -11,12 +11,12 @@ module Language.Haskell.TH.Path.View
     ) where
 
 import Control.Lens (Lens')
+import Control.Monad.States (MonadStates)
 import Data.Set as Set (fromList, Set)
 import Language.Haskell.TH
 import Language.Haskell.TH.Context (InstMap)
 import Language.Haskell.TH.Desugar as DS (DsMonad)
 import Language.Haskell.TH.TypeGraph.Arity (typeArity)
-import Language.Haskell.TH.TypeGraph.HasState (HasState)
 import Language.Haskell.TH.TypeGraph.Prelude (unlifted)
 
 -- | If there is an instance of View for a type @a@, then when @a@
@@ -47,7 +47,7 @@ viewInstanceType typ =
 
 -- | Retrieve every View instance known to the Q monad and return the
 -- union of all of their a and b types.
-viewTypes :: (DsMonad m, HasState InstMap m) => m (Set Type)
+viewTypes :: (DsMonad m, MonadStates InstMap m) => m (Set Type)
 viewTypes = do
   FamilyI _ tySynInsts <- runQ $ reify ''ViewType
   return $ Set.fromList $ concatMap (\ (TySynInstD _vt (TySynEqn [a] b)) -> [a, b]) tySynInsts

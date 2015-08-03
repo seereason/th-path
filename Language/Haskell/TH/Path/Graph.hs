@@ -32,8 +32,8 @@ import Control.Applicative
 #endif
 import Control.Lens -- (makeLenses, over, view)
 import Control.Monad (filterM)
-import Control.Monad.Reader (MonadReader)
-import Control.Monad.State (execStateT, get, modify)
+import Control.Monad.Readers (MonadReaders, ask)
+import Control.Monad.States (execStateT, get, modify, MonadStates)
 import Control.Monad.Trans (lift)
 import Data.Foldable.Compat
 import Data.Graph as Graph (reachable)
@@ -52,7 +52,6 @@ import Language.Haskell.TH.Path.View (View(viewLens), viewInstanceType)
 import Language.Haskell.TH.TypeGraph.Edges ({-cut, cutEdgesM,-} cutEdges, cutM, dissolveM, GraphEdges, isolate, linkM, simpleEdges, typeGraphEdges)
 import Language.Haskell.TH.TypeGraph.Expand (E(E, unE), ExpandMap, expandType)
 import Language.Haskell.TH.TypeGraph.Free (freeTypeVars)
-import Language.Haskell.TH.TypeGraph.HasState (HasState)
 import Language.Haskell.TH.TypeGraph.Prelude (unlifted)
 import Language.Haskell.TH.TypeGraph.TypeGraph (graphFromMap, TypeGraph)
 import Language.Haskell.TH.TypeGraph.TypeInfo (startTypes, TypeInfo, typeVertex, typeVertex')
@@ -73,7 +72,7 @@ import Language.Haskell.TH.TypeGraph.Info (synonyms)
 -- may also want to eliminate nodes that are not on a path from a
 -- start type to a goal type, though eventually goal types will be
 -- eliminated - all types will be goal types.)
-typeGraphEdges' :: forall m. (DsMonad m, MonadReader TypeInfo m, HasState InstMap m, HasState ExpandMap m) => m (GraphEdges TGV)
+typeGraphEdges' :: forall m. (DsMonad m, MonadReaders TypeInfo m, MonadStates InstMap m, MonadStates ExpandMap m) => m (GraphEdges TGV)
 typeGraphEdges' = do
   e1 <- typeGraphEdges                      -- ; _tr "initial" mempty e1
   e1a <- return (cutEdges isMapKey e1)
@@ -109,7 +108,7 @@ typeGraphEdges' = do
 
       isolateUnreachable :: GraphEdges TGV -> m (GraphEdges TGV)
       isolateUnreachable es = do
-        st <- view startTypes >>= mapM expandType >>= mapM typeVertex
+        st <- ask >>= return . view startTypes >>= mapM expandType >>= mapM typeVertex
         let (g, vf, kf) = graphFromMap (simpleEdges es)
         let keep :: Set TGVSimple
             keep = Set.map (\(_, key, _) -> key) $ Set.map vf $ Set.fromList $ concatMap (reachable g) (mapMaybe kf st)
@@ -151,7 +150,7 @@ data FoldPathControl m r
       , otherf :: m r
       }
 
-foldPath :: (DsMonad m, MonadReader TypeGraph m, HasState InstMap m, HasState ExpandMap m) => FoldPathControl m r -> TGVSimple -> m r
+foldPath :: (DsMonad m, MonadReaders TypeGraph m, MonadStates InstMap m, MonadStates ExpandMap m) => FoldPathControl m r -> TGVSimple -> m r
 foldPath (FoldPathControl{..}) v = do
   selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [let (E typ) = view etype v in typ]
   simplePath <- (not . null) <$> reifyInstancesWithContext ''SinkType [let (E typ) = view etype v in typ]
@@ -192,7 +191,7 @@ class SelfPath a
 -- | Remove any vertices that are labelled with primitive types, and then
 -- apply the hints obtained from the
 -- a new graph which incorporates the information from the hints.
-pruneTypeGraph :: forall m. (DsMonad m, MonadReader TypeInfo m, HasState InstMap m, HasState ExpandMap m) =>
+pruneTypeGraph :: forall m. (DsMonad m, MonadReaders TypeInfo m, MonadStates InstMap m, MonadStates ExpandMap m) =>
                   (GraphEdges TGV) -> m (GraphEdges TGV)
 pruneTypeGraph edges =
   doSink edges >>= doHide
@@ -201,15 +200,15 @@ pruneTypeGraph edges =
     where
       doSink :: (GraphEdges TGV) -> m (GraphEdges TGV)
       doSink es =
-          execStateT (do victims <- get >>= filterM (sink . view (vsimple . etype)) . Map.keys >>= return . Set.fromList
-                         modify (Map.mapWithKey (\k s -> if Set.member k victims then Set.empty else s))) es
+          execStateT (do victims <- get >>= \(x :: GraphEdges TGV) -> filterM (sink . view (vsimple . etype)) (Map.keys x) >>= return . Set.fromList
+                         modify (Map.mapWithKey (\k s -> if Set.member k victims then Set.empty else s) :: GraphEdges TGV -> GraphEdges TGV)) es
 
       sink (E typ) = (not . null) <$> lift (reifyInstancesWithContext ''SinkType [typ])
 
       doHide :: (GraphEdges TGV) -> m (GraphEdges TGV)
       doHide es =
-          execStateT (do victims <- get >>= filterM (hidden . view (vsimple . etype)) . Map.keys >>= return . Set.fromList
-                         modify (Map.mapWithKey (\_ s -> Set.difference s victims))
-                         modify (Map.filterWithKey (\k _ -> not (Set.member k victims)))) es
+          execStateT (do victims <- get >>= \(x :: GraphEdges TGV) -> filterM (hidden . view (vsimple . etype)) (Map.keys x) >>= return . Set.fromList
+                         modify (Map.mapWithKey (\_ s -> Set.difference s victims) :: GraphEdges TGV -> GraphEdges TGV)
+                         modify (Map.filterWithKey (\k _ -> not (Set.member k victims)) :: GraphEdges TGV -> GraphEdges TGV)) es
 
       hidden (E typ) = (not . null) <$> lift (reifyInstancesWithContext ''HideType [typ])
