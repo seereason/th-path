@@ -74,7 +74,7 @@ library
       Language.Haskell.TH.TypeGraph.TypeInfo
       Language.Haskell.TH.TypeGraph.Vertex
   else
-    build-depends: th-context >= 0.20, th-typegraph >= 0.24
+    build-depends: th-context >= 0.20, th-typegraph >= 0.24, mtl-unleashed >= 0.2.2
 
 -- test-suite th-path-tests
 --   type:             exitcode-stdio-1.0
