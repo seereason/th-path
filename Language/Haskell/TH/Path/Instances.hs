@@ -33,7 +33,7 @@ import Language.Haskell.TH.Context (InstMap, reifyInstancesWithContext)
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Core (mat, Path(..), Path_OMap(..), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
-import Language.Haskell.TH.Path.Graph (foldPath, FoldPathControl(..), typeGraphEdges', SinkType)
+import Language.Haskell.TH.Path.Graph (foldPath, FoldPathControl(..), pathGraphEdges, SinkType)
 import Language.Haskell.TH.Path.Lens (fieldLensName, makePathLens)
 import Language.Haskell.TH.Path.PathType (pathType, pathConNameOfField)
 import Language.Haskell.TH.Path.Order (lens_omat)
@@ -51,7 +51,7 @@ import System.FilePath.Extra (compareSaveAndReturn, changeError)
 -- argument types.  Each edge in the type graph corresponds to a Path instance.
 pathInstances :: (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m) => m [Type] -> m [Dec]
 pathInstances st = do
-  r <- st >>= makeTypeInfo (\t -> maybe mempty singleton <$> runQ (viewInstanceType t)) >>= \ti -> runReaderT (typeGraphEdges' >>= makeTypeGraph) ti
+  r <- st >>= makeTypeInfo (\t -> maybe mempty singleton <$> runQ (viewInstanceType t)) >>= \ti -> runReaderT (pathGraphEdges >>= makeTypeGraph) ti
   -- runIO $ putStr ("\nLanguage.Haskell.TH.Path.Types.pathInstances - type graph " ++ pprint (view edges r))
   decs <- execWriterT $ flip runReaderT r $
           do lmp <- allLensKeys

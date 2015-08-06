@@ -15,7 +15,7 @@
 {-# LANGUAGE TupleSections #-}
 {-# OPTIONS_GHC -Wall -fno-warn-orphans #-}
 module Language.Haskell.TH.Path.Graph
-    ( typeGraphEdges'
+    ( pathGraphEdges
     , FoldPathControl(..)
     , foldPath
     -- * Hint classes
@@ -72,8 +72,8 @@ import Language.Haskell.TH.TypeGraph.Info (synonyms)
 -- may also want to eliminate nodes that are not on a path from a
 -- start type to a goal type, though eventually goal types will be
 -- eliminated - all types will be goal types.)
-typeGraphEdges' :: forall m. (DsMonad m, MonadReaders TypeInfo m, MonadStates InstMap m, MonadStates ExpandMap m) => m (GraphEdges TGV)
-typeGraphEdges' = do
+pathGraphEdges :: forall m. (DsMonad m, MonadReaders TypeInfo m, MonadStates InstMap m, MonadStates ExpandMap m) => m (GraphEdges TGV)
+pathGraphEdges = do
   e1 <- typeGraphEdges                      -- ; _tr "initial" mempty e1
   e1a <- return (cutEdges isMapKey e1)
   e2 <- cutM isUnlifted e1a                 -- ; _tr "unlifted" e1 e2
@@ -86,7 +86,7 @@ typeGraphEdges' = do
   e6 <- dissolveM isUnlifted e5             -- ; _tr "unlifted2" e5 e6   -- looks redundant
   e7 <- return {-cutEdgesM anonymous-} e6              -- ; _tr "anonymous" e6 e7
   e8 <- isolateUnreachable e7               -- ; _tr "unreachable" e7 e8
-  runQ (runIO (putStr ("typeGraphEdges' final - " ++ pprint e8)))
+  runQ (runIO (putStr ("pathGraphEdges final - " ++ pprint e8)))
   return e8
     where
       viewEdges :: TGV -> m (Maybe (Set TGV))

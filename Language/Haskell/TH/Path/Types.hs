@@ -29,7 +29,7 @@ import Language.Haskell.TH.Context (InstMap)
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Core (IdPath(idPath))
-import Language.Haskell.TH.Path.Graph (foldPath, FoldPathControl(..), typeGraphEdges')
+import Language.Haskell.TH.Path.Graph (foldPath, FoldPathControl(..), pathGraphEdges)
 import Language.Haskell.TH.Path.PathType (pathType, pathConNameOfField, bestPathTypeName, pathTypeNameFromTypeName)
 import Language.Haskell.TH.Path.View (viewInstanceType)
 import Language.Haskell.TH.Syntax as TH (Quasi, VarStrictType)
@@ -45,7 +45,7 @@ import System.FilePath.Extra (compareSaveAndReturn, changeError)
 -- argument, and construct the corresponding path types.
 pathTypes :: (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m) => m [Type] -> m [Dec]
 pathTypes st = do
-  r <- st >>= makeTypeInfo (\t -> maybe mempty singleton <$> runQ (viewInstanceType t)) >>= \ti -> runReaderT (typeGraphEdges' >>= makeTypeGraph) ti
+  r <- st >>= makeTypeInfo (\t -> maybe mempty singleton <$> runQ (viewInstanceType t)) >>= \ti -> runReaderT (pathGraphEdges >>= makeTypeGraph) ti
   -- runIO $ putStr ("\nLanguage.Haskell.TH.Path.Types.pathTypes - " ++ pprint (view edges r))
   decss <- execWriterT $ runReaderT (allPathStarts >>= mapM pathTypeDecs . toList . Set.map (view vsimple)) r
   runQ . runIO . compareSaveAndReturn changeError "GeneratedPathTypes.hs" $ concat decss
