@@ -34,7 +34,7 @@ import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Core (mat, Path(..), Path_OMap(..), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
 import Language.Haskell.TH.Path.Graph (foldPath, FoldPathControl(..), pathGraphEdges, SinkType)
-import Language.Haskell.TH.Path.Lens (fieldLensName, makePathLens)
+import Language.Haskell.TH.Path.Lens (fieldLensNameOld, makePathLens)
 import Language.Haskell.TH.Path.PathType (pathType, pathConNameOfField)
 import Language.Haskell.TH.Path.Order (lens_omat)
 import Language.Haskell.TH.Path.View (viewInstanceType)
@@ -246,8 +246,8 @@ namedTypeClause tname gkey ptyp =
                              let goal = view (vsimple . etype) fkey == view etype gkey
                              clauses' <- List.mapM (mapClause (\ pat -> conP pcname [pat])
                                                               (\ lns -> if goal
-                                                                        then varE (fieldLensName tname fn)
-                                                                        else [|$(varE (fieldLensName tname fn)) . $lns|])) clauses
+                                                                        then varE (fieldLensNameOld tname fn)
+                                                                        else [|$(varE (fieldLensNameOld tname fn)) . $lns|])) clauses
                              return [(con, clauses')]
 
 
