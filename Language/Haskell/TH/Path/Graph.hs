@@ -86,7 +86,7 @@ pathGraphEdges = do
   e6 <- dissolveM isUnlifted e5             -- ; _tr "unlifted2" e5 e6   -- looks redundant
   e7 <- return {-cutEdgesM anonymous-} e6              -- ; _tr "anonymous" e6 e7
   e8 <- isolateUnreachable e7               -- ; _tr "unreachable" e7 e8
-  runQ (runIO (putStr ("pathGraphEdges final - " ++ pprint e8)))
+  -- runQ (runIO (putStr ("pathGraphEdges final - " ++ pprint e8)))
   return e8
     where
       viewEdges :: TGV -> m (Maybe (Set TGV))
