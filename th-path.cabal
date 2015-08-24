@@ -32,7 +32,6 @@ library
     containers,
     data-default,
     filemanip-extra,
-    happstack-authenticate,
     haskell-src-exts,
     lens,
     ListLike,
@@ -46,6 +45,7 @@ library
     th-desugar,
     th-kinds,
     th-orphans,
+    userid,
     web-routes-th
   ghc-options:      -Wall -O2
   exposed-modules:

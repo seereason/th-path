@@ -62,8 +62,8 @@ import Data.Maybe (catMaybes)
 import Data.Monoid
 import Data.SafeCopy (base, deriveSafeCopy)
 import Data.Text as Text (Text, pack, unpack, unwords, words)
+import Data.UserId (UserId(..))
 import Debug.Trace (trace)
-import Happstack.Authenticate.Core (UserId(..))
 import Language.Haskell.TH
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()

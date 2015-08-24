@@ -37,10 +37,10 @@ import Control.Monad.States (execStateT, get, modify, MonadStates)
 import Control.Monad.Trans (lift)
 import Data.Foldable.Compat
 import Data.Graph as Graph (reachable)
-import Data.List as List (filter)
-import Data.Map as Map (filterWithKey, keys, Map, mapWithKey)
+import Data.List as List (filter, map)
+import Data.Map as Map (filterWithKey, fromList, keys, Map, mapWithKey, toList)
 import Data.Maybe (fromJust, isJust, mapMaybe)
-import Data.Set as Set (difference, empty, fromList, map, member, Set, singleton)
+import Data.Set as Set (difference, empty, fromList, map, member, Set, singleton, toList)
 import Language.Haskell.Exts.Syntax ()
 import Language.Haskell.TH
 import Language.Haskell.TH.Context (InstMap, reifyInstancesWithContext)
@@ -84,7 +84,7 @@ pathGraphEdges = do
   e4 <- pruneTypeGraph e3a                  -- ; _tr "prune" e3a e4
   e5 <- dissolveM hasFreeVars e4            -- ; _tr "freeVars" e4 e5
   e6 <- dissolveM isUnlifted e5             -- ; _tr "unlifted2" e5 e6   -- looks redundant
-  e7 <- return {-cutEdgesM anonymous-} e6              -- ; _tr "anonymous" e6 e7
+  e7 <- return {-cutEdgesM anonymous-} e6   -- ; _tr "anonymous" e6 e7
   e8 <- isolateUnreachable e7               -- ; _tr "unreachable" e7 e8
   -- runQ (runIO (putStr ("pathGraphEdges final - " ++ pprint e8)))
   return e8
@@ -121,9 +121,9 @@ pathGraphEdges = do
         let es' = isolate (flip member victims) es
             es'' = Map.filterWithKey (\k _ -> not (Set.member k victims)) es'
         return es''
-#if 0
-      tr :: String -> GraphEdges TGV -> GraphEdges TGV -> m (GraphEdges TGV)
-      tr s old new =
+
+      _tr :: String -> GraphEdges TGV -> GraphEdges TGV -> m (GraphEdges TGV)
+      _tr s old new =
           runQ (runIO (putStr ("\n\f\nLanguage.Haskell.TH.Path.Graph.makeTypeGraphEdges " ++ s ++
                                " - added " ++ indent "+" (pprint (diff new old)) ++
                                "\nremoved " ++  indent "-" (pprint (diff old new))))) >> return new
@@ -133,7 +133,6 @@ pathGraphEdges = do
       -- Exact difference between two maps
       diff m1 m2 = Map.fromList $ Set.toList $ Set.difference (Set.fromList (Map.toList m1))
                                                               (Set.fromList (Map.toList m2))
-#endif
 
 data FoldPathControl m r
     = FoldPathControl
