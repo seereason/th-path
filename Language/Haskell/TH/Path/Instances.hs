@@ -43,7 +43,7 @@ import Language.Haskell.TH.TypeGraph.Expand (E(unE), ExpandMap, expandType)
 import Language.Haskell.TH.TypeGraph.Prelude (pprint')
 import Language.Haskell.TH.TypeGraph.TypeGraph (allPathKeys, goalReachableSimple, makeTypeGraph, TypeGraph, typeInfo)
 import Language.Haskell.TH.TypeGraph.TypeInfo (fieldVertex, makeTypeInfo, typeVertex)
-import Language.Haskell.TH.TypeGraph.Vertex (bestType, etype, TGVSimple, typeNames, vsimple)
+import Language.Haskell.TH.TypeGraph.Vertex (bestType, etype, TGVSimple, vsimple)
 import Prelude hiding (any, concat, concatMap, elem, foldr, mapM_, null, or)
 import System.FilePath.Extra (compareSaveAndReturn, changeError)
 
@@ -224,7 +224,7 @@ namedTypeClause tname gkey ptyp =
                              -- necessary declarations into the state.  Also, build an
                              -- expression for the lens that turns this field value into the
                              -- goal type.
-                             clauses <- runQ (newName "x") >>= \x -> return [clause [varP x] (normalB [|toLens $(varE x)|]) []]
+                             clauses <- runQ (newName "_x") >>= \x -> return [clause [varP x] (normalB [|toLens $(varE x)|]) []]
                              let Just pcname = pathConNameOfField fkey
                              ptype' <- pathType (pure (bestType gkey)) (view vsimple fkey)
                              -- This is the new constructor for this field
