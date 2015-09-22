@@ -47,11 +47,11 @@ pathTypes :: (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m) => m [T
 pathTypes st = do
   r <- st >>= makeTypeInfo (\t -> maybe mempty singleton <$> runQ (viewInstanceType t)) >>= \ti -> runReaderT (pathGraphEdges >>= makeTypeGraph) ti
   -- runIO $ putStr ("\nLanguage.Haskell.TH.Path.Types.pathTypes - " ++ pprint (view edges r))
-  decss <- execWriterT $ runReaderT (allPathStarts >>= mapM pathTypeDecs . toList . Set.map (view vsimple)) r
-  runQ . runIO . compareSaveAndReturn changeError "GeneratedPathTypes.hs" $ concat decss
+  decs <- execWriterT $ runReaderT (allPathStarts >>= mapM_ pathTypeDecs . toList . Set.map (view vsimple)) r
+  runQ . runIO . compareSaveAndReturn changeError "GeneratedPathTypes.hs" $ decs
 
 -- | Given a type, generate the corresponding path type declarations
-pathTypeDecs :: forall m. (DsMonad m, MonadReaders TypeGraph m, MonadWriter [[Dec]] m, MonadStates ExpandMap m, MonadStates InstMap m) => TGVSimple -> m ()
+pathTypeDecs :: forall m. (DsMonad m, MonadReaders TypeGraph m, MonadWriter [Dec] m, MonadStates ExpandMap m, MonadStates InstMap m) => TGVSimple -> m ()
 pathTypeDecs key =
   pathTypeDecs'
     where
@@ -76,9 +76,9 @@ pathTypeDecs key =
 
       simplePath :: Name -> Set Name -> m ()
       simplePath pname syns = do
-        runQ (newName "a" >>= \a -> dataD (return []) pname [PlainTV a] [normalC pname []] supers) >>= tell . (: []) . (: [])
-        runQ [d|instance IdPath ($(conT pname) a) where idPath = $(conE (mkName (nameBase pname)))|] >>= tell . (: [])
-        mapM_ (\psyn -> runQ (newName "a" >>= \a -> tySynD psyn [PlainTV a] (appT (conT pname) (varT a))) >>= tell . (: []) . (: [])) (toList syns)
+        runQ (newName "a" >>= \a -> dataD (return []) pname [PlainTV a] [normalC pname []] supers) >>= tell . (: [])
+        runQ [d|instance IdPath ($(conT pname) a) where idPath = $(conE (mkName (nameBase pname)))|] >>= tell
+        mapM_ (\psyn -> runQ (newName "a" >>= \a -> tySynD psyn [PlainTV a] (appT (conT pname) (varT a))) >>= tell . (: [])) (toList syns)
 
       -- viewPath [t|Text|] = data Path_Branding a = Path_Branding (Path_Text a)
       viewPath :: Type -> m ()
@@ -95,8 +95,8 @@ pathTypeDecs key =
                               [ normalC (mkName (nameBase pname ++ "_View")) [strictType notStrict (pure ptype')]
                               , normalC (mkName (nameBase pname)) []
                               ] supers
-                         : List.map (\psyn -> tySynD psyn [PlainTV a] (appT (conT pname) (varT a))) (toList syns))) >>= tell . (: [])
-        runQ [d|instance IdPath ($(conT pname) a) where idPath = $(conE (mkName (nameBase pname)))|] >>= tell . (: [])
+                         : List.map (\psyn -> tySynD psyn [PlainTV a] (appT (conT pname) (varT a))) (toList syns))) >>= tell
+        runQ [d|instance IdPath ($(conT pname) a) where idPath = $(conE (mkName (nameBase pname)))|] >>= tell
 
       substitute :: Type -> Type -> Type
       substitute gtype (AppT x (VarT _)) = (AppT x gtype)
@@ -105,7 +105,7 @@ pathTypeDecs key =
       substitute _ x = x
 
       doInfo (TyConI dec) =
-          -- tell [ [d| z = $(litE (stringL ("doDec " ++ pprint' dec))) |] ] >>
+          -- tell [d| z = $(litE (stringL ("doDec " ++ pprint' dec))) |] >>
           doDec dec
       doInfo (FamilyI dec _insts) = doDec dec
       doInfo info = error $ "pathTypeDecs - unexpected Info: " ++ pprint' info ++ "\n  " ++ show info
@@ -115,7 +115,7 @@ pathTypeDecs key =
           do a <- runQ $ newName "a"
              key' <- ask >>= return . view typeInfo >>= runReaderT (expandType typ' >>= typeVertex)
              ptype <- pathType (varT a) key'
-             mapM_ (\pname -> tell1 (tySynD pname [PlainTV a] (return ptype))) (pathTypeNames' key)
+             mapM_ (\pname -> runQ (tySynD pname [PlainTV a] (return ptype)) >>= tell . (: [])) (pathTypeNames' key)
       doDec (NewtypeD _ tname _ con _) = doDataD tname [con]
       doDec (DataD _ tname _ cons _) = doDataD tname cons
       doDec (FamilyD _flavour _name _tvbs _mkind) = return ()
@@ -129,8 +129,8 @@ pathTypeDecs key =
       makeDecs :: Name -> [[Con]] -> m ()
       makeDecs a pconss =
           case filter (/= []) pconss of
-            [pcons] -> mapM_ (\pname -> do tell1 (dataD (cxt []) pname [PlainTV a] (List.map return (pcons ++ [NormalC pname []])) supers)
-                                           runQ [d|instance IdPath ($(conT pname) a) where idPath = $(conE (mkName (nameBase pname)))|] >>= tell . (: [])
+            [pcons] -> mapM_ (\pname -> do runQ (dataD (cxt []) pname [PlainTV a] (List.map return (pcons ++ [NormalC pname []])) supers) >>= tell . (: [])
+                                           runQ [d|instance IdPath ($(conT pname) a) where idPath = $(conE (mkName (nameBase pname)))|] >>= tell
                              ) (pathTypeNames' key)
             [] | length pconss > 1 -> return () -- enum
             [] -> return ()
@@ -168,9 +168,6 @@ pathTypeDecs key =
 
 supers :: [Name]
 supers = [''Eq, ''Ord, ''Read, ''Show, ''Typeable, ''Data]
-
-tell1 :: (Quasi m, MonadWriter [[Dec]] m) => DecQ -> m ()
-tell1 dec = runQ (sequence (List.map sequence [[dec]])) >>= tell
 
 pathTypeNames' :: TypeGraphVertex v => v -> Set Name
 pathTypeNames' = Set.map pathTypeNameFromTypeName . typeNames
