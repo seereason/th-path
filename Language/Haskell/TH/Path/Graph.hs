@@ -15,7 +15,9 @@
 {-# LANGUAGE TupleSections #-}
 {-# OPTIONS_GHC -Wall -fno-warn-orphans #-}
 module Language.Haskell.TH.Path.Graph
-    ( pathGraphEdges
+    ( S(S)
+    , runTypeGraphT
+    , pathGraphEdges
     , FoldPathControl(..)
     , foldPath
     -- * Hint classes
@@ -32,8 +34,8 @@ import Control.Applicative
 #endif
 import Control.Lens -- (makeLenses, over, view)
 import Control.Monad (filterM)
-import Control.Monad.Readers (MonadReaders, ask)
-import Control.Monad.States (execStateT, get, modify, MonadStates)
+import Control.Monad.Readers (ask, MonadReaders, ReaderT, runReaderT)
+import Control.Monad.States (execStateT, get, modify, MonadStates, put, StateT)
 import Control.Monad.Trans (lift)
 import Data.Foldable.Compat
 import Data.Graph as Graph (reachable)
@@ -53,8 +55,8 @@ import Language.Haskell.TH.TypeGraph.Edges ({-cut, cutEdgesM,-} cutEdges, cutM, 
 import Language.Haskell.TH.TypeGraph.Expand (E(E, unE), ExpandMap, expandType)
 import Language.Haskell.TH.TypeGraph.Free (freeTypeVars)
 import Language.Haskell.TH.TypeGraph.Prelude (unlifted)
-import Language.Haskell.TH.TypeGraph.TypeGraph (graphFromMap, TypeGraph)
-import Language.Haskell.TH.TypeGraph.TypeInfo (startTypes, TypeInfo, typeVertex, typeVertex')
+import Language.Haskell.TH.TypeGraph.TypeGraph (graphFromMap, makeTypeGraph, TypeGraph)
+import Language.Haskell.TH.TypeGraph.TypeInfo (makeTypeInfo, startTypes, TypeInfo, typeVertex, typeVertex')
 import Language.Haskell.TH.TypeGraph.Vertex (etype, TGV(TGV, _vsimple), vsimple, TGVSimple(TGVSimple, _etype))
 import Prelude hiding (any, concat, concatMap, elem, exp, foldr, mapM_, null, or)
 
@@ -66,6 +68,26 @@ import Language.Haskell.TH.TypeGraph.Prelude (pprint')
 import Language.Haskell.TH.TypeGraph.Graph (typeInfo)
 import Language.Haskell.TH.TypeGraph.Info (synonyms)
 #endif
+
+data S = S { _expanded :: ExpandMap
+           , _instMap :: InstMap }
+
+$(makeLenses ''S)
+
+instance Monad m => MonadStates ExpandMap (StateT S m) where
+    get = use expanded
+    put s = expanded .= s
+
+instance Monad m => MonadStates InstMap (StateT S m) where
+    get = use instMap
+    put s = instMap .= s
+
+runTypeGraphT :: (MonadStates ExpandMap m, MonadStates InstMap m, DsMonad m) =>
+                 ReaderT TypeGraph m a -> [Type] -> m a
+runTypeGraphT action st = do
+  ti <- makeTypeInfo (\t -> maybe mempty singleton <$> runQ (viewInstanceType t)) st
+  r <- runReaderT (pathGraphEdges >>= makeTypeGraph) ti
+  runReaderT action r
 
 -- | Build a graph of the subtype relation, omitting any types whose
 -- arity is nonzero and any not reachable from the start types.  (We
