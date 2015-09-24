@@ -69,11 +69,16 @@ test02 = TestCase $ assertString (show (prettyContextDiff (text "expected") (tex
 actual02 :: [String]
 actual02 =
     (lines . pprint . fixStringLits . stripNames)
-       $(do (Just dec) <- lookupTypeName "Dec"
-            let st = sequence [runQ [t|ReportMap|]]
-            (decs1 :: [Dec]) <- evalStateT (pathTypes st) (S mempty mempty) >>= (runQ . runIO . compareSaveAndReturn changeError "GeneratedPathTypes.hs" . sort)
-            (decs2 :: [Dec]) <- evalStateT (pathLenses st) (S mempty mempty) >>= (runQ . runIO . compareSaveAndReturn changeError "GeneratedPathLenses.hs" . sort)
-            (decs3 :: [Dec]) <- evalStateT (pathInstances st) (S mempty mempty) >>= (runQ . runIO . compareSaveAndReturn changeError "GeneratedPathInstances.hs" . sort)
+       $(do -- We need to rebuild this module if any of the library
+            -- source files change.  It is not sufficent to re-link the
+            -- executable because the libraries affect the code generated
+            -- in this template haskell splice.
+            depFiles
+            (Just dec) <- lookupTypeName "Dec"
+            st <- runQ [t|ReportMap|]
+            (decs1 :: [Dec]) <- evalStateT (pathTypes [st]) (S mempty mempty) >>= (runQ . runIO . compareSaveAndReturn changeError "GeneratedPathTypes.hs" . sort)
+            (decs2 :: [Dec]) <- evalStateT (pathLenses [st]) (S mempty mempty) >>= (runQ . runIO . compareSaveAndReturn changeError "GeneratedPathLenses.hs" . sort)
+            (decs3 :: [Dec]) <- evalStateT (pathInstances [st]) (S mempty mempty) >>= (runQ . runIO . compareSaveAndReturn changeError "GeneratedPathInstances.hs" . sort)
             lift (decs1 ++ decs2 ++ decs3))
 
 expected02 :: [String]

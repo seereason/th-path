@@ -42,9 +42,9 @@ import Prelude hiding (any, concat, concatMap, elem, foldr, mapM_, null, or)
 
 -- | Construct a graph of all types reachable from the types in the
 -- argument, and construct the corresponding path types.
-pathTypes :: (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m) => m [Type] -> m [Dec]
+pathTypes :: (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m) => [Type] -> m [Dec]
 pathTypes st = do
-  r <- st >>= makeTypeInfo (\t -> maybe mempty singleton <$> runQ (viewInstanceType t)) >>= \ti -> runReaderT (pathGraphEdges >>= makeTypeGraph) ti
+  r <- makeTypeInfo (\t -> maybe mempty singleton <$> runQ (viewInstanceType t)) st >>= \ti -> runReaderT (pathGraphEdges >>= makeTypeGraph) ti
   -- runIO $ putStr ("\nLanguage.Haskell.TH.Path.Types.pathTypes - " ++ pprint (view edges r))
   execWriterT $ runReaderT (allPathStarts >>= mapM_ pathTypeDecs . toList . Set.map (view vsimple)) r
 

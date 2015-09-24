@@ -48,9 +48,9 @@ import Prelude hiding (any, concat, concatMap, elem, foldr, mapM_, null, or)
 
 -- | Construct the 'Path' instances for all types reachable from the
 -- argument types.  Each edge in the type graph corresponds to a Path instance.
-pathInstances :: (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m) => m [Type] -> m [Dec]
+pathInstances :: (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m) => [Type] -> m [Dec]
 pathInstances st = do
-  r <- st >>= makeTypeInfo (\t -> maybe mempty singleton <$> runQ (viewInstanceType t)) >>= \ti -> runReaderT (pathGraphEdges >>= makeTypeGraph) ti
+  r <- makeTypeInfo (\t -> maybe mempty singleton <$> runQ (viewInstanceType t)) st >>= \ti -> runReaderT (pathGraphEdges >>= makeTypeGraph) ti
   execWriterT $ flip runReaderT r $
           do pmp <- allPathKeys
              Foldable.mapM_ (uncurry pathInstanceDecs) (Map.toList pmp)

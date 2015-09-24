@@ -39,9 +39,9 @@ import Language.Haskell.TH.TypeGraph.TypeInfo (makeTypeInfo)
 import Language.Haskell.TH.TypeGraph.Vertex (etype, TGVSimple, typeNames)
 import Prelude hiding (any, concat, concatMap, elem, foldr, mapM_, null, or)
 
-pathLenses :: (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m) => m [Type] -> m [Dec]
+pathLenses :: (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m) => [Type] -> m [Dec]
 pathLenses st = do
-  r <- st >>= makeTypeInfo (\t -> maybe mempty singleton <$> runQ (viewInstanceType t)) >>= \ti -> runReaderT (pathGraphEdges >>= makeTypeGraph) ti
+  r <- makeTypeInfo (\t -> maybe mempty singleton <$> runQ (viewInstanceType t)) st >>= \ti -> runReaderT (pathGraphEdges >>= makeTypeGraph) ti
   execWriterT $ flip runReaderT r $
           do lmp <- Map.keys <$> allLensKeys
              Foldable.mapM_ pathLensDecs lmp
