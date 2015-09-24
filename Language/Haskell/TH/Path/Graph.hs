@@ -49,7 +49,7 @@ import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.KindInference (inferKind)
 import Language.Haskell.TH.Path.Order (Order)
-import Language.Haskell.TH.Path.View (View(viewLens), viewInstanceType)
+import Language.Haskell.TH.Path.View (View(viewLens), viewInstanceType, viewTypes)
 import Language.Haskell.TH.TypeGraph.Edges ({-cut, cutEdgesM,-} cutEdges, cutM, dissolveM, GraphEdges, isolate, linkM, simpleEdges, typeGraphEdges)
 import Language.Haskell.TH.TypeGraph.Expand (E(E, unE), ExpandMap, expandType)
 import Language.Haskell.TH.TypeGraph.Free (freeTypeVars)
@@ -87,7 +87,9 @@ runTypeGraphT action st = evalStateT (runTypeGraphT' action st) (S mempty mempty
 runTypeGraphT' :: (MonadStates ExpandMap m, MonadStates InstMap m, DsMonad m) =>
                   ReaderT TypeGraph m a -> [Type] -> m a
 runTypeGraphT' action st = do
-  ti <- makeTypeInfo (\t -> maybe mempty singleton <$> runQ (viewInstanceType t)) st
+  vt <- viewTypes -- Every instance of ViewType
+  let st' = st ++ Set.toList vt
+  ti <- makeTypeInfo (\t -> maybe mempty singleton <$> runQ (viewInstanceType t)) st'
   r <- runReaderT (pathGraphEdges >>= makeTypeGraph) ti
   runReaderT action r
 
