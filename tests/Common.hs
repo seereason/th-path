@@ -37,3 +37,39 @@ fixStringLits = everywhere (mkT f)
 
 gFind :: (MonadPlus m, Data a, Typeable b) => a -> m b
 gFind = msum . map return . listify (const True)
+
+depFiles =
+    mapM_ addDependentFile [
+                       "th-typegraph/Language/Haskell/TH/TypeGraph/Edges.hs",
+                       "th-typegraph/Language/Haskell/TH/TypeGraph/TypeGraph.hs",
+                       "Language/Haskell/TH/Path/Core.hs",
+                       "Language/Haskell/TH/Path/Graph.hs",
+                       "Language/Haskell/TH/Path/Instances.hs",
+                       "Language/Haskell/TH/Path/Lens.hs",
+                       "Language/Haskell/TH/Path/Order.hs",
+                       "Language/Haskell/TH/Path/PathType.hs",
+                       "Language/Haskell/TH/Path/Types.hs",
+                       "Language/Haskell/TH/Path/View.hs",
+                       "tests/Appraisal/Abbrevs.hs",
+                       "tests/Appraisal/Config.hs",
+                       "tests/Appraisal/Currency.hs",
+                       "tests/Appraisal/IntJS.hs",
+                       "tests/Appraisal/LaTeX.hs",
+                       "tests/Appraisal/LaTeX/Margins.hs",
+                       "tests/Appraisal/Markdown.hs",
+                       "tests/Appraisal/Markup.hs",
+                       "tests/Appraisal/Permissions.hs",
+                       "tests/Appraisal/Report.hs",
+                       "tests/Appraisal/ReportImage.hs",
+                       "tests/Appraisal/ReportItem.hs",
+                       "tests/Appraisal/ReportMap.hs",
+                       "tests/Appraisal/ReportPathInfo.hs",
+                       "tests/Appraisal/Unicode.hs",
+                       "tests/Appraisal/Utils/CIString.hs",
+                       "tests/Appraisal/Utils/Debug.hs",
+                       "tests/Appraisal/Utils/IsText.hs",
+                       "tests/Appraisal/Utils/List.hs",
+                       "tests/Appraisal/Utils/Pandoc.hs",
+                       "tests/Appraisal/Utils/Text.hs",
+                       "tests/Common.hs"
+              ]

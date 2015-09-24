@@ -30,14 +30,16 @@ import Language.Haskell.TH.Path.Graph (runTypeGraphT, S(S))
 import Language.Haskell.TH.Path.Instances
 import Language.Haskell.TH.Path.Lens
 import Language.Haskell.TH.Path.Types
+import Language.Haskell.TH.Syntax (addDependentFile)
 import System.Exit
 import System.FilePath.Extra (compareSaveAndReturn, changeError)
 import Test.HUnit
 import Text.PrettyPrint (text)
 
-import Common (fixStringLits, stripNames)
+import Common (depFiles, fixStringLits, stripNames)
+import Appraisal.ReportItem
 import Appraisal.ReportMap
-import Appraisal.ReportPathInfo
+import Appraisal.ReportPathInfo hiding (depFiles)
 
 main :: IO ()
 main = do
