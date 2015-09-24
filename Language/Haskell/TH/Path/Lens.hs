@@ -82,3 +82,4 @@ fieldLensNamePair tname _cname fname = (nameBase fname, nameBase (fieldLensNameO
 
 uncap :: String -> String
 uncap (n : ame) = toLower n : ame
+uncap "" = ""

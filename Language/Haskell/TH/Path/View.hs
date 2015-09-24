@@ -13,7 +13,7 @@ module Language.Haskell.TH.Path.View
 import Control.Lens (Lens')
 import Control.Monad.States (MonadStates)
 import Data.Set as Set (fromList, Set)
-import Language.Haskell.TH
+import Language.Haskell.TH hiding (prim)
 import Language.Haskell.TH.Context (InstMap)
 import Language.Haskell.TH.Desugar as DS (DsMonad)
 import Language.Haskell.TH.TypeGraph.Arity (typeArity)
