@@ -39,7 +39,6 @@ import Language.Haskell.TH.TypeGraph.TypeGraph (allPathStarts, makeTypeGraph, Ty
 import Language.Haskell.TH.TypeGraph.TypeInfo (makeTypeInfo, typeVertex, fieldVertex)
 import Language.Haskell.TH.TypeGraph.Vertex (vsimple, TGVSimple, TypeGraphVertex, typeNames)
 import Prelude hiding (any, concat, concatMap, elem, foldr, mapM_, null, or)
-import System.FilePath.Extra (compareSaveAndReturn, changeError)
 
 -- | Construct a graph of all types reachable from the types in the
 -- argument, and construct the corresponding path types.
@@ -47,8 +46,7 @@ pathTypes :: (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m) => m [T
 pathTypes st = do
   r <- st >>= makeTypeInfo (\t -> maybe mempty singleton <$> runQ (viewInstanceType t)) >>= \ti -> runReaderT (pathGraphEdges >>= makeTypeGraph) ti
   -- runIO $ putStr ("\nLanguage.Haskell.TH.Path.Types.pathTypes - " ++ pprint (view edges r))
-  decs <- execWriterT $ runReaderT (allPathStarts >>= mapM_ pathTypeDecs . toList . Set.map (view vsimple)) r
-  runQ . runIO . compareSaveAndReturn changeError "GeneratedPathTypes.hs" $ decs
+  execWriterT $ runReaderT (allPathStarts >>= mapM_ pathTypeDecs . toList . Set.map (view vsimple)) r
 
 -- | Given a type, generate the corresponding path type declarations
 pathTypeDecs :: forall m. (DsMonad m, MonadReaders TypeGraph m, MonadWriter [Dec] m, MonadStates ExpandMap m, MonadStates InstMap m) => TGVSimple -> m ()

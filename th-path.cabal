@@ -85,6 +85,19 @@ library
 --                     th-context, th-desugar, th-orphans, th-reify-many, th-typegraph >= 0.20
 --   default-language: Haskell2010
 
+test-suite th-path-tests
+  type:             exitcode-stdio-1.0
+  hs-source-dirs:   tests
+  main-is:          Tests.hs
+  build-depends:    base, base-compat, containers, filemanip-extra, haskell-src-exts, HUnit, lens,
+                    ListLike, mtl, mtl-unleashed, safecopy, template-haskell,
+                    th-context, th-desugar, th-kinds, th-lift, th-orphans,
+                    th-path, th-typegraph,
+                    applicative-extras, syb, text, userid, safe, web-routes-th, set-extra, transformers,
+                    HaTeX, regex-compat, image-cache, uuid-types, uuid-orphans, filepath, aeson, jmacro,
+                    json, sr-revision, pretty, web-routes, bytestring, network-uri, groom, pandoc, sr-extra
+  default-language: Haskell2010
+
 source-repository head
   type:     git
   location: git://github.com/seereason/th-path.git

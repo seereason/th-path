@@ -38,17 +38,13 @@ import Language.Haskell.TH.TypeGraph.TypeGraph (allLensKeys, makeTypeGraph, Type
 import Language.Haskell.TH.TypeGraph.TypeInfo (makeTypeInfo)
 import Language.Haskell.TH.TypeGraph.Vertex (etype, TGVSimple, typeNames)
 import Prelude hiding (any, concat, concatMap, elem, foldr, mapM_, null, or)
-import System.FilePath.Extra (compareSaveAndReturn, changeError)
 
 pathLenses :: (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m) => m [Type] -> m [Dec]
 pathLenses st = do
   r <- st >>= makeTypeInfo (\t -> maybe mempty singleton <$> runQ (viewInstanceType t)) >>= \ti -> runReaderT (pathGraphEdges >>= makeTypeGraph) ti
-  decs <- execWriterT $ flip runReaderT r $
+  execWriterT $ flip runReaderT r $
           do lmp <- Map.keys <$> allLensKeys
              Foldable.mapM_ pathLensDecs lmp
-  _ <- runQ . runIO . compareSaveAndReturn changeError "GeneratedPathLenses.hs" $ decs
-  runQ . runIO $ putStr ("\nPathLenses finished\n")
-  return decs
 
 pathLensDecs :: (DsMonad m, MonadReaders TypeGraph m, MonadWriter [Dec] m, MonadStates ExpandMap m, MonadStates InstMap m) =>
                 TGVSimple -> m ()

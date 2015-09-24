@@ -45,19 +45,15 @@ import Language.Haskell.TH.TypeGraph.TypeGraph (allPathKeys, goalReachableSimple
 import Language.Haskell.TH.TypeGraph.TypeInfo (fieldVertex, makeTypeInfo, typeVertex)
 import Language.Haskell.TH.TypeGraph.Vertex (bestType, etype, TGVSimple, vsimple)
 import Prelude hiding (any, concat, concatMap, elem, foldr, mapM_, null, or)
-import System.FilePath.Extra (compareSaveAndReturn, changeError)
 
 -- | Construct the 'Path' instances for all types reachable from the
 -- argument types.  Each edge in the type graph corresponds to a Path instance.
 pathInstances :: (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m) => m [Type] -> m [Dec]
 pathInstances st = do
   r <- st >>= makeTypeInfo (\t -> maybe mempty singleton <$> runQ (viewInstanceType t)) >>= \ti -> runReaderT (pathGraphEdges >>= makeTypeGraph) ti
-  decs <- execWriterT $ flip runReaderT r $
+  execWriterT $ flip runReaderT r $
           do pmp <- allPathKeys
              Foldable.mapM_ (uncurry pathInstanceDecs) (Map.toList pmp)
-  _ <- runQ . runIO . compareSaveAndReturn changeError "GeneratedPathInstances.hs" $ decs
-  runQ . runIO $ putStr ("\nPathInstances finished\n")
-  return decs
 
 pathInstanceDecs :: forall m. (DsMonad m, MonadReaders TypeGraph m, MonadWriter [Dec] m, MonadStates ExpandMap m, MonadStates InstMap m) =>
                     TGVSimple -> Set TGVSimple -> m ()
