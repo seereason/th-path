@@ -29,7 +29,7 @@ import Language.Haskell.TH.Context (InstMap)
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Core (IdPath(idPath))
-import Language.Haskell.TH.Path.Graph (foldPath, FoldPathControl(..), pathGraphEdges)
+import Language.Haskell.TH.Path.Graph (foldPath, FoldPathControl(..), pathGraphEdges, runTypeGraphT)
 import Language.Haskell.TH.Path.PathType (pathType, pathConNameOfField, bestPathTypeName, pathTypeNameFromTypeName)
 import Language.Haskell.TH.Path.View (viewInstanceType)
 import Language.Haskell.TH.Syntax as TH (VarStrictType)
@@ -42,11 +42,15 @@ import Prelude hiding (any, concat, concatMap, elem, foldr, mapM_, null, or)
 
 -- | Construct a graph of all types reachable from the types in the
 -- argument, and construct the corresponding path types.
-pathTypes :: (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m) => [Type] -> m [Dec]
-pathTypes st = do
-  r <- makeTypeInfo (\t -> maybe mempty singleton <$> runQ (viewInstanceType t)) st >>= \ti -> runReaderT (pathGraphEdges >>= makeTypeGraph) ti
-  -- runIO $ putStr ("\nLanguage.Haskell.TH.Path.Types.pathTypes - " ++ pprint (view edges r))
+pathTypes :: (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m, MonadReaders TypeGraph m) => m [Dec]
+pathTypes = execWriterT (allPathStarts >>= mapM_ pathTypeDecs . toList . Set.map (view vsimple))
+{-
+  ti <- makeTypeInfo (\t -> maybe mempty singleton <$> runQ (viewInstanceType t)) st
+  runQ $ runIO $ writeFile "TYPEINFO" (pprint ti)
+  r <- runReaderT (pathGraphEdges >>= makeTypeGraph) ti
+  runQ $ runIO $ writeFile "TYPEGRAPH" (pprint r)
   execWriterT $ runReaderT (allPathStarts >>= mapM_ pathTypeDecs . toList . Set.map (view vsimple)) r
+-}
 
 -- | Given a type, generate the corresponding path type declarations
 pathTypeDecs :: forall m. (DsMonad m, MonadReaders TypeGraph m, MonadWriter [Dec] m, MonadStates ExpandMap m, MonadStates InstMap m) => TGVSimple -> m ()

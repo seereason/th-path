@@ -15,8 +15,7 @@
 {-# LANGUAGE TupleSections #-}
 {-# OPTIONS_GHC -Wall -fno-warn-orphans #-}
 module Language.Haskell.TH.Path.Graph
-    ( S(S)
-    , runTypeGraphT
+    ( runTypeGraphT
     , pathGraphEdges
     , FoldPathControl(..)
     , foldPath
@@ -35,7 +34,7 @@ import Control.Applicative
 import Control.Lens -- (makeLenses, over, view)
 import Control.Monad (filterM)
 import Control.Monad.Readers (ask, MonadReaders, ReaderT, runReaderT)
-import Control.Monad.States (execStateT, get, modify, MonadStates, put, StateT)
+import Control.Monad.States (execStateT, evalStateT, get, modify, MonadStates, put, StateT)
 import Control.Monad.Trans (lift)
 import Data.Foldable.Compat
 import Data.Graph as Graph (reachable)
@@ -82,9 +81,12 @@ instance Monad m => MonadStates InstMap (StateT S m) where
     get = use instMap
     put s = instMap .= s
 
-runTypeGraphT :: (MonadStates ExpandMap m, MonadStates InstMap m, DsMonad m) =>
-                 ReaderT TypeGraph m a -> [Type] -> m a
-runTypeGraphT action st = do
+runTypeGraphT :: DsMonad m => ReaderT TypeGraph (StateT S m) a -> [Type] -> m a
+runTypeGraphT action st = evalStateT (runTypeGraphT' action st) (S mempty mempty)
+
+runTypeGraphT' :: (MonadStates ExpandMap m, MonadStates InstMap m, DsMonad m) =>
+                  ReaderT TypeGraph m a -> [Type] -> m a
+runTypeGraphT' action st = do
   ti <- makeTypeInfo (\t -> maybe mempty singleton <$> runQ (viewInstanceType t)) st
   r <- runReaderT (pathGraphEdges >>= makeTypeGraph) ti
   runReaderT action r

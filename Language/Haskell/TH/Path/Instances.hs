@@ -26,36 +26,32 @@ import Control.Monad.Writer (MonadWriter, execWriterT, tell)
 import Data.Foldable as Foldable
 import Data.List as List (map)
 import Data.Map as Map (toList)
-import Data.Set.Extra as Set (insert, mapM_, member, Set, singleton)
+import Data.Set.Extra as Set (insert, mapM_, member, Set)
 -- import Debug.Trace (trace)
 import Language.Haskell.TH
 import Language.Haskell.TH.Context (InstMap)
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Core (mat, Path(..), Path_OMap(..), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
-import Language.Haskell.TH.Path.Graph (foldPath, FoldPathControl(..), pathGraphEdges)
+import Language.Haskell.TH.Path.Graph (foldPath, FoldPathControl(..))
 import Language.Haskell.TH.Path.Lens (fieldLensNameOld)
 import Language.Haskell.TH.Path.PathType (pathType, pathConNameOfField)
 import Language.Haskell.TH.Path.Order (lens_omat)
-import Language.Haskell.TH.Path.View (viewInstanceType)
 import Language.Haskell.TH.Syntax as TH (lift, VarStrictType)
 import Language.Haskell.TH.TypeGraph.Expand (E(unE), ExpandMap, expandType)
 import Language.Haskell.TH.TypeGraph.Prelude (pprint')
-import Language.Haskell.TH.TypeGraph.TypeGraph (allPathKeys, goalReachableSimple, makeTypeGraph, TypeGraph, typeInfo)
-import Language.Haskell.TH.TypeGraph.TypeInfo (fieldVertex, makeTypeInfo, typeVertex)
+import Language.Haskell.TH.TypeGraph.TypeGraph (allPathKeys, goalReachableSimple, TypeGraph, typeInfo)
+import Language.Haskell.TH.TypeGraph.TypeInfo (fieldVertex, typeVertex)
 import Language.Haskell.TH.TypeGraph.Vertex (bestType, etype, TGVSimple, vsimple)
 import Prelude hiding (any, concat, concatMap, elem, foldr, mapM_, null, or)
 
 -- | Construct the 'Path' instances for all types reachable from the
 -- argument types.  Each edge in the type graph corresponds to a Path instance.
-pathInstances :: (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m) => [Type] -> m [Dec]
-pathInstances st = do
-  r <- makeTypeInfo (\t -> maybe mempty singleton <$> runQ (viewInstanceType t)) st >>= \ti -> runReaderT (pathGraphEdges >>= makeTypeGraph) ti
-  execWriterT $ flip runReaderT r $
-          do pmp <- allPathKeys
-             Foldable.mapM_ (uncurry pathInstanceDecs) (Map.toList pmp)
+pathInstances :: (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m, MonadReaders TypeGraph m) => m [Dec]
+pathInstances =
+  execWriterT $ allPathKeys >>= Foldable.mapM_ (uncurry pathInstanceDecs) . Map.toList
 
-pathInstanceDecs :: forall m. (DsMonad m, MonadReaders TypeGraph m, MonadWriter [Dec] m, MonadStates ExpandMap m, MonadStates InstMap m) =>
+pathInstanceDecs :: forall m. (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m, MonadReaders TypeGraph m, MonadWriter [Dec] m) =>
                     TGVSimple -> Set TGVSimple -> m ()
 pathInstanceDecs key gkeys = Set.mapM_ (pathInstanceDecs' key) gkeys
 
@@ -63,7 +59,7 @@ pathInstanceDecs key gkeys = Set.mapM_ (pathInstanceDecs' key) gkeys
 -- corresponding Path instance.  Each clause matches some possible value
 -- of the path type, and returns a lens that extracts the value the
 -- path type value specifies.
-pathInstanceDecs' :: forall m. (DsMonad m, MonadReaders TypeGraph m, MonadWriter [Dec] m, MonadStates ExpandMap m, MonadStates InstMap m) =>
+pathInstanceDecs' :: forall m. (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m, MonadReaders TypeGraph m, MonadWriter [Dec] m) =>
                      TGVSimple -> TGVSimple -> m ()
 pathInstanceDecs' key gkey = do
   ptyp <- pathType (pure (bestType gkey)) key

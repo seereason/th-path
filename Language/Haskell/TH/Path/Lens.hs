@@ -17,34 +17,27 @@ module Language.Haskell.TH.Path.Lens
 
 import Control.Applicative
 import Control.Lens hiding (cons) -- (makeLenses, over, view)
-import Control.Monad.Readers (MonadReaders, runReaderT)
+import Control.Monad.Readers (MonadReaders)
 import Control.Monad.States (MonadStates)
 import Control.Monad.Writer (MonadWriter, execWriterT, tell)
 import Data.Char (toLower)
 import Data.Foldable as Foldable
 import Data.Map as Map (keys)
-import Data.Set.Extra as Set (singleton)
 -- import Debug.Trace (trace)
 import Language.Haskell.TH
 import Language.Haskell.TH.Context (InstMap, reifyInstancesWithContext)
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.Path.Graph (pathGraphEdges, SinkType)
-import Language.Haskell.TH.Path.View (viewInstanceType)
+import Language.Haskell.TH.Path.Graph (SinkType)
 import Language.Haskell.TH.Syntax
 import Language.Haskell.TH.TypeGraph.Expand (E(E), ExpandMap)
 import Language.Haskell.TH.TypeGraph.Lens (lensNamePairs)
-import Language.Haskell.TH.TypeGraph.TypeGraph (allLensKeys, makeTypeGraph, TypeGraph)
-import Language.Haskell.TH.TypeGraph.TypeInfo (makeTypeInfo)
+import Language.Haskell.TH.TypeGraph.TypeGraph (allLensKeys, TypeGraph)
 import Language.Haskell.TH.TypeGraph.Vertex (etype, TGVSimple, typeNames)
 import Prelude hiding (any, concat, concatMap, elem, foldr, mapM_, null, or)
 
-pathLenses :: (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m) => [Type] -> m [Dec]
-pathLenses st = do
-  r <- makeTypeInfo (\t -> maybe mempty singleton <$> runQ (viewInstanceType t)) st >>= \ti -> runReaderT (pathGraphEdges >>= makeTypeGraph) ti
-  execWriterT $ flip runReaderT r $
-          do lmp <- Map.keys <$> allLensKeys
-             Foldable.mapM_ pathLensDecs lmp
+pathLenses :: (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m, MonadReaders TypeGraph m) => m [Dec]
+pathLenses = execWriterT (allLensKeys >>= Foldable.mapM_ pathLensDecs . Map.keys)
 
 pathLensDecs :: (DsMonad m, MonadReaders TypeGraph m, MonadWriter [Dec] m, MonadStates ExpandMap m, MonadStates InstMap m) =>
                 TGVSimple -> m ()

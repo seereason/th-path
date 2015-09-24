@@ -26,7 +26,7 @@ import Data.Monoid ((<>))
 import Debug.Trace
 import Language.Haskell.TH
 import Language.Haskell.TH.Lift (lift)
-import Language.Haskell.TH.Path.Graph (runTypeGraphT, S(S))
+import Language.Haskell.TH.Path.Graph (runTypeGraphT)
 import Language.Haskell.TH.Path.Instances
 import Language.Haskell.TH.Path.Lens
 import Language.Haskell.TH.Path.Types
@@ -78,9 +78,9 @@ actual02 =
             depFiles
             (Just dec) <- lookupTypeName "Dec"
             st <- runQ [t|ReportMap|]
-            (decs1 :: [Dec]) <- evalStateT (pathTypes [st]) (S mempty mempty) >>= (runQ . runIO . compareSaveAndReturn changeError "GeneratedPathTypes.hs" . sort)
-            (decs2 :: [Dec]) <- evalStateT (pathLenses [st]) (S mempty mempty) >>= (runQ . runIO . compareSaveAndReturn changeError "GeneratedPathLenses.hs" . sort)
-            (decs3 :: [Dec]) <- evalStateT (pathInstances [st]) (S mempty mempty) >>= (runQ . runIO . compareSaveAndReturn changeError "GeneratedPathInstances.hs" . sort)
+            (decs1 :: [Dec]) <- runTypeGraphT pathTypes [st] >>= (runQ . runIO . compareSaveAndReturn changeError "GeneratedPathTypes.hs" . sort)
+            (decs2 :: [Dec]) <- runTypeGraphT pathLenses [st] >>= (runQ . runIO . compareSaveAndReturn changeError "GeneratedPathLenses.hs" . sort)
+            (decs3 :: [Dec]) <- runTypeGraphT pathInstances [st] >>= (runQ . runIO . compareSaveAndReturn changeError "GeneratedPathInstances.hs" . sort)
             lift (decs1 ++ decs2 ++ decs3))
 
 expected02 :: [String]
