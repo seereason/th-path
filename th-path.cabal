@@ -60,13 +60,14 @@ library
   default-language: Haskell2010
   if flag(local-th-context)
     hs-source-dirs: th-context, th-typegraph, mtl-unleashed
-    build-depends: set-extra
+    build-depends: set-extra, mtl-unleashed
     exposed-modules:
       Language.Haskell.TH.Context
       Language.Haskell.TH.TypeGraph.Arity
       Language.Haskell.TH.TypeGraph.Edges
       Language.Haskell.TH.TypeGraph.Expand
       Language.Haskell.TH.TypeGraph.Free
+      Language.Haskell.TH.TypeGraph.Lens
       Language.Haskell.TH.TypeGraph.Prelude
       Language.Haskell.TH.TypeGraph.Shape
       Language.Haskell.TH.TypeGraph.Stack
@@ -91,13 +92,16 @@ test-suite th-path-tests
   main-is:          Tests.hs
   build-depends:    base, base-compat, containers, filemanip-extra, haskell-src-exts, HUnit, lens,
                     ListLike, mtl, mtl-unleashed, safecopy, template-haskell,
-                    th-context, th-desugar, th-kinds, th-lift, th-orphans,
-                    th-path, th-typegraph,
+                    th-desugar, th-kinds, th-lift, th-orphans, th-path,
                     applicative-extras, syb, text, userid, safe, web-routes-th, set-extra, transformers,
-                    HaTeX, regex-compat, image-cache, uuid-types, uuid-orphans, filepath, aeson, jmacro,
+                    HaTeX, regex-compat, uuid-types, uuid-orphans, filepath, aeson, jmacro,
                     json, sr-revision, pretty, web-routes, bytestring, network-uri, groom, pandoc, sr-extra,
-                    Diff, file-embed, utf8-string
+                    Diff, file-embed, utf8-string, image-cache
   default-language: Haskell2010
+  if !flag(local-th-context)
+    build-depends: th-context, th-typegraph
+  else
+    build-depends: binary, process-extras, pureMD5, exceptions, Unixutils, process, unix, directory, hslogger, random
 
 source-repository head
   type:     git
