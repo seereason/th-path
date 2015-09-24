@@ -17,6 +17,11 @@
 
 import Control.Monad.States (evalStateT)
 import Control.Monad.Writer (execWriterT)
+import Data.Algorithm.DiffContext (getContextDiff, prettyContextDiff)
+import Data.ByteString (ByteString)
+import Data.ByteString.UTF8 (toString)
+import Data.FileEmbed (embedFile)
+import Data.List (sort)
 import Data.Monoid ((<>))
 import Debug.Trace
 import Language.Haskell.TH
@@ -28,6 +33,7 @@ import Language.Haskell.TH.Path.Types
 import System.Exit
 import System.FilePath.Extra (compareSaveAndReturn, changeError)
 import Test.HUnit
+import Text.PrettyPrint (text)
 
 import Common (fixStringLits, stripNames)
 import Appraisal.ReportMap
@@ -58,17 +64,17 @@ expected01 :: [Dec]
 expected01 = []
 -}
 test02 :: Test
-test02 = TestCase $ assertEqual "path types for ReportMap" expected02 actual02
+test02 = TestCase $ assertString (show (prettyContextDiff (text "expected") (text "actual") text (getContextDiff 2 expected02 actual02)))
 
-actual02 :: [Dec]
+actual02 :: [String]
 actual02 =
-    (fixStringLits . stripNames)
+    (lines . pprint . fixStringLits . stripNames)
        $(do (Just dec) <- lookupTypeName "Dec"
             let st = sequence [runQ [t|ReportMap|]]
-            (decs1 :: [Dec]) <- evalStateT (pathTypes st) (S mempty mempty) >>= (runQ . runIO . compareSaveAndReturn changeError "GeneratedPathTypes.hs")
-            (decs2 :: [Dec]) <- evalStateT (pathLenses st) (S mempty mempty) >>= (runQ . runIO . compareSaveAndReturn changeError "GeneratedPathLenses.hs")
-            (decs3 :: [Dec]) <- evalStateT (pathInstances st) (S mempty mempty) >>= (runQ . runIO . compareSaveAndReturn changeError "GeneratedPathInstances.hs")
+            (decs1 :: [Dec]) <- evalStateT (pathTypes st) (S mempty mempty) >>= (runQ . runIO . compareSaveAndReturn changeError "GeneratedPathTypes.hs" . sort)
+            (decs2 :: [Dec]) <- evalStateT (pathLenses st) (S mempty mempty) >>= (runQ . runIO . compareSaveAndReturn changeError "GeneratedPathLenses.hs" . sort)
+            (decs3 :: [Dec]) <- evalStateT (pathInstances st) (S mempty mempty) >>= (runQ . runIO . compareSaveAndReturn changeError "GeneratedPathInstances.hs" . sort)
             lift (decs1 ++ decs2 ++ decs3))
 
-expected02 :: [Dec]
-expected02 = []
+expected02 :: [String]
+expected02 = lines $ toString $(embedFile "tests/expected02")
