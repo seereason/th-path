@@ -31,6 +31,7 @@ import Language.Haskell.TH.Path.Instances
 import Language.Haskell.TH.Path.Lens
 import Language.Haskell.TH.Path.Types
 import Language.Haskell.TH.Syntax (addDependentFile)
+import Language.Haskell.TH.TypeGraph.Prelude (friendlyNames)
 import System.Exit
 import System.FilePath.Extra (compareSaveAndReturn, changeError)
 import Test.HUnit
@@ -40,6 +41,9 @@ import Common (depFiles, fixStringLits, stripNames)
 import Appraisal.ReportItem
 import Appraisal.ReportMap
 import Appraisal.ReportPathInfo hiding (depFiles)
+
+import Data.List (sortBy)
+import Data.Function (on)
 
 main :: IO ()
 main = do
@@ -76,11 +80,12 @@ actual02 =
             -- executable because the libraries affect the code generated
             -- in this template haskell splice.
             depFiles
+            let save path = (runQ . runIO . compareSaveAndReturn {-(pprint . friendlyNames)-} changeError path . sortBy (compare `on` (show . friendlyNames)))
             (Just dec) <- lookupTypeName "Dec"
             st <- runQ [t|ReportMap|]
-            (decs1 :: [Dec]) <- runTypeGraphT pathTypes [st] >>= (runQ . runIO . compareSaveAndReturn changeError "GeneratedPathTypes.hs" . sort)
-            (decs2 :: [Dec]) <- runTypeGraphT pathLenses [st] >>= (runQ . runIO . compareSaveAndReturn changeError "GeneratedPathLenses.hs" . sort)
-            (decs3 :: [Dec]) <- runTypeGraphT pathInstances [st] >>= (runQ . runIO . compareSaveAndReturn changeError "GeneratedPathInstances.hs" . sort)
+            (decs1 :: [Dec]) <- runTypeGraphT pathTypes [st] >>= save "TestPathTypes.hs"
+            (decs2 :: [Dec]) <- runTypeGraphT pathLenses [st] >>= save "TestPathLenses.hs"
+            (decs3 :: [Dec]) <- runTypeGraphT pathInstances [st] >>= save "TestPathInstances.hs"
             lift (decs1 ++ decs2 ++ decs3))
 
 expected02 :: [String]
