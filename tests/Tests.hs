@@ -41,6 +41,7 @@ import Common (depFiles, fixStringLits, stripNames)
 import Appraisal.ReportItem
 import Appraisal.ReportMap
 import Appraisal.ReportPathInfo hiding (depFiles)
+import Appraisal.ReportPaths
 
 import Data.List (sortBy)
 import Data.Function (on)
@@ -69,9 +70,18 @@ actual01 =
 expected01 :: [Dec]
 expected01 = []
 -}
+
+actual02 :: [String]
+actual02 =
+    (lines . unlines . map pprint) decs'
+    where
+      decs' = sortBy (compare `on` show) (map friendlyNames types) ++
+              sortBy (compare `on` show) (map friendlyNames lenses) ++
+              sortBy (compare `on` show) (map friendlyNames instances)
+
 test02 :: Test
 test02 = TestCase $ assertString (show (prettyContextDiff (text "expected") (text "actual") text (getContextDiff 2 expected02 actual02)))
-
+{-
 actual02 :: [String]
 actual02 =
     (lines . pprint . fixStringLits . stripNames)
@@ -80,13 +90,13 @@ actual02 =
             -- executable because the libraries affect the code generated
             -- in this template haskell splice.
             depFiles
-            let save path = (runQ . runIO . compareSaveAndReturn {-(pprint . friendlyNames)-} changeError path . sortBy (compare `on` (show . friendlyNames)))
+            let save path = (runQ . runIO . compareSaveAndReturn changeError (pprint . friendlyNames) path . sortBy (compare `on` (show . friendlyNames)))
             (Just dec) <- lookupTypeName "Dec"
             st <- runQ [t|ReportMap|]
-            (decs1 :: [Dec]) <- runTypeGraphT pathTypes [st] >>= save "TestPathTypes.hs"
-            (decs2 :: [Dec]) <- runTypeGraphT pathLenses [st] >>= save "TestPathLenses.hs"
-            (decs3 :: [Dec]) <- runTypeGraphT pathInstances [st] >>= save "TestPathInstances.hs"
+            (decs1 :: [Dec]) <- runTypeGraphT pathTypes [st] >>= save "ReportPathTypes.hs"
+            (decs2 :: [Dec]) <- runTypeGraphT pathLenses [st] >>= save "ReportPathLenses.hs"
+            (decs3 :: [Dec]) <- runTypeGraphT pathInstances [st] >>= save "ReportPathInstances.hs"
             lift (decs1 ++ decs2 ++ decs3))
-
+-}
 expected02 :: [String]
-expected02 = lines $ toString $(embedFile "tests/expected02")
+expected02 = (lines . toString) $(embedFile "tests/expected02")

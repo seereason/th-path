@@ -33,6 +33,7 @@ import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Path.Core (lens_mrs, lens_UserIds_Text, readOnlyLens, readShowLens)
 import Language.Haskell.TH.Path.Graph (SinkType)
 import Language.Haskell.TH.Path.View (View(ViewType, viewLens), viewTypes)
+import Language.Haskell.TH.Syntax (addDependentFile)
 import Text.LaTeX (LaTeX)
 import Text.Pandoc (Pandoc, Meta)
 
@@ -183,5 +184,67 @@ instance View Units where type ViewType Units = JSONText; viewLens = gjsonLens
 instance View UserIds where type ViewType UserIds = Text; viewLens = lens_UserIds_Text
 instance View CIString where type ViewType CIString = Text; viewLens = lens_CIString_Text
 
-startTypes :: (DsMonad m, MonadStates InstMap m) => m [Type]
-startTypes = Set.toList <$> (Set.insert <$> runQ [t|ReportMap|] <*> viewTypes)
+startTypes :: Q [Type]
+startTypes = (: []) <$> [t|ReportMap|]
+
+depFiles :: Q ()
+depFiles =
+    mapM_ addDependentFile [
+#if LOCAL_TH_PATH
+               "Language/Haskell/TH/Path/Types.hs",
+               "Language/Haskell/TH/Path/Order.hs",
+               "Language/Haskell/TH/Path/PathType.hs",
+               "Language/Haskell/TH/Path/Graph.hs",
+               "Language/Haskell/TH/Path/Lens.hs",
+               "Language/Haskell/TH/Path/Core.hs",
+               "Language/Haskell/TH/Path/View.hs",
+               "Language/Haskell/TH/Path/Instances.hs",
+               "../th-typegraph/Language/Haskell/TH/TypeGraph/Edges.hs",
+#endif
+               "tests/Appraisal/Utils/List.hs",
+               "tests/Appraisal/Utils/CIString.hs",
+               "tests/Appraisal/Utils/Generics.hs",
+               "tests/Appraisal/Utils/Builders.hs",
+               "tests/Appraisal/Utils/Graph.hs",
+               "tests/Appraisal/Utils/UUID/V4.hs",
+               "tests/Appraisal/Utils/UUID/V5.hs",
+               "tests/Appraisal/Utils/UUID/V3.hs",
+               "tests/Appraisal/Utils/UUID/Named.hs",
+               "tests/Appraisal/Utils/UUID/Builder.hs",
+               "tests/Appraisal/Utils/UUID/Internal.hs",
+               "tests/Appraisal/Utils/UUID/V1.hs",
+               "tests/Appraisal/Utils/Debug.hs",
+               "tests/Appraisal/Utils/Pandoc.hs",
+               "tests/Appraisal/Utils/IsText.hs",
+               "tests/Appraisal/Utils/Twins.hs",
+               "tests/Appraisal/Utils/Text.hs",
+               "tests/Appraisal/Utils/UUID.hs",
+               "tests/Appraisal/LaTeX/Figures.hs",
+               "tests/Appraisal/LaTeX/Margins.hs",
+               "tests/Appraisal/LaTeX/Float.hs",
+               "tests/Appraisal/LaTeX/Tables.hs",
+               "tests/Appraisal/Abbrevs.hs",
+               "tests/Appraisal/Config.hs",
+               "tests/Appraisal/Currency.hs",
+               "tests/Appraisal/Html.hs",
+               "tests/Appraisal/IntJS.hs",
+               "tests/Appraisal/LaTeX.hs",
+               "tests/Appraisal/Lenses.hs",
+               "tests/Appraisal/Markdown.hs",
+               "tests/Appraisal/Markup.hs",
+               "tests/Appraisal/PathExtra.hs",
+               "tests/Appraisal/Permissions.hs",
+               "tests/Appraisal/Pretty.hs",
+               "tests/Appraisal/ReportAbbrevs.hs",
+               "tests/Appraisal/Report.hs",
+               "tests/Appraisal/ReportImageCache.hs",
+               "tests/Appraisal/ReportImage.hs",
+               "tests/Appraisal/ReportIO.hs",
+               "tests/Appraisal/ReportItem.hs",
+               "tests/Appraisal/ReportLaTeX.hs",
+               "tests/Appraisal/ReportMap.hs",
+               "tests/Appraisal/ReportMigrations.hs",
+               "tests/Appraisal/ReportPathInfo.hs",
+               "tests/Appraisal/ReportPaths.hs",
+               "tests/Appraisal/Unicode.hs"
+              ]
