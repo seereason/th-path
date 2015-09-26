@@ -37,10 +37,10 @@ import Language.Haskell.TH.TypeGraph.TypeGraph (allLensKeys, TypeGraph)
 import Language.Haskell.TH.TypeGraph.Vertex (etype, TGVSimple, typeNames)
 import Prelude hiding (any, concat, concatMap, elem, foldr, mapM_, null, or)
 
-pathLenses :: (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m, MonadReaders TypeGraph m) => m [Dec]
-pathLenses = execWriterT (allLensKeys >>= Foldable.mapM_ pathLensDecs . Map.keys)
+pathLenses :: (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m, MonadReaders TypeGraph m, MonadWriter [Dec] m) => m ()
+pathLenses = allLensKeys >>= Foldable.mapM_ pathLensDecs . Map.keys
 
-pathLensDecs :: (DsMonad m, MonadReaders TypeGraph m, MonadWriter [Dec] m, MonadStates ExpandMap m, MonadStates InstMap m) =>
+pathLensDecs :: (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m, MonadReaders TypeGraph m, MonadWriter [Dec] m) =>
                 TGVSimple -> m ()
 pathLensDecs key = do
   simplePath <- (not . null) <$> reifyInstancesWithContext ''SinkType [let (E typ) = view etype key in typ]

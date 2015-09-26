@@ -47,11 +47,10 @@ import Prelude hiding (any, concat, concatMap, elem, foldr, mapM_, null, or)
 
 -- | Construct the 'Path' instances for all types reachable from the
 -- argument types.  Each edge in the type graph corresponds to a Path instance.
-pathInstances :: (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m, MonadReaders TypeGraph m) => m [Dec]
-pathInstances =
-  execWriterT $ allPathKeys >>= Foldable.mapM_ (uncurry pathInstanceDecs) . Map.toList
+pathInstances :: (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m, MonadReaders TypeGraph m, MonadWriter [Dec] m) => m ()
+pathInstances = allPathKeys >>= Foldable.mapM_ (uncurry pathInstanceDecs) . Map.toList
 
-pathInstanceDecs :: forall m. (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m, MonadReaders TypeGraph m, MonadWriter [Dec] m) =>
+pathInstanceDecs :: (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m, MonadReaders TypeGraph m, MonadWriter [Dec] m) =>
                     TGVSimple -> Set TGVSimple -> m ()
 pathInstanceDecs key gkeys = Set.mapM_ (pathInstanceDecs' key) gkeys
 

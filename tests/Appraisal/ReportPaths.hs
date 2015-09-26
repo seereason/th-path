@@ -40,21 +40,13 @@ import Data.List (sortBy)
 import Data.Function (on)
 
 types :: [Dec]
-types = $(do depFiles >> startTypes >>= runTypeGraphT pathTypes >>= lift)
+types = $(do depFiles >> startTypes >>= (runTypeGraphT . execWriterT) pathTypes >>= lift)
 
 lenses :: [Dec]
-lenses = $(do depFiles >> startTypes >>= runTypeGraphT pathLenses >>= lift)
+lenses = $(do depFiles >> startTypes >>= (runTypeGraphT . execWriterT) pathLenses >>= lift)
 
 instances :: [Dec]
-instances = $(do depFiles >> startTypes >>= runTypeGraphT pathInstances >>= lift)
-{-
-$(let save path = runQ . runIO . compareSaveAndReturn changeError (pprint . friendlyNames) path . sortBy (compare `on` (show . friendlyNames)) in
-  depFiles >> startTypes >>= runTypeGraphT pathTypes >>= save "ReportPathTypes.hs")
-$(let save path = runQ . runIO . compareSaveAndReturn changeError (pprint . friendlyNames) path . sortBy (compare `on` (show . friendlyNames)) in
-  depFiles >> startTypes >>= runTypeGraphT pathLenses >>= save "ReportPathLenses.hs")
-$(let save path = runQ . runIO . compareSaveAndReturn changeError (pprint . friendlyNames) path . sortBy (compare `on` (show . friendlyNames)) in
-  depFiles >> startTypes >>= runTypeGraphT pathInstances >>= save "ReportPathInstances.hs")
--}
+instances = $(do depFiles >> startTypes >>= (runTypeGraphT . execWriterT) pathInstances >>= lift)
 
 $(derivePathInfo ''Maybe)
 $(derivePathInfo ''ItemFieldName)
