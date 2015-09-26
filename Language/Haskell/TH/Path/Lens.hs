@@ -16,7 +16,7 @@ module Language.Haskell.TH.Path.Lens
     ) where
 
 import Control.Applicative
-import Control.Lens hiding (cons) -- (makeLenses, over, view)
+import Control.Lens (view)
 import Control.Monad.Readers (MonadReaders)
 import Control.Monad.States (MonadStates)
 import Control.Monad.Writer (MonadWriter, execWriterT, tell)
@@ -29,6 +29,7 @@ import Language.Haskell.TH.Context (InstMap, reifyInstancesWithContext)
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Graph (SinkType)
+import Language.Haskell.TH.Path.LensTH (makeClassyFor)
 import Language.Haskell.TH.Syntax
 import Language.Haskell.TH.TypeGraph.Expand (E(E), ExpandMap)
 import Language.Haskell.TH.TypeGraph.Lens (lensNamePairs)
