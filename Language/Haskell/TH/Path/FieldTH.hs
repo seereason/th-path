@@ -389,7 +389,8 @@ makeFieldClauses rules opticType cons =
 -- constructor.
 makePureClause :: Name -> Int -> ClauseQ
 makePureClause conName fieldCount =
-  do xs <- replicateM fieldCount (newName "x")
+  do -- xs <- replicateM fieldCount (newName "x")
+     let xs = map (mkName . ("x" ++) . show) [1..fieldCount]
      -- clause: _ (Con x1..xn) = pure (Con x1..xn)
      clause [wildP, conP conName (map varP xs)]
             (normalB (appE (varE pureValName) (appsE (conE conName : map varE xs))))
@@ -402,7 +403,8 @@ makeGetterClause :: Name -> Int -> [Int] -> ClauseQ
 makeGetterClause conName fieldCount []     = makePureClause conName fieldCount
 makeGetterClause conName fieldCount fields =
   do f  <- newName "f"
-     xs <- replicateM (length fields) (newName "x")
+     -- xs <- replicateM (length fields) (newName "x")
+     let xs = map (mkName . ("x" ++) . show) [1..(length fields)]
 
      let pats (i:is) (y:ys)
            | i `elem` fields = varP y : pats is ys
@@ -427,8 +429,10 @@ makeFieldOpticClause conName fieldCount [] _ =
   makePureClause conName fieldCount
 makeFieldOpticClause conName fieldCount (field:fields) irref =
   do f  <- newName "f"
-     xs <- replicateM fieldCount          (newName "x")
-     ys <- replicateM (1 + length fields) (newName "y")
+     -- xs <- replicateM fieldCount          (newName "x")
+     -- ys <- replicateM (1 + length fields) (newName "y")
+     let xs = map (mkName . ("x" ++) . show) [1..fieldCount]
+     let ys = map (mkName . ("y" ++) . show) [1..(1 + length fields)]
 
      let xs' = foldr (\(i,x) -> set (ix i) x) xs (zip (field:fields) ys)
 
