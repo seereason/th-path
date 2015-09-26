@@ -72,12 +72,7 @@ expected01 = []
 -}
 
 actual02 :: [String]
-actual02 =
-    (lines . unlines . map pprint) decs'
-    where
-      decs' = sortBy (compare `on` show) (map friendlyNames types) ++
-              sortBy (compare `on` show) (map friendlyNames lenses) ++
-              sortBy (compare `on` show) (map friendlyNames instances)
+actual02 = (lines . unlines . map pprint) decs
 
 test02 :: Test
 test02 = TestCase $ assertString (show (prettyContextDiff (text "expected") (text "actual") text (getContextDiff 2 expected02 actual02)))
