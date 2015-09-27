@@ -53,7 +53,7 @@ pathLensDecs key = do
 -- different from the namer used in th-typegraph (for historical reasons I guess.)
 makePathLens :: Quasi m => Name -> m [Dec]
 makePathLens tname =
-    runQ (runIO (putStrLn ("makePathLens " ++ nameBase tname))) >>
+    -- runQ (runIO (putStrLn ("makePathLens " ++ nameBase tname))) >>
     qReify tname >>= execWriterT . doInfo
     where
       doInfo (TyConI dec) = doDec dec

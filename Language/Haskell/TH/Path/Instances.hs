@@ -63,17 +63,12 @@ pathInstanceDecs' :: forall m. (DsMonad m, MonadStates ExpandMap m, MonadStates 
 pathInstanceDecs' key gkey = do
   ptyp <- pathType (pure (bestType gkey)) key
   clauses <- execWriterT $ evalStateT (pathInstanceClauses key gkey ptyp) mempty
-  let final = [newName "u" >>= \u ->
-               clause [varP u] (normalB [|(error $ $(TH.lift ("Unexpected goal " ++ pprint' gkey ++ " for " ++ pprint' key ++ ": ")) ++
-                                                   show $(varE u))
-                                             -- :: Lens' $(let E typ = view etype key in pure typ) $(let E typ = view etype gkey in pure typ)
-                                         |]) []]
   -- clauses' <- runQ $ sequence clauses
   -- exp <- thePathExp gkey key ptyp clauses'
   when (not (null clauses)) $
        tell1 (instanceD (pure []) [t|Path $(pure (bestType key)) $(pure (bestType gkey))|]
                 [ tySynInstD ''PathType (tySynEqn [pure (bestType key), pure (bestType gkey)] (pure ptyp))
-                , funD 'toLens (clauses ++ final)
+                , funD 'toLens clauses
                 --, valD (varP 'thePath) (normalB exp) []
                 ])
 
@@ -118,29 +113,42 @@ pathInstanceClauses key gkey ptyp =
                   let (AppT (ConT pname) _gtyp) = ptyp
                   lkey <- ask >>= return . view typeInfo >>= runReaderT (expandType ltyp >>= typeVertex)
                   doClause gkey ltyp (\p -> conP (mkName (nameBase pname ++ "_View")) [if lkey == gkey then wildP else p]) (pure lns)
+                  Monad.lift final
               , pathyf = return ()
               , namedf = \tname ->
                          get >>= \s -> if Set.member tname s
                                        then return ()
                                        else modify (Set.insert tname) >>
-                                            namedTypeClause tname gkey ptyp
+                                            namedTypeClause tname gkey ptyp >>
+                                            Monad.lift final
               , maybef = \etyp -> do
-                   doClause gkey etyp (\p -> [p|Path_Just $p|]) [|_Just|]
+                  doClause gkey etyp (\p -> [p|Path_Just $p|]) [|_Just|]
+                  Monad.lift final
               , listf = \_etyp -> return ()
               , orderf = \_ktyp vtyp -> do
                   k <- runQ (newName "k")
                   doClause gkey vtyp (\p -> [p|Path_At $(varP k) $p|]) [|lens_omat $(varE k)|]
+                  Monad.lift final
               , mapf = \_ktyp vtyp -> do
                   k <- runQ (newName "k")
                   doClause gkey vtyp (\p -> [p|Path_Look $(varP k) $p|]) [|mat $(varE k)|]
+                  Monad.lift final
               , pairf = \ftyp styp -> do
                   doClause gkey ftyp (\p -> [p|Path_First $p|]) [|_1|]
                   doClause gkey styp (\p -> [p|Path_Second $p|]) [|_2|]
+                  Monad.lift final
               , eitherf = \ltyp rtyp -> do
                   doClause gkey ltyp (\p -> [p|Path_Left $p|]) [|_Left|]
                   doClause gkey rtyp (\p -> [p|Path_Right $p|]) [|_Right|]
+                  Monad.lift final
               , otherf = tell [ clause [wildP] (normalB [|(error $ $(litE (stringL ("Need to find lens for field type: " ++ pprint (view etype key))))) :: Traversal' $(pure (unE (view etype key))) $(pure (bestType gkey))|]) [] ]
               }
+          final :: m ()
+          final = tell [newName "u" >>= \u ->
+                            clause [varP u] (normalB [|(error $ $(TH.lift ("Unexpected goal " ++ pprint' gkey ++ " for " ++ pprint' key ++ ": ")) ++
+                                                        show $(varE u))
+                                                      |]) []]
+
 
 doClause :: (DsMonad m, MonadReaders TypeGraph m, MonadWriter [ClauseQ] m, MonadStates InstMap m, MonadStates ExpandMap m) =>
             TGVSimple -> Type -> (PatQ -> PatQ) -> ExpQ -> m ()

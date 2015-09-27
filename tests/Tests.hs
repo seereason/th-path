@@ -15,36 +15,15 @@
 -- The generated toLens instances will have incomplete patterns where
 -- we tried to generate a clause but we found no path to the goal type.
 
-import Control.Monad.States (evalStateT)
-import Control.Monad.Writer (execWriterT)
 import Data.Algorithm.DiffContext (getContextDiff, prettyContextDiff)
-import Data.ByteString (ByteString)
 import Data.ByteString.UTF8 (toString)
 import Data.FileEmbed (embedFile)
-import Data.List (sort)
-import Data.Monoid ((<>))
-import Debug.Trace
 import Language.Haskell.TH
-import Language.Haskell.TH.Lift (lift)
-import Language.Haskell.TH.Path.Graph (runTypeGraphT)
-import Language.Haskell.TH.Path.Instances
-import Language.Haskell.TH.Path.Lens
-import Language.Haskell.TH.Path.Types
-import Language.Haskell.TH.Syntax (addDependentFile)
-import Language.Haskell.TH.TypeGraph.Prelude (friendlyNames)
 import System.Exit
-import System.FilePath.Extra (compareSaveAndReturn, changeError)
 import Test.HUnit
 import Text.PrettyPrint (text)
 
-import Common (depFiles, fixStringLits, stripNames)
-import Appraisal.ReportItem
-import Appraisal.ReportMap
-import Appraisal.ReportPathInfo hiding (depFiles)
 import Appraisal.ReportPaths
-
-import Data.List (sortBy)
-import Data.Function (on)
 
 main :: IO ()
 main = do
