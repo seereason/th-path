@@ -26,7 +26,8 @@ import Data.Set as Set (delete, map, null, Set)
 import Prelude hiding (exp)
 
 import Control.Lens hiding (cons)
-import Control.Monad.Readers (ask, MonadReaders, runReaderT)
+import Control.Monad.Reader (runReaderT)
+import Control.Monad.Readers (askPoly, MonadReaders)
 import Control.Monad.States (MonadStates)
 import Data.Foldable
 import Data.List as List (intercalate)
@@ -89,7 +90,7 @@ pathType gtyp key =
                             intercalate "\n  " ("reachable from:" : List.map pprint' (toList ks))
                 }
 
-      vert typ = ask >>= return . view typeInfo >>= runReaderT (typeVertex (E typ))
+      vert typ = askPoly >>= return . view typeInfo >>= runReaderT (typeVertex (E typ))
 
 -- | pathType for the simplified vertex
 pathType' :: (DsMonad m, MonadReaders TypeGraph m, MonadStates ExpandMap m, MonadStates InstMap m) => TypeQ -> TGV -> m Type

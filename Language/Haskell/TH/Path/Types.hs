@@ -16,7 +16,8 @@ module Language.Haskell.TH.Path.Types
 
 import Control.Applicative
 import Control.Lens hiding (cons) -- (makeLenses, over, view)
-import Control.Monad.Readers (ask, MonadReaders, runReaderT)
+import Control.Monad.Reader (runReaderT)
+import Control.Monad.Readers (askPoly, MonadReaders)
 import Control.Monad.States (MonadStates)
 import Control.Monad.Writer (MonadWriter, tell)
 import Data.Foldable
@@ -79,7 +80,7 @@ pathTypeDecs key =
       viewPath styp = do
         let Just (pname, syns) = bestPathTypeName key
             -- gname = mkName ("Goal_" ++ nameBase pname)
-        skey <- ask >>= return . view typeInfo >>= runReaderT (expandType styp >>= typeVertex)
+        skey <- askPoly >>= return . view typeInfo >>= runReaderT (expandType styp >>= typeVertex)
         a <- runQ $ newName "a"
         ptype <- pathType (varT a) skey
         -- A view type may have a type variable, which
@@ -107,7 +108,7 @@ pathTypeDecs key =
       -- If we have a type synonym, we can create a path type synonym
       doDec (TySynD _ _ typ') =
           do a <- runQ $ newName "a"
-             key' <- ask >>= return . view typeInfo >>= runReaderT (expandType typ' >>= typeVertex)
+             key' <- askPoly >>= return . view typeInfo >>= runReaderT (expandType typ' >>= typeVertex)
              ptype <- pathType (varT a) key'
              mapM_ (\pname -> runQ (tySynD pname [PlainTV a] (return ptype)) >>= tell . (: [])) (pathTypeNames' key)
       doDec (NewtypeD _ tname _ con _) = doDataD tname [con]
@@ -145,7 +146,7 @@ pathTypeDecs key =
       -- of some piece of the field value.  FIXME: This exact code is in PathTypes.hs
       doField :: (DsMonad m, MonadReaders TypeGraph m) => Name -> Name -> Name -> VarStrictType -> m [Con]
       doField a tname cname (fname', _, ftype) =
-          do key' <- ask >>= return . view typeInfo >>= runReaderT (expandType ftype >>= fieldVertex (tname, cname, Right fname'))
+          do key' <- askPoly >>= return . view typeInfo >>= runReaderT (expandType ftype >>= fieldVertex (tname, cname, Right fname'))
              let Just pcname = pathConNameOfField key'
              ptype <- case ftype of
                         ConT ftname -> runQ $ appT (conT (pathTypeNameFromTypeName ftname)) (varT a)

@@ -33,8 +33,10 @@ import Control.Applicative
 #endif
 import Control.Lens -- (makeLenses, over, view)
 import Control.Monad (filterM)
-import Control.Monad.Readers (ask, MonadReaders, ReaderT, runReaderT)
-import Control.Monad.States (execStateT, evalStateT, get, modify, MonadStates, put, StateT)
+import Control.Monad.Reader (ReaderT, runReaderT)
+import Control.Monad.Readers (askPoly, MonadReaders)
+import Control.Monad.State (execStateT, evalStateT, StateT)
+import Control.Monad.States (getPoly, modifyPoly, MonadStates, putPoly)
 import Control.Monad.Trans (lift)
 import Data.Foldable.Compat
 import Data.Graph as Graph (reachable)
@@ -74,12 +76,12 @@ data S = S { _expanded :: ExpandMap
 $(makeLenses ''S)
 
 instance Monad m => MonadStates ExpandMap (StateT S m) where
-    get = use expanded
-    put s = expanded .= s
+    getPoly = use expanded
+    putPoly s = expanded .= s
 
 instance Monad m => MonadStates InstMap (StateT S m) where
-    get = use instMap
-    put s = instMap .= s
+    getPoly = use instMap
+    putPoly s = instMap .= s
 
 runTypeGraphT :: DsMonad m => ReaderT TypeGraph (StateT S m) a -> [Type] -> m a
 runTypeGraphT action st = evalStateT (runTypeGraphT' action st) (S mempty mempty)
@@ -134,7 +136,7 @@ pathGraphEdges = do
 
       isolateUnreachable :: GraphEdges TGV -> m (GraphEdges TGV)
       isolateUnreachable es = do
-        st <- ask >>= return . view startTypes >>= mapM expandType >>= mapM typeVertex
+        st <- askPoly >>= return . view startTypes >>= mapM expandType >>= mapM typeVertex
         let (g, vf, kf) = graphFromMap (simpleEdges es)
         let keep :: Set TGVSimple
             keep = Set.map (\(_, key, _) -> key) $ Set.map vf $ Set.fromList $ concatMap (reachable g) (mapMaybe kf st)
@@ -225,15 +227,15 @@ pruneTypeGraph edges =
     where
       doSink :: (GraphEdges TGV) -> m (GraphEdges TGV)
       doSink es =
-          execStateT (do victims <- get >>= \(x :: GraphEdges TGV) -> filterM (sink . view (vsimple . etype)) (Map.keys x) >>= return . Set.fromList
-                         modify (Map.mapWithKey (\k s -> if Set.member k victims then Set.empty else s) :: GraphEdges TGV -> GraphEdges TGV)) es
+          execStateT (do victims <- getPoly >>= \(x :: GraphEdges TGV) -> filterM (sink . view (vsimple . etype)) (Map.keys x) >>= return . Set.fromList
+                         modifyPoly (Map.mapWithKey (\k s -> if Set.member k victims then Set.empty else s) :: GraphEdges TGV -> GraphEdges TGV)) es
 
       sink (E typ) = (not . null) <$> lift (reifyInstancesWithContext ''SinkType [typ])
 
       doHide :: (GraphEdges TGV) -> m (GraphEdges TGV)
       doHide es =
-          execStateT (do victims <- get >>= \(x :: GraphEdges TGV) -> filterM (hidden . view (vsimple . etype)) (Map.keys x) >>= return . Set.fromList
-                         modify (Map.mapWithKey (\_ s -> Set.difference s victims) :: GraphEdges TGV -> GraphEdges TGV)
-                         modify (Map.filterWithKey (\k _ -> not (Set.member k victims)) :: GraphEdges TGV -> GraphEdges TGV)) es
+          execStateT (do victims <- getPoly >>= \(x :: GraphEdges TGV) -> filterM (hidden . view (vsimple . etype)) (Map.keys x) >>= return . Set.fromList
+                         modifyPoly (Map.mapWithKey (\_ s -> Set.difference s victims) :: GraphEdges TGV -> GraphEdges TGV)
+                         modifyPoly (Map.filterWithKey (\k _ -> not (Set.member k victims)) :: GraphEdges TGV -> GraphEdges TGV)) es
 
       hidden (E typ) = (not . null) <$> lift (reifyInstancesWithContext ''HideType [typ])
