@@ -16,7 +16,6 @@
 {-# OPTIONS_GHC -Wall -fno-warn-orphans #-}
 module Language.Haskell.TH.Path.Graph
     ( runTypeGraphT
-    , pathGraphEdges
     , FoldPathControl(..)
     , foldPath
     -- * Hint classes
