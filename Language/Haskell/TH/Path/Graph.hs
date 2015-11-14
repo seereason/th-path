@@ -83,17 +83,16 @@ instance Monad m => MonadStates InstMap (StateT S m) where
     getPoly = use instMap
     putPoly s = instMap .= s
 
-runTypeGraphT :: DsMonad m => ReaderT TypeGraph (StateT S m) a -> [Type] -> m a
+runTypeGraphT :: DsMonad m => ReaderT TypeGraph (ReaderT TypeInfo (StateT S m)) a -> [Type] -> m a
 runTypeGraphT action st = evalStateT (runTypeGraphT' action st) (S mempty mempty)
 
 runTypeGraphT' :: (MonadStates ExpandMap m, MonadStates InstMap m, DsMonad m) =>
-                  ReaderT TypeGraph m a -> [Type] -> m a
+                  ReaderT TypeGraph (ReaderT TypeInfo m) a -> [Type] -> m a
 runTypeGraphT' action st = do
   vt <- viewTypes -- Every instance of ViewType
   let st' = st ++ Set.toList vt
   ti <- makeTypeInfo (\t -> maybe mempty singleton <$> runQ (viewInstanceType t)) st'
-  r <- runReaderT (pathGraphEdges >>= makeTypeGraph) ti
-  runReaderT action r
+  runReaderT (pathGraphEdges >>= makeTypeGraph >>= runReaderT action) ti
 
 -- | Build a graph of the subtype relation, omitting any types whose
 -- arity is nonzero and any not reachable from the start types.  (We

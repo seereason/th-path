@@ -16,8 +16,7 @@ module Language.Haskell.TH.Path.Types
 
 import Control.Applicative
 import Control.Lens hiding (cons) -- (makeLenses, over, view)
-import Control.Monad.Reader (runReaderT)
-import Control.Monad.Readers (askPoly, MonadReaders)
+import Control.Monad.Readers (MonadReaders)
 import Control.Monad.States (MonadStates)
 import Control.Monad.Writer (MonadWriter, tell)
 import Data.Foldable
@@ -35,18 +34,18 @@ import Language.Haskell.TH.Path.PathType (pathType, pathConNameOfField, bestPath
 import Language.Haskell.TH.Syntax as TH (VarStrictType)
 import Language.Haskell.TH.TypeGraph.Expand (ExpandMap, expandType)
 import Language.Haskell.TH.TypeGraph.Prelude (pprint')
-import Language.Haskell.TH.TypeGraph.TypeGraph (allPathStarts, TypeGraph, typeInfo)
-import Language.Haskell.TH.TypeGraph.TypeInfo (typeVertex, fieldVertex)
+import Language.Haskell.TH.TypeGraph.TypeGraph (allPathStarts, TypeGraph)
+import Language.Haskell.TH.TypeGraph.TypeInfo (fieldVertex, TypeInfo, typeVertex)
 import Language.Haskell.TH.TypeGraph.Vertex (vsimple, TGVSimple, TypeGraphVertex, typeNames)
 import Prelude hiding (any, concat, concatMap, elem, foldr, mapM_, null, or)
 
 -- | Construct a graph of all types reachable from the types in the
 -- argument, and construct the corresponding path types.
-pathTypes :: (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m, MonadReaders TypeGraph m, MonadWriter [Dec] m) => m ()
+pathTypes :: (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) => m ()
 pathTypes = allPathStarts >>= mapM_ pathTypeDecs . toList . Set.map (view vsimple)
 
 -- | Given a type, generate the corresponding path type declarations
-pathTypeDecs :: forall m. (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m, MonadReaders TypeGraph m, MonadWriter [Dec] m) => TGVSimple -> m ()
+pathTypeDecs :: forall m. (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) => TGVSimple -> m ()
 pathTypeDecs key =
   pathTypeDecs'
     where
@@ -80,7 +79,7 @@ pathTypeDecs key =
       viewPath styp = do
         let Just (pname, syns) = bestPathTypeName key
             -- gname = mkName ("Goal_" ++ nameBase pname)
-        skey <- askPoly >>= return . view typeInfo >>= runReaderT (expandType styp >>= typeVertex)
+        skey <- expandType styp >>= typeVertex
         a <- runQ $ newName "a"
         ptype <- pathType (varT a) skey
         -- A view type may have a type variable, which
@@ -108,7 +107,7 @@ pathTypeDecs key =
       -- If we have a type synonym, we can create a path type synonym
       doDec (TySynD _ _ typ') =
           do a <- runQ $ newName "a"
-             key' <- askPoly >>= return . view typeInfo >>= runReaderT (expandType typ' >>= typeVertex)
+             key' <- expandType typ' >>= typeVertex
              ptype <- pathType (varT a) key'
              mapM_ (\pname -> runQ (tySynD pname [PlainTV a] (return ptype)) >>= tell . (: [])) (pathTypeNames' key)
       doDec (NewtypeD _ tname _ con _) = doDataD tname [con]
@@ -146,7 +145,7 @@ pathTypeDecs key =
       -- of some piece of the field value.  FIXME: This exact code is in PathTypes.hs
       doField :: (DsMonad m, MonadReaders TypeGraph m) => Name -> Name -> Name -> VarStrictType -> m [Con]
       doField a tname cname (fname', _, ftype) =
-          do key' <- askPoly >>= return . view typeInfo >>= runReaderT (expandType ftype >>= fieldVertex (tname, cname, Right fname'))
+          do key' <- expandType ftype >>= fieldVertex (tname, cname, Right fname')
              let Just pcname = pathConNameOfField key'
              ptype <- case ftype of
                         ConT ftname -> runQ $ appT (conT (pathTypeNameFromTypeName ftname)) (varT a)

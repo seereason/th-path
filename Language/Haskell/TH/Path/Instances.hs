@@ -19,8 +19,7 @@ import Control.Applicative
 import Control.Lens hiding (cons) -- (makeLenses, over, view)
 import Control.Monad (when)
 import Control.Monad as List (mapM)
-import Control.Monad.Reader (runReaderT)
-import Control.Monad.Readers (askPoly, MonadReaders)
+import Control.Monad.Readers (MonadReaders)
 import Control.Monad.State (evalStateT, StateT)
 import Control.Monad.States (MonadStates, getPoly, putPoly, modifyPoly)
 import Control.Monad.Trans as Monad (lift)
@@ -42,17 +41,17 @@ import Language.Haskell.TH.Path.Order (lens_omat)
 import Language.Haskell.TH.Syntax as TH (lift, VarStrictType)
 import Language.Haskell.TH.TypeGraph.Expand (E(unE), ExpandMap, expandType)
 import Language.Haskell.TH.TypeGraph.Prelude (pprint')
-import Language.Haskell.TH.TypeGraph.TypeGraph (allPathKeys, goalReachableSimple, TypeGraph, typeInfo)
-import Language.Haskell.TH.TypeGraph.TypeInfo (fieldVertex, typeVertex)
+import Language.Haskell.TH.TypeGraph.TypeGraph (allPathKeys, goalReachableSimple, TypeGraph)
+import Language.Haskell.TH.TypeGraph.TypeInfo (fieldVertex, TypeInfo, typeVertex)
 import Language.Haskell.TH.TypeGraph.Vertex (bestType, etype, TGVSimple, vsimple)
 import Prelude hiding (any, concat, concatMap, elem, foldr, mapM_, null, or)
 
 -- | Construct the 'Path' instances for all types reachable from the
 -- argument types.  Each edge in the type graph corresponds to a Path instance.
-pathInstances :: (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m, MonadReaders TypeGraph m, MonadWriter [Dec] m) => m ()
+pathInstances :: (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) => m ()
 pathInstances = allPathKeys >>= Foldable.mapM_ (uncurry pathInstanceDecs) . Map.toList
 
-pathInstanceDecs :: (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m, MonadReaders TypeGraph m, MonadWriter [Dec] m) =>
+pathInstanceDecs :: (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) =>
                     TGVSimple -> Set TGVSimple -> m ()
 pathInstanceDecs key gkeys = Set.mapM_ (pathInstanceDecs' key) gkeys
 
@@ -60,7 +59,7 @@ pathInstanceDecs key gkeys = Set.mapM_ (pathInstanceDecs' key) gkeys
 -- corresponding Path instance.  Each clause matches some possible value
 -- of the path type, and returns a lens that extracts the value the
 -- path type value specifies.
-pathInstanceDecs' :: forall m. (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m, MonadReaders TypeGraph m, MonadWriter [Dec] m) =>
+pathInstanceDecs' :: forall m. (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) =>
                      TGVSimple -> TGVSimple -> m ()
 pathInstanceDecs' key gkey = do
   ptyp <- pathType (pure (bestType gkey)) key
@@ -86,7 +85,7 @@ instance (Monad m, MonadStates ExpandMap m) => MonadStates ExpandMap (StateT (Se
     getPoly = Monad.lift getPoly
     putPoly = Monad.lift . putPoly
 
-pathInstanceClauses :: forall m. (DsMonad m, MonadReaders TypeGraph m, MonadWriter [ClauseQ] m, MonadStates InstMap m, MonadStates ExpandMap m) =>
+pathInstanceClauses :: forall m. (DsMonad m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [ClauseQ] m, MonadStates InstMap m, MonadStates ExpandMap m) =>
                        TGVSimple -- ^ the type whose clauses we are generating
                     -> TGVSimple -- ^ the goal type key
                     -> Type -- ^ the corresponding path type - first type parameter of ToLens
@@ -113,7 +112,7 @@ pathInstanceClauses key gkey ptyp =
                   -- The tricky bit is to extract the path value for lkey from the path
                   -- value we have.
                   let (AppT (ConT pname) _gtyp) = ptyp
-                  lkey <- askPoly >>= return . view typeInfo >>= runReaderT (expandType ltyp >>= typeVertex)
+                  lkey <- expandType ltyp >>= typeVertex
                   doClause gkey ltyp (\p -> conP (mkName (nameBase pname ++ "_View")) [if lkey == gkey then wildP else p]) (pure lns)
                   Monad.lift final
               , pathyf = return ()
@@ -152,29 +151,29 @@ pathInstanceClauses key gkey ptyp =
                                                       |]) []]
 
 
-doClause :: (DsMonad m, MonadReaders TypeGraph m, MonadWriter [ClauseQ] m, MonadStates InstMap m, MonadStates ExpandMap m) =>
+doClause :: (DsMonad m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [ClauseQ] m, MonadStates InstMap m, MonadStates ExpandMap m) =>
             TGVSimple -> Type -> (PatQ -> PatQ) -> ExpQ -> m ()
 doClause gkey typ pfunc lns = do
   v <- runQ (newName "v")
-  key <- askPoly >>= return . view typeInfo >>= runReaderT (expandType typ >>= typeVertex)
+  key <- expandType typ >>= typeVertex
   case key == gkey of
     True -> testClause gkey typ (clause [ pfunc wildP ] (normalB lns) [])
     False -> do
       testClause gkey typ (clause [ pfunc (varP v) ] (normalB [|$lns . toLens $(varE v)|]) [])
       when (key == gkey) $ testClause gkey typ (clause [ wildP ] (normalB [|iso id id|]) [])
 
-testClause :: (DsMonad m, MonadReaders TypeGraph m, MonadWriter [ClauseQ] m, MonadStates InstMap m, MonadStates ExpandMap m) =>
+testClause :: (DsMonad m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [ClauseQ] m, MonadStates InstMap m, MonadStates ExpandMap m) =>
               TGVSimple -> Type -> ClauseQ -> m ()
 testClause gkey typ cl = do
   ok <- testPath gkey typ
   when ok $ tell [cl]
 
-testPath :: (DsMonad m, MonadReaders TypeGraph m, MonadStates InstMap m, MonadStates ExpandMap m) => TGVSimple -> Type -> m Bool
+testPath :: (DsMonad m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadStates InstMap m, MonadStates ExpandMap m) => TGVSimple -> Type -> m Bool
 testPath gkey typ = do
-  key <- askPoly >>= return . view typeInfo >>= runReaderT (expandType typ >>= typeVertex)
+  key <- expandType typ >>= typeVertex
   goalReachableSimple gkey key
 
-namedTypeClause :: forall m. (DsMonad m, MonadReaders TypeGraph m, MonadWriter [ClauseQ] m, MonadStates InstMap m, MonadStates ExpandMap m) =>
+namedTypeClause :: forall m. (DsMonad m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [ClauseQ] m, MonadStates InstMap m, MonadStates ExpandMap m) =>
                    Name -> TGVSimple -> Type -> StateT (Set Name) m ()
 namedTypeClause tname gkey ptyp =
     -- If encounter a named type and the stack is empty we
@@ -189,7 +188,7 @@ namedTypeClause tname gkey ptyp =
                 do -- If we have a type synonym we can use the corresponding
                    -- path type synonym instead of the path type of the
                    -- alias type.
-                  key' <- askPoly >>= return . view typeInfo >>= runReaderT (expandType typ' >>= typeVertex)
+                  key' <- expandType typ' >>= typeVertex
                   ok <- goalReachableSimple gkey key'
                   case ok of
                     False -> return ()
@@ -216,7 +215,7 @@ namedTypeClause tname gkey ptyp =
             -- of some piece of the field value.
             doField :: Name -> VarStrictType -> StateT (Set Name) m [(Con, [ClauseQ])]
             doField cname (fn, _, ft) = do
-                    fkey <- askPoly >>= return . view typeInfo >>= runReaderT (expandType ft >>= fieldVertex (tname, cname, Right fn))
+                    fkey <- expandType ft >>= fieldVertex (tname, cname, Right fn)
                     ok <- goalReachableSimple gkey (view vsimple fkey)  -- is the goal type reachable from here?
                     case ok of
                       False -> return []  -- Goal type isn't reachable, return empty clause list

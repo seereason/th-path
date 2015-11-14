@@ -39,13 +39,13 @@ import Language.Haskell.TH.Path.Core (PathType, Path_OMap, Path_List, Path_Map, 
 import Language.Haskell.TH.Path.Graph (FoldPathControl(..), foldPath)
 import Language.Haskell.TH.TypeGraph.Expand (E(E, unE), ExpandMap)
 import Language.Haskell.TH.TypeGraph.Prelude (pprint')
-import Language.Haskell.TH.TypeGraph.TypeGraph (TypeGraph, typeInfo, reachableFromSimple)
-import Language.Haskell.TH.TypeGraph.TypeInfo (typeVertex)
+import Language.Haskell.TH.TypeGraph.TypeGraph (TypeGraph, reachableFromSimple)
+import Language.Haskell.TH.TypeGraph.TypeInfo (TypeInfo, typeVertex)
 import Language.Haskell.TH.TypeGraph.Vertex (bestType, TypeGraphVertex, TGV, field, typeNames, TGVSimple, vsimple, etype)
 import Prelude hiding (any, concat, concatMap, elem, foldr, mapM_, null, or)
 
 -- | Given a type, generate the corresponding path type.
-pathType :: (DsMonad m, MonadReaders TypeGraph m, MonadStates ExpandMap m, MonadStates InstMap m) =>
+pathType :: (DsMonad m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadStates ExpandMap m, MonadStates InstMap m) =>
             TypeQ
          -> TGVSimple -- ^ The type to convert to a path type
          -> m Type
@@ -90,10 +90,10 @@ pathType gtyp key =
                             intercalate "\n  " ("reachable from:" : List.map pprint' (toList ks))
                 }
 
-      vert typ = askPoly >>= return . view typeInfo >>= runReaderT (typeVertex (E typ))
+      vert typ = askPoly >>= \(ti :: TypeInfo) -> runReaderT (typeVertex (E typ)) ti
 
 -- | pathType for the simplified vertex
-pathType' :: (DsMonad m, MonadReaders TypeGraph m, MonadStates ExpandMap m, MonadStates InstMap m) => TypeQ -> TGV -> m Type
+pathType' :: (DsMonad m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadStates ExpandMap m, MonadStates InstMap m) => TypeQ -> TGV -> m Type
 pathType' gtyp key = pathType gtyp (view vsimple key)
 
 -- | Call the type function PathType.

@@ -34,10 +34,11 @@ import Language.Haskell.TH.Syntax
 import Language.Haskell.TH.TypeGraph.Expand (E(E), ExpandMap)
 import Language.Haskell.TH.TypeGraph.Lens (lensNamePairs)
 import Language.Haskell.TH.TypeGraph.TypeGraph (allLensKeys, TypeGraph)
+import Language.Haskell.TH.TypeGraph.TypeInfo (TypeInfo)
 import Language.Haskell.TH.TypeGraph.Vertex (etype, TGVSimple, typeNames)
 import Prelude hiding (any, concat, concatMap, elem, foldr, mapM_, null, or)
 
-pathLenses :: (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m, MonadReaders TypeGraph m, MonadWriter [Dec] m) => m ()
+pathLenses :: (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) => m ()
 pathLenses = allLensKeys >>= Foldable.mapM_ pathLensDecs . Map.keys
 
 pathLensDecs :: (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m, MonadReaders TypeGraph m, MonadWriter [Dec] m) =>
