@@ -18,11 +18,6 @@ description:
   'View' mechanism which transforms the appearance of a value
   using any @Iso@ lens.
 
-flag local-th-context
-  Description: Link to local source repo for th-context, th-typegraph, and mtl-unleashed packages
-  Default: False
-  Manual: True
-
 library
   hs-source-dirs: .
   build-depends:
@@ -36,15 +31,18 @@ library
     lens,
     ListLike,
     mtl,
+    mtl-unleashed >= 0.5,
     safe,
     safecopy,
     set-extra,
     syb,
     template-haskell >= 2.10,
     text,
+    th-context >= 0.23,
     th-desugar,
     th-kinds-fork,
     th-orphans,
+    th-typegraph >= 0.31,
     userid,
     web-routes-th
   ghc-options:      -Wall -O2
@@ -61,26 +59,6 @@ library
     Language.Haskell.TH.Path.LensTH
     Language.Haskell.TH.Path.FieldTH
   default-language: Haskell2010
-  if flag(local-th-context)
-    hs-source-dirs: ../th-context, ../th-typegraph, ../mtl-unleashed
-    build-depends: set-extra, mtl-unleashed, transformers
-    exposed-modules:
-      Language.Haskell.TH.Context
-      Language.Haskell.TH.TypeGraph.Arity
-      Language.Haskell.TH.TypeGraph.Edges
-      Language.Haskell.TH.TypeGraph.Expand
-      Language.Haskell.TH.TypeGraph.Free
-      Language.Haskell.TH.TypeGraph.Lens
-      Language.Haskell.TH.TypeGraph.Prelude
-      Language.Haskell.TH.TypeGraph.Shape
-      Language.Haskell.TH.TypeGraph.Stack
-      Language.Haskell.TH.TypeGraph.TypeGraph
-      Language.Haskell.TH.TypeGraph.TypeInfo
-      Language.Haskell.TH.TypeGraph.Vertex
-      Control.Monad.Readers
-      Control.Monad.States
-  else
-    build-depends: th-context >= 0.23, th-typegraph >= 0.31, mtl-unleashed >= 0.5
 
 -- test-suite th-path-tests
 --   type:             exitcode-stdio-1.0
@@ -96,17 +74,13 @@ test-suite th-path-tests
   hs-source-dirs:   tests
   main-is:          Tests.hs
   build-depends:    base, base-compat, containers, filemanip-extra >= 0.4, haskell-src-exts, HUnit, lens,
-                    ListLike, mtl, safecopy, template-haskell,
-                    th-desugar, th-kinds-fork, th-lift, th-orphans, th-path,
-                    applicative-extras, syb, text, userid, safe, web-routes-th, set-extra, transformers,
-                    HaTeX, regex-compat, uuid-types, uuid-orphans, filepath, aeson, jmacro,
-                    json, sr-revision, pretty, web-routes, bytestring, network-uri, groom, pandoc, sr-extra,
-                    Diff, file-embed, utf8-string, image-cache, binary, random
+                    ListLike, mtl, safecopy, template-haskell, th-desugar, th-kinds-fork, th-lift,
+                    th-orphans, th-path, applicative-extras, syb, text, userid, safe, web-routes-th,
+                    set-extra, transformers, HaTeX, regex-compat, uuid-types, uuid-orphans, filepath,
+                    aeson, jmacro, json, sr-revision, pretty, web-routes, bytestring, network-uri, groom,
+                    pandoc, sr-extra, Diff, file-embed, utf8-string, image-cache, binary, random,
+                    th-context, th-typegraph, mtl-unleashed
   default-language: Haskell2010
-  if !flag(local-th-context)
-    build-depends: th-context, th-typegraph, mtl-unleashed
-  else
-    build-depends: binary, process-extras, pureMD5, exceptions, Unixutils, process, unix, directory, hslogger, random
 
 source-repository head
   type:     git
