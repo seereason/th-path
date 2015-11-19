@@ -11,7 +11,7 @@ routine to scour data type definitions and generate
 accessor objects for them automatically.
 -}
 module Language.Haskell.TH.Path.Lens
-    ( pathLenses
+    ( pathLensDecs
     , fieldLensNameOld
     ) where
 
@@ -37,12 +37,12 @@ import Language.Haskell.TH.TypeGraph.TypeInfo (TypeInfo)
 import Language.Haskell.TH.TypeGraph.Vertex (etype, TGVSimple, typeNames)
 import Prelude hiding (any, concat, concatMap, elem, foldr, mapM_, null, or)
 
-pathLenses :: (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) => m ()
-pathLenses = allLensKeys >>= Foldable.mapM_ pathLensDecs . Map.keys
+pathLensDecs :: (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) => m ()
+pathLensDecs = allLensKeys >>= Foldable.mapM_ pathLensDecs' . Map.keys
 
-pathLensDecs :: (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m, MonadReaders TypeGraph m, MonadWriter [Dec] m) =>
+pathLensDecs' :: (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m, MonadReaders TypeGraph m, MonadWriter [Dec] m) =>
                 TGVSimple -> m ()
-pathLensDecs key = do
+pathLensDecs' key = do
   simplePath <- (not . null) <$> reifyInstancesWithContext ''SinkType [let (E typ) = view etype key in typ]
   case simplePath of
     False -> mapM makePathLens (Foldable.toList (typeNames key)) >>= {- t1 >>= -} tell . concat

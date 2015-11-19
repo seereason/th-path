@@ -12,7 +12,7 @@
 {-# LANGUAGE TupleSections #-}
 {-# OPTIONS_GHC -fno-warn-orphans -fno-warn-missing-signatures #-}
 module Language.Haskell.TH.Path.Instances
-    ( pathInstances
+    ( pathInstanceDecs
     ) where
 
 import Control.Applicative
@@ -48,20 +48,20 @@ import Prelude hiding (any, concat, concatMap, elem, foldr, mapM_, null, or)
 
 -- | Construct the 'Path' instances for all types reachable from the
 -- argument types.  Each edge in the type graph corresponds to a Path instance.
-pathInstances :: (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) => m ()
-pathInstances = allPathKeys >>= Foldable.mapM_ (uncurry pathInstanceDecs) . Map.toList
+pathInstanceDecs :: (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) => m ()
+pathInstanceDecs = allPathKeys >>= Foldable.mapM_ (uncurry pathInstanceDecs') . Map.toList
 
-pathInstanceDecs :: (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) =>
+pathInstanceDecs' :: (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) =>
                     TGVSimple -> Set TGVSimple -> m ()
-pathInstanceDecs key gkeys = Set.mapM_ (pathInstanceDecs' key) gkeys
+pathInstanceDecs' key gkeys = Set.mapM_ (pathInstanceDecs'' key) gkeys
 
 -- | For a given TypeGraphVertex, compute the declaration of the
 -- corresponding Path instance.  Each clause matches some possible value
 -- of the path type, and returns a lens that extracts the value the
 -- path type value specifies.
-pathInstanceDecs' :: forall m. (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) =>
+pathInstanceDecs'' :: forall m. (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) =>
                      TGVSimple -> TGVSimple -> m ()
-pathInstanceDecs' key gkey = do
+pathInstanceDecs'' key gkey = do
   ptyp <- pathType (pure (bestType gkey)) key
   clauses <- execWriterT $ evalStateT (pathInstanceClauses key gkey ptyp) mempty
   -- clauses' <- runQ $ sequence clauses
@@ -243,40 +243,3 @@ namedTypeClause tname gkey ptyp =
 mapClause :: (DsMonad m, MonadReaders TypeGraph m) => (PatQ -> PatQ) -> (ExpQ -> ExpQ) -> ClauseQ -> m ClauseQ
 mapClause patf lnsf clauseq =
     runQ clauseq >>= \(Clause [pat] (NormalB lns) xs) -> return $ clause [patf (pure pat)] (normalB (lnsf (pure lns))) (List.map pure xs)
-
-#if 0
--- | Apply arity 2 functions to the clause pattern and expression
-mapClause2 :: (DsMonad m, MonadReaders TypeGraph m) => (PatQ -> PatQ -> PatQ) -> (ExpQ -> ExpQ -> ExpQ) -> Clause -> Clause -> m Clause
-mapClause2 patf lnsf (Clause [pat1] (NormalB lns1) xs) (Clause [pat2] (NormalB lns2) ys) =
-    runQ $ clause [patf (pure pat1) (pure pat2)] (normalB (lnsf (pure lns1) (pure lns2))) (List.map pure (xs ++ ys))
-mapClause2 _ _ x1 x2 = error $ "mapClause - unexpected Clause: " ++ show x1 ++ ", " ++ show x2
-#endif
-
-#if 0
-pathInstanceDecs' :: forall m. (DsMonad m, MonadReaders TypeGraph m, MonadStates (Set TypeGraphVertex) m, MonadWriter [[Dec]] m) => m ()
-pathInstanceDecs' = do
-  unsimplifiedEdges <- view edges
-  let unsimplifiedKeys <- Map.keys unsimplifiedEdges
-      simplifiedKeys = Set.map (view vsimple) unsimplifiedKeys
-      keyMap :: Map TypeGraphVertex (Set TypeGraphVertex)
-      keyMap = foldr Set.union mempty (Map.fromList (map (\a -> (view vsimple a, singleton a)) unsimplifiedKeys))
-  mapM (\ (a, (hint, s)) -> mapM (\b -> pathType (pure (bestType b)) a >>= \ptyp ->
-                                        doClauses keyMap (view vsimple a) b >>= \clauses ->
-                                        case clauses of
-                                          [] -> return []
-                                          _ -> runQ [d|instance Path $(pure (bestType a)) $(pure (bestType b)) where
-                                                          type PathType $(pure (bestType a)) $(pure (bestType b)) =
-                                                              $(pure ptyp) |] >>= mapM (insertClauses clauses)) (Set.toList s)) (Map.toList es) >>= tell . concat
-    where
-      -- There is a clause of the toLens function for every pair of
-      -- types a b where according to the typegraph we can reach b
-      -- from a.
-      insertClauses cl (InstanceD c t ds) = return $ InstanceD c t (ds ++ cl)
-      -- Clauses corresponding to all the edges from simplified a to unsimplified b
-      doClauses keyMap a b =
-          case Map.lookup a keyMap of
-            Just bs@(_ : _) -> map (doClause a) bs
-            _ -> return []
-      doClause a b = newName "u" >>= \u ->
-                     clause [varP u] (normalB [|error $ $(lift "clause (" ++ pprint' a ++ ") (" ++ pprint' b ++ ")")|]) []
-#endif
