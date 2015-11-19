@@ -53,17 +53,15 @@ import Language.Haskell.TH.TypeGraph.Vertex (etype, TGVSimple, TypeGraphVertex(b
 
 pathDecs :: (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => m [Dec]
 pathDecs = do
-  types <- execWriterT pathTypeDecs >>= return . sortBy (compare `on` show) . List.map friendlyNames
-  lenses <- execWriterT pathLensDecs >>= return . sortBy (compare `on` show) . List.map friendlyNames
-  instances <- execWriterT pathInstanceDecs >>= return . sortBy (compare `on` show) . List.map friendlyNames
+  types <-     execWriterT (allPathStarts >>= Foldable.mapM_ pathTypeDecs . toList . Set.map (view vsimple))                         >>= return . sortBy (compare `on` show) . List.map friendlyNames
+  lenses <-    execWriterT (allLensKeys >>=   Foldable.mapM_ pathLensDecs . Map.keys)                                                >>= return . sortBy (compare `on` show) . List.map friendlyNames
+  instances <- execWriterT (allPathKeys >>=   Foldable.mapM_ (\(key, gkeys) -> Set.mapM_ (pathInstanceDecs key) gkeys) . Map.toList) >>= return . sortBy (compare `on` show) . List.map friendlyNames
+  -- To do - subpath instances, convert one path into another that stops earlier.
   return (types ++ lenses ++ instances)
 
-pathLensDecs :: (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) => m ()
-pathLensDecs = allLensKeys >>= Foldable.mapM_ pathLensDecs' . Map.keys
-
-pathLensDecs' :: (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m, MonadReaders TypeGraph m, MonadWriter [Dec] m) =>
+pathLensDecs :: (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m, MonadReaders TypeGraph m, MonadWriter [Dec] m) =>
                 TGVSimple -> m ()
-pathLensDecs' key = do
+pathLensDecs key = do
   simplePath <- (not . null) <$> reifyInstancesWithContext ''SinkType [let (E typ) = view etype key in typ]
   case simplePath of
     False -> mapM makePathLens (Foldable.toList (typeNames key)) >>= {- t1 >>= -} tell . concat
@@ -95,22 +93,13 @@ uncap :: String -> String
 uncap (n : ame) = toLower n : ame
 uncap "" = ""
 
--- | Construct the 'Path' instances for all types reachable from the
--- argument types.  Each edge in the type graph corresponds to a Path instance.
-pathInstanceDecs :: (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) => m ()
-pathInstanceDecs = allPathKeys >>= Foldable.mapM_ (uncurry pathInstanceDecs') . Map.toList
-
-pathInstanceDecs' :: (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) =>
-                    TGVSimple -> Set TGVSimple -> m ()
-pathInstanceDecs' key gkeys = Set.mapM_ (pathInstanceDecs'' key) gkeys
-
--- | For a given TypeGraphVertex, compute the declaration of the
+-- | For a given pair of TGVSimples, compute the declaration of the
 -- corresponding Path instance.  Each clause matches some possible value
 -- of the path type, and returns a lens that extracts the value the
 -- path type value specifies.
-pathInstanceDecs'' :: forall m. (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) =>
+pathInstanceDecs :: forall m. (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) =>
                      TGVSimple -> TGVSimple -> m ()
-pathInstanceDecs'' key gkey = do
+pathInstanceDecs key gkey = do
   ptyp <- pathType (pure (bestType gkey)) key
   clauses <- execWriterT $ evalStateT (pathInstanceClauses key gkey ptyp) mempty
   -- clauses' <- runQ $ sequence clauses
@@ -293,21 +282,16 @@ mapClause :: (DsMonad m, MonadReaders TypeGraph m) => (PatQ -> PatQ) -> (ExpQ ->
 mapClause patf lnsf clauseq =
     runQ clauseq >>= \(Clause [pat] (NormalB lns) xs) -> return $ clause [patf (pure pat)] (normalB (lnsf (pure lns))) (List.map pure xs)
 
--- | Construct a graph of all types reachable from the types in the
--- argument, and construct the corresponding path types.
-pathTypeDecs :: (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) => m ()
-pathTypeDecs = allPathStarts >>= mapM_ pathTypeDecs' . toList . Set.map (view vsimple)
-
 -- | Given a type, generate the corresponding path type declarations
-pathTypeDecs' :: forall m. (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) => TGVSimple -> m ()
-pathTypeDecs' key =
-  pathTypeDecs''
+pathTypeDecs :: forall m. (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) => TGVSimple -> m ()
+pathTypeDecs key =
+  pathTypeDecs'
     where
-      pathTypeDecs'' = foldPath control key
+      pathTypeDecs' = foldPath control key
         where
           control =
             FoldPathControl
-              { simplef = maybe (error $ "pathTypeDecs': simple path type has no name: " ++ pprint' key) (uncurry simplePath) (bestPathTypeName key)
+              { simplef = maybe (error $ "pathTypeDecs: simple path type has no name: " ++ pprint' key) (uncurry simplePath) (bestPathTypeName key)
               , substf = \_lns styp -> viewPath styp -- maybe (return ()) (uncurry simplePath) (bestPathTypeName key)
               , pathyf = return ()
               , namedf = \_tname -> doNames
