@@ -293,7 +293,7 @@ class HasBranding c
 class HasCIString c
     where cIString :: Lens' c CIString
           lens_CIString_unCIString :: forall . Lens' c String
-          lens_CIString_unCIString = (.) cIString lens_CIString_unCIString
+          lens_CIString_unCIString = (.) lens_cIString lens_CIString_unCIString
           {-# INLINE lens_CIString_unCIString #-}
 class HasDimension c
     where lens_dimension :: Lens' c Dimension
@@ -561,10 +561,10 @@ class HasReportImageView c
 class HasReportIntendedUse c
     where lens_reportIntendedUse :: Lens' c ReportIntendedUse
 class HasReportMap c
-    where reportMap :: Lens' c ReportMap
+    where lens_reportMap :: Lens' c ReportMap
           lens_ReportMap_unReportMap :: forall . Lens' c
                                                        (Map ReportID Report)
-          lens_ReportMap_unReportMap = (.) reportMap lens_ReportMap_unReportMap
+          lens_ReportMap_unReportMap = (.) lens_reportMap lens_ReportMap_unReportMap
           {-# INLINE lens_ReportMap_unReportMap #-}
 class HasReportStatus c
     where lens_reportStatus :: Lens' c ReportStatus
@@ -750,7 +750,7 @@ instance HasBool Bool
 instance HasBranding Branding
     where lens_branding = id
 instance HasCIString CIString
-    where cIString = id
+    where lens_cIString = id
           lens_CIString_unCIString = iso (\(CIString x) -> x) CIString
           {-# INLINE lens_CIString_unCIString #-}
 instance HasDimension Dimension
@@ -2996,7 +2996,7 @@ instance HasReportImageView ReportImageView
 instance HasReportIntendedUse ReportIntendedUse
     where lens_reportIntendedUse = id
 instance HasReportMap ReportMap
-    where reportMap = id
+    where lens_reportMap = id
           lens_ReportMap_unReportMap = iso (\(ReportMap x) -> x) ReportMap
           {-# INLINE lens_ReportMap_unReportMap #-}
 instance HasReportStatus ReportStatus
