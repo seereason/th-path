@@ -5015,7 +5015,6 @@ instance Path (Either URI ImageFile) (Either URI ImageFile)
                                                                                ImageFile))
                                                              (Path_ImageFile (Either URI ImageFile))
           toLens _ = iso id id
-          toLens u = error $ ("Unexpected goal Either URI ImageFile for Either URI ImageFile: " ++ show u)
 instance Path (Either URI ImageFile) ImageFile
     where type PathType (Either URI ImageFile)
                         ImageFile = Path_Either (Path_URI ImageFile)
@@ -5033,7 +5032,6 @@ instance Path (Map ItemFieldName Markup) (Map ItemFieldName Markup)
                                                               (Path_Markup (Map ItemFieldName
                                                                                 Markup))
           toLens _ = iso id id
-          toLens u = error $ ("Unexpected goal Map ItemFieldName Markup for Map ItemFieldName Markup: " ++ show u)
 instance Path (Map ItemFieldName Markup) JSONText
     where type PathType (Map ItemFieldName Markup)
                         JSONText = Path_Map ItemFieldName (Path_Markup JSONText)
@@ -5067,7 +5065,6 @@ instance Path (Map ReportID Report) (Map ReportID Report)
                         (Map ReportID Report) = Path_Map ReportID
                                                          (Path_Report (Map ReportID Report))
           toLens _ = iso id id
-          toLens u = error $ ("Unexpected goal Map ReportID Report for Map ReportID Report: " ++ show u)
 instance Path (Map ReportID Report) (Maybe (Either URI ImageFile))
     where type PathType (Map ReportID Report)
                         (Maybe (Either URI ImageFile)) = Path_Map ReportID
@@ -5312,7 +5309,6 @@ instance Path (Maybe (Either URI ImageFile))
                                                                              (Path_ImageFile (Maybe (Either URI
                                                                                                             ImageFile))))
           toLens _ = iso id id
-          toLens u = error $ ("Unexpected goal Maybe (Either URI ImageFile) for Maybe (Either URI ImageFile): " ++ show u)
 instance Path (Maybe (Either URI ImageFile)) ImageFile
     where type PathType (Maybe (Either URI ImageFile))
                         ImageFile = Path_Maybe (Path_Either (Path_URI ImageFile)
@@ -5329,7 +5325,6 @@ instance Path AbbrevPair AbbrevPair
                         AbbrevPair = Path_Pair (Path_CIString AbbrevPair)
                                                (Path_Markup AbbrevPair)
           toLens _ = iso id id
-          toLens u = error $ ("Unexpected goal (CIString, Markup) (aka AbbrevPair) for (CIString, Markup) (aka AbbrevPair): " ++ show u)
 instance Path AbbrevPair CIString
     where type PathType AbbrevPair
                         CIString = Path_Pair (Path_CIString CIString)
@@ -5366,7 +5361,6 @@ instance Path AbbrevPairs AbbrevPairs
                                                 (Path_Pair (Path_CIString AbbrevPairs)
                                                            (Path_Markup AbbrevPairs))
           toLens _ = iso id id
-          toLens u = error $ ("Unexpected goal Order AbbrevPairID ((CIString, Markup)) (aka AbbrevPairs) for Order AbbrevPairID ((CIString, Markup)) (aka AbbrevPairs): " ++ show u)
 instance Path AbbrevPairs CIString
     where type PathType AbbrevPairs CIString = Path_OMap AbbrevPairID
                                                          (Path_Pair (Path_CIString CIString)
@@ -5394,7 +5388,6 @@ instance Path AbbrevPairs Text
 instance Path Author Author
     where type PathType Author Author = Path_Author Author
           toLens _ = iso id id
-          toLens u = error $ ("Unexpected goal Author for Author: " ++ show u)
 instance Path Author JSONText
     where type PathType Author JSONText = Path_Author JSONText
           toLens (Path_Author_authorName _x) = lens_Author_authorName . toLens _x
@@ -5419,7 +5412,6 @@ instance Path Authors Authors
     where type PathType Authors Authors = Path_OMap AuthorID
                                                     (Path_Author Authors)
           toLens _ = iso id id
-          toLens u = error $ ("Unexpected goal Order AuthorID Author (aka Authors) for Order AuthorID Author (aka Authors): " ++ show u)
 instance Path Authors JSONText
     where type PathType Authors JSONText = Path_OMap AuthorID
                                                      (Path_Author JSONText)
@@ -5438,7 +5430,6 @@ instance Path Authors Text
 instance Path Bool Bool
     where type PathType Bool Bool = Path_Bool Bool
           toLens _ = iso id id
-          toLens u = error $ ("Unexpected goal Bool for Bool: " ++ show u)
 instance Path Bool JSONText
     where type PathType Bool JSONText = Path_Bool JSONText
           toLens (Path_Bool_View v) = (viewLens :: Lens' Bool
@@ -5451,7 +5442,6 @@ instance Path Bool String
 instance Path Branding Branding
     where type PathType Branding Branding = Path_Branding Branding
           toLens _ = iso id id
-          toLens u = error $ ("Unexpected goal Branding for Branding: " ++ show u)
 instance Path Branding JSONText
     where type PathType Branding JSONText = Path_Branding JSONText
           toLens (Path_Branding_View v) = (viewLens :: Lens' Branding
@@ -5464,7 +5454,6 @@ instance Path Branding Text
 instance Path CIString CIString
     where type PathType CIString CIString = Path_CIString CIString
           toLens _ = iso id id
-          toLens u = error $ ("Unexpected goal CIString for CIString: " ++ show u)
 instance Path CIString JSONText
     where type PathType CIString JSONText = Path_CIString JSONText
           toLens (Path_CIString_View v) = (viewLens :: Lens' CIString
@@ -5477,7 +5466,6 @@ instance Path CIString Text
 instance Path Dimension Dimension
     where type PathType Dimension Dimension = Path_Dimension Dimension
           toLens _ = iso id id
-          toLens u = error $ ("Unexpected goal Dimension for Dimension: " ++ show u)
 instance Path Dimension JSONText
     where type PathType Dimension JSONText = Path_Dimension JSONText
           toLens (Path_Dimension_View _) = viewLens :: Lens' Dimension
@@ -5486,7 +5474,6 @@ instance Path Dimension JSONText
 instance Path Double Double
     where type PathType Double Double = Path_Double Double
           toLens _ = iso id id
-          toLens u = error $ ("Unexpected goal Double for Double: " ++ show u)
 instance Path Double JSONText
     where type PathType Double JSONText = Path_Double JSONText
           toLens (Path_Double_View v) = (viewLens :: Lens' Double
@@ -5499,11 +5486,9 @@ instance Path Double String
 instance Path ImageCrop ImageCrop
     where type PathType ImageCrop ImageCrop = Path_ImageCrop ImageCrop
           toLens _ = iso id id
-          toLens u = error $ ("Unexpected goal ImageCrop for ImageCrop: " ++ show u)
 instance Path ImageFile ImageFile
     where type PathType ImageFile ImageFile = Path_ImageFile ImageFile
           toLens _ = iso id id
-          toLens u = error $ ("Unexpected goal ImageFile for ImageFile: " ++ show u)
 instance Path ImageSize Dimension
     where type PathType ImageSize Dimension = Path_ImageSize Dimension
           toLens (Path_ImageSize_dim _x) = lens_ImageSize_dim
@@ -5515,7 +5500,6 @@ instance Path ImageSize Double
 instance Path ImageSize ImageSize
     where type PathType ImageSize ImageSize = Path_ImageSize ImageSize
           toLens _ = iso id id
-          toLens u = error $ ("Unexpected goal ImageSize for ImageSize: " ++ show u)
 instance Path ImageSize JSONText
     where type PathType ImageSize JSONText = Path_ImageSize JSONText
           toLens (Path_ImageSize_dim _x) = lens_ImageSize_dim . toLens _x
@@ -5533,11 +5517,9 @@ instance Path ImageSize Units
 instance Path Int64 Int64
     where type PathType Int64 Int64 = Path_Int64 Int64
           toLens _ = iso id id
-          toLens u = error $ ("Unexpected goal Int64 (aka EpochMilli) for Int64 (aka EpochMilli): " ++ show u)
 instance Path Integer Integer
     where type PathType Integer Integer = Path_Integer Integer
           toLens _ = iso id id
-          toLens u = error $ ("Unexpected goal Integer for Integer: " ++ show u)
 instance Path Item (Either URI ImageFile)
     where type PathType Item
                         (Either URI ImageFile) = Path_Item (Either URI ImageFile)
@@ -5581,7 +5563,6 @@ instance Path Item ImageSize
 instance Path Item Item
     where type PathType Item Item = Path_Item Item
           toLens _ = iso id id
-          toLens u = error $ ("Unexpected goal Item for Item: " ++ show u)
 instance Path Item JSONText
     where type PathType Item JSONText = Path_Item JSONText
           toLens (Path_Item_itemName _x) = lens_Item_itemName . toLens _x
@@ -5636,7 +5617,6 @@ instance Path Item Units
 instance Path JSONText JSONText
     where type PathType JSONText JSONText = Path_JSONText JSONText
           toLens _ = iso id id
-          toLens u = error $ ("Unexpected goal JSONText for JSONText: " ++ show u)
 instance Path Markup JSONText
     where type PathType Markup JSONText = Path_Markup JSONText
           toLens (Path_Markup_markdownText _x) = lens_Markup_markdownText . toLens _x
@@ -5645,7 +5625,6 @@ instance Path Markup JSONText
 instance Path Markup Markup
     where type PathType Markup Markup = Path_Markup Markup
           toLens _ = iso id id
-          toLens u = error $ ("Unexpected goal Markup for Markup: " ++ show u)
 instance Path Markup Text
     where type PathType Markup Text = Path_Markup Text
           toLens (Path_Markup_markdownText _x) = lens_Markup_markdownText
@@ -5668,7 +5647,6 @@ instance Path MarkupPair MarkupPair
                         MarkupPair = Path_Pair (Path_Markup MarkupPair)
                                                (Path_Markup MarkupPair)
           toLens _ = iso id id
-          toLens u = error $ ("Unexpected goal (Markup, Markup) (aka MarkupPair) for (Markup, Markup) (aka MarkupPair): " ++ show u)
 instance Path MarkupPair Text
     where type PathType MarkupPair Text = Path_Pair (Path_Markup Text)
                                                     (Path_Markup Text)
@@ -5699,7 +5677,6 @@ instance Path MarkupPairs MarkupPairs
                                                 (Path_Pair (Path_Markup MarkupPairs)
                                                            (Path_Markup MarkupPairs))
           toLens _ = iso id id
-          toLens u = error $ ("Unexpected goal Order MarkupPairID ((Markup, Markup)) (aka MarkupPairs) for Order MarkupPairID ((Markup, Markup)) (aka MarkupPairs): " ++ show u)
 instance Path MarkupPairs Text
     where type PathType MarkupPairs Text = Path_OMap MarkupPairID
                                                      (Path_Pair (Path_Markup Text)
@@ -5720,7 +5697,6 @@ instance Path Markups Markups
     where type PathType Markups Markups = Path_OMap MarkupID
                                                     (Path_Markup Markups)
           toLens _ = iso id id
-          toLens u = error $ ("Unexpected goal Order MarkupID Markup (aka Markups) for Order MarkupID Markup (aka Markups): " ++ show u)
 instance Path Markups Text
     where type PathType Markups Text = Path_OMap MarkupID
                                                  (Path_Markup Text)
@@ -5736,7 +5712,6 @@ instance Path MaybeImageFile MaybeImageFile
     where type PathType MaybeImageFile
                         MaybeImageFile = Path_MaybeImageFile MaybeImageFile
           toLens _ = iso id id
-          toLens u = error $ ("Unexpected goal Maybe ImageFile (aka MaybeImageFile) for Maybe ImageFile (aka MaybeImageFile): " ++ show u)
 instance Path MaybeImageFile String
     where type PathType MaybeImageFile
                         String = Path_MaybeImageFile String
@@ -5753,7 +5728,6 @@ instance Path MaybeReportIntendedUse MaybeReportIntendedUse
     where type PathType MaybeReportIntendedUse
                         MaybeReportIntendedUse = Path_MaybeReportIntendedUse MaybeReportIntendedUse
           toLens _ = iso id id
-          toLens u = error $ ("Unexpected goal Maybe ReportIntendedUse (aka MaybeReportIntendedUse) for Maybe ReportIntendedUse (aka MaybeReportIntendedUse): " ++ show u)
 instance Path MaybeReportIntendedUse String
     where type PathType MaybeReportIntendedUse
                         String = Path_MaybeReportIntendedUse String
@@ -5770,7 +5744,6 @@ instance Path Permissions Permissions
     where type PathType Permissions
                         Permissions = Path_Permissions Permissions
           toLens _ = iso id id
-          toLens u = error $ ("Unexpected goal Permissions for Permissions: " ++ show u)
 instance Path Permissions Text
     where type PathType Permissions Text = Path_Permissions Text
           toLens (Path_Permissions_writers _x) = lens_Permissions_writers . toLens _x
@@ -5789,7 +5762,6 @@ instance Path ReadOnlyFilePath ReadOnlyFilePath
     where type PathType ReadOnlyFilePath
                         ReadOnlyFilePath = Path_ReadOnlyFilePath ReadOnlyFilePath
           toLens _ = iso id id
-          toLens u = error $ ("Unexpected goal ReadOnly ([Char]) (aka ReadOnlyFilePath) for ReadOnly ([Char]) (aka ReadOnlyFilePath): " ++ show u)
 instance Path Report (Either URI ImageFile)
     where type PathType Report
                         (Either URI ImageFile) = Path_Report (Either URI ImageFile)
@@ -5935,7 +5907,6 @@ instance Path Report ReadOnlyFilePath
 instance Path Report Report
     where type PathType Report Report = Path_Report Report
           toLens _ = iso id id
-          toLens u = error $ ("Unexpected goal Report for Report: " ++ show u)
 instance Path Report ReportElem
     where type PathType Report ReportElem = Path_Report ReportElem
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
@@ -6097,7 +6068,6 @@ instance Path ReportElem ReportElem
     where type PathType ReportElem
                         ReportElem = Path_ReportElem ReportElem
           toLens _ = iso id id
-          toLens u = error $ ("Unexpected goal ReportElem for ReportElem: " ++ show u)
 instance Path ReportElem ReportImage
     where type PathType ReportElem
                         ReportImage = Path_ReportElem ReportImage
@@ -6215,7 +6185,6 @@ instance Path ReportElems ReportElems
     where type PathType ReportElems
                         ReportElems = Path_OMap ReportElemID (Path_ReportElem ReportElems)
           toLens _ = iso id id
-          toLens u = error $ ("Unexpected goal Order ReportElemID ReportElem (aka ReportElems) for Order ReportElemID ReportElem (aka ReportElems): " ++ show u)
 instance Path ReportElems ReportImage
     where type PathType ReportElems
                         ReportImage = Path_OMap ReportElemID (Path_ReportElem ReportImage)
@@ -6272,7 +6241,6 @@ instance Path ReportFlags ReportFlags
     where type PathType ReportFlags
                         ReportFlags = Path_ReportFlags ReportFlags
           toLens _ = iso id id
-          toLens u = error $ ("Unexpected goal ReportFlags for ReportFlags: " ++ show u)
 instance Path ReportFlags String
     where type PathType ReportFlags String = Path_ReportFlags String
           toLens (Path_ReportFlags_hideEmptyItemFields _x) = lens_ReportFlags_hideEmptyItemFields . toLens _x
@@ -6345,7 +6313,6 @@ instance Path ReportImage ReportImage
     where type PathType ReportImage
                         ReportImage = Path_ReportImage ReportImage
           toLens _ = iso id id
-          toLens u = error $ ("Unexpected goal ReportImage for ReportImage: " ++ show u)
 instance Path ReportImage ReportImageView
     where type PathType ReportImage
                         ReportImageView = Path_ReportImage ReportImageView
@@ -6449,7 +6416,6 @@ instance Path ReportImageView ReportImageView
     where type PathType ReportImageView
                         ReportImageView = Path_ReportImageView ReportImageView
           toLens _ = iso id id
-          toLens u = error $ ("Unexpected goal ReportImageView for ReportImageView: " ++ show u)
 instance Path ReportImageView SaneSizeImageSize
     where type PathType ReportImageView
                         SaneSizeImageSize = Path_ReportImageView SaneSizeImageSize
@@ -6555,7 +6521,6 @@ instance Path ReportImages ReportImages
                         ReportImages = Path_OMap ReportImageID
                                                  (Path_ReportImage ReportImages)
           toLens _ = iso id id
-          toLens u = error $ ("Unexpected goal Order ReportImageID ReportImage (aka ReportImages) for Order ReportImageID ReportImage (aka ReportImages): " ++ show u)
 instance Path ReportImages SaneSizeImageSize
     where type PathType ReportImages
                         SaneSizeImageSize = Path_OMap ReportImageID
@@ -6592,7 +6557,6 @@ instance Path ReportIntendedUse ReportIntendedUse
     where type PathType ReportIntendedUse
                         ReportIntendedUse = Path_ReportIntendedUse ReportIntendedUse
           toLens _ = iso id id
-          toLens u = error $ ("Unexpected goal ReportIntendedUse for ReportIntendedUse: " ++ show u)
 instance Path ReportIntendedUse String
     where type PathType ReportIntendedUse
                         String = Path_ReportIntendedUse String
@@ -6762,7 +6726,6 @@ instance Path ReportMap ReportImages
 instance Path ReportMap ReportMap
     where type PathType ReportMap ReportMap = Path_ReportMap ReportMap
           toLens _ = iso id id
-          toLens u = error $ ("Unexpected goal ReportMap for ReportMap: " ++ show u)
 instance Path ReportMap ReportStatus
     where type PathType ReportMap
                         ReportStatus = Path_ReportMap ReportStatus
@@ -6826,7 +6789,6 @@ instance Path ReportStatus ReportStatus
     where type PathType ReportStatus
                         ReportStatus = Path_ReportStatus ReportStatus
           toLens _ = iso id id
-          toLens u = error $ ("Unexpected goal ReportStatus for ReportStatus: " ++ show u)
 instance Path ReportStatus String
     where type PathType ReportStatus String = Path_ReportStatus String
           toLens (Path_ReportStatus_View _) = viewLens :: Lens' ReportStatus
@@ -6848,7 +6810,6 @@ instance Path ReportValueApproachInfo ReportValueApproachInfo
     where type PathType ReportValueApproachInfo
                         ReportValueApproachInfo = Path_ReportValueApproachInfo ReportValueApproachInfo
           toLens _ = iso id id
-          toLens u = error $ ("Unexpected goal ReportValueApproachInfo for ReportValueApproachInfo: " ++ show u)
 instance Path ReportValueApproachInfo Text
     where type PathType ReportValueApproachInfo
                         Text = Path_ReportValueApproachInfo Text
@@ -6873,7 +6834,6 @@ instance Path ReportValueTypeInfo ReportValueTypeInfo
     where type PathType ReportValueTypeInfo
                         ReportValueTypeInfo = Path_ReportValueTypeInfo ReportValueTypeInfo
           toLens _ = iso id id
-          toLens u = error $ ("Unexpected goal ReportValueTypeInfo for ReportValueTypeInfo: " ++ show u)
 instance Path ReportValueTypeInfo Text
     where type PathType ReportValueTypeInfo
                         Text = Path_ReportValueTypeInfo Text
@@ -7132,7 +7092,6 @@ instance Path ReportView ReportView
     where type PathType ReportView
                         ReportView = Path_ReportView ReportView
           toLens _ = iso id id
-          toLens u = error $ ("Unexpected goal ReportView for ReportView: " ++ show u)
 instance Path ReportView SaneSizeImageSize
     where type PathType ReportView
                         SaneSizeImageSize = Path_ReportView SaneSizeImageSize
@@ -7233,7 +7192,6 @@ instance Path SaneSizeImageSize SaneSizeImageSize
     where type PathType SaneSizeImageSize
                         SaneSizeImageSize = Path_SaneSizeImageSize SaneSizeImageSize
           toLens _ = iso id id
-          toLens u = error $ ("Unexpected goal SaneSize ImageSize (aka SaneSizeImageSize) for SaneSize ImageSize (aka SaneSizeImageSize): " ++ show u)
 instance Path SaneSizeImageSize String
     where type PathType SaneSizeImageSize
                         String = Path_SaneSizeImageSize String
@@ -7253,7 +7211,6 @@ instance Path String JSONText
 instance Path String String
     where type PathType String String = Path_String String
           toLens _ = iso id id
-          toLens u = error $ ("Unexpected goal [Char] (aka String, aka FilePath, aka Checksum) for [Char] (aka String, aka FilePath, aka Checksum): " ++ show u)
 instance Path Text JSONText
     where type PathType Text JSONText = Path_Text JSONText
           toLens (Path_Text_View _) = viewLens :: Lens' Text JSONText
@@ -7261,15 +7218,12 @@ instance Path Text JSONText
 instance Path Text Text
     where type PathType Text Text = Path_Text Text
           toLens _ = iso id id
-          toLens u = error $ ("Unexpected goal Text for Text: " ++ show u)
 instance Path URI URI
     where type PathType URI URI = Path_URI URI
           toLens _ = iso id id
-          toLens u = error $ ("Unexpected goal URI for URI: " ++ show u)
 instance Path UUID UUID
     where type PathType UUID UUID = Path_UUID UUID
           toLens _ = iso id id
-          toLens u = error $ ("Unexpected goal UUID for UUID: " ++ show u)
 instance Path Units JSONText
     where type PathType Units JSONText = Path_Units JSONText
           toLens (Path_Units_View _) = viewLens :: Lens' Units JSONText
@@ -7277,11 +7231,9 @@ instance Path Units JSONText
 instance Path Units Units
     where type PathType Units Units = Path_Units Units
           toLens _ = iso id id
-          toLens u = error $ ("Unexpected goal Units for Units: " ++ show u)
 instance Path UserId UserId
     where type PathType UserId UserId = Path_UserId UserId
           toLens _ = iso id id
-          toLens u = error $ ("Unexpected goal UserId for UserId: " ++ show u)
 instance Path UserIds JSONText
     where type PathType UserIds JSONText = Path_UserIds JSONText
           toLens (Path_UserIds_View v) = (viewLens :: Lens' ([UserId])
@@ -7294,4 +7246,3 @@ instance Path UserIds Text
 instance Path UserIds UserIds
     where type PathType UserIds UserIds = Path_UserIds UserIds
           toLens _ = iso id id
-          toLens u = error $ ("Unexpected goal [UserId] (aka UserIds) for [UserId] (aka UserIds): " ++ show u)
