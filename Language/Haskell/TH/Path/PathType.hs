@@ -44,7 +44,7 @@ import Language.Haskell.TH.TypeGraph.TypeInfo (TypeInfo, typeVertex)
 import Language.Haskell.TH.TypeGraph.Vertex (bestType, TypeGraphVertex, TGV, field, typeNames, TGVSimple, vsimple, etype)
 import Prelude hiding (any, concat, concatMap, elem, foldr, mapM_, null, or)
 
--- | Given a type, generate the corresponding path type.
+-- | Given a type, compute the corresponding path type.
 pathType :: (DsMonad m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadStates ExpandMap m, MonadStates InstMap m) =>
             TypeQ
          -> TGVSimple -- ^ The type to convert to a path type

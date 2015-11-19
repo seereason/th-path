@@ -11,7 +11,7 @@
 {-# LANGUAGE TupleSections #-}
 {-# OPTIONS_GHC -fno-warn-orphans -fno-warn-missing-signatures #-}
 module Language.Haskell.TH.Path.Types
-    ( pathTypes
+    ( pathTypeDecs
     ) where
 
 import Control.Applicative
@@ -41,19 +41,19 @@ import Prelude hiding (any, concat, concatMap, elem, foldr, mapM_, null, or)
 
 -- | Construct a graph of all types reachable from the types in the
 -- argument, and construct the corresponding path types.
-pathTypes :: (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) => m ()
-pathTypes = allPathStarts >>= mapM_ pathTypeDecs . toList . Set.map (view vsimple)
+pathTypeDecs :: (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) => m ()
+pathTypeDecs = allPathStarts >>= mapM_ pathTypeDecs' . toList . Set.map (view vsimple)
 
 -- | Given a type, generate the corresponding path type declarations
-pathTypeDecs :: forall m. (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) => TGVSimple -> m ()
-pathTypeDecs key =
-  pathTypeDecs'
+pathTypeDecs' :: forall m. (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) => TGVSimple -> m ()
+pathTypeDecs' key =
+  pathTypeDecs''
     where
-      pathTypeDecs' = foldPath control key
+      pathTypeDecs'' = foldPath control key
         where
           control =
             FoldPathControl
-              { simplef = maybe (error $ "pathTypeDecs: simple path type has no name: " ++ pprint' key) (uncurry simplePath) (bestPathTypeName key)
+              { simplef = maybe (error $ "pathTypeDecs': simple path type has no name: " ++ pprint' key) (uncurry simplePath) (bestPathTypeName key)
               , substf = \_lns styp -> viewPath styp -- maybe (return ()) (uncurry simplePath) (bestPathTypeName key)
               , pathyf = return ()
               , namedf = \_tname -> doNames

@@ -31,7 +31,7 @@ import Language.Haskell.TH.Lift (lift)
 import Language.Haskell.TH.Path.Graph (runTypeGraphT)
 import Language.Haskell.TH.Path.Instances (pathInstances)
 import Language.Haskell.TH.Path.Lens (pathLenses)
-import Language.Haskell.TH.Path.Types (pathTypes)
+import Language.Haskell.TH.Path.Types (pathTypeDecs)
 import Language.Haskell.TH.TypeGraph.Prelude (friendlyNames)
 import Web.Routes.TH (derivePathInfo)
 
@@ -42,7 +42,7 @@ $(derivePathInfo ''ReportID)
 decs :: [Dec]
 decs = $(depFiles >>
          startTypes >>=
-         runTypeGraphT (do types <- execWriterT pathTypes >>= return . sortBy (compare `on` show) . map friendlyNames
+         runTypeGraphT (do types <- execWriterT pathTypeDecs >>= return . sortBy (compare `on` show) . map friendlyNames
                            lenses <- execWriterT pathLenses >>= return . sortBy (compare `on` show) . map friendlyNames
                            instances <- execWriterT pathInstances >>= return . sortBy (compare `on` show) . map friendlyNames
                            return (types ++ lenses ++ instances)) >>=
