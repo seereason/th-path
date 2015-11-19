@@ -16,23 +16,17 @@
 -- we tried to generate a clause but we found no path to the goal type.
 module Appraisal.ReportPaths where
 
-import Control.Monad.Writer (execWriterT)
 #if !MIN_VERSION_base(4,8,0)
 import Data.Monoid ((<>))
 #endif
 import Appraisal.ReportItem
 import Appraisal.ReportMap (ReportID)
 import Appraisal.ReportPathInfo
-import Data.Function (on)
-import Data.List (sortBy)
 import Data.UUID.Orphans ()
 import Language.Haskell.TH (Dec)
 import Language.Haskell.TH.Lift (lift)
+import Language.Haskell.TH.Path.Decs (pathDecs)
 import Language.Haskell.TH.Path.Graph (runTypeGraphT)
-import Language.Haskell.TH.Path.Instances (pathInstanceDecs)
-import Language.Haskell.TH.Path.Lens (pathLensDecs)
-import Language.Haskell.TH.Path.Types (pathTypeDecs)
-import Language.Haskell.TH.TypeGraph.Prelude (friendlyNames)
 import Web.Routes.TH (derivePathInfo)
 
 $(derivePathInfo ''Maybe)
@@ -40,10 +34,4 @@ $(derivePathInfo ''ItemFieldName)
 $(derivePathInfo ''ReportID)
 
 decs :: [Dec]
-decs = $(depFiles >>
-         startTypes >>=
-         runTypeGraphT (do types <- execWriterT pathTypeDecs >>= return . sortBy (compare `on` show) . map friendlyNames
-                           lenses <- execWriterT pathLensDecs >>= return . sortBy (compare `on` show) . map friendlyNames
-                           instances <- execWriterT pathInstanceDecs >>= return . sortBy (compare `on` show) . map friendlyNames
-                           return (types ++ lenses ++ instances)) >>=
-         lift)
+decs = $(depFiles >> startTypes >>= runTypeGraphT pathDecs >>= lift)
