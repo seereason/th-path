@@ -47,13 +47,13 @@ import Language.Haskell.TH.Syntax as TH (Quasi(qReify), Lift(lift), VarStrictTyp
 import Language.Haskell.TH.TypeGraph.Expand (E(E, unE), ExpandMap, expandType)
 import Language.Haskell.TH.TypeGraph.Lens (lensNamePairs)
 import Language.Haskell.TH.TypeGraph.Prelude (friendlyNames, pprint')
-import Language.Haskell.TH.TypeGraph.TypeGraph (allLensKeys, allPathKeys, allPathStarts, goalReachableSimple, TypeGraph)
+import Language.Haskell.TH.TypeGraph.TypeGraph (allLensKeys, allPathKeys, allPathNodes, goalReachableSimple, TypeGraph)
 import Language.Haskell.TH.TypeGraph.TypeInfo (fieldVertex, TypeInfo, typeVertex)
 import Language.Haskell.TH.TypeGraph.Vertex (etype, TGVSimple, TypeGraphVertex(bestType), typeNames, vsimple)
 
 pathDecs :: (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => m [Dec]
 pathDecs = do
-  types <-     execWriterT (allPathStarts >>= Foldable.mapM_ pathTypeDecs . toList . Set.map (view vsimple))                         >>= return . sortBy (compare `on` show) . List.map friendlyNames
+  types <-     execWriterT (allPathNodes >>=  Foldable.mapM_ pathTypeDecs . toList . Set.map (view vsimple))                         >>= return . sortBy (compare `on` show) . List.map friendlyNames
   lenses <-    execWriterT (allLensKeys >>=   Foldable.mapM_ pathLensDecs . Map.keys)                                                >>= return . sortBy (compare `on` show) . List.map friendlyNames
   instances <- execWriterT (allPathKeys >>=   Foldable.mapM_ (\(key, gkeys) -> Set.mapM_ (pathInstanceDecs key) gkeys) . Map.toList) >>= return . sortBy (compare `on` show) . List.map friendlyNames
   -- To do - subpath instances, convert one path into another that stops earlier.

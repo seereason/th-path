@@ -291,7 +291,7 @@ class HasBool c
 class HasBranding c
     where lens_branding :: Lens' c Branding
 class HasCIString c
-    where cIString :: Lens' c CIString
+    where lens_cIString :: Lens' c CIString
           lens_CIString_unCIString :: forall . Lens' c String
           lens_CIString_unCIString = (.) lens_cIString lens_CIString_unCIString
           {-# INLINE lens_CIString_unCIString #-}
