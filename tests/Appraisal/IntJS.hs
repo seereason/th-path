@@ -29,7 +29,7 @@ import Data.SafeCopy (deriveSafeCopy, base)
 import Data.Text as Text (null, pack)
 import Data.Text.Read (decimal, signed)
 import Language.Haskell.TH
-import Language.Haskell.TH.Path.Order (deriveOrder, fromPairs, OrderMap, Order, toPairs)
+import Language.Haskell.TH.Path.Order (deriveOrder, fromPairs, Order, toPairs)
 import Language.Javascript.JMacro (ToJExpr(toJExpr), JExpr(ValExpr), JVal(JInt))
 import Prelude hiding (init, succ)
 import Text.JSON.Generic (Data, decodeJSON, encodeJSON)
@@ -65,10 +65,10 @@ instance (ToJSON k, ToJSON v) => ToJSON (Map k v) where
 instance (Ord k, FromJSON k, FromJSON v) => FromJSON (Map k v) where
     parseJSON mp = Map.fromList <$> parseJSON mp
 
-instance (OrderMap k, ToJSON k, ToJSON a) => ToJSON (Order k a) where
+instance (Ord k, Enum k, ToJSON k, ToJSON a) => ToJSON (Order k a) where
   toJSON = toJSON . toPairs
 
-instance (OrderMap k, FromJSON k, FromJSON a) => FromJSON (Order k a) where
+instance (Ord k, Enum k, FromJSON k, FromJSON a) => FromJSON (Order k a) where
   parseJSON = fmap fromPairs . parseJSON
 
 deriveOrderJS :: Name -> Q [Dec]
