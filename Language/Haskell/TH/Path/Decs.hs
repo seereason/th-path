@@ -15,40 +15,120 @@ module Language.Haskell.TH.Path.Decs
     ( pathDecs
     ) where
 
-import Control.Lens (Traversal', Field2(_2), Field1(_1), makeClassyFor, _Right, _Left, _Just, iso, view)
+import Control.Lens hiding (cons)
 import Control.Monad (when)
 import Control.Monad as List ( mapM )
-import Control.Monad.Readers ()
+import Control.Monad.Reader (runReaderT)
+import Control.Monad.Readers (askPoly, MonadReaders)
 import Control.Monad.State (evalStateT, StateT)
 import Control.Monad.States (MonadStates(getPoly, putPoly), modifyPoly)
 import Control.Monad.Trans as Monad (lift)
-import Control.Monad.Writer ()
-import Control.Monad.Readers (MonadReaders)
 import Control.Monad.Writer (MonadWriter, execWriterT, tell)
 import Data.Char (toLower)
 import Data.Data (Data, Typeable)
 import Data.Foldable as Foldable (Foldable(toList), mapM_)
+import Data.Foldable
 import Data.Function (on)
+import Data.List as List (intercalate)
 import Data.List as List (map, sortBy)
 import Data.Map as Map (keys)
 import qualified Data.Map as Map (toList)
+import Data.Set as Set (delete)
 import Data.Set.Extra as Set (insert, map, member, Set)
 import qualified Data.Set.Extra as Set (mapM_)
 import Language.Haskell.TH
 import Language.Haskell.TH.Context (InstMap, reifyInstancesWithContext)
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.Path.Core ( mat, IdPath(idPath), Path(..), Path_OMap(..), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
+import Language.Haskell.TH.Path.Core (mat, IdPath(idPath), Path(..), Path_List, Path_OMap(..), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
 import Language.Haskell.TH.Path.Graph (foldPath, FoldPathControl(..), SinkType)
-import Language.Haskell.TH.Path.PathType (bestPathTypeName, pathConNameOfField, pathType, pathTypeNameFromTypeName)
 import Language.Haskell.TH.Path.Order (lens_omat)
 import Language.Haskell.TH.Syntax as TH (Quasi(qReify), Lift(lift), VarStrictType)
 import Language.Haskell.TH.TypeGraph.Expand (E(E, unE), ExpandMap, expandType)
 import Language.Haskell.TH.TypeGraph.Lens (lensNamePairs)
 import Language.Haskell.TH.TypeGraph.Prelude (friendlyNames, pprint')
-import Language.Haskell.TH.TypeGraph.TypeGraph (allLensKeys, allPathKeys, allPathNodes, goalReachableSimple, TypeGraph)
+import Language.Haskell.TH.TypeGraph.TypeGraph (allLensKeys, allPathKeys, allPathNodes, goalReachableSimple, reachableFromSimple, TypeGraph)
 import Language.Haskell.TH.TypeGraph.TypeInfo (fieldVertex, TypeInfo, typeVertex)
-import Language.Haskell.TH.TypeGraph.Vertex (etype, TGVSimple, TypeGraphVertex(bestType), typeNames, vsimple)
+import Language.Haskell.TH.TypeGraph.Vertex (etype, field, TGV, TGVSimple, TypeGraphVertex(bestType), typeNames, vsimple)
+
+-- | Given a type, compute the corresponding path type.
+pathType :: (DsMonad m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadStates ExpandMap m, MonadStates InstMap m) =>
+            TypeQ
+         -> TGVSimple -- ^ The type to convert to a path type
+         -> m Type
+pathType gtyp key =
+  foldPath control key
+    where
+          -- Nest the definition of control so it can see this binding of hints,
+          -- and call pathType' with a modified hint list.
+      control =
+              FoldPathControl
+                { simplef = let Just (pname, _syns) = bestPathTypeName key in runQ [t|$(conT pname) $gtyp|]
+                , substf = \_lns _styp ->
+                    -- This is safe because hint types are now required to have a name
+                    let Just (pname, _syns) = bestPathTypeName key in runQ [t|$(conT pname) $gtyp|]
+                , pathyf = return $ unE $ view etype key
+                , namedf = \tname -> runQ $ [t|$(conT (pathTypeNameFromTypeName tname)) $gtyp|]
+                , maybef = \etyp -> do
+                    epath <- vert etyp >>= pathType gtyp
+                    runQ [t|Path_Maybe $(return epath)|]
+                , listf = \etyp -> do
+                    epath <- vert etyp >>= pathType gtyp
+                    runQ [t|Path_List $(return epath)|]
+                , orderf = \ityp etyp -> do
+                    ipath <- vert ityp >>= pathType gtyp
+                    epath <- vert etyp >>= pathType gtyp
+                    runQ [t|Path_OMap $(return ipath) $(return epath)|]
+                , mapf = \ktyp vtyp -> do
+                    kpath <- vert ktyp >>= pathType gtyp
+                    vpath <- vert vtyp >>= pathType gtyp
+                    runQ [t| Path_Map $(return kpath) $(return vpath)|]
+                , pairf = \ftyp styp -> do
+                    fpath <- vert ftyp >>= pathType gtyp
+                    spath <- vert styp >>= pathType gtyp
+                    runQ [t| Path_Pair $(return fpath) $(return spath) |]
+                , eitherf = \ltyp rtyp -> do
+                    lpath <- vert ltyp >>= pathType gtyp
+                    rpath <- vert rtyp >>= pathType gtyp
+                    runQ [t| Path_Either $(return lpath) $(return rpath)|]
+                , otherf = do
+                    ks <- reachableFromSimple key
+                    error $ "pathType otherf: " ++ pprint' key ++ "\n" ++
+                            intercalate "\n  " ("reachable from:" : List.map pprint' (toList ks))
+                }
+
+      vert typ = askPoly >>= \(ti :: TypeInfo) -> runReaderT (typeVertex (E typ)) ti
+
+{-
+-- | pathType for the simplified vertex
+pathType' :: (DsMonad m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadStates ExpandMap m, MonadStates InstMap m) => TypeQ -> TGV -> m Type
+pathType' gtyp key = pathType gtyp (view vsimple key)
+
+-- | Call the type function PathType.
+pathTypeCall :: (DsMonad m, MonadReaders TypeGraph m) =>
+                TypeQ           -- ^ The goal type - possibly a type variable
+             -> TGV -- ^ The type to convert to a path type
+             -> m Type
+pathTypeCall gtyp key = runQ [t|PathType $(let (E typ) = view (vsimple . etype) key in return typ) $gtyp|]
+-}
+
+-- Naming conventions
+
+-- | Path type constructor for the field described by key in the parent type named tname.
+pathConNameOfField :: TGV -> Maybe Name
+pathConNameOfField key = maybe Nothing (\ (tname, _, Right fname') -> Just $ mkName $ "Path_" ++ nameBase tname ++ "_" ++ nameBase fname') (key ^. field)
+
+-- | If the type is (ConT name) return name, otherwise return a type
+-- synonym name.
+bestPathTypeName :: TypeGraphVertex v => v -> Maybe (Name, Set Name)
+bestPathTypeName v =
+    case (bestType v, typeNames v) of
+      (ConT tname, names) -> Just (pathTypeNameFromTypeName tname, Set.map pathTypeNameFromTypeName (Set.delete tname names))
+      (_t, s) | null s -> Nothing
+      (_t, _s) -> error "bestPathTypeName - unexpected name"
+
+pathTypeNameFromTypeName :: Name -> Name
+pathTypeNameFromTypeName tname = mkName $ "Path_" ++ nameBase tname
 
 pathDecs :: (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => m [Dec]
 pathDecs = do
