@@ -21,9 +21,6 @@ module Appraisal.Config
     ) where
 
 import Appraisal.File (FileCacheTop(FileCacheTop))
-#if !MIN_VERSION_base(4,8,0)
-import Control.Applicative (Applicative, (<$>))
-#endif
 import Control.Monad.Reader (MonadReader, ask)
 import System.FilePath ((</>))
 import Network.URI (nullURI, URI(..))

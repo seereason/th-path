@@ -22,9 +22,6 @@ import Data.ByteString.Lazy (toStrict)
 import Data.Char (chr)
 import Data.Map as Map (Map, fromList)
 import Data.Monoid ((<>))
-#if !MIN_VERSION_base(4,8,0)
-import Data.Monoid (Monoid(..))
-#endif
 import qualified Data.Text as T
 import Data.Text.Encoding (decodeUtf8)
 import Data.Tree.NTree.TypeDefs (NTree(..))

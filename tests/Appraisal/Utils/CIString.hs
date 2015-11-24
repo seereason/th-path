@@ -8,9 +8,6 @@ import Data.Char (toLower)
 import Data.Function (on)
 import Data.Generics (Data, Typeable)
 import Data.Monoid ((<>))
-#if !MIN_VERSION_base(4,8,0)
-import Data.Monoid (Monoid(mempty, mappend))
-#endif
 import Data.SafeCopy (base, deriveSafeCopy)
 import Data.String (IsString(fromString))
 import qualified Data.Text as T

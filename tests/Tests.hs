@@ -23,11 +23,12 @@ import System.Exit
 import Test.HUnit
 import Text.PrettyPrint (text)
 
-import Appraisal.ReportPaths
+import Appraisal.ReportTH
 
 main :: IO ()
 main = do
   -- mapM_ (putStrLn . pprint) actual01
+  writeFile "tests/actual.hs" (unlines (map pprint decs))
   r <- runTestTT (TestList [{-test01,-} test02])
   case r of
     Counts {errors = 0, failures = 0} -> exitWith ExitSuccess
@@ -73,4 +74,4 @@ actual02 =
             lift (decs1 ++ decs2 ++ decs3))
 -}
 expected02 :: [String]
-expected02 = (lines . toString) $(embedFile "tests/expected02")
+expected02 = (lines . toString) $(embedFile "tests/expected.hs")

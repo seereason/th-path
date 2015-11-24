@@ -18,9 +18,6 @@ import qualified Data.ByteString as B
 import Data.Char (ord)
 import Data.Generics (Data, Typeable)
 import Data.Monoid ((<>))
-#if !MIN_VERSION_base(4,8,0)
-import Data.Monoid (Monoid(mempty, mappend))
-#endif
 import Data.SafeCopy (base, deriveSafeCopy)
 import Data.String (IsString(..))
 import qualified Data.Text as T

@@ -14,17 +14,11 @@ module Appraisal.IntJS
     , gjsonLens
     ) where
 
-#if !MIN_VERSION_base(4,8,0)
-import Control.Applicative ((<$>))
-#endif
 import Control.Lens (iso, Lens')
 import Data.Aeson (ToJSON(toJSON), FromJSON(parseJSON))
 import Data.Generics (Typeable)
 import Data.Int (Int32)
 import Data.Map as Map (fromList, Map, toList)
-#if !MIN_VERSION_base(4,8,0)
-import Data.Monoid (Monoid)
-#endif
 import Data.SafeCopy (deriveSafeCopy, base)
 import Data.Text as Text (null, pack)
 import Data.Text.Read (decimal, signed)

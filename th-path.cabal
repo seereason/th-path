@@ -53,9 +53,6 @@ library
     Language.Haskell.TH.Path.Order
     Language.Haskell.TH.Path.PathType
     Language.Haskell.TH.Path.View
-  other-modules:
-    Language.Haskell.TH.Path.LensTH
-    Language.Haskell.TH.Path.FieldTH
   default-language: Haskell2010
 
 -- test-suite th-path-tests
@@ -71,13 +68,14 @@ test-suite th-path-tests
   type:             exitcode-stdio-1.0
   hs-source-dirs:   tests
   main-is:          Tests.hs
-  build-depends:    base, base-compat, containers, filemanip-extra >= 0.4, haskell-src-exts, HUnit, lens,
+  ghc-options:      -Wall -O2
+  build-depends:    base, base-compat, containers, filemanip-extra >= 0.4, haskell-src-exts, HUnit, lens >= 4.13.1,
                     ListLike, mtl, safecopy, template-haskell, th-desugar, th-kinds-fork, th-lift,
                     th-orphans, th-path, applicative-extras, syb, text, userid, safe, web-routes-th,
                     set-extra, transformers, HaTeX, regex-compat, uuid-types, uuid-orphans, filepath,
                     aeson, jmacro, json, sr-revision, pretty, web-routes, bytestring, network-uri, groom,
                     pandoc, sr-extra, Diff, file-embed, utf8-string, image-cache, binary, random,
-                    th-context, th-typegraph, mtl-unleashed
+                    th-context, th-typegraph, mtl-unleashed, uuid, directory, unix
   default-language: Haskell2010
 
 source-repository head

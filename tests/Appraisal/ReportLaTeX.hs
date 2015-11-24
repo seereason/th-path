@@ -25,9 +25,6 @@ import Data.List (intersperse, zip4, groupBy)
 import qualified Data.Map as Map (Map, fromList, lookup, mapMaybeWithKey, filterWithKey, toList, elems)
 import Data.Maybe (catMaybes, fromMaybe, isJust, mapMaybe)
 import Data.Monoid ((<>))
-#if !MIN_VERSION_base(4,8,0)
-import Data.Monoid (mconcat, mempty)
-#endif
 import Data.Ratio ((%))
 import Data.String (fromString)
 import Data.Text as T (pack, strip, Text, unpack)
@@ -337,9 +334,11 @@ reportToLaTeX ver lfm picPrinter picEnlarged appraisal =
 
       scopeOfWork :: Report -> LaTeXM ()
       scopeOfWork report =
-          do newpage
-             heading 1 (cooked "Scope of Work")
-             lfm (reportScopeOfWork report)
+          case reportScopeOfWork report of
+            m | m == mempty -> return ()
+            m -> do newpage
+                    heading 1 (cooked "New Scope of Work")
+                    lfm m
 
       typeOfValue :: Report -> LaTeXM ()
       typeOfValue _report =

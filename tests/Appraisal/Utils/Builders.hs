@@ -11,7 +11,7 @@ import Debug.Trace
 import Data.Data
 import Data.Generics.Aliases (extB)
 import qualified Data.Text as T (Text, empty)
-import qualified Appraisal.Utils.UUID as UUID
+import qualified Data.UUID as UUID
 
 -- | Construct the empty value for a datatype. For algebraic datatypes, the
 -- leftmost constructor is chosen.

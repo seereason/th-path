@@ -43,9 +43,6 @@ module Appraisal.LaTeX
 import Appraisal.Utils.List (terminate)
 import Data.Generics (Data, Typeable)
 import qualified Data.List as L (intersperse)
-#if !MIN_VERSION_base(4,8,0)
-import Data.Monoid (mconcat, Monoid(..))
-#endif
 import Data.SafeCopy (base, deriveSafeCopy)
 import qualified Data.Text as T (pack, Text)
 import Prelude hiding (lines)

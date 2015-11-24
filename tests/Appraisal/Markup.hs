@@ -2,10 +2,10 @@
              OverloadedStrings, ScopedTypeVariables, TemplateHaskell, TypeFamilies, TypeSynonymInstances #-}
 {-# OPTIONS -Wall -fno-warn-orphans -fno-warn-name-shadowing #-}
 module Appraisal.Markup
-    ( Markdown_2(..)
+    (
     -- Don't export the constructors, we need to be careful how we
     -- construct Markup values.
-    , Markup
+      Markup
     , foldMarkup
     , markupText -- Retire in favor of foldMarkup?
     , markupNull
@@ -48,10 +48,7 @@ import Control.Lens (Lens', iso)
 import Data.List as List (map, foldr)
 import Data.Maybe (fromMaybe)
 import Data.Monoid ((<>))
-#if !MIN_VERSION_base(4,8,0)
-import Data.Monoid (Monoid(..))
-#endif
-import Data.SafeCopy (base, deriveSafeCopy, extension, Migrate(..))
+import Data.SafeCopy (base, deriveSafeCopy)
 import Data.Text as T (Text, isPrefixOf, drop, empty, uncons, null, singleton, map, foldr, pack)
 import qualified Data.Text as T (lines, strip)
 import Language.Haskell.TH.Path.Graph (HideType)
@@ -73,22 +70,6 @@ $(deriveSafeCopy 1 'base ''P.Meta)
 $(deriveSafeCopy 1 'base ''P.MetaValue)
 $(deriveSafeCopy 1 'base ''P.Pandoc)
 $(deriveSafeCopy 1 'base ''P.QuoteType)
-
-newtype Markdown_1 =
-    Markdown_1 {unMarkdown_1 :: Unicode'}
-    deriving (Eq, Ord, Data, Typeable, Show, Read, Monoid)
-
-instance Migrate Markdown_2 where
-    type MigrateFrom Markdown_2 = Markdown_1
-    migrate (Markdown_1 {unMarkdown_1 = Unicode' t}) = Markdown_2 t
-
-newtype Markdown_2 =
-    Markdown_2 {unMarkdown_2 :: Text}
-    deriving (Eq, Ord, Data, Typeable, Show, Read, Monoid)
-
-instance Migrate Markup where
-    type MigrateFrom Markup = Markdown_2
-    migrate (Markdown_2 {unMarkdown_2 = x}) = Markdown x
 
 data Markup
     = Markdown {markdownText :: Text}
@@ -272,6 +253,4 @@ htmlify :: Markup -> Markup
 htmlify (Markdown s) = Html $ pack $ P.writeHtmlString P.def $ pandocFromMarkdown $ s
 htmlify x = x
 
-$(deriveSafeCopy 1 'base ''Markdown_1)
-$(deriveSafeCopy 2 'extension ''Markdown_2)
-$(deriveSafeCopy 3 'extension ''Markup)
+$(deriveSafeCopy 3 'base ''Markup)

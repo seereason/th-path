@@ -6,7 +6,7 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeSynonymInstances #-}
-module Appraisal.ReportPathInfo where
+module Appraisal.ReportInstances where
 
 import Appraisal.File (URI, File)
 import Appraisal.Image (Dimension, ImageCrop, ImageSize, lens_saneSize, Units)
@@ -14,28 +14,25 @@ import Appraisal.ImageFile (ImageFile)
 import Appraisal.IntJS (IntJS, gjsonLens, JSONText)
 import Appraisal.Markup as M (Markup, lens_CIString_Text)
 import Appraisal.Permissions (Permissions, UserIds)
-import Appraisal.Report (Authors, AbbrevPairs, EpochMilli, MarkupPairs, Markups, ReportElems, ReportFlags, ReportValueTypeInfo, ReportValueApproachInfo, Branding, Report(Report), reportBrandingLens, MaybeReportIntendedUse, ReportStatus)
+import Appraisal.Report (Authors, AbbrevPairs, EpochMilli, MarkupPairs, Markups, ReportElems, ReportFlags, ReportValueTypeInfo, ReportValueApproachInfo, Branding, Report(Report), reportBrandingLens, MaybeReportIntendedUse, ReportStatus, ReportStandard)
 import Appraisal.ReportImage (ReportImage(Pic), MaybeImageFile)
-import Appraisal.ReportMap (ReportMap)
+import Appraisal.ReportItem (ItemFieldName)
+import Appraisal.ReportMap (ReportID, ReportMap)
 import Appraisal.Utils.CIString (CIString)
 import Data.UUID.Types as UUID (UUID)
 import Control.Lens
-import Control.Monad.States (MonadStates)
 import Data.Generics (Data, Typeable)
 import Data.Int (Int64)
-import Data.Set as Set (insert, toList)
 import Data.Text as T (Text)
 import Data.UserId (UserId(..))
 import Data.Word (Word32)
 import Language.Haskell.TH
-import Language.Haskell.TH.Context (InstMap)
-import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Path.Core (lens_mrs, lens_UserIds_Text, readOnlyLens, readShowLens)
 import Language.Haskell.TH.Path.Graph (SinkType)
-import Language.Haskell.TH.Path.View (View(ViewType, viewLens), viewTypes)
-import Language.Haskell.TH.Syntax (addDependentFile)
+import Language.Haskell.TH.Path.View (View(ViewType, viewLens))
 import Text.LaTeX (LaTeX)
 import Text.Pandoc (Pandoc, Meta)
+import Web.Routes.TH (derivePathInfo)
 
 newtype ReadOnly a = ReadOnly {unReadOnly :: a} deriving (Read, Show, Eq, Ord, Typeable, Data)
 
@@ -128,6 +125,7 @@ data ReportView
              , _reportUUID :: UUID
              , _reportOrderByItemName :: Bool
              , _reportDisplayItemName :: Bool
+             , _reportStandardsVersion :: ReportStandard
              }
     deriving (Read, Show, Eq, Ord, Typeable, Data)
 
@@ -139,22 +137,22 @@ instance View Report where
                          a11 a12 a13 a14 a15 a16 a17 a18 a19 a20
                          a21 a22 a23 a24 a25 a26 a27 a28 a29 a30
                          a31 a32 a33 a34 a35 a36 a37 a38 a39 a40
-                         a41 a42 a43 a44) =
+                         a41 a42 a43 a44 a45) =
               ReportView (ReadOnly a01) a02 a03 a04 a05 a06 a07 a08 a09 a10
                          a11 a12 a13 a14 a15 a16 a17 a18 a19 a20
                          a21 a22 a23 a24 a25 a26 a27 a28 a29 a30
                          a31 a32 a33 a34 a35 a36 a37 a38 a39 a40
-                         a41 a42 a43 a44
+                         a41 a42 a43 a44 a45
           setter (ReportView (ReadOnly a01) a02 a03 a04 a05 a06 a07 a08 a09 a10
                              a11 a12 a13 a14 a15 a16 a17 a18 a19 a20
                              a21 a22 a23 a24 a25 a26 a27 a28 a29 a30
                              a31 a32 a33 a34 a35 a36 a37 a38 a39 a40
-                             a41 a42 a43 a44) =
+                             a41 a42 a43 a44 a45) =
               Report a01 a02 a03 a04 a05 a06 a07 a08 a09 a10
                      a11 a12 a13 a14 a15 a16 a17 a18 a19 a20
                      a21 a22 a23 a24 a25 a26 a27 a28 a29 a30
                      a31 a32 a33 a34 a35 a36 a37 a38 a39 a40
-                     a41 a42 a43 a44
+                     a41 a42 a43 a44 a45
 
 instance SinkType File
 instance SinkType ImageCrop
@@ -187,64 +185,6 @@ instance View CIString where type ViewType CIString = Text; viewLens = lens_CISt
 startTypes :: Q [Type]
 startTypes = (: []) <$> [t|ReportMap|]
 
-depFiles :: Q ()
-depFiles =
-    mapM_ addDependentFile [
-#if LOCAL_TH_PATH
-               "Language/Haskell/TH/Path/Types.hs",
-               "Language/Haskell/TH/Path/Order.hs",
-               "Language/Haskell/TH/Path/PathType.hs",
-               "Language/Haskell/TH/Path/Graph.hs",
-               "Language/Haskell/TH/Path/Lens.hs",
-               "Language/Haskell/TH/Path/Core.hs",
-               "Language/Haskell/TH/Path/View.hs",
-               "Language/Haskell/TH/Path/Instances.hs",
-               "../th-typegraph/Language/Haskell/TH/TypeGraph/Edges.hs",
-#endif
-               "tests/Appraisal/Utils/List.hs",
-               "tests/Appraisal/Utils/CIString.hs",
-               "tests/Appraisal/Utils/Generics.hs",
-               "tests/Appraisal/Utils/Builders.hs",
-               "tests/Appraisal/Utils/Graph.hs",
-               "tests/Appraisal/Utils/UUID/V4.hs",
-               "tests/Appraisal/Utils/UUID/V5.hs",
-               "tests/Appraisal/Utils/UUID/V3.hs",
-               "tests/Appraisal/Utils/UUID/Named.hs",
-               "tests/Appraisal/Utils/UUID/Builder.hs",
-               "tests/Appraisal/Utils/UUID/Internal.hs",
-               "tests/Appraisal/Utils/UUID/V1.hs",
-               "tests/Appraisal/Utils/Debug.hs",
-               "tests/Appraisal/Utils/Pandoc.hs",
-               "tests/Appraisal/Utils/IsText.hs",
-               "tests/Appraisal/Utils/Twins.hs",
-               "tests/Appraisal/Utils/Text.hs",
-               "tests/Appraisal/Utils/UUID.hs",
-               "tests/Appraisal/LaTeX/Figures.hs",
-               "tests/Appraisal/LaTeX/Margins.hs",
-               "tests/Appraisal/LaTeX/Float.hs",
-               "tests/Appraisal/LaTeX/Tables.hs",
-               "tests/Appraisal/Abbrevs.hs",
-               "tests/Appraisal/Config.hs",
-               "tests/Appraisal/Currency.hs",
-               "tests/Appraisal/Html.hs",
-               "tests/Appraisal/IntJS.hs",
-               "tests/Appraisal/LaTeX.hs",
-               "tests/Appraisal/Lenses.hs",
-               "tests/Appraisal/Markdown.hs",
-               "tests/Appraisal/Markup.hs",
-               "tests/Appraisal/PathExtra.hs",
-               "tests/Appraisal/Permissions.hs",
-               "tests/Appraisal/Pretty.hs",
-               "tests/Appraisal/ReportAbbrevs.hs",
-               "tests/Appraisal/Report.hs",
-               "tests/Appraisal/ReportImageCache.hs",
-               "tests/Appraisal/ReportImage.hs",
-               "tests/Appraisal/ReportIO.hs",
-               "tests/Appraisal/ReportItem.hs",
-               "tests/Appraisal/ReportLaTeX.hs",
-               "tests/Appraisal/ReportMap.hs",
-               "tests/Appraisal/ReportMigrations.hs",
-               "tests/Appraisal/ReportPathInfo.hs",
-               "tests/Appraisal/ReportPaths.hs",
-               "tests/Appraisal/Unicode.hs"
-              ]
+$(derivePathInfo ''Maybe)
+$(derivePathInfo ''ItemFieldName)
+$(derivePathInfo ''ReportID)

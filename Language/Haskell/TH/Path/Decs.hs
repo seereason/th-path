@@ -15,7 +15,7 @@ module Language.Haskell.TH.Path.Decs
     ( pathDecs
     ) where
 
-import Control.Lens (Traversal', Field2(_2), Field1(_1), {-makeClassyFor,-} _Right, _Left, _Just, iso, view)
+import Control.Lens (Traversal', Field2(_2), Field1(_1), makeClassyFor, _Right, _Left, _Just, iso, view)
 import Control.Monad (when)
 import Control.Monad as List ( mapM )
 import Control.Monad.Readers ()
@@ -40,7 +40,6 @@ import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Core ( mat, IdPath(idPath), Path(..), Path_OMap(..), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
 import Language.Haskell.TH.Path.Graph (foldPath, FoldPathControl(..), SinkType)
-import Language.Haskell.TH.Path.LensTH (makeClassyFor)
 import Language.Haskell.TH.Path.PathType (bestPathTypeName, pathConNameOfField, pathType, pathTypeNameFromTypeName)
 import Language.Haskell.TH.Path.Order (lens_omat)
 import Language.Haskell.TH.Syntax as TH (Quasi(qReify), Lift(lift), VarStrictType)
