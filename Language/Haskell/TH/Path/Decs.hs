@@ -5,6 +5,7 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE MultiWayIf #-}
 {-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE TemplateHaskell #-}
@@ -31,8 +32,9 @@ import Data.Foldable
 import Data.Function (on)
 import Data.List as List (intercalate)
 import Data.List as List (map, sortBy)
-import Data.Map as Map (keys)
+import Data.Map as Map (keys, Map)
 import qualified Data.Map as Map (toList)
+import Data.Maybe (fromJust, isJust)
 import Data.Set as Set (delete)
 import Data.Set.Extra as Set (insert, map, member, Set)
 import qualified Data.Set.Extra as Set (mapM_)
@@ -41,8 +43,9 @@ import Language.Haskell.TH.Context (InstMap, reifyInstancesWithContext)
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Core (mat, IdPath(idPath), Path(..), Path_List, Path_OMap(..), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
-import Language.Haskell.TH.Path.Graph (foldPath, FoldPathControl(..), SinkType)
-import Language.Haskell.TH.Path.Order (lens_omat)
+import Language.Haskell.TH.Path.Graph (SelfPath, SinkType)
+import Language.Haskell.TH.Path.Order (lens_omat, Order)
+import Language.Haskell.TH.Path.View (viewInstanceType, viewLens)
 import Language.Haskell.TH.Syntax as TH (Quasi(qReify), Lift(lift), VarStrictType)
 import Language.Haskell.TH.TypeGraph.Expand (E(E, unE), ExpandMap, expandType)
 import Language.Haskell.TH.TypeGraph.Lens (lensNamePairs)
@@ -50,6 +53,43 @@ import Language.Haskell.TH.TypeGraph.Prelude (friendlyNames, pprint')
 import Language.Haskell.TH.TypeGraph.TypeGraph (allLensKeys, allPathKeys, allPathNodes, goalReachableSimple, reachableFromSimple, TypeGraph)
 import Language.Haskell.TH.TypeGraph.TypeInfo (fieldVertex, TypeInfo, typeVertex)
 import Language.Haskell.TH.TypeGraph.Vertex (etype, field, TGV, TGVSimple, TypeGraphVertex(bestType), typeNames, vsimple)
+
+data FoldPathControl m r
+    = FoldPathControl
+      { simplef :: m r
+      , pathyf :: m r
+      , substf :: Exp -> Type -> m r
+      , namedf :: Name -> m r
+      , maybef :: Type -> m r
+      , listf :: Type -> m r
+      , orderf :: Type -> Type -> m r
+      , mapf :: Type -> Type -> m r
+      , pairf :: Type -> Type -> m r
+      , eitherf :: Type -> Type -> m r
+      , otherf :: m r
+      }
+
+foldPath :: (DsMonad m, MonadReaders TypeGraph m, MonadStates InstMap m, MonadStates ExpandMap m) => FoldPathControl m r -> TGVSimple -> m r
+foldPath (FoldPathControl{..}) v = do
+  selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [let (E typ) = view etype v in typ]
+  simplePath <- (not . null) <$> reifyInstancesWithContext ''SinkType [let (E typ) = view etype v in typ]
+  viewType <- viewInstanceType (let (E typ) = view etype v in typ)
+  case unE (view etype v) of
+    _ | selfPath -> pathyf
+      | simplePath -> simplef
+    typ
+      | isJust viewType -> do
+          let b = fromJust viewType
+          expr <- runQ [|viewLens :: Lens' $(return typ) $(return b)|]
+          substf expr b
+    ConT tname -> namedf tname
+    AppT (AppT mtyp ityp) etyp | mtyp == ConT ''Order -> orderf ityp etyp
+    AppT ListT etyp -> listf etyp
+    AppT (AppT t3 ktyp) vtyp | t3 == ConT ''Map -> mapf ktyp vtyp
+    AppT (AppT (TupleT 2) ftyp) styp -> pairf ftyp styp
+    AppT t1 vtyp | t1 == ConT ''Maybe -> maybef vtyp
+    AppT (AppT t3 ltyp) rtyp | t3 == ConT ''Either -> eitherf ltyp rtyp
+    _ -> otherf
 
 -- | Given a type, compute the corresponding path type.
 pathType :: (DsMonad m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadStates ExpandMap m, MonadStates InstMap m) =>

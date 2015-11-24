@@ -16,8 +16,6 @@
 {-# OPTIONS_GHC -Wall -fno-warn-orphans #-}
 module Language.Haskell.TH.Path.Graph
     ( runTypeGraphT
-    , FoldPathControl(..)
-    , foldPath
     -- * Hint classes
     , SinkType
     , HideType
@@ -41,7 +39,7 @@ import Data.Foldable.Compat
 import Data.Graph as Graph (reachable)
 import Data.List as List (filter, map)
 import Data.Map as Map (filterWithKey, fromList, keys, Map, mapWithKey, toList)
-import Data.Maybe (fromJust, isJust, mapMaybe)
+import Data.Maybe (mapMaybe)
 import Data.Set as Set (difference, empty, fromList, map, member, Set, singleton, toList)
 import Language.Haskell.Exts.Syntax ()
 import Language.Haskell.TH
@@ -50,7 +48,7 @@ import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.KindInference (inferKind)
 import Language.Haskell.TH.Path.Order (Order)
-import Language.Haskell.TH.Path.View (View(viewLens), viewInstanceType, viewTypes)
+import Language.Haskell.TH.Path.View (viewInstanceType, viewTypes)
 import Language.Haskell.TH.TypeGraph.Edges ({-cut, cutEdgesM,-} cutEdges, cutM, dissolveM, GraphEdges, isolate, linkM, simpleEdges, typeGraphEdges)
 import Language.Haskell.TH.TypeGraph.Expand (E(E, unE), ExpandMap, expandType)
 import Language.Haskell.TH.TypeGraph.Free (freeTypeVars)
@@ -159,43 +157,6 @@ pathGraphEdges = do
       -- Exact difference between two maps
       diff m1 m2 = Map.fromList $ Set.toList $ Set.difference (Set.fromList (Map.toList m1))
                                                               (Set.fromList (Map.toList m2))
-
-data FoldPathControl m r
-    = FoldPathControl
-      { simplef :: m r
-      , pathyf :: m r
-      , substf :: Exp -> Type -> m r
-      , namedf :: Name -> m r
-      , maybef :: Type -> m r
-      , listf :: Type -> m r
-      , orderf :: Type -> Type -> m r
-      , mapf :: Type -> Type -> m r
-      , pairf :: Type -> Type -> m r
-      , eitherf :: Type -> Type -> m r
-      , otherf :: m r
-      }
-
-foldPath :: (DsMonad m, MonadReaders TypeGraph m, MonadStates InstMap m, MonadStates ExpandMap m) => FoldPathControl m r -> TGVSimple -> m r
-foldPath (FoldPathControl{..}) v = do
-  selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [let (E typ) = view etype v in typ]
-  simplePath <- (not . null) <$> reifyInstancesWithContext ''SinkType [let (E typ) = view etype v in typ]
-  viewType <- viewInstanceType (let (E typ) = view etype v in typ)
-  case unE (view etype v) of
-    _ | selfPath -> pathyf
-      | simplePath -> simplef
-    typ
-      | isJust viewType -> do
-          let b = fromJust viewType
-          expr <- runQ [|viewLens :: Lens' $(return typ) $(return b)|]
-          substf expr b
-    ConT tname -> namedf tname
-    AppT (AppT mtyp ityp) etyp | mtyp == ConT ''Order -> orderf ityp etyp
-    AppT ListT etyp -> listf etyp
-    AppT (AppT t3 ktyp) vtyp | t3 == ConT ''Map -> mapf ktyp vtyp
-    AppT (AppT (TupleT 2) ftyp) styp -> pairf ftyp styp
-    AppT t1 vtyp | t1 == ConT ''Maybe -> maybef vtyp
-    AppT (AppT t3 ltyp) rtyp | t3 == ConT ''Either -> eitherf ltyp rtyp
-    _ -> otherf
 
 -- | 'Path' instances can be customized by declaring types to be
 -- instances of this class and the ones that follow.  If a type is an
