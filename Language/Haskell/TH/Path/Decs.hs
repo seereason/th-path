@@ -29,9 +29,8 @@ import Data.Char (toLower)
 import Data.Data (Data, Typeable)
 import Data.Foldable as Foldable (Foldable(toList), mapM_)
 import Data.Foldable
-import Data.Function (on)
 import Data.List as List (intercalate)
-import Data.List as List (map, sortBy)
+import Data.List as List (map)
 import Data.Map as Map (keys, Map)
 import qualified Data.Map as Map (toList)
 import Data.Maybe (fromJust, isJust)
@@ -49,8 +48,8 @@ import Language.Haskell.TH.Path.View (viewInstanceType, viewLens)
 import Language.Haskell.TH.Syntax as TH (Quasi(qReify), Lift(lift), VarStrictType)
 import Language.Haskell.TH.TypeGraph.Expand (E(E, unE), ExpandMap, expandType)
 import Language.Haskell.TH.TypeGraph.Lens (lensNamePairs)
-import Language.Haskell.TH.TypeGraph.Prelude (friendlyNames, pprint')
-import Language.Haskell.TH.TypeGraph.TypeGraph (allLensKeys, allPathKeys, allPathNodes, goalReachableSimple, reachableFromSimple, TypeGraph)
+import Language.Haskell.TH.TypeGraph.Prelude (pprint')
+import Language.Haskell.TH.TypeGraph.TypeGraph (allLensKeys, allPathKeys, allPathStarts, goalReachableSimple, reachableFromSimple, TypeGraph)
 import Language.Haskell.TH.TypeGraph.TypeInfo (fieldVertex, TypeInfo, typeVertex)
 import Language.Haskell.TH.TypeGraph.Vertex (etype, field, TGV, TGVSimple, TypeGraphVertex(bestType), typeNames, vsimple)
 
@@ -171,12 +170,10 @@ pathTypeNameFromTypeName :: Name -> Name
 pathTypeNameFromTypeName tname = mkName $ "Path_" ++ nameBase tname
 
 pathDecs :: (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => m [Dec]
-pathDecs = do
-  types <-     execWriterT (allPathNodes >>=  Foldable.mapM_ pathTypeDecs . toList . Set.map (view vsimple))                         >>= return . sortBy (compare `on` show) . List.map friendlyNames
-  lenses <-    execWriterT (allLensKeys >>=   Foldable.mapM_ pathLensDecs . Map.keys)                                                >>= return . sortBy (compare `on` show) . List.map friendlyNames
-  instances <- execWriterT (allPathKeys >>=   Foldable.mapM_ (\(key, gkeys) -> Set.mapM_ (pathInstanceDecs key) gkeys) . Map.toList) >>= return . sortBy (compare `on` show) . List.map friendlyNames
-  -- To do - subpath instances, convert one path into another that stops earlier.
-  return (types ++ lenses ++ instances)
+pathDecs = execWriterT $ do
+             allPathStarts >>=  Foldable.mapM_ pathTypeDecs
+             allLensKeys >>=   Foldable.mapM_ pathLensDecs . Map.keys
+             allPathKeys >>=   Foldable.mapM_ (\(key, gkeys) -> Set.mapM_ (pathInstanceDecs key) gkeys) . Map.toList
 
 pathLensDecs :: (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m, MonadReaders TypeGraph m, MonadWriter [Dec] m) =>
                 TGVSimple -> m ()
