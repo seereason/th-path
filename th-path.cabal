@@ -51,7 +51,6 @@ library
     Language.Haskell.TH.Path.Decs
     Language.Haskell.TH.Path.Graph
     Language.Haskell.TH.Path.Order
-    Language.Haskell.TH.Path.PathType
     Language.Haskell.TH.Path.View
   default-language: Haskell2010
 
@@ -69,13 +68,59 @@ test-suite th-path-tests
   hs-source-dirs:   tests
   main-is:          Tests.hs
   ghc-options:      -Wall -O2
-  build-depends:    base, base-compat, containers, filemanip-extra >= 0.4, haskell-src-exts, HUnit, lens >= 4.13.1,
-                    ListLike, mtl, safecopy, template-haskell, th-desugar, th-kinds-fork, th-lift,
-                    th-orphans, th-path, applicative-extras, syb, text, userid, safe, web-routes-th,
-                    set-extra, transformers, HaTeX, regex-compat, uuid-types, uuid-orphans, filepath,
-                    aeson, jmacro, json, sr-revision, pretty, web-routes, bytestring, network-uri, groom,
-                    pandoc, sr-extra, Diff, file-embed, utf8-string, image-cache, binary, random,
-                    th-context, th-typegraph, mtl-unleashed, uuid, directory, unix
+  build-depends:
+    aeson,
+    applicative-extras,
+    base,
+    base-compat,
+    binary,
+    bytestring,
+    containers,
+    Diff,
+    directory,
+    file-embed,
+    filemanip-extra >= 0.4,
+    filepath,
+    groom,
+    haskell-src-exts,
+    HaTeX,
+    HUnit,
+    image-cache,
+    jmacro,
+    json,
+    lens >= 4.13.1,
+    ListLike,
+    mtl,
+    mtl-unleashed,
+    network-uri,
+    pandoc,
+    pretty,
+    random,
+    regex-compat,
+    safe,
+    safecopy,
+    set-extra,
+    sr-extra,
+    sr-revision,
+    syb,
+    template-haskell,
+    text,
+    th-context,
+    th-desugar,
+    th-kinds-fork,
+    th-lift,
+    th-orphans,
+    th-path,
+    th-typegraph,
+    transformers,
+    unix,
+    userid,
+    utf8-string,
+    uuid,
+    uuid-orphans,
+    uuid-types,
+    web-routes,
+    web-routes-th
   default-language: Haskell2010
 
 source-repository head
