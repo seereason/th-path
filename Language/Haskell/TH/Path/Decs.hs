@@ -31,8 +31,7 @@ import Data.Char (toLower)
 import Data.Data (Data, Typeable)
 import Data.Foldable as Foldable (Foldable(toList), mapM_)
 import Data.Foldable
-import Data.List as List (intercalate)
-import Data.List as List (map)
+import Data.List as List (intercalate, map, sort)
 import Data.Map as Map (keys, Map)
 import qualified Data.Map as Map (toList)
 import Data.Maybe (fromJust, isJust)
@@ -172,10 +171,11 @@ pathTypeNameFromTypeName :: Name -> Name
 pathTypeNameFromTypeName tname = mkName $ "Path_" ++ nameBase tname
 
 pathDecs :: (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => m [Dec]
-pathDecs = execWriterT $ do
+pathDecs = sort <$>
+           (execWriterT $ do
              allPathStarts >>=  Foldable.mapM_ pathTypeDecs
              allLensKeys >>=   Foldable.mapM_ pathLensDecs . Map.keys
-             allPathKeys >>=   Foldable.mapM_ (\(key, gkeys) -> Set.mapM_ (pathInstanceDecs key) gkeys) . Map.toList
+             allPathKeys >>=   Foldable.mapM_ (\(key, gkeys) -> Set.mapM_ (pathInstanceDecs key) gkeys) . Map.toList)
 
 pathLensDecs :: (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m, MonadReaders TypeGraph m, MonadWriter [Dec] m) =>
                 TGVSimple -> m ()
