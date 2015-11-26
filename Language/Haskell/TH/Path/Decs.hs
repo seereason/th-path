@@ -1,4 +1,3 @@
-{-# LANGUAGE CPP #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
@@ -54,35 +53,29 @@ import Language.Haskell.TH.TypeGraph.TypeGraph (allLensKeys, allPathKeys, allPat
 import Language.Haskell.TH.TypeGraph.TypeInfo (fieldVertex, TypeInfo, typeVertex)
 import Language.Haskell.TH.TypeGraph.Vertex (etype, field, TGV, TGVSimple, TypeGraphVertex(bestType), typeNames, vsimple)
 
-data FoldPathControl m r
-    = FoldPathControl
-      { simplef :: m r
-      , pathyf :: m r
-      , substf :: Exp -> Type -> m r
-      , namedf :: Name -> m r
-      , maybef :: Type -> m r
-      , listf :: Type -> m r
-      , orderf :: Type -> Type -> m r
-      , mapf :: Type -> Type -> m r
-      , pairf :: Type -> Type -> m r
-      , eitherf :: Type -> Type -> m r
-      , otherf :: m r
-      }
+pathDecs :: (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => m [Dec]
+pathDecs = sort <$>
+           (execWriterT $ do
+             allPathStarts >>=  Foldable.mapM_ pathTypeDecs
+             allLensKeys >>=   Foldable.mapM_ pathLensDecs . Map.keys
+             allPathKeys >>=   Foldable.mapM_ (\(key, gkeys) -> Set.mapM_ (pathInstanceDecs key) gkeys) . Map.toList)
 
-foldPath :: (DsMonad m, MonadReaders TypeGraph m, MonadStates InstMap m, MonadStates ExpandMap m) => FoldPathControl m r -> TGVSimple -> m r
-foldPath (FoldPathControl{..}) v = do
-  selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [let (E typ) = view etype v in typ]
-  simplePath <- (not . null) <$> reifyInstancesWithContext ''SinkType [let (E typ) = view etype v in typ]
-  viewType <- viewInstanceType (let (E typ) = view etype v in typ)
-  case unE (view etype v) of
-    _ | selfPath -> pathyf
-      | simplePath -> simplef
-    typ
-      | isJust viewType -> do
-          let b = fromJust viewType
-          expr <- runQ [|viewLens :: Lens' $(return typ) $(return b)|]
-          substf expr b
-    ConT tname -> namedf tname
+-- | Given a type, compute the corresponding path type.
+pathType :: (DsMonad m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadStates ExpandMap m, MonadStates InstMap m) =>
+            TypeQ
+         -> TGVSimple -- ^ The type to convert to a path type
+         -> m Type
+pathType gtyp key = do
+  selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [let (E typ) = view etype key in typ]
+  simplePath <- (not . null) <$> reifyInstancesWithContext ''SinkType [let (E typ) = view etype key in typ]
+  viewType <- viewInstanceType (let (E typ) = view etype key in typ)
+  case unE (view etype key) of
+    _ | selfPath -> return $ unE $ view etype key
+      | simplePath -> let Just (pname, _syns) = bestPathTypeName key in runQ [t|$(conT pname) $gtyp|]
+      | isJust viewType ->
+          let Just (pname, _syns) = bestPathTypeName key in
+          runQ [t|$(conT pname) $gtyp|]
+    ConT tname -> runQ $ [t|$(conT (pathTypeNameFromTypeName tname)) $gtyp|]
     AppT (AppT mtyp ityp) etyp | mtyp == ConT ''Order -> orderf ityp etyp
     AppT ListT etyp -> listf etyp
     AppT (AppT t3 ktyp) vtyp | t3 == ConT ''Map -> mapf ktyp vtyp
@@ -90,67 +83,35 @@ foldPath (FoldPathControl{..}) v = do
     AppT t1 vtyp | t1 == ConT ''Maybe -> maybef vtyp
     AppT (AppT t3 ltyp) rtyp | t3 == ConT ''Either -> eitherf ltyp rtyp
     _ -> otherf
-
--- | Given a type, compute the corresponding path type.
-pathType :: (DsMonad m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadStates ExpandMap m, MonadStates InstMap m) =>
-            TypeQ
-         -> TGVSimple -- ^ The type to convert to a path type
-         -> m Type
-pathType gtyp key =
-  foldPath control key
     where
-          -- Nest the definition of control so it can see this binding of hints,
-          -- and call pathType' with a modified hint list.
-      control =
-              FoldPathControl
-                { simplef = let Just (pname, _syns) = bestPathTypeName key in runQ [t|$(conT pname) $gtyp|]
-                , substf = \_lns _styp ->
-                    -- This is safe because hint types are now required to have a name
-                    let Just (pname, _syns) = bestPathTypeName key in runQ [t|$(conT pname) $gtyp|]
-                , pathyf = return $ unE $ view etype key
-                , namedf = \tname -> runQ $ [t|$(conT (pathTypeNameFromTypeName tname)) $gtyp|]
-                , maybef = \etyp -> do
-                    epath <- vert etyp >>= pathType gtyp
-                    runQ [t|Path_Maybe $(return epath)|]
-                , listf = \etyp -> do
-                    epath <- vert etyp >>= pathType gtyp
-                    runQ [t|Path_List $(return epath)|]
-                , orderf = \ityp etyp -> do
-                    ipath <- vert ityp >>= pathType gtyp
-                    epath <- vert etyp >>= pathType gtyp
-                    runQ [t|Path_OMap $(return ipath) $(return epath)|]
-                , mapf = \ktyp vtyp -> do
-                    kpath <- vert ktyp >>= pathType gtyp
-                    vpath <- vert vtyp >>= pathType gtyp
-                    runQ [t| Path_Map $(return kpath) $(return vpath)|]
-                , pairf = \ftyp styp -> do
-                    fpath <- vert ftyp >>= pathType gtyp
-                    spath <- vert styp >>= pathType gtyp
-                    runQ [t| Path_Pair $(return fpath) $(return spath) |]
-                , eitherf = \ltyp rtyp -> do
-                    lpath <- vert ltyp >>= pathType gtyp
-                    rpath <- vert rtyp >>= pathType gtyp
-                    runQ [t| Path_Either $(return lpath) $(return rpath)|]
-                , otherf = do
-                    ks <- reachableFromSimple key
-                    error $ "pathType otherf: " ++ pprint' key ++ "\n" ++
-                            intercalate "\n  " ("reachable from:" : List.map pprint' (toList ks))
-                }
+      maybef = \etyp -> do
+          epath <- vert etyp >>= pathType gtyp
+          runQ [t|Path_Maybe $(return epath)|]
+      listf = \etyp -> do
+          epath <- vert etyp >>= pathType gtyp
+          runQ [t|Path_List $(return epath)|]
+      orderf = \ityp etyp -> do
+          ipath <- vert ityp >>= pathType gtyp
+          epath <- vert etyp >>= pathType gtyp
+          runQ [t|Path_OMap $(return ipath) $(return epath)|]
+      mapf = \ktyp vtyp -> do
+          kpath <- vert ktyp >>= pathType gtyp
+          vpath <- vert vtyp >>= pathType gtyp
+          runQ [t| Path_Map $(return kpath) $(return vpath)|]
+      pairf = \ftyp styp -> do
+          fpath <- vert ftyp >>= pathType gtyp
+          spath <- vert styp >>= pathType gtyp
+          runQ [t| Path_Pair $(return fpath) $(return spath) |]
+      eitherf = \ltyp rtyp -> do
+          lpath <- vert ltyp >>= pathType gtyp
+          rpath <- vert rtyp >>= pathType gtyp
+          runQ [t| Path_Either $(return lpath) $(return rpath)|]
+      otherf = do
+          ks <- reachableFromSimple key
+          error $ "pathType otherf: " ++ pprint' key ++ "\n" ++
+                  intercalate "\n  " ("reachable from:" : List.map pprint' (toList ks))
 
       vert typ = askPoly >>= \(ti :: TypeInfo) -> runReaderT (typeVertex (E typ)) ti
-
-{-
--- | pathType for the simplified vertex
-pathType' :: (DsMonad m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadStates ExpandMap m, MonadStates InstMap m) => TypeQ -> TGV -> m Type
-pathType' gtyp key = pathType gtyp (view vsimple key)
-
--- | Call the type function PathType.
-pathTypeCall :: (DsMonad m, MonadReaders TypeGraph m) =>
-                TypeQ           -- ^ The goal type - possibly a type variable
-             -> TGV -- ^ The type to convert to a path type
-             -> m Type
-pathTypeCall gtyp key = runQ [t|PathType $(let (E typ) = view (vsimple . etype) key in return typ) $gtyp|]
--}
 
 -- Naming conventions
 
@@ -169,13 +130,6 @@ bestPathTypeName v =
 
 pathTypeNameFromTypeName :: Name -> Name
 pathTypeNameFromTypeName tname = mkName $ "Path_" ++ nameBase tname
-
-pathDecs :: (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => m [Dec]
-pathDecs = sort <$>
-           (execWriterT $ do
-             allPathStarts >>=  Foldable.mapM_ pathTypeDecs
-             allLensKeys >>=   Foldable.mapM_ pathLensDecs . Map.keys
-             allPathKeys >>=   Foldable.mapM_ (\(key, gkeys) -> Set.mapM_ (pathInstanceDecs key) gkeys) . Map.toList)
 
 pathLensDecs :: (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m, MonadReaders TypeGraph m, MonadWriter [Dec] m) =>
                 TGVSimple -> m ()
@@ -228,10 +182,10 @@ pathInstanceDecs key gkey = do
                 , funD 'toLens clauses
                 --, valD (varP 'thePath) (normalB exp) []
                 ])
-
--- | Send a single dec to our funky writer monad
-tell1 :: (DsMonad m, MonadWriter [Dec] m) => DecQ -> m ()
-tell1 dec = runQ (sequence ([dec])) >>= tell
+    where
+      -- Send a single dec to our funky writer monad
+      tell1 :: (DsMonad m, MonadWriter [Dec] m) => DecQ -> m ()
+      tell1 dec = runQ (sequence ([dec])) >>= tell
 
 instance (Monad m, MonadStates InstMap m) => MonadStates InstMap (StateT (Set Name) m) where
     getPoly = Monad.lift getPoly
@@ -256,9 +210,6 @@ pathInstanceClauses key gkey ptyp =
   --   x <- runQ (newName "x")
   --   r <- foldPath control key
   --   return $ r ++ [clause [varP x] (normalB [|error ("toLens (" ++ $(lift (pprint' key)) ++ ") -> (" ++ $(lift (pprint' gkey)) ++ ") - unmatched: " ++ show $(varE x))|]) []]
-#if 0
-  foldPath control key
-#else
   do let v = key
      selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [let (E typ) = view etype v in typ]
      simplePath <- (not . null) <$> reifyInstancesWithContext ''SinkType [let (E typ) = view etype v in typ]
@@ -286,7 +237,6 @@ pathInstanceClauses key gkey ptyp =
        AppT t1 vtyp | t1 == ConT ''Maybe -> maybef vtyp
        AppT (AppT t3 ltyp) rtyp | t3 == ConT ''Either -> eitherf ltyp rtyp
        _ -> otherf
-#endif
     where
       namedf = \tname ->
                          getPoly >>= \s -> if Set.member tname s
@@ -395,44 +345,37 @@ namedTypeClause tname gkey ptyp =
                              -- These are the field's clauses.  Each pattern gets wrapped with the field path constructor,
                              -- and each field lens gets composed with the lens produced for the field's type.
                              let goal = view (vsimple . etype) fkey == view etype gkey
-                             clauses' <- List.mapM (mapClause (\ pat -> conP pcname [pat])
+                             clauses' <- List.mapM (Monad.lift .
+                                                    mapClause (\ pat -> conP pcname [pat])
                                                               (\ lns -> if goal
                                                                         then varE (fieldLensNameOld tname fn)
                                                                         else [|$(varE (fieldLensNameOld tname fn)) . $lns|])) clauses
                              return [(con, clauses')]
 
 
--- | Apply arity 1 functions to the clause pattern and expression
-mapClause :: (DsMonad m, MonadReaders TypeGraph m) => (PatQ -> PatQ) -> (ExpQ -> ExpQ) -> ClauseQ -> m ClauseQ
-mapClause patf lnsf clauseq =
-    runQ clauseq >>= \(Clause [pat] (NormalB lns) xs) -> return $ clause [patf (pure pat)] (normalB (lnsf (pure lns))) (List.map pure xs)
+            -- Apply arity 1 functions to the clause pattern and expression
+            mapClause :: (DsMonad m, MonadReaders TypeGraph m) => (PatQ -> PatQ) -> (ExpQ -> ExpQ) -> ClauseQ -> m ClauseQ
+            mapClause patf lnsf clauseq =
+                runQ clauseq >>= \(Clause [pat] (NormalB lns) xs) -> return $ clause [patf (pure pat)] (normalB (lnsf (pure lns))) (List.map pure xs)
 
 -- | Given a type, generate the corresponding path type declarations
 pathTypeDecs :: forall m. (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) => TGVSimple -> m ()
 pathTypeDecs key =
-  pathTypeDecs'
+    do selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [let (E typ) = view etype key in typ]
+       simplePath <- (not . null) <$> reifyInstancesWithContext ''SinkType [let (E typ) = view etype key in typ]
+       viewType <- viewInstanceType (let (E typ) = view etype key in typ)
+       case unE (view etype key) of
+         _ | selfPath -> return ()
+           | simplePath -> maybe (error $ "pathTypeDecs: simple path type has no name: " ++ pprint' key) (uncurry doSimplePath) (bestPathTypeName key)
+           | isJust viewType -> do
+               let b = fromJust viewType
+               viewPath b
+         _ -> doNames
     where
-      pathTypeDecs' = foldPath control key
-        where
-          control =
-            FoldPathControl
-              { simplef = maybe (error $ "pathTypeDecs: simple path type has no name: " ++ pprint' key) (uncurry simplePath) (bestPathTypeName key)
-              , substf = \_lns styp -> viewPath styp -- maybe (return ()) (uncurry simplePath) (bestPathTypeName key)
-              , pathyf = return ()
-              , namedf = \_tname -> doNames
-              , maybef = \_etyp -> doNames
-              , listf = \_etyp -> doNames
-              , orderf = \_ityp _etyp -> doNames
-              , mapf = \_ktyp _vtyp -> doNames
-              , pairf = \_ftyp _styp -> doNames
-              , eitherf = \_ltyp _rtyp -> doNames
-              , otherf = doNames
-              }
-
       doNames = mapM_ (\tname -> runQ (reify tname) >>= doInfo) (typeNames key)
 
-      simplePath :: Name -> Set Name -> m ()
-      simplePath pname syns = do
+      doSimplePath :: Name -> Set Name -> m ()
+      doSimplePath pname syns = do
         runQ (newName "a" >>= \a -> dataD (return []) pname [PlainTV a] [normalC pname []] supers) >>= tell . (: [])
         runQ [d|instance IdPath ($(conT pname) a) where idPath = $(conE (mkName (nameBase pname)))|] >>= tell
         mapM_ (\psyn -> runQ (newName "a" >>= \a -> tySynD psyn [PlainTV a] (appT (conT pname) (varT a))) >>= tell . (: [])) (toList syns)
@@ -523,8 +466,8 @@ pathTypeDecs key =
                -- clauses to match expressions wrapped in this new constructor.
                _ -> (: []) <$> runQ (normalC pcname [strictType notStrict (return ptype)])
 
-supers :: [Name]
-supers = [''Eq, ''Ord, ''Read, ''Show, ''Typeable, ''Data]
+      supers :: [Name]
+      supers = [''Eq, ''Ord, ''Read, ''Show, ''Typeable, ''Data]
 
-pathTypeNames' :: TypeGraphVertex v => v -> Set Name
-pathTypeNames' = Set.map pathTypeNameFromTypeName . typeNames
+      pathTypeNames' :: TypeGraphVertex v => v -> Set Name
+      pathTypeNames' = Set.map pathTypeNameFromTypeName . typeNames
