@@ -18,6 +18,11 @@ description:
   'View' mechanism which transforms the appearance of a value
   using any @Iso@ lens.
 
+flag local-th-typegraph
+  Description: Build with local source files of th-typegraph and th-context
+  Default: False
+  Manual: True
+
 library
   hs-source-dirs: .
   build-depends:
@@ -38,11 +43,9 @@ library
     syb,
     template-haskell >= 2.10,
     text,
-    th-context >= 0.23,
     th-desugar,
     th-kinds-fork,
     th-orphans,
-    th-typegraph >= 0.31,
     userid,
     web-routes-th
   ghc-options:      -Wall -O2
@@ -53,6 +56,27 @@ library
     Language.Haskell.TH.Path.Order
     Language.Haskell.TH.Path.View
   default-language: Haskell2010
+  if flag (local-th-typegraph)
+    Hs-Source-Dirs: ../th-typegraph, ../th-context
+    Exposed-Modules:
+      -- th-context
+      Language.Haskell.TH.Context
+      -- th-typegraph
+      Language.Haskell.TH.TypeGraph.Arity
+      Language.Haskell.TH.TypeGraph.Edges
+      Language.Haskell.TH.TypeGraph.Expand
+      Language.Haskell.TH.TypeGraph.Free
+      Language.Haskell.TH.TypeGraph.Lens
+      Language.Haskell.TH.TypeGraph.Prelude
+      Language.Haskell.TH.TypeGraph.Shape
+      Language.Haskell.TH.TypeGraph.Stack
+      Language.Haskell.TH.TypeGraph.TypeGraph
+      Language.Haskell.TH.TypeGraph.TypeInfo
+      Language.Haskell.TH.TypeGraph.Vertex
+  else
+    Build-Depends:
+      th-context >= 0.23,
+      th-typegraph >= 0.31
 
 -- test-suite th-path-tests
 --   type:             exitcode-stdio-1.0
@@ -105,13 +129,11 @@ test-suite th-path-tests
     syb,
     template-haskell,
     text,
-    th-context,
     th-desugar,
     th-kinds-fork,
     th-lift,
     th-orphans,
     th-path,
-    th-typegraph,
     transformers,
     unix,
     userid,
@@ -122,6 +144,8 @@ test-suite th-path-tests
     web-routes,
     web-routes-th
   default-language: Haskell2010
+  if !flag(local-th-typegraph)
+    Build-Depends: th-context, th-typegraph
 
 source-repository head
   type:     git
