@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
@@ -25,6 +26,7 @@ import Control.Monad.State (evalStateT, StateT)
 import Control.Monad.States (MonadStates(getPoly, putPoly), modifyPoly)
 import Control.Monad.Trans as Monad (lift)
 import Control.Monad.Writer (MonadWriter, execWriterT, tell)
+import Data.Bool (bool)
 import Data.Char (toLower)
 import Data.Data (Data, Typeable)
 import Data.Foldable as Foldable (Foldable(toList), mapM_)
@@ -253,79 +255,86 @@ pathInstanceClauses key gkey ptyp =
   -- pathInstanceClauses key gkey ptyp = do
   --   x <- runQ (newName "x")
   --   r <- foldPath control key
-  foldPath control key
   --   return $ r ++ [clause [varP x] (normalB [|error ("toLens (" ++ $(lift (pprint' key)) ++ ") -> (" ++ $(lift (pprint' gkey)) ++ ") - unmatched: " ++ show $(varE x))|]) []]
+#if 0
+  foldPath control key
+#else
+  do let v = key
+     selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [let (E typ) = view etype v in typ]
+     simplePath <- (not . null) <$> reifyInstancesWithContext ''SinkType [let (E typ) = view etype v in typ]
+     viewType <- viewInstanceType (let (E typ) = view etype v in typ)
+     case unE (view etype v) of
+       _ | selfPath -> return ()
+         | simplePath -> return () -- Simple paths only work if we are at the goal type, and that case is handled above.
+       typ
+         | isJust viewType -> do
+             let ltyp = fromJust viewType
+             lns <- runQ [|viewLens :: Lens' $(return typ) $(return ltyp)|]
+             -- Ok, we have a type key, and a lens that goes between key and
+             -- lkey, and we need to create a toLens function for key's path type.
+             -- The tricky bit is to extract the path value for lkey from the path
+             -- value we have.
+             let (AppT (ConT pname) _gtyp) = ptyp
+             lkey <- expandType ltyp >>= typeVertex
+             doClause gkey ltyp (\p -> conP (mkName (nameBase pname ++ "_View")) [if lkey == gkey then wildP else p]) (pure lns)
+             Monad.lift final
+       ConT tname -> namedf tname
+       AppT (AppT mtyp ityp) etyp | mtyp == ConT ''Order -> orderf ityp etyp
+       AppT ListT etyp -> listf etyp
+       AppT (AppT t3 ktyp) vtyp | t3 == ConT ''Map -> mapf ktyp vtyp
+       AppT (AppT (TupleT 2) ftyp) styp -> pairf ftyp styp
+       AppT t1 vtyp | t1 == ConT ''Maybe -> maybef vtyp
+       AppT (AppT t3 ltyp) rtyp | t3 == ConT ''Either -> eitherf ltyp rtyp
+       _ -> otherf
+#endif
     where
-          control :: FoldPathControl (StateT (Set Name) m) ()
-          control =
-            FoldPathControl
-              { simplef = return () -- Simple paths only work if we are at the goal type, and that case is handled above.
-              , substf = \lns ltyp -> do
-                  -- Ok, we have a type key, and a lens that goes between key and
-                  -- lkey, and we need to create a toLens function for key's path type.
-                  -- The tricky bit is to extract the path value for lkey from the path
-                  -- value we have.
-                  let (AppT (ConT pname) _gtyp) = ptyp
-                  lkey <- expandType ltyp >>= typeVertex
-                  doClause gkey ltyp (\p -> conP (mkName (nameBase pname ++ "_View")) [if lkey == gkey then wildP else p]) (pure lns)
-                  Monad.lift final
-              , pathyf = return ()
-              , namedf = \tname ->
+      namedf = \tname ->
                          getPoly >>= \s -> if Set.member tname s
                                        then return ()
                                        else modifyPoly (Set.insert tname) >>
                                             namedTypeClause tname gkey ptyp >>
                                             Monad.lift final
-              , maybef = \etyp -> do
+      maybef = \etyp -> do
                   doClause gkey etyp (\p -> [p|Path_Just $p|]) [|_Just|]
                   Monad.lift final
-              , listf = \_etyp -> return ()
-              , orderf = \_ktyp vtyp -> do
+      listf = \_etyp -> return ()
+      orderf = \_ktyp vtyp -> do
                   k <- runQ (newName "k")
                   doClause gkey vtyp (\p -> [p|Path_At $(varP k) $p|]) [|lens_omat $(varE k)|]
                   Monad.lift final
-              , mapf = \_ktyp vtyp -> do
+      mapf = \_ktyp vtyp -> do
                   k <- runQ (newName "k")
                   doClause gkey vtyp (\p -> [p|Path_Look $(varP k) $p|]) [|mat $(varE k)|]
                   Monad.lift final
-              , pairf = \ftyp styp -> do
+      pairf = \ftyp styp -> do
                   doClause gkey ftyp (\p -> [p|Path_First $p|]) [|_1|]
                   doClause gkey styp (\p -> [p|Path_Second $p|]) [|_2|]
                   Monad.lift final
-              , eitherf = \ltyp rtyp -> do
+      eitherf = \ltyp rtyp -> do
                   doClause gkey ltyp (\p -> [p|Path_Left $p|]) [|_Left|]
                   doClause gkey rtyp (\p -> [p|Path_Right $p|]) [|_Right|]
                   Monad.lift final
-              , otherf = tell [ clause [wildP] (normalB [|(error $ $(litE (stringL ("Need to find lens for field type: " ++ pprint (view etype key))))) :: Traversal' $(pure (unE (view etype key))) $(pure (bestType gkey))|]) [] ]
-              }
-          final :: m ()
-          final = tell [newName "u" >>= \u ->
-                            clause [varP u] (normalB [|(error $ $(TH.lift ("Unexpected goal " ++ pprint' gkey ++ " for " ++ pprint' key ++ ": ")) ++
-                                                        show $(varE u))
-                                                      |]) []]
+      otherf = tell [ clause [wildP] (normalB [|(error $ $(litE (stringL ("Need to find lens for field type: " ++ pprint (view etype key))))) :: Traversal' $(pure (unE (view etype key))) $(pure (bestType gkey))|]) [] ]
+      -- Add a clause to the toLens function handling unexpected values.
+      final :: m ()
+      final = tell [newName "u" >>= \u ->
+                    clause [varP u] (normalB [|(error $ $(TH.lift ("Unexpected goal " ++ pprint' gkey ++ " for " ++ pprint' key ++ ": ")) ++
+                                                show $(varE u))
+                                              |]) []]
 
-
-doClause :: (DsMonad m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [ClauseQ] m, MonadStates InstMap m, MonadStates ExpandMap m) =>
+-- | Given a function pfunc that modifies a pattern, add a
+-- 'Language.Haskell.TH.Clause' (a function with a typically incomplete
+-- pattern) to the toLens instance we are building to handle the new
+-- pattern.
+doClause :: forall m. (DsMonad m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [ClauseQ] m, MonadStates InstMap m, MonadStates ExpandMap m) =>
             TGVSimple -> Type -> (PatQ -> PatQ) -> ExpQ -> m ()
 doClause gkey typ pfunc lns = do
   v <- runQ (newName "v")
   key <- expandType typ >>= typeVertex
-  case key == gkey of
-    True -> testClause gkey typ (clause [ pfunc wildP ] (normalB lns) [])
-    False -> do
-      testClause gkey typ (clause [ pfunc (varP v) ] (normalB [|$lns . toLens $(varE v)|]) [])
-      when (key == gkey) $ testClause gkey typ (clause [ wildP ] (normalB [|iso id id|]) [])
-
-testClause :: (DsMonad m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [ClauseQ] m, MonadStates InstMap m, MonadStates ExpandMap m) =>
-              TGVSimple -> Type -> ClauseQ -> m ()
-testClause gkey typ cl = do
-  ok <- testPath gkey typ
-  when ok $ tell [cl]
-
-testPath :: (DsMonad m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadStates InstMap m, MonadStates ExpandMap m) => TGVSimple -> Type -> m Bool
-testPath gkey typ = do
-  key <- expandType typ >>= typeVertex
-  goalReachableSimple gkey key
+  ok <- goalReachableSimple gkey key
+  let pat = bool wildP (varP v) (key /= gkey)
+      lns' = bool lns [|$lns . toLens $(varE v)|] (key /= gkey)
+  when ok $ tell [clause [pfunc pat] (normalB lns') []]
 
 namedTypeClause :: forall m. (DsMonad m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [ClauseQ] m, MonadStates InstMap m, MonadStates ExpandMap m) =>
                    Name -> TGVSimple -> Type -> StateT (Set Name) m ()
