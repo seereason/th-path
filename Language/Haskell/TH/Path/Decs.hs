@@ -45,7 +45,7 @@ import Language.Haskell.TH.Path.Core (mat, IdPath(idPath), Path(..), Path_List, 
 import Language.Haskell.TH.Path.Graph (SelfPath, SinkType)
 import Language.Haskell.TH.Path.Order (lens_omat, Order)
 import Language.Haskell.TH.Path.View (viewInstanceType, viewLens)
-import Language.Haskell.TH.Syntax as TH (Quasi(qReify), Lift(lift), VarStrictType)
+import Language.Haskell.TH.Syntax as TH (Quasi(qReify), VarStrictType)
 import Language.Haskell.TH.TypeGraph.Expand (E(E, unE), ExpandMap, expandType)
 import Language.Haskell.TH.TypeGraph.Lens (lensNamePairs)
 import Language.Haskell.TH.TypeGraph.Prelude (pprint')
@@ -268,7 +268,7 @@ pathInstanceClauses key gkey ptyp =
       -- Add a clause to the toLens function handling unexpected values.
       final :: m ()
       final = tell [newName "u" >>= \u ->
-                    clause [varP u] (normalB [|(error $ $(TH.lift ("Unexpected goal " ++ pprint' gkey ++ " for " ++ pprint' key ++ ": ")) ++
+                    clause [varP u] (normalB [|(error $ $(litE (stringL ("Unexpected goal " ++ pprint' gkey ++ " for " ++ pprint' key ++ ": "))) ++
                                                 show $(varE u))
                                               |]) []]
 

@@ -18,7 +18,9 @@
 import Data.Algorithm.DiffContext (getContextDiff, prettyContextDiff)
 import Data.ByteString.UTF8 (toString)
 import Data.FileEmbed (embedFile)
+import Data.List (sort)
 import Language.Haskell.TH
+import Language.Haskell.TH.TypeGraph.Prelude (friendlyNames)
 import System.Exit
 import Test.HUnit
 import Text.PrettyPrint (text)
@@ -28,7 +30,7 @@ import Appraisal.ReportTH
 main :: IO ()
 main = do
   -- mapM_ (putStrLn . pprint) actual01
-  writeFile "tests/actual.hs" (unlines (map pprint decs))
+  writeFile "tests/actual.hs" (unlines (map (pprint . friendlyNames) (sort decs)))
   r <- runTestTT (TestList [{-test01,-} test02])
   case r of
     Counts {errors = 0, failures = 0} -> exitWith ExitSuccess
@@ -52,7 +54,7 @@ expected01 = []
 -}
 
 actual02 :: [String]
-actual02 = (lines . unlines . map pprint) decs
+actual02 = (lines . unlines . map (pprint . friendlyNames)) (sort decs)
 
 test02 :: Test
 test02 = TestCase $ assertString (show (prettyContextDiff (text "expected") (text "actual") text (getContextDiff 2 expected02 actual02)))
