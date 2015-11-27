@@ -40,7 +40,7 @@ import Data.Typeable (Typeable)
 import Language.Haskell.TH
 import Prelude hiding (init)
 
-data (Ord k, Enum k) => Order k v =
+data Order k v =
     Order { elems :: Map k v
           -- ^ Return the key-value map
           , order :: [k]

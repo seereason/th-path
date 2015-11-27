@@ -15,8 +15,7 @@
 {-# OPTIONS_GHC -Wall -fno-warn-orphans -fno-warn-missing-signatures #-}
 module Language.Haskell.TH.Path.Core
     ( -- * Type classes and associated types
-      Path(toLens)
-    , PathType
+      Path(toLens, PathType)
     , IdPath(idPath)
 
     -- * Basic Path Types
