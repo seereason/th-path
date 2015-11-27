@@ -83,7 +83,7 @@ class Path s a where
     -- record with two fields of type 'Int', the type @PathType s Int@
     -- would have distinct values for those two fields, and the lenses
     -- returned by 'toLens' would access those two fields.
-    toLens :: PathType s a -> Traversal1' s a
+    toLens :: PathType s a -> Traversal' s a
     -- ^ Function to turn a PathType into a lens to access (one of)
     -- the @a@ values.
 
