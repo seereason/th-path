@@ -19,9 +19,7 @@ import Data.UUID.Types.Internal (UUID(..))
 import Control.Lens (makeLensesFor)
 import Data.Data (Data, Typeable)
 import qualified Data.Map as M (fromList, lookup, Map, size)
-import Data.SafeCopy (base, deriveSafeCopy)
 import Language.Haskell.TH.Path.Graph (SelfPath)
--- import Language.Haskell.TH.Path.Lens (nameMakeLens)
 
 newtype ReportID = ReportID { unReportID :: UUID } deriving (Eq, Ord, Read, Show, Typeable, Data)
 newtype ReportMap = ReportMap { unReportMap :: M.Map ReportID Report } deriving (Eq, Ord, Read, Show, Typeable, Data)
@@ -29,9 +27,6 @@ newtype ReportMap = ReportMap { unReportMap :: M.Map ReportID Report } deriving 
 instance SelfPath ReportID
 
 $(makeLensesFor [("unReportMap", "lens_ReportMap_ReportMap")] ''ReportMap)
-
-$(deriveSafeCopy 1 'base ''ReportID)
-$(deriveSafeCopy 2 'base ''ReportMap)
 
 reportMapFromList :: [Report] -> ReportMap
 reportMapFromList = ReportMap . M.fromList . map (\r -> (ReportID (reportUUID r), r))

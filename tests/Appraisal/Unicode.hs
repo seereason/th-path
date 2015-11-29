@@ -18,7 +18,6 @@ import qualified Data.ByteString as B
 import Data.Char (ord)
 import Data.Generics (Data, Typeable)
 import Data.Monoid ((<>))
-import Data.SafeCopy (base, deriveSafeCopy)
 import Data.String (IsString(..))
 import qualified Data.Text as T
 import Data.Text.Encoding (decodeUtf8')
@@ -126,5 +125,3 @@ isCJK c =
        || (n >= 0x20000 && n < 0x2a6e0) -- CJK Unified Ideographs extension B
        || (n >= 0x2f800 && n < 0x2fa20) -- CJK Compatibility Ideographs Supplement
        || (n >= 0xac00 && n < 0xd7b0)   -- Hangul
-
-$(deriveSafeCopy 1 'base ''Unicode')

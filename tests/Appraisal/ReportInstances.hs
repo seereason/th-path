@@ -32,7 +32,7 @@ import Language.Haskell.TH.Path.Graph (SinkType)
 import Language.Haskell.TH.Path.View (View(ViewType, viewLens))
 import Text.LaTeX (LaTeX)
 import Text.Pandoc (Pandoc, Meta)
-import Web.Routes.TH (derivePathInfo)
+--import Web.Routes.TH (derivePathInfo)
 
 newtype ReadOnly a = ReadOnly {unReadOnly :: a} deriving (Read, Show, Eq, Ord, Typeable, Data)
 
@@ -185,6 +185,8 @@ instance View CIString where type ViewType CIString = Text; viewLens = lens_CISt
 startTypes :: Q [Type]
 startTypes = (: []) <$> [t|ReportMap|]
 
+{-
 $(derivePathInfo ''Maybe)
 $(derivePathInfo ''ItemFieldName)
 $(derivePathInfo ''ReportID)
+-}

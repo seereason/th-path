@@ -63,7 +63,6 @@ import qualified Data.ListLike as LL
 import Data.Map as Map (lookup)
 import Data.Maybe (catMaybes)
 import Data.Monoid ((<>))
-import Data.SafeCopy (base, deriveSafeCopy, extension, Migrate(MigrateFrom, migrate))
 import Data.Text as T (Text, groupBy, pack, unpack, strip, uncons, empty)
 import Debug.Trace (trace)
 import Language.Haskell.TH.Path.Core (lens_mrs, readShowLens)
@@ -74,7 +73,7 @@ import Data.UUID.Orphans ()
 import Prelude hiding (read)
 import System.FilePath ((</>))
 import Text.PrettyPrint.HughesPJClass (Pretty(pPrint), text)
-import Web.Routes.TH (derivePathInfo)
+--import Web.Routes.TH (derivePathInfo)
 
 approachesToValueOldDefault :: Markup
 approachesToValueOldDefault =
@@ -145,8 +144,6 @@ data Author
     deriving (Read, Show, Eq, Ord, Typeable, Data)
 
 $(deriveOrderJS ''Author)
-$(deriveSafeCopy 1 'base ''AuthorID)
-$(derivePathInfo ''AuthorID)
 
 data AuthorFieldLabel
     = AuthorName
@@ -355,55 +352,6 @@ data Report
              }
     deriving (Read, Show, Eq, Ord, Typeable, Data)
 
-instance Migrate Report where
-    type MigrateFrom Report = Report_17
-    migrate r =
-        Report { reportStandardsVersion = ReportStandard 1
-               , reportFolder = reportFolder_17 r
-               , reportName = reportName_17 r
-               , reportDate = reportDate_17 r
-               , reportContractDate = reportContractDate_17 r
-               , reportInspectionDate = reportInspectionDate_17 r
-               , reportEffectiveDate = reportEffectiveDate_17 r
-               , reportAuthors = reportAuthors_17 r
-               , reportPreparer = reportPreparer_17 r
-               , reportPreparerEIN = reportPreparerEIN_17 r
-               , reportPreparerAddress = reportPreparerAddress_17 r
-               , reportPreparerEMail = reportPreparerEMail_17 r
-               , reportPreparerWebsite = reportPreparerWebsite_17 r
-               , reportAbbrevs = reportAbbrevs_17 r
-               , reportTitle = reportTitle_17 r
-               , reportHeader = reportHeader_17 r
-               , reportFooter = reportFooter_17 r
-               , reportIntendedUse = reportIntendedUse_17 r
-               , reportValueTypeInfo = reportValueTypeInfo_17 r
-               , reportValueApproachInfo = reportValueApproachInfo_17 r
-               , reportClientName = reportClientName_17 r
-               , reportClientAddress = reportClientAddress_17 r
-               , reportClientGreeting = reportClientGreeting_17 r
-               , reportItemsOwnerFull = reportItemsOwnerFull_17 r
-               , reportItemsOwner = reportItemsOwner_17 r
-               , reportBriefItems = reportBriefItems_17 r
-               , reportInspectionLocation = reportInspectionLocation_17 r
-               , reportBody = reportBody_17 r
-               , reportGlossary = reportGlossary_17 r
-               , reportSources = reportSources_17 r
-               , reportLetterOfTransmittal = reportLetterOfTransmittal_17 r
-               , reportScopeOfWork = reportScopeOfWork_17 r
-               , reportCertification = reportCertification_17 r
-               , reportLimitingConditions = reportLimitingConditions_17 r
-               , reportPrivacyPolicy = reportPrivacyPolicy_17 r
-               , reportPerms = reportPerms_17 r
-               , reportRevision = reportRevision_17 r
-               , reportCreated = reportCreated_17 r
-               , reportBranding = reportBranding_17 r
-               , reportStatus = reportStatus_17 r
-               , reportRedacted = reportRedacted_17 r
-               , reportFlags = reportFlags_17 r
-               , reportUUID = reportUUID_17 r
-               , reportOrderByItemName = reportOrderByItemName_17 r
-               , reportDisplayItemName = reportDisplayItemName_17 r }
-
 reportURI :: Paths a => a -> Report -> String -> FilePath
 reportURI paths report ext =
     reportsURIPath paths </> reportBase report </> reportFile report ext ++ "?" ++ r
@@ -566,27 +514,6 @@ reportBrandingLens = lens getter setter
               _ -> case reads (unpack x) of
                      [(b,_)] -> b
                      _ -> trace'' ("reportBrandingLens dropping value " ++ unpack x) NoLogo
-
-$(deriveSafeCopy 1 'base ''Author)
-$(deriveSafeCopy 1 'base ''ReportValueTypeInfo)
-$(deriveSafeCopy 3 'base ''ReportIntendedUse)
-$(deriveSafeCopy 1 'base ''ReportValueApproachInfo)
-$(deriveSafeCopy 1 'base ''ReportElem)
-$(deriveSafeCopy 17 'base ''Report_17)
-$(deriveSafeCopy 18 'extension ''Report)
-$(deriveSafeCopy 1 'base ''ReportStandard)
-$(deriveSafeCopy 1 'base ''ReportStatus)
-$(deriveSafeCopy 0 'base ''ReportFlags)
-$(deriveSafeCopy 1 'base ''Branding)
-
-$(deriveSafeCopy 1 'base ''ReportElemID)
-$(deriveSafeCopy 1 'base ''MarkupPairID)
-$(deriveSafeCopy 1 'base ''AbbrevPairID)
-$(deriveSafeCopy 1 'base ''MarkupID)
-$(derivePathInfo ''ReportElemID)
-$(derivePathInfo ''MarkupPairID)
-$(derivePathInfo ''AbbrevPairID)
-$(derivePathInfo ''MarkupID)
 
 instance Pretty MarkupID where
     pPrint = text . show . unMarkupID

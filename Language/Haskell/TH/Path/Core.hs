@@ -56,10 +56,10 @@ import Control.Lens hiding (at) -- (set, Traversal', Lens', _Just, iso, lens, vi
 import Data.Generics (Data, Typeable)
 import Data.List as List (map)
 import qualified Data.Map as M (Map, insert, lookup)
-import Data.Set as Set (difference, fromList, Set)
 import Data.Maybe (catMaybes)
 import Data.Monoid
 import Data.SafeCopy (base, deriveSafeCopy)
+import Data.Set as Set (difference, fromList, Set)
 import Data.Text as Text (Text, pack, unpack, unwords, words)
 import Data.UserId (UserId(..))
 import Debug.Trace (trace)
@@ -72,10 +72,13 @@ import Prelude hiding (exp)
 import Safe (readMay)
 import Web.Routes.TH (derivePathInfo)
 
--- | If there is an instance of 'Path' for a pair of types @s@ and
--- @a@, that means there is at least one way to obtain an @a@ from an
--- @s@.
-class Path s a where
+-- | Instances of the 'Path' class are used to give a name to each of
+-- the values of type @a@ which can be obtained from a value of type
+-- @s@ using a lens.  Any value of the 'Path' instance can be passed
+-- to the 'toLens' method to obtain the lens, and the 'PathType' type
+-- function can be used to obtain the 'Path' instance given the @s@
+-- and @a@ types of the desired lens.
+class {-IdPath s =>-} Path s a where
     type PathType s a
     -- ^ Each instance defines this type function which returns the
     -- path type.  Each value of this type represents a different way

@@ -48,7 +48,6 @@ import Control.Lens (Lens', iso)
 import Data.List as List (map, foldr)
 import Data.Maybe (fromMaybe)
 import Data.Monoid ((<>))
-import Data.SafeCopy (base, deriveSafeCopy)
 import Data.Text as T (Text, isPrefixOf, drop, empty, uncons, null, singleton, map, foldr, pack)
 import qualified Data.Text as T (lines, strip)
 import Language.Haskell.TH.Path.Graph (HideType)
@@ -56,20 +55,6 @@ import Prelude hiding (lines)
 import Text.LaTeX.Base.Syntax (LaTeX(TeXEmpty, TeXRaw), protectText)
 import Text.LaTeX.Base.Writer (LaTeXT, execLaTeXT)
 import qualified Text.Pandoc as P
-
-$(deriveSafeCopy 1 'base ''P.Alignment)
-$(deriveSafeCopy 1 'base ''P.Block)
-$(deriveSafeCopy 1 'base ''P.Citation)
-$(deriveSafeCopy 1 'base ''P.CitationMode)
-$(deriveSafeCopy 1 'base ''P.Format)
-$(deriveSafeCopy 1 'base ''P.Inline)
-$(deriveSafeCopy 1 'base ''P.ListNumberDelim)
-$(deriveSafeCopy 1 'base ''P.ListNumberStyle)
-$(deriveSafeCopy 1 'base ''P.MathType)
-$(deriveSafeCopy 1 'base ''P.Meta)
-$(deriveSafeCopy 1 'base ''P.MetaValue)
-$(deriveSafeCopy 1 'base ''P.Pandoc)
-$(deriveSafeCopy 1 'base ''P.QuoteType)
 
 data Markup
     = Markdown {markdownText :: Text}
@@ -252,5 +237,3 @@ lens_CIString_Text = iso (pack . unCIString) fromText
 htmlify :: Markup -> Markup
 htmlify (Markdown s) = Html $ pack $ P.writeHtmlString P.def $ pandocFromMarkdown $ s
 htmlify x = x
-
-$(deriveSafeCopy 3 'base ''Markup)

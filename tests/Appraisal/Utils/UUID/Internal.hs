@@ -33,7 +33,6 @@ import Data.Char
 import Data.Maybe
 import Data.Bits
 import Data.List (elemIndices)
-import Data.SafeCopy (deriveSafeCopy, base)
 
 -- #if MIN_VERSION_base(4,0,0)
 import Data.Data
@@ -301,8 +300,6 @@ instance Binary UUID' where
         putWord32be w0 >> putWord32be w1 >> putWord32be w2 >> putWord32be w3 
     get = liftM4 UUID getWord32be getWord32be getWord32be getWord32be
 
-
-$(deriveSafeCopy 1 'base ''UUID')
 
 -- My goal with this instance was to make it work just enough to do what
 -- I want when used with the HStringTemplate library.

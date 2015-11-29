@@ -8,7 +8,6 @@ import Data.Char (toLower)
 import Data.Function (on)
 import Data.Generics (Data, Typeable)
 import Data.Monoid ((<>))
-import Data.SafeCopy (base, deriveSafeCopy)
 import Data.String (IsString(fromString))
 import qualified Data.Text as T
 
@@ -29,5 +28,3 @@ instance IsString CIString where
 
 instance IsText CIString where
     fromText = fromString . T.unpack . T.strip
-
-$(deriveSafeCopy 1 'base ''CIString)
