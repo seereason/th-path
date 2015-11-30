@@ -75,42 +75,39 @@ pathType gtyp key = do
       | isJust viewType ->
           let Just (pname, _syns) = bestPathTypeName key in
           runQ [t|$(conT pname) $gtyp|]
-    ConT tname -> runQ $ [t|$(conT (pathTypeNameFromTypeName tname)) $gtyp|]
-    AppT (AppT mtyp ityp) etyp | mtyp == ConT ''Order -> orderf ityp etyp
-    AppT ListT etyp -> listf etyp
-    AppT (AppT t3 ktyp) vtyp | t3 == ConT ''Map -> mapf ktyp vtyp
-    AppT (AppT (TupleT 2) ftyp) styp -> pairf ftyp styp
-    AppT t1 vtyp | t1 == ConT ''Maybe -> maybef vtyp
-    AppT (AppT t3 ltyp) rtyp | t3 == ConT ''Either -> eitherf ltyp rtyp
-    _ -> otherf
-    where
-      maybef = \etyp -> do
-          epath <- vert etyp >>= pathType gtyp
-          runQ [t|Path_Maybe $(return epath)|]
-      listf = \etyp -> do
-          epath <- vert etyp >>= pathType gtyp
-          runQ [t|Path_List $(return epath)|]
-      orderf = \ityp etyp -> do
-          ipath <- vert ityp >>= pathType gtyp
-          epath <- vert etyp >>= pathType gtyp
-          runQ [t|Path_OMap $(return ipath) $(return epath)|]
-      mapf = \ktyp vtyp -> do
-          kpath <- vert ktyp >>= pathType gtyp
-          vpath <- vert vtyp >>= pathType gtyp
-          runQ [t| Path_Map $(return kpath) $(return vpath)|]
-      pairf = \ftyp styp -> do
-          fpath <- vert ftyp >>= pathType gtyp
-          spath <- vert styp >>= pathType gtyp
-          runQ [t| Path_Pair $(return fpath) $(return spath) |]
-      eitherf = \ltyp rtyp -> do
-          lpath <- vert ltyp >>= pathType gtyp
-          rpath <- vert rtyp >>= pathType gtyp
-          runQ [t| Path_Either $(return lpath) $(return rpath)|]
-      otherf = do
-          ks <- reachableFromSimple key
-          error $ "pathType otherf: " ++ pprint' key ++ "\n" ++
-                  intercalate "\n  " ("reachable from:" : List.map pprint' (toList ks))
+    ConT tname ->
+        runQ $ [t|$(conT (pathTypeNameFromTypeName tname)) $gtyp|]
+    AppT (AppT mtyp ityp) etyp
+        | mtyp == ConT ''Order ->
+            do ipath <- vert ityp >>= pathType gtyp
+               epath <- vert etyp >>= pathType gtyp
+               runQ [t|Path_OMap $(return ipath) $(return epath)|]
+    AppT ListT etyp ->
+        do epath <- vert etyp >>= pathType gtyp
+           runQ [t|Path_List $(return epath)|]
+    AppT (AppT t3 ktyp) vtyp
+        | t3 == ConT ''Map ->
+            do kpath <- vert ktyp >>= pathType gtyp
+               vpath <- vert vtyp >>= pathType gtyp
+               runQ [t| Path_Map $(return kpath) $(return vpath)|]
+    AppT (AppT (TupleT 2) ftyp) styp ->
+        do fpath <- vert ftyp >>= pathType gtyp
+           spath <- vert styp >>= pathType gtyp
+           runQ [t| Path_Pair $(return fpath) $(return spath) |]
+    AppT t1 vtyp
+        | t1 == ConT ''Maybe ->
+            do epath <- vert vtyp >>= pathType gtyp
+               runQ [t|Path_Maybe $(return epath)|]
+    AppT (AppT t3 ltyp) rtyp
+        | t3 == ConT ''Either ->
+            do lpath <- vert ltyp >>= pathType gtyp
+               rpath <- vert rtyp >>= pathType gtyp
+               runQ [t| Path_Either $(return lpath) $(return rpath)|]
+    _ -> do ks <- reachableFromSimple key
+            error $ "pathType otherf: " ++ pprint' key ++ "\n" ++
+                    intercalate "\n  " ("reachable from:" : List.map pprint' (toList ks))
 
+    where
       vert typ = askPoly >>= \(ti :: TypeInfo) -> runReaderT (typeVertex (E typ)) ti
 
 -- Naming conventions
