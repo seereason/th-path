@@ -81,7 +81,7 @@ import Web.Routes.TH (derivePathInfo)
 -- to the 'toLens' method to obtain the lens, and the 'PathType' type
 -- function can be used to obtain the 'Path' instance given the @s@
 -- and @a@ types of the desired lens.
-class IsPathType s => IsPath s a where
+class IsPathType (PathType s a) => IsPath s a where
     type PathType s a
     -- ^ Each instance defines this type function which returns the
     -- path type.  Each value of this type represents a different way
