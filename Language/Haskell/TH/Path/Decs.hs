@@ -40,7 +40,7 @@ import Language.Haskell.TH
 import Language.Haskell.TH.Context (InstMap, reifyInstancesWithContext)
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.Path.Core (mat, IdPath(idPath), Path(..), Path_List, Path_OMap(..), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
+import Language.Haskell.TH.Path.Core (mat, IsPathType(idPath), IsPath(..), Path_List, Path_OMap(..), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
 import Language.Haskell.TH.Path.Graph (SelfPath, SinkType)
 import Language.Haskell.TH.Path.Order (lens_omat, Order)
 import Language.Haskell.TH.Path.View (viewInstanceType, viewLens)
@@ -80,7 +80,7 @@ doNode v = do
       doSimplePath :: Name -> Set Name -> m ()
       doSimplePath pname syns = do
         runQ (newName "a" >>= \a -> dataD (return []) pname [PlainTV a] [normalC pname []] supers) >>= tell . (: [])
-        runQ [d|instance IdPath ($(conT pname) a) where idPath = $(conE (mkName (nameBase pname)))|] >>= tell
+        runQ [d|instance IsPathType ($(conT pname) a) where idPath = $(conE (mkName (nameBase pname)))|] >>= tell
         mapM_ (\psyn -> runQ (newName "a" >>= \a -> tySynD psyn [PlainTV a] (appT (conT pname) (varT a))) >>= tell . (: [])) (toList syns)
 
       -- viewPath [t|Text|] = data Path_Branding a = Path_Branding (Path_Text a)
@@ -99,7 +99,7 @@ doNode v = do
                               , normalC (mkName (nameBase pname)) []
                               ] supers
                          : List.map (\psyn -> tySynD psyn [PlainTV a] (appT (conT pname) (varT a))) (toList syns))) >>= tell
-        runQ [d|instance IdPath ($(conT pname) a) where idPath = $(conE (mkName (nameBase pname)))|] >>= tell
+        runQ [d|instance IsPathType ($(conT pname) a) where idPath = $(conE (mkName (nameBase pname)))|] >>= tell
 
       substitute :: Type -> Type -> Type
       substitute gtype (AppT x (VarT _)) = (AppT x gtype)
@@ -133,7 +133,7 @@ doNode v = do
       makeDecs a pconss =
           case filter (/= []) pconss of
             [pcons] -> mapM_ (\pname -> do runQ (dataD (cxt []) pname [PlainTV a] (List.map return (pcons ++ [NormalC pname []])) supers) >>= tell . (: [])
-                                           runQ [d|instance IdPath ($(conT pname) a) where idPath = $(conE (mkName (nameBase pname)))|] >>= tell
+                                           runQ [d|instance IsPathType ($(conT pname) a) where idPath = $(conE (mkName (nameBase pname)))|] >>= tell
                              ) (pathTypeNames' v)
             [] | length pconss > 1 -> return () -- enum
             [] -> return ()
@@ -280,7 +280,7 @@ pathInstanceDecs key gkey = do
   -- clauses' <- runQ $ sequence clauses
   -- exp <- thePathExp gkey key ptyp clauses'
   when (not (null clauses)) $
-       tell1 (instanceD (pure []) [t|Path $(pure (bestType key)) $(pure (bestType gkey))|]
+       tell1 (instanceD (pure []) [t|IsPath $(pure (bestType key)) $(pure (bestType gkey))|]
                 [ tySynInstD ''PathType (tySynEqn [pure (bestType key), pure (bestType gkey)] (pure ptyp))
                 , funD 'toLens clauses
                 ])

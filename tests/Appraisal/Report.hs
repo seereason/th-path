@@ -73,45 +73,6 @@ import Data.UUID.Orphans ()
 import Prelude hiding (read)
 import System.FilePath ((</>))
 import Text.PrettyPrint.HughesPJClass (Pretty(pPrint), text)
---import Web.Routes.TH (derivePathInfo)
-
-approachesToValueOldDefault :: Markup
-approachesToValueOldDefault =
-    -- rawMarkdown "# Approaches to Value #\n\n" <>
-    rawMarkdown
-          ("For this appraisal three valuation methods were considered " <>
-             "(from Soucy and Smith, eds, <em>The Appraisal of Personal Property – " <>
-             "Principles, Theories, and Practice Methods for the Professional " <>
-             "Appraiser</em>, 1994.). The three valuation methods are:\n\n") <>
-    rawMarkdown (" * <bf>Cost Approach to Value</bf> method estimates either the reproduction or " <>
-                          "replacement of a property, either new or depreciated.\n\n") <>
-    rawMarkdown (" * <bf>Income Approach to Value</bf> method estimates the present worth of " <>
-                 "anticipated future benefits of owning income producing " <>
-                 "properties or objects.\n\n") <>
-    rawMarkdown (" * <bf>Sales Comparison Approach to Value</bf> method estimates value by using " <>
-                 "one or more methods that compare the subject to other similar " <>
-                 "properties that have been sold in the relevant market with adjustments (up or down) made for all " <>
-                 "differences that affect value, such as differences in characteristics of value, in market level, " <>
-                 "and in time.\n\n")
-
-{-
-approachesToValueNewDefault :: Markup
-approachesToValueNewDefault =
-    -- rawMarkdown "# Approaches to Value #\n\n" <>
-    rawMarkdown
-          ("For this appraisal three valuation methods were considered.  The three valuation methods are (as defined by The American Society of Appraisers Monograph #7: <em>Analyzing the Research</em>, 2010). The three valuation methods are:\n\n") <>
-    rawMarkdown (" * <bf>Cost Approach to Value</bf> method estimates either the reproduction or " <>
-                          "replacement of a property, either new or depreciated.\n\n") <>
-    rawMarkdown (" * <bf>Income Approach to Value</bf> method estimates the present worth of " <>
-                          "anticipated future benefits of owning income producing " <>
-                          "properties or objects.\n\n") <>
-    rawMarkdown (" * <bf>Market Comparison Approach to Value</bf> method estimates value by " <>
-                          "comparison with properties sold in the relevant market with " <>
-                          "adjustments for all differences that affect value, such as " <>
-                          "differences in characteristics of value, in market layer, and " <>
-                          "in time exposed to the market in order to arrive at the most " <>
-                          "apposite estimate of value.\n\n")
--}
 
 data ReportFieldLabel
     = ReportName
@@ -253,55 +214,6 @@ instance View MaybeReportIntendedUse where
 --        and new reports will be set to this value.  In particular, the Scope of Work
 --        section is no longer included.
 data ReportStandard = ReportStandard {unReportStandard :: Int} deriving (Read, Show, Eq, Ord, Typeable, Data)
-
-data Report_17
-    = Report_17
-             { reportFolder_17 :: FilePath
-             , reportName_17 :: Markup
-             , reportDate_17 :: Markup
-             , reportContractDate_17 :: Markup
-             , reportInspectionDate_17 :: Markup
-             , reportEffectiveDate_17 :: Markup
-             , reportAuthors_17 :: Authors
-             , reportPreparer_17 :: Markup
-             , reportPreparerEIN_17 :: Markup
-             , reportPreparerAddress_17 :: Markup
-             , reportPreparerEMail_17 :: Markup
-             , reportPreparerWebsite_17 :: Markup
-             , reportAbbrevs_17 :: AbbrevPairs
-             , reportTitle_17 :: Markup
-             , reportHeader_17 :: Markup
-             , reportFooter_17 :: Markup
-             , reportIntendedUse_17 :: MaybeReportIntendedUse
-             , reportValueTypeInfo_17 :: ReportValueTypeInfo
-             , reportValueApproachInfo_17 :: ReportValueApproachInfo
-             , reportClientName_17 :: Markup
-             , reportClientAddress_17 :: Markup
-             , reportClientGreeting_17 :: Markup
-             , reportItemsOwnerFull_17 :: Markup
-             , reportItemsOwner_17 :: Markup
-             , reportBriefItems_17 :: Markup
-             , reportInspectionLocation_17 :: Markup
-             , reportBody_17 :: ReportElems
-             , reportGlossary_17 :: MarkupPairs
-             , reportSources_17 :: MarkupPairs
-             , reportLetterOfTransmittal_17 :: Markup
-             , reportScopeOfWork_17 :: Markup
-             , reportCertification_17 :: Markups
-             , reportLimitingConditions_17 :: Markups
-             , reportPrivacyPolicy_17 :: Markup
-             , reportPerms_17 :: Permissions
-             , reportRevision_17 :: Integer
-             , reportCreated_17 :: EpochMilli
-             , reportBranding_17 :: Branding
-             , reportStatus_17 :: ReportStatus
-             , reportRedacted_17 :: Bool
-             , reportFlags_17 :: ReportFlags
-             , reportUUID_17 :: UUID
-             , reportOrderByItemName_17 :: Bool
-             , reportDisplayItemName_17 :: Bool
-             }
-    deriving (Read, Show, Eq, Ord, Typeable, Data)
 
 data Report
     = Report { reportFolder :: FilePath

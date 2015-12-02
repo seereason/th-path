@@ -15,8 +15,8 @@
 {-# OPTIONS_GHC -Wall -fno-warn-orphans -fno-warn-missing-signatures #-}
 module Language.Haskell.TH.Path.Core
     ( -- * Type classes and associated types
-      Path(toLens, PathType)
-    , IdPath(idPath)
+      IsPath(toLens, PathType)
+    , IsPathType(idPath)
 
     -- * Basic Path Types
     , Path_Pair(..)
@@ -72,13 +72,16 @@ import Prelude hiding (exp)
 import Safe (readMay)
 import Web.Routes.TH (derivePathInfo)
 
+-- | An instance @IsPath s a@ has at least one way to obtain an @a@
+-- from an @s@.  The @PathType@ type function returns the corresponding
+-- @IsPathType@ type, from which the identity path idPath 
 -- | Instances of the 'Path' class are used to give a name to each of
 -- the values of type @a@ which can be obtained from a value of type
 -- @s@ using a lens.  Any value of the 'Path' instance can be passed
 -- to the 'toLens' method to obtain the lens, and the 'PathType' type
 -- function can be used to obtain the 'Path' instance given the @s@
 -- and @a@ types of the desired lens.
-class {-IdPath s =>-} Path s a where
+class IsPathType s => IsPath s a where
     type PathType s a
     -- ^ Each instance defines this type function which returns the
     -- path type.  Each value of this type represents a different way
@@ -90,13 +93,9 @@ class {-IdPath s =>-} Path s a where
     -- ^ Function to turn a PathType into a lens to access (one of)
     -- the @a@ values.
 
-class IdPath s where
-    idPath :: s -- ^ The identity path for type s.  @toLens idPath@
-                -- returns @iso id id@.
-
--- instance OrderKey k => Path (Order k a) a where
---     type PathType (Order k a) a = (Path_OMap k a)
---     toLens (Path_At k a) = lens_omat k . toLens a
+class IsPathType p where
+    idPath :: p -- ^ The identity value for path type @p@.  Obeys the law
+                -- @toLens idPath == iso id id@.
 
 -- Primitive path types
 
@@ -110,12 +109,12 @@ data Path_Map k v = Path_Look k v | Path_Map  deriving (Eq, Ord, Read, Show, Typ
 data Path_List a = Path_List deriving (Eq, Ord, Read, Show, Typeable, Data) -- No element lookup path - too dangerous, use OMap
 data Path_OMap k a = Path_OMap | Path_At k a deriving (Eq, Ord, Read, Show, Typeable, Data)
 
-instance IdPath (Path_Pair a b) where idPath = Path_Pair
-instance IdPath (Path_Maybe a) where idPath = Path_Maybe
-instance IdPath (Path_Either a b) where idPath = Path_Either
-instance IdPath (Path_Map k v) where idPath = Path_Map
-instance IdPath (Path_List a) where idPath = Path_List
-instance IdPath (Path_OMap k a) where idPath = Path_OMap
+instance IsPathType (Path_Pair a b) where idPath = Path_Pair
+instance IsPathType (Path_Maybe a) where idPath = Path_Maybe
+instance IsPathType (Path_Either a b) where idPath = Path_Either
+instance IsPathType (Path_Map k v) where idPath = Path_Map
+instance IsPathType (Path_List a) where idPath = Path_List
+instance IsPathType (Path_OMap k a) where idPath = Path_OMap
 
 $(derivePathInfo ''Path_Pair)
 $(derivePathInfo ''Path_List)
