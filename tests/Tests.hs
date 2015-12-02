@@ -30,11 +30,21 @@ import Appraisal.ReportTH
 main :: IO ()
 main = do
   -- mapM_ (putStrLn . pprint) actual01
-  writeFile "tests/actual.hs" (unlines (map (pprint . friendlyNames) (sort decs)))
+  writeFile "tests/actual.hs" actual02
   r <- runTestTT (TestList [{-test01,-} test02])
   case r of
     Counts {errors = 0, failures = 0} -> exitWith ExitSuccess
     _ -> error $ showCounts r
+    where
+      actual02 :: String
+      actual02 = (unlines . map (pprint . friendlyNames) . sort) decs
+
+      expected02 :: String
+      expected02 = toString $(embedFile "tests/expected.hs")
+
+      test02 :: Test
+      test02 = TestCase $ assertString $ show $ prettyContextDiff (text "expected") (text "actual") text (getContextDiff 2 (lines expected02) (lines actual02))
+
 {-
 test01 :: Test
 test01 = TestCase $ assertEqual "path types for TH.Type" expected01 actual01
@@ -52,12 +62,6 @@ actual01 =
 expected01 :: [Dec]
 expected01 = []
 -}
-
-actual02 :: [String]
-actual02 = (lines . unlines . map (pprint . friendlyNames)) (sort decs)
-
-test02 :: Test
-test02 = TestCase $ assertString (show (prettyContextDiff (text "expected") (text "actual") text (getContextDiff 2 expected02 actual02)))
 {-
 actual02 :: [String]
 actual02 =
@@ -75,5 +79,3 @@ actual02 =
             (decs3 :: [Dec]) <- runTypeGraphT pathInstances [st] >>= save "ReportPathInstances.hs"
             lift (decs1 ++ decs2 ++ decs3))
 -}
-expected02 :: [String]
-expected02 = (lines . toString) $(embedFile "tests/expected.hs")

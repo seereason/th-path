@@ -30,9 +30,8 @@ import Data.Char (toLower)
 import Data.Data (Data, Typeable)
 import Data.Foldable as Foldable (Foldable(toList), mapM_)
 import Data.Foldable
-import Data.List as List (intercalate, map, sort)
-import Data.Map as Map (keys, Map)
-import qualified Data.Map as Map (toList)
+import Data.List as List (intercalate, map)
+import Data.Map as Map (Map)
 import Data.Maybe (fromJust, isJust)
 import Data.Set as Set (delete)
 import Data.Set.Extra as Set (insert, map, member, Set)
@@ -49,16 +48,17 @@ import Language.Haskell.TH.Syntax as TH (Quasi(qReify), VarStrictType)
 import Language.Haskell.TH.TypeGraph.Expand (E(E, unE), ExpandMap, expandType)
 import Language.Haskell.TH.TypeGraph.Lens (lensNamePairs)
 import Language.Haskell.TH.TypeGraph.Prelude (pprint')
-import Language.Haskell.TH.TypeGraph.TypeGraph (allLensKeys, allPathKeys, allPathStarts, goalReachableSimple, reachableFromSimple, TypeGraph)
+import Language.Haskell.TH.TypeGraph.TypeGraph (pathKeys, allPathStarts, goalReachableSimple, reachableFromSimple, TypeGraph)
 import Language.Haskell.TH.TypeGraph.TypeInfo (fieldVertex, TypeInfo, typeVertex)
 import Language.Haskell.TH.TypeGraph.Vertex (etype, field, TGV, TGVSimple, TypeGraphVertex(bestType), typeNames, vsimple)
 
-pathDecs :: (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => m [Dec]
-pathDecs = sort <$>
-           (execWriterT $ do
-             allPathStarts >>=  Foldable.mapM_ pathTypeDecs
-             allLensKeys >>=   Foldable.mapM_ pathLensDecs . Map.keys
-             allPathKeys >>=   Foldable.mapM_ (\(key, gkeys) -> Set.mapM_ (pathInstanceDecs key) gkeys) . Map.toList)
+pathDecs :: forall m. (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => m [Dec]
+pathDecs = allPathStarts >>= execWriterT . Foldable.mapM_ doNode
+    where
+      doNode v = do
+        pathTypeDecs v
+        pathLensDecs v
+        pathKeys v >>= Set.mapM_ (pathInstanceDecs v)
 
 -- | Given a type, compute the corresponding path type.
 pathType :: (DsMonad m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadStates ExpandMap m, MonadStates InstMap m) =>
@@ -177,7 +177,6 @@ pathInstanceDecs key gkey = do
        tell1 (instanceD (pure []) [t|Path $(pure (bestType key)) $(pure (bestType gkey))|]
                 [ tySynInstD ''PathType (tySynEqn [pure (bestType key), pure (bestType gkey)] (pure ptyp))
                 , funD 'toLens clauses
-                --, valD (varP 'thePath) (normalB exp) []
                 ])
     where
       -- Send a single dec to our funky writer monad
