@@ -161,7 +161,7 @@ doNode v = do
                         -- It would be nice to use pathTypeCall (varT a) key' here, but
                         -- it can't infer the superclasses for (PathType Foo a) - Ord,
                         -- Read, Data, etc.
-                        _ -> runQ (appT (appT (conT ''PathType) (pure (view (vsimple . etype . unE) key'))) (varT a)) -- pathType (varT a) (view vsimple key')
+                        _ -> pathType (varT a) (view vsimple key') -- runQ (appT (appT (conT ''PathType) (pure (view (vsimple . etype . unE) key'))) (varT a))
              case ptype of
                TupleT 0 -> return []
                -- Given the list of clauses for a field's path type, create new
