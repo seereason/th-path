@@ -50,7 +50,7 @@ import Language.Haskell.TH.KindInference (inferKind)
 import Language.Haskell.TH.Path.Order (Order)
 import Language.Haskell.TH.Path.View (viewInstanceType, viewTypes)
 import Language.Haskell.TH.TypeGraph.Edges ({-cut, cutEdgesM,-} cutEdges, cutM, dissolveM, GraphEdges, isolate, linkM, simpleEdges, typeGraphEdges)
-import Language.Haskell.TH.TypeGraph.Expand (E(E, unE), ExpandMap, expandType)
+import Language.Haskell.TH.TypeGraph.Expand (E(E), unE, ExpandMap, expandType)
 import Language.Haskell.TH.TypeGraph.Free (freeTypeVars)
 import Language.Haskell.TH.TypeGraph.Prelude (OverTypes(overTypes), unlifted)
 import Language.Haskell.TH.TypeGraph.TypeGraph (graphFromMap, makeTypeGraph, TypeGraph)
@@ -114,20 +114,22 @@ pathGraphEdges = do
   return e8
     where
       viewEdges :: TGV -> m (Maybe (Set TGV))
-      viewEdges v = viewInstanceType (unE (view (vsimple . etype) v)) >>= maybe (return Nothing) (\t -> expandType t >>= typeVertex' >>= return . Just . singleton)
+      viewEdges v =
+          do let (typ :: Type) = view (vsimple . etype . unE) v
+             viewInstanceType typ >>= maybe (return Nothing) (\t -> expandType t >>= typeVertex' >>= return . Just . singleton)
 
       higherOrder :: TGV -> m Bool
-      higherOrder v = (/= Right StarT) <$> runQ (inferKind (unE (view (vsimple . etype) v)))
+      higherOrder v = (/= Right StarT) <$> runQ (inferKind (view (vsimple . etype . unE) v))
       hasFreeVars :: TGV -> m Bool
-      hasFreeVars v = (/= Set.empty) <$> runQ (freeTypeVars (unE (view (vsimple . etype) v)))
+      hasFreeVars v = (/= Set.empty) <$> runQ (freeTypeVars (view (vsimple . etype . unE) v))
       -- Primitive (unlifted) types can not be used as parameters to a
       -- type class, which makes them unusable in this system.
       isUnlifted :: TGV -> m Bool
-      isUnlifted v = unlifted (unE (view (vsimple . etype) v))
+      isUnlifted v = unlifted (view (vsimple . etype . unE) v)
 
       isMapKey :: TGV -> TGV -> Bool
       isMapKey (TGV {_vsimple = TGVSimple {_etype = E (AppT a@(AppT (ConT name) _) _b)}}) a' |
-          (name == ''Order || name == ''Map) && a == unE (view (vsimple . etype) a') = True
+          (name == ''Order || name == ''Map) && a == view (vsimple . etype . unE) a' = True
       isMapKey _ _ = False
 
       isolateUnreachable :: GraphEdges TGV -> m (GraphEdges TGV)

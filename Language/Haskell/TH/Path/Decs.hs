@@ -45,7 +45,7 @@ import Language.Haskell.TH.Path.Graph (SelfPath, SinkType)
 import Language.Haskell.TH.Path.Order (lens_omat, Order)
 import Language.Haskell.TH.Path.View (viewInstanceType, viewLens)
 import Language.Haskell.TH.Syntax as TH (Quasi(qReify), VarStrictType)
-import Language.Haskell.TH.TypeGraph.Expand (E(E, unE), ExpandMap, expandType)
+import Language.Haskell.TH.TypeGraph.Expand (E(E), unE, ExpandMap, expandType)
 import Language.Haskell.TH.TypeGraph.Lens (lensNamePairs)
 import Language.Haskell.TH.TypeGraph.Prelude (pprint')
 import Language.Haskell.TH.TypeGraph.TypeGraph (pathKeys, allPathStarts, goalReachableSimple, reachableFromSimple, TypeGraph)
@@ -61,7 +61,7 @@ doNode v = do
   selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [let (E typ) = view etype v in typ]
   simplePath <- (not . null) <$> reifyInstancesWithContext ''SinkType [let (E typ) = view etype v in typ]
   viewType <- viewInstanceType (let (E typ) = view etype v in typ)
-  case unE (view etype v) of
+  case view (etype . unE) v of
     _ | selfPath -> return ()
       | simplePath -> maybe (error $ "pathTypeDecs: simple path type has no name: " ++ pprint' v) (uncurry doSimplePath) (bestPathTypeName v)
       | isJust viewType ->
@@ -161,7 +161,7 @@ doNode v = do
                         -- It would be nice to use pathTypeCall (varT a) key' here, but
                         -- it can't infer the superclasses for (PathType Foo a) - Ord,
                         -- Read, Data, etc.
-                        _ -> pathType (varT a) (view vsimple key')
+                        _ -> runQ (appT (appT (conT ''PathType) (pure (view (vsimple . etype . unE) key'))) (varT a)) -- pathType (varT a) (view vsimple key')
              case ptype of
                TupleT 0 -> return []
                -- Given the list of clauses for a field's path type, create new
@@ -184,8 +184,8 @@ pathType gtyp key = do
   selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [let (E typ) = view etype key in typ]
   simplePath <- (not . null) <$> reifyInstancesWithContext ''SinkType [let (E typ) = view etype key in typ]
   viewType <- viewInstanceType (let (E typ) = view etype key in typ)
-  case unE (view etype key) of
-    _ | selfPath -> return $ unE $ view etype key
+  case view (etype . unE) key of
+    _ | selfPath -> return $ view (etype . unE) key
       | simplePath -> let Just (pname, _syns) = bestPathTypeName key in runQ [t|$(conT pname) $gtyp|]
       | isJust viewType ->
           let Just (pname, _syns) = bestPathTypeName key in
@@ -316,7 +316,7 @@ pathInstanceClauses key gkey ptyp =
      selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [let (E typ) = view etype v in typ]
      simplePath <- (not . null) <$> reifyInstancesWithContext ''SinkType [let (E typ) = view etype v in typ]
      viewType <- viewInstanceType (let (E typ) = view etype v in typ)
-     case unE (view etype v) of
+     case view (etype . unE) v of
        _ | selfPath -> return ()
          | simplePath -> return () -- Simple paths only work if we are at the goal type, and that case is handled above.
        typ
@@ -361,7 +361,7 @@ pathInstanceClauses key gkey ptyp =
                do doClause gkey ltyp (\p -> [p|Path_Left $p|]) [|_Left|]
                   doClause gkey rtyp (\p -> [p|Path_Right $p|]) [|_Right|]
                   Monad.lift final
-       _ -> tell [ clause [wildP] (normalB [|(error $ $(litE (stringL ("Need to find lens for field type: " ++ pprint (view etype key))))) :: Traversal' $(pure (unE (view etype key))) $(pure (bestType gkey))|]) [] ]
+       _ -> tell [ clause [wildP] (normalB [|(error $ $(litE (stringL ("Need to find lens for field type: " ++ pprint (view etype key))))) :: Traversal' $(pure (view (etype . unE) key)) $(pure (bestType gkey))|]) [] ]
     where
       -- Add a clause to the toLens function handling unexpected values.
       final :: m ()
