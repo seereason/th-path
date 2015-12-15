@@ -1,3 +1,7 @@
+-- | A data structure that combines a 'Map' @k@ @v@ with a list of
+-- @k@, representing the element order.  This means the @[k]@ can be
+-- reordered without invalidating any @k@ values that might be in use.
+
 {-# LANGUAGE CPP, DeriveDataTypeable, FlexibleContexts, FlexibleInstances, FunctionalDependencies,
              ImpredicativeTypes, MultiParamTypeClasses, ScopedTypeVariables, TemplateHaskell, TypeFamilies,
              UndecidableInstances #-}
@@ -70,6 +74,7 @@ view :: (Ord k, Enum k) => k -> Order k v -> Maybe (v, Order k v) -- like Data.S
 view k m = case Map.lookup k (elems m) of
              Nothing -> Nothing
              Just x -> Just (x, m {elems = Map.delete k (elems m), order = filter (/= k) (order m)})
+
 -- | Build an order from a list of (key, value) pairs.  No
 -- uniqueness check of the keys is performed.
 fromPairs :: (Ord k, Enum k) => [(k, v)] -> Order k v
@@ -78,10 +83,12 @@ fromPairs prs =
     Order { elems = Map.fromList prs
           , order = ks
           , next = succ (foldl1 max ks) }
+
 -- | Put a new element at the end of the Order, returning a pair
 -- containing the new Order and the new key.
 insert :: (Ord k, Enum k) => v -> Order k v -> (Order k v, k)
 insert a m = let k = next m in (m {next = succ k, elems = Map.insert k a (elems m), order = order m ++ [k]}, k)
+
 -- | Replace the current ordering with the given key list.  The
 -- result is a triple: (new, missing, invalid).  Missing pairs are
 -- those not mentioned in the new list, invalid are those
