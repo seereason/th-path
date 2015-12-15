@@ -31,6 +31,8 @@ module Language.Haskell.TH.Path.Order
     , asList
     -- * Lens
     , lens_omat
+    -- * Path Type
+    , Path_OMap(Path_OMap, Path_At)
     ) where
 
 import Data.Data (Data)
@@ -39,10 +41,12 @@ import Data.List as List (partition, elem, foldl, foldl', foldr, filter)
 import qualified Data.ListLike as LL
 import Data.Map as Map (Map, (!))
 import qualified Data.Map as Map
-import Data.SafeCopy (SafeCopy(..), contain, safeGet, safePut)
+import Data.SafeCopy (SafeCopy(..), base, contain, deriveSafeCopy, safeGet, safePut)
 import Data.Typeable (Typeable)
 import Language.Haskell.TH
+import Language.Haskell.TH.Path.Core (IsPathType(idPath))
 import Prelude hiding (init)
+import Web.Routes.TH (derivePathInfo)
 
 data Order k v =
     Order { elems :: Map k v
@@ -234,3 +238,8 @@ deriveOrder ityp t = do
   -- for that.
   omtype <- tySynD mpname [] [t|Order $(conT idname) $(conT t)|]
   return $ [idtype, omtype] ++ insts
+
+data Path_OMap k a = Path_OMap | Path_At k a deriving (Eq, Ord, Read, Show, Typeable, Data)
+instance IsPathType (Path_OMap k a) where idPath = Path_OMap
+$(derivePathInfo ''Path_OMap)
+$(deriveSafeCopy 0 'base ''Path_OMap)

@@ -28,7 +28,6 @@ module Language.Haskell.TH.Path.Core
     , lens_Monoid_Maybe
     , Path_Map(..)
     , mat
-    , Path_OMap(..)
     , Path_List(..)
     , at
     , lens_list
@@ -47,8 +46,9 @@ module Language.Haskell.TH.Path.Core
     , IsText(textLens')
     , stringLens
     , lens_UserIds_Text
-
+{-
     , pathTypeNames
+-}
     ) where
 
 import Control.Applicative.Error (maybeRead)
@@ -59,15 +59,15 @@ import qualified Data.Map as M (Map, insert, lookup)
 import Data.Maybe (catMaybes)
 import Data.Monoid
 import Data.SafeCopy (base, deriveSafeCopy)
-import Data.Set as Set (difference, fromList, Set)
+--import Data.Set as Set (difference, fromList, Set)
 import Data.Text as Text (Text, pack, unpack, unwords, words)
 import Data.UserId (UserId(..))
 import Debug.Trace (trace)
-import Language.Haskell.TH
-import Language.Haskell.TH.Desugar (DsMonad)
+--import Language.Haskell.TH
+--import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.Syntax (qReify)
-import Language.Haskell.TH.TypeGraph.Prelude (pprint')
+--import Language.Haskell.TH.Syntax (qReify)
+--import Language.Haskell.TH.TypeGraph.Prelude (pprint')
 import Prelude hiding (exp)
 import Safe (readMay)
 import Web.Routes.TH (derivePathInfo)
@@ -107,28 +107,24 @@ data Path_Invalid = Path_Invalid deriving (Eq, Ord, Read, Show, Typeable, Data)
 data Path_Maybe a = Path_Just a | Path_Maybe deriving (Eq, Ord, Read, Show, Typeable, Data)
 data Path_Map k v = Path_Look k v | Path_Map  deriving (Eq, Ord, Read, Show, Typeable, Data)
 data Path_List a = Path_List deriving (Eq, Ord, Read, Show, Typeable, Data) -- No element lookup path - too dangerous, use OMap
-data Path_OMap k a = Path_OMap | Path_At k a deriving (Eq, Ord, Read, Show, Typeable, Data)
 
 instance IsPathType (Path_Pair a b) where idPath = Path_Pair
 instance IsPathType (Path_Maybe a) where idPath = Path_Maybe
 instance IsPathType (Path_Either a b) where idPath = Path_Either
 instance IsPathType (Path_Map k v) where idPath = Path_Map
 instance IsPathType (Path_List a) where idPath = Path_List
-instance IsPathType (Path_OMap k a) where idPath = Path_OMap
 
 $(derivePathInfo ''Path_Pair)
 $(derivePathInfo ''Path_List)
 $(derivePathInfo ''Path_Map)
 $(derivePathInfo ''Path_Either)
 $(derivePathInfo ''Path_Maybe)
-$(derivePathInfo ''Path_OMap)
 
 $(deriveSafeCopy 0 'base ''Path_Pair)
 $(deriveSafeCopy 0 'base ''Path_List)
 $(deriveSafeCopy 0 'base ''Path_Map)
 $(deriveSafeCopy 0 'base ''Path_Either)
 $(deriveSafeCopy 0 'base ''Path_Maybe)
-$(deriveSafeCopy 0 'base ''Path_OMap)
 
 idLens :: Lens' a a
 idLens = iso id id
@@ -267,6 +263,7 @@ lens_UserIds_Text = iso (encode') (decode')
           Text.unwords . List.map showId $ uids
           where showId = Text.pack . show . _unUserId
 
+{-
 -- | Find all the names of the (non-primitive) path types.
 pathTypeNames :: DsMonad m => m (Set Name)
 pathTypeNames = do
@@ -279,3 +276,4 @@ pathTypeNames = do
 
 primitivePathTypeNames :: Set Name
 primitivePathTypeNames = Set.fromList [''Path_Pair, ''Path_List, ''Path_Either, ''Path_Map, ''Path_OMap, ''Path_Maybe]
+-}
