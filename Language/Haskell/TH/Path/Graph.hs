@@ -15,7 +15,8 @@
 {-# LANGUAGE TupleSections #-}
 {-# OPTIONS_GHC -Wall -fno-warn-orphans #-}
 module Language.Haskell.TH.Path.Graph
-    ( runTypeGraphT
+    ( runInstMapT
+    , runTypeGraphT
     -- * Hint classes
     , SinkType
     , HideType
@@ -80,8 +81,11 @@ instance Monad m => MonadStates InstMap (StateT S m) where
     getPoly = use instMap
     putPoly s = instMap .= s
 
+runInstMapT :: Monad m => StateT S m a -> m a
+runInstMapT action = evalStateT action (S mempty mempty)
+
 runTypeGraphT :: DsMonad m => ReaderT TypeGraph (ReaderT TypeInfo (StateT S m)) a -> [Type] -> m a
-runTypeGraphT action st = evalStateT (runTypeGraphT' action st) (S mempty mempty)
+runTypeGraphT action st = runInstMapT (runTypeGraphT' action st)
 
 runTypeGraphT' :: (MonadStates ExpandMap m, MonadStates InstMap m, DsMonad m) =>
                   ReaderT TypeGraph (ReaderT TypeInfo m) a -> [Type] -> m a
