@@ -261,7 +261,6 @@ lens_UserIds_Text = iso (encode') (decode')
           Text.unwords . List.map showId $ uids
           where showId = Text.pack . show . _unUserId
 
-{-
 -- | Find all the names of the (non-primitive) path types.
 pathTypeNames :: DsMonad m => m (Set Name)
 pathTypeNames = do
@@ -274,4 +273,3 @@ pathTypeNames = do
 
 primitivePathTypeNames :: Set Name
 primitivePathTypeNames = Set.fromList [''Path_Pair, ''Path_List, ''Path_Either, ''Path_Map, ''Path_OMap, ''Path_Maybe]
--}
