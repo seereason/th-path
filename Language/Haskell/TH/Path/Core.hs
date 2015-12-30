@@ -46,9 +46,7 @@ module Language.Haskell.TH.Path.Core
     , IsText(textLens')
     , stringLens
     , lens_UserIds_Text
-{-
     , pathTypeNames
--}
     ) where
 
 import Control.Applicative.Error (maybeRead)
