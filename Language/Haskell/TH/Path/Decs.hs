@@ -37,7 +37,7 @@ import Data.Set as Set (delete)
 import Data.Set.Extra as Set (insert, map, member, Set)
 import qualified Data.Set.Extra as Set (mapM_)
 import Language.Haskell.TH
-import Language.Haskell.TH.Context (InstMap, reifyInstancesWithContext)
+import Language.Haskell.TH.Context (ContextM, InstMap, reifyInstancesWithContext)
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Core (mat, IsPathType(idPath), IsPath(..), Path_List, Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
@@ -52,10 +52,10 @@ import Language.Haskell.TH.TypeGraph.TypeGraph (pathKeys, allPathStarts, goalRea
 import Language.Haskell.TH.TypeGraph.TypeInfo (fieldVertex, TypeInfo, typeVertex)
 import Language.Haskell.TH.TypeGraph.Vertex (etype, field, TGV, TGVSimple, TypeGraphVertex(bestType), typeNames, vsimple)
 
-pathDecs :: forall m. (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => m [Dec]
+pathDecs :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => m [Dec]
 pathDecs = allPathStarts >>= execWriterT . Foldable.mapM_ doNode
 
-doNode :: forall m. (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) => TGVSimple -> m ()
+doNode :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) => TGVSimple -> m ()
 doNode v = do
   -- generate the path type declarations
   selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [let (E typ) = view etype v in typ]
@@ -176,7 +176,7 @@ doNode v = do
       pathTypeNames' = Set.map pathTypeNameFromTypeName . typeNames
 
 -- | Given a type, compute the corresponding path type.
-pathType :: (DsMonad m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadStates ExpandMap m, MonadStates InstMap m) =>
+pathType :: (MonadReaders TypeGraph m, MonadReaders TypeInfo m, ContextM m) =>
             TypeQ
          -> TGVSimple -- ^ The type to convert to a path type
          -> m Type
@@ -272,7 +272,7 @@ uncap "" = ""
 -- corresponding Path instance.  Each clause matches some possible value
 -- of the path type, and returns a lens that extracts the value the
 -- path type value specifies.
-pathInstanceDecs :: forall m. (DsMonad m, MonadStates ExpandMap m, MonadStates InstMap m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) =>
+pathInstanceDecs :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) =>
                      TGVSimple -> TGVSimple -> m ()
 pathInstanceDecs key gkey = do
   ptyp <- pathType (pure (bestType gkey)) key
@@ -297,7 +297,13 @@ instance (Monad m, MonadStates ExpandMap m) => MonadStates ExpandMap (StateT (Se
     getPoly = Monad.lift getPoly
     putPoly = Monad.lift . putPoly
 
-pathInstanceClauses :: forall m. (DsMonad m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [ClauseQ] m, MonadStates InstMap m, MonadStates ExpandMap m) =>
+instance (Monad m, MonadStates String m) => MonadStates String (StateT (Set Name) m) where
+    getPoly = Monad.lift getPoly
+    putPoly = Monad.lift . putPoly
+
+instance ContextM m => ContextM (StateT (Set Name) m)
+
+pathInstanceClauses :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [ClauseQ] m) =>
                        TGVSimple -- ^ the type whose clauses we are generating
                     -> TGVSimple -- ^ the goal type key
                     -> Type -- ^ the corresponding path type - first type parameter of ToLens
@@ -384,7 +390,7 @@ doClause gkey typ pfunc lns = do
       lns' = bool lns [|$lns . toLens $(varE v)|] (key /= gkey)
   when ok $ tell [clause [pfunc pat] (normalB lns') []]
 
-namedTypeClause :: forall m. (DsMonad m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [ClauseQ] m, MonadStates InstMap m, MonadStates ExpandMap m) =>
+namedTypeClause :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [ClauseQ] m) =>
                    Name -> TGVSimple -> Type -> StateT (Set Name) m ()
 namedTypeClause tname gkey ptyp =
     -- If encounter a named type and the stack is empty we

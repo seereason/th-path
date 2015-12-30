@@ -15,7 +15,7 @@
 {-# LANGUAGE TupleSections #-}
 {-# OPTIONS_GHC -Wall -fno-warn-orphans #-}
 module Language.Haskell.TH.Path.Graph
-    ( runInstMapT
+    ( runContextT
     , runTypeGraphT
     -- * Hint classes
     , SinkType
@@ -36,6 +36,7 @@ import Control.Monad.Readers (askPoly, MonadReaders)
 import Control.Monad.State (execStateT, evalStateT, StateT)
 import Control.Monad.States (getPoly, modifyPoly, MonadStates, putPoly)
 import Control.Monad.Trans (lift)
+import Control.Monad.Writer (WriterT)
 import Data.Foldable.Compat
 import Data.Graph as Graph (reachable)
 import Data.List as List (filter, map)
@@ -44,7 +45,7 @@ import Data.Maybe (mapMaybe)
 import Data.Set as Set (difference, empty, fromList, map, member, Set, singleton, toList)
 import Language.Haskell.Exts.Syntax ()
 import Language.Haskell.TH
-import Language.Haskell.TH.Context (InstMap, reifyInstancesWithContext)
+import Language.Haskell.TH.Context (ContextM, InstMap, reifyInstancesWithContext)
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.KindInference (inferKind)
@@ -69,7 +70,8 @@ import Language.Haskell.TH.TypeGraph.Info (synonyms)
 #endif
 
 data S = S { _expanded :: ExpandMap
-           , _instMap :: InstMap }
+           , _instMap :: InstMap
+           , _prefix :: String }
 
 $(makeLenses ''S)
 
@@ -81,14 +83,23 @@ instance Monad m => MonadStates InstMap (StateT S m) where
     getPoly = use instMap
     putPoly s = instMap .= s
 
-runInstMapT :: Monad m => StateT S m a -> m a
-runInstMapT action = evalStateT action (S mempty mempty)
+instance Monad m => MonadStates String (StateT S m) where
+    getPoly = use prefix
+    putPoly s = prefix .= s
+
+instance DsMonad m => ContextM (StateT S m)
+
+instance ContextM m => ContextM (ReaderT t m)
+
+instance (Monoid w, ContextM m) => ContextM (WriterT w m)
+
+runContextT :: Monad m => StateT S m a -> m a
+runContextT action = evalStateT action (S mempty mempty "")
 
 runTypeGraphT :: DsMonad m => ReaderT TypeGraph (ReaderT TypeInfo (StateT S m)) a -> [Type] -> m a
-runTypeGraphT action st = runInstMapT (runTypeGraphT' action st)
+runTypeGraphT action st = runContextT (runTypeGraphT' action st)
 
-runTypeGraphT' :: (MonadStates ExpandMap m, MonadStates InstMap m, DsMonad m) =>
-                  ReaderT TypeGraph (ReaderT TypeInfo m) a -> [Type] -> m a
+runTypeGraphT' :: ContextM m => ReaderT TypeGraph (ReaderT TypeInfo m) a -> [Type] -> m a
 runTypeGraphT' action st = do
   vt <- viewTypes -- Every instance of ViewType
   let st' = st ++ Set.toList vt
@@ -100,7 +111,7 @@ runTypeGraphT' action st = do
 -- may also want to eliminate nodes that are not on a path from a
 -- start type to a goal type, though eventually goal types will be
 -- eliminated - all types will be goal types.)
-pathGraphEdges :: forall m. (DsMonad m, MonadReaders TypeInfo m, MonadStates InstMap m, MonadStates ExpandMap m) => m (GraphEdges TGV)
+pathGraphEdges :: forall m. (MonadReaders TypeInfo m, ContextM m) => m (GraphEdges TGV)
 pathGraphEdges = do
   e1 <- typeGraphEdges                      -- ; _tr "initial" mempty e1
   e1a <- return (cutEdges isMapKey e1)
@@ -183,8 +194,7 @@ class SelfPath a
 -- | Remove any vertices that are labelled with primitive types, and then
 -- apply the hints obtained from the
 -- a new graph which incorporates the information from the hints.
-pruneTypeGraph :: forall m. (DsMonad m, MonadReaders TypeInfo m, MonadStates InstMap m, MonadStates ExpandMap m) =>
-                  (GraphEdges TGV) -> m (GraphEdges TGV)
+pruneTypeGraph :: forall m. (MonadReaders TypeInfo m, ContextM m) => (GraphEdges TGV) -> m (GraphEdges TGV)
 pruneTypeGraph edges =
   doSink edges >>= doHide
   -- execStateT (get >>= mapM_ doHide . Map.keys) edges >>=
