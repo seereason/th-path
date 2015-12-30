@@ -57,15 +57,15 @@ import qualified Data.Map as M (Map, insert, lookup)
 import Data.Maybe (catMaybes)
 import Data.Monoid
 import Data.SafeCopy (base, deriveSafeCopy)
---import Data.Set as Set (difference, fromList, Set)
+import Data.Set as Set ({-difference,-} fromList, Set)
 import Data.Text as Text (Text, pack, unpack, unwords, words)
 import Data.UserId (UserId(..))
 import Debug.Trace (trace)
---import Language.Haskell.TH
---import Language.Haskell.TH.Desugar (DsMonad)
+import Language.Haskell.TH
+import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
---import Language.Haskell.TH.Syntax (qReify)
---import Language.Haskell.TH.TypeGraph.Prelude (pprint')
+import Language.Haskell.TH.Syntax (qReify)
+import Language.Haskell.TH.TypeGraph.Prelude (pprint')
 import Prelude hiding (exp)
 import Safe (readMay)
 import Web.Routes.TH (derivePathInfo)
@@ -261,15 +261,15 @@ lens_UserIds_Text = iso (encode') (decode')
           Text.unwords . List.map showId $ uids
           where showId = Text.pack . show . _unUserId
 
--- | Find all the names of the (non-primitive) path types.
+-- | Find all the names of the path types.
 pathTypeNames :: DsMonad m => m (Set Name)
 pathTypeNames = do
   (FamilyI (FamilyD TypeFam _pathtype [_,_] (Just StarT)) tySynInsts) <- qReify ''PathType
-  return . flip Set.difference primitivePathTypeNames . Set.fromList . List.map (\(TySynInstD _ (TySynEqn _ typ)) -> doTySyn typ) $ tySynInsts
+  return . {-flip Set.difference primitivePathTypeNames .-} Set.fromList . List.map (\(TySynInstD _ (TySynEqn _ typ)) -> doTySyn typ) $ tySynInsts
     where
       doTySyn (AppT x _) = doTySyn x
       doTySyn (ConT pathTypeName) = pathTypeName
       doTySyn x = error $ "Unexpected PathType: " ++ pprint' x ++ " (" ++ show x ++ ")"
 
-primitivePathTypeNames :: Set Name
-primitivePathTypeNames = Set.fromList [''Path_Pair, ''Path_List, ''Path_Either, ''Path_Map, ''Path_OMap, ''Path_Maybe]
+-- primitivePathTypeNames :: Set Name
+-- primitivePathTypeNames = Set.fromList [''Path_Pair, ''Path_List, ''Path_Either, ''Path_Map, ''Path_OMap, ''Path_Maybe]
