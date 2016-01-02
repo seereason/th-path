@@ -27,6 +27,7 @@ library
   hs-source-dirs: .
   build-depends:
     applicative-extras,
+    atp-haskell,
     base >= 4.8 && < 5,
     base-compat,
     containers,
@@ -60,6 +61,7 @@ library
     Hs-Source-Dirs: ../th-typegraph, ../th-context
     Exposed-Modules:
       -- th-context
+      Data.Logic.ATP.TH
       Language.Haskell.TH.Context
       -- th-typegraph
       Language.Haskell.TH.TypeGraph.Arity
