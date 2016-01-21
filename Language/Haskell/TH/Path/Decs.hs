@@ -1,3 +1,6 @@
+-- | Return the declarations that implement the IsPath instances, the
+-- toLens methods, the PathType types, and the universal path type.
+
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
@@ -33,7 +36,7 @@ import Data.Foldable
 import Data.List as List (intercalate, map)
 import Data.Map as Map (Map)
 import Data.Maybe (fromJust, isJust)
-import Data.Set as Set (delete)
+import Data.Set as Set (delete, minView)
 import Data.Set.Extra as Set (insert, map, member, Set)
 import qualified Data.Set.Extra as Set (mapM_)
 import Language.Haskell.TH
@@ -50,10 +53,24 @@ import Language.Haskell.TH.TypeGraph.Lens (lensNamePairs)
 import Language.Haskell.TH.TypeGraph.Prelude (pprint')
 import Language.Haskell.TH.TypeGraph.TypeGraph (pathKeys, allPathStarts, goalReachableSimple, reachableFromSimple, TypeGraph)
 import Language.Haskell.TH.TypeGraph.TypeInfo (fieldVertex, TypeInfo, typeVertex)
-import Language.Haskell.TH.TypeGraph.Vertex (etype, field, TGV, TGVSimple, TypeGraphVertex(bestType), typeNames, vsimple)
+import Language.Haskell.TH.TypeGraph.Vertex (etype, field, TGV, TGVSimple, syns, TypeGraphVertex(bestType), typeNames, vsimple)
 
 pathDecs :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => m [Dec]
-pathDecs = allPathStarts >>= execWriterT . Foldable.mapM_ doNode
+pathDecs = execWriterT $ allPathStarts >>= \ps -> Foldable.mapM_ doNode ps >> doUniversalPath ps
+
+doUniversalPath :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) => Set TGVSimple -> m ()
+doUniversalPath vs = do
+  cons <- concat <$> mapM doVert (toList vs)
+  runQ (dataD (return []) (mkName "UniversalPath") [] cons []) >>= tell . (: [])
+    where
+      doVert :: TGVSimple -> m [ConQ]
+      doVert v = (concat . List.map (doPair v) . toList) <$> pathKeys v
+      doPair :: TGVSimple -> TGVSimple -> [ConQ]
+      doPair v g =
+          case (minView (view syns v), minView (view syns g)) of
+            (Just (vn, _), Just (gn, _)) ->
+                [normalC (mkName ("U_" ++ nameBase vn ++ "_" ++ nameBase gn)) [(,) <$> notStrict <*> [t|PathType $(pure (view (etype . unE) v)) $(pure (view (etype . unE) g))|]]]
+            _ -> []
 
 doNode :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) => TGVSimple -> m ()
 doNode v = do
@@ -70,7 +87,7 @@ doNode v = do
     _ -> doNames
   -- generate the lens declarations
   case simplePath of
-    False -> mapM makePathLens (Foldable.toList (typeNames v)) >>= {- t1 >>= -} tell . concat
+    False -> mapM makePathLens (toList (typeNames v)) >>= {- t1 >>= -} tell . concat
     _ -> return ()
   -- generate the path instance declarations
   pathKeys v >>= Set.mapM_ (pathInstanceDecs v)
@@ -172,6 +189,8 @@ doNode v = do
       supers :: [Name]
       supers = [''Eq, ''Ord, ''Read, ''Show, ''Typeable, ''Data]
 
+      -- Given a vertex in the type graph, return the names of the
+      -- corresponding path type and its synonyms.
       pathTypeNames' :: TypeGraphVertex v => v -> Set Name
       pathTypeNames' = Set.map pathTypeNameFromTypeName . typeNames
 
