@@ -196,69 +196,23 @@ data Path_UserId a
 data Path_UserIds a
     = Path_UserIds_View (Path_Text a) | Path_UserIds
     deriving (Eq, Ord, Read, Show, Typeable, Data)
-data UniversalPath
-    = U_String_String (PathType ([Char]) ([Char]))
-    | U_Size_Size (PathType Int Int)
-    | U_UserIds_UserIds (PathType ([UserId]) ([UserId]))
-    | U_AbbrevPair_AbbrevPair (PathType ((CIString, Markup))
-                                        ((CIString, Markup)))
-    | U_AbbrevPairs_AbbrevPair (PathType (Order AbbrevPairID
-                                                ((CIString, Markup)))
-                                         ((CIString, Markup)))
-    | U_AbbrevPairs_AbbrevPairs (PathType (Order AbbrevPairID
-                                                 ((CIString, Markup)))
-                                          (Order AbbrevPairID ((CIString, Markup))))
-    | U_Authors_Authors (PathType (Order AuthorID Author)
-                                  (Order AuthorID Author))
-    | U_EpochMilli_EpochMilli (PathType Int64 Int64)
-    | U_MarkupPair_MarkupPair (PathType ((Markup, Markup))
-                                        ((Markup, Markup)))
-    | U_MarkupPairs_MarkupPair (PathType (Order MarkupPairID
-                                                ((Markup, Markup)))
-                                         ((Markup, Markup)))
-    | U_MarkupPairs_MarkupPairs (PathType (Order MarkupPairID
-                                                 ((Markup, Markup)))
-                                          (Order MarkupPairID ((Markup, Markup))))
-    | U_Markups_Markups (PathType (Order MarkupID Markup)
-                                  (Order MarkupID Markup))
-    | U_MaybeReportIntendedUse_String (PathType (Maybe ReportIntendedUse)
-                                                ([Char]))
-    | U_MaybeReportIntendedUse_MaybeReportIntendedUse (PathType (Maybe ReportIntendedUse)
-                                                                (Maybe ReportIntendedUse))
-    | U_ReportElems_String (PathType (Order ReportElemID ReportElem)
-                                     ([Char]))
-    | U_ReportElems_ReportElems (PathType (Order ReportElemID
-                                                 ReportElem)
-                                          (Order ReportElemID ReportElem))
-    | U_ReportElems_MaybeImageFile (PathType (Order ReportElemID
-                                                    ReportElem)
-                                             (Maybe ImageFile))
-    | U_ReportElems_ReportImages (PathType (Order ReportElemID
-                                                  ReportElem)
-                                           (Order ReportImageID ReportImage))
-    | U_ReportElems_SaneSizeImageSize (PathType (Order ReportElemID
-                                                       ReportElem)
-                                                (SaneSize ImageSize))
-    | U_MaybeImageFile_String (PathType (Maybe ImageFile) ([Char]))
-    | U_MaybeImageFile_MaybeImageFile (PathType (Maybe ImageFile)
-                                                (Maybe ImageFile))
-    | U_ReportImages_String (PathType (Order ReportImageID ReportImage)
-                                      ([Char]))
-    | U_ReportImages_MaybeImageFile (PathType (Order ReportImageID
-                                                     ReportImage)
-                                              (Maybe ImageFile))
-    | U_ReportImages_ReportImages (PathType (Order ReportImageID
-                                                   ReportImage)
-                                            (Order ReportImageID ReportImage))
-    | U_ReportImages_SaneSizeImageSize (PathType (Order ReportImageID
-                                                        ReportImage)
-                                                 (SaneSize ImageSize))
-    | U_ReadOnlyFilePath_ReadOnlyFilePath (PathType (ReadOnly ([Char]))
-                                                    (ReadOnly ([Char])))
-    | U_SaneSizeImageSize_String (PathType (SaneSize ImageSize)
-                                           ([Char]))
-    | U_SaneSizeImageSize_SaneSizeImageSize (PathType (SaneSize ImageSize)
-                                                      (SaneSize ImageSize))
+data Universe
+    = U_String String
+    | U_Size Size
+    | U_UserIds UserIds
+    | U_AbbrevPair AbbrevPair
+    | U_AbbrevPairs AbbrevPairs
+    | U_Authors Authors
+    | U_EpochMilli EpochMilli
+    | U_MarkupPair MarkupPair
+    | U_MarkupPairs MarkupPairs
+    | U_Markups Markups
+    | U_MaybeReportIntendedUse MaybeReportIntendedUse
+    | U_ReportElems ReportElems
+    | U_MaybeImageFile MaybeImageFile
+    | U_ReportImages ReportImages
+    | U_ReadOnlyFilePath ReadOnlyFilePath
+    | U_SaneSizeImageSize SaneSizeImageSize
 type Path_AbbrevPair a = Path_Pair (Path_CIString a)
                                    (Path_Markup a)
 type Path_AbbrevPairs a = Path_OMap AbbrevPairID
