@@ -56,18 +56,27 @@ import Language.Haskell.TH.TypeGraph.TypeInfo (fieldVertex, TypeInfo, typeVertex
 import Language.Haskell.TH.TypeGraph.Vertex (etype, field, TGV, TGVSimple, syns, TypeGraphVertex(bestType), typeNames, vsimple)
 
 pathDecs :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => m [Dec]
-pathDecs = execWriterT $ allPathStarts >>= \ps -> Foldable.mapM_ doNode ps >> doUniversalPath ps
+pathDecs = execWriterT $ allPathStarts >>= \ps -> Foldable.mapM_ doNode ps >> doLensEdit ps
 
-doUniversalPath :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) => Set TGVSimple -> m ()
-doUniversalPath vs = do
-  runQ (dataD (return []) (mkName "Universe") [] cons []) >>= tell . (: [])
+doLensEdit :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) => Set TGVSimple -> m ()
+doLensEdit vs = do
+  mapM_ doVert (toList vs)
     where
-      cons = concat (List.map doVert (toList vs))
-      doVert :: TGVSimple -> [ConQ]
-      doVert v =
-          case minView (view syns v) of
-            Just (vn, _) ->
-                [normalC (mkName ("U_" ++ nameBase vn)) [(,) <$> notStrict <*> conT vn]]
+      doVert :: TGVSimple -> m ()
+      doVert v = do
+        gs <- pathKeys v
+        let cons = concat (List.map (doPair v) (toList gs))
+        case minView (view syns v) of
+          Just (vn, _) -> runQ (dataD (return []) (mkName ("LE_" ++ nameBase vn)) [] cons []) >>= tell . (: [])
+          _ -> return ()
+      doPair :: TGVSimple -> TGVSimple -> [ConQ]
+      doPair v g =
+          let Just (vp, _) = bestPathTypeName v in
+          case (minView (view syns v), minView (view syns g)) of
+            (Just (vn, _), Just (gn, _)) ->
+                [normalC (mkName ("LE_" ++ nameBase vn ++ "_" ++ nameBase gn))
+                         [(,) <$> notStrict <*> [t|$(conT vp) $(pure (view (etype . unE) g))|],
+                          (,) <$> notStrict <*> pure (view (etype . unE) g)]]
             _ -> []
 
 doNode :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) => TGVSimple -> m ()
