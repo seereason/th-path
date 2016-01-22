@@ -60,16 +60,14 @@ pathDecs = execWriterT $ allPathStarts >>= \ps -> Foldable.mapM_ doNode ps >> do
 
 doUniversalPath :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) => Set TGVSimple -> m ()
 doUniversalPath vs = do
-  cons <- concat <$> mapM doVert (toList vs)
-  runQ (dataD (return []) (mkName "UniversalPath") [] cons []) >>= tell . (: [])
+  runQ (dataD (return []) (mkName "Universe") [] cons []) >>= tell . (: [])
     where
-      doVert :: TGVSimple -> m [ConQ]
-      doVert v = (concat . List.map (doPair v) . toList) <$> pathKeys v
-      doPair :: TGVSimple -> TGVSimple -> [ConQ]
-      doPair v g =
-          case (minView (view syns v), minView (view syns g)) of
-            (Just (vn, _), Just (gn, _)) ->
-                [normalC (mkName ("U_" ++ nameBase vn ++ "_" ++ nameBase gn)) [(,) <$> notStrict <*> [t|PathType $(pure (view (etype . unE) v)) $(pure (view (etype . unE) g))|]]]
+      cons = concat (List.map doVert (toList vs))
+      doVert :: TGVSimple -> [ConQ]
+      doVert v =
+          case minView (view syns v) of
+            Just (vn, _) ->
+                [normalC (mkName ("U_" ++ nameBase vn)) [(,) <$> notStrict <*> conT vn]]
             _ -> []
 
 doNode :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) => TGVSimple -> m ()
