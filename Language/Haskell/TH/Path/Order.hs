@@ -35,9 +35,9 @@ module Language.Haskell.TH.Path.Order
     , Path_OMap(Path_OMap, Path_At)
     ) where
 
-import Data.Data (Data)
 import Control.Lens (Traversal', _Just, lens)
-import Data.List as List (partition, elem, foldl, foldl', foldr, filter)
+import Data.Data (Data)
+import Data.List as List (elem, foldl, foldl', foldr, filter, partition)
 import qualified Data.ListLike as LL
 import Data.Map as Map (Map, (!))
 import qualified Data.Map as Map
@@ -56,7 +56,7 @@ data Order k v =
           , next :: k
           -- ^ Next available key
           }
-    deriving (Data, Typeable, Show)
+    deriving (Data, Typeable)
 
 init :: Enum k => k
 init = toEnum 1            -- Yeah, that's right, 1.  F**k zeroth elements.
@@ -87,6 +87,9 @@ fromPairs prs =
     Order { elems = Map.fromList prs
           , order = ks
           , next = succ (foldl1 max ks) }
+
+instance (Ord k, Show k, Show v) => Show (Order k v) where
+    show o = "fromPairs (" ++ show (map (\k -> (k, elems o ! k)) (order o)) ++ ")"
 
 -- | Put a new element at the end of the Order, returning a pair
 -- containing the new Order and the new key.
