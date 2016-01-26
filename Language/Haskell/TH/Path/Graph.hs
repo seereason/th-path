@@ -51,6 +51,7 @@ import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.KindInference (inferKind)
 import Language.Haskell.TH.Path.Order (Order)
 import Language.Haskell.TH.Path.View (viewInstanceType, viewTypes)
+import Language.Haskell.TH.PprLib (hang, nest, text)
 import Language.Haskell.TH.TypeGraph.Edges ({-cut, cutEdgesM,-} cutEdges, cutM, dissolveM, GraphEdges, isolate, linkM, simpleEdges, typeGraphEdges)
 import Language.Haskell.TH.TypeGraph.Expand (E(E), unE, ExpandMap, expandType)
 import Language.Haskell.TH.TypeGraph.Free (freeTypeVars)
@@ -113,10 +114,10 @@ runTypeGraphT' action st = do
 -- eliminated - all types will be goal types.)
 pathGraphEdges :: forall m. (MonadReaders TypeInfo m, ContextM m) => m (GraphEdges TGV)
 pathGraphEdges =
-    typeGraphEdges >>= execStateT buildGraph
+    typeGraphEdges >>= execStateT finalizeEdges
     where
-      buildGraph = do
-        get >>= runQ . runIO . putStr . pprint
+      finalizeEdges = do
+        -- get >>= runQ . runIO . putStr . show . hang (text "initial edges of the type graph:") 2 . ppr
         modify (cutEdges isMapKey)
         _modify "unlifted" (cutM isUnlifted)
         _modify "higherOrder" (dissolveM higherOrder)
@@ -125,6 +126,7 @@ pathGraphEdges =
         _modify "freeVars" (dissolveM hasFreeVars)
         _modify "unlifted2" (dissolveM isUnlifted)
         _modify "unreachable" isolateUnreachable
+        get >>= runQ . runIO . putStr . show . hang (text "final edges of the type graph:") 2 . ppr
 
       viewEdges :: TGV -> m (Maybe (Set TGV))
       viewEdges v =

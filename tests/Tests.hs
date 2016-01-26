@@ -25,7 +25,7 @@ import System.Exit
 import Test.HUnit
 import Text.PrettyPrint (text)
 
-import Appraisal.ReportTH
+import Appraisal.ReportTH (decs)
 
 main :: IO ()
 main = do
