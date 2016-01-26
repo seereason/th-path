@@ -15,23 +15,32 @@
 -- The generated toLens instances will have incomplete patterns where
 -- we tried to generate a clause but we found no path to the goal type.
 
+import Appraisal.Report
+import Appraisal.ReportMap
+import Control.Monad.Readers (MonadReaders)
 import Data.Algorithm.DiffContext (getContextDiff, prettyContextDiff)
 import Data.ByteString.UTF8 (toString)
 import Data.FileEmbed (embedFile)
 import Data.List (sort)
+import Editor (editor)
 import Language.Haskell.TH
+import Language.Haskell.TH.Context (ContextM)
+import Language.Haskell.TH.Path.Graph (runTypeGraphT)
 import Language.Haskell.TH.TypeGraph.Prelude (friendlyNames)
+import Language.Haskell.TH.TypeGraph.TypeInfo (startTypes, TypeInfo)
+import Language.Haskell.TH.TypeGraph.TypeGraph (adjacent, TypeGraph, typeGraphVertex)
 import System.Exit
 import Test.HUnit
 import Text.PrettyPrint (text)
 
 import Appraisal.ReportTH (decs)
+import Report (report)
 
 main :: IO ()
 main = do
   -- mapM_ (putStrLn . pprint) actual01
   writeFile "tests/actual.hs" actual02
-  r <- runTestTT (TestList [{-test01,-} test02])
+  r <- runTestTT (TestList [test02, test03])
   case r of
     Counts {errors = 0, failures = 0} -> exitWith ExitSuccess
     _ -> error $ showCounts r
@@ -44,6 +53,15 @@ main = do
 
       test02 :: Test
       test02 = TestCase $ assertString $ show $ prettyContextDiff (text "expected") (text "actual") text (getContextDiff 2 (lines expected02) (lines actual02))
+
+      -- Convert a report into a list of LE values, used to implement an editor.
+      actual03 = $(runQ [t|ReportMap|] >>= runTypeGraphT (editor ''Report [|Report.report|]) . (: []))
+
+      expected03 :: String
+      expected03 = toString $(embedFile "tests/expected3.hs")
+
+      test03 :: Test
+      test03 = TestCase $ assertString $ show $ prettyContextDiff (text "expected") (text "actual") text (getContextDiff 2 (lines expected03) (lines actual03))
 
 {-
 test01 :: Test

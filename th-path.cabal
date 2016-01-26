@@ -46,6 +46,7 @@ library
     text,
     th-desugar,
     th-kinds-fork,
+    th-lift,
     th-orphans,
     userid,
     web-routes-th

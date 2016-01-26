@@ -57,6 +57,7 @@ data LE_ImageSize
     | LE_ImageSize_ImageSize (Path_ImageSize ImageSize) ImageSize
     | LE_ImageSize_Units (Path_ImageSize Units) Units
     | LE_ImageSize_JSONText (Path_ImageSize JSONText) JSONText
+data LE_Int = LE_Int_Int (Path_Int Int) Int
 data LE_Int64 = LE_Int64_Int64 (Path_Int64 Int64) Int64
 data LE_Integer = LE_Integer_Integer (Path_Integer Integer) Integer
 data LE_Item
@@ -136,7 +137,7 @@ data LE_ReadOnlyFilePath
 data LE_Report
     = LE_Report_String (Path_Report ([Char])) ([Char])
     | LE_Report_Int64 (Path_Report Int64) Int64
-    | LE_Report_Size (Path_Report Int) Int
+    | LE_Report_Int (Path_Report Int) Int
     | LE_Report_Bool (Path_Report Bool) Bool
     | LE_Report_Double (Path_Report Double) Double
     | LE_Report_Dimension (Path_Report Dimension) Dimension
@@ -341,7 +342,7 @@ data LE_ReportIntendedUse
 data LE_ReportMap
     = LE_ReportMap_String (Path_ReportMap ([Char])) ([Char])
     | LE_ReportMap_Int64 (Path_ReportMap Int64) Int64
-    | LE_ReportMap_Size (Path_ReportMap Int) Int
+    | LE_ReportMap_Int (Path_ReportMap Int) Int
     | LE_ReportMap_Bool (Path_ReportMap Bool) Bool
     | LE_ReportMap_Double (Path_ReportMap Double) Double
     | LE_ReportMap_Dimension (Path_ReportMap Dimension) Dimension
@@ -407,7 +408,7 @@ data LE_ReportMap
     | LE_ReportMap_UserId (Path_ReportMap UserId) UserId
     | LE_ReportMap_UUID (Path_ReportMap UUID) UUID
 data LE_ReportStandard
-    = LE_ReportStandard_Size (Path_ReportStandard Int) Int
+    = LE_ReportStandard_Int (Path_ReportStandard Int) Int
     | LE_ReportStandard_ReportStandard (Path_ReportStandard ReportStandard)
                                        ReportStandard
 data LE_ReportStatus
@@ -435,7 +436,7 @@ data LE_ReportValueTypeInfo
 data LE_ReportView
     = LE_ReportView_String (Path_ReportView ([Char])) ([Char])
     | LE_ReportView_Int64 (Path_ReportView Int64) Int64
-    | LE_ReportView_Size (Path_ReportView Int) Int
+    | LE_ReportView_Int (Path_ReportView Int) Int
     | LE_ReportView_Bool (Path_ReportView Bool) Bool
     | LE_ReportView_Double (Path_ReportView Double) Double
     | LE_ReportView_Dimension (Path_ReportView Dimension) Dimension
@@ -515,7 +516,6 @@ data LE_SaneSizeImageSize
                                     JSONText
     | LE_SaneSizeImageSize_SaneSizeImageSize (Path_SaneSizeImageSize (SaneSize ImageSize))
                                              (SaneSize ImageSize)
-data LE_Size = LE_Size_Size (Path_Int Int) Int
 data LE_String
     = LE_String_String (Path_String ([Char])) ([Char])
     | LE_String_JSONText (Path_String JSONText) JSONText
@@ -7965,6 +7965,32 @@ instance HasText Text
     where lens_text = id
 instance HasUnits Units
     where lens_units = id
+instance IsPathNode ImageSize
+    where type LEType ImageSize = LE_ImageSize
+instance IsPathNode Markup
+    where type LEType Markup = LE_Markup
+instance IsPathNode Permissions
+    where type LEType Permissions = LE_Permissions
+instance IsPathNode Author
+    where type LEType Author = LE_Author
+instance IsPathNode ReportElem
+    where type LEType ReportElem = LE_ReportElem
+instance IsPathNode ReportFlags
+    where type LEType ReportFlags = LE_ReportFlags
+instance IsPathNode ReportStandard
+    where type LEType ReportStandard = LE_ReportStandard
+instance IsPathNode ReportValueApproachInfo
+    where type LEType ReportValueApproachInfo = LE_ReportValueApproachInfo
+instance IsPathNode ReportValueTypeInfo
+    where type LEType ReportValueTypeInfo = LE_ReportValueTypeInfo
+instance IsPathNode ReportImageView
+    where type LEType ReportImageView = LE_ReportImageView
+instance IsPathNode ReportView
+    where type LEType ReportView = LE_ReportView
+instance IsPathNode Item
+    where type LEType Item = LE_Item
+instance IsPathNode ReportMap
+    where type LEType ReportMap = LE_ReportMap
 instance IsPathType (Path_Author a)
     where idPath = Path_Author
 instance IsPathType (Path_Bool a)
