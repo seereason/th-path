@@ -33,7 +33,7 @@ import Control.Lens -- (makeLenses, over, view)
 import Control.Monad (filterM)
 import Control.Monad.Reader (ReaderT, runReaderT)
 import Control.Monad.Readers (askPoly, MonadReaders)
-import Control.Monad.State (execStateT, evalStateT, StateT)
+import Control.Monad.State (execStateT, evalStateT, get, modify, put, StateT)
 import Control.Monad.States (getPoly, modifyPoly, MonadStates, putPoly)
 import Control.Monad.Trans (lift)
 import Control.Monad.Writer (WriterT)
@@ -112,22 +112,20 @@ runTypeGraphT' action st = do
 -- start type to a goal type, though eventually goal types will be
 -- eliminated - all types will be goal types.)
 pathGraphEdges :: forall m. (MonadReaders TypeInfo m, ContextM m) => m (GraphEdges TGV)
-pathGraphEdges = do
-  e1 <- typeGraphEdges                      -- ; _tr "initial" mempty e1
-  e1a <- return (cutEdges isMapKey e1)
-  e2 <- cutM isUnlifted e1a                 -- ; _tr "unlifted" e1 e2
-  e3 <- dissolveM higherOrder e2            -- ; _tr "higherOrder" e2 e3
-  -- viewEdges must not be applied until we have removed higher order types - otherwise
-  -- we get a compiler error: "Expecting one more argument to..."
-  e3a <- linkM viewEdges e3                 -- ; _tr "view edges" e3 e3a
-  e4 <- pruneTypeGraph e3a                  -- ; _tr "prune" e3a e4
-  e5 <- dissolveM hasFreeVars e4            -- ; _tr "freeVars" e4 e5
-  e6 <- dissolveM isUnlifted e5             -- ; _tr "unlifted2" e5 e6   -- looks redundant
-  e7 <- return {-cutEdgesM anonymous-} e6   -- ; _tr "anonymous" e6 e7
-  e8 <- isolateUnreachable e7               -- ; _tr "unreachable" e7 e8
-  -- runQ (runIO (putStr ("pathGraphEdges final - " ++ pprint e8)))
-  return e8
+pathGraphEdges =
+    typeGraphEdges >>= execStateT buildGraph
     where
+      buildGraph = do
+        get >>= runQ . runIO . putStr . pprint
+        modify (cutEdges isMapKey)
+        _modify "unlifted" (cutM isUnlifted)
+        _modify "higherOrder" (dissolveM higherOrder)
+        _modify "view edges" (linkM viewEdges)
+        _modify "unlifed" pruneTypeGraph
+        _modify "freeVars" (dissolveM hasFreeVars)
+        _modify "unlifted2" (dissolveM isUnlifted)
+        _modify "unreachable" isolateUnreachable
+
       viewEdges :: TGV -> m (Maybe (Set TGV))
       viewEdges v =
           do let (typ :: Type) = view (vsimple . etype . unE) v
@@ -163,11 +161,16 @@ pathGraphEdges = do
             es'' = Map.filterWithKey (\k _ -> not (Set.member k victims)) es'
         return es''
 
-      _tr :: String -> GraphEdges TGV -> GraphEdges TGV -> m (GraphEdges TGV)
-      _tr s old new =
-          runQ (runIO (putStr ("\n\f\nLanguage.Haskell.TH.Path.Graph.makeTypeGraphEdges " ++ s ++
-                               " - added " ++ indent "+" (pprint (diff new old)) ++
-                               "\nremoved " ++  indent "-" (pprint (diff old new))))) >> return new
+      _modify :: String -> (GraphEdges TGV -> m (GraphEdges TGV)) -> StateT (GraphEdges TGV) m ()
+      _modify s f = do
+        old <- get
+        new <- lift $ f old
+        put new
+{-
+        runQ (runIO (putStr ("\n\f\nLanguage.Haskell.TH.Path.Graph.makeTypeGraphEdges " ++ s ++
+                             " - added " ++ indent "+" (pprint (diff new old)) ++
+                             "\nremoved " ++  indent "-" (pprint (diff old new)))))
+-}
 
       indent s t = unlines . List.map (s ++) . lines $ t
 
