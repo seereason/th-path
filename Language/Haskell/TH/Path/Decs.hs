@@ -43,7 +43,7 @@ import Language.Haskell.TH
 import Language.Haskell.TH.Context (ContextM, InstMap, reifyInstancesWithContext)
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.Path.Core (mat, IsPathType(idPath), IsPathNode(LEType), IsPath(..), Path_List, Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
+import Language.Haskell.TH.Path.Core (mat, IsPathType(idPath), IsPathNode(PVType), IsPath(..), Path_List, Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
 import Language.Haskell.TH.Path.Graph (SelfPath, SinkType)
 import Language.Haskell.TH.Path.Order (lens_omat, Order, Path_OMap(..))
 import Language.Haskell.TH.Path.View (viewInstanceType, viewLens)
@@ -68,7 +68,7 @@ doLensEdit vs = do
         let cons = concat (List.map (doPair v) (toList gs))
         case bestName v of
           Just vn -> do
-                   let leName = mkName ("LE_" ++ nameBase vn)
+                   let leName = mkName ("PV_" ++ nameBase vn)
                    runQ (dataD (return []) leName [] cons [''Eq, ''Show]) >>= tell . (: [])
           _ -> return ()
       doPair :: TGVSimple -> TGVSimple -> [ConQ]
@@ -76,7 +76,7 @@ doLensEdit vs = do
           let Just (vp, _) = bestPathTypeName v in
           case (bestName v, bestName g) of
             (Just vn, Just gn) ->
-                [normalC (mkName ("LE_" ++ nameBase vn ++ "_" ++ nameBase gn))
+                [normalC (mkName ("PV_" ++ nameBase vn ++ "_" ++ nameBase gn))
                          [(,) <$> notStrict <*> [t|$(conT vp) $(pure (view (etype . unE) g))|],
                           (,) <$> notStrict <*> pure (view (etype . unE) g)]]
             _ -> []
@@ -161,7 +161,7 @@ doNode v = do
             [pcons] -> mapM_ (\pname -> do let Just tname = bestName v
                                            runQ (dataD (cxt []) pname [PlainTV a] (List.map return (pcons ++ [NormalC pname []])) supers) >>= tell . (: [])
                                            runQ [d| instance IsPathType ($(conT pname) a) where idPath = $(conE (mkName (nameBase pname)))
-                                                    instance IsPathNode $(conT tname) where type LEType $(conT tname) = $(conT (mkName ("LE_" ++ nameBase tname))) |] >>= tell
+                                                    instance IsPathNode $(conT tname) where type PVType $(conT tname) = $(conT (mkName ("PV_" ++ nameBase tname))) |] >>= tell
                              ) (pathTypeNames' v)
             [] | length pconss > 1 -> return () -- enum
             [] -> return ()
@@ -306,14 +306,14 @@ pathInstanceDecs :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReader
                      TGVSimple -> TGVSimple -> m ()
 pathInstanceDecs key gkey = do
   ptyp <- pathType (pure (bestType gkey)) key
-  clauses <- execWriterT $ evalStateT (pathInstanceClauses key gkey ptyp) mempty
+  tlc <- execWriterT $ evalStateT (toLensClauses key gkey ptyp) mempty
   -- clauses' <- runQ $ sequence clauses
   -- exp <- thePathExp gkey key ptyp clauses'
-  when (not (null clauses)) $
+  when (not (null tlc)) $
        (runQ $ sequence
              [instanceD (pure []) [t|IsPath $(pure (bestType key)) $(pure (bestType gkey))|]
                 [ tySynInstD ''PathType (tySynEqn [pure (bestType key), pure (bestType gkey)] (pure ptyp))
-                , funD 'toLens clauses
+                , funD 'toLens tlc
                 ]]) >>= tell
     where
       -- Send a single dec to our funky writer monad

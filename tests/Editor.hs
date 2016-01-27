@@ -33,10 +33,49 @@ import Language.Haskell.TH.PprLib (text, hang)
 doReport :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) =>
             Report -> m (Tree LE_Report)
 doReport r =
-    Node (LE_Report_Report idPath r) <$> (doSubTypes ''Report)
+    Node (LE_Report_Report idPath r) <$> doReportView
     where
-      doSubTypes :: Name -> m [Tree LE_Report]
-      doSubTypes tname = undefined
+      doReportView :: m [Tree LE_Report]
+      doReportView = let (p, [x]) = (Path_Report_View idPath, toListOf (toLens p) r) in
+                     (: []) <$> Node (LE_Report_ReportView p x) <$> doReportViewFields x
+      -- doReportViewFields :: m [Tree LE_Report]
+      doReportViewFields x =
+          mapM doReportViewPath [Path_ReportView__reportName,
+                                 Path_ReportView__reportDate,
+                                 Path_ReportView__reportContractDate,
+                                 Path_ReportView__reportInspectionDate,
+                                 Path_ReportView__reportEffectiveDate,
+                                 Path_ReportView__reportAuthors,
+                                 Path_ReportView__reportPreparer,
+                                 Path_ReportView__reportPreparerEIN,
+                                 Path_ReportView__reportPreparerAddress,
+                                 Path_ReportView__reportPreparerEMail,
+                                 Path_ReportView__reportPreparerWebsite,
+                                 Path_ReportView__reportAbbrevs,
+                                 Path_ReportView__reportTitle,
+                                 Path_ReportView__reportHeader,
+                                 Path_ReportView__reportFooter,
+                                 Path_ReportView__reportValueTypeInfo,
+                                 Path_ReportView__reportValueApproachInfo,
+                                 Path_ReportView__reportClientName,
+                                 Path_ReportView__reportClientAddress,
+                                 Path_ReportView__reportClientGreeting,
+                                 Path_ReportView__reportItemsOwnerFull,
+                                 Path_ReportView__reportItemsOwner,
+                                 Path_ReportView__reportBriefItems,
+                                 Path_ReportView__reportInspectionLocation,
+                                 Path_ReportView__reportBody,
+                                 Path_ReportView__reportGlossary,
+                                 Path_ReportView__reportSources,
+                                 Path_ReportView__reportLetterOfTransmittal,
+                                 Path_ReportView__reportScopeOfWork,
+                                 Path_ReportView__reportCertification,
+                                 Path_ReportView__reportLimitingConditions,
+                                 Path_ReportView__reportPrivacyPolicy,
+                                 Path_ReportView__reportPerms,
+                                 Path_ReportView__reportBranding]
+      doReportViewPath p = let [y] = toListOf (toLens (p y)) x in
+                           (: []) <$> Node (LE_Report (typeOf y))
 
 -- | Build an editor for a named type and a value of that type.  Find
 -- the node corresponding to the named type.  Generate a function

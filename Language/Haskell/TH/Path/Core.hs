@@ -17,7 +17,7 @@ module Language.Haskell.TH.Path.Core
     ( -- * Type classes and associated types
       IsPath(toLens, PathType)
     , IsPathType(idPath)
-    , IsPathNode(LEType)
+    , IsPathNode(PVType)
 
     -- * Basic Path Types
     , Path_Pair(..)
@@ -97,7 +97,7 @@ class IsPathType p where
                 -- @toLens idPath == iso id id@.
 
 class IsPathNode s where
-    type LEType s -- ^ The Lens Edit type we generated for s
+    data PVType s -- ^ The Path/Value type for s
 
 -- Primitive path types
 

@@ -60,15 +60,15 @@ main = do
       test02 :: Test
       test02 = TestCase $ assertString $ show $ prettyContextDiff (text "expected") (text "actual") text (getContextDiff 2 (lines expected02) (lines actual02))
 
-      -- Convert a report into a list of LE values, used to implement an editor.
-      actual03 :: Tree LE_Report
+      -- Convert a report into a tree of PVs, used to implement an editor.
+      actual03 :: Tree PV_Report
       actual03 = $(do (exp :: Exp) <- runQ [t|ReportMap|] >>= runTypeGraphT (editor ''Report [|Report.report|]) . (: [])
                       trace ("exp: " ++ pprint (friendlyNames exp)) (return ())
                       return exp
                   )
 
-      expected03 :: Tree LE_Report
-      expected03 = Node (LE_Report_Report idPath Report.report) []
+      expected03 :: Tree PV_Report
+      expected03 = Node (PV_Report_Report idPath Report.report) []
 
       test03 :: Test
       test03 = TestCase $ assertEqual "editor" expected03 actual03
