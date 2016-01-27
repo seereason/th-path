@@ -16,15 +16,20 @@
 -- we tried to generate a clause but we found no path to the goal type.
 
 import Appraisal.Report
+import Appraisal.ReportInstances
 import Appraisal.ReportMap
+import Control.Lens (Lens')
 import Control.Monad.Readers (MonadReaders)
 import Data.Algorithm.DiffContext (getContextDiff, prettyContextDiff)
 import Data.ByteString.UTF8 (toString)
 import Data.FileEmbed (embedFile)
 import Data.List (sort)
+import Data.Tree
+import Debug.Trace
 import Editor (editor)
 import Language.Haskell.TH
 import Language.Haskell.TH.Context (ContextM)
+import Language.Haskell.TH.Path.Core (IsPathType(idPath))
 import Language.Haskell.TH.Path.Graph (runTypeGraphT)
 import Language.Haskell.TH.TypeGraph.Prelude (friendlyNames)
 import Language.Haskell.TH.TypeGraph.TypeInfo (startTypes, TypeInfo)
@@ -35,6 +40,7 @@ import Text.PrettyPrint (text)
 
 import Appraisal.ReportTH (decs)
 import Report (report)
+import ReportPaths
 
 main :: IO ()
 main = do
@@ -55,45 +61,15 @@ main = do
       test02 = TestCase $ assertString $ show $ prettyContextDiff (text "expected") (text "actual") text (getContextDiff 2 (lines expected02) (lines actual02))
 
       -- Convert a report into a list of LE values, used to implement an editor.
-      actual03 = $(runQ [t|ReportMap|] >>= runTypeGraphT (editor ''Report [|Report.report|]) . (: []))
+      actual03 :: Tree LE_Report
+      actual03 = $(do (exp :: Exp) <- runQ [t|ReportMap|] >>= runTypeGraphT (editor ''Report [|Report.report|]) . (: [])
+                      trace ("exp: " ++ pprint (friendlyNames exp)) (return ())
+                      return exp
+                  )
 
-      expected03 :: String
-      expected03 = toString $(embedFile "tests/expected3.hs")
+      expected03 :: Tree LE_Report
+      expected03 = Node (LE_Report_Report idPath Report.report) []
 
       test03 :: Test
-      test03 = TestCase $ assertString $ show $ prettyContextDiff (text "expected") (text "actual") text (getContextDiff 2 (lines expected03) (lines actual03))
-
-{-
-test01 :: Test
-test01 = TestCase $ assertEqual "path types for TH.Type" expected01 actual01
-
-actual01 :: [Dec]
-actual01 =
-    (fixStringLits . stripNames)
-       $(do (Just dec) <- lookupTypeName "Dec"
-            let st = sequence [runQ [t|Type|]]
-            (decs1 :: [Dec]) <- evalStateT (execWriterT (pathTypes st)) (S mempty mempty)
-            (decs2 :: [Dec]) <- evalStateT (execWriterT (pathLenses st)) (S mempty mempty)
-            (decs3 :: [Dec]) <- evalStateT (execWriterT (pathInstances st)) (S mempty mempty)
-            lift (decs1 ++ decs2 ++ decs3))
-
-expected01 :: [Dec]
-expected01 = []
--}
-{-
-actual02 :: [String]
-actual02 =
-    (lines . pprint . fixStringLits . stripNames)
-       $(do -- We need to rebuild this module if any of the library
-            -- source files change.  It is not sufficent to re-link the
-            -- executable because the libraries affect the code generated
-            -- in this template haskell splice.
-            depFiles
-            let save path = (runQ . runIO . compareSaveAndReturn changeError (pprint . friendlyNames) path . sortBy (compare `on` (show . friendlyNames)))
-            (Just dec) <- lookupTypeName "Dec"
-            st <- runQ [t|ReportMap|]
-            (decs1 :: [Dec]) <- runTypeGraphT pathTypes [st] >>= save "ReportPathTypes.hs"
-            (decs2 :: [Dec]) <- runTypeGraphT pathLenses [st] >>= save "ReportPathLenses.hs"
-            (decs3 :: [Dec]) <- runTypeGraphT pathInstances [st] >>= save "ReportPathInstances.hs"
-            lift (decs1 ++ decs2 ++ decs3))
--}
+      test03 = TestCase $ assertEqual "editor" expected03 actual03
+      -- test03 = TestCase $ assertString $ show $ prettyContextDiff (text "expected") (text "actual") text (getContextDiff 2 (lines expected03) (lines actual03))

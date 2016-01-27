@@ -51,7 +51,7 @@ import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.KindInference (inferKind)
 import Language.Haskell.TH.Path.Order (Order)
 import Language.Haskell.TH.Path.View (viewInstanceType, viewTypes)
-import Language.Haskell.TH.PprLib (hang, nest, text)
+import Language.Haskell.TH.PprLib (hang, text)
 import Language.Haskell.TH.TypeGraph.Edges ({-cut, cutEdgesM,-} cutEdges, cutM, dissolveM, GraphEdges, isolate, linkM, simpleEdges, typeGraphEdges)
 import Language.Haskell.TH.TypeGraph.Expand (E(E), unE, ExpandMap, expandType)
 import Language.Haskell.TH.TypeGraph.Free (freeTypeVars)
@@ -164,7 +164,7 @@ pathGraphEdges =
         return es''
 
       _modify :: String -> (GraphEdges TGV -> m (GraphEdges TGV)) -> StateT (GraphEdges TGV) m ()
-      _modify s f = do
+      _modify _s f = do
         old <- get
         new <- lift $ f old
         put new
@@ -172,13 +172,12 @@ pathGraphEdges =
         runQ (runIO (putStr ("\n\f\nLanguage.Haskell.TH.Path.Graph.makeTypeGraphEdges " ++ s ++
                              " - added " ++ indent "+" (pprint (diff new old)) ++
                              "\nremoved " ++  indent "-" (pprint (diff old new)))))
--}
-
       indent s t = unlines . List.map (s ++) . lines $ t
 
       -- Exact difference between two maps
       diff m1 m2 = Map.fromList $ Set.toList $ Set.difference (Set.fromList (Map.toList m1))
                                                               (Set.fromList (Map.toList m2))
+-}
 
 -- | 'Path' instances can be customized by declaring types to be
 -- instances of this class and the ones that follow.  If a type is an

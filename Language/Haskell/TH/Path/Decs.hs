@@ -69,7 +69,7 @@ doLensEdit vs = do
         case bestName v of
           Just vn -> do
                    let leName = mkName ("LE_" ++ nameBase vn)
-                   runQ (dataD (return []) leName [] cons []) >>= tell . (: [])
+                   runQ (dataD (return []) leName [] cons [''Eq, ''Show]) >>= tell . (: [])
           _ -> return ()
       doPair :: TGVSimple -> TGVSimple -> [ConQ]
       doPair v g =
@@ -334,18 +334,18 @@ instance (Monad m, MonadStates String m) => MonadStates String (StateT (Set Name
 
 instance ContextM m => ContextM (StateT (Set Name) m)
 
-pathInstanceClauses :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [ClauseQ] m) =>
+toLensClauses :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [ClauseQ] m) =>
                        TGVSimple -- ^ the type whose clauses we are generating
                     -> TGVSimple -- ^ the goal type key
                     -> Type -- ^ the corresponding path type - first type parameter of ToLens
                     -> StateT (Set Name) m ()
-pathInstanceClauses key gkey _ptyp
+toLensClauses key gkey _ptyp
     | view etype key == view etype gkey =
         tell [clause [wildP] (normalB [|iso id id|]) []]
-pathInstanceClauses key gkey ptyp =
+toLensClauses key gkey ptyp =
   -- Use this to raise errors when the path patterns aren't exhaustive.
   -- That is supposed to be impossible, so this is debugging code.
-  -- pathInstanceClauses key gkey ptyp = do
+  -- toLensClauses key gkey ptyp = do
   --   x <- runQ (newName "x")
   --   r <- foldPath control key
   --   return $ r ++ [clause [varP x] (normalB [|error ("toLens (" ++ $(lift (pprint' key)) ++ ") -> (" ++ $(lift (pprint' gkey)) ++ ") - unmatched: " ++ show $(varE x))|]) []]
@@ -440,7 +440,7 @@ namedTypeClause tname gkey ptyp =
                   ok <- goalReachableSimple gkey key'
                   case ok of
                     False -> return ()
-                    True -> pathInstanceClauses key' gkey ptyp
+                    True -> toLensClauses key' gkey ptyp
             doDec (NewtypeD _ _ _ con _) = doCons [con]
             doDec (DataD _ _ _ cons _) = doCons cons
             doDec dec = error $ "doName - unexpected Dec: " ++ show dec

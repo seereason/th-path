@@ -3,26 +3,40 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
+{-# OPTIONS -ddump-splices #-}
 module Editor
     ( editor
     ) where
 
 import ReportPaths
---import Appraisal.Report (Report)
-import Control.Lens (view)
+import Appraisal.ReportInstances
+import Appraisal.ReportTH
+import Appraisal.Report (Report)
+import Control.Lens (Lens', toListOf, view)
 import Control.Monad.Readers
 --import Data.Graph (Graph, Vertex)
 --import Data.Set as Set (Set, toList)
+import Data.Tree
 import Debug.Trace (trace)
 import Language.Haskell.TH
 import Language.Haskell.TH.Context (ContextM)
 import Language.Haskell.TH.Lift (lift)
---import Language.Haskell.TH.TypeGraph.Expand
+import Language.Haskell.TH.Path.Core (IsPath(toLens, toPaths), IsPathType(idPath), PathType)
+import Language.Haskell.TH.Path.View (viewInstanceType)
 --import Language.Haskell.TH.TypeGraph.Prelude (friendlyNames)
 import Language.Haskell.TH.TypeGraph.TypeGraph
 import Language.Haskell.TH.TypeGraph.TypeInfo
-import Language.Haskell.TH.TypeGraph.Vertex (TGV)
+import Language.Haskell.TH.TypeGraph.Vertex (bestName, TGV)
 import Language.Haskell.TH.PprLib (text, hang)
+
+-- | This is what the output of editor should look like.
+doReport :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) =>
+            Report -> m (Tree LE_Report)
+doReport r =
+    Node (LE_Report_Report idPath r) <$> (doSubTypes ''Report)
+    where
+      doSubTypes :: Name -> m [Tree LE_Report]
+      doSubTypes tname = undefined
 
 -- | Build an editor for a named type and a value of that type.  Find
 -- the node corresponding to the named type.  Generate a function
@@ -32,25 +46,57 @@ editor :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo
           Name -- ^ The name of the type to edit
        -> ExpQ -- ^ An expression of that type
        -> m Exp
-editor name value =
-    doType (conT name) value
+editor tname value =
+    doType (conT tname) value
     where
       -- Given a type and an expression which is assumed to be of that
       -- type, return a lambda expression that returns the
       -- corresponding list of LE_ values.
       doType :: TypeQ -> ExpQ -> m Exp
       doType typ value = do
+        typ' <- runQ typ
+        value' <- runQ value
+        trace ("doType " ++ show typ' ++ " " ++ show value') (return ())
         g <- askPoly :: m TypeGraph
         let (_, keyFunction, vertexFunction) = view graph g
+        -- Find the vertex key corresponding to typ
         k <- runQ typ >>= typeGraphVertex :: m TGV
+        -- Find the vertex corresponding to k
         let Just v = vertexFunction k
-            (_, _, ks) = keyFunction v
-        trace (show (hang (text "vertex Report:") 2 (ppr ((), k, ks)))) (return ())
-        -- case ks of
-          -- If there is a single arc coming out of this node,
-          -- we can 
-          -- [k1] -> lift ([conT (mkName ("LE_" ++ nameBase name)) 
-        runQ $ lift ([] :: [LE_Report])
+        -- Find the vertex keys adjacent to k
+        let g@(_, _, ks) = keyFunction v
+        trace (show (hang (text "vertex Report:") 2 (ppr g))) (return ())
+        trace ("bestNames: " ++ show (map bestName ks)) (return ())
+        -- The root node represents the original value
+        Just leRootCon <- runQ $ lookupValueName ("LE_" ++ nameBase tname ++ "_" ++ nameBase tname)
+        Just leType <- runQ $ lookupTypeName ("LE_" ++ nameBase tname)
+        root <- runQ [| Node ($(conE leRootCon) idPath $value) [] |]
+        -- Now generate the traversal of value.
+        viewType <- viewInstanceType (ConT tname)
+        case viewType of
+          -- This arc is a view, so there is only one LE value:
+          -- \report -> let path = Path_Report ReportView in LE_Report_ReportView path (view path report)
+          Just ktype@(ConT kname) ->
+              do Just leCon <- runQ $ lookupValueName ("LE_" ++ nameBase tname ++ "_" ++ nameBase kname)
+                 runQ [| $(pure root) {subForest = map (\path ->
+                                                            let [x] = toListOf (toLens path) $value :: [$(pure ktype)] in
+                                                            Node ($(conE leCon) path x) [])
+                                                       ({-toPaths $value-} undefined :: [PathType $(conT tname) $(conT kname)]) :: [Tree $(conT leType)]} |]
+          _ -> runQ [| root :: Tree $(conT leType) |]
+{-
+        case ks of
+          -- Is typ an instance of View?  Perform a lame test...
+          [k1] -> doSingleton typ value (bestName k1) k1
+          _ -> doMultiple ks
+      doSingleton typ value (Just kname) k
+          | mkName (nameBase tname ++ "View") == kname =
+              let le = conE (mkName ("LE_" ++ nameBase tname ++ "_" ++ nameBase kname))
+                  path = [|toPath $(value) :: PathType $(conT tname) $(conT kname)|] in
+              runQ $ [| [$le $path (view (toLens $path) $value)] |]
+      doSingleton typ value _ k =
+          runQ $ lift ([] :: [LE_Report])
+      doMultiple ks = runQ $ lift ([] :: [LE_Report])
+-}
 
 #if 0
 -- We need a function that takes a type name and returns the
