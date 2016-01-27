@@ -14,7 +14,6 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeSynonymInstances #-}
-{-# OPTIONS_GHC -ddump-minimal-imports #-}
 module Language.Haskell.TH.Path.Decs
     ( pathDecs
     ) where
@@ -39,11 +38,12 @@ import Data.Maybe (fromJust, isJust)
 import Data.Set as Set (delete, minView)
 import Data.Set.Extra as Set (insert, map, member, Set)
 import qualified Data.Set.Extra as Set (mapM_)
+import Data.Tree (Tree(Node))
 import Language.Haskell.TH
 import Language.Haskell.TH.Context (ContextM, InstMap, reifyInstancesWithContext)
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.Path.Core (mat, IsPathType(idPath), IsPathNode(PVType), IsPath(..), Path_List, Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
+import Language.Haskell.TH.Path.Core (mat, IsPathType(idPath), IsPathNode(PVType, pvTree), IsPath(..), Path_List, Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
 import Language.Haskell.TH.Path.Graph (SelfPath, SinkType)
 import Language.Haskell.TH.Path.Order (lens_omat, Order, Path_OMap(..))
 import Language.Haskell.TH.Path.View (viewInstanceType, viewLens)
@@ -56,10 +56,10 @@ import Language.Haskell.TH.TypeGraph.TypeInfo (fieldVertex, TypeInfo, typeVertex
 import Language.Haskell.TH.TypeGraph.Vertex (bestName, etype, field, TGV, TGVSimple, syns, TypeGraphVertex(bestType), typeNames, vsimple)
 
 pathDecs :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => m [Dec]
-pathDecs = execWriterT $ allPathStarts >>= \ps -> Foldable.mapM_ doNode ps >> doLensEdit ps
+pathDecs = execWriterT $ allPathStarts >>= \ps -> Foldable.mapM_ doNode ps >> doPVType ps
 
-doLensEdit :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) => Set TGVSimple -> m ()
-doLensEdit vs = do
+doPVType :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) => Set TGVSimple -> m ()
+doPVType vs = do
   mapM_ doVert (toList vs)
     where
       doVert :: TGVSimple -> m ()
@@ -87,9 +87,9 @@ doNode v = do
   selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [let (E typ) = view etype v in typ]
   simplePath <- (not . null) <$> reifyInstancesWithContext ''SinkType [let (E typ) = view etype v in typ]
   viewType <- viewInstanceType (let (E typ) = view etype v in typ)
-  case view (etype . unE) v of
+  case () of
     _ | selfPath -> return ()
-      | simplePath -> maybe (error $ "pathTypeDecs: simple path type has no name: " ++ pprint' v) (uncurry doSimplePath) (bestPathTypeName v)
+      | simplePath -> maybe (error $ "pathTypeDecs: simple path type has no name: " ++ pprint' v) doSimplePath (bestNames v)
       | isJust viewType ->
           do let b = fromJust viewType
              viewPath b
@@ -103,16 +103,19 @@ doNode v = do
     where
       doNames = mapM_ (\tname -> runQ (reify tname) >>= doInfo) (typeNames v)
 
-      doSimplePath :: Name -> Set Name -> m ()
-      doSimplePath pname syns' = do
-        runQ (newName "a" >>= \a -> dataD (return []) pname [PlainTV a] [normalC pname []] supers) >>= tell . (: [])
-        runQ [d|instance IsPathType ($(conT pname) a) where idPath = $(conE (mkName (nameBase pname)))|] >>= tell
+      doSimplePath :: (Name, Name, Set Name) -> m ()
+      doSimplePath (tname, pname, syns') = do
+        a <- runQ $ newName "a"
+        runQ (dataD (return []) pname [PlainTV a] [normalC pname []] supers) >>= tell . (: [])
+        doIsPathType pname a
+        doIsPathNode v
         mapM_ (\psyn -> runQ (newName "a" >>= \a -> tySynD psyn [PlainTV a] (appT (conT pname) (varT a))) >>= tell . (: [])) (toList syns')
 
       -- viewPath [t|Text|] = data Path_Branding a = Path_Branding (Path_Text a)
       viewPath :: Type -> m ()
       viewPath styp = do
-        let Just (pname, syns') = bestPathTypeName v
+        let Just tname = bestTypeName v
+            Just (pname, syns') = bestPathTypeName v
             -- gname = mkName ("Goal_" ++ nameBase pname)
         skey <- expandType styp >>= typeVertex
         a <- runQ $ newName "a"
@@ -125,7 +128,8 @@ doNode v = do
                               , normalC (mkName (nameBase pname)) []
                               ] supers
                          : List.map (\psyn -> tySynD psyn [PlainTV a] (appT (conT pname) (varT a))) (toList syns'))) >>= tell
-        runQ [d|instance IsPathType ($(conT pname) a) where idPath = $(conE (mkName (nameBase pname)))|] >>= tell
+        doIsPathType pname a
+        doIsPathNode v
 
       substitute :: Type -> Type -> Type
       substitute gtype (AppT x (VarT _)) = (AppT x gtype)
@@ -160,8 +164,8 @@ doNode v = do
           case filter (/= []) pconss of
             [pcons] -> mapM_ (\pname -> do let Just tname = bestName v
                                            runQ (dataD (cxt []) pname [PlainTV a] (List.map return (pcons ++ [NormalC pname []])) supers) >>= tell . (: [])
-                                           runQ [d| instance IsPathType ($(conT pname) a) where idPath = $(conE (mkName (nameBase pname)))
-                                                    instance IsPathNode $(conT tname) where type PVType $(conT tname) = $(conT (mkName ("PV_" ++ nameBase tname))) |] >>= tell
+                                           doIsPathType pname a
+                                           doIsPathNode v
                              ) (pathTypeNames' v)
             [] | length pconss > 1 -> return () -- enum
             [] -> return ()
@@ -204,6 +208,20 @@ doNode v = do
       -- corresponding path type and its synonyms.
       pathTypeNames' :: TypeGraphVertex v => v -> Set Name
       pathTypeNames' = Set.map pathTypeNameFromTypeName . typeNames
+
+doIsPathType pname a = runQ [d|instance IsPathType ($(conT pname) a) where idPath = $(conE (mkName (nameBase pname)))|] >>= tell
+
+doIsPathNode :: forall m. (MonadWriter [Dec] m, ContextM m, MonadReaders TypeInfo m, MonadReaders TypeGraph m) =>
+                TGVSimple -> m ()
+doIsPathNode v =
+    let typ = view (etype . unE) v in
+    case bestTypeName v of
+      Just tname -> do
+        (pvc :: [ClauseQ]) <- evalStateT (pvTreeClauses v) mempty
+        runQ (instanceD (cxt []) (appT (conT ''IsPathNode) (pure typ))
+                [tySynInstD ''PVType (tySynEqn [pure typ] (conT (mkName ("PV_" ++ nameBase tname)))),
+                 funD 'pvTree pvc]) >>= tell . (: [])
+      Nothing -> return ()
 
 -- | Given a type, compute the corresponding path type.
 pathType :: (MonadReaders TypeGraph m, MonadReaders TypeInfo m, ContextM m) =>
@@ -261,6 +279,12 @@ pathType gtyp key = do
 pathConNameOfField :: TGV -> Maybe Name
 pathConNameOfField key = maybe Nothing (\ (tname, _, Right fname') -> Just $ mkName $ "Path_" ++ nameBase tname ++ "_" ++ nameBase fname') (key ^. field)
 
+bestNames :: TypeGraphVertex v => v -> Maybe (Name, Name, Set Name)
+bestNames v =
+    case (bestTypeName v, bestPathTypeName v) of
+      (Just tname, Just (pname, pnames)) -> Just (tname, pname, pnames)
+      _ -> Nothing
+
 -- | If the type is (ConT name) return name, otherwise return a type
 -- synonym name.
 bestPathTypeName :: TypeGraphVertex v => v -> Maybe (Name, Set Name)
@@ -269,6 +293,12 @@ bestPathTypeName v =
       (ConT tname, names) -> Just (pathTypeNameFromTypeName tname, Set.map pathTypeNameFromTypeName (Set.delete tname names))
       (_t, s) | null s -> Nothing
       (_t, _s) -> error "bestPathTypeName - unexpected name"
+
+bestTypeName :: TypeGraphVertex v => v -> Maybe Name
+bestTypeName v =
+    case bestType v of
+      ConT tname -> Just tname
+      _ -> maybe Nothing (Just . fst) (minView (typeNames v))
 
 pathTypeNameFromTypeName :: Name -> Name
 pathTypeNameFromTypeName tname = mkName $ "Path_" ++ nameBase tname
@@ -409,7 +439,7 @@ toLensClauses key gkey ptyp =
 
 -- | Given a function pfunc that modifies a pattern, add a
 -- 'Language.Haskell.TH.Clause' (a function with a typically incomplete
--- pattern) to the toLens instance we are building to handle the new
+-- pattern) to the toLens method we are building to handle the new
 -- pattern.
 doClause :: forall m. (DsMonad m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [ClauseQ] m, MonadStates InstMap m, MonadStates ExpandMap m) =>
             TGVSimple -> Type -> (PatQ -> PatQ) -> ExpQ -> m ()
@@ -492,3 +522,38 @@ namedTypeClause tname gkey ptyp =
             mapClause :: (DsMonad m, MonadReaders TypeGraph m) => (PatQ -> PatQ) -> (ExpQ -> ExpQ) -> ClauseQ -> m ClauseQ
             mapClause patf lnsf clauseq =
                 runQ clauseq >>= \(Clause [pat] (NormalB lns) xs) -> return $ clause [patf (pure pat)] (normalB (lnsf (pure lns))) (List.map pure xs)
+
+pvTreeClauses :: forall m v. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) =>
+                 TGVSimple -> StateT (Set Name) m [ClauseQ]
+pvTreeClauses v =
+  do selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [let (E typ) = view etype v in typ]
+     simplePath <- (not . null) <$> reifyInstancesWithContext ''SinkType [let (E typ) = view etype v in typ]
+     viewType <- viewInstanceType (let (E typ) = view etype v in typ)
+     case view (etype . unE) v of
+       _ | selfPath -> return [clause [wildP] (normalB [|error "self"|]) []]
+         | simplePath -> return [clause [wildP] (normalB [|error "simple"|]) []]
+       typ
+         | isJust viewType ->
+             do x <- runQ $ newName "x"
+                v' <- expandType (fromJust viewType) >>= typeVertex :: StateT (Set Name) m TGVSimple
+                sf <- pvTreeClauses v'
+                return [clause [varP x] (normalB [| error "view" :: Tree (PVType $(pure (view (etype . unE) v))) |]) []]
+       ConT tname -> return [clause [wildP] (normalB [|error "named"|]) []]
+       AppT (AppT mtyp _ityp) vtyp
+           | mtyp == ConT ''Order -> return [clause [wildP] (normalB [|error "order"|]) []]
+       AppT ListT _etyp -> return [clause [wildP] (normalB [|error "list"|]) []]
+       AppT (AppT t3 _ktyp) vtyp
+           | t3 == ConT ''Map -> return [clause [wildP] (normalB [|error "map"|]) []]
+       AppT (AppT (TupleT 2) ftyp) styp -> return [clause [wildP] (normalB [|error "pair"|]) []]
+       AppT t1 etyp
+           | t1 == ConT ''Maybe -> return [clause [wildP] (normalB [|error "maybe"|]) []]
+       AppT (AppT t3 ltyp) rtyp
+           | t3 == ConT ''Either -> return [clause [wildP] (normalB [|error "either"|]) []]
+       _ -> return [clause [wildP] (normalB [|error "other"|]) []]
+{-
+pvTreeClauses key gkey _ptyp
+    | view etype key == view etype gkey =
+        tell [clause [wildP] (normalB [|undefined|]) []]
+pvTreeClauses key gkey ptyp =
+    tell [clause [wildP] (normalB [|undefined|]) []]
+-}

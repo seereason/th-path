@@ -17,7 +17,7 @@ module Language.Haskell.TH.Path.Core
     ( -- * Type classes and associated types
       IsPath(toLens, PathType)
     , IsPathType(idPath)
-    , IsPathNode(PVType)
+    , IsPathNode(PVType, pvTree)
 
     -- * Basic Path Types
     , Path_Pair(..)
@@ -60,6 +60,7 @@ import Data.Monoid
 import Data.SafeCopy (base, deriveSafeCopy)
 import Data.Set as Set ({-difference,-} fromList, Set)
 import Data.Text as Text (Text, pack, unpack, unwords, words)
+import Data.Tree (Tree)
 import Data.UserId (UserId(..))
 import Debug.Trace (trace)
 import Language.Haskell.TH
@@ -97,7 +98,10 @@ class IsPathType p where
                 -- @toLens idPath == iso id id@.
 
 class IsPathNode s where
-    data PVType s -- ^ The Path/Value type for s
+    type PVType s
+    -- ^ The Path/Value type for s
+    pvTree :: s -> Tree (PVType s)
+    -- ^ Given a value, build the corresponding Tree (PVType s)
 
 -- Primitive path types
 

@@ -5,6 +5,7 @@ data PV_AbbrevPair
                                ((CIString, Markup))
     | PV_AbbrevPair_CIString (Path_AbbrevPair CIString) CIString
     | PV_AbbrevPair_Text (Path_AbbrevPair Text) Text
+    deriving (Eq, Show)
 data PV_AbbrevPairs
     = PV_AbbrevPairs_JSONText (Path_AbbrevPairs JSONText) JSONText
     | PV_AbbrevPairs_Markup (Path_AbbrevPairs Markup) Markup
@@ -15,11 +16,13 @@ data PV_AbbrevPairs
                                  (Order AbbrevPairID ((CIString, Markup)))
     | PV_AbbrevPairs_CIString (Path_AbbrevPairs CIString) CIString
     | PV_AbbrevPairs_Text (Path_AbbrevPairs Text) Text
+    deriving (Eq, Show)
 data PV_Author
     = PV_Author_JSONText (Path_Author JSONText) JSONText
     | PV_Author_Markup (Path_Author Markup) Markup
     | PV_Author_Author (Path_Author Author) Author
     | PV_Author_Text (Path_Author Text) Text
+    deriving (Eq, Show)
 data PV_Authors
     = PV_Authors_JSONText (Path_Authors JSONText) JSONText
     | PV_Authors_Markup (Path_Authors Markup) Markup
@@ -27,29 +30,37 @@ data PV_Authors
     | PV_Authors_Authors (Path_Authors (Order AuthorID Author))
                          (Order AuthorID Author)
     | PV_Authors_Text (Path_Authors Text) Text
+    deriving (Eq, Show)
 data PV_Bool
     = PV_Bool_String (Path_Bool ([Char])) ([Char])
     | PV_Bool_Bool (Path_Bool Bool) Bool
     | PV_Bool_JSONText (Path_Bool JSONText) JSONText
+    deriving (Eq, Show)
 data PV_Branding
     = PV_Branding_JSONText (Path_Branding JSONText) JSONText
     | PV_Branding_Branding (Path_Branding Branding) Branding
     | PV_Branding_Text (Path_Branding Text) Text
+    deriving (Eq, Show)
 data PV_CIString
     = PV_CIString_JSONText (Path_CIString JSONText) JSONText
     | PV_CIString_CIString (Path_CIString CIString) CIString
     | PV_CIString_Text (Path_CIString Text) Text
+    deriving (Eq, Show)
 data PV_Dimension
     = PV_Dimension_Dimension (Path_Dimension Dimension) Dimension
     | PV_Dimension_JSONText (Path_Dimension JSONText) JSONText
+    deriving (Eq, Show)
 data PV_Double
     = PV_Double_String (Path_Double ([Char])) ([Char])
     | PV_Double_Double (Path_Double Double) Double
     | PV_Double_JSONText (Path_Double JSONText) JSONText
+    deriving (Eq, Show)
 data PV_ImageCrop
     = PV_ImageCrop_ImageCrop (Path_ImageCrop ImageCrop) ImageCrop
+    deriving (Eq, Show)
 data PV_ImageFile
     = PV_ImageFile_ImageFile (Path_ImageFile ImageFile) ImageFile
+    deriving (Eq, Show)
 data PV_ImageSize
     = PV_ImageSize_String (Path_ImageSize ([Char])) ([Char])
     | PV_ImageSize_Double (Path_ImageSize Double) Double
@@ -57,9 +68,14 @@ data PV_ImageSize
     | PV_ImageSize_ImageSize (Path_ImageSize ImageSize) ImageSize
     | PV_ImageSize_Units (Path_ImageSize Units) Units
     | PV_ImageSize_JSONText (Path_ImageSize JSONText) JSONText
-data PV_Int = PV_Int_Int (Path_Int Int) Int
-data PV_Int64 = PV_Int64_Int64 (Path_Int64 Int64) Int64
-data PV_Integer = PV_Integer_Integer (Path_Integer Integer) Integer
+    deriving (Eq, Show)
+data PV_Int = PV_Int_Int (Path_Int Int) Int deriving (Eq, Show)
+data PV_Int64
+    = PV_Int64_Int64 (Path_Int64 Int64) Int64
+    deriving (Eq, Show)
+data PV_Integer
+    = PV_Integer_Integer (Path_Integer Integer) Integer
+    deriving (Eq, Show)
 data PV_Item
     = PV_Item_String (Path_Item ([Char])) ([Char])
     | PV_Item_Bool (Path_Item Bool) Bool
@@ -84,18 +100,22 @@ data PV_Item
     | PV_Item_Item (Path_Item Item) Item
     | PV_Item_URI (Path_Item URI) URI
     | PV_Item_Text (Path_Item Text) Text
+    deriving (Eq, Show)
 data PV_JSONText
     = PV_JSONText_JSONText (Path_JSONText JSONText) JSONText
+    deriving (Eq, Show)
 data PV_Markup
     = PV_Markup_JSONText (Path_Markup JSONText) JSONText
     | PV_Markup_Markup (Path_Markup Markup) Markup
     | PV_Markup_Text (Path_Markup Text) Text
+    deriving (Eq, Show)
 data PV_MarkupPair
     = PV_MarkupPair_JSONText (Path_MarkupPair JSONText) JSONText
     | PV_MarkupPair_Markup (Path_MarkupPair Markup) Markup
     | PV_MarkupPair_MarkupPair (Path_MarkupPair ((Markup, Markup)))
                                ((Markup, Markup))
     | PV_MarkupPair_Text (Path_MarkupPair Text) Text
+    deriving (Eq, Show)
 data PV_MarkupPairs
     = PV_MarkupPairs_JSONText (Path_MarkupPairs JSONText) JSONText
     | PV_MarkupPairs_Markup (Path_MarkupPairs Markup) Markup
@@ -105,18 +125,21 @@ data PV_MarkupPairs
                                                           ((Markup, Markup))))
                                  (Order MarkupPairID ((Markup, Markup)))
     | PV_MarkupPairs_Text (Path_MarkupPairs Text) Text
+    deriving (Eq, Show)
 data PV_Markups
     = PV_Markups_JSONText (Path_Markups JSONText) JSONText
     | PV_Markups_Markup (Path_Markups Markup) Markup
     | PV_Markups_Markups (Path_Markups (Order MarkupID Markup))
                          (Order MarkupID Markup)
     | PV_Markups_Text (Path_Markups Text) Text
+    deriving (Eq, Show)
 data PV_MaybeImageFile
     = PV_MaybeImageFile_String (Path_MaybeImageFile ([Char])) ([Char])
     | PV_MaybeImageFile_JSONText (Path_MaybeImageFile JSONText)
                                  JSONText
     | PV_MaybeImageFile_MaybeImageFile (Path_MaybeImageFile (Maybe ImageFile))
                                        (Maybe ImageFile)
+    deriving (Eq, Show)
 data PV_MaybeReportIntendedUse
     = PV_MaybeReportIntendedUse_String (Path_MaybeReportIntendedUse ([Char]))
                                        ([Char])
@@ -124,6 +147,7 @@ data PV_MaybeReportIntendedUse
                                          JSONText
     | PV_MaybeReportIntendedUse_MaybeReportIntendedUse (Path_MaybeReportIntendedUse (Maybe ReportIntendedUse))
                                                        (Maybe ReportIntendedUse)
+    deriving (Eq, Show)
 data PV_Permissions
     = PV_Permissions_JSONText (Path_Permissions JSONText) JSONText
     | PV_Permissions_Permissions (Path_Permissions Permissions)
@@ -131,9 +155,11 @@ data PV_Permissions
     | PV_Permissions_UserIds (Path_Permissions ([UserId])) ([UserId])
     | PV_Permissions_Text (Path_Permissions Text) Text
     | PV_Permissions_UserId (Path_Permissions UserId) UserId
+    deriving (Eq, Show)
 data PV_ReadOnlyFilePath
     = PV_ReadOnlyFilePath_ReadOnlyFilePath (Path_ReadOnlyFilePath (ReadOnly ([Char])))
                                            (ReadOnly ([Char]))
+    deriving (Eq, Show)
 data PV_Report
     = PV_Report_String (Path_Report ([Char])) ([Char])
     | PV_Report_Int64 (Path_Report Int64) Int64
@@ -200,6 +226,7 @@ data PV_Report
     | PV_Report_Text (Path_Report Text) Text
     | PV_Report_UserId (Path_Report UserId) UserId
     | PV_Report_UUID (Path_Report UUID) UUID
+    deriving (Eq, Show)
 data PV_ReportElem
     = PV_ReportElem_String (Path_ReportElem ([Char])) ([Char])
     | PV_ReportElem_Bool (Path_ReportElem Bool) Bool
@@ -226,6 +253,7 @@ data PV_ReportElem
     | PV_ReportElem_Item (Path_ReportElem Item) Item
     | PV_ReportElem_URI (Path_ReportElem URI) URI
     | PV_ReportElem_Text (Path_ReportElem Text) Text
+    deriving (Eq, Show)
 data PV_ReportElems
     = PV_ReportElems_String (Path_ReportElems ([Char])) ([Char])
     | PV_ReportElems_Bool (Path_ReportElems Bool) Bool
@@ -256,12 +284,14 @@ data PV_ReportElems
     | PV_ReportElems_Item (Path_ReportElems Item) Item
     | PV_ReportElems_URI (Path_ReportElems URI) URI
     | PV_ReportElems_Text (Path_ReportElems Text) Text
+    deriving (Eq, Show)
 data PV_ReportFlags
     = PV_ReportFlags_String (Path_ReportFlags ([Char])) ([Char])
     | PV_ReportFlags_Bool (Path_ReportFlags Bool) Bool
     | PV_ReportFlags_JSONText (Path_ReportFlags JSONText) JSONText
     | PV_ReportFlags_ReportFlags (Path_ReportFlags ReportFlags)
                                  ReportFlags
+    deriving (Eq, Show)
 data PV_ReportImage
     = PV_ReportImage_String (Path_ReportImage ([Char])) ([Char])
     | PV_ReportImage_Bool (Path_ReportImage Bool) Bool
@@ -283,6 +313,7 @@ data PV_ReportImage
                                        (SaneSize ImageSize)
     | PV_ReportImage_URI (Path_ReportImage URI) URI
     | PV_ReportImage_Text (Path_ReportImage Text) Text
+    deriving (Eq, Show)
 data PV_ReportImageView
     = PV_ReportImageView_String (Path_ReportImageView ([Char]))
                                 ([Char])
@@ -308,6 +339,7 @@ data PV_ReportImageView
                                            (SaneSize ImageSize)
     | PV_ReportImageView_URI (Path_ReportImageView URI) URI
     | PV_ReportImageView_Text (Path_ReportImageView Text) Text
+    deriving (Eq, Show)
 data PV_ReportImages
     = PV_ReportImages_String (Path_ReportImages ([Char])) ([Char])
     | PV_ReportImages_Bool (Path_ReportImages Bool) Bool
@@ -332,6 +364,7 @@ data PV_ReportImages
                                         (SaneSize ImageSize)
     | PV_ReportImages_URI (Path_ReportImages URI) URI
     | PV_ReportImages_Text (Path_ReportImages Text) Text
+    deriving (Eq, Show)
 data PV_ReportIntendedUse
     = PV_ReportIntendedUse_String (Path_ReportIntendedUse ([Char]))
                                   ([Char])
@@ -339,6 +372,7 @@ data PV_ReportIntendedUse
                                     JSONText
     | PV_ReportIntendedUse_ReportIntendedUse (Path_ReportIntendedUse ReportIntendedUse)
                                              ReportIntendedUse
+    deriving (Eq, Show)
 data PV_ReportMap
     = PV_ReportMap_String (Path_ReportMap ([Char])) ([Char])
     | PV_ReportMap_Int64 (Path_ReportMap Int64) Int64
@@ -407,15 +441,18 @@ data PV_ReportMap
     | PV_ReportMap_Text (Path_ReportMap Text) Text
     | PV_ReportMap_UserId (Path_ReportMap UserId) UserId
     | PV_ReportMap_UUID (Path_ReportMap UUID) UUID
+    deriving (Eq, Show)
 data PV_ReportStandard
     = PV_ReportStandard_Int (Path_ReportStandard Int) Int
     | PV_ReportStandard_ReportStandard (Path_ReportStandard ReportStandard)
                                        ReportStandard
+    deriving (Eq, Show)
 data PV_ReportStatus
     = PV_ReportStatus_String (Path_ReportStatus ([Char])) ([Char])
     | PV_ReportStatus_JSONText (Path_ReportStatus JSONText) JSONText
     | PV_ReportStatus_ReportStatus (Path_ReportStatus ReportStatus)
                                    ReportStatus
+    deriving (Eq, Show)
 data PV_ReportValueApproachInfo
     = PV_ReportValueApproachInfo_JSONText (Path_ReportValueApproachInfo JSONText)
                                           JSONText
@@ -425,6 +462,7 @@ data PV_ReportValueApproachInfo
                                                          ReportValueApproachInfo
     | PV_ReportValueApproachInfo_Text (Path_ReportValueApproachInfo Text)
                                       Text
+    deriving (Eq, Show)
 data PV_ReportValueTypeInfo
     = PV_ReportValueTypeInfo_JSONText (Path_ReportValueTypeInfo JSONText)
                                       JSONText
@@ -433,6 +471,7 @@ data PV_ReportValueTypeInfo
     | PV_ReportValueTypeInfo_ReportValueTypeInfo (Path_ReportValueTypeInfo ReportValueTypeInfo)
                                                  ReportValueTypeInfo
     | PV_ReportValueTypeInfo_Text (Path_ReportValueTypeInfo Text) Text
+    deriving (Eq, Show)
 data PV_ReportView
     = PV_ReportView_String (Path_ReportView ([Char])) ([Char])
     | PV_ReportView_Int64 (Path_ReportView Int64) Int64
@@ -502,6 +541,7 @@ data PV_ReportView
     | PV_ReportView_Text (Path_ReportView Text) Text
     | PV_ReportView_UserId (Path_ReportView UserId) UserId
     | PV_ReportView_UUID (Path_ReportView UUID) UUID
+    deriving (Eq, Show)
 data PV_SaneSizeImageSize
     = PV_SaneSizeImageSize_String (Path_SaneSizeImageSize ([Char]))
                                   ([Char])
@@ -516,22 +556,31 @@ data PV_SaneSizeImageSize
                                     JSONText
     | PV_SaneSizeImageSize_SaneSizeImageSize (Path_SaneSizeImageSize (SaneSize ImageSize))
                                              (SaneSize ImageSize)
+    deriving (Eq, Show)
 data PV_String
     = PV_String_String (Path_String ([Char])) ([Char])
     | PV_String_JSONText (Path_String JSONText) JSONText
+    deriving (Eq, Show)
 data PV_Text
     = PV_Text_JSONText (Path_Text JSONText) JSONText
     | PV_Text_Text (Path_Text Text) Text
-data PV_URI = PV_URI_URI (Path_URI URI) URI
-data PV_UUID = PV_UUID_UUID (Path_UUID UUID) UUID
+    deriving (Eq, Show)
+data PV_URI = PV_URI_URI (Path_URI URI) URI deriving (Eq, Show)
+data PV_UUID
+    = PV_UUID_UUID (Path_UUID UUID) UUID
+    deriving (Eq, Show)
 data PV_Units
     = PV_Units_Units (Path_Units Units) Units
     | PV_Units_JSONText (Path_Units JSONText) JSONText
-data PV_UserId = PV_UserId_UserId (Path_UserId UserId) UserId
+    deriving (Eq, Show)
+data PV_UserId
+    = PV_UserId_UserId (Path_UserId UserId) UserId
+    deriving (Eq, Show)
 data PV_UserIds
     = PV_UserIds_JSONText (Path_UserIds JSONText) JSONText
     | PV_UserIds_UserIds (Path_UserIds ([UserId])) ([UserId])
     | PV_UserIds_Text (Path_UserIds Text) Text
+    deriving (Eq, Show)
 data Path_Author a
     = Path_Author_authorName (Path_Markup a)
     | Path_Author_authorCredentials (Path_Markup a)
@@ -7965,32 +8014,123 @@ instance HasText Text
     where lens_text = id
 instance HasUnits Units
     where lens_units = id
+instance IsPathNode (Maybe ImageFile)
+    where type PVType (Maybe ImageFile) = PV_MaybeImageFile
+          pvTree x = error "view" :: Tree (PVType (Maybe ImageFile))
+instance IsPathNode (Maybe ReportIntendedUse)
+    where type PVType (Maybe ReportIntendedUse) = PV_MaybeReportIntendedUse
+          pvTree x = error "view" :: Tree (PVType (Maybe ReportIntendedUse))
+instance IsPathNode (ReadOnly ([Char]))
+    where type PVType (ReadOnly ([Char])) = PV_ReadOnlyFilePath
+          pvTree x = error "view" :: Tree (PVType (ReadOnly ([Char])))
+instance IsPathNode (SaneSize ImageSize)
+    where type PVType (SaneSize ImageSize) = PV_SaneSizeImageSize
+          pvTree x = error "view" :: Tree (PVType (SaneSize ImageSize))
+instance IsPathNode ([Char])
+    where type PVType ([Char]) = PV_String
+          pvTree x = error "view" :: Tree (PVType ([Char]))
+instance IsPathNode ([UserId])
+    where type PVType ([UserId]) = PV_UserIds
+          pvTree x = error "view" :: Tree (PVType ([UserId]))
+instance IsPathNode Int64
+    where type PVType Int64 = PV_Int64
+          pvTree _ = error "simple"
+instance IsPathNode Bool
+    where type PVType Bool = PV_Bool
+          pvTree x = error "view" :: Tree (PVType Bool)
+instance IsPathNode Double
+    where type PVType Double = PV_Double
+          pvTree x = error "view" :: Tree (PVType Double)
+instance IsPathNode Int
+    where type PVType Int = PV_Int
+          pvTree _ = error "simple"
+instance IsPathNode Dimension
+    where type PVType Dimension = PV_Dimension
+          pvTree x = error "view" :: Tree (PVType Dimension)
+instance IsPathNode ImageCrop
+    where type PVType ImageCrop = PV_ImageCrop
+          pvTree _ = error "simple"
 instance IsPathNode ImageSize
     where type PVType ImageSize = PV_ImageSize
+          pvTree _ = error "named"
+instance IsPathNode Units
+    where type PVType Units = PV_Units
+          pvTree x = error "view" :: Tree (PVType Units)
+instance IsPathNode ImageFile
+    where type PVType ImageFile = PV_ImageFile
+          pvTree _ = error "simple"
+instance IsPathNode Integer
+    where type PVType Integer = PV_Integer
+          pvTree _ = error "simple"
+instance IsPathNode JSONText
+    where type PVType JSONText = PV_JSONText
+          pvTree _ = error "simple"
 instance IsPathNode Markup
     where type PVType Markup = PV_Markup
+          pvTree _ = error "named"
 instance IsPathNode Permissions
     where type PVType Permissions = PV_Permissions
+          pvTree _ = error "named"
 instance IsPathNode Author
     where type PVType Author = PV_Author
+          pvTree _ = error "named"
+instance IsPathNode Branding
+    where type PVType Branding = PV_Branding
+          pvTree x = error "view" :: Tree (PVType Branding)
+instance IsPathNode Report
+    where type PVType Report = PV_Report
+          pvTree x = error "view" :: Tree (PVType Report)
 instance IsPathNode ReportElem
     where type PVType ReportElem = PV_ReportElem
+          pvTree _ = error "named"
 instance IsPathNode ReportFlags
     where type PVType ReportFlags = PV_ReportFlags
+          pvTree _ = error "named"
+instance IsPathNode ReportIntendedUse
+    where type PVType ReportIntendedUse = PV_ReportIntendedUse
+          pvTree x = error "view" :: Tree (PVType ReportIntendedUse)
 instance IsPathNode ReportStandard
     where type PVType ReportStandard = PV_ReportStandard
+          pvTree _ = error "named"
+instance IsPathNode ReportStatus
+    where type PVType ReportStatus = PV_ReportStatus
+          pvTree x = error "view" :: Tree (PVType ReportStatus)
 instance IsPathNode ReportValueApproachInfo
     where type PVType ReportValueApproachInfo = PV_ReportValueApproachInfo
+          pvTree _ = error "named"
 instance IsPathNode ReportValueTypeInfo
     where type PVType ReportValueTypeInfo = PV_ReportValueTypeInfo
+          pvTree _ = error "named"
+instance IsPathNode ReportImage
+    where type PVType ReportImage = PV_ReportImage
+          pvTree x = error "view" :: Tree (PVType ReportImage)
 instance IsPathNode ReportImageView
     where type PVType ReportImageView = PV_ReportImageView
+          pvTree _ = error "named"
 instance IsPathNode ReportView
     where type PVType ReportView = PV_ReportView
+          pvTree _ = error "named"
 instance IsPathNode Item
     where type PVType Item = PV_Item
+          pvTree _ = error "named"
 instance IsPathNode ReportMap
     where type PVType ReportMap = PV_ReportMap
+          pvTree _ = error "named"
+instance IsPathNode CIString
+    where type PVType CIString = PV_CIString
+          pvTree x = error "view" :: Tree (PVType CIString)
+instance IsPathNode URI
+    where type PVType URI = PV_URI
+          pvTree _ = error "simple"
+instance IsPathNode Text
+    where type PVType Text = PV_Text
+          pvTree x = error "view" :: Tree (PVType Text)
+instance IsPathNode UserId
+    where type PVType UserId = PV_UserId
+          pvTree _ = error "simple"
+instance IsPathNode UUID
+    where type PVType UUID = PV_UUID
+          pvTree _ = error "simple"
 instance IsPathType (Path_Author a)
     where idPath = Path_Author
 instance IsPathType (Path_Bool a)
