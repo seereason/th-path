@@ -338,7 +338,7 @@ pathInstanceDecs :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReader
 pathInstanceDecs key gkey = do
   ptyp <- pathType (pure (bestType gkey)) key
   tlc <- execWriterT $ evalStateT (toLensClauses key gkey) mempty
-  poc <- execWriterT $ pathsOfClauses key gkey ptyp
+  poc <- execWriterT $ evalStateT (pathsOfClauses key gkey) mempty
   -- clauses' <- runQ $ sequence clauses
   -- exp <- thePathExp gkey key ptyp clauses'
   when (not (null tlc)) $
@@ -529,12 +529,13 @@ namedTypeClause tname gkey ptyp =
 pathsOfClauses :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [ClauseQ] m) =>
                        TGVSimple -- ^ the type whose clauses we are generating
                     -> TGVSimple -- ^ the goal type key
-                    -> Type -- ^ the corresponding path type - first type parameter of ToLens
-                    -> m ()
-pathsOfClauses key gkey _ptyp
+                    -> StateT (Set Name) m ()
+pathsOfClauses key gkey
     | view etype key == view etype gkey = tell [clause [wildP, wildP] (normalB [|[idPath] |]) []]
-pathsOfClauses key gkey ptyp =
-  do selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [view (etype . unE) key]
+pathsOfClauses key gkey =
+  do -- the corresponding path type - first type parameter of ToLens
+     ptyp <- pathType (pure (bestType gkey)) key
+     selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [view (etype . unE) key]
      simplePath <- (not . null) <$> reifyInstancesWithContext ''SinkType [view (etype . unE) key]
      viewType <- viewInstanceType (view etype key)
      case view (etype . unE) key of
@@ -612,7 +613,7 @@ pathsOfClauses key gkey ptyp =
                                  False -> [| [] |]) |] >>= tell . clauses
        _ -> tell [clause [wildP, wildP] (normalB [|error $ "pathsOfClauses - unexpected type: " ++ pprint key|]) []]
     where
-      doName :: Name -> m ()
+      doName :: Name -> StateT (Set Name) m ()
       doName tname = tell [clause [wildP, wildP] (normalB [|undefined|]) []]
 
       testIsPath typ gkey = do
