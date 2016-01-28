@@ -337,7 +337,7 @@ pathInstanceDecs :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReader
                      TGVSimple -> TGVSimple -> m ()
 pathInstanceDecs key gkey = do
   ptyp <- pathType (pure (bestType gkey)) key
-  tlc <- execWriterT $ evalStateT (toLensClauses key gkey ptyp) mempty
+  tlc <- execWriterT $ evalStateT (toLensClauses key gkey) mempty
   poc <- execWriterT $ pathsOfClauses key gkey ptyp
   -- clauses' <- runQ $ sequence clauses
   -- exp <- thePathExp gkey key ptyp clauses'
@@ -370,19 +370,19 @@ instance ContextM m => ContextM (StateT (Set Name) m)
 toLensClauses :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [ClauseQ] m) =>
                        TGVSimple -- ^ the type whose clauses we are generating
                     -> TGVSimple -- ^ the goal type key
-                    -> Type -- ^ the corresponding path type - first type parameter of ToLens
                     -> StateT (Set Name) m ()
-toLensClauses key gkey _ptyp
+toLensClauses key gkey
     | view etype key == view etype gkey =
         tell [clause [wildP] (normalB [|iso id id|]) []]
-toLensClauses key gkey ptyp =
+toLensClauses key gkey =
   -- Use this to raise errors when the path patterns aren't exhaustive.
   -- That is supposed to be impossible, so this is debugging code.
   -- toLensClauses key gkey ptyp = do
   --   x <- runQ (newName "x")
   --   r <- foldPath control key
   --   return $ r ++ [clause [varP x] (normalB [|error ("toLens (" ++ $(lift (pprint' key)) ++ ") -> (" ++ $(lift (pprint' gkey)) ++ ") - unmatched: " ++ show $(varE x))|]) []]
-  do let v = key
+  do ptyp <- pathType (pure (bestType gkey)) key
+     let v = key
      selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [let (E typ) = view etype v in typ]
      simplePath <- (not . null) <$> reifyInstancesWithContext ''SinkType [let (E typ) = view etype v in typ]
      viewType <- viewInstanceType (view etype v)
@@ -473,7 +473,7 @@ namedTypeClause tname gkey ptyp =
                   ok <- goalReachableSimple gkey key'
                   case ok of
                     False -> return ()
-                    True -> toLensClauses key' gkey ptyp
+                    True -> toLensClauses key' gkey
             doDec (NewtypeD _ _ _ con _) = doCons [con]
             doDec (DataD _ _ _ cons _) = doCons cons
             doDec dec = error $ "doName - unexpected Dec: " ++ show dec
@@ -556,7 +556,7 @@ pathsOfClauses key gkey ptyp =
        AppT t1 etyp
            | t1 == ConT ''Maybe ->
                do ekey <- expandType etyp >>= typeVertex
-                  etlc <- execWriterT $ evalStateT (toLensClauses ekey gkey ptyp) mempty
+                  etlc <- execWriterT $ evalStateT (toLensClauses ekey gkey) mempty
                   runQ [d| f (Just x) a =
                              $(case (not (null etlc)) of
                                  True -> [| List.map Path_Just (pathsOf (x :: $(pure etyp)) a :: [PathType $(pure etyp) $(pure (view (etype . unE) gkey))]) |]
@@ -569,8 +569,8 @@ pathsOfClauses key gkey ptyp =
                   -- here is kind of a hack.
                   lkey <- expandType ltyp >>= typeVertex
                   rkey <- expandType rtyp >>= typeVertex
-                  ltlc <- execWriterT $ evalStateT (toLensClauses lkey gkey ptyp) mempty
-                  rtlc <- execWriterT $ evalStateT (toLensClauses rkey gkey ptyp) mempty
+                  ltlc <- execWriterT $ evalStateT (toLensClauses lkey gkey) mempty
+                  rtlc <- execWriterT $ evalStateT (toLensClauses rkey gkey) mempty
                   runQ [d| f (Left x) a =
                              $(case (not (null ltlc)) of
                                  True -> [| List.map Path_Left (pathsOf (x :: $(pure ltyp)) a :: [PathType $(pure ltyp) $(pure (view (etype . unE) gkey))]) |]
@@ -583,6 +583,9 @@ pathsOfClauses key gkey ptyp =
     where
       doName :: Name -> m ()
       doName tname = tell [clause [wildP, wildP] (normalB [|undefined|]) []]
+
+      testIsPath typ gkey = do
+        expandType typ >>= typeVertex >>= \key -> execWriterT (evalStateT (toLensClauses key gkey) mempty) >>= return . not . null
 
 -- | Extract the template haskell Clauses
 class Clauses x where
