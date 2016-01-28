@@ -33,7 +33,7 @@ import Control.Lens -- (makeLenses, over, view)
 import Control.Monad (filterM)
 import Control.Monad.Reader (ReaderT, runReaderT)
 import Control.Monad.Readers (askPoly, MonadReaders)
-import Control.Monad.State (execStateT, evalStateT, get, modify, put, StateT)
+import Control.Monad.State (execStateT, evalStateT, get, put, StateT)
 import Control.Monad.States (getPoly, modifyPoly, MonadStates, putPoly)
 import Control.Monad.Trans (lift)
 import Control.Monad.Writer (WriterT)
@@ -43,6 +43,7 @@ import Data.List as List (filter, map)
 import Data.Map as Map (filterWithKey, fromList, keys, Map, mapWithKey, toList)
 import Data.Maybe (mapMaybe)
 import Data.Set as Set (difference, empty, fromList, map, member, Set, singleton, toList)
+import Debug.Trace
 import Language.Haskell.Exts.Syntax ()
 import Language.Haskell.TH
 import Language.Haskell.TH.Context (ContextM, InstMap, reifyInstancesWithContext)
@@ -104,7 +105,7 @@ runTypeGraphT' :: ContextM m => ReaderT TypeGraph (ReaderT TypeInfo m) a -> [Typ
 runTypeGraphT' action st = do
   vt <- viewTypes -- Every instance of ViewType
   let st' = st ++ Set.toList vt
-  ti <- makeTypeInfo (\t -> maybe mempty singleton <$> runQ (viewInstanceType t)) st'
+  ti <- makeTypeInfo (\t -> maybe mempty singleton <$> (expandType t >>= viewInstanceType)) st'
   runReaderT (pathGraphEdges >>= makeTypeGraph >>= runReaderT action) ti
 
 -- | Build a graph of the subtype relation, omitting any types whose
@@ -118,7 +119,7 @@ pathGraphEdges =
     where
       finalizeEdges = do
         -- get >>= runQ . runIO . putStr . show . hang (text "initial edges of the type graph:") 2 . ppr
-        modify (cutEdges isMapKey)
+        _modify "mapkeys" (return . cutEdges isMapKey)
         _modify "unlifted" (cutM isUnlifted)
         _modify "higherOrder" (dissolveM higherOrder)
         _modify "view edges" (linkM viewEdges)
@@ -126,15 +127,22 @@ pathGraphEdges =
         _modify "freeVars" (dissolveM hasFreeVars)
         _modify "unlifted2" (dissolveM isUnlifted)
         _modify "unreachable" isolateUnreachable
-        get >>= runQ . runIO . putStr . show . hang (text "final edges of the type graph:") 2 . ppr
+        -- get >>= runQ . runIO . putStr . show . hang (text "final edges of the type graph:") 2 . ppr
 
       viewEdges :: TGV -> m (Maybe (Set TGV))
       viewEdges v =
-          do let (typ :: Type) = view (vsimple . etype . unE) v
-             viewInstanceType typ >>= maybe (return Nothing) (\t -> expandType t >>= typeVertex' >>= return . Just . singleton)
+          do -- Get the type of this node
+             let (typ :: E Type) = view (vsimple . etype) v
+             -- Is there an instance of View a b where a matches v?
+             vit <- viewInstanceType typ
+             -- If so, unify typ with a and apply the resulting bindings to b.
+             maybe (return Nothing) (\t -> expandType t >>= typeVertex' >>= return . Just . singleton) vit
 
+      -- Dissolve any higher order types (* -> *) and any types
+      -- involving unbound type variables (ReadOnly a).
       higherOrder :: TGV -> m Bool
-      higherOrder v = (/= Right StarT) <$> runQ (inferKind (view (vsimple . etype . unE) v))
+      higherOrder v = let t1 k = {-trace ("Kind of " ++ pprint v ++ " is " ++ show k)-} (return k) in
+                      (/= Right StarT) <$> runQ (inferKind (view (vsimple . etype . unE) v) >>= t1)
       hasFreeVars :: TGV -> m Bool
       hasFreeVars v = (/= Set.empty) <$> runQ (freeTypeVars (view (vsimple . etype . unE) v))
       -- Primitive (unlifted) types can not be used as parameters to a
@@ -169,9 +177,10 @@ pathGraphEdges =
         new <- lift $ f old
         put new
 {-
-        runQ (runIO (putStr ("\n\f\nLanguage.Haskell.TH.Path.Graph.makeTypeGraphEdges " ++ s ++
-                             " - added " ++ indent "+" (pprint (diff new old)) ++
-                             "\nremoved " ++  indent "-" (pprint (diff old new)))))
+        runQ (runIO (putStr ("\n\f\nLanguage.Haskell.TH.Path.Graph.makeTypeGraphEdges " ++ _s ++
+                             " - added:\n " ++ indent "+" (pprint (diff new old)) ++
+                             "\nremoved:\n " ++  indent "-" (pprint (diff old new)) ++
+                             "\nresult:\n " ++ indent " " (pprint new))))
       indent s t = unlines . List.map (s ++) . lines $ t
 
       -- Exact difference between two maps

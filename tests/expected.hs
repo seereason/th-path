@@ -157,7 +157,11 @@ data PV_Permissions
     | PV_Permissions_UserId (Path_Permissions UserId) UserId
     deriving (Eq, Show)
 data PV_ReadOnlyFilePath
-    = PV_ReadOnlyFilePath_ReadOnlyFilePath (Path_ReadOnlyFilePath (ReadOnly ([Char])))
+    = PV_ReadOnlyFilePath_String (Path_ReadOnlyFilePath ([Char]))
+                                 ([Char])
+    | PV_ReadOnlyFilePath_JSONText (Path_ReadOnlyFilePath JSONText)
+                                   JSONText
+    | PV_ReadOnlyFilePath_ReadOnlyFilePath (Path_ReadOnlyFilePath (ReadOnly ([Char])))
                                            (ReadOnly ([Char]))
     deriving (Eq, Show)
 data PV_Report
@@ -650,7 +654,8 @@ data Path_Permissions a
     | Path_Permissions
     deriving (Eq, Ord, Read, Show, Typeable, Data)
 data Path_ReadOnlyFilePath a
-    = Path_ReadOnlyFilePath_View a | Path_ReadOnlyFilePath
+    = Path_ReadOnlyFilePath_View (Path_String a)
+    | Path_ReadOnlyFilePath
     deriving (Eq, Ord, Read, Show, Typeable, Data)
 data Path_Report a
     = Path_Report_View (Path_ReportView a) | Path_Report
@@ -1604,7 +1609,7 @@ instance IsPath Int64 Int64
           toLens _ = iso id id
 instance IsPath Bool String
     where type PathType Bool String = Path_Bool String
-          toLens (Path_Bool_View _) = viewLens :: Lens' Bool String
+          toLens (Path_Bool_View _) = viewLens :: Lens' Bool ([Char])
           toLens u = error $ ("Unexpected goal [Char] (aka Checksum, aka FilePath, aka String) for Bool: " ++ show u)
 instance IsPath Bool Bool
     where type PathType Bool Bool = Path_Bool Bool
@@ -1612,11 +1617,11 @@ instance IsPath Bool Bool
 instance IsPath Bool JSONText
     where type PathType Bool JSONText = Path_Bool JSONText
           toLens (Path_Bool_View v) = (viewLens :: Lens' Bool
-                                                         String) . toLens v
+                                                         ([Char])) . toLens v
           toLens u = error $ ("Unexpected goal JSONText for Bool: " ++ show u)
 instance IsPath Double String
     where type PathType Double String = Path_Double String
-          toLens (Path_Double_View _) = viewLens :: Lens' Double String
+          toLens (Path_Double_View _) = viewLens :: Lens' Double ([Char])
           toLens u = error $ ("Unexpected goal [Char] (aka Checksum, aka FilePath, aka String) for Double: " ++ show u)
 instance IsPath Double Double
     where type PathType Double Double = Path_Double Double
@@ -1624,7 +1629,7 @@ instance IsPath Double Double
 instance IsPath Double JSONText
     where type PathType Double JSONText = Path_Double JSONText
           toLens (Path_Double_View v) = (viewLens :: Lens' Double
-                                                           String) . toLens v
+                                                           ([Char])) . toLens v
           toLens u = error $ ("Unexpected goal JSONText for Double: " ++ show u)
 instance IsPath Int Int
     where type PathType Int Int = Path_Int Int
@@ -1925,13 +1930,13 @@ instance IsPath MaybeReportIntendedUse String
     where type PathType MaybeReportIntendedUse
                         String = Path_MaybeReportIntendedUse String
           toLens (Path_MaybeReportIntendedUse_View _) = viewLens :: Lens' (Maybe ReportIntendedUse)
-                                                                          String
+                                                                          ([Char])
           toLens u = error $ ("Unexpected goal [Char] (aka Checksum, aka FilePath, aka String) for Maybe ReportIntendedUse (aka MaybeReportIntendedUse): " ++ show u)
 instance IsPath MaybeReportIntendedUse JSONText
     where type PathType MaybeReportIntendedUse
                         JSONText = Path_MaybeReportIntendedUse JSONText
           toLens (Path_MaybeReportIntendedUse_View v) = (viewLens :: Lens' (Maybe ReportIntendedUse)
-                                                                           String) . toLens v
+                                                                           ([Char])) . toLens v
           toLens u = error $ ("Unexpected goal JSONText for Maybe ReportIntendedUse (aka MaybeReportIntendedUse): " ++ show u)
 instance IsPath MaybeReportIntendedUse MaybeReportIntendedUse
     where type PathType MaybeReportIntendedUse
@@ -2435,13 +2440,13 @@ instance IsPath ReportIntendedUse String
     where type PathType ReportIntendedUse
                         String = Path_ReportIntendedUse String
           toLens (Path_ReportIntendedUse_View _) = viewLens :: Lens' ReportIntendedUse
-                                                                     String
+                                                                     ([Char])
           toLens u = error $ ("Unexpected goal [Char] (aka Checksum, aka FilePath, aka String) for ReportIntendedUse: " ++ show u)
 instance IsPath ReportIntendedUse JSONText
     where type PathType ReportIntendedUse
                         JSONText = Path_ReportIntendedUse JSONText
           toLens (Path_ReportIntendedUse_View v) = (viewLens :: Lens' ReportIntendedUse
-                                                                      String) . toLens v
+                                                                      ([Char])) . toLens v
           toLens u = error $ ("Unexpected goal JSONText for ReportIntendedUse: " ++ show u)
 instance IsPath ReportIntendedUse ReportIntendedUse
     where type PathType ReportIntendedUse
@@ -2458,13 +2463,13 @@ instance IsPath ReportStandard ReportStandard
 instance IsPath ReportStatus String
     where type PathType ReportStatus String = Path_ReportStatus String
           toLens (Path_ReportStatus_View _) = viewLens :: Lens' ReportStatus
-                                                                String
+                                                                ([Char])
           toLens u = error $ ("Unexpected goal [Char] (aka Checksum, aka FilePath, aka String) for ReportStatus: " ++ show u)
 instance IsPath ReportStatus JSONText
     where type PathType ReportStatus
                         JSONText = Path_ReportStatus JSONText
           toLens (Path_ReportStatus_View v) = (viewLens :: Lens' ReportStatus
-                                                                 String) . toLens v
+                                                                 ([Char])) . toLens v
           toLens u = error $ ("Unexpected goal JSONText for ReportStatus: " ++ show u)
 instance IsPath ReportStatus ReportStatus
     where type PathType ReportStatus
@@ -2521,13 +2526,13 @@ instance IsPath MaybeImageFile String
     where type PathType MaybeImageFile
                         String = Path_MaybeImageFile String
           toLens (Path_MaybeImageFile_View _) = viewLens :: Lens' (Maybe ImageFile)
-                                                                  String
+                                                                  ([Char])
           toLens u = error $ ("Unexpected goal [Char] (aka Checksum, aka FilePath, aka String) for Maybe ImageFile (aka MaybeImageFile): " ++ show u)
 instance IsPath MaybeImageFile JSONText
     where type PathType MaybeImageFile
                         JSONText = Path_MaybeImageFile JSONText
           toLens (Path_MaybeImageFile_View v) = (viewLens :: Lens' (Maybe ImageFile)
-                                                                   String) . toLens v
+                                                                   ([Char])) . toLens v
           toLens u = error $ ("Unexpected goal JSONText for Maybe ImageFile (aka MaybeImageFile): " ++ show u)
 instance IsPath MaybeImageFile MaybeImageFile
     where type PathType MaybeImageFile
@@ -2735,6 +2740,18 @@ instance IsPath ReportImages Text
                                                       (Path_ReportImage Text)
           toLens (Path_At k v) = lens_omat k . toLens v
           toLens u = error $ ("Unexpected goal Text for Order ReportImageID ReportImage (aka ReportImages): " ++ show u)
+instance IsPath ReadOnlyFilePath String
+    where type PathType ReadOnlyFilePath
+                        String = Path_ReadOnlyFilePath String
+          toLens (Path_ReadOnlyFilePath_View _) = viewLens :: Lens' (ReadOnly ([Char]))
+                                                                    ([Char])
+          toLens u = error $ ("Unexpected goal [Char] (aka Checksum, aka FilePath, aka String) for ReadOnly ([Char]) (aka ReadOnlyFilePath): " ++ show u)
+instance IsPath ReadOnlyFilePath JSONText
+    where type PathType ReadOnlyFilePath
+                        JSONText = Path_ReadOnlyFilePath JSONText
+          toLens (Path_ReadOnlyFilePath_View v) = (viewLens :: Lens' (ReadOnly ([Char]))
+                                                                     ([Char])) . toLens v
+          toLens u = error $ ("Unexpected goal JSONText for ReadOnly ([Char]) (aka ReadOnlyFilePath): " ++ show u)
 instance IsPath ReadOnlyFilePath ReadOnlyFilePath
     where type PathType ReadOnlyFilePath
                         ReadOnlyFilePath = Path_ReadOnlyFilePath ReadOnlyFilePath
@@ -2858,6 +2875,7 @@ instance IsPath ReportView (Maybe (Either URI ImageFile))
           toLens u = error $ ("Unexpected goal Maybe (Either URI ImageFile) for ReportView: " ++ show u)
 instance IsPath ReportView String
     where type PathType ReportView String = Path_ReportView String
+          toLens (Path_ReportView__reportFolder _x) = lens_ReportView__reportFolder . toLens _x
           toLens (Path_ReportView__reportIntendedUse _x) = lens_ReportView__reportIntendedUse . toLens _x
           toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
           toLens (Path_ReportView__reportStatus _x) = lens_ReportView__reportStatus . toLens _x
@@ -2916,6 +2934,7 @@ instance IsPath ReportView Integer
           toLens u = error $ ("Unexpected goal Integer for ReportView: " ++ show u)
 instance IsPath ReportView JSONText
     where type PathType ReportView JSONText = Path_ReportView JSONText
+          toLens (Path_ReportView__reportFolder _x) = lens_ReportView__reportFolder . toLens _x
           toLens (Path_ReportView__reportName _x) = lens_ReportView__reportName . toLens _x
           toLens (Path_ReportView__reportDate _x) = lens_ReportView__reportDate . toLens _x
           toLens (Path_ReportView__reportContractDate _x) = lens_ReportView__reportContractDate . toLens _x
@@ -8016,37 +8035,55 @@ instance HasUnits Units
     where lens_units = id
 instance IsPathNode (Maybe ImageFile)
     where type PVType (Maybe ImageFile) = PV_MaybeImageFile
-          pvTree x = error "view" :: Tree (PVType (Maybe ImageFile))
+          pvTree x = let p = error "view" :: Path_MaybeImageFile String
+                      in Node (PV_MaybeImageFile_String p (let [r] = toListOf (toLens p) x
+                                                            in r)) [error ("subtype nodes for " ++ show (Name (mkOccName "String") (NameG TcClsName (mkPkgName "base") (mkModName "GHC.Base"))))] :: Tree (PVType (Maybe ImageFile))
 instance IsPathNode (Maybe ReportIntendedUse)
     where type PVType (Maybe ReportIntendedUse) = PV_MaybeReportIntendedUse
-          pvTree x = error "view" :: Tree (PVType (Maybe ReportIntendedUse))
+          pvTree x = let p = error "view" :: Path_MaybeReportIntendedUse String
+                      in Node (PV_MaybeReportIntendedUse_String p (let [r] = toListOf (toLens p) x
+                                                                    in r)) [error ("subtype nodes for " ++ show (Name (mkOccName "String") (NameG TcClsName (mkPkgName "base") (mkModName "GHC.Base"))))] :: Tree (PVType (Maybe ReportIntendedUse))
 instance IsPathNode (ReadOnly ([Char]))
     where type PVType (ReadOnly ([Char])) = PV_ReadOnlyFilePath
-          pvTree x = error "view" :: Tree (PVType (ReadOnly ([Char])))
+          pvTree x = let p = error "view" :: Path_ReadOnlyFilePath String
+                      in Node (PV_ReadOnlyFilePath_String p (let [r] = toListOf (toLens p) x
+                                                              in r)) [error ("subtype nodes for " ++ show (Name (mkOccName "String") (NameG TcClsName (mkPkgName "base") (mkModName "GHC.Base"))))] :: Tree (PVType (ReadOnly ([Char])))
 instance IsPathNode (SaneSize ImageSize)
     where type PVType (SaneSize ImageSize) = PV_SaneSizeImageSize
-          pvTree x = error "view" :: Tree (PVType (SaneSize ImageSize))
+          pvTree x = let p = error "view" :: Path_SaneSizeImageSize ImageSize
+                      in Node (PV_SaneSizeImageSize_ImageSize p (let [r] = toListOf (toLens p) x
+                                                                  in r)) [error ("subtype nodes for " ++ show (Name (mkOccName "ImageSize") (NameG TcClsName (mkPkgName "image_JiYCm9GqyBqJvH5sfh90cX") (mkModName "Appraisal.Image"))))] :: Tree (PVType (SaneSize ImageSize))
 instance IsPathNode ([Char])
     where type PVType ([Char]) = PV_String
-          pvTree x = error "view" :: Tree (PVType ([Char]))
+          pvTree x = let p = error "view" :: Path_String JSONText
+                      in Node (PV_String_JSONText p (let [r] = toListOf (toLens p) x
+                                                      in r)) [error ("subtype nodes for " ++ show (Name (mkOccName "JSONText") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.IntJS"))))] :: Tree (PVType ([Char]))
 instance IsPathNode ([UserId])
     where type PVType ([UserId]) = PV_UserIds
-          pvTree x = error "view" :: Tree (PVType ([UserId]))
+          pvTree x = let p = error "view" :: Path_UserIds Text
+                      in Node (PV_UserIds_Text p (let [r] = toListOf (toLens p) x
+                                                   in r)) [error ("subtype nodes for " ++ show (Name (mkOccName "Text") (NameG TcClsName (mkPkgName "text_FGvB6qqz81tFju4pBPAqne") (mkModName "Data.Text.Internal"))))] :: Tree (PVType ([UserId]))
 instance IsPathNode Int64
     where type PVType Int64 = PV_Int64
           pvTree _ = error "simple"
 instance IsPathNode Bool
     where type PVType Bool = PV_Bool
-          pvTree x = error "view" :: Tree (PVType Bool)
+          pvTree x = let p = error "view" :: Path_Bool String
+                      in Node (PV_Bool_String p (let [r] = toListOf (toLens p) x
+                                                  in r)) [error ("subtype nodes for " ++ show (Name (mkOccName "String") (NameG TcClsName (mkPkgName "base") (mkModName "GHC.Base"))))] :: Tree (PVType Bool)
 instance IsPathNode Double
     where type PVType Double = PV_Double
-          pvTree x = error "view" :: Tree (PVType Double)
+          pvTree x = let p = error "view" :: Path_Double String
+                      in Node (PV_Double_String p (let [r] = toListOf (toLens p) x
+                                                    in r)) [error ("subtype nodes for " ++ show (Name (mkOccName "String") (NameG TcClsName (mkPkgName "base") (mkModName "GHC.Base"))))] :: Tree (PVType Double)
 instance IsPathNode Int
     where type PVType Int = PV_Int
           pvTree _ = error "simple"
 instance IsPathNode Dimension
     where type PVType Dimension = PV_Dimension
-          pvTree x = error "view" :: Tree (PVType Dimension)
+          pvTree x = let p = error "view" :: Path_Dimension JSONText
+                      in Node (PV_Dimension_JSONText p (let [r] = toListOf (toLens p) x
+                                                         in r)) [error ("subtype nodes for " ++ show (Name (mkOccName "JSONText") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.IntJS"))))] :: Tree (PVType Dimension)
 instance IsPathNode ImageCrop
     where type PVType ImageCrop = PV_ImageCrop
           pvTree _ = error "simple"
@@ -8055,7 +8092,9 @@ instance IsPathNode ImageSize
           pvTree _ = error "named"
 instance IsPathNode Units
     where type PVType Units = PV_Units
-          pvTree x = error "view" :: Tree (PVType Units)
+          pvTree x = let p = error "view" :: Path_Units JSONText
+                      in Node (PV_Units_JSONText p (let [r] = toListOf (toLens p) x
+                                                     in r)) [error ("subtype nodes for " ++ show (Name (mkOccName "JSONText") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.IntJS"))))] :: Tree (PVType Units)
 instance IsPathNode ImageFile
     where type PVType ImageFile = PV_ImageFile
           pvTree _ = error "simple"
@@ -8076,10 +8115,14 @@ instance IsPathNode Author
           pvTree _ = error "named"
 instance IsPathNode Branding
     where type PVType Branding = PV_Branding
-          pvTree x = error "view" :: Tree (PVType Branding)
+          pvTree x = let p = error "view" :: Path_Branding Text
+                      in Node (PV_Branding_Text p (let [r] = toListOf (toLens p) x
+                                                    in r)) [error ("subtype nodes for " ++ show (Name (mkOccName "Text") (NameG TcClsName (mkPkgName "text_FGvB6qqz81tFju4pBPAqne") (mkModName "Data.Text.Internal"))))] :: Tree (PVType Branding)
 instance IsPathNode Report
     where type PVType Report = PV_Report
-          pvTree x = error "view" :: Tree (PVType Report)
+          pvTree x = let p = error "view" :: Path_Report ReportView
+                      in Node (PV_Report_ReportView p (let [r] = toListOf (toLens p) x
+                                                        in r)) [error ("subtype nodes for " ++ show (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))] :: Tree (PVType Report)
 instance IsPathNode ReportElem
     where type PVType ReportElem = PV_ReportElem
           pvTree _ = error "named"
@@ -8088,13 +8131,17 @@ instance IsPathNode ReportFlags
           pvTree _ = error "named"
 instance IsPathNode ReportIntendedUse
     where type PVType ReportIntendedUse = PV_ReportIntendedUse
-          pvTree x = error "view" :: Tree (PVType ReportIntendedUse)
+          pvTree x = let p = error "view" :: Path_ReportIntendedUse String
+                      in Node (PV_ReportIntendedUse_String p (let [r] = toListOf (toLens p) x
+                                                               in r)) [error ("subtype nodes for " ++ show (Name (mkOccName "String") (NameG TcClsName (mkPkgName "base") (mkModName "GHC.Base"))))] :: Tree (PVType ReportIntendedUse)
 instance IsPathNode ReportStandard
     where type PVType ReportStandard = PV_ReportStandard
           pvTree _ = error "named"
 instance IsPathNode ReportStatus
     where type PVType ReportStatus = PV_ReportStatus
-          pvTree x = error "view" :: Tree (PVType ReportStatus)
+          pvTree x = let p = error "view" :: Path_ReportStatus String
+                      in Node (PV_ReportStatus_String p (let [r] = toListOf (toLens p) x
+                                                          in r)) [error ("subtype nodes for " ++ show (Name (mkOccName "String") (NameG TcClsName (mkPkgName "base") (mkModName "GHC.Base"))))] :: Tree (PVType ReportStatus)
 instance IsPathNode ReportValueApproachInfo
     where type PVType ReportValueApproachInfo = PV_ReportValueApproachInfo
           pvTree _ = error "named"
@@ -8103,7 +8150,9 @@ instance IsPathNode ReportValueTypeInfo
           pvTree _ = error "named"
 instance IsPathNode ReportImage
     where type PVType ReportImage = PV_ReportImage
-          pvTree x = error "view" :: Tree (PVType ReportImage)
+          pvTree x = let p = error "view" :: Path_ReportImage ReportImageView
+                      in Node (PV_ReportImage_ReportImageView p (let [r] = toListOf (toLens p) x
+                                                                  in r)) [error ("subtype nodes for " ++ show (Name (mkOccName "ReportImageView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))] :: Tree (PVType ReportImage)
 instance IsPathNode ReportImageView
     where type PVType ReportImageView = PV_ReportImageView
           pvTree _ = error "named"
@@ -8118,13 +8167,17 @@ instance IsPathNode ReportMap
           pvTree _ = error "named"
 instance IsPathNode CIString
     where type PVType CIString = PV_CIString
-          pvTree x = error "view" :: Tree (PVType CIString)
+          pvTree x = let p = error "view" :: Path_CIString Text
+                      in Node (PV_CIString_Text p (let [r] = toListOf (toLens p) x
+                                                    in r)) [error ("subtype nodes for " ++ show (Name (mkOccName "Text") (NameG TcClsName (mkPkgName "text_FGvB6qqz81tFju4pBPAqne") (mkModName "Data.Text.Internal"))))] :: Tree (PVType CIString)
 instance IsPathNode URI
     where type PVType URI = PV_URI
           pvTree _ = error "simple"
 instance IsPathNode Text
     where type PVType Text = PV_Text
-          pvTree x = error "view" :: Tree (PVType Text)
+          pvTree x = let p = error "view" :: Path_Text JSONText
+                      in Node (PV_Text_JSONText p (let [r] = toListOf (toLens p) x
+                                                    in r)) [error ("subtype nodes for " ++ show (Name (mkOccName "JSONText") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.IntJS"))))] :: Tree (PVType Text)
 instance IsPathNode UserId
     where type PVType UserId = PV_UserId
           pvTree _ = error "simple"

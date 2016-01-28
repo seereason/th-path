@@ -34,7 +34,7 @@ import Data.Foldable as Foldable (mapM_)
 import Data.Foldable
 import Data.List as List (intercalate, map)
 import Data.Map as Map (Map)
-import Data.Maybe (fromJust, isJust)
+import Data.Maybe (fromJust, fromMaybe, isJust)
 import Data.Set as Set (delete, minView)
 import Data.Set.Extra as Set (insert, map, member, Set)
 import qualified Data.Set.Extra as Set (mapM_)
@@ -86,7 +86,7 @@ doNode v = do
   -- generate the path type declarations
   selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [let (E typ) = view etype v in typ]
   simplePath <- (not . null) <$> reifyInstancesWithContext ''SinkType [let (E typ) = view etype v in typ]
-  viewType <- viewInstanceType (let (E typ) = view etype v in typ)
+  viewType <- viewInstanceType (view etype v)
   case () of
     _ | selfPath -> return ()
       | simplePath -> maybe (error $ "pathTypeDecs: simple path type has no name: " ++ pprint' v) doSimplePath (bestNames v)
@@ -231,7 +231,7 @@ pathType :: (MonadReaders TypeGraph m, MonadReaders TypeInfo m, ContextM m) =>
 pathType gtyp key = do
   selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [let (E typ) = view etype key in typ]
   simplePath <- (not . null) <$> reifyInstancesWithContext ''SinkType [let (E typ) = view etype key in typ]
-  viewType <- viewInstanceType (let (E typ) = view etype key in typ)
+  viewType <- viewInstanceType (view etype key)
   case view (etype . unE) key of
     _ | selfPath -> return $ view (etype . unE) key
       | simplePath -> let Just (pname, _syns) = bestPathTypeName key in runQ [t|$(conT pname) $gtyp|]
@@ -382,7 +382,7 @@ toLensClauses key gkey ptyp =
   do let v = key
      selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [let (E typ) = view etype v in typ]
      simplePath <- (not . null) <$> reifyInstancesWithContext ''SinkType [let (E typ) = view etype v in typ]
-     viewType <- viewInstanceType (let (E typ) = view etype v in typ)
+     viewType <- viewInstanceType (view etype v)
      case view (etype . unE) v of
        _ | selfPath -> return ()
          | simplePath -> return () -- Simple paths only work if we are at the goal type, and that case is handled above.
@@ -528,16 +528,30 @@ pvTreeClauses :: forall m v. (ContextM m, MonadReaders TypeGraph m, MonadReaders
 pvTreeClauses v =
   do selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [let (E typ) = view etype v in typ]
      simplePath <- (not . null) <$> reifyInstancesWithContext ''SinkType [let (E typ) = view etype v in typ]
-     viewType <- viewInstanceType (let (E typ) = view etype v in typ)
+     viewType <- viewInstanceType (view etype v)
      case view (etype . unE) v of
        _ | selfPath -> return [clause [wildP] (normalB [|error "self"|]) []]
          | simplePath -> return [clause [wildP] (normalB [|error "simple"|]) []]
        typ
          | isJust viewType ->
              do x <- runQ $ newName "x"
-                v' <- expandType (fromJust viewType) >>= typeVertex :: StateT (Set Name) m TGVSimple
-                sf <- pvTreeClauses v'
-                return [clause [varP x] (normalB [| error "view" :: Tree (PVType $(pure (view (etype . unE) v))) |]) []]
+                w <- expandType (fromJust viewType) >>= typeVertex :: StateT (Set Name) m TGVSimple
+                let vname = fromMaybe (error $ "No name for " ++ pprint v) (bestTypeName v)
+                    wname = fromMaybe (error $ "No name for " ++ pprint w ++ ", view of " ++ pprint v) (bestTypeName w)
+                    ptname = mkName ("Path_" ++ nameBase vname)
+                    pcname = mkName ("Path_" ++ nameBase vname ++ "_" ++ nameBase wname)
+                    pvname = mkName ("PV_" ++ nameBase vname ++ "_" ++ nameBase wname)
+                -- mname <- runQ $ lookupValueName s
+                -- let pvname = fromMaybe (error $ "Not declared: " ++ show s) mname
+                sf <- pvTreeClauses w
+                -- Node (PV_Report_ReportView p $(varE x)) [pvTree w]
+                return [clause [varP x] (normalB [| let p = ($(conE pcname) (error "view") :: $(conT ptname) $(conT wname)) in
+                                                    Node ($(conE pvname) p (let [r] = toListOf (toLens p) $(varE x) in r))
+                                                         [error ("subtype nodes for " ++ show wname)] :: Tree (PVType $(pure (view (etype . unE) v))) |]) []]
+                -- PV_Report_ReportView (Path_Report_View undefined)
+                -- return [clause [wildP] (normalB [|error "view"|]) []]
+             -- [|Node (PV_Report_ReportView p x) <$> pvTreeClauses (doReportViewFields x
+             -- tell [clause [wildP] (normalB [|error "view"|]) []]
        ConT tname -> return [clause [wildP] (normalB [|error "named"|]) []]
        AppT (AppT mtyp _ityp) vtyp
            | mtyp == ConT ''Order -> return [clause [wildP] (normalB [|error "order"|]) []]
