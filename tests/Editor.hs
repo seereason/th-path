@@ -16,12 +16,13 @@ import Control.Lens (Lens', toListOf, view)
 import Control.Monad.Readers
 --import Data.Graph (Graph, Vertex)
 --import Data.Set as Set (Set, toList)
+import Data.Proxy
 import Data.Tree
 import Debug.Trace (trace)
 import Language.Haskell.TH
 import Language.Haskell.TH.Context (ContextM)
 import Language.Haskell.TH.Lift (lift)
-import Language.Haskell.TH.Path.Core (IsPath(toLens), IsPathType(idPath), PathType)
+import Language.Haskell.TH.Path.Core (IsPath(toLens, pathsOf), IsPathType(idPath), PathType)
 import Language.Haskell.TH.Path.View (viewInstanceType)
 import Language.Haskell.TH.TypeGraph.Expand (expandType)
 import Language.Haskell.TH.TypeGraph.TypeGraph
@@ -125,7 +126,7 @@ editor tname value =
                  runQ [| $(pure root) {subForest = map (\path ->
                                                             let [x] = toListOf (toLens path) $value :: [$(pure ktype)] in
                                                             Node ($(conE leCon) path x) [])
-                                                       ({-toPaths $value-} undefined :: [PathType $(conT tname) $(conT kname)]) :: [Tree $(conT pvType)]} |]
+                                                       (pathsOf $value (undefined :: Proxy $(conT kname)) :: [PathType $(conT tname) $(conT kname)]) :: [Tree $(conT pvType)]} |]
           _ -> runQ [| root :: Tree $(conT pvType) |]
 {-
         case ks of
@@ -166,7 +167,7 @@ editor name = do
              leList = \x -> $(listE (map pure exps)) :: $(conT name) -> [$(conT pvName)] |]
     where
       doArc :: Name -> Name -> TGVSimple -> TGV -> m Exp
-      doArc pvName x v w = runQ [|\ $(varP x) -> (undefined $(litE (stringL ("x=" ++ show (friendlyNames x) ++ ", v=" ++ show (friendlyNames v) ++ ", w=" ++ show (friendlyNames w))))) :: [$(conT pvName)] |]
+      doArc pvName x v w = runQ [|\ $(varP x) -> (error "editor2" {-undefined $(litE (stringL ("x=" ++ show (friendlyNames x) ++ ", v=" ++ show (friendlyNames v) ++ ", w=" ++ show (friendlyNames w))))-}) :: [$(conT pvName)] |]
       -- doArc v w = runQ [|\x -> "x=" ++ show x ++ ", v=" ++ show v ++ ", w=" ++ show w|]
 
 {-
