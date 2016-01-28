@@ -15,7 +15,7 @@
 {-# OPTIONS_GHC -Wall -fno-warn-orphans -fno-warn-missing-signatures #-}
 module Language.Haskell.TH.Path.Core
     ( -- * Type classes and associated types
-      IsPath(toLens, PathType)
+      IsPath(toLens, pathsOf, PathType)
     , IsPathType(idPath)
     , IsPathNode(PVType, pvTree)
 
@@ -57,6 +57,7 @@ import Data.List as List (map)
 import qualified Data.Map as M (Map, insert, lookup)
 import Data.Maybe (catMaybes)
 import Data.Monoid
+import Data.Proxy
 import Data.SafeCopy (base, deriveSafeCopy)
 import Data.Set as Set ({-difference,-} fromList, Set)
 import Data.Text as Text (Text, pack, unpack, unwords, words)
@@ -92,6 +93,10 @@ class IsPathType (PathType s a) => IsPath s a where
     toLens :: PathType s a -> Traversal' s a
     -- ^ Function to turn a PathType into a lens to access (one of)
     -- the @a@ values.
+    pathsOf :: s -> Proxy a -> [PathType s a]
+    -- ^ Build the paths corresponding to a particular s.  This
+    -- function will freak out if called with types for which there is
+    -- no instance @IsPath s a@.
 
 class IsPathType p where
     idPath :: p -- ^ The identity value for path type @p@.  Obeys the law

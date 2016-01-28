@@ -1,6 +1,7 @@
 -- | Return the declarations that implement the IsPath instances, the
 -- toLens methods, the PathType types, and the universal path type.
 
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
@@ -35,6 +36,7 @@ import Data.Foldable
 import Data.List as List (intercalate, map)
 import Data.Map as Map (Map)
 import Data.Maybe (fromJust, fromMaybe, isJust)
+import Data.Proxy
 import Data.Set as Set (delete, minView)
 import Data.Set.Extra as Set (insert, map, member, Set)
 import qualified Data.Set.Extra as Set (mapM_)
@@ -337,6 +339,7 @@ pathInstanceDecs :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReader
 pathInstanceDecs key gkey = do
   ptyp <- pathType (pure (bestType gkey)) key
   tlc <- execWriterT $ evalStateT (toLensClauses key gkey ptyp) mempty
+  poc <- execWriterT $ pathsOfClauses key gkey ptyp
   -- clauses' <- runQ $ sequence clauses
   -- exp <- thePathExp gkey key ptyp clauses'
   when (not (null tlc)) $
@@ -344,6 +347,7 @@ pathInstanceDecs key gkey = do
              [instanceD (pure []) [t|IsPath $(pure (bestType key)) $(pure (bestType gkey))|]
                 [ tySynInstD ''PathType (tySynEqn [pure (bestType key), pure (bestType gkey)] (pure ptyp))
                 , funD 'toLens tlc
+                , funD 'pathsOf poc
                 ]]) >>= tell
     where
       -- Send a single dec to our funky writer monad
@@ -523,6 +527,67 @@ namedTypeClause tname gkey ptyp =
             mapClause patf lnsf clauseq =
                 runQ clauseq >>= \(Clause [pat] (NormalB lns) xs) -> return $ clause [patf (pure pat)] (normalB (lnsf (pure lns))) (List.map pure xs)
 
+pathsOfClauses :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [ClauseQ] m) =>
+                       TGVSimple -- ^ the type whose clauses we are generating
+                    -> TGVSimple -- ^ the goal type key
+                    -> Type -- ^ the corresponding path type - first type parameter of ToLens
+                    -> m ()
+pathsOfClauses key gkey _ptyp
+    | view etype key == view etype gkey = tell [clause [wildP, wildP] (normalB [|[idPath] |]) []]
+pathsOfClauses key gkey ptyp =
+  do selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [view (etype . unE) key]
+     simplePath <- (not . null) <$> reifyInstancesWithContext ''SinkType [view (etype . unE) key]
+     viewType <- viewInstanceType (view etype key)
+     case view (etype . unE) key of
+       _ | selfPath -> return ()
+         | simplePath -> return ()
+       typ
+         | isJust viewType -> tell [clause [wildP, wildP] (normalB [|undefined|]) []]
+       ConT tname ->
+           doName tname
+       AppT (AppT mtyp _ityp) vtyp
+           | mtyp == ConT ''Order ->
+               tell [clause [wildP, wildP] (normalB [|undefined|]) []]
+       AppT ListT _etyp -> return ()
+       AppT (AppT t3 _ktyp) vtyp
+           | t3 == ConT ''Map ->
+               tell [clause [wildP, wildP] (normalB [|undefined|]) []]
+       AppT (AppT (TupleT 2) ftyp) styp ->
+           tell [clause [wildP, wildP] (normalB [|undefined|]) []]
+       AppT t1 etyp
+           | t1 == ConT ''Maybe ->
+               tell [clause [wildP, wildP] (normalB [|undefined|]) []]
+       AppT (AppT t3 ltyp) rtyp
+           | t3 == ConT ''Either ->
+               do -- Are there paths from the left type to a?  This is
+                  -- the test we use in pathInstanceDecs, but using it
+                  -- here is kind of a hack.
+                  lkey <- expandType ltyp >>= typeVertex
+                  rkey <- expandType rtyp >>= typeVertex
+                  ltlc <- execWriterT $ evalStateT (toLensClauses lkey gkey ptyp) mempty
+                  rtlc <- execWriterT $ evalStateT (toLensClauses rkey gkey ptyp) mempty
+                  case (not (null ltlc)) of
+                    True -> ((clauses <$> runQ [d| f (Left x) a = List.map Path_Left (pathsOf (x :: $(pure ltyp)) a :: [PathType $(pure ltyp) $(pure (view (etype . unE) gkey))]) |]) >>= tell)
+                    False -> ((clauses <$> runQ [d| f (Left x) a = [] |]) >>= tell)
+                  case (not (null rtlc)) of
+                    True -> ((clauses <$> runQ [d| f (Right x) a = List.map Path_Right (pathsOf (x :: $(pure rtyp)) a :: [PathType $(pure rtyp) $(pure (view (etype . unE) gkey))]) |]) >>= tell)
+                    False -> ((clauses <$> runQ [d| f (Right x) a = [] |]) >>= tell)
+       _ -> tell [clause [wildP, wildP] (normalB [|undefined|]) []]
+    where
+      doName :: Name -> m ()
+      doName tname = tell [clause [wildP, wildP] (normalB [|undefined|]) []]
+
+-- | Extract the template haskell Clauses
+class Clauses x where
+    clauses :: x -> [ClauseQ]
+
+instance Clauses Dec where
+    clauses (FunD _ xs) = List.map pure xs
+    clauses _ = error "No clauses"
+
+instance Clauses a => Clauses [a] where
+    clauses = concatMap clauses
+
 pvTreeClauses :: forall m v. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) =>
                  TGVSimple -> StateT (Set Name) m [ClauseQ]
 pvTreeClauses v =
@@ -539,13 +604,13 @@ pvTreeClauses v =
                 let vname = fromMaybe (error $ "No name for " ++ pprint v) (bestTypeName v)
                     wname = fromMaybe (error $ "No name for " ++ pprint w ++ ", view of " ++ pprint v) (bestTypeName w)
                     ptname = mkName ("Path_" ++ nameBase vname)
-                    pcname = mkName ("Path_" ++ nameBase vname ++ "_" ++ nameBase wname)
+                    -- pcname = mkName ("Path_" ++ nameBase vname ++ "_" ++ nameBase wname)
                     pvname = mkName ("PV_" ++ nameBase vname ++ "_" ++ nameBase wname)
                 -- mname <- runQ $ lookupValueName s
                 -- let pvname = fromMaybe (error $ "Not declared: " ++ show s) mname
                 sf <- pvTreeClauses w
                 -- Node (PV_Report_ReportView p $(varE x)) [pvTree w]
-                return [clause [varP x] (normalB [| let p = ($(conE pcname) (error "view") :: $(conT ptname) $(conT wname)) in
+                return [clause [varP x] (normalB [| let p = (error "view") :: $(conT ptname) $(conT wname) in
                                                     Node ($(conE pvname) p (let [r] = toListOf (toLens p) $(varE x) in r))
                                                          [error ("subtype nodes for " ++ show wname)] :: Tree (PVType $(pure (view (etype . unE) v))) |]) []]
                 -- PV_Report_ReportView (Path_Report_View undefined)
