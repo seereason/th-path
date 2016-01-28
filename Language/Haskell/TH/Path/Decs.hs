@@ -36,7 +36,6 @@ import Data.Foldable
 import Data.List as List (intercalate, map)
 import Data.Map as Map (Map)
 import Data.Maybe (fromJust, fromMaybe, isJust)
-import Data.Proxy
 import Data.Set as Set (delete, minView)
 import Data.Set.Extra as Set (insert, map, member, Set)
 import qualified Data.Set.Extra as Set (mapM_)
@@ -556,7 +555,13 @@ pathsOfClauses key gkey ptyp =
            tell [clause [wildP, wildP] (normalB [|undefined|]) []]
        AppT t1 etyp
            | t1 == ConT ''Maybe ->
-               tell [clause [wildP, wildP] (normalB [|undefined|]) []]
+               do ekey <- expandType etyp >>= typeVertex
+                  etlc <- execWriterT $ evalStateT (toLensClauses ekey gkey ptyp) mempty
+                  runQ [d| f (Just x) a =
+                             $(case (not (null etlc)) of
+                                 True -> [| List.map Path_Just (pathsOf (x :: $(pure etyp)) a :: [PathType $(pure etyp) $(pure (view (etype . unE) gkey))]) |]
+                                 False -> [| [] |]) |] >>= tell . clauses
+                  runQ [d| f Nothing a = [] |] >>= tell . clauses
        AppT (AppT t3 ltyp) rtyp
            | t3 == ConT ''Either ->
                do -- Are there paths from the left type to a?  This is
@@ -566,12 +571,14 @@ pathsOfClauses key gkey ptyp =
                   rkey <- expandType rtyp >>= typeVertex
                   ltlc <- execWriterT $ evalStateT (toLensClauses lkey gkey ptyp) mempty
                   rtlc <- execWriterT $ evalStateT (toLensClauses rkey gkey ptyp) mempty
-                  case (not (null ltlc)) of
-                    True -> ((clauses <$> runQ [d| f (Left x) a = List.map Path_Left (pathsOf (x :: $(pure ltyp)) a :: [PathType $(pure ltyp) $(pure (view (etype . unE) gkey))]) |]) >>= tell)
-                    False -> ((clauses <$> runQ [d| f (Left x) a = [] |]) >>= tell)
-                  case (not (null rtlc)) of
-                    True -> ((clauses <$> runQ [d| f (Right x) a = List.map Path_Right (pathsOf (x :: $(pure rtyp)) a :: [PathType $(pure rtyp) $(pure (view (etype . unE) gkey))]) |]) >>= tell)
-                    False -> ((clauses <$> runQ [d| f (Right x) a = [] |]) >>= tell)
+                  runQ [d| f (Left x) a =
+                             $(case (not (null ltlc)) of
+                                 True -> [| List.map Path_Left (pathsOf (x :: $(pure ltyp)) a :: [PathType $(pure ltyp) $(pure (view (etype . unE) gkey))]) |]
+                                 False -> [| [] |]) |] >>= tell . clauses
+                  runQ [d| f (Right x) a =
+                             $(case (not (null rtlc)) of
+                                 True -> [| List.map Path_Right (pathsOf (x :: $(pure rtyp)) a :: [PathType $(pure rtyp) $(pure (view (etype . unE) gkey))]) |]
+                                 False -> [| [] |]) |] >>= tell . clauses
        _ -> tell [clause [wildP, wildP] (normalB [|undefined|]) []]
     where
       doName :: Name -> m ()

@@ -1637,7 +1637,12 @@ instance IsPath (Maybe (Either URI ImageFile))
                                                                                              ImageFile)))
           toLens (Path_Just _) = _Just
           toLens u = error $ ("Unexpected goal Either URI ImageFile for Maybe (Either URI ImageFile): " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf (Just x) a = map Path_Just (pathsOf (x :: Either URI
+                                                                   ImageFile) a :: [PathType (Either URI
+                                                                                                     ImageFile)
+                                                                                             (Either URI
+                                                                                                     ImageFile)])
+          pathsOf (Nothing) a = []
 instance IsPath (Maybe (Either URI ImageFile))
                 (Maybe (Either URI ImageFile))
     where type PathType (Maybe (Either URI ImageFile))
@@ -1654,13 +1659,21 @@ instance IsPath (Maybe (Either URI ImageFile)) ImageFile
                                                             (Path_ImageFile ImageFile))
           toLens (Path_Just v) = _Just . toLens v
           toLens u = error $ ("Unexpected goal ImageFile for Maybe (Either URI ImageFile): " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf (Just x) a = map Path_Just (pathsOf (x :: Either URI
+                                                                   ImageFile) a :: [PathType (Either URI
+                                                                                                     ImageFile)
+                                                                                             ImageFile])
+          pathsOf (Nothing) a = []
 instance IsPath (Maybe (Either URI ImageFile)) URI
     where type PathType (Maybe (Either URI ImageFile))
                         URI = Path_Maybe (Path_Either (Path_URI URI) (Path_ImageFile URI))
           toLens (Path_Just v) = _Just . toLens v
           toLens u = error $ ("Unexpected goal URI for Maybe (Either URI ImageFile): " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf (Just x) a = map Path_Just (pathsOf (x :: Either URI
+                                                                   ImageFile) a :: [PathType (Either URI
+                                                                                                     ImageFile)
+                                                                                             URI])
+          pathsOf (Nothing) a = []
 instance IsPath String String
     where type PathType String String = Path_String String
           toLens _ = iso id id
