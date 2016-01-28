@@ -1285,7 +1285,6 @@ instance IsPath (Either URI ImageFile) ImageFile
                         ImageFile = Path_Either (Path_URI ImageFile)
                                                 (Path_ImageFile ImageFile)
           toLens (Path_Right _) = _Right
-          toLens u = error $ ("Unexpected goal ImageFile for Either URI ImageFile: " ++ show u)
           pathsOf (Left x) a = []
           pathsOf (Right x) a = map Path_Right (pathsOf (x :: ImageFile) a :: [PathType ImageFile
                                                                                         ImageFile])
@@ -1293,7 +1292,6 @@ instance IsPath (Either URI ImageFile) URI
     where type PathType (Either URI ImageFile)
                         URI = Path_Either (Path_URI URI) (Path_ImageFile URI)
           toLens (Path_Left _) = _Left
-          toLens u = error $ ("Unexpected goal URI for Either URI ImageFile: " ++ show u)
           pathsOf (Left x) a = map Path_Left (pathsOf (x :: URI) a :: [PathType URI
                                                                                 URI])
           pathsOf (Right x) a = []
@@ -1309,26 +1307,22 @@ instance IsPath (Map ItemFieldName Markup) JSONText
     where type PathType (Map ItemFieldName Markup)
                         JSONText = Path_Map ItemFieldName (Path_Markup JSONText)
           toLens (Path_Look k v) = mat k . toLens v
-          toLens u = error $ ("Unexpected goal JSONText for Map ItemFieldName Markup: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath (Map ItemFieldName Markup) Markup
     where type PathType (Map ItemFieldName Markup)
                         Markup = Path_Map ItemFieldName (Path_Markup Markup)
           toLens (Path_Look k _) = mat k
-          toLens u = error $ ("Unexpected goal Markup for Map ItemFieldName Markup: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath (Map ItemFieldName Markup) Text
     where type PathType (Map ItemFieldName Markup)
                         Text = Path_Map ItemFieldName (Path_Markup Text)
           toLens (Path_Look k v) = mat k . toLens v
-          toLens u = error $ ("Unexpected goal Text for Map ItemFieldName Markup: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath (Map ReportID Report) (Either URI ImageFile)
     where type PathType (Map ReportID Report)
                         (Either URI ImageFile) = Path_Map ReportID
                                                           (Path_Report (Either URI ImageFile))
           toLens (Path_Look k v) = mat k . toLens v
-          toLens u = error $ ("Unexpected goal Either URI ImageFile for Map ReportID Report: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath (Map ReportID Report) (Map ItemFieldName Markup)
     where type PathType (Map ReportID Report)
@@ -1336,7 +1330,6 @@ instance IsPath (Map ReportID Report) (Map ItemFieldName Markup)
                                                               (Path_Report (Map ItemFieldName
                                                                                 Markup))
           toLens (Path_Look k v) = mat k . toLens v
-          toLens u = error $ ("Unexpected goal Map ItemFieldName Markup for Map ReportID Report: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath (Map ReportID Report) (Map ReportID Report)
     where type PathType (Map ReportID Report)
@@ -1351,281 +1344,235 @@ instance IsPath (Map ReportID Report)
                                                                   (Path_Report (Maybe (Either URI
                                                                                               ImageFile)))
           toLens (Path_Look k v) = mat k . toLens v
-          toLens u = error $ ("Unexpected goal Maybe (Either URI ImageFile) for Map ReportID Report: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath (Map ReportID Report) String
     where type PathType (Map ReportID Report)
                         String = Path_Map ReportID (Path_Report String)
           toLens (Path_Look k v) = mat k . toLens v
-          toLens u = error $ ("Unexpected goal [Char] (aka Checksum, aka FilePath, aka String) for Map ReportID Report: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath (Map ReportID Report) Int64
     where type PathType (Map ReportID Report) Int64 = Path_Map ReportID
                                                                (Path_Report Int64)
           toLens (Path_Look k v) = mat k . toLens v
-          toLens u = error $ ("Unexpected goal Int64 (aka EpochMilli) for Map ReportID Report: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath (Map ReportID Report) Bool
     where type PathType (Map ReportID Report) Bool = Path_Map ReportID
                                                               (Path_Report Bool)
           toLens (Path_Look k v) = mat k . toLens v
-          toLens u = error $ ("Unexpected goal Bool for Map ReportID Report: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath (Map ReportID Report) Double
     where type PathType (Map ReportID Report)
                         Double = Path_Map ReportID (Path_Report Double)
           toLens (Path_Look k v) = mat k . toLens v
-          toLens u = error $ ("Unexpected goal Double for Map ReportID Report: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath (Map ReportID Report) Int
     where type PathType (Map ReportID Report) Int = Path_Map ReportID
                                                              (Path_Report Int)
           toLens (Path_Look k v) = mat k . toLens v
-          toLens u = error $ ("Unexpected goal Int (aka Size) for Map ReportID Report: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath (Map ReportID Report) Dimension
     where type PathType (Map ReportID Report)
                         Dimension = Path_Map ReportID (Path_Report Dimension)
           toLens (Path_Look k v) = mat k . toLens v
-          toLens u = error $ ("Unexpected goal Dimension for Map ReportID Report: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath (Map ReportID Report) ImageCrop
     where type PathType (Map ReportID Report)
                         ImageCrop = Path_Map ReportID (Path_Report ImageCrop)
           toLens (Path_Look k v) = mat k . toLens v
-          toLens u = error $ ("Unexpected goal ImageCrop for Map ReportID Report: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath (Map ReportID Report) ImageSize
     where type PathType (Map ReportID Report)
                         ImageSize = Path_Map ReportID (Path_Report ImageSize)
           toLens (Path_Look k v) = mat k . toLens v
-          toLens u = error $ ("Unexpected goal ImageSize for Map ReportID Report: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath (Map ReportID Report) Units
     where type PathType (Map ReportID Report) Units = Path_Map ReportID
                                                                (Path_Report Units)
           toLens (Path_Look k v) = mat k . toLens v
-          toLens u = error $ ("Unexpected goal Units for Map ReportID Report: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath (Map ReportID Report) ImageFile
     where type PathType (Map ReportID Report)
                         ImageFile = Path_Map ReportID (Path_Report ImageFile)
           toLens (Path_Look k v) = mat k . toLens v
-          toLens u = error $ ("Unexpected goal ImageFile for Map ReportID Report: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath (Map ReportID Report) Integer
     where type PathType (Map ReportID Report)
                         Integer = Path_Map ReportID (Path_Report Integer)
           toLens (Path_Look k v) = mat k . toLens v
-          toLens u = error $ ("Unexpected goal Integer for Map ReportID Report: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath (Map ReportID Report) JSONText
     where type PathType (Map ReportID Report)
                         JSONText = Path_Map ReportID (Path_Report JSONText)
           toLens (Path_Look k v) = mat k . toLens v
-          toLens u = error $ ("Unexpected goal JSONText for Map ReportID Report: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath (Map ReportID Report) Markup
     where type PathType (Map ReportID Report)
                         Markup = Path_Map ReportID (Path_Report Markup)
           toLens (Path_Look k v) = mat k . toLens v
-          toLens u = error $ ("Unexpected goal Markup for Map ReportID Report: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath (Map ReportID Report) Permissions
     where type PathType (Map ReportID Report)
                         Permissions = Path_Map ReportID (Path_Report Permissions)
           toLens (Path_Look k v) = mat k . toLens v
-          toLens u = error $ ("Unexpected goal Permissions for Map ReportID Report: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath (Map ReportID Report) UserIds
     where type PathType (Map ReportID Report)
                         UserIds = Path_Map ReportID (Path_Report UserIds)
           toLens (Path_Look k v) = mat k . toLens v
-          toLens u = error $ ("Unexpected goal [UserId] (aka UserIds) for Map ReportID Report: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath (Map ReportID Report) AbbrevPair
     where type PathType (Map ReportID Report)
                         AbbrevPair = Path_Map ReportID (Path_Report AbbrevPair)
           toLens (Path_Look k v) = mat k . toLens v
-          toLens u = error $ ("Unexpected goal (CIString, Markup) (aka AbbrevPair) for Map ReportID Report: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath (Map ReportID Report) AbbrevPairs
     where type PathType (Map ReportID Report)
                         AbbrevPairs = Path_Map ReportID (Path_Report AbbrevPairs)
           toLens (Path_Look k v) = mat k . toLens v
-          toLens u = error $ ("Unexpected goal Order AbbrevPairID ((CIString, Markup)) (aka AbbrevPairs) for Map ReportID Report: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath (Map ReportID Report) Author
     where type PathType (Map ReportID Report)
                         Author = Path_Map ReportID (Path_Report Author)
           toLens (Path_Look k v) = mat k . toLens v
-          toLens u = error $ ("Unexpected goal Author for Map ReportID Report: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath (Map ReportID Report) Authors
     where type PathType (Map ReportID Report)
                         Authors = Path_Map ReportID (Path_Report Authors)
           toLens (Path_Look k v) = mat k . toLens v
-          toLens u = error $ ("Unexpected goal Order AuthorID Author (aka Authors) for Map ReportID Report: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath (Map ReportID Report) Branding
     where type PathType (Map ReportID Report)
                         Branding = Path_Map ReportID (Path_Report Branding)
           toLens (Path_Look k v) = mat k . toLens v
-          toLens u = error $ ("Unexpected goal Branding for Map ReportID Report: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath (Map ReportID Report) MarkupPair
     where type PathType (Map ReportID Report)
                         MarkupPair = Path_Map ReportID (Path_Report MarkupPair)
           toLens (Path_Look k v) = mat k . toLens v
-          toLens u = error $ ("Unexpected goal (Markup, Markup) (aka MarkupPair) for Map ReportID Report: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath (Map ReportID Report) MarkupPairs
     where type PathType (Map ReportID Report)
                         MarkupPairs = Path_Map ReportID (Path_Report MarkupPairs)
           toLens (Path_Look k v) = mat k . toLens v
-          toLens u = error $ ("Unexpected goal Order MarkupPairID ((Markup, Markup)) (aka MarkupPairs) for Map ReportID Report: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath (Map ReportID Report) Markups
     where type PathType (Map ReportID Report)
                         Markups = Path_Map ReportID (Path_Report Markups)
           toLens (Path_Look k v) = mat k . toLens v
-          toLens u = error $ ("Unexpected goal Order MarkupID Markup (aka Markups) for Map ReportID Report: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath (Map ReportID Report) MaybeReportIntendedUse
     where type PathType (Map ReportID Report)
                         MaybeReportIntendedUse = Path_Map ReportID
                                                           (Path_Report MaybeReportIntendedUse)
           toLens (Path_Look k v) = mat k . toLens v
-          toLens u = error $ ("Unexpected goal Maybe ReportIntendedUse (aka MaybeReportIntendedUse) for Map ReportID Report: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath (Map ReportID Report) Report
     where type PathType (Map ReportID Report)
                         Report = Path_Map ReportID (Path_Report Report)
           toLens (Path_Look k _) = mat k
-          toLens u = error $ ("Unexpected goal Report for Map ReportID Report: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath (Map ReportID Report) ReportElem
     where type PathType (Map ReportID Report)
                         ReportElem = Path_Map ReportID (Path_Report ReportElem)
           toLens (Path_Look k v) = mat k . toLens v
-          toLens u = error $ ("Unexpected goal ReportElem for Map ReportID Report: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath (Map ReportID Report) ReportElems
     where type PathType (Map ReportID Report)
                         ReportElems = Path_Map ReportID (Path_Report ReportElems)
           toLens (Path_Look k v) = mat k . toLens v
-          toLens u = error $ ("Unexpected goal Order ReportElemID ReportElem (aka ReportElems) for Map ReportID Report: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath (Map ReportID Report) ReportFlags
     where type PathType (Map ReportID Report)
                         ReportFlags = Path_Map ReportID (Path_Report ReportFlags)
           toLens (Path_Look k v) = mat k . toLens v
-          toLens u = error $ ("Unexpected goal ReportFlags for Map ReportID Report: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath (Map ReportID Report) ReportStandard
     where type PathType (Map ReportID Report)
                         ReportStandard = Path_Map ReportID (Path_Report ReportStandard)
           toLens (Path_Look k v) = mat k . toLens v
-          toLens u = error $ ("Unexpected goal ReportStandard for Map ReportID Report: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath (Map ReportID Report) ReportStatus
     where type PathType (Map ReportID Report)
                         ReportStatus = Path_Map ReportID (Path_Report ReportStatus)
           toLens (Path_Look k v) = mat k . toLens v
-          toLens u = error $ ("Unexpected goal ReportStatus for Map ReportID Report: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath (Map ReportID Report) ReportValueApproachInfo
     where type PathType (Map ReportID Report)
                         ReportValueApproachInfo = Path_Map ReportID
                                                            (Path_Report ReportValueApproachInfo)
           toLens (Path_Look k v) = mat k . toLens v
-          toLens u = error $ ("Unexpected goal ReportValueApproachInfo for Map ReportID Report: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath (Map ReportID Report) ReportValueTypeInfo
     where type PathType (Map ReportID Report)
                         ReportValueTypeInfo = Path_Map ReportID
                                                        (Path_Report ReportValueTypeInfo)
           toLens (Path_Look k v) = mat k . toLens v
-          toLens u = error $ ("Unexpected goal ReportValueTypeInfo for Map ReportID Report: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath (Map ReportID Report) MaybeImageFile
     where type PathType (Map ReportID Report)
                         MaybeImageFile = Path_Map ReportID (Path_Report MaybeImageFile)
           toLens (Path_Look k v) = mat k . toLens v
-          toLens u = error $ ("Unexpected goal Maybe ImageFile (aka MaybeImageFile) for Map ReportID Report: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath (Map ReportID Report) ReportImage
     where type PathType (Map ReportID Report)
                         ReportImage = Path_Map ReportID (Path_Report ReportImage)
           toLens (Path_Look k v) = mat k . toLens v
-          toLens u = error $ ("Unexpected goal ReportImage for Map ReportID Report: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath (Map ReportID Report) ReportImages
     where type PathType (Map ReportID Report)
                         ReportImages = Path_Map ReportID (Path_Report ReportImages)
           toLens (Path_Look k v) = mat k . toLens v
-          toLens u = error $ ("Unexpected goal Order ReportImageID ReportImage (aka ReportImages) for Map ReportID Report: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath (Map ReportID Report) ReadOnlyFilePath
     where type PathType (Map ReportID Report)
                         ReadOnlyFilePath = Path_Map ReportID (Path_Report ReadOnlyFilePath)
           toLens (Path_Look k v) = mat k . toLens v
-          toLens u = error $ ("Unexpected goal ReadOnly ([Char]) (aka ReadOnlyFilePath) for Map ReportID Report: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath (Map ReportID Report) ReportImageView
     where type PathType (Map ReportID Report)
                         ReportImageView = Path_Map ReportID (Path_Report ReportImageView)
           toLens (Path_Look k v) = mat k . toLens v
-          toLens u = error $ ("Unexpected goal ReportImageView for Map ReportID Report: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath (Map ReportID Report) ReportView
     where type PathType (Map ReportID Report)
                         ReportView = Path_Map ReportID (Path_Report ReportView)
           toLens (Path_Look k v) = mat k . toLens v
-          toLens u = error $ ("Unexpected goal ReportView for Map ReportID Report: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath (Map ReportID Report) SaneSizeImageSize
     where type PathType (Map ReportID Report)
                         SaneSizeImageSize = Path_Map ReportID
                                                      (Path_Report SaneSizeImageSize)
           toLens (Path_Look k v) = mat k . toLens v
-          toLens u = error $ ("Unexpected goal SaneSize ImageSize (aka SaneSizeImageSize) for Map ReportID Report: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath (Map ReportID Report) Item
     where type PathType (Map ReportID Report) Item = Path_Map ReportID
                                                               (Path_Report Item)
           toLens (Path_Look k v) = mat k . toLens v
-          toLens u = error $ ("Unexpected goal Item for Map ReportID Report: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath (Map ReportID Report) CIString
     where type PathType (Map ReportID Report)
                         CIString = Path_Map ReportID (Path_Report CIString)
           toLens (Path_Look k v) = mat k . toLens v
-          toLens u = error $ ("Unexpected goal CIString for Map ReportID Report: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath (Map ReportID Report) URI
     where type PathType (Map ReportID Report) URI = Path_Map ReportID
                                                              (Path_Report URI)
           toLens (Path_Look k v) = mat k . toLens v
-          toLens u = error $ ("Unexpected goal URI for Map ReportID Report: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath (Map ReportID Report) Text
     where type PathType (Map ReportID Report) Text = Path_Map ReportID
                                                               (Path_Report Text)
           toLens (Path_Look k v) = mat k . toLens v
-          toLens u = error $ ("Unexpected goal Text for Map ReportID Report: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath (Map ReportID Report) UserId
     where type PathType (Map ReportID Report)
                         UserId = Path_Map ReportID (Path_Report UserId)
           toLens (Path_Look k v) = mat k . toLens v
-          toLens u = error $ ("Unexpected goal UserId for Map ReportID Report: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath (Map ReportID Report) UUID
     where type PathType (Map ReportID Report) UUID = Path_Map ReportID
                                                               (Path_Report UUID)
           toLens (Path_Look k v) = mat k . toLens v
-          toLens u = error $ ("Unexpected goal UUID for Map ReportID Report: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath (Maybe (Either URI ImageFile))
                 (Either URI ImageFile)
@@ -1636,7 +1583,6 @@ instance IsPath (Maybe (Either URI ImageFile))
                                                                      (Path_ImageFile (Either URI
                                                                                              ImageFile)))
           toLens (Path_Just _) = _Just
-          toLens u = error $ ("Unexpected goal Either URI ImageFile for Maybe (Either URI ImageFile): " ++ show u)
           pathsOf (Just x) a = map Path_Just (pathsOf (x :: Either URI
                                                                    ImageFile) a :: [PathType (Either URI
                                                                                                      ImageFile)
@@ -1658,7 +1604,6 @@ instance IsPath (Maybe (Either URI ImageFile)) ImageFile
                         ImageFile = Path_Maybe (Path_Either (Path_URI ImageFile)
                                                             (Path_ImageFile ImageFile))
           toLens (Path_Just v) = _Just . toLens v
-          toLens u = error $ ("Unexpected goal ImageFile for Maybe (Either URI ImageFile): " ++ show u)
           pathsOf (Just x) a = map Path_Just (pathsOf (x :: Either URI
                                                                    ImageFile) a :: [PathType (Either URI
                                                                                                      ImageFile)
@@ -1668,7 +1613,6 @@ instance IsPath (Maybe (Either URI ImageFile)) URI
     where type PathType (Maybe (Either URI ImageFile))
                         URI = Path_Maybe (Path_Either (Path_URI URI) (Path_ImageFile URI))
           toLens (Path_Just v) = _Just . toLens v
-          toLens u = error $ ("Unexpected goal URI for Maybe (Either URI ImageFile): " ++ show u)
           pathsOf (Just x) a = map Path_Just (pathsOf (x :: Either URI
                                                                    ImageFile) a :: [PathType (Either URI
                                                                                                      ImageFile)
@@ -1681,8 +1625,11 @@ instance IsPath String String
 instance IsPath String JSONText
     where type PathType String JSONText = Path_String JSONText
           toLens (Path_String_View _) = viewLens :: Lens' ([Char]) JSONText
-          toLens u = error $ ("Unexpected goal JSONText for [Char] (aka Checksum, aka FilePath, aka String): " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_String_View idPath :: PathType ([Char])
+                                                                     JSONText;
+                             [x'] = toListOf (toLens p) x :: [JSONText]}
+                         in map Path_String_View (pathsOf x' a :: [PathType JSONText
+                                                                            JSONText])
 instance IsPath Int64 Int64
     where type PathType Int64 Int64 = Path_Int64 Int64
           toLens _ = iso id id
@@ -1690,8 +1637,11 @@ instance IsPath Int64 Int64
 instance IsPath Bool String
     where type PathType Bool String = Path_Bool String
           toLens (Path_Bool_View _) = viewLens :: Lens' Bool ([Char])
-          toLens u = error $ ("Unexpected goal [Char] (aka Checksum, aka FilePath, aka String) for Bool: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_Bool_View idPath :: PathType Bool
+                                                                   ([Char]);
+                             [x'] = toListOf (toLens p) x :: [[Char]]}
+                         in map Path_Bool_View (pathsOf x' a :: [PathType ([Char])
+                                                                          ([Char])])
 instance IsPath Bool Bool
     where type PathType Bool Bool = Path_Bool Bool
           toLens _ = iso id id
@@ -1700,13 +1650,19 @@ instance IsPath Bool JSONText
     where type PathType Bool JSONText = Path_Bool JSONText
           toLens (Path_Bool_View v) = (viewLens :: Lens' Bool
                                                          ([Char])) . toLens v
-          toLens u = error $ ("Unexpected goal JSONText for Bool: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_Bool_View idPath :: PathType Bool
+                                                                   ([Char]);
+                             [x'] = toListOf (toLens p) x :: [[Char]]}
+                         in map Path_Bool_View (pathsOf x' a :: [PathType ([Char])
+                                                                          JSONText])
 instance IsPath Double String
     where type PathType Double String = Path_Double String
           toLens (Path_Double_View _) = viewLens :: Lens' Double ([Char])
-          toLens u = error $ ("Unexpected goal [Char] (aka Checksum, aka FilePath, aka String) for Double: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_Double_View idPath :: PathType Double
+                                                                     ([Char]);
+                             [x'] = toListOf (toLens p) x :: [[Char]]}
+                         in map Path_Double_View (pathsOf x' a :: [PathType ([Char])
+                                                                            ([Char])])
 instance IsPath Double Double
     where type PathType Double Double = Path_Double Double
           toLens _ = iso id id
@@ -1715,8 +1671,11 @@ instance IsPath Double JSONText
     where type PathType Double JSONText = Path_Double JSONText
           toLens (Path_Double_View v) = (viewLens :: Lens' Double
                                                            ([Char])) . toLens v
-          toLens u = error $ ("Unexpected goal JSONText for Double: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_Double_View idPath :: PathType Double
+                                                                     ([Char]);
+                             [x'] = toListOf (toLens p) x :: [[Char]]}
+                         in map Path_Double_View (pathsOf x' a :: [PathType ([Char])
+                                                                            JSONText])
 instance IsPath Int Int
     where type PathType Int Int = Path_Int Int
           toLens _ = iso id id
@@ -1729,8 +1688,11 @@ instance IsPath Dimension JSONText
     where type PathType Dimension JSONText = Path_Dimension JSONText
           toLens (Path_Dimension_View _) = viewLens :: Lens' Dimension
                                                              JSONText
-          toLens u = error $ ("Unexpected goal JSONText for Dimension: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_Dimension_View idPath :: PathType Dimension
+                                                                        JSONText;
+                             [x'] = toListOf (toLens p) x :: [JSONText]}
+                         in map Path_Dimension_View (pathsOf x' a :: [PathType JSONText
+                                                                               JSONText])
 instance IsPath ImageCrop ImageCrop
     where type PathType ImageCrop ImageCrop = Path_ImageCrop ImageCrop
           toLens _ = iso id id
@@ -1738,17 +1700,14 @@ instance IsPath ImageCrop ImageCrop
 instance IsPath ImageSize String
     where type PathType ImageSize String = Path_ImageSize String
           toLens (Path_ImageSize_size _x) = lens_ImageSize_size . toLens _x
-          toLens u = error $ ("Unexpected goal [Char] (aka Checksum, aka FilePath, aka String) for ImageSize: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ImageSize Double
     where type PathType ImageSize Double = Path_ImageSize Double
           toLens (Path_ImageSize_size _x) = lens_ImageSize_size
-          toLens u = error $ ("Unexpected goal Double for ImageSize: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ImageSize Dimension
     where type PathType ImageSize Dimension = Path_ImageSize Dimension
           toLens (Path_ImageSize_dim _x) = lens_ImageSize_dim
-          toLens u = error $ ("Unexpected goal Dimension for ImageSize: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ImageSize ImageSize
     where type PathType ImageSize ImageSize = Path_ImageSize ImageSize
@@ -1757,14 +1716,12 @@ instance IsPath ImageSize ImageSize
 instance IsPath ImageSize Units
     where type PathType ImageSize Units = Path_ImageSize Units
           toLens (Path_ImageSize_units _x) = lens_ImageSize_units
-          toLens u = error $ ("Unexpected goal Units for ImageSize: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ImageSize JSONText
     where type PathType ImageSize JSONText = Path_ImageSize JSONText
           toLens (Path_ImageSize_dim _x) = lens_ImageSize_dim . toLens _x
           toLens (Path_ImageSize_size _x) = lens_ImageSize_size . toLens _x
           toLens (Path_ImageSize_units _x) = lens_ImageSize_units . toLens _x
-          toLens u = error $ ("Unexpected goal JSONText for ImageSize: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath Units Units
     where type PathType Units Units = Path_Units Units
@@ -1773,8 +1730,11 @@ instance IsPath Units Units
 instance IsPath Units JSONText
     where type PathType Units JSONText = Path_Units JSONText
           toLens (Path_Units_View _) = viewLens :: Lens' Units JSONText
-          toLens u = error $ ("Unexpected goal JSONText for Units: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_Units_View idPath :: PathType Units
+                                                                    JSONText;
+                             [x'] = toListOf (toLens p) x :: [JSONText]}
+                         in map Path_Units_View (pathsOf x' a :: [PathType JSONText
+                                                                           JSONText])
 instance IsPath ImageFile ImageFile
     where type PathType ImageFile ImageFile = Path_ImageFile ImageFile
           toLens _ = iso id id
@@ -1791,7 +1751,6 @@ instance IsPath Markup JSONText
     where type PathType Markup JSONText = Path_Markup JSONText
           toLens (Path_Markup_markdownText _x) = lens_Markup_markdownText . toLens _x
           toLens (Path_Markup_htmlText _x) = lens_Markup_htmlText . toLens _x
-          toLens u = error $ ("Unexpected goal JSONText for Markup: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath Markup Markup
     where type PathType Markup Markup = Path_Markup Markup
@@ -1801,14 +1760,12 @@ instance IsPath Markup Text
     where type PathType Markup Text = Path_Markup Text
           toLens (Path_Markup_markdownText _x) = lens_Markup_markdownText
           toLens (Path_Markup_htmlText _x) = lens_Markup_htmlText
-          toLens u = error $ ("Unexpected goal Text for Markup: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath Permissions JSONText
     where type PathType Permissions
                         JSONText = Path_Permissions JSONText
           toLens (Path_Permissions_writers _x) = lens_Permissions_writers . toLens _x
           toLens (Path_Permissions_readers _x) = lens_Permissions_readers . toLens _x
-          toLens u = error $ ("Unexpected goal JSONText for Permissions: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath Permissions Permissions
     where type PathType Permissions
@@ -1819,25 +1776,25 @@ instance IsPath Permissions UserIds
     where type PathType Permissions UserIds = Path_Permissions UserIds
           toLens (Path_Permissions_writers _x) = lens_Permissions_writers
           toLens (Path_Permissions_readers _x) = lens_Permissions_readers
-          toLens u = error $ ("Unexpected goal [UserId] (aka UserIds) for Permissions: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath Permissions Text
     where type PathType Permissions Text = Path_Permissions Text
           toLens (Path_Permissions_writers _x) = lens_Permissions_writers . toLens _x
           toLens (Path_Permissions_readers _x) = lens_Permissions_readers . toLens _x
-          toLens u = error $ ("Unexpected goal Text for Permissions: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath Permissions UserId
     where type PathType Permissions UserId = Path_Permissions UserId
           toLens (Path_Permissions_owner _x) = lens_Permissions_owner
-          toLens u = error $ ("Unexpected goal UserId for Permissions: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath UserIds JSONText
     where type PathType UserIds JSONText = Path_UserIds JSONText
           toLens (Path_UserIds_View v) = (viewLens :: Lens' ([UserId])
                                                             Text) . toLens v
-          toLens u = error $ ("Unexpected goal JSONText for [UserId] (aka UserIds): " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_UserIds_View idPath :: PathType ([UserId])
+                                                                      Text;
+                             [x'] = toListOf (toLens p) x :: [Text]}
+                         in map Path_UserIds_View (pathsOf x' a :: [PathType Text
+                                                                             JSONText])
 instance IsPath UserIds UserIds
     where type PathType UserIds UserIds = Path_UserIds UserIds
           toLens _ = iso id id
@@ -1845,22 +1802,30 @@ instance IsPath UserIds UserIds
 instance IsPath UserIds Text
     where type PathType UserIds Text = Path_UserIds Text
           toLens (Path_UserIds_View _) = viewLens :: Lens' ([UserId]) Text
-          toLens u = error $ ("Unexpected goal Text for [UserId] (aka UserIds): " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_UserIds_View idPath :: PathType ([UserId])
+                                                                      Text;
+                             [x'] = toListOf (toLens p) x :: [Text]}
+                         in map Path_UserIds_View (pathsOf x' a :: [PathType Text Text])
 instance IsPath AbbrevPair JSONText
     where type PathType AbbrevPair
                         JSONText = Path_Pair (Path_CIString JSONText)
                                              (Path_Markup JSONText)
           toLens (Path_First v) = _1 . toLens v
           toLens (Path_Second v) = _2 . toLens v
-          toLens u = error $ ("Unexpected goal JSONText for (CIString, Markup) (aka AbbrevPair): " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf (x,
+                   _) a = map Path_First (pathsOf (x :: CIString) a :: [PathType CIString
+                                                                                 JSONText])
+          pathsOf (_,
+                   x) a = map Path_Second (pathsOf (x :: Markup) a :: [PathType Markup
+                                                                                JSONText])
 instance IsPath AbbrevPair Markup
     where type PathType AbbrevPair
                         Markup = Path_Pair (Path_CIString Markup) (Path_Markup Markup)
           toLens (Path_Second _) = _2
-          toLens u = error $ ("Unexpected goal Markup for (CIString, Markup) (aka AbbrevPair): " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf (x, _) a = []
+          pathsOf (_,
+                   x) a = map Path_Second (pathsOf (x :: Markup) a :: [PathType Markup
+                                                                                Markup])
 instance IsPath AbbrevPair AbbrevPair
     where type PathType AbbrevPair
                         AbbrevPair = Path_Pair (Path_CIString AbbrevPair)
@@ -1872,35 +1837,38 @@ instance IsPath AbbrevPair CIString
                         CIString = Path_Pair (Path_CIString CIString)
                                              (Path_Markup CIString)
           toLens (Path_First _) = _1
-          toLens u = error $ ("Unexpected goal CIString for (CIString, Markup) (aka AbbrevPair): " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf (x,
+                   _) a = map Path_First (pathsOf (x :: CIString) a :: [PathType CIString
+                                                                                 CIString])
+          pathsOf (_, x) a = []
 instance IsPath AbbrevPair Text
     where type PathType AbbrevPair
                         Text = Path_Pair (Path_CIString Text) (Path_Markup Text)
           toLens (Path_First v) = _1 . toLens v
           toLens (Path_Second v) = _2 . toLens v
-          toLens u = error $ ("Unexpected goal Text for (CIString, Markup) (aka AbbrevPair): " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf (x,
+                   _) a = map Path_First (pathsOf (x :: CIString) a :: [PathType CIString
+                                                                                 Text])
+          pathsOf (_,
+                   x) a = map Path_Second (pathsOf (x :: Markup) a :: [PathType Markup
+                                                                                Text])
 instance IsPath AbbrevPairs JSONText
     where type PathType AbbrevPairs JSONText = Path_OMap AbbrevPairID
                                                          (Path_Pair (Path_CIString JSONText)
                                                                     (Path_Markup JSONText))
           toLens (Path_At k v) = lens_omat k . toLens v
-          toLens u = error $ ("Unexpected goal JSONText for Order AbbrevPairID ((CIString, Markup)) (aka AbbrevPairs): " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath AbbrevPairs Markup
     where type PathType AbbrevPairs Markup = Path_OMap AbbrevPairID
                                                        (Path_Pair (Path_CIString Markup)
                                                                   (Path_Markup Markup))
           toLens (Path_At k v) = lens_omat k . toLens v
-          toLens u = error $ ("Unexpected goal Markup for Order AbbrevPairID ((CIString, Markup)) (aka AbbrevPairs): " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath AbbrevPairs AbbrevPair
     where type PathType AbbrevPairs AbbrevPair = Path_OMap AbbrevPairID
                                                            (Path_Pair (Path_CIString AbbrevPair)
                                                                       (Path_Markup AbbrevPair))
           toLens (Path_At k _) = lens_omat k
-          toLens u = error $ ("Unexpected goal (CIString, Markup) (aka AbbrevPair) for Order AbbrevPairID ((CIString, Markup)) (aka AbbrevPairs): " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath AbbrevPairs AbbrevPairs
     where type PathType AbbrevPairs
@@ -1914,26 +1882,22 @@ instance IsPath AbbrevPairs CIString
                                                          (Path_Pair (Path_CIString CIString)
                                                                     (Path_Markup CIString))
           toLens (Path_At k v) = lens_omat k . toLens v
-          toLens u = error $ ("Unexpected goal CIString for Order AbbrevPairID ((CIString, Markup)) (aka AbbrevPairs): " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath AbbrevPairs Text
     where type PathType AbbrevPairs Text = Path_OMap AbbrevPairID
                                                      (Path_Pair (Path_CIString Text)
                                                                 (Path_Markup Text))
           toLens (Path_At k v) = lens_omat k . toLens v
-          toLens u = error $ ("Unexpected goal Text for Order AbbrevPairID ((CIString, Markup)) (aka AbbrevPairs): " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath Author JSONText
     where type PathType Author JSONText = Path_Author JSONText
           toLens (Path_Author_authorName _x) = lens_Author_authorName . toLens _x
           toLens (Path_Author_authorCredentials _x) = lens_Author_authorCredentials . toLens _x
-          toLens u = error $ ("Unexpected goal JSONText for Author: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath Author Markup
     where type PathType Author Markup = Path_Author Markup
           toLens (Path_Author_authorName _x) = lens_Author_authorName
           toLens (Path_Author_authorCredentials _x) = lens_Author_authorCredentials
-          toLens u = error $ ("Unexpected goal Markup for Author: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath Author Author
     where type PathType Author Author = Path_Author Author
@@ -1943,25 +1907,21 @@ instance IsPath Author Text
     where type PathType Author Text = Path_Author Text
           toLens (Path_Author_authorName _x) = lens_Author_authorName . toLens _x
           toLens (Path_Author_authorCredentials _x) = lens_Author_authorCredentials . toLens _x
-          toLens u = error $ ("Unexpected goal Text for Author: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath Authors JSONText
     where type PathType Authors JSONText = Path_OMap AuthorID
                                                      (Path_Author JSONText)
           toLens (Path_At k v) = lens_omat k . toLens v
-          toLens u = error $ ("Unexpected goal JSONText for Order AuthorID Author (aka Authors): " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath Authors Markup
     where type PathType Authors Markup = Path_OMap AuthorID
                                                    (Path_Author Markup)
           toLens (Path_At k v) = lens_omat k . toLens v
-          toLens u = error $ ("Unexpected goal Markup for Order AuthorID Author (aka Authors): " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath Authors Author
     where type PathType Authors Author = Path_OMap AuthorID
                                                    (Path_Author Author)
           toLens (Path_At k _) = lens_omat k
-          toLens u = error $ ("Unexpected goal Author for Order AuthorID Author (aka Authors): " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath Authors Authors
     where type PathType Authors Authors = Path_OMap AuthorID
@@ -1972,14 +1932,16 @@ instance IsPath Authors Text
     where type PathType Authors Text = Path_OMap AuthorID
                                                  (Path_Author Text)
           toLens (Path_At k v) = lens_omat k . toLens v
-          toLens u = error $ ("Unexpected goal Text for Order AuthorID Author (aka Authors): " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath Branding JSONText
     where type PathType Branding JSONText = Path_Branding JSONText
           toLens (Path_Branding_View v) = (viewLens :: Lens' Branding
                                                              Text) . toLens v
-          toLens u = error $ ("Unexpected goal JSONText for Branding: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_Branding_View idPath :: PathType Branding
+                                                                       Text;
+                             [x'] = toListOf (toLens p) x :: [Text]}
+                         in map Path_Branding_View (pathsOf x' a :: [PathType Text
+                                                                              JSONText])
 instance IsPath Branding Branding
     where type PathType Branding Branding = Path_Branding Branding
           toLens _ = iso id id
@@ -1987,22 +1949,32 @@ instance IsPath Branding Branding
 instance IsPath Branding Text
     where type PathType Branding Text = Path_Branding Text
           toLens (Path_Branding_View _) = viewLens :: Lens' Branding Text
-          toLens u = error $ ("Unexpected goal Text for Branding: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_Branding_View idPath :: PathType Branding
+                                                                       Text;
+                             [x'] = toListOf (toLens p) x :: [Text]}
+                         in map Path_Branding_View (pathsOf x' a :: [PathType Text Text])
 instance IsPath MarkupPair JSONText
     where type PathType MarkupPair
                         JSONText = Path_Pair (Path_Markup JSONText) (Path_Markup JSONText)
           toLens (Path_First v) = _1 . toLens v
           toLens (Path_Second v) = _2 . toLens v
-          toLens u = error $ ("Unexpected goal JSONText for (Markup, Markup) (aka MarkupPair): " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf (x,
+                   _) a = map Path_First (pathsOf (x :: Markup) a :: [PathType Markup
+                                                                               JSONText])
+          pathsOf (_,
+                   x) a = map Path_Second (pathsOf (x :: Markup) a :: [PathType Markup
+                                                                                JSONText])
 instance IsPath MarkupPair Markup
     where type PathType MarkupPair
                         Markup = Path_Pair (Path_Markup Markup) (Path_Markup Markup)
           toLens (Path_First _) = _1
           toLens (Path_Second _) = _2
-          toLens u = error $ ("Unexpected goal Markup for (Markup, Markup) (aka MarkupPair): " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf (x,
+                   _) a = map Path_First (pathsOf (x :: Markup) a :: [PathType Markup
+                                                                               Markup])
+          pathsOf (_,
+                   x) a = map Path_Second (pathsOf (x :: Markup) a :: [PathType Markup
+                                                                                Markup])
 instance IsPath MarkupPair MarkupPair
     where type PathType MarkupPair
                         MarkupPair = Path_Pair (Path_Markup MarkupPair)
@@ -2014,28 +1986,29 @@ instance IsPath MarkupPair Text
                                                     (Path_Markup Text)
           toLens (Path_First v) = _1 . toLens v
           toLens (Path_Second v) = _2 . toLens v
-          toLens u = error $ ("Unexpected goal Text for (Markup, Markup) (aka MarkupPair): " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf (x,
+                   _) a = map Path_First (pathsOf (x :: Markup) a :: [PathType Markup
+                                                                               Text])
+          pathsOf (_,
+                   x) a = map Path_Second (pathsOf (x :: Markup) a :: [PathType Markup
+                                                                                Text])
 instance IsPath MarkupPairs JSONText
     where type PathType MarkupPairs JSONText = Path_OMap MarkupPairID
                                                          (Path_Pair (Path_Markup JSONText)
                                                                     (Path_Markup JSONText))
           toLens (Path_At k v) = lens_omat k . toLens v
-          toLens u = error $ ("Unexpected goal JSONText for Order MarkupPairID ((Markup, Markup)) (aka MarkupPairs): " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath MarkupPairs Markup
     where type PathType MarkupPairs Markup = Path_OMap MarkupPairID
                                                        (Path_Pair (Path_Markup Markup)
                                                                   (Path_Markup Markup))
           toLens (Path_At k v) = lens_omat k . toLens v
-          toLens u = error $ ("Unexpected goal Markup for Order MarkupPairID ((Markup, Markup)) (aka MarkupPairs): " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath MarkupPairs MarkupPair
     where type PathType MarkupPairs MarkupPair = Path_OMap MarkupPairID
                                                            (Path_Pair (Path_Markup MarkupPair)
                                                                       (Path_Markup MarkupPair))
           toLens (Path_At k _) = lens_omat k
-          toLens u = error $ ("Unexpected goal (Markup, Markup) (aka MarkupPair) for Order MarkupPairID ((Markup, Markup)) (aka MarkupPairs): " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath MarkupPairs MarkupPairs
     where type PathType MarkupPairs
@@ -2049,19 +2022,16 @@ instance IsPath MarkupPairs Text
                                                      (Path_Pair (Path_Markup Text)
                                                                 (Path_Markup Text))
           toLens (Path_At k v) = lens_omat k . toLens v
-          toLens u = error $ ("Unexpected goal Text for Order MarkupPairID ((Markup, Markup)) (aka MarkupPairs): " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath Markups JSONText
     where type PathType Markups JSONText = Path_OMap MarkupID
                                                      (Path_Markup JSONText)
           toLens (Path_At k v) = lens_omat k . toLens v
-          toLens u = error $ ("Unexpected goal JSONText for Order MarkupID Markup (aka Markups): " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath Markups Markup
     where type PathType Markups Markup = Path_OMap MarkupID
                                                    (Path_Markup Markup)
           toLens (Path_At k _) = lens_omat k
-          toLens u = error $ ("Unexpected goal Markup for Order MarkupID Markup (aka Markups): " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath Markups Markups
     where type PathType Markups Markups = Path_OMap MarkupID
@@ -2072,22 +2042,27 @@ instance IsPath Markups Text
     where type PathType Markups Text = Path_OMap MarkupID
                                                  (Path_Markup Text)
           toLens (Path_At k v) = lens_omat k . toLens v
-          toLens u = error $ ("Unexpected goal Text for Order MarkupID Markup (aka Markups): " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath MaybeReportIntendedUse String
     where type PathType MaybeReportIntendedUse
                         String = Path_MaybeReportIntendedUse String
           toLens (Path_MaybeReportIntendedUse_View _) = viewLens :: Lens' (Maybe ReportIntendedUse)
                                                                           ([Char])
-          toLens u = error $ ("Unexpected goal [Char] (aka Checksum, aka FilePath, aka String) for Maybe ReportIntendedUse (aka MaybeReportIntendedUse): " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_MaybeReportIntendedUse_View idPath :: PathType (Maybe ReportIntendedUse)
+                                                                                     ([Char]);
+                             [x'] = toListOf (toLens p) x :: [[Char]]}
+                         in map Path_MaybeReportIntendedUse_View (pathsOf x' a :: [PathType ([Char])
+                                                                                            ([Char])])
 instance IsPath MaybeReportIntendedUse JSONText
     where type PathType MaybeReportIntendedUse
                         JSONText = Path_MaybeReportIntendedUse JSONText
           toLens (Path_MaybeReportIntendedUse_View v) = (viewLens :: Lens' (Maybe ReportIntendedUse)
                                                                            ([Char])) . toLens v
-          toLens u = error $ ("Unexpected goal JSONText for Maybe ReportIntendedUse (aka MaybeReportIntendedUse): " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_MaybeReportIntendedUse_View idPath :: PathType (Maybe ReportIntendedUse)
+                                                                                     ([Char]);
+                             [x'] = toListOf (toLens p) x :: [[Char]]}
+                         in map Path_MaybeReportIntendedUse_View (pathsOf x' a :: [PathType ([Char])
+                                                                                            JSONText])
 instance IsPath MaybeReportIntendedUse MaybeReportIntendedUse
     where type PathType MaybeReportIntendedUse
                         MaybeReportIntendedUse = Path_MaybeReportIntendedUse MaybeReportIntendedUse
@@ -2098,168 +2073,257 @@ instance IsPath Report (Either URI ImageFile)
                         (Either URI ImageFile) = Path_Report (Either URI ImageFile)
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
                                                            ReportView) . toLens v
-          toLens u = error $ ("Unexpected goal Either URI ImageFile for Report: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
+                                                                     ReportView;
+                             [x'] = toListOf (toLens p) x :: [ReportView]}
+                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
+                                                                            (Either URI ImageFile)])
 instance IsPath Report (Map ItemFieldName Markup)
     where type PathType Report
                         (Map ItemFieldName Markup) = Path_Report (Map ItemFieldName Markup)
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
                                                            ReportView) . toLens v
-          toLens u = error $ ("Unexpected goal Map ItemFieldName Markup for Report: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
+                                                                     ReportView;
+                             [x'] = toListOf (toLens p) x :: [ReportView]}
+                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
+                                                                            (Map ItemFieldName
+                                                                                 Markup)])
 instance IsPath Report (Maybe (Either URI ImageFile))
     where type PathType Report
                         (Maybe (Either URI ImageFile)) = Path_Report (Maybe (Either URI
                                                                                     ImageFile))
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
                                                            ReportView) . toLens v
-          toLens u = error $ ("Unexpected goal Maybe (Either URI ImageFile) for Report: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
+                                                                     ReportView;
+                             [x'] = toListOf (toLens p) x :: [ReportView]}
+                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
+                                                                            (Maybe (Either URI
+                                                                                           ImageFile))])
 instance IsPath Report String
     where type PathType Report String = Path_Report String
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
                                                            ReportView) . toLens v
-          toLens u = error $ ("Unexpected goal [Char] (aka Checksum, aka FilePath, aka String) for Report: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
+                                                                     ReportView;
+                             [x'] = toListOf (toLens p) x :: [ReportView]}
+                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
+                                                                            ([Char])])
 instance IsPath Report Int64
     where type PathType Report Int64 = Path_Report Int64
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
                                                            ReportView) . toLens v
-          toLens u = error $ ("Unexpected goal Int64 (aka EpochMilli) for Report: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
+                                                                     ReportView;
+                             [x'] = toListOf (toLens p) x :: [ReportView]}
+                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
+                                                                            Int64])
 instance IsPath Report Bool
     where type PathType Report Bool = Path_Report Bool
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
                                                            ReportView) . toLens v
-          toLens u = error $ ("Unexpected goal Bool for Report: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
+                                                                     ReportView;
+                             [x'] = toListOf (toLens p) x :: [ReportView]}
+                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
+                                                                            Bool])
 instance IsPath Report Double
     where type PathType Report Double = Path_Report Double
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
                                                            ReportView) . toLens v
-          toLens u = error $ ("Unexpected goal Double for Report: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
+                                                                     ReportView;
+                             [x'] = toListOf (toLens p) x :: [ReportView]}
+                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
+                                                                            Double])
 instance IsPath Report Int
     where type PathType Report Int = Path_Report Int
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
                                                            ReportView) . toLens v
-          toLens u = error $ ("Unexpected goal Int (aka Size) for Report: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
+                                                                     ReportView;
+                             [x'] = toListOf (toLens p) x :: [ReportView]}
+                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
+                                                                            Int])
 instance IsPath Report Dimension
     where type PathType Report Dimension = Path_Report Dimension
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
                                                            ReportView) . toLens v
-          toLens u = error $ ("Unexpected goal Dimension for Report: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
+                                                                     ReportView;
+                             [x'] = toListOf (toLens p) x :: [ReportView]}
+                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
+                                                                            Dimension])
 instance IsPath Report ImageCrop
     where type PathType Report ImageCrop = Path_Report ImageCrop
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
                                                            ReportView) . toLens v
-          toLens u = error $ ("Unexpected goal ImageCrop for Report: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
+                                                                     ReportView;
+                             [x'] = toListOf (toLens p) x :: [ReportView]}
+                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
+                                                                            ImageCrop])
 instance IsPath Report ImageSize
     where type PathType Report ImageSize = Path_Report ImageSize
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
                                                            ReportView) . toLens v
-          toLens u = error $ ("Unexpected goal ImageSize for Report: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
+                                                                     ReportView;
+                             [x'] = toListOf (toLens p) x :: [ReportView]}
+                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
+                                                                            ImageSize])
 instance IsPath Report Units
     where type PathType Report Units = Path_Report Units
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
                                                            ReportView) . toLens v
-          toLens u = error $ ("Unexpected goal Units for Report: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
+                                                                     ReportView;
+                             [x'] = toListOf (toLens p) x :: [ReportView]}
+                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
+                                                                            Units])
 instance IsPath Report ImageFile
     where type PathType Report ImageFile = Path_Report ImageFile
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
                                                            ReportView) . toLens v
-          toLens u = error $ ("Unexpected goal ImageFile for Report: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
+                                                                     ReportView;
+                             [x'] = toListOf (toLens p) x :: [ReportView]}
+                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
+                                                                            ImageFile])
 instance IsPath Report Integer
     where type PathType Report Integer = Path_Report Integer
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
                                                            ReportView) . toLens v
-          toLens u = error $ ("Unexpected goal Integer for Report: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
+                                                                     ReportView;
+                             [x'] = toListOf (toLens p) x :: [ReportView]}
+                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
+                                                                            Integer])
 instance IsPath Report JSONText
     where type PathType Report JSONText = Path_Report JSONText
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
                                                            ReportView) . toLens v
-          toLens u = error $ ("Unexpected goal JSONText for Report: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
+                                                                     ReportView;
+                             [x'] = toListOf (toLens p) x :: [ReportView]}
+                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
+                                                                            JSONText])
 instance IsPath Report Markup
     where type PathType Report Markup = Path_Report Markup
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
                                                            ReportView) . toLens v
-          toLens u = error $ ("Unexpected goal Markup for Report: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
+                                                                     ReportView;
+                             [x'] = toListOf (toLens p) x :: [ReportView]}
+                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
+                                                                            Markup])
 instance IsPath Report Permissions
     where type PathType Report Permissions = Path_Report Permissions
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
                                                            ReportView) . toLens v
-          toLens u = error $ ("Unexpected goal Permissions for Report: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
+                                                                     ReportView;
+                             [x'] = toListOf (toLens p) x :: [ReportView]}
+                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
+                                                                            Permissions])
 instance IsPath Report UserIds
     where type PathType Report UserIds = Path_Report UserIds
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
                                                            ReportView) . toLens v
-          toLens u = error $ ("Unexpected goal [UserId] (aka UserIds) for Report: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
+                                                                     ReportView;
+                             [x'] = toListOf (toLens p) x :: [ReportView]}
+                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
+                                                                            ([UserId])])
 instance IsPath Report AbbrevPair
     where type PathType Report AbbrevPair = Path_Report AbbrevPair
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
                                                            ReportView) . toLens v
-          toLens u = error $ ("Unexpected goal (CIString, Markup) (aka AbbrevPair) for Report: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
+                                                                     ReportView;
+                             [x'] = toListOf (toLens p) x :: [ReportView]}
+                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
+                                                                            ((CIString, Markup))])
 instance IsPath Report AbbrevPairs
     where type PathType Report AbbrevPairs = Path_Report AbbrevPairs
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
                                                            ReportView) . toLens v
-          toLens u = error $ ("Unexpected goal Order AbbrevPairID ((CIString, Markup)) (aka AbbrevPairs) for Report: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
+                                                                     ReportView;
+                             [x'] = toListOf (toLens p) x :: [ReportView]}
+                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
+                                                                            (Order AbbrevPairID
+                                                                                   ((CIString,
+                                                                                     Markup)))])
 instance IsPath Report Author
     where type PathType Report Author = Path_Report Author
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
                                                            ReportView) . toLens v
-          toLens u = error $ ("Unexpected goal Author for Report: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
+                                                                     ReportView;
+                             [x'] = toListOf (toLens p) x :: [ReportView]}
+                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
+                                                                            Author])
 instance IsPath Report Authors
     where type PathType Report Authors = Path_Report Authors
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
                                                            ReportView) . toLens v
-          toLens u = error $ ("Unexpected goal Order AuthorID Author (aka Authors) for Report: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
+                                                                     ReportView;
+                             [x'] = toListOf (toLens p) x :: [ReportView]}
+                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
+                                                                            (Order AuthorID
+                                                                                   Author)])
 instance IsPath Report Branding
     where type PathType Report Branding = Path_Report Branding
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
                                                            ReportView) . toLens v
-          toLens u = error $ ("Unexpected goal Branding for Report: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
+                                                                     ReportView;
+                             [x'] = toListOf (toLens p) x :: [ReportView]}
+                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
+                                                                            Branding])
 instance IsPath Report MarkupPair
     where type PathType Report MarkupPair = Path_Report MarkupPair
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
                                                            ReportView) . toLens v
-          toLens u = error $ ("Unexpected goal (Markup, Markup) (aka MarkupPair) for Report: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
+                                                                     ReportView;
+                             [x'] = toListOf (toLens p) x :: [ReportView]}
+                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
+                                                                            ((Markup, Markup))])
 instance IsPath Report MarkupPairs
     where type PathType Report MarkupPairs = Path_Report MarkupPairs
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
                                                            ReportView) . toLens v
-          toLens u = error $ ("Unexpected goal Order MarkupPairID ((Markup, Markup)) (aka MarkupPairs) for Report: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
+                                                                     ReportView;
+                             [x'] = toListOf (toLens p) x :: [ReportView]}
+                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
+                                                                            (Order MarkupPairID
+                                                                                   ((Markup,
+                                                                                     Markup)))])
 instance IsPath Report Markups
     where type PathType Report Markups = Path_Report Markups
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
                                                            ReportView) . toLens v
-          toLens u = error $ ("Unexpected goal Order MarkupID Markup (aka Markups) for Report: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
+                                                                     ReportView;
+                             [x'] = toListOf (toLens p) x :: [ReportView]}
+                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
+                                                                            (Order MarkupID
+                                                                                   Markup)])
 instance IsPath Report MaybeReportIntendedUse
     where type PathType Report
                         MaybeReportIntendedUse = Path_Report MaybeReportIntendedUse
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
                                                            ReportView) . toLens v
-          toLens u = error $ ("Unexpected goal Maybe ReportIntendedUse (aka MaybeReportIntendedUse) for Report: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
+                                                                     ReportView;
+                             [x'] = toListOf (toLens p) x :: [ReportView]}
+                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
+                                                                            (Maybe ReportIntendedUse)])
 instance IsPath Report Report
     where type PathType Report Report = Path_Report Report
           toLens _ = iso id id
@@ -2268,203 +2332,252 @@ instance IsPath Report ReportElem
     where type PathType Report ReportElem = Path_Report ReportElem
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
                                                            ReportView) . toLens v
-          toLens u = error $ ("Unexpected goal ReportElem for Report: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
+                                                                     ReportView;
+                             [x'] = toListOf (toLens p) x :: [ReportView]}
+                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
+                                                                            ReportElem])
 instance IsPath Report ReportElems
     where type PathType Report ReportElems = Path_Report ReportElems
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
                                                            ReportView) . toLens v
-          toLens u = error $ ("Unexpected goal Order ReportElemID ReportElem (aka ReportElems) for Report: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
+                                                                     ReportView;
+                             [x'] = toListOf (toLens p) x :: [ReportView]}
+                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
+                                                                            (Order ReportElemID
+                                                                                   ReportElem)])
 instance IsPath Report ReportFlags
     where type PathType Report ReportFlags = Path_Report ReportFlags
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
                                                            ReportView) . toLens v
-          toLens u = error $ ("Unexpected goal ReportFlags for Report: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
+                                                                     ReportView;
+                             [x'] = toListOf (toLens p) x :: [ReportView]}
+                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
+                                                                            ReportFlags])
 instance IsPath Report ReportStandard
     where type PathType Report
                         ReportStandard = Path_Report ReportStandard
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
                                                            ReportView) . toLens v
-          toLens u = error $ ("Unexpected goal ReportStandard for Report: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
+                                                                     ReportView;
+                             [x'] = toListOf (toLens p) x :: [ReportView]}
+                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
+                                                                            ReportStandard])
 instance IsPath Report ReportStatus
     where type PathType Report ReportStatus = Path_Report ReportStatus
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
                                                            ReportView) . toLens v
-          toLens u = error $ ("Unexpected goal ReportStatus for Report: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
+                                                                     ReportView;
+                             [x'] = toListOf (toLens p) x :: [ReportView]}
+                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
+                                                                            ReportStatus])
 instance IsPath Report ReportValueApproachInfo
     where type PathType Report
                         ReportValueApproachInfo = Path_Report ReportValueApproachInfo
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
                                                            ReportView) . toLens v
-          toLens u = error $ ("Unexpected goal ReportValueApproachInfo for Report: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
+                                                                     ReportView;
+                             [x'] = toListOf (toLens p) x :: [ReportView]}
+                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
+                                                                            ReportValueApproachInfo])
 instance IsPath Report ReportValueTypeInfo
     where type PathType Report
                         ReportValueTypeInfo = Path_Report ReportValueTypeInfo
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
                                                            ReportView) . toLens v
-          toLens u = error $ ("Unexpected goal ReportValueTypeInfo for Report: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
+                                                                     ReportView;
+                             [x'] = toListOf (toLens p) x :: [ReportView]}
+                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
+                                                                            ReportValueTypeInfo])
 instance IsPath Report MaybeImageFile
     where type PathType Report
                         MaybeImageFile = Path_Report MaybeImageFile
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
                                                            ReportView) . toLens v
-          toLens u = error $ ("Unexpected goal Maybe ImageFile (aka MaybeImageFile) for Report: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
+                                                                     ReportView;
+                             [x'] = toListOf (toLens p) x :: [ReportView]}
+                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
+                                                                            (Maybe ImageFile)])
 instance IsPath Report ReportImage
     where type PathType Report ReportImage = Path_Report ReportImage
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
                                                            ReportView) . toLens v
-          toLens u = error $ ("Unexpected goal ReportImage for Report: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
+                                                                     ReportView;
+                             [x'] = toListOf (toLens p) x :: [ReportView]}
+                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
+                                                                            ReportImage])
 instance IsPath Report ReportImages
     where type PathType Report ReportImages = Path_Report ReportImages
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
                                                            ReportView) . toLens v
-          toLens u = error $ ("Unexpected goal Order ReportImageID ReportImage (aka ReportImages) for Report: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
+                                                                     ReportView;
+                             [x'] = toListOf (toLens p) x :: [ReportView]}
+                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
+                                                                            (Order ReportImageID
+                                                                                   ReportImage)])
 instance IsPath Report ReadOnlyFilePath
     where type PathType Report
                         ReadOnlyFilePath = Path_Report ReadOnlyFilePath
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
                                                            ReportView) . toLens v
-          toLens u = error $ ("Unexpected goal ReadOnly ([Char]) (aka ReadOnlyFilePath) for Report: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
+                                                                     ReportView;
+                             [x'] = toListOf (toLens p) x :: [ReportView]}
+                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
+                                                                            (ReadOnly ([Char]))])
 instance IsPath Report ReportImageView
     where type PathType Report
                         ReportImageView = Path_Report ReportImageView
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
                                                            ReportView) . toLens v
-          toLens u = error $ ("Unexpected goal ReportImageView for Report: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
+                                                                     ReportView;
+                             [x'] = toListOf (toLens p) x :: [ReportView]}
+                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
+                                                                            ReportImageView])
 instance IsPath Report ReportView
     where type PathType Report ReportView = Path_Report ReportView
           toLens (Path_Report_View _) = viewLens :: Lens' Report ReportView
-          toLens u = error $ ("Unexpected goal ReportView for Report: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
+                                                                     ReportView;
+                             [x'] = toListOf (toLens p) x :: [ReportView]}
+                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
+                                                                            ReportView])
 instance IsPath Report SaneSizeImageSize
     where type PathType Report
                         SaneSizeImageSize = Path_Report SaneSizeImageSize
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
                                                            ReportView) . toLens v
-          toLens u = error $ ("Unexpected goal SaneSize ImageSize (aka SaneSizeImageSize) for Report: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
+                                                                     ReportView;
+                             [x'] = toListOf (toLens p) x :: [ReportView]}
+                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
+                                                                            (SaneSize ImageSize)])
 instance IsPath Report Item
     where type PathType Report Item = Path_Report Item
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
                                                            ReportView) . toLens v
-          toLens u = error $ ("Unexpected goal Item for Report: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
+                                                                     ReportView;
+                             [x'] = toListOf (toLens p) x :: [ReportView]}
+                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
+                                                                            Item])
 instance IsPath Report CIString
     where type PathType Report CIString = Path_Report CIString
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
                                                            ReportView) . toLens v
-          toLens u = error $ ("Unexpected goal CIString for Report: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
+                                                                     ReportView;
+                             [x'] = toListOf (toLens p) x :: [ReportView]}
+                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
+                                                                            CIString])
 instance IsPath Report URI
     where type PathType Report URI = Path_Report URI
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
                                                            ReportView) . toLens v
-          toLens u = error $ ("Unexpected goal URI for Report: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
+                                                                     ReportView;
+                             [x'] = toListOf (toLens p) x :: [ReportView]}
+                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
+                                                                            URI])
 instance IsPath Report Text
     where type PathType Report Text = Path_Report Text
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
                                                            ReportView) . toLens v
-          toLens u = error $ ("Unexpected goal Text for Report: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
+                                                                     ReportView;
+                             [x'] = toListOf (toLens p) x :: [ReportView]}
+                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
+                                                                            Text])
 instance IsPath Report UserId
     where type PathType Report UserId = Path_Report UserId
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
                                                            ReportView) . toLens v
-          toLens u = error $ ("Unexpected goal UserId for Report: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
+                                                                     ReportView;
+                             [x'] = toListOf (toLens p) x :: [ReportView]}
+                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
+                                                                            UserId])
 instance IsPath Report UUID
     where type PathType Report UUID = Path_Report UUID
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
                                                            ReportView) . toLens v
-          toLens u = error $ ("Unexpected goal UUID for Report: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
+                                                                     ReportView;
+                             [x'] = toListOf (toLens p) x :: [ReportView]}
+                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
+                                                                            UUID])
 instance IsPath ReportElem (Either URI ImageFile)
     where type PathType ReportElem
                         (Either URI ImageFile) = Path_ReportElem (Either URI ImageFile)
           toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
-          toLens u = error $ ("Unexpected goal Either URI ImageFile for ReportElem: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportElem (Map ItemFieldName Markup)
     where type PathType ReportElem
                         (Map ItemFieldName Markup) = Path_ReportElem (Map ItemFieldName
                                                                           Markup)
           toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
-          toLens u = error $ ("Unexpected goal Map ItemFieldName Markup for ReportElem: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportElem (Maybe (Either URI ImageFile))
     where type PathType ReportElem
                         (Maybe (Either URI ImageFile)) = Path_ReportElem (Maybe (Either URI
                                                                                         ImageFile))
           toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
-          toLens u = error $ ("Unexpected goal Maybe (Either URI ImageFile) for ReportElem: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportElem String
     where type PathType ReportElem String = Path_ReportElem String
           toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
-          toLens u = error $ ("Unexpected goal [Char] (aka Checksum, aka FilePath, aka String) for ReportElem: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportElem Bool
     where type PathType ReportElem Bool = Path_ReportElem Bool
           toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
-          toLens u = error $ ("Unexpected goal Bool for ReportElem: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportElem Double
     where type PathType ReportElem Double = Path_ReportElem Double
           toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
-          toLens u = error $ ("Unexpected goal Double for ReportElem: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportElem Dimension
     where type PathType ReportElem
                         Dimension = Path_ReportElem Dimension
           toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
-          toLens u = error $ ("Unexpected goal Dimension for ReportElem: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportElem ImageCrop
     where type PathType ReportElem
                         ImageCrop = Path_ReportElem ImageCrop
           toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
-          toLens u = error $ ("Unexpected goal ImageCrop for ReportElem: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportElem ImageSize
     where type PathType ReportElem
                         ImageSize = Path_ReportElem ImageSize
           toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
-          toLens u = error $ ("Unexpected goal ImageSize for ReportElem: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportElem Units
     where type PathType ReportElem Units = Path_ReportElem Units
           toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
-          toLens u = error $ ("Unexpected goal Units for ReportElem: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportElem ImageFile
     where type PathType ReportElem
                         ImageFile = Path_ReportElem ImageFile
           toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
-          toLens u = error $ ("Unexpected goal ImageFile for ReportElem: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportElem JSONText
     where type PathType ReportElem JSONText = Path_ReportElem JSONText
           toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
           toLens (Path_ReportElem_elemText _x) = lens_ReportElem_elemText . toLens _x
-          toLens u = error $ ("Unexpected goal JSONText for ReportElem: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportElem Markup
     where type PathType ReportElem Markup = Path_ReportElem Markup
           toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
           toLens (Path_ReportElem_elemText _x) = lens_ReportElem_elemText
-          toLens u = error $ ("Unexpected goal Markup for ReportElem: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportElem ReportElem
     where type PathType ReportElem
@@ -2475,54 +2588,45 @@ instance IsPath ReportElem MaybeImageFile
     where type PathType ReportElem
                         MaybeImageFile = Path_ReportElem MaybeImageFile
           toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
-          toLens u = error $ ("Unexpected goal Maybe ImageFile (aka MaybeImageFile) for ReportElem: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportElem ReportImage
     where type PathType ReportElem
                         ReportImage = Path_ReportElem ReportImage
           toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
-          toLens u = error $ ("Unexpected goal ReportImage for ReportElem: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportElem ReportImages
     where type PathType ReportElem
                         ReportImages = Path_ReportElem ReportImages
           toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
-          toLens u = error $ ("Unexpected goal Order ReportImageID ReportImage (aka ReportImages) for ReportElem: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportElem ReportImageView
     where type PathType ReportElem
                         ReportImageView = Path_ReportElem ReportImageView
           toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
-          toLens u = error $ ("Unexpected goal ReportImageView for ReportElem: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportElem SaneSizeImageSize
     where type PathType ReportElem
                         SaneSizeImageSize = Path_ReportElem SaneSizeImageSize
           toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
-          toLens u = error $ ("Unexpected goal SaneSize ImageSize (aka SaneSizeImageSize) for ReportElem: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportElem Item
     where type PathType ReportElem Item = Path_ReportElem Item
           toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem
-          toLens u = error $ ("Unexpected goal Item for ReportElem: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportElem URI
     where type PathType ReportElem URI = Path_ReportElem URI
           toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
-          toLens u = error $ ("Unexpected goal URI for ReportElem: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportElem Text
     where type PathType ReportElem Text = Path_ReportElem Text
           toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
           toLens (Path_ReportElem_elemText _x) = lens_ReportElem_elemText . toLens _x
-          toLens u = error $ ("Unexpected goal Text for ReportElem: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportElems (Either URI ImageFile)
     where type PathType ReportElems
                         (Either URI ImageFile) = Path_OMap ReportElemID
                                                            (Path_ReportElem (Either URI ImageFile))
           toLens (Path_At k v) = lens_omat k . toLens v
-          toLens u = error $ ("Unexpected goal Either URI ImageFile for Order ReportElemID ReportElem (aka ReportElems): " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportElems (Map ItemFieldName Markup)
     where type PathType ReportElems
@@ -2530,7 +2634,6 @@ instance IsPath ReportElems (Map ItemFieldName Markup)
                                                                (Path_ReportElem (Map ItemFieldName
                                                                                      Markup))
           toLens (Path_At k v) = lens_omat k . toLens v
-          toLens u = error $ ("Unexpected goal Map ItemFieldName Markup for Order ReportElemID ReportElem (aka ReportElems): " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportElems (Maybe (Either URI ImageFile))
     where type PathType ReportElems
@@ -2538,73 +2641,61 @@ instance IsPath ReportElems (Maybe (Either URI ImageFile))
                                                                    (Path_ReportElem (Maybe (Either URI
                                                                                                    ImageFile)))
           toLens (Path_At k v) = lens_omat k . toLens v
-          toLens u = error $ ("Unexpected goal Maybe (Either URI ImageFile) for Order ReportElemID ReportElem (aka ReportElems): " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportElems String
     where type PathType ReportElems String = Path_OMap ReportElemID
                                                        (Path_ReportElem String)
           toLens (Path_At k v) = lens_omat k . toLens v
-          toLens u = error $ ("Unexpected goal [Char] (aka Checksum, aka FilePath, aka String) for Order ReportElemID ReportElem (aka ReportElems): " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportElems Bool
     where type PathType ReportElems Bool = Path_OMap ReportElemID
                                                      (Path_ReportElem Bool)
           toLens (Path_At k v) = lens_omat k . toLens v
-          toLens u = error $ ("Unexpected goal Bool for Order ReportElemID ReportElem (aka ReportElems): " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportElems Double
     where type PathType ReportElems Double = Path_OMap ReportElemID
                                                        (Path_ReportElem Double)
           toLens (Path_At k v) = lens_omat k . toLens v
-          toLens u = error $ ("Unexpected goal Double for Order ReportElemID ReportElem (aka ReportElems): " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportElems Dimension
     where type PathType ReportElems Dimension = Path_OMap ReportElemID
                                                           (Path_ReportElem Dimension)
           toLens (Path_At k v) = lens_omat k . toLens v
-          toLens u = error $ ("Unexpected goal Dimension for Order ReportElemID ReportElem (aka ReportElems): " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportElems ImageCrop
     where type PathType ReportElems ImageCrop = Path_OMap ReportElemID
                                                           (Path_ReportElem ImageCrop)
           toLens (Path_At k v) = lens_omat k . toLens v
-          toLens u = error $ ("Unexpected goal ImageCrop for Order ReportElemID ReportElem (aka ReportElems): " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportElems ImageSize
     where type PathType ReportElems ImageSize = Path_OMap ReportElemID
                                                           (Path_ReportElem ImageSize)
           toLens (Path_At k v) = lens_omat k . toLens v
-          toLens u = error $ ("Unexpected goal ImageSize for Order ReportElemID ReportElem (aka ReportElems): " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportElems Units
     where type PathType ReportElems Units = Path_OMap ReportElemID
                                                       (Path_ReportElem Units)
           toLens (Path_At k v) = lens_omat k . toLens v
-          toLens u = error $ ("Unexpected goal Units for Order ReportElemID ReportElem (aka ReportElems): " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportElems ImageFile
     where type PathType ReportElems ImageFile = Path_OMap ReportElemID
                                                           (Path_ReportElem ImageFile)
           toLens (Path_At k v) = lens_omat k . toLens v
-          toLens u = error $ ("Unexpected goal ImageFile for Order ReportElemID ReportElem (aka ReportElems): " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportElems JSONText
     where type PathType ReportElems JSONText = Path_OMap ReportElemID
                                                          (Path_ReportElem JSONText)
           toLens (Path_At k v) = lens_omat k . toLens v
-          toLens u = error $ ("Unexpected goal JSONText for Order ReportElemID ReportElem (aka ReportElems): " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportElems Markup
     where type PathType ReportElems Markup = Path_OMap ReportElemID
                                                        (Path_ReportElem Markup)
           toLens (Path_At k v) = lens_omat k . toLens v
-          toLens u = error $ ("Unexpected goal Markup for Order ReportElemID ReportElem (aka ReportElems): " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportElems ReportElem
     where type PathType ReportElems ReportElem = Path_OMap ReportElemID
                                                            (Path_ReportElem ReportElem)
           toLens (Path_At k _) = lens_omat k
-          toLens u = error $ ("Unexpected goal ReportElem for Order ReportElemID ReportElem (aka ReportElems): " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportElems ReportElems
     where type PathType ReportElems
@@ -2616,68 +2707,57 @@ instance IsPath ReportElems MaybeImageFile
                         MaybeImageFile = Path_OMap ReportElemID
                                                    (Path_ReportElem MaybeImageFile)
           toLens (Path_At k v) = lens_omat k . toLens v
-          toLens u = error $ ("Unexpected goal Maybe ImageFile (aka MaybeImageFile) for Order ReportElemID ReportElem (aka ReportElems): " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportElems ReportImage
     where type PathType ReportElems
                         ReportImage = Path_OMap ReportElemID (Path_ReportElem ReportImage)
           toLens (Path_At k v) = lens_omat k . toLens v
-          toLens u = error $ ("Unexpected goal ReportImage for Order ReportElemID ReportElem (aka ReportElems): " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportElems ReportImages
     where type PathType ReportElems
                         ReportImages = Path_OMap ReportElemID
                                                  (Path_ReportElem ReportImages)
           toLens (Path_At k v) = lens_omat k . toLens v
-          toLens u = error $ ("Unexpected goal Order ReportImageID ReportImage (aka ReportImages) for Order ReportElemID ReportElem (aka ReportElems): " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportElems ReportImageView
     where type PathType ReportElems
                         ReportImageView = Path_OMap ReportElemID
                                                     (Path_ReportElem ReportImageView)
           toLens (Path_At k v) = lens_omat k . toLens v
-          toLens u = error $ ("Unexpected goal ReportImageView for Order ReportElemID ReportElem (aka ReportElems): " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportElems SaneSizeImageSize
     where type PathType ReportElems
                         SaneSizeImageSize = Path_OMap ReportElemID
                                                       (Path_ReportElem SaneSizeImageSize)
           toLens (Path_At k v) = lens_omat k . toLens v
-          toLens u = error $ ("Unexpected goal SaneSize ImageSize (aka SaneSizeImageSize) for Order ReportElemID ReportElem (aka ReportElems): " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportElems Item
     where type PathType ReportElems Item = Path_OMap ReportElemID
                                                      (Path_ReportElem Item)
           toLens (Path_At k v) = lens_omat k . toLens v
-          toLens u = error $ ("Unexpected goal Item for Order ReportElemID ReportElem (aka ReportElems): " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportElems URI
     where type PathType ReportElems URI = Path_OMap ReportElemID
                                                     (Path_ReportElem URI)
           toLens (Path_At k v) = lens_omat k . toLens v
-          toLens u = error $ ("Unexpected goal URI for Order ReportElemID ReportElem (aka ReportElems): " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportElems Text
     where type PathType ReportElems Text = Path_OMap ReportElemID
                                                      (Path_ReportElem Text)
           toLens (Path_At k v) = lens_omat k . toLens v
-          toLens u = error $ ("Unexpected goal Text for Order ReportElemID ReportElem (aka ReportElems): " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportFlags String
     where type PathType ReportFlags String = Path_ReportFlags String
           toLens (Path_ReportFlags_hideEmptyItemFields _x) = lens_ReportFlags_hideEmptyItemFields . toLens _x
-          toLens u = error $ ("Unexpected goal [Char] (aka Checksum, aka FilePath, aka String) for ReportFlags: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportFlags Bool
     where type PathType ReportFlags Bool = Path_ReportFlags Bool
           toLens (Path_ReportFlags_hideEmptyItemFields _x) = lens_ReportFlags_hideEmptyItemFields
-          toLens u = error $ ("Unexpected goal Bool for ReportFlags: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportFlags JSONText
     where type PathType ReportFlags
                         JSONText = Path_ReportFlags JSONText
           toLens (Path_ReportFlags_hideEmptyItemFields _x) = lens_ReportFlags_hideEmptyItemFields . toLens _x
-          toLens u = error $ ("Unexpected goal JSONText for ReportFlags: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportFlags ReportFlags
     where type PathType ReportFlags
@@ -2689,15 +2769,21 @@ instance IsPath ReportIntendedUse String
                         String = Path_ReportIntendedUse String
           toLens (Path_ReportIntendedUse_View _) = viewLens :: Lens' ReportIntendedUse
                                                                      ([Char])
-          toLens u = error $ ("Unexpected goal [Char] (aka Checksum, aka FilePath, aka String) for ReportIntendedUse: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_ReportIntendedUse_View idPath :: PathType ReportIntendedUse
+                                                                                ([Char]);
+                             [x'] = toListOf (toLens p) x :: [[Char]]}
+                         in map Path_ReportIntendedUse_View (pathsOf x' a :: [PathType ([Char])
+                                                                                       ([Char])])
 instance IsPath ReportIntendedUse JSONText
     where type PathType ReportIntendedUse
                         JSONText = Path_ReportIntendedUse JSONText
           toLens (Path_ReportIntendedUse_View v) = (viewLens :: Lens' ReportIntendedUse
                                                                       ([Char])) . toLens v
-          toLens u = error $ ("Unexpected goal JSONText for ReportIntendedUse: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_ReportIntendedUse_View idPath :: PathType ReportIntendedUse
+                                                                                ([Char]);
+                             [x'] = toListOf (toLens p) x :: [[Char]]}
+                         in map Path_ReportIntendedUse_View (pathsOf x' a :: [PathType ([Char])
+                                                                                       JSONText])
 instance IsPath ReportIntendedUse ReportIntendedUse
     where type PathType ReportIntendedUse
                         ReportIntendedUse = Path_ReportIntendedUse ReportIntendedUse
@@ -2706,7 +2792,6 @@ instance IsPath ReportIntendedUse ReportIntendedUse
 instance IsPath ReportStandard Int
     where type PathType ReportStandard Int = Path_ReportStandard Int
           toLens (Path_ReportStandard_unReportStandard _x) = lens_ReportStandard_unReportStandard
-          toLens u = error $ ("Unexpected goal Int (aka Size) for ReportStandard: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportStandard ReportStandard
     where type PathType ReportStandard
@@ -2717,15 +2802,21 @@ instance IsPath ReportStatus String
     where type PathType ReportStatus String = Path_ReportStatus String
           toLens (Path_ReportStatus_View _) = viewLens :: Lens' ReportStatus
                                                                 ([Char])
-          toLens u = error $ ("Unexpected goal [Char] (aka Checksum, aka FilePath, aka String) for ReportStatus: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_ReportStatus_View idPath :: PathType ReportStatus
+                                                                           ([Char]);
+                             [x'] = toListOf (toLens p) x :: [[Char]]}
+                         in map Path_ReportStatus_View (pathsOf x' a :: [PathType ([Char])
+                                                                                  ([Char])])
 instance IsPath ReportStatus JSONText
     where type PathType ReportStatus
                         JSONText = Path_ReportStatus JSONText
           toLens (Path_ReportStatus_View v) = (viewLens :: Lens' ReportStatus
                                                                  ([Char])) . toLens v
-          toLens u = error $ ("Unexpected goal JSONText for ReportStatus: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_ReportStatus_View idPath :: PathType ReportStatus
+                                                                           ([Char]);
+                             [x'] = toListOf (toLens p) x :: [[Char]]}
+                         in map Path_ReportStatus_View (pathsOf x' a :: [PathType ([Char])
+                                                                                  JSONText])
 instance IsPath ReportStatus ReportStatus
     where type PathType ReportStatus
                         ReportStatus = Path_ReportStatus ReportStatus
@@ -2736,14 +2827,12 @@ instance IsPath ReportValueApproachInfo JSONText
                         JSONText = Path_ReportValueApproachInfo JSONText
           toLens (Path_ReportValueApproachInfo_reportValueApproachName _x) = lens_ReportValueApproachInfo_reportValueApproachName . toLens _x
           toLens (Path_ReportValueApproachInfo_reportValueApproachDescription _x) = lens_ReportValueApproachInfo_reportValueApproachDescription . toLens _x
-          toLens u = error $ ("Unexpected goal JSONText for ReportValueApproachInfo: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportValueApproachInfo Markup
     where type PathType ReportValueApproachInfo
                         Markup = Path_ReportValueApproachInfo Markup
           toLens (Path_ReportValueApproachInfo_reportValueApproachName _x) = lens_ReportValueApproachInfo_reportValueApproachName
           toLens (Path_ReportValueApproachInfo_reportValueApproachDescription _x) = lens_ReportValueApproachInfo_reportValueApproachDescription
-          toLens u = error $ ("Unexpected goal Markup for ReportValueApproachInfo: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportValueApproachInfo ReportValueApproachInfo
     where type PathType ReportValueApproachInfo
@@ -2755,7 +2844,6 @@ instance IsPath ReportValueApproachInfo Text
                         Text = Path_ReportValueApproachInfo Text
           toLens (Path_ReportValueApproachInfo_reportValueApproachName _x) = lens_ReportValueApproachInfo_reportValueApproachName . toLens _x
           toLens (Path_ReportValueApproachInfo_reportValueApproachDescription _x) = lens_ReportValueApproachInfo_reportValueApproachDescription . toLens _x
-          toLens u = error $ ("Unexpected goal Text for ReportValueApproachInfo: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportValueTypeInfo JSONText
     where type PathType ReportValueTypeInfo
@@ -2763,7 +2851,6 @@ instance IsPath ReportValueTypeInfo JSONText
           toLens (Path_ReportValueTypeInfo_reportValueTypeName _x) = lens_ReportValueTypeInfo_reportValueTypeName . toLens _x
           toLens (Path_ReportValueTypeInfo_reportValueTypeDescription _x) = lens_ReportValueTypeInfo_reportValueTypeDescription . toLens _x
           toLens (Path_ReportValueTypeInfo_reportValueTypeDefinition _x) = lens_ReportValueTypeInfo_reportValueTypeDefinition . toLens _x
-          toLens u = error $ ("Unexpected goal JSONText for ReportValueTypeInfo: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportValueTypeInfo Markup
     where type PathType ReportValueTypeInfo
@@ -2771,7 +2858,6 @@ instance IsPath ReportValueTypeInfo Markup
           toLens (Path_ReportValueTypeInfo_reportValueTypeName _x) = lens_ReportValueTypeInfo_reportValueTypeName
           toLens (Path_ReportValueTypeInfo_reportValueTypeDescription _x) = lens_ReportValueTypeInfo_reportValueTypeDescription
           toLens (Path_ReportValueTypeInfo_reportValueTypeDefinition _x) = lens_ReportValueTypeInfo_reportValueTypeDefinition
-          toLens u = error $ ("Unexpected goal Markup for ReportValueTypeInfo: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportValueTypeInfo ReportValueTypeInfo
     where type PathType ReportValueTypeInfo
@@ -2784,22 +2870,27 @@ instance IsPath ReportValueTypeInfo Text
           toLens (Path_ReportValueTypeInfo_reportValueTypeName _x) = lens_ReportValueTypeInfo_reportValueTypeName . toLens _x
           toLens (Path_ReportValueTypeInfo_reportValueTypeDescription _x) = lens_ReportValueTypeInfo_reportValueTypeDescription . toLens _x
           toLens (Path_ReportValueTypeInfo_reportValueTypeDefinition _x) = lens_ReportValueTypeInfo_reportValueTypeDefinition . toLens _x
-          toLens u = error $ ("Unexpected goal Text for ReportValueTypeInfo: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath MaybeImageFile String
     where type PathType MaybeImageFile
                         String = Path_MaybeImageFile String
           toLens (Path_MaybeImageFile_View _) = viewLens :: Lens' (Maybe ImageFile)
                                                                   ([Char])
-          toLens u = error $ ("Unexpected goal [Char] (aka Checksum, aka FilePath, aka String) for Maybe ImageFile (aka MaybeImageFile): " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_MaybeImageFile_View idPath :: PathType (Maybe ImageFile)
+                                                                             ([Char]);
+                             [x'] = toListOf (toLens p) x :: [[Char]]}
+                         in map Path_MaybeImageFile_View (pathsOf x' a :: [PathType ([Char])
+                                                                                    ([Char])])
 instance IsPath MaybeImageFile JSONText
     where type PathType MaybeImageFile
                         JSONText = Path_MaybeImageFile JSONText
           toLens (Path_MaybeImageFile_View v) = (viewLens :: Lens' (Maybe ImageFile)
                                                                    ([Char])) . toLens v
-          toLens u = error $ ("Unexpected goal JSONText for Maybe ImageFile (aka MaybeImageFile): " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_MaybeImageFile_View idPath :: PathType (Maybe ImageFile)
+                                                                             ([Char]);
+                             [x'] = toListOf (toLens p) x :: [[Char]]}
+                         in map Path_MaybeImageFile_View (pathsOf x' a :: [PathType ([Char])
+                                                                                    JSONText])
 instance IsPath MaybeImageFile MaybeImageFile
     where type PathType MaybeImageFile
                         MaybeImageFile = Path_MaybeImageFile MaybeImageFile
@@ -2810,88 +2901,129 @@ instance IsPath ReportImage (Either URI ImageFile)
                         (Either URI ImageFile) = Path_ReportImage (Either URI ImageFile)
           toLens (Path_ReportImage_View v) = (viewLens :: Lens' ReportImage
                                                                 ReportImageView) . toLens v
-          toLens u = error $ ("Unexpected goal Either URI ImageFile for ReportImage: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_ReportImage_View idPath :: PathType ReportImage
+                                                                          ReportImageView;
+                             [x'] = toListOf (toLens p) x :: [ReportImageView]}
+                         in map Path_ReportImage_View (pathsOf x' a :: [PathType ReportImageView
+                                                                                 (Either URI
+                                                                                         ImageFile)])
 instance IsPath ReportImage (Maybe (Either URI ImageFile))
     where type PathType ReportImage
                         (Maybe (Either URI
                                        ImageFile)) = Path_ReportImage (Maybe (Either URI ImageFile))
           toLens (Path_ReportImage_View v) = (viewLens :: Lens' ReportImage
                                                                 ReportImageView) . toLens v
-          toLens u = error $ ("Unexpected goal Maybe (Either URI ImageFile) for ReportImage: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_ReportImage_View idPath :: PathType ReportImage
+                                                                          ReportImageView;
+                             [x'] = toListOf (toLens p) x :: [ReportImageView]}
+                         in map Path_ReportImage_View (pathsOf x' a :: [PathType ReportImageView
+                                                                                 (Maybe (Either URI
+                                                                                                ImageFile))])
 instance IsPath ReportImage String
     where type PathType ReportImage String = Path_ReportImage String
           toLens (Path_ReportImage_View v) = (viewLens :: Lens' ReportImage
                                                                 ReportImageView) . toLens v
-          toLens u = error $ ("Unexpected goal [Char] (aka Checksum, aka FilePath, aka String) for ReportImage: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_ReportImage_View idPath :: PathType ReportImage
+                                                                          ReportImageView;
+                             [x'] = toListOf (toLens p) x :: [ReportImageView]}
+                         in map Path_ReportImage_View (pathsOf x' a :: [PathType ReportImageView
+                                                                                 ([Char])])
 instance IsPath ReportImage Bool
     where type PathType ReportImage Bool = Path_ReportImage Bool
           toLens (Path_ReportImage_View v) = (viewLens :: Lens' ReportImage
                                                                 ReportImageView) . toLens v
-          toLens u = error $ ("Unexpected goal Bool for ReportImage: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_ReportImage_View idPath :: PathType ReportImage
+                                                                          ReportImageView;
+                             [x'] = toListOf (toLens p) x :: [ReportImageView]}
+                         in map Path_ReportImage_View (pathsOf x' a :: [PathType ReportImageView
+                                                                                 Bool])
 instance IsPath ReportImage Double
     where type PathType ReportImage Double = Path_ReportImage Double
           toLens (Path_ReportImage_View v) = (viewLens :: Lens' ReportImage
                                                                 ReportImageView) . toLens v
-          toLens u = error $ ("Unexpected goal Double for ReportImage: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_ReportImage_View idPath :: PathType ReportImage
+                                                                          ReportImageView;
+                             [x'] = toListOf (toLens p) x :: [ReportImageView]}
+                         in map Path_ReportImage_View (pathsOf x' a :: [PathType ReportImageView
+                                                                                 Double])
 instance IsPath ReportImage Dimension
     where type PathType ReportImage
                         Dimension = Path_ReportImage Dimension
           toLens (Path_ReportImage_View v) = (viewLens :: Lens' ReportImage
                                                                 ReportImageView) . toLens v
-          toLens u = error $ ("Unexpected goal Dimension for ReportImage: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_ReportImage_View idPath :: PathType ReportImage
+                                                                          ReportImageView;
+                             [x'] = toListOf (toLens p) x :: [ReportImageView]}
+                         in map Path_ReportImage_View (pathsOf x' a :: [PathType ReportImageView
+                                                                                 Dimension])
 instance IsPath ReportImage ImageCrop
     where type PathType ReportImage
                         ImageCrop = Path_ReportImage ImageCrop
           toLens (Path_ReportImage_View v) = (viewLens :: Lens' ReportImage
                                                                 ReportImageView) . toLens v
-          toLens u = error $ ("Unexpected goal ImageCrop for ReportImage: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_ReportImage_View idPath :: PathType ReportImage
+                                                                          ReportImageView;
+                             [x'] = toListOf (toLens p) x :: [ReportImageView]}
+                         in map Path_ReportImage_View (pathsOf x' a :: [PathType ReportImageView
+                                                                                 ImageCrop])
 instance IsPath ReportImage ImageSize
     where type PathType ReportImage
                         ImageSize = Path_ReportImage ImageSize
           toLens (Path_ReportImage_View v) = (viewLens :: Lens' ReportImage
                                                                 ReportImageView) . toLens v
-          toLens u = error $ ("Unexpected goal ImageSize for ReportImage: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_ReportImage_View idPath :: PathType ReportImage
+                                                                          ReportImageView;
+                             [x'] = toListOf (toLens p) x :: [ReportImageView]}
+                         in map Path_ReportImage_View (pathsOf x' a :: [PathType ReportImageView
+                                                                                 ImageSize])
 instance IsPath ReportImage Units
     where type PathType ReportImage Units = Path_ReportImage Units
           toLens (Path_ReportImage_View v) = (viewLens :: Lens' ReportImage
                                                                 ReportImageView) . toLens v
-          toLens u = error $ ("Unexpected goal Units for ReportImage: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_ReportImage_View idPath :: PathType ReportImage
+                                                                          ReportImageView;
+                             [x'] = toListOf (toLens p) x :: [ReportImageView]}
+                         in map Path_ReportImage_View (pathsOf x' a :: [PathType ReportImageView
+                                                                                 Units])
 instance IsPath ReportImage ImageFile
     where type PathType ReportImage
                         ImageFile = Path_ReportImage ImageFile
           toLens (Path_ReportImage_View v) = (viewLens :: Lens' ReportImage
                                                                 ReportImageView) . toLens v
-          toLens u = error $ ("Unexpected goal ImageFile for ReportImage: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_ReportImage_View idPath :: PathType ReportImage
+                                                                          ReportImageView;
+                             [x'] = toListOf (toLens p) x :: [ReportImageView]}
+                         in map Path_ReportImage_View (pathsOf x' a :: [PathType ReportImageView
+                                                                                 ImageFile])
 instance IsPath ReportImage JSONText
     where type PathType ReportImage
                         JSONText = Path_ReportImage JSONText
           toLens (Path_ReportImage_View v) = (viewLens :: Lens' ReportImage
                                                                 ReportImageView) . toLens v
-          toLens u = error $ ("Unexpected goal JSONText for ReportImage: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_ReportImage_View idPath :: PathType ReportImage
+                                                                          ReportImageView;
+                             [x'] = toListOf (toLens p) x :: [ReportImageView]}
+                         in map Path_ReportImage_View (pathsOf x' a :: [PathType ReportImageView
+                                                                                 JSONText])
 instance IsPath ReportImage Markup
     where type PathType ReportImage Markup = Path_ReportImage Markup
           toLens (Path_ReportImage_View v) = (viewLens :: Lens' ReportImage
                                                                 ReportImageView) . toLens v
-          toLens u = error $ ("Unexpected goal Markup for ReportImage: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_ReportImage_View idPath :: PathType ReportImage
+                                                                          ReportImageView;
+                             [x'] = toListOf (toLens p) x :: [ReportImageView]}
+                         in map Path_ReportImage_View (pathsOf x' a :: [PathType ReportImageView
+                                                                                 Markup])
 instance IsPath ReportImage MaybeImageFile
     where type PathType ReportImage
                         MaybeImageFile = Path_ReportImage MaybeImageFile
           toLens (Path_ReportImage_View v) = (viewLens :: Lens' ReportImage
                                                                 ReportImageView) . toLens v
-          toLens u = error $ ("Unexpected goal Maybe ImageFile (aka MaybeImageFile) for ReportImage: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_ReportImage_View idPath :: PathType ReportImage
+                                                                          ReportImageView;
+                             [x'] = toListOf (toLens p) x :: [ReportImageView]}
+                         in map Path_ReportImage_View (pathsOf x' a :: [PathType ReportImageView
+                                                                                 (Maybe ImageFile)])
 instance IsPath ReportImage ReportImage
     where type PathType ReportImage
                         ReportImage = Path_ReportImage ReportImage
@@ -2902,33 +3034,44 @@ instance IsPath ReportImage ReportImageView
                         ReportImageView = Path_ReportImage ReportImageView
           toLens (Path_ReportImage_View _) = viewLens :: Lens' ReportImage
                                                                ReportImageView
-          toLens u = error $ ("Unexpected goal ReportImageView for ReportImage: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_ReportImage_View idPath :: PathType ReportImage
+                                                                          ReportImageView;
+                             [x'] = toListOf (toLens p) x :: [ReportImageView]}
+                         in map Path_ReportImage_View (pathsOf x' a :: [PathType ReportImageView
+                                                                                 ReportImageView])
 instance IsPath ReportImage SaneSizeImageSize
     where type PathType ReportImage
                         SaneSizeImageSize = Path_ReportImage SaneSizeImageSize
           toLens (Path_ReportImage_View v) = (viewLens :: Lens' ReportImage
                                                                 ReportImageView) . toLens v
-          toLens u = error $ ("Unexpected goal SaneSize ImageSize (aka SaneSizeImageSize) for ReportImage: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_ReportImage_View idPath :: PathType ReportImage
+                                                                          ReportImageView;
+                             [x'] = toListOf (toLens p) x :: [ReportImageView]}
+                         in map Path_ReportImage_View (pathsOf x' a :: [PathType ReportImageView
+                                                                                 (SaneSize ImageSize)])
 instance IsPath ReportImage URI
     where type PathType ReportImage URI = Path_ReportImage URI
           toLens (Path_ReportImage_View v) = (viewLens :: Lens' ReportImage
                                                                 ReportImageView) . toLens v
-          toLens u = error $ ("Unexpected goal URI for ReportImage: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_ReportImage_View idPath :: PathType ReportImage
+                                                                          ReportImageView;
+                             [x'] = toListOf (toLens p) x :: [ReportImageView]}
+                         in map Path_ReportImage_View (pathsOf x' a :: [PathType ReportImageView
+                                                                                 URI])
 instance IsPath ReportImage Text
     where type PathType ReportImage Text = Path_ReportImage Text
           toLens (Path_ReportImage_View v) = (viewLens :: Lens' ReportImage
                                                                 ReportImageView) . toLens v
-          toLens u = error $ ("Unexpected goal Text for ReportImage: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_ReportImage_View idPath :: PathType ReportImage
+                                                                          ReportImageView;
+                             [x'] = toListOf (toLens p) x :: [ReportImageView]}
+                         in map Path_ReportImage_View (pathsOf x' a :: [PathType ReportImageView
+                                                                                 Text])
 instance IsPath ReportImages (Either URI ImageFile)
     where type PathType ReportImages
                         (Either URI ImageFile) = Path_OMap ReportImageID
                                                            (Path_ReportImage (Either URI ImageFile))
           toLens (Path_At k v) = lens_omat k . toLens v
-          toLens u = error $ ("Unexpected goal Either URI ImageFile for Order ReportImageID ReportImage (aka ReportImages): " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportImages (Maybe (Either URI ImageFile))
     where type PathType ReportImages
@@ -2936,81 +3079,68 @@ instance IsPath ReportImages (Maybe (Either URI ImageFile))
                                                                    (Path_ReportImage (Maybe (Either URI
                                                                                                     ImageFile)))
           toLens (Path_At k v) = lens_omat k . toLens v
-          toLens u = error $ ("Unexpected goal Maybe (Either URI ImageFile) for Order ReportImageID ReportImage (aka ReportImages): " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportImages String
     where type PathType ReportImages String = Path_OMap ReportImageID
                                                         (Path_ReportImage String)
           toLens (Path_At k v) = lens_omat k . toLens v
-          toLens u = error $ ("Unexpected goal [Char] (aka Checksum, aka FilePath, aka String) for Order ReportImageID ReportImage (aka ReportImages): " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportImages Bool
     where type PathType ReportImages Bool = Path_OMap ReportImageID
                                                       (Path_ReportImage Bool)
           toLens (Path_At k v) = lens_omat k . toLens v
-          toLens u = error $ ("Unexpected goal Bool for Order ReportImageID ReportImage (aka ReportImages): " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportImages Double
     where type PathType ReportImages Double = Path_OMap ReportImageID
                                                         (Path_ReportImage Double)
           toLens (Path_At k v) = lens_omat k . toLens v
-          toLens u = error $ ("Unexpected goal Double for Order ReportImageID ReportImage (aka ReportImages): " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportImages Dimension
     where type PathType ReportImages
                         Dimension = Path_OMap ReportImageID (Path_ReportImage Dimension)
           toLens (Path_At k v) = lens_omat k . toLens v
-          toLens u = error $ ("Unexpected goal Dimension for Order ReportImageID ReportImage (aka ReportImages): " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportImages ImageCrop
     where type PathType ReportImages
                         ImageCrop = Path_OMap ReportImageID (Path_ReportImage ImageCrop)
           toLens (Path_At k v) = lens_omat k . toLens v
-          toLens u = error $ ("Unexpected goal ImageCrop for Order ReportImageID ReportImage (aka ReportImages): " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportImages ImageSize
     where type PathType ReportImages
                         ImageSize = Path_OMap ReportImageID (Path_ReportImage ImageSize)
           toLens (Path_At k v) = lens_omat k . toLens v
-          toLens u = error $ ("Unexpected goal ImageSize for Order ReportImageID ReportImage (aka ReportImages): " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportImages Units
     where type PathType ReportImages Units = Path_OMap ReportImageID
                                                        (Path_ReportImage Units)
           toLens (Path_At k v) = lens_omat k . toLens v
-          toLens u = error $ ("Unexpected goal Units for Order ReportImageID ReportImage (aka ReportImages): " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportImages ImageFile
     where type PathType ReportImages
                         ImageFile = Path_OMap ReportImageID (Path_ReportImage ImageFile)
           toLens (Path_At k v) = lens_omat k . toLens v
-          toLens u = error $ ("Unexpected goal ImageFile for Order ReportImageID ReportImage (aka ReportImages): " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportImages JSONText
     where type PathType ReportImages JSONText = Path_OMap ReportImageID
                                                           (Path_ReportImage JSONText)
           toLens (Path_At k v) = lens_omat k . toLens v
-          toLens u = error $ ("Unexpected goal JSONText for Order ReportImageID ReportImage (aka ReportImages): " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportImages Markup
     where type PathType ReportImages Markup = Path_OMap ReportImageID
                                                         (Path_ReportImage Markup)
           toLens (Path_At k v) = lens_omat k . toLens v
-          toLens u = error $ ("Unexpected goal Markup for Order ReportImageID ReportImage (aka ReportImages): " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportImages MaybeImageFile
     where type PathType ReportImages
                         MaybeImageFile = Path_OMap ReportImageID
                                                    (Path_ReportImage MaybeImageFile)
           toLens (Path_At k v) = lens_omat k . toLens v
-          toLens u = error $ ("Unexpected goal Maybe ImageFile (aka MaybeImageFile) for Order ReportImageID ReportImage (aka ReportImages): " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportImages ReportImage
     where type PathType ReportImages
                         ReportImage = Path_OMap ReportImageID
                                                 (Path_ReportImage ReportImage)
           toLens (Path_At k _) = lens_omat k
-          toLens u = error $ ("Unexpected goal ReportImage for Order ReportImageID ReportImage (aka ReportImages): " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportImages ReportImages
     where type PathType ReportImages
@@ -3023,41 +3153,43 @@ instance IsPath ReportImages ReportImageView
                         ReportImageView = Path_OMap ReportImageID
                                                     (Path_ReportImage ReportImageView)
           toLens (Path_At k v) = lens_omat k . toLens v
-          toLens u = error $ ("Unexpected goal ReportImageView for Order ReportImageID ReportImage (aka ReportImages): " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportImages SaneSizeImageSize
     where type PathType ReportImages
                         SaneSizeImageSize = Path_OMap ReportImageID
                                                       (Path_ReportImage SaneSizeImageSize)
           toLens (Path_At k v) = lens_omat k . toLens v
-          toLens u = error $ ("Unexpected goal SaneSize ImageSize (aka SaneSizeImageSize) for Order ReportImageID ReportImage (aka ReportImages): " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportImages URI
     where type PathType ReportImages URI = Path_OMap ReportImageID
                                                      (Path_ReportImage URI)
           toLens (Path_At k v) = lens_omat k . toLens v
-          toLens u = error $ ("Unexpected goal URI for Order ReportImageID ReportImage (aka ReportImages): " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportImages Text
     where type PathType ReportImages Text = Path_OMap ReportImageID
                                                       (Path_ReportImage Text)
           toLens (Path_At k v) = lens_omat k . toLens v
-          toLens u = error $ ("Unexpected goal Text for Order ReportImageID ReportImage (aka ReportImages): " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReadOnlyFilePath String
     where type PathType ReadOnlyFilePath
                         String = Path_ReadOnlyFilePath String
           toLens (Path_ReadOnlyFilePath_View _) = viewLens :: Lens' (ReadOnly ([Char]))
                                                                     ([Char])
-          toLens u = error $ ("Unexpected goal [Char] (aka Checksum, aka FilePath, aka String) for ReadOnly ([Char]) (aka ReadOnlyFilePath): " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_ReadOnlyFilePath_View idPath :: PathType (ReadOnly ([Char]))
+                                                                               ([Char]);
+                             [x'] = toListOf (toLens p) x :: [[Char]]}
+                         in map Path_ReadOnlyFilePath_View (pathsOf x' a :: [PathType ([Char])
+                                                                                      ([Char])])
 instance IsPath ReadOnlyFilePath JSONText
     where type PathType ReadOnlyFilePath
                         JSONText = Path_ReadOnlyFilePath JSONText
           toLens (Path_ReadOnlyFilePath_View v) = (viewLens :: Lens' (ReadOnly ([Char]))
                                                                      ([Char])) . toLens v
-          toLens u = error $ ("Unexpected goal JSONText for ReadOnly ([Char]) (aka ReadOnlyFilePath): " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_ReadOnlyFilePath_View idPath :: PathType (ReadOnly ([Char]))
+                                                                               ([Char]);
+                             [x'] = toListOf (toLens p) x :: [[Char]]}
+                         in map Path_ReadOnlyFilePath_View (pathsOf x' a :: [PathType ([Char])
+                                                                                      JSONText])
 instance IsPath ReadOnlyFilePath ReadOnlyFilePath
     where type PathType ReadOnlyFilePath
                         ReadOnlyFilePath = Path_ReadOnlyFilePath ReadOnlyFilePath
@@ -3068,7 +3200,6 @@ instance IsPath ReportImageView (Either URI ImageFile)
                         (Either URI ImageFile) = Path_ReportImageView (Either URI
                                                                               ImageFile)
           toLens (Path_ReportImageView__picOriginal _x) = lens_ReportImageView__picOriginal . toLens _x
-          toLens u = error $ ("Unexpected goal Either URI ImageFile for ReportImageView: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportImageView (Maybe (Either URI ImageFile))
     where type PathType ReportImageView
@@ -3076,7 +3207,6 @@ instance IsPath ReportImageView (Maybe (Either URI ImageFile))
                                        ImageFile)) = Path_ReportImageView (Maybe (Either URI
                                                                                          ImageFile))
           toLens (Path_ReportImageView__picOriginal _x) = lens_ReportImageView__picOriginal
-          toLens u = error $ ("Unexpected goal Maybe (Either URI ImageFile) for ReportImageView: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportImageView String
     where type PathType ReportImageView
@@ -3087,49 +3217,41 @@ instance IsPath ReportImageView String
           toLens (Path_ReportImageView__picPrinterDeprecated _x) = lens_ReportImageView__picPrinterDeprecated . toLens _x
           toLens (Path_ReportImageView__picMustEnlarge _x) = lens_ReportImageView__picMustEnlarge . toLens _x
           toLens (Path_ReportImageView__picEnlargedDeprecated _x) = lens_ReportImageView__picEnlargedDeprecated . toLens _x
-          toLens u = error $ ("Unexpected goal [Char] (aka Checksum, aka FilePath, aka String) for ReportImageView: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportImageView Bool
     where type PathType ReportImageView
                         Bool = Path_ReportImageView Bool
           toLens (Path_ReportImageView__picMustEnlarge _x) = lens_ReportImageView__picMustEnlarge
-          toLens u = error $ ("Unexpected goal Bool for ReportImageView: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportImageView Double
     where type PathType ReportImageView
                         Double = Path_ReportImageView Double
           toLens (Path_ReportImageView__picSize _x) = lens_ReportImageView__picSize . toLens _x
-          toLens u = error $ ("Unexpected goal Double for ReportImageView: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportImageView Dimension
     where type PathType ReportImageView
                         Dimension = Path_ReportImageView Dimension
           toLens (Path_ReportImageView__picSize _x) = lens_ReportImageView__picSize . toLens _x
-          toLens u = error $ ("Unexpected goal Dimension for ReportImageView: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportImageView ImageCrop
     where type PathType ReportImageView
                         ImageCrop = Path_ReportImageView ImageCrop
           toLens (Path_ReportImageView__picCrop _x) = lens_ReportImageView__picCrop
-          toLens u = error $ ("Unexpected goal ImageCrop for ReportImageView: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportImageView ImageSize
     where type PathType ReportImageView
                         ImageSize = Path_ReportImageView ImageSize
           toLens (Path_ReportImageView__picSize _x) = lens_ReportImageView__picSize . toLens _x
-          toLens u = error $ ("Unexpected goal ImageSize for ReportImageView: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportImageView Units
     where type PathType ReportImageView
                         Units = Path_ReportImageView Units
           toLens (Path_ReportImageView__picSize _x) = lens_ReportImageView__picSize . toLens _x
-          toLens u = error $ ("Unexpected goal Units for ReportImageView: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportImageView ImageFile
     where type PathType ReportImageView
                         ImageFile = Path_ReportImageView ImageFile
           toLens (Path_ReportImageView__picOriginal _x) = lens_ReportImageView__picOriginal . toLens _x
-          toLens u = error $ ("Unexpected goal ImageFile for ReportImageView: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportImageView JSONText
     where type PathType ReportImageView
@@ -3141,13 +3263,11 @@ instance IsPath ReportImageView JSONText
           toLens (Path_ReportImageView__picPrinterDeprecated _x) = lens_ReportImageView__picPrinterDeprecated . toLens _x
           toLens (Path_ReportImageView__picMustEnlarge _x) = lens_ReportImageView__picMustEnlarge . toLens _x
           toLens (Path_ReportImageView__picEnlargedDeprecated _x) = lens_ReportImageView__picEnlargedDeprecated . toLens _x
-          toLens u = error $ ("Unexpected goal JSONText for ReportImageView: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportImageView Markup
     where type PathType ReportImageView
                         Markup = Path_ReportImageView Markup
           toLens (Path_ReportImageView__picCaption _x) = lens_ReportImageView__picCaption
-          toLens u = error $ ("Unexpected goal Markup for ReportImageView: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportImageView MaybeImageFile
     where type PathType ReportImageView
@@ -3156,7 +3276,6 @@ instance IsPath ReportImageView MaybeImageFile
           toLens (Path_ReportImageView__picThumbDeprecated _x) = lens_ReportImageView__picThumbDeprecated
           toLens (Path_ReportImageView__picPrinterDeprecated _x) = lens_ReportImageView__picPrinterDeprecated
           toLens (Path_ReportImageView__picEnlargedDeprecated _x) = lens_ReportImageView__picEnlargedDeprecated
-          toLens u = error $ ("Unexpected goal Maybe ImageFile (aka MaybeImageFile) for ReportImageView: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportImageView ReportImageView
     where type PathType ReportImageView
@@ -3167,38 +3286,32 @@ instance IsPath ReportImageView SaneSizeImageSize
     where type PathType ReportImageView
                         SaneSizeImageSize = Path_ReportImageView SaneSizeImageSize
           toLens (Path_ReportImageView__picSize _x) = lens_ReportImageView__picSize
-          toLens u = error $ ("Unexpected goal SaneSize ImageSize (aka SaneSizeImageSize) for ReportImageView: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportImageView URI
     where type PathType ReportImageView URI = Path_ReportImageView URI
           toLens (Path_ReportImageView__picOriginal _x) = lens_ReportImageView__picOriginal . toLens _x
-          toLens u = error $ ("Unexpected goal URI for ReportImageView: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportImageView Text
     where type PathType ReportImageView
                         Text = Path_ReportImageView Text
           toLens (Path_ReportImageView__picCaption _x) = lens_ReportImageView__picCaption . toLens _x
-          toLens u = error $ ("Unexpected goal Text for ReportImageView: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportView (Either URI ImageFile)
     where type PathType ReportView
                         (Either URI ImageFile) = Path_ReportView (Either URI ImageFile)
           toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
-          toLens u = error $ ("Unexpected goal Either URI ImageFile for ReportView: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportView (Map ItemFieldName Markup)
     where type PathType ReportView
                         (Map ItemFieldName Markup) = Path_ReportView (Map ItemFieldName
                                                                           Markup)
           toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
-          toLens u = error $ ("Unexpected goal Map ItemFieldName Markup for ReportView: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportView (Maybe (Either URI ImageFile))
     where type PathType ReportView
                         (Maybe (Either URI ImageFile)) = Path_ReportView (Maybe (Either URI
                                                                                         ImageFile))
           toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
-          toLens u = error $ ("Unexpected goal Maybe (Either URI ImageFile) for ReportView: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportView String
     where type PathType ReportView String = Path_ReportView String
@@ -3210,12 +3323,10 @@ instance IsPath ReportView String
           toLens (Path_ReportView__reportFlags _x) = lens_ReportView__reportFlags . toLens _x
           toLens (Path_ReportView__reportOrderByItemName _x) = lens_ReportView__reportOrderByItemName . toLens _x
           toLens (Path_ReportView__reportDisplayItemName _x) = lens_ReportView__reportDisplayItemName . toLens _x
-          toLens u = error $ ("Unexpected goal [Char] (aka Checksum, aka FilePath, aka String) for ReportView: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportView Int64
     where type PathType ReportView Int64 = Path_ReportView Int64
           toLens (Path_ReportView__reportCreated _x) = lens_ReportView__reportCreated
-          toLens u = error $ ("Unexpected goal Int64 (aka EpochMilli) for ReportView: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportView Bool
     where type PathType ReportView Bool = Path_ReportView Bool
@@ -3224,51 +3335,42 @@ instance IsPath ReportView Bool
           toLens (Path_ReportView__reportFlags _x) = lens_ReportView__reportFlags . toLens _x
           toLens (Path_ReportView__reportOrderByItemName _x) = lens_ReportView__reportOrderByItemName
           toLens (Path_ReportView__reportDisplayItemName _x) = lens_ReportView__reportDisplayItemName
-          toLens u = error $ ("Unexpected goal Bool for ReportView: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportView Double
     where type PathType ReportView Double = Path_ReportView Double
           toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
-          toLens u = error $ ("Unexpected goal Double for ReportView: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportView Int
     where type PathType ReportView Int = Path_ReportView Int
           toLens (Path_ReportView__reportStandardsVersion _x) = lens_ReportView__reportStandardsVersion . toLens _x
-          toLens u = error $ ("Unexpected goal Int (aka Size) for ReportView: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportView Dimension
     where type PathType ReportView
                         Dimension = Path_ReportView Dimension
           toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
-          toLens u = error $ ("Unexpected goal Dimension for ReportView: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportView ImageCrop
     where type PathType ReportView
                         ImageCrop = Path_ReportView ImageCrop
           toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
-          toLens u = error $ ("Unexpected goal ImageCrop for ReportView: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportView ImageSize
     where type PathType ReportView
                         ImageSize = Path_ReportView ImageSize
           toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
-          toLens u = error $ ("Unexpected goal ImageSize for ReportView: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportView Units
     where type PathType ReportView Units = Path_ReportView Units
           toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
-          toLens u = error $ ("Unexpected goal Units for ReportView: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportView ImageFile
     where type PathType ReportView
                         ImageFile = Path_ReportView ImageFile
           toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
-          toLens u = error $ ("Unexpected goal ImageFile for ReportView: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportView Integer
     where type PathType ReportView Integer = Path_ReportView Integer
           toLens (Path_ReportView__reportRevision _x) = lens_ReportView__reportRevision
-          toLens u = error $ ("Unexpected goal Integer for ReportView: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportView JSONText
     where type PathType ReportView JSONText = Path_ReportView JSONText
@@ -3313,7 +3415,6 @@ instance IsPath ReportView JSONText
           toLens (Path_ReportView__reportFlags _x) = lens_ReportView__reportFlags . toLens _x
           toLens (Path_ReportView__reportOrderByItemName _x) = lens_ReportView__reportOrderByItemName . toLens _x
           toLens (Path_ReportView__reportDisplayItemName _x) = lens_ReportView__reportDisplayItemName . toLens _x
-          toLens u = error $ ("Unexpected goal JSONText for ReportView: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportView Markup
     where type PathType ReportView Markup = Path_ReportView Markup
@@ -3349,143 +3450,119 @@ instance IsPath ReportView Markup
           toLens (Path_ReportView__reportCertification _x) = lens_ReportView__reportCertification . toLens _x
           toLens (Path_ReportView__reportLimitingConditions _x) = lens_ReportView__reportLimitingConditions . toLens _x
           toLens (Path_ReportView__reportPrivacyPolicy _x) = lens_ReportView__reportPrivacyPolicy
-          toLens u = error $ ("Unexpected goal Markup for ReportView: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportView Permissions
     where type PathType ReportView
                         Permissions = Path_ReportView Permissions
           toLens (Path_ReportView__reportPerms _x) = lens_ReportView__reportPerms
-          toLens u = error $ ("Unexpected goal Permissions for ReportView: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportView UserIds
     where type PathType ReportView UserIds = Path_ReportView UserIds
           toLens (Path_ReportView__reportPerms _x) = lens_ReportView__reportPerms . toLens _x
-          toLens u = error $ ("Unexpected goal [UserId] (aka UserIds) for ReportView: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportView AbbrevPair
     where type PathType ReportView
                         AbbrevPair = Path_ReportView AbbrevPair
           toLens (Path_ReportView__reportAbbrevs _x) = lens_ReportView__reportAbbrevs . toLens _x
-          toLens u = error $ ("Unexpected goal (CIString, Markup) (aka AbbrevPair) for ReportView: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportView AbbrevPairs
     where type PathType ReportView
                         AbbrevPairs = Path_ReportView AbbrevPairs
           toLens (Path_ReportView__reportAbbrevs _x) = lens_ReportView__reportAbbrevs
-          toLens u = error $ ("Unexpected goal Order AbbrevPairID ((CIString, Markup)) (aka AbbrevPairs) for ReportView: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportView Author
     where type PathType ReportView Author = Path_ReportView Author
           toLens (Path_ReportView__reportAuthors _x) = lens_ReportView__reportAuthors . toLens _x
-          toLens u = error $ ("Unexpected goal Author for ReportView: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportView Authors
     where type PathType ReportView Authors = Path_ReportView Authors
           toLens (Path_ReportView__reportAuthors _x) = lens_ReportView__reportAuthors
-          toLens u = error $ ("Unexpected goal Order AuthorID Author (aka Authors) for ReportView: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportView Branding
     where type PathType ReportView Branding = Path_ReportView Branding
           toLens (Path_ReportView__reportBranding _x) = lens_ReportView__reportBranding
-          toLens u = error $ ("Unexpected goal Branding for ReportView: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportView MarkupPair
     where type PathType ReportView
                         MarkupPair = Path_ReportView MarkupPair
           toLens (Path_ReportView__reportGlossary _x) = lens_ReportView__reportGlossary . toLens _x
           toLens (Path_ReportView__reportSources _x) = lens_ReportView__reportSources . toLens _x
-          toLens u = error $ ("Unexpected goal (Markup, Markup) (aka MarkupPair) for ReportView: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportView MarkupPairs
     where type PathType ReportView
                         MarkupPairs = Path_ReportView MarkupPairs
           toLens (Path_ReportView__reportGlossary _x) = lens_ReportView__reportGlossary
           toLens (Path_ReportView__reportSources _x) = lens_ReportView__reportSources
-          toLens u = error $ ("Unexpected goal Order MarkupPairID ((Markup, Markup)) (aka MarkupPairs) for ReportView: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportView Markups
     where type PathType ReportView Markups = Path_ReportView Markups
           toLens (Path_ReportView__reportCertification _x) = lens_ReportView__reportCertification
           toLens (Path_ReportView__reportLimitingConditions _x) = lens_ReportView__reportLimitingConditions
-          toLens u = error $ ("Unexpected goal Order MarkupID Markup (aka Markups) for ReportView: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportView MaybeReportIntendedUse
     where type PathType ReportView
                         MaybeReportIntendedUse = Path_ReportView MaybeReportIntendedUse
           toLens (Path_ReportView__reportIntendedUse _x) = lens_ReportView__reportIntendedUse
-          toLens u = error $ ("Unexpected goal Maybe ReportIntendedUse (aka MaybeReportIntendedUse) for ReportView: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportView ReportElem
     where type PathType ReportView
                         ReportElem = Path_ReportView ReportElem
           toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
-          toLens u = error $ ("Unexpected goal ReportElem for ReportView: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportView ReportElems
     where type PathType ReportView
                         ReportElems = Path_ReportView ReportElems
           toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody
-          toLens u = error $ ("Unexpected goal Order ReportElemID ReportElem (aka ReportElems) for ReportView: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportView ReportFlags
     where type PathType ReportView
                         ReportFlags = Path_ReportView ReportFlags
           toLens (Path_ReportView__reportFlags _x) = lens_ReportView__reportFlags
-          toLens u = error $ ("Unexpected goal ReportFlags for ReportView: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportView ReportStandard
     where type PathType ReportView
                         ReportStandard = Path_ReportView ReportStandard
           toLens (Path_ReportView__reportStandardsVersion _x) = lens_ReportView__reportStandardsVersion
-          toLens u = error $ ("Unexpected goal ReportStandard for ReportView: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportView ReportStatus
     where type PathType ReportView
                         ReportStatus = Path_ReportView ReportStatus
           toLens (Path_ReportView__reportStatus _x) = lens_ReportView__reportStatus
-          toLens u = error $ ("Unexpected goal ReportStatus for ReportView: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportView ReportValueApproachInfo
     where type PathType ReportView
                         ReportValueApproachInfo = Path_ReportView ReportValueApproachInfo
           toLens (Path_ReportView__reportValueApproachInfo _x) = lens_ReportView__reportValueApproachInfo
-          toLens u = error $ ("Unexpected goal ReportValueApproachInfo for ReportView: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportView ReportValueTypeInfo
     where type PathType ReportView
                         ReportValueTypeInfo = Path_ReportView ReportValueTypeInfo
           toLens (Path_ReportView__reportValueTypeInfo _x) = lens_ReportView__reportValueTypeInfo
-          toLens u = error $ ("Unexpected goal ReportValueTypeInfo for ReportView: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportView MaybeImageFile
     where type PathType ReportView
                         MaybeImageFile = Path_ReportView MaybeImageFile
           toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
-          toLens u = error $ ("Unexpected goal Maybe ImageFile (aka MaybeImageFile) for ReportView: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportView ReportImage
     where type PathType ReportView
                         ReportImage = Path_ReportView ReportImage
           toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
-          toLens u = error $ ("Unexpected goal ReportImage for ReportView: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportView ReportImages
     where type PathType ReportView
                         ReportImages = Path_ReportView ReportImages
           toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
-          toLens u = error $ ("Unexpected goal Order ReportImageID ReportImage (aka ReportImages) for ReportView: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportView ReadOnlyFilePath
     where type PathType ReportView
                         ReadOnlyFilePath = Path_ReportView ReadOnlyFilePath
           toLens (Path_ReportView__reportFolder _x) = lens_ReportView__reportFolder
-          toLens u = error $ ("Unexpected goal ReadOnly ([Char]) (aka ReadOnlyFilePath) for ReportView: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportView ReportImageView
     where type PathType ReportView
                         ReportImageView = Path_ReportView ReportImageView
           toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
-          toLens u = error $ ("Unexpected goal ReportImageView for ReportView: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportView ReportView
     where type PathType ReportView
@@ -3496,22 +3573,18 @@ instance IsPath ReportView SaneSizeImageSize
     where type PathType ReportView
                         SaneSizeImageSize = Path_ReportView SaneSizeImageSize
           toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
-          toLens u = error $ ("Unexpected goal SaneSize ImageSize (aka SaneSizeImageSize) for ReportView: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportView Item
     where type PathType ReportView Item = Path_ReportView Item
           toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
-          toLens u = error $ ("Unexpected goal Item for ReportView: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportView CIString
     where type PathType ReportView CIString = Path_ReportView CIString
           toLens (Path_ReportView__reportAbbrevs _x) = lens_ReportView__reportAbbrevs . toLens _x
-          toLens u = error $ ("Unexpected goal CIString for ReportView: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportView URI
     where type PathType ReportView URI = Path_ReportView URI
           toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
-          toLens u = error $ ("Unexpected goal URI for ReportView: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportView Text
     where type PathType ReportView Text = Path_ReportView Text
@@ -3549,60 +3622,75 @@ instance IsPath ReportView Text
           toLens (Path_ReportView__reportPrivacyPolicy _x) = lens_ReportView__reportPrivacyPolicy . toLens _x
           toLens (Path_ReportView__reportPerms _x) = lens_ReportView__reportPerms . toLens _x
           toLens (Path_ReportView__reportBranding _x) = lens_ReportView__reportBranding . toLens _x
-          toLens u = error $ ("Unexpected goal Text for ReportView: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportView UserId
     where type PathType ReportView UserId = Path_ReportView UserId
           toLens (Path_ReportView__reportPerms _x) = lens_ReportView__reportPerms . toLens _x
-          toLens u = error $ ("Unexpected goal UserId for ReportView: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportView UUID
     where type PathType ReportView UUID = Path_ReportView UUID
           toLens (Path_ReportView__reportUUID _x) = lens_ReportView__reportUUID
-          toLens u = error $ ("Unexpected goal UUID for ReportView: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath SaneSizeImageSize String
     where type PathType SaneSizeImageSize
                         String = Path_SaneSizeImageSize String
           toLens (Path_SaneSizeImageSize_View v) = (viewLens :: Lens' (SaneSize ImageSize)
                                                                       ImageSize) . toLens v
-          toLens u = error $ ("Unexpected goal [Char] (aka Checksum, aka FilePath, aka String) for SaneSize ImageSize (aka SaneSizeImageSize): " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_SaneSizeImageSize_View idPath :: PathType (SaneSize ImageSize)
+                                                                                ImageSize;
+                             [x'] = toListOf (toLens p) x :: [ImageSize]}
+                         in map Path_SaneSizeImageSize_View (pathsOf x' a :: [PathType ImageSize
+                                                                                       ([Char])])
 instance IsPath SaneSizeImageSize Double
     where type PathType SaneSizeImageSize
                         Double = Path_SaneSizeImageSize Double
           toLens (Path_SaneSizeImageSize_View v) = (viewLens :: Lens' (SaneSize ImageSize)
                                                                       ImageSize) . toLens v
-          toLens u = error $ ("Unexpected goal Double for SaneSize ImageSize (aka SaneSizeImageSize): " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_SaneSizeImageSize_View idPath :: PathType (SaneSize ImageSize)
+                                                                                ImageSize;
+                             [x'] = toListOf (toLens p) x :: [ImageSize]}
+                         in map Path_SaneSizeImageSize_View (pathsOf x' a :: [PathType ImageSize
+                                                                                       Double])
 instance IsPath SaneSizeImageSize Dimension
     where type PathType SaneSizeImageSize
                         Dimension = Path_SaneSizeImageSize Dimension
           toLens (Path_SaneSizeImageSize_View v) = (viewLens :: Lens' (SaneSize ImageSize)
                                                                       ImageSize) . toLens v
-          toLens u = error $ ("Unexpected goal Dimension for SaneSize ImageSize (aka SaneSizeImageSize): " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_SaneSizeImageSize_View idPath :: PathType (SaneSize ImageSize)
+                                                                                ImageSize;
+                             [x'] = toListOf (toLens p) x :: [ImageSize]}
+                         in map Path_SaneSizeImageSize_View (pathsOf x' a :: [PathType ImageSize
+                                                                                       Dimension])
 instance IsPath SaneSizeImageSize ImageSize
     where type PathType SaneSizeImageSize
                         ImageSize = Path_SaneSizeImageSize ImageSize
           toLens (Path_SaneSizeImageSize_View _) = viewLens :: Lens' (SaneSize ImageSize)
                                                                      ImageSize
-          toLens u = error $ ("Unexpected goal ImageSize for SaneSize ImageSize (aka SaneSizeImageSize): " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_SaneSizeImageSize_View idPath :: PathType (SaneSize ImageSize)
+                                                                                ImageSize;
+                             [x'] = toListOf (toLens p) x :: [ImageSize]}
+                         in map Path_SaneSizeImageSize_View (pathsOf x' a :: [PathType ImageSize
+                                                                                       ImageSize])
 instance IsPath SaneSizeImageSize Units
     where type PathType SaneSizeImageSize
                         Units = Path_SaneSizeImageSize Units
           toLens (Path_SaneSizeImageSize_View v) = (viewLens :: Lens' (SaneSize ImageSize)
                                                                       ImageSize) . toLens v
-          toLens u = error $ ("Unexpected goal Units for SaneSize ImageSize (aka SaneSizeImageSize): " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_SaneSizeImageSize_View idPath :: PathType (SaneSize ImageSize)
+                                                                                ImageSize;
+                             [x'] = toListOf (toLens p) x :: [ImageSize]}
+                         in map Path_SaneSizeImageSize_View (pathsOf x' a :: [PathType ImageSize
+                                                                                       Units])
 instance IsPath SaneSizeImageSize JSONText
     where type PathType SaneSizeImageSize
                         JSONText = Path_SaneSizeImageSize JSONText
           toLens (Path_SaneSizeImageSize_View v) = (viewLens :: Lens' (SaneSize ImageSize)
                                                                       ImageSize) . toLens v
-          toLens u = error $ ("Unexpected goal JSONText for SaneSize ImageSize (aka SaneSizeImageSize): " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_SaneSizeImageSize_View idPath :: PathType (SaneSize ImageSize)
+                                                                                ImageSize;
+                             [x'] = toListOf (toLens p) x :: [ImageSize]}
+                         in map Path_SaneSizeImageSize_View (pathsOf x' a :: [PathType ImageSize
+                                                                                       JSONText])
 instance IsPath SaneSizeImageSize SaneSizeImageSize
     where type PathType SaneSizeImageSize
                         SaneSizeImageSize = Path_SaneSizeImageSize SaneSizeImageSize
@@ -3612,100 +3700,82 @@ instance IsPath Item (Either URI ImageFile)
     where type PathType Item
                         (Either URI ImageFile) = Path_Item (Either URI ImageFile)
           toLens (Path_Item_images _x) = lens_Item_images . toLens _x
-          toLens u = error $ ("Unexpected goal Either URI ImageFile for Item: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath Item (Map ItemFieldName Markup)
     where type PathType Item
                         (Map ItemFieldName Markup) = Path_Item (Map ItemFieldName Markup)
           toLens (Path_Item_fields _x) = lens_Item_fields
-          toLens u = error $ ("Unexpected goal Map ItemFieldName Markup for Item: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath Item (Maybe (Either URI ImageFile))
     where type PathType Item
                         (Maybe (Either URI ImageFile)) = Path_Item (Maybe (Either URI
                                                                                   ImageFile))
           toLens (Path_Item_images _x) = lens_Item_images . toLens _x
-          toLens u = error $ ("Unexpected goal Maybe (Either URI ImageFile) for Item: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath Item String
     where type PathType Item String = Path_Item String
           toLens (Path_Item_images _x) = lens_Item_images . toLens _x
-          toLens u = error $ ("Unexpected goal [Char] (aka Checksum, aka FilePath, aka String) for Item: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath Item Bool
     where type PathType Item Bool = Path_Item Bool
           toLens (Path_Item_images _x) = lens_Item_images . toLens _x
-          toLens u = error $ ("Unexpected goal Bool for Item: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath Item Double
     where type PathType Item Double = Path_Item Double
           toLens (Path_Item_images _x) = lens_Item_images . toLens _x
-          toLens u = error $ ("Unexpected goal Double for Item: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath Item Dimension
     where type PathType Item Dimension = Path_Item Dimension
           toLens (Path_Item_images _x) = lens_Item_images . toLens _x
-          toLens u = error $ ("Unexpected goal Dimension for Item: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath Item ImageCrop
     where type PathType Item ImageCrop = Path_Item ImageCrop
           toLens (Path_Item_images _x) = lens_Item_images . toLens _x
-          toLens u = error $ ("Unexpected goal ImageCrop for Item: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath Item ImageSize
     where type PathType Item ImageSize = Path_Item ImageSize
           toLens (Path_Item_images _x) = lens_Item_images . toLens _x
-          toLens u = error $ ("Unexpected goal ImageSize for Item: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath Item Units
     where type PathType Item Units = Path_Item Units
           toLens (Path_Item_images _x) = lens_Item_images . toLens _x
-          toLens u = error $ ("Unexpected goal Units for Item: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath Item ImageFile
     where type PathType Item ImageFile = Path_Item ImageFile
           toLens (Path_Item_images _x) = lens_Item_images . toLens _x
-          toLens u = error $ ("Unexpected goal ImageFile for Item: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath Item JSONText
     where type PathType Item JSONText = Path_Item JSONText
           toLens (Path_Item_itemName _x) = lens_Item_itemName . toLens _x
           toLens (Path_Item_fields _x) = lens_Item_fields . toLens _x
           toLens (Path_Item_images _x) = lens_Item_images . toLens _x
-          toLens u = error $ ("Unexpected goal JSONText for Item: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath Item Markup
     where type PathType Item Markup = Path_Item Markup
           toLens (Path_Item_fields _x) = lens_Item_fields . toLens _x
           toLens (Path_Item_images _x) = lens_Item_images . toLens _x
-          toLens u = error $ ("Unexpected goal Markup for Item: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath Item MaybeImageFile
     where type PathType Item MaybeImageFile = Path_Item MaybeImageFile
           toLens (Path_Item_images _x) = lens_Item_images . toLens _x
-          toLens u = error $ ("Unexpected goal Maybe ImageFile (aka MaybeImageFile) for Item: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath Item ReportImage
     where type PathType Item ReportImage = Path_Item ReportImage
           toLens (Path_Item_images _x) = lens_Item_images . toLens _x
-          toLens u = error $ ("Unexpected goal ReportImage for Item: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath Item ReportImages
     where type PathType Item ReportImages = Path_Item ReportImages
           toLens (Path_Item_images _x) = lens_Item_images
-          toLens u = error $ ("Unexpected goal Order ReportImageID ReportImage (aka ReportImages) for Item: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath Item ReportImageView
     where type PathType Item
                         ReportImageView = Path_Item ReportImageView
           toLens (Path_Item_images _x) = lens_Item_images . toLens _x
-          toLens u = error $ ("Unexpected goal ReportImageView for Item: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath Item SaneSizeImageSize
     where type PathType Item
                         SaneSizeImageSize = Path_Item SaneSizeImageSize
           toLens (Path_Item_images _x) = lens_Item_images . toLens _x
-          toLens u = error $ ("Unexpected goal SaneSize ImageSize (aka SaneSizeImageSize) for Item: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath Item Item
     where type PathType Item Item = Path_Item Item
@@ -3714,260 +3784,214 @@ instance IsPath Item Item
 instance IsPath Item URI
     where type PathType Item URI = Path_Item URI
           toLens (Path_Item_images _x) = lens_Item_images . toLens _x
-          toLens u = error $ ("Unexpected goal URI for Item: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath Item Text
     where type PathType Item Text = Path_Item Text
           toLens (Path_Item_itemName _x) = lens_Item_itemName
           toLens (Path_Item_fields _x) = lens_Item_fields . toLens _x
           toLens (Path_Item_images _x) = lens_Item_images . toLens _x
-          toLens u = error $ ("Unexpected goal Text for Item: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportMap (Either URI ImageFile)
     where type PathType ReportMap
                         (Either URI ImageFile) = Path_ReportMap (Either URI ImageFile)
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          toLens u = error $ ("Unexpected goal Either URI ImageFile for ReportMap: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportMap (Map ItemFieldName Markup)
     where type PathType ReportMap
                         (Map ItemFieldName Markup) = Path_ReportMap (Map ItemFieldName
                                                                          Markup)
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          toLens u = error $ ("Unexpected goal Map ItemFieldName Markup for ReportMap: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportMap (Map ReportID Report)
     where type PathType ReportMap
                         (Map ReportID Report) = Path_ReportMap (Map ReportID Report)
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap
-          toLens u = error $ ("Unexpected goal Map ReportID Report for ReportMap: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportMap (Maybe (Either URI ImageFile))
     where type PathType ReportMap
                         (Maybe (Either URI ImageFile)) = Path_ReportMap (Maybe (Either URI
                                                                                        ImageFile))
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          toLens u = error $ ("Unexpected goal Maybe (Either URI ImageFile) for ReportMap: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportMap String
     where type PathType ReportMap String = Path_ReportMap String
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          toLens u = error $ ("Unexpected goal [Char] (aka Checksum, aka FilePath, aka String) for ReportMap: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportMap Int64
     where type PathType ReportMap Int64 = Path_ReportMap Int64
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          toLens u = error $ ("Unexpected goal Int64 (aka EpochMilli) for ReportMap: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportMap Bool
     where type PathType ReportMap Bool = Path_ReportMap Bool
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          toLens u = error $ ("Unexpected goal Bool for ReportMap: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportMap Double
     where type PathType ReportMap Double = Path_ReportMap Double
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          toLens u = error $ ("Unexpected goal Double for ReportMap: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportMap Int
     where type PathType ReportMap Int = Path_ReportMap Int
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          toLens u = error $ ("Unexpected goal Int (aka Size) for ReportMap: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportMap Dimension
     where type PathType ReportMap Dimension = Path_ReportMap Dimension
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          toLens u = error $ ("Unexpected goal Dimension for ReportMap: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportMap ImageCrop
     where type PathType ReportMap ImageCrop = Path_ReportMap ImageCrop
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          toLens u = error $ ("Unexpected goal ImageCrop for ReportMap: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportMap ImageSize
     where type PathType ReportMap ImageSize = Path_ReportMap ImageSize
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          toLens u = error $ ("Unexpected goal ImageSize for ReportMap: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportMap Units
     where type PathType ReportMap Units = Path_ReportMap Units
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          toLens u = error $ ("Unexpected goal Units for ReportMap: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportMap ImageFile
     where type PathType ReportMap ImageFile = Path_ReportMap ImageFile
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          toLens u = error $ ("Unexpected goal ImageFile for ReportMap: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportMap Integer
     where type PathType ReportMap Integer = Path_ReportMap Integer
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          toLens u = error $ ("Unexpected goal Integer for ReportMap: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportMap JSONText
     where type PathType ReportMap JSONText = Path_ReportMap JSONText
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          toLens u = error $ ("Unexpected goal JSONText for ReportMap: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportMap Markup
     where type PathType ReportMap Markup = Path_ReportMap Markup
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          toLens u = error $ ("Unexpected goal Markup for ReportMap: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportMap Permissions
     where type PathType ReportMap
                         Permissions = Path_ReportMap Permissions
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          toLens u = error $ ("Unexpected goal Permissions for ReportMap: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportMap UserIds
     where type PathType ReportMap UserIds = Path_ReportMap UserIds
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          toLens u = error $ ("Unexpected goal [UserId] (aka UserIds) for ReportMap: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportMap AbbrevPair
     where type PathType ReportMap
                         AbbrevPair = Path_ReportMap AbbrevPair
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          toLens u = error $ ("Unexpected goal (CIString, Markup) (aka AbbrevPair) for ReportMap: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportMap AbbrevPairs
     where type PathType ReportMap
                         AbbrevPairs = Path_ReportMap AbbrevPairs
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          toLens u = error $ ("Unexpected goal Order AbbrevPairID ((CIString, Markup)) (aka AbbrevPairs) for ReportMap: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportMap Author
     where type PathType ReportMap Author = Path_ReportMap Author
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          toLens u = error $ ("Unexpected goal Author for ReportMap: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportMap Authors
     where type PathType ReportMap Authors = Path_ReportMap Authors
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          toLens u = error $ ("Unexpected goal Order AuthorID Author (aka Authors) for ReportMap: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportMap Branding
     where type PathType ReportMap Branding = Path_ReportMap Branding
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          toLens u = error $ ("Unexpected goal Branding for ReportMap: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportMap MarkupPair
     where type PathType ReportMap
                         MarkupPair = Path_ReportMap MarkupPair
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          toLens u = error $ ("Unexpected goal (Markup, Markup) (aka MarkupPair) for ReportMap: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportMap MarkupPairs
     where type PathType ReportMap
                         MarkupPairs = Path_ReportMap MarkupPairs
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          toLens u = error $ ("Unexpected goal Order MarkupPairID ((Markup, Markup)) (aka MarkupPairs) for ReportMap: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportMap Markups
     where type PathType ReportMap Markups = Path_ReportMap Markups
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          toLens u = error $ ("Unexpected goal Order MarkupID Markup (aka Markups) for ReportMap: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportMap MaybeReportIntendedUse
     where type PathType ReportMap
                         MaybeReportIntendedUse = Path_ReportMap MaybeReportIntendedUse
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          toLens u = error $ ("Unexpected goal Maybe ReportIntendedUse (aka MaybeReportIntendedUse) for ReportMap: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportMap Report
     where type PathType ReportMap Report = Path_ReportMap Report
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          toLens u = error $ ("Unexpected goal Report for ReportMap: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportMap ReportElem
     where type PathType ReportMap
                         ReportElem = Path_ReportMap ReportElem
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          toLens u = error $ ("Unexpected goal ReportElem for ReportMap: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportMap ReportElems
     where type PathType ReportMap
                         ReportElems = Path_ReportMap ReportElems
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          toLens u = error $ ("Unexpected goal Order ReportElemID ReportElem (aka ReportElems) for ReportMap: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportMap ReportFlags
     where type PathType ReportMap
                         ReportFlags = Path_ReportMap ReportFlags
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          toLens u = error $ ("Unexpected goal ReportFlags for ReportMap: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportMap ReportStandard
     where type PathType ReportMap
                         ReportStandard = Path_ReportMap ReportStandard
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          toLens u = error $ ("Unexpected goal ReportStandard for ReportMap: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportMap ReportStatus
     where type PathType ReportMap
                         ReportStatus = Path_ReportMap ReportStatus
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          toLens u = error $ ("Unexpected goal ReportStatus for ReportMap: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportMap ReportValueApproachInfo
     where type PathType ReportMap
                         ReportValueApproachInfo = Path_ReportMap ReportValueApproachInfo
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          toLens u = error $ ("Unexpected goal ReportValueApproachInfo for ReportMap: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportMap ReportValueTypeInfo
     where type PathType ReportMap
                         ReportValueTypeInfo = Path_ReportMap ReportValueTypeInfo
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          toLens u = error $ ("Unexpected goal ReportValueTypeInfo for ReportMap: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportMap MaybeImageFile
     where type PathType ReportMap
                         MaybeImageFile = Path_ReportMap MaybeImageFile
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          toLens u = error $ ("Unexpected goal Maybe ImageFile (aka MaybeImageFile) for ReportMap: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportMap ReportImage
     where type PathType ReportMap
                         ReportImage = Path_ReportMap ReportImage
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          toLens u = error $ ("Unexpected goal ReportImage for ReportMap: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportMap ReportImages
     where type PathType ReportMap
                         ReportImages = Path_ReportMap ReportImages
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          toLens u = error $ ("Unexpected goal Order ReportImageID ReportImage (aka ReportImages) for ReportMap: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportMap ReadOnlyFilePath
     where type PathType ReportMap
                         ReadOnlyFilePath = Path_ReportMap ReadOnlyFilePath
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          toLens u = error $ ("Unexpected goal ReadOnly ([Char]) (aka ReadOnlyFilePath) for ReportMap: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportMap ReportImageView
     where type PathType ReportMap
                         ReportImageView = Path_ReportMap ReportImageView
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          toLens u = error $ ("Unexpected goal ReportImageView for ReportMap: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportMap ReportView
     where type PathType ReportMap
                         ReportView = Path_ReportMap ReportView
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          toLens u = error $ ("Unexpected goal ReportView for ReportMap: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportMap SaneSizeImageSize
     where type PathType ReportMap
                         SaneSizeImageSize = Path_ReportMap SaneSizeImageSize
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          toLens u = error $ ("Unexpected goal SaneSize ImageSize (aka SaneSizeImageSize) for ReportMap: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportMap Item
     where type PathType ReportMap Item = Path_ReportMap Item
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          toLens u = error $ ("Unexpected goal Item for ReportMap: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportMap ReportMap
     where type PathType ReportMap ReportMap = Path_ReportMap ReportMap
@@ -3976,34 +4000,32 @@ instance IsPath ReportMap ReportMap
 instance IsPath ReportMap CIString
     where type PathType ReportMap CIString = Path_ReportMap CIString
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          toLens u = error $ ("Unexpected goal CIString for ReportMap: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportMap URI
     where type PathType ReportMap URI = Path_ReportMap URI
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          toLens u = error $ ("Unexpected goal URI for ReportMap: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportMap Text
     where type PathType ReportMap Text = Path_ReportMap Text
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          toLens u = error $ ("Unexpected goal Text for ReportMap: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportMap UserId
     where type PathType ReportMap UserId = Path_ReportMap UserId
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          toLens u = error $ ("Unexpected goal UserId for ReportMap: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath ReportMap UUID
     where type PathType ReportMap UUID = Path_ReportMap UUID
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          toLens u = error $ ("Unexpected goal UUID for ReportMap: " ++ show u)
           pathsOf _ _ = undefined
 instance IsPath CIString JSONText
     where type PathType CIString JSONText = Path_CIString JSONText
           toLens (Path_CIString_View v) = (viewLens :: Lens' CIString
                                                              Text) . toLens v
-          toLens u = error $ ("Unexpected goal JSONText for CIString: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_CIString_View idPath :: PathType CIString
+                                                                       Text;
+                             [x'] = toListOf (toLens p) x :: [Text]}
+                         in map Path_CIString_View (pathsOf x' a :: [PathType Text
+                                                                              JSONText])
 instance IsPath CIString CIString
     where type PathType CIString CIString = Path_CIString CIString
           toLens _ = iso id id
@@ -4011,8 +4033,10 @@ instance IsPath CIString CIString
 instance IsPath CIString Text
     where type PathType CIString Text = Path_CIString Text
           toLens (Path_CIString_View _) = viewLens :: Lens' CIString Text
-          toLens u = error $ ("Unexpected goal Text for CIString: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_CIString_View idPath :: PathType CIString
+                                                                       Text;
+                             [x'] = toListOf (toLens p) x :: [Text]}
+                         in map Path_CIString_View (pathsOf x' a :: [PathType Text Text])
 instance IsPath URI URI
     where type PathType URI URI = Path_URI URI
           toLens _ = iso id id
@@ -4020,8 +4044,11 @@ instance IsPath URI URI
 instance IsPath Text JSONText
     where type PathType Text JSONText = Path_Text JSONText
           toLens (Path_Text_View _) = viewLens :: Lens' Text JSONText
-          toLens u = error $ ("Unexpected goal JSONText for Text: " ++ show u)
-          pathsOf _ _ = undefined
+          pathsOf x a = let {p = Path_Text_View idPath :: PathType Text
+                                                                   JSONText;
+                             [x'] = toListOf (toLens p) x :: [JSONText]}
+                         in map Path_Text_View (pathsOf x' a :: [PathType JSONText
+                                                                          JSONText])
 instance IsPath Text Text
     where type PathType Text Text = Path_Text Text
           toLens _ = iso id id

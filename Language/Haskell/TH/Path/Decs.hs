@@ -435,10 +435,10 @@ toLensClauses key gkey =
     where
       -- Add a clause to the toLens function handling unexpected values.
       final :: m ()
-      final = tell [newName "u" >>= \u ->
+      final = tell [ {- newName "u" >>= \u ->
                     clause [varP u] (normalB [|(error $ $(litE (stringL ("Unexpected goal " ++ pprint' gkey ++ " for " ++ pprint' key ++ ": "))) ++
                                                 show $(varE u))
-                                              |]) []]
+                                              |]) [] -} ]
 
 -- | Given a function pfunc that modifies a pattern, add a
 -- 'Language.Haskell.TH.Clause' (a function with a typically incomplete
@@ -541,7 +541,21 @@ pathsOfClauses key gkey ptyp =
        _ | selfPath -> return ()
          | simplePath -> return ()
        typ
-         | isJust viewType -> tell [clause [wildP, wildP] (normalB [|undefined|]) []]
+         | isJust viewType ->
+             do let Just vtyp = viewType
+                vIsPath <- testIsPath vtyp gkey
+                vkey <- expandType vtyp >>= typeVertex
+                let Just tname = bestTypeName key
+                    Just vname = bestTypeName vkey
+                let ptname = mkName ("Path_" ++ nameBase tname)
+                let pcname = mkName ("Path_" ++ nameBase tname ++ "_View")
+                runQ [d| f x a =
+                           $(case vIsPath of
+                               True -> [| -- Get the value as transformed by the view lens
+                                          let p = $(conE pcname) idPath :: PathType $(pure (view (etype . unE) key)) $(pure vtyp)
+                                              [x'] = toListOf (toLens p) x :: [$(pure vtyp)] in
+                                          List.map $(conE pcname) (pathsOf x' a :: [PathType $(pure vtyp) $(pure (view (etype . unE) gkey))]) |]
+                               False -> [| [] |]) |] >>= tell . clauses
        ConT tname ->
            doName tname
        AppT (AppT mtyp _ityp) vtyp
@@ -552,13 +566,22 @@ pathsOfClauses key gkey ptyp =
            | t3 == ConT ''Map ->
                tell [clause [wildP, wildP] (normalB [|undefined|]) []]
        AppT (AppT (TupleT 2) ftyp) styp ->
-           tell [clause [wildP, wildP] (normalB [|undefined|]) []]
+           do fIsPath <- testIsPath ftyp gkey
+              sIsPath <- testIsPath styp gkey
+              -- trace ("testIsPath " ++ pprint styp ++ " " ++ pprint gkey ++ " -> " ++ show sIsPath) (return ())
+              runQ [d| f (x, _) a =
+                         $(case fIsPath of
+                             True -> [| List.map Path_First (pathsOf (x :: $(pure ftyp)) a :: [PathType $(pure ftyp) $(pure (view (etype . unE) gkey))]) |]
+                             False -> [| [] |]) |] >>= tell . clauses
+              runQ [d| f (_, x) a =
+                         $(case sIsPath of
+                             True -> [| List.map Path_Second (pathsOf (x :: $(pure styp)) a :: [PathType $(pure styp) $(pure (view (etype . unE) gkey))]) |]
+                             False -> [| [] |]) |] >>= tell . clauses
        AppT t1 etyp
            | t1 == ConT ''Maybe ->
-               do ekey <- expandType etyp >>= typeVertex
-                  etlc <- execWriterT $ evalStateT (toLensClauses ekey gkey) mempty
+               do eIsPath <- testIsPath etyp gkey
                   runQ [d| f (Just x) a =
-                             $(case (not (null etlc)) of
+                             $(case eIsPath of
                                  True -> [| List.map Path_Just (pathsOf (x :: $(pure etyp)) a :: [PathType $(pure etyp) $(pure (view (etype . unE) gkey))]) |]
                                  False -> [| [] |]) |] >>= tell . clauses
                   runQ [d| f Nothing a = [] |] >>= tell . clauses
@@ -567,16 +590,14 @@ pathsOfClauses key gkey ptyp =
                do -- Are there paths from the left type to a?  This is
                   -- the test we use in pathInstanceDecs, but using it
                   -- here is kind of a hack.
-                  lkey <- expandType ltyp >>= typeVertex
-                  rkey <- expandType rtyp >>= typeVertex
-                  ltlc <- execWriterT $ evalStateT (toLensClauses lkey gkey) mempty
-                  rtlc <- execWriterT $ evalStateT (toLensClauses rkey gkey) mempty
+                  lIsPath <- testIsPath ltyp gkey
+                  rIsPath <- testIsPath rtyp gkey
                   runQ [d| f (Left x) a =
-                             $(case (not (null ltlc)) of
+                             $(case lIsPath of
                                  True -> [| List.map Path_Left (pathsOf (x :: $(pure ltyp)) a :: [PathType $(pure ltyp) $(pure (view (etype . unE) gkey))]) |]
                                  False -> [| [] |]) |] >>= tell . clauses
                   runQ [d| f (Right x) a =
-                             $(case (not (null rtlc)) of
+                             $(case rIsPath of
                                  True -> [| List.map Path_Right (pathsOf (x :: $(pure rtyp)) a :: [PathType $(pure rtyp) $(pure (view (etype . unE) gkey))]) |]
                                  False -> [| [] |]) |] >>= tell . clauses
        _ -> tell [clause [wildP, wildP] (normalB [|undefined|]) []]
