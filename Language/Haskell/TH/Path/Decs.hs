@@ -32,9 +32,9 @@ import Data.Bool (bool)
 import Data.Char (toLower)
 import Data.Data (Data, Typeable)
 import Data.Foldable as Foldable (mapM_)
-import Data.Foldable
+import Data.Foldable as Foldable
 import Data.List as List (concatMap, intercalate, map)
-import Data.Map as Map (Map)
+import Data.Map as Map (Map, toList)
 import Data.Maybe (fromJust, fromMaybe, isJust)
 import Data.Set as Set (delete, minView)
 import Data.Set.Extra as Set (insert, map, member, Set)
@@ -61,12 +61,12 @@ pathDecs = execWriterT $ allPathStarts >>= \ps -> Foldable.mapM_ doNode ps >> do
 
 doPVType :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) => Set TGVSimple -> m ()
 doPVType vs = do
-  mapM_ doVert (toList vs)
+  mapM_ doVert (Foldable.toList vs)
     where
       doVert :: TGVSimple -> m ()
       doVert v = do
         gs <- pathKeys v
-        let cons = concat (List.map (doPair v) (toList gs))
+        let cons = concat (List.map (doPair v) (Foldable.toList gs))
         case bestName v of
           Just vn -> do
                    let leName = mkName ("PV_" ++ nameBase vn)
@@ -97,7 +97,7 @@ doNode v = do
     _ -> doNames
   -- generate the lens declarations
   case simplePath of
-    False -> mapM makePathLens (toList (typeNames v)) >>= {- t1 >>= -} tell . concat
+    False -> mapM makePathLens (Foldable.toList (typeNames v)) >>= {- t1 >>= -} tell . concat
     _ -> return ()
   -- generate the path instance declarations
   pathKeys v >>= Set.mapM_ (pathInstanceDecs v)
@@ -110,7 +110,7 @@ doNode v = do
         runQ (dataD (return []) pname [PlainTV a] [normalC pname []] supers) >>= tell . (: [])
         doIsPathType pname a
         doIsPathNode v
-        mapM_ (\psyn -> runQ (newName "a" >>= \a -> tySynD psyn [PlainTV a] (appT (conT pname) (varT a))) >>= tell . (: [])) (toList syns')
+        mapM_ (\psyn -> runQ (newName "a" >>= \a -> tySynD psyn [PlainTV a] (appT (conT pname) (varT a))) >>= tell . (: [])) (Foldable.toList syns')
 
       -- viewPath [t|Text|] = data Path_Branding a = Path_Branding (Path_Text a)
       viewPath :: Type -> m ()
@@ -128,7 +128,7 @@ doNode v = do
                               [ normalC (mkName (nameBase pname ++ "_View")) [strictType notStrict (pure ptype')]
                               , normalC (mkName (nameBase pname)) []
                               ] supers
-                         : List.map (\psyn -> tySynD psyn [PlainTV a] (appT (conT pname) (varT a))) (toList syns'))) >>= tell
+                         : List.map (\psyn -> tySynD psyn [PlainTV a] (appT (conT pname) (varT a))) (Foldable.toList syns'))) >>= tell
         doIsPathType pname a
         doIsPathNode v
 
@@ -269,7 +269,7 @@ pathType gtyp key = do
                runQ [t| Path_Either $(return lpath) $(return rpath)|]
     _ -> do ks <- reachableFromSimple key
             error $ "pathType otherf: " ++ pprint' key ++ "\n" ++
-                    intercalate "\n  " ("reachable from:" : List.map pprint' (toList ks))
+                    intercalate "\n  " ("reachable from:" : List.map pprint' (Foldable.toList ks))
 
     where
       vert typ = askPoly >>= \(ti :: TypeInfo) -> runReaderT (typeVertex (E typ)) ti
@@ -554,7 +554,7 @@ pathsOfClauses key gkey ptyp =
                                True -> [| -- Get the value as transformed by the view lens
                                           let p = $(conE pcname) idPath :: PathType $(pure (view (etype . unE) key)) $(pure vtyp)
                                               [x'] = toListOf (toLens p) x :: [$(pure vtyp)] in
-                                          List.map $(conE pcname) (pathsOf x' a :: [PathType $(pure vtyp) $(pure (view (etype . unE) gkey))]) |]
+                                          List.map $(conE pcname) (pathsOf x' a {- :: [PathType $(pure vtyp) $(pure (view (etype . unE) gkey))] -}) |]
                                False -> [| [] |]) |] >>= tell . clauses
        ConT tname ->
            doName tname
@@ -570,25 +570,29 @@ pathsOfClauses key gkey ptyp =
        AppT ListT _etyp -> return ()
        AppT (AppT t3 _ktyp) vtyp
            | t3 == ConT ''Map ->
-               tell [clause [wildP, wildP] (normalB [|undefined|]) []]
+               do vIsPath <- testIsPath vtyp gkey
+                  runQ [d| f mp a =
+                             $(case vIsPath of
+                                 True -> [| List.concatMap (\(k, v) -> List.map (Path_Look k) (pathsOf (v :: $(pure vtyp)) a {-:: [PathType $(pure vtyp) (pure (view (etype . unE) gkey))]-})) (Map.toList mp) |]
+                                 False -> [| [] |]) |] >>= tell . clauses
        AppT (AppT (TupleT 2) ftyp) styp ->
            do fIsPath <- testIsPath ftyp gkey
               sIsPath <- testIsPath styp gkey
               -- trace ("testIsPath " ++ pprint styp ++ " " ++ pprint gkey ++ " -> " ++ show sIsPath) (return ())
               runQ [d| f (x, _) a =
                          $(case fIsPath of
-                             True -> [| List.map Path_First (pathsOf (x :: $(pure ftyp)) a :: [PathType $(pure ftyp) $(pure (view (etype . unE) gkey))]) |]
+                             True -> [| List.map Path_First (pathsOf (x :: $(pure ftyp)) a {- :: [PathType $(pure ftyp) $(pure (view (etype . unE) gkey))] -}) |]
                              False -> [| [] |]) |] >>= tell . clauses
               runQ [d| f (_, x) a =
                          $(case sIsPath of
-                             True -> [| List.map Path_Second (pathsOf (x :: $(pure styp)) a :: [PathType $(pure styp) $(pure (view (etype . unE) gkey))]) |]
+                             True -> [| List.map Path_Second (pathsOf (x :: $(pure styp)) a {- :: [PathType $(pure styp) $(pure (view (etype . unE) gkey))] -}) |]
                              False -> [| [] |]) |] >>= tell . clauses
        AppT t1 etyp
            | t1 == ConT ''Maybe ->
                do eIsPath <- testIsPath etyp gkey
                   runQ [d| f (Just x) a =
                              $(case eIsPath of
-                                 True -> [| List.map Path_Just (pathsOf (x :: $(pure etyp)) a :: [PathType $(pure etyp) $(pure (view (etype . unE) gkey))]) |]
+                                 True -> [| List.map Path_Just (pathsOf (x :: $(pure etyp)) a {- :: [PathType $(pure etyp) $(pure (view (etype . unE) gkey))] -}) |]
                                  False -> [| [] |]) |] >>= tell . clauses
                   runQ [d| f Nothing a = [] |] >>= tell . clauses
        AppT (AppT t3 ltyp) rtyp
@@ -600,13 +604,13 @@ pathsOfClauses key gkey ptyp =
                   rIsPath <- testIsPath rtyp gkey
                   runQ [d| f (Left x) a =
                              $(case lIsPath of
-                                 True -> [| List.map Path_Left (pathsOf (x :: $(pure ltyp)) a :: [PathType $(pure ltyp) $(pure (view (etype . unE) gkey))]) |]
+                                 True -> [| List.map Path_Left (pathsOf (x :: $(pure ltyp)) a {- :: [PathType $(pure ltyp) $(pure (view (etype . unE) gkey))] -}) |]
                                  False -> [| [] |]) |] >>= tell . clauses
                   runQ [d| f (Right x) a =
                              $(case rIsPath of
-                                 True -> [| List.map Path_Right (pathsOf (x :: $(pure rtyp)) a :: [PathType $(pure rtyp) $(pure (view (etype . unE) gkey))]) |]
+                                 True -> [| List.map Path_Right (pathsOf (x :: $(pure rtyp)) a {- :: [PathType $(pure rtyp) $(pure (view (etype . unE) gkey))] -}) |]
                                  False -> [| [] |]) |] >>= tell . clauses
-       _ -> tell [clause [wildP, wildP] (normalB [|undefined|]) []]
+       _ -> tell [clause [wildP, wildP] (normalB [|error $ "pathsOfClauses - unexpected type: " ++ pprint key|]) []]
     where
       doName :: Name -> m ()
       doName tname = tell [clause [wildP, wildP] (normalB [|undefined|]) []]

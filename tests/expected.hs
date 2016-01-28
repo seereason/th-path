@@ -1286,14 +1286,12 @@ instance IsPath (Either URI ImageFile) ImageFile
                                                 (Path_ImageFile ImageFile)
           toLens (Path_Right _) = _Right
           pathsOf (Left x) a = []
-          pathsOf (Right x) a = map Path_Right (pathsOf (x :: ImageFile) a :: [PathType ImageFile
-                                                                                        ImageFile])
+          pathsOf (Right x) a = map Path_Right (pathsOf (x :: ImageFile) a)
 instance IsPath (Either URI ImageFile) URI
     where type PathType (Either URI ImageFile)
                         URI = Path_Either (Path_URI URI) (Path_ImageFile URI)
           toLens (Path_Left _) = _Left
-          pathsOf (Left x) a = map Path_Left (pathsOf (x :: URI) a :: [PathType URI
-                                                                                URI])
+          pathsOf (Left x) a = map Path_Left (pathsOf (x :: URI) a)
           pathsOf (Right x) a = []
 instance IsPath (Map ItemFieldName Markup)
                 (Map ItemFieldName Markup)
@@ -1307,30 +1305,35 @@ instance IsPath (Map ItemFieldName Markup) JSONText
     where type PathType (Map ItemFieldName Markup)
                         JSONText = Path_Map ItemFieldName (Path_Markup JSONText)
           toLens (Path_Look k v) = mat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Markup) a)) (toList mp)
 instance IsPath (Map ItemFieldName Markup) Markup
     where type PathType (Map ItemFieldName Markup)
                         Markup = Path_Map ItemFieldName (Path_Markup Markup)
           toLens (Path_Look k _) = mat k
-          pathsOf _ _ = undefined
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Markup) a)) (toList mp)
 instance IsPath (Map ItemFieldName Markup) Text
     where type PathType (Map ItemFieldName Markup)
                         Text = Path_Map ItemFieldName (Path_Markup Text)
           toLens (Path_Look k v) = mat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Markup) a)) (toList mp)
 instance IsPath (Map ReportID Report) (Either URI ImageFile)
     where type PathType (Map ReportID Report)
                         (Either URI ImageFile) = Path_Map ReportID
                                                           (Path_Report (Either URI ImageFile))
           toLens (Path_Look k v) = mat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
 instance IsPath (Map ReportID Report) (Map ItemFieldName Markup)
     where type PathType (Map ReportID Report)
                         (Map ItemFieldName Markup) = Path_Map ReportID
                                                               (Path_Report (Map ItemFieldName
                                                                                 Markup))
           toLens (Path_Look k v) = mat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
 instance IsPath (Map ReportID Report) (Map ReportID Report)
     where type PathType (Map ReportID Report)
                         (Map ReportID Report) = Path_Map ReportID
@@ -1344,236 +1347,282 @@ instance IsPath (Map ReportID Report)
                                                                   (Path_Report (Maybe (Either URI
                                                                                               ImageFile)))
           toLens (Path_Look k v) = mat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
 instance IsPath (Map ReportID Report) String
     where type PathType (Map ReportID Report)
                         String = Path_Map ReportID (Path_Report String)
           toLens (Path_Look k v) = mat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
 instance IsPath (Map ReportID Report) Int64
     where type PathType (Map ReportID Report) Int64 = Path_Map ReportID
                                                                (Path_Report Int64)
           toLens (Path_Look k v) = mat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
 instance IsPath (Map ReportID Report) Bool
     where type PathType (Map ReportID Report) Bool = Path_Map ReportID
                                                               (Path_Report Bool)
           toLens (Path_Look k v) = mat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
 instance IsPath (Map ReportID Report) Double
     where type PathType (Map ReportID Report)
                         Double = Path_Map ReportID (Path_Report Double)
           toLens (Path_Look k v) = mat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
 instance IsPath (Map ReportID Report) Int
     where type PathType (Map ReportID Report) Int = Path_Map ReportID
                                                              (Path_Report Int)
           toLens (Path_Look k v) = mat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
 instance IsPath (Map ReportID Report) Dimension
     where type PathType (Map ReportID Report)
                         Dimension = Path_Map ReportID (Path_Report Dimension)
           toLens (Path_Look k v) = mat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
 instance IsPath (Map ReportID Report) ImageCrop
     where type PathType (Map ReportID Report)
                         ImageCrop = Path_Map ReportID (Path_Report ImageCrop)
           toLens (Path_Look k v) = mat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
 instance IsPath (Map ReportID Report) ImageSize
     where type PathType (Map ReportID Report)
                         ImageSize = Path_Map ReportID (Path_Report ImageSize)
           toLens (Path_Look k v) = mat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
 instance IsPath (Map ReportID Report) Units
     where type PathType (Map ReportID Report) Units = Path_Map ReportID
                                                                (Path_Report Units)
           toLens (Path_Look k v) = mat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
 instance IsPath (Map ReportID Report) ImageFile
     where type PathType (Map ReportID Report)
                         ImageFile = Path_Map ReportID (Path_Report ImageFile)
           toLens (Path_Look k v) = mat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
 instance IsPath (Map ReportID Report) Integer
     where type PathType (Map ReportID Report)
                         Integer = Path_Map ReportID (Path_Report Integer)
           toLens (Path_Look k v) = mat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
 instance IsPath (Map ReportID Report) JSONText
     where type PathType (Map ReportID Report)
                         JSONText = Path_Map ReportID (Path_Report JSONText)
           toLens (Path_Look k v) = mat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
 instance IsPath (Map ReportID Report) Markup
     where type PathType (Map ReportID Report)
                         Markup = Path_Map ReportID (Path_Report Markup)
           toLens (Path_Look k v) = mat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
 instance IsPath (Map ReportID Report) Permissions
     where type PathType (Map ReportID Report)
                         Permissions = Path_Map ReportID (Path_Report Permissions)
           toLens (Path_Look k v) = mat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
 instance IsPath (Map ReportID Report) UserIds
     where type PathType (Map ReportID Report)
                         UserIds = Path_Map ReportID (Path_Report UserIds)
           toLens (Path_Look k v) = mat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
 instance IsPath (Map ReportID Report) AbbrevPair
     where type PathType (Map ReportID Report)
                         AbbrevPair = Path_Map ReportID (Path_Report AbbrevPair)
           toLens (Path_Look k v) = mat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
 instance IsPath (Map ReportID Report) AbbrevPairs
     where type PathType (Map ReportID Report)
                         AbbrevPairs = Path_Map ReportID (Path_Report AbbrevPairs)
           toLens (Path_Look k v) = mat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
 instance IsPath (Map ReportID Report) Author
     where type PathType (Map ReportID Report)
                         Author = Path_Map ReportID (Path_Report Author)
           toLens (Path_Look k v) = mat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
 instance IsPath (Map ReportID Report) Authors
     where type PathType (Map ReportID Report)
                         Authors = Path_Map ReportID (Path_Report Authors)
           toLens (Path_Look k v) = mat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
 instance IsPath (Map ReportID Report) Branding
     where type PathType (Map ReportID Report)
                         Branding = Path_Map ReportID (Path_Report Branding)
           toLens (Path_Look k v) = mat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
 instance IsPath (Map ReportID Report) MarkupPair
     where type PathType (Map ReportID Report)
                         MarkupPair = Path_Map ReportID (Path_Report MarkupPair)
           toLens (Path_Look k v) = mat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
 instance IsPath (Map ReportID Report) MarkupPairs
     where type PathType (Map ReportID Report)
                         MarkupPairs = Path_Map ReportID (Path_Report MarkupPairs)
           toLens (Path_Look k v) = mat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
 instance IsPath (Map ReportID Report) Markups
     where type PathType (Map ReportID Report)
                         Markups = Path_Map ReportID (Path_Report Markups)
           toLens (Path_Look k v) = mat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
 instance IsPath (Map ReportID Report) MaybeReportIntendedUse
     where type PathType (Map ReportID Report)
                         MaybeReportIntendedUse = Path_Map ReportID
                                                           (Path_Report MaybeReportIntendedUse)
           toLens (Path_Look k v) = mat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
 instance IsPath (Map ReportID Report) Report
     where type PathType (Map ReportID Report)
                         Report = Path_Map ReportID (Path_Report Report)
           toLens (Path_Look k _) = mat k
-          pathsOf _ _ = undefined
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
 instance IsPath (Map ReportID Report) ReportElem
     where type PathType (Map ReportID Report)
                         ReportElem = Path_Map ReportID (Path_Report ReportElem)
           toLens (Path_Look k v) = mat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
 instance IsPath (Map ReportID Report) ReportElems
     where type PathType (Map ReportID Report)
                         ReportElems = Path_Map ReportID (Path_Report ReportElems)
           toLens (Path_Look k v) = mat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
 instance IsPath (Map ReportID Report) ReportFlags
     where type PathType (Map ReportID Report)
                         ReportFlags = Path_Map ReportID (Path_Report ReportFlags)
           toLens (Path_Look k v) = mat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
 instance IsPath (Map ReportID Report) ReportStandard
     where type PathType (Map ReportID Report)
                         ReportStandard = Path_Map ReportID (Path_Report ReportStandard)
           toLens (Path_Look k v) = mat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
 instance IsPath (Map ReportID Report) ReportStatus
     where type PathType (Map ReportID Report)
                         ReportStatus = Path_Map ReportID (Path_Report ReportStatus)
           toLens (Path_Look k v) = mat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
 instance IsPath (Map ReportID Report) ReportValueApproachInfo
     where type PathType (Map ReportID Report)
                         ReportValueApproachInfo = Path_Map ReportID
                                                            (Path_Report ReportValueApproachInfo)
           toLens (Path_Look k v) = mat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
 instance IsPath (Map ReportID Report) ReportValueTypeInfo
     where type PathType (Map ReportID Report)
                         ReportValueTypeInfo = Path_Map ReportID
                                                        (Path_Report ReportValueTypeInfo)
           toLens (Path_Look k v) = mat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
 instance IsPath (Map ReportID Report) MaybeImageFile
     where type PathType (Map ReportID Report)
                         MaybeImageFile = Path_Map ReportID (Path_Report MaybeImageFile)
           toLens (Path_Look k v) = mat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
 instance IsPath (Map ReportID Report) ReportImage
     where type PathType (Map ReportID Report)
                         ReportImage = Path_Map ReportID (Path_Report ReportImage)
           toLens (Path_Look k v) = mat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
 instance IsPath (Map ReportID Report) ReportImages
     where type PathType (Map ReportID Report)
                         ReportImages = Path_Map ReportID (Path_Report ReportImages)
           toLens (Path_Look k v) = mat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
 instance IsPath (Map ReportID Report) ReadOnlyFilePath
     where type PathType (Map ReportID Report)
                         ReadOnlyFilePath = Path_Map ReportID (Path_Report ReadOnlyFilePath)
           toLens (Path_Look k v) = mat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
 instance IsPath (Map ReportID Report) ReportImageView
     where type PathType (Map ReportID Report)
                         ReportImageView = Path_Map ReportID (Path_Report ReportImageView)
           toLens (Path_Look k v) = mat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
 instance IsPath (Map ReportID Report) ReportView
     where type PathType (Map ReportID Report)
                         ReportView = Path_Map ReportID (Path_Report ReportView)
           toLens (Path_Look k v) = mat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
 instance IsPath (Map ReportID Report) SaneSizeImageSize
     where type PathType (Map ReportID Report)
                         SaneSizeImageSize = Path_Map ReportID
                                                      (Path_Report SaneSizeImageSize)
           toLens (Path_Look k v) = mat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
 instance IsPath (Map ReportID Report) Item
     where type PathType (Map ReportID Report) Item = Path_Map ReportID
                                                               (Path_Report Item)
           toLens (Path_Look k v) = mat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
 instance IsPath (Map ReportID Report) CIString
     where type PathType (Map ReportID Report)
                         CIString = Path_Map ReportID (Path_Report CIString)
           toLens (Path_Look k v) = mat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
 instance IsPath (Map ReportID Report) URI
     where type PathType (Map ReportID Report) URI = Path_Map ReportID
                                                              (Path_Report URI)
           toLens (Path_Look k v) = mat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
 instance IsPath (Map ReportID Report) Text
     where type PathType (Map ReportID Report) Text = Path_Map ReportID
                                                               (Path_Report Text)
           toLens (Path_Look k v) = mat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
 instance IsPath (Map ReportID Report) UserId
     where type PathType (Map ReportID Report)
                         UserId = Path_Map ReportID (Path_Report UserId)
           toLens (Path_Look k v) = mat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
 instance IsPath (Map ReportID Report) UUID
     where type PathType (Map ReportID Report) UUID = Path_Map ReportID
                                                               (Path_Report UUID)
           toLens (Path_Look k v) = mat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
 instance IsPath (Maybe (Either URI ImageFile))
                 (Either URI ImageFile)
     where type PathType (Maybe (Either URI ImageFile))
@@ -1584,10 +1633,7 @@ instance IsPath (Maybe (Either URI ImageFile))
                                                                                              ImageFile)))
           toLens (Path_Just _) = _Just
           pathsOf (Just x) a = map Path_Just (pathsOf (x :: Either URI
-                                                                   ImageFile) a :: [PathType (Either URI
-                                                                                                     ImageFile)
-                                                                                             (Either URI
-                                                                                                     ImageFile)])
+                                                                   ImageFile) a)
           pathsOf (Nothing) a = []
 instance IsPath (Maybe (Either URI ImageFile))
                 (Maybe (Either URI ImageFile))
@@ -1605,18 +1651,14 @@ instance IsPath (Maybe (Either URI ImageFile)) ImageFile
                                                             (Path_ImageFile ImageFile))
           toLens (Path_Just v) = _Just . toLens v
           pathsOf (Just x) a = map Path_Just (pathsOf (x :: Either URI
-                                                                   ImageFile) a :: [PathType (Either URI
-                                                                                                     ImageFile)
-                                                                                             ImageFile])
+                                                                   ImageFile) a)
           pathsOf (Nothing) a = []
 instance IsPath (Maybe (Either URI ImageFile)) URI
     where type PathType (Maybe (Either URI ImageFile))
                         URI = Path_Maybe (Path_Either (Path_URI URI) (Path_ImageFile URI))
           toLens (Path_Just v) = _Just . toLens v
           pathsOf (Just x) a = map Path_Just (pathsOf (x :: Either URI
-                                                                   ImageFile) a :: [PathType (Either URI
-                                                                                                     ImageFile)
-                                                                                             URI])
+                                                                   ImageFile) a)
           pathsOf (Nothing) a = []
 instance IsPath String String
     where type PathType String String = Path_String String
@@ -1628,8 +1670,7 @@ instance IsPath String JSONText
           pathsOf x a = let {p = Path_String_View idPath :: PathType ([Char])
                                                                      JSONText;
                              [x'] = toListOf (toLens p) x :: [JSONText]}
-                         in map Path_String_View (pathsOf x' a :: [PathType JSONText
-                                                                            JSONText])
+                         in map Path_String_View (pathsOf x' a)
 instance IsPath Int64 Int64
     where type PathType Int64 Int64 = Path_Int64 Int64
           toLens _ = iso id id
@@ -1640,8 +1681,7 @@ instance IsPath Bool String
           pathsOf x a = let {p = Path_Bool_View idPath :: PathType Bool
                                                                    ([Char]);
                              [x'] = toListOf (toLens p) x :: [[Char]]}
-                         in map Path_Bool_View (pathsOf x' a :: [PathType ([Char])
-                                                                          ([Char])])
+                         in map Path_Bool_View (pathsOf x' a)
 instance IsPath Bool Bool
     where type PathType Bool Bool = Path_Bool Bool
           toLens _ = iso id id
@@ -1653,16 +1693,14 @@ instance IsPath Bool JSONText
           pathsOf x a = let {p = Path_Bool_View idPath :: PathType Bool
                                                                    ([Char]);
                              [x'] = toListOf (toLens p) x :: [[Char]]}
-                         in map Path_Bool_View (pathsOf x' a :: [PathType ([Char])
-                                                                          JSONText])
+                         in map Path_Bool_View (pathsOf x' a)
 instance IsPath Double String
     where type PathType Double String = Path_Double String
           toLens (Path_Double_View _) = viewLens :: Lens' Double ([Char])
           pathsOf x a = let {p = Path_Double_View idPath :: PathType Double
                                                                      ([Char]);
                              [x'] = toListOf (toLens p) x :: [[Char]]}
-                         in map Path_Double_View (pathsOf x' a :: [PathType ([Char])
-                                                                            ([Char])])
+                         in map Path_Double_View (pathsOf x' a)
 instance IsPath Double Double
     where type PathType Double Double = Path_Double Double
           toLens _ = iso id id
@@ -1674,8 +1712,7 @@ instance IsPath Double JSONText
           pathsOf x a = let {p = Path_Double_View idPath :: PathType Double
                                                                      ([Char]);
                              [x'] = toListOf (toLens p) x :: [[Char]]}
-                         in map Path_Double_View (pathsOf x' a :: [PathType ([Char])
-                                                                            JSONText])
+                         in map Path_Double_View (pathsOf x' a)
 instance IsPath Int Int
     where type PathType Int Int = Path_Int Int
           toLens _ = iso id id
@@ -1691,8 +1728,7 @@ instance IsPath Dimension JSONText
           pathsOf x a = let {p = Path_Dimension_View idPath :: PathType Dimension
                                                                         JSONText;
                              [x'] = toListOf (toLens p) x :: [JSONText]}
-                         in map Path_Dimension_View (pathsOf x' a :: [PathType JSONText
-                                                                               JSONText])
+                         in map Path_Dimension_View (pathsOf x' a)
 instance IsPath ImageCrop ImageCrop
     where type PathType ImageCrop ImageCrop = Path_ImageCrop ImageCrop
           toLens _ = iso id id
@@ -1733,8 +1769,7 @@ instance IsPath Units JSONText
           pathsOf x a = let {p = Path_Units_View idPath :: PathType Units
                                                                     JSONText;
                              [x'] = toListOf (toLens p) x :: [JSONText]}
-                         in map Path_Units_View (pathsOf x' a :: [PathType JSONText
-                                                                           JSONText])
+                         in map Path_Units_View (pathsOf x' a)
 instance IsPath ImageFile ImageFile
     where type PathType ImageFile ImageFile = Path_ImageFile ImageFile
           toLens _ = iso id id
@@ -1793,8 +1828,7 @@ instance IsPath UserIds JSONText
           pathsOf x a = let {p = Path_UserIds_View idPath :: PathType ([UserId])
                                                                       Text;
                              [x'] = toListOf (toLens p) x :: [Text]}
-                         in map Path_UserIds_View (pathsOf x' a :: [PathType Text
-                                                                             JSONText])
+                         in map Path_UserIds_View (pathsOf x' a)
 instance IsPath UserIds UserIds
     where type PathType UserIds UserIds = Path_UserIds UserIds
           toLens _ = iso id id
@@ -1805,27 +1839,21 @@ instance IsPath UserIds Text
           pathsOf x a = let {p = Path_UserIds_View idPath :: PathType ([UserId])
                                                                       Text;
                              [x'] = toListOf (toLens p) x :: [Text]}
-                         in map Path_UserIds_View (pathsOf x' a :: [PathType Text Text])
+                         in map Path_UserIds_View (pathsOf x' a)
 instance IsPath AbbrevPair JSONText
     where type PathType AbbrevPair
                         JSONText = Path_Pair (Path_CIString JSONText)
                                              (Path_Markup JSONText)
           toLens (Path_First v) = _1 . toLens v
           toLens (Path_Second v) = _2 . toLens v
-          pathsOf (x,
-                   _) a = map Path_First (pathsOf (x :: CIString) a :: [PathType CIString
-                                                                                 JSONText])
-          pathsOf (_,
-                   x) a = map Path_Second (pathsOf (x :: Markup) a :: [PathType Markup
-                                                                                JSONText])
+          pathsOf (x, _) a = map Path_First (pathsOf (x :: CIString) a)
+          pathsOf (_, x) a = map Path_Second (pathsOf (x :: Markup) a)
 instance IsPath AbbrevPair Markup
     where type PathType AbbrevPair
                         Markup = Path_Pair (Path_CIString Markup) (Path_Markup Markup)
           toLens (Path_Second _) = _2
           pathsOf (x, _) a = []
-          pathsOf (_,
-                   x) a = map Path_Second (pathsOf (x :: Markup) a :: [PathType Markup
-                                                                                Markup])
+          pathsOf (_, x) a = map Path_Second (pathsOf (x :: Markup) a)
 instance IsPath AbbrevPair AbbrevPair
     where type PathType AbbrevPair
                         AbbrevPair = Path_Pair (Path_CIString AbbrevPair)
@@ -1837,21 +1865,15 @@ instance IsPath AbbrevPair CIString
                         CIString = Path_Pair (Path_CIString CIString)
                                              (Path_Markup CIString)
           toLens (Path_First _) = _1
-          pathsOf (x,
-                   _) a = map Path_First (pathsOf (x :: CIString) a :: [PathType CIString
-                                                                                 CIString])
+          pathsOf (x, _) a = map Path_First (pathsOf (x :: CIString) a)
           pathsOf (_, x) a = []
 instance IsPath AbbrevPair Text
     where type PathType AbbrevPair
                         Text = Path_Pair (Path_CIString Text) (Path_Markup Text)
           toLens (Path_First v) = _1 . toLens v
           toLens (Path_Second v) = _2 . toLens v
-          pathsOf (x,
-                   _) a = map Path_First (pathsOf (x :: CIString) a :: [PathType CIString
-                                                                                 Text])
-          pathsOf (_,
-                   x) a = map Path_Second (pathsOf (x :: Markup) a :: [PathType Markup
-                                                                                Text])
+          pathsOf (x, _) a = map Path_First (pathsOf (x :: CIString) a)
+          pathsOf (_, x) a = map Path_Second (pathsOf (x :: Markup) a)
 instance IsPath AbbrevPairs JSONText
     where type PathType AbbrevPairs JSONText = Path_OMap AbbrevPairID
                                                          (Path_Pair (Path_CIString JSONText)
@@ -1954,8 +1976,7 @@ instance IsPath Branding JSONText
           pathsOf x a = let {p = Path_Branding_View idPath :: PathType Branding
                                                                        Text;
                              [x'] = toListOf (toLens p) x :: [Text]}
-                         in map Path_Branding_View (pathsOf x' a :: [PathType Text
-                                                                              JSONText])
+                         in map Path_Branding_View (pathsOf x' a)
 instance IsPath Branding Branding
     where type PathType Branding Branding = Path_Branding Branding
           toLens _ = iso id id
@@ -1966,29 +1987,21 @@ instance IsPath Branding Text
           pathsOf x a = let {p = Path_Branding_View idPath :: PathType Branding
                                                                        Text;
                              [x'] = toListOf (toLens p) x :: [Text]}
-                         in map Path_Branding_View (pathsOf x' a :: [PathType Text Text])
+                         in map Path_Branding_View (pathsOf x' a)
 instance IsPath MarkupPair JSONText
     where type PathType MarkupPair
                         JSONText = Path_Pair (Path_Markup JSONText) (Path_Markup JSONText)
           toLens (Path_First v) = _1 . toLens v
           toLens (Path_Second v) = _2 . toLens v
-          pathsOf (x,
-                   _) a = map Path_First (pathsOf (x :: Markup) a :: [PathType Markup
-                                                                               JSONText])
-          pathsOf (_,
-                   x) a = map Path_Second (pathsOf (x :: Markup) a :: [PathType Markup
-                                                                                JSONText])
+          pathsOf (x, _) a = map Path_First (pathsOf (x :: Markup) a)
+          pathsOf (_, x) a = map Path_Second (pathsOf (x :: Markup) a)
 instance IsPath MarkupPair Markup
     where type PathType MarkupPair
                         Markup = Path_Pair (Path_Markup Markup) (Path_Markup Markup)
           toLens (Path_First _) = _1
           toLens (Path_Second _) = _2
-          pathsOf (x,
-                   _) a = map Path_First (pathsOf (x :: Markup) a :: [PathType Markup
-                                                                               Markup])
-          pathsOf (_,
-                   x) a = map Path_Second (pathsOf (x :: Markup) a :: [PathType Markup
-                                                                                Markup])
+          pathsOf (x, _) a = map Path_First (pathsOf (x :: Markup) a)
+          pathsOf (_, x) a = map Path_Second (pathsOf (x :: Markup) a)
 instance IsPath MarkupPair MarkupPair
     where type PathType MarkupPair
                         MarkupPair = Path_Pair (Path_Markup MarkupPair)
@@ -2000,12 +2013,8 @@ instance IsPath MarkupPair Text
                                                     (Path_Markup Text)
           toLens (Path_First v) = _1 . toLens v
           toLens (Path_Second v) = _2 . toLens v
-          pathsOf (x,
-                   _) a = map Path_First (pathsOf (x :: Markup) a :: [PathType Markup
-                                                                               Text])
-          pathsOf (_,
-                   x) a = map Path_Second (pathsOf (x :: Markup) a :: [PathType Markup
-                                                                                Text])
+          pathsOf (x, _) a = map Path_First (pathsOf (x :: Markup) a)
+          pathsOf (_, x) a = map Path_Second (pathsOf (x :: Markup) a)
 instance IsPath MarkupPairs JSONText
     where type PathType MarkupPairs JSONText = Path_OMap MarkupPairID
                                                          (Path_Pair (Path_Markup JSONText)
@@ -2076,8 +2085,7 @@ instance IsPath MaybeReportIntendedUse String
           pathsOf x a = let {p = Path_MaybeReportIntendedUse_View idPath :: PathType (Maybe ReportIntendedUse)
                                                                                      ([Char]);
                              [x'] = toListOf (toLens p) x :: [[Char]]}
-                         in map Path_MaybeReportIntendedUse_View (pathsOf x' a :: [PathType ([Char])
-                                                                                            ([Char])])
+                         in map Path_MaybeReportIntendedUse_View (pathsOf x' a)
 instance IsPath MaybeReportIntendedUse JSONText
     where type PathType MaybeReportIntendedUse
                         JSONText = Path_MaybeReportIntendedUse JSONText
@@ -2086,8 +2094,7 @@ instance IsPath MaybeReportIntendedUse JSONText
           pathsOf x a = let {p = Path_MaybeReportIntendedUse_View idPath :: PathType (Maybe ReportIntendedUse)
                                                                                      ([Char]);
                              [x'] = toListOf (toLens p) x :: [[Char]]}
-                         in map Path_MaybeReportIntendedUse_View (pathsOf x' a :: [PathType ([Char])
-                                                                                            JSONText])
+                         in map Path_MaybeReportIntendedUse_View (pathsOf x' a)
 instance IsPath MaybeReportIntendedUse MaybeReportIntendedUse
     where type PathType MaybeReportIntendedUse
                         MaybeReportIntendedUse = Path_MaybeReportIntendedUse MaybeReportIntendedUse
@@ -2101,8 +2108,7 @@ instance IsPath Report (Either URI ImageFile)
           pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
                                                                      ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
-                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
-                                                                            (Either URI ImageFile)])
+                         in map Path_Report_View (pathsOf x' a)
 instance IsPath Report (Map ItemFieldName Markup)
     where type PathType Report
                         (Map ItemFieldName Markup) = Path_Report (Map ItemFieldName Markup)
@@ -2111,9 +2117,7 @@ instance IsPath Report (Map ItemFieldName Markup)
           pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
                                                                      ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
-                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
-                                                                            (Map ItemFieldName
-                                                                                 Markup)])
+                         in map Path_Report_View (pathsOf x' a)
 instance IsPath Report (Maybe (Either URI ImageFile))
     where type PathType Report
                         (Maybe (Either URI ImageFile)) = Path_Report (Maybe (Either URI
@@ -2123,9 +2127,7 @@ instance IsPath Report (Maybe (Either URI ImageFile))
           pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
                                                                      ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
-                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
-                                                                            (Maybe (Either URI
-                                                                                           ImageFile))])
+                         in map Path_Report_View (pathsOf x' a)
 instance IsPath Report String
     where type PathType Report String = Path_Report String
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
@@ -2133,8 +2135,7 @@ instance IsPath Report String
           pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
                                                                      ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
-                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
-                                                                            ([Char])])
+                         in map Path_Report_View (pathsOf x' a)
 instance IsPath Report Int64
     where type PathType Report Int64 = Path_Report Int64
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
@@ -2142,8 +2143,7 @@ instance IsPath Report Int64
           pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
                                                                      ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
-                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
-                                                                            Int64])
+                         in map Path_Report_View (pathsOf x' a)
 instance IsPath Report Bool
     where type PathType Report Bool = Path_Report Bool
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
@@ -2151,8 +2151,7 @@ instance IsPath Report Bool
           pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
                                                                      ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
-                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
-                                                                            Bool])
+                         in map Path_Report_View (pathsOf x' a)
 instance IsPath Report Double
     where type PathType Report Double = Path_Report Double
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
@@ -2160,8 +2159,7 @@ instance IsPath Report Double
           pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
                                                                      ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
-                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
-                                                                            Double])
+                         in map Path_Report_View (pathsOf x' a)
 instance IsPath Report Int
     where type PathType Report Int = Path_Report Int
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
@@ -2169,8 +2167,7 @@ instance IsPath Report Int
           pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
                                                                      ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
-                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
-                                                                            Int])
+                         in map Path_Report_View (pathsOf x' a)
 instance IsPath Report Dimension
     where type PathType Report Dimension = Path_Report Dimension
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
@@ -2178,8 +2175,7 @@ instance IsPath Report Dimension
           pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
                                                                      ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
-                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
-                                                                            Dimension])
+                         in map Path_Report_View (pathsOf x' a)
 instance IsPath Report ImageCrop
     where type PathType Report ImageCrop = Path_Report ImageCrop
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
@@ -2187,8 +2183,7 @@ instance IsPath Report ImageCrop
           pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
                                                                      ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
-                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
-                                                                            ImageCrop])
+                         in map Path_Report_View (pathsOf x' a)
 instance IsPath Report ImageSize
     where type PathType Report ImageSize = Path_Report ImageSize
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
@@ -2196,8 +2191,7 @@ instance IsPath Report ImageSize
           pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
                                                                      ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
-                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
-                                                                            ImageSize])
+                         in map Path_Report_View (pathsOf x' a)
 instance IsPath Report Units
     where type PathType Report Units = Path_Report Units
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
@@ -2205,8 +2199,7 @@ instance IsPath Report Units
           pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
                                                                      ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
-                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
-                                                                            Units])
+                         in map Path_Report_View (pathsOf x' a)
 instance IsPath Report ImageFile
     where type PathType Report ImageFile = Path_Report ImageFile
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
@@ -2214,8 +2207,7 @@ instance IsPath Report ImageFile
           pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
                                                                      ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
-                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
-                                                                            ImageFile])
+                         in map Path_Report_View (pathsOf x' a)
 instance IsPath Report Integer
     where type PathType Report Integer = Path_Report Integer
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
@@ -2223,8 +2215,7 @@ instance IsPath Report Integer
           pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
                                                                      ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
-                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
-                                                                            Integer])
+                         in map Path_Report_View (pathsOf x' a)
 instance IsPath Report JSONText
     where type PathType Report JSONText = Path_Report JSONText
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
@@ -2232,8 +2223,7 @@ instance IsPath Report JSONText
           pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
                                                                      ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
-                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
-                                                                            JSONText])
+                         in map Path_Report_View (pathsOf x' a)
 instance IsPath Report Markup
     where type PathType Report Markup = Path_Report Markup
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
@@ -2241,8 +2231,7 @@ instance IsPath Report Markup
           pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
                                                                      ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
-                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
-                                                                            Markup])
+                         in map Path_Report_View (pathsOf x' a)
 instance IsPath Report Permissions
     where type PathType Report Permissions = Path_Report Permissions
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
@@ -2250,8 +2239,7 @@ instance IsPath Report Permissions
           pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
                                                                      ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
-                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
-                                                                            Permissions])
+                         in map Path_Report_View (pathsOf x' a)
 instance IsPath Report UserIds
     where type PathType Report UserIds = Path_Report UserIds
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
@@ -2259,8 +2247,7 @@ instance IsPath Report UserIds
           pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
                                                                      ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
-                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
-                                                                            ([UserId])])
+                         in map Path_Report_View (pathsOf x' a)
 instance IsPath Report AbbrevPair
     where type PathType Report AbbrevPair = Path_Report AbbrevPair
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
@@ -2268,8 +2255,7 @@ instance IsPath Report AbbrevPair
           pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
                                                                      ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
-                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
-                                                                            ((CIString, Markup))])
+                         in map Path_Report_View (pathsOf x' a)
 instance IsPath Report AbbrevPairs
     where type PathType Report AbbrevPairs = Path_Report AbbrevPairs
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
@@ -2277,10 +2263,7 @@ instance IsPath Report AbbrevPairs
           pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
                                                                      ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
-                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
-                                                                            (Order AbbrevPairID
-                                                                                   ((CIString,
-                                                                                     Markup)))])
+                         in map Path_Report_View (pathsOf x' a)
 instance IsPath Report Author
     where type PathType Report Author = Path_Report Author
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
@@ -2288,8 +2271,7 @@ instance IsPath Report Author
           pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
                                                                      ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
-                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
-                                                                            Author])
+                         in map Path_Report_View (pathsOf x' a)
 instance IsPath Report Authors
     where type PathType Report Authors = Path_Report Authors
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
@@ -2297,9 +2279,7 @@ instance IsPath Report Authors
           pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
                                                                      ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
-                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
-                                                                            (Order AuthorID
-                                                                                   Author)])
+                         in map Path_Report_View (pathsOf x' a)
 instance IsPath Report Branding
     where type PathType Report Branding = Path_Report Branding
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
@@ -2307,8 +2287,7 @@ instance IsPath Report Branding
           pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
                                                                      ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
-                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
-                                                                            Branding])
+                         in map Path_Report_View (pathsOf x' a)
 instance IsPath Report MarkupPair
     where type PathType Report MarkupPair = Path_Report MarkupPair
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
@@ -2316,8 +2295,7 @@ instance IsPath Report MarkupPair
           pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
                                                                      ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
-                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
-                                                                            ((Markup, Markup))])
+                         in map Path_Report_View (pathsOf x' a)
 instance IsPath Report MarkupPairs
     where type PathType Report MarkupPairs = Path_Report MarkupPairs
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
@@ -2325,10 +2303,7 @@ instance IsPath Report MarkupPairs
           pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
                                                                      ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
-                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
-                                                                            (Order MarkupPairID
-                                                                                   ((Markup,
-                                                                                     Markup)))])
+                         in map Path_Report_View (pathsOf x' a)
 instance IsPath Report Markups
     where type PathType Report Markups = Path_Report Markups
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
@@ -2336,9 +2311,7 @@ instance IsPath Report Markups
           pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
                                                                      ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
-                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
-                                                                            (Order MarkupID
-                                                                                   Markup)])
+                         in map Path_Report_View (pathsOf x' a)
 instance IsPath Report MaybeReportIntendedUse
     where type PathType Report
                         MaybeReportIntendedUse = Path_Report MaybeReportIntendedUse
@@ -2347,8 +2320,7 @@ instance IsPath Report MaybeReportIntendedUse
           pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
                                                                      ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
-                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
-                                                                            (Maybe ReportIntendedUse)])
+                         in map Path_Report_View (pathsOf x' a)
 instance IsPath Report Report
     where type PathType Report Report = Path_Report Report
           toLens _ = iso id id
@@ -2360,8 +2332,7 @@ instance IsPath Report ReportElem
           pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
                                                                      ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
-                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
-                                                                            ReportElem])
+                         in map Path_Report_View (pathsOf x' a)
 instance IsPath Report ReportElems
     where type PathType Report ReportElems = Path_Report ReportElems
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
@@ -2369,9 +2340,7 @@ instance IsPath Report ReportElems
           pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
                                                                      ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
-                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
-                                                                            (Order ReportElemID
-                                                                                   ReportElem)])
+                         in map Path_Report_View (pathsOf x' a)
 instance IsPath Report ReportFlags
     where type PathType Report ReportFlags = Path_Report ReportFlags
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
@@ -2379,8 +2348,7 @@ instance IsPath Report ReportFlags
           pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
                                                                      ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
-                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
-                                                                            ReportFlags])
+                         in map Path_Report_View (pathsOf x' a)
 instance IsPath Report ReportStandard
     where type PathType Report
                         ReportStandard = Path_Report ReportStandard
@@ -2389,8 +2357,7 @@ instance IsPath Report ReportStandard
           pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
                                                                      ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
-                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
-                                                                            ReportStandard])
+                         in map Path_Report_View (pathsOf x' a)
 instance IsPath Report ReportStatus
     where type PathType Report ReportStatus = Path_Report ReportStatus
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
@@ -2398,8 +2365,7 @@ instance IsPath Report ReportStatus
           pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
                                                                      ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
-                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
-                                                                            ReportStatus])
+                         in map Path_Report_View (pathsOf x' a)
 instance IsPath Report ReportValueApproachInfo
     where type PathType Report
                         ReportValueApproachInfo = Path_Report ReportValueApproachInfo
@@ -2408,8 +2374,7 @@ instance IsPath Report ReportValueApproachInfo
           pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
                                                                      ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
-                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
-                                                                            ReportValueApproachInfo])
+                         in map Path_Report_View (pathsOf x' a)
 instance IsPath Report ReportValueTypeInfo
     where type PathType Report
                         ReportValueTypeInfo = Path_Report ReportValueTypeInfo
@@ -2418,8 +2383,7 @@ instance IsPath Report ReportValueTypeInfo
           pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
                                                                      ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
-                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
-                                                                            ReportValueTypeInfo])
+                         in map Path_Report_View (pathsOf x' a)
 instance IsPath Report MaybeImageFile
     where type PathType Report
                         MaybeImageFile = Path_Report MaybeImageFile
@@ -2428,8 +2392,7 @@ instance IsPath Report MaybeImageFile
           pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
                                                                      ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
-                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
-                                                                            (Maybe ImageFile)])
+                         in map Path_Report_View (pathsOf x' a)
 instance IsPath Report ReportImage
     where type PathType Report ReportImage = Path_Report ReportImage
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
@@ -2437,8 +2400,7 @@ instance IsPath Report ReportImage
           pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
                                                                      ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
-                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
-                                                                            ReportImage])
+                         in map Path_Report_View (pathsOf x' a)
 instance IsPath Report ReportImages
     where type PathType Report ReportImages = Path_Report ReportImages
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
@@ -2446,9 +2408,7 @@ instance IsPath Report ReportImages
           pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
                                                                      ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
-                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
-                                                                            (Order ReportImageID
-                                                                                   ReportImage)])
+                         in map Path_Report_View (pathsOf x' a)
 instance IsPath Report ReadOnlyFilePath
     where type PathType Report
                         ReadOnlyFilePath = Path_Report ReadOnlyFilePath
@@ -2457,8 +2417,7 @@ instance IsPath Report ReadOnlyFilePath
           pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
                                                                      ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
-                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
-                                                                            (ReadOnly ([Char]))])
+                         in map Path_Report_View (pathsOf x' a)
 instance IsPath Report ReportImageView
     where type PathType Report
                         ReportImageView = Path_Report ReportImageView
@@ -2467,16 +2426,14 @@ instance IsPath Report ReportImageView
           pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
                                                                      ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
-                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
-                                                                            ReportImageView])
+                         in map Path_Report_View (pathsOf x' a)
 instance IsPath Report ReportView
     where type PathType Report ReportView = Path_Report ReportView
           toLens (Path_Report_View _) = viewLens :: Lens' Report ReportView
           pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
                                                                      ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
-                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
-                                                                            ReportView])
+                         in map Path_Report_View (pathsOf x' a)
 instance IsPath Report SaneSizeImageSize
     where type PathType Report
                         SaneSizeImageSize = Path_Report SaneSizeImageSize
@@ -2485,8 +2442,7 @@ instance IsPath Report SaneSizeImageSize
           pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
                                                                      ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
-                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
-                                                                            (SaneSize ImageSize)])
+                         in map Path_Report_View (pathsOf x' a)
 instance IsPath Report Item
     where type PathType Report Item = Path_Report Item
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
@@ -2494,8 +2450,7 @@ instance IsPath Report Item
           pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
                                                                      ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
-                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
-                                                                            Item])
+                         in map Path_Report_View (pathsOf x' a)
 instance IsPath Report CIString
     where type PathType Report CIString = Path_Report CIString
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
@@ -2503,8 +2458,7 @@ instance IsPath Report CIString
           pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
                                                                      ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
-                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
-                                                                            CIString])
+                         in map Path_Report_View (pathsOf x' a)
 instance IsPath Report URI
     where type PathType Report URI = Path_Report URI
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
@@ -2512,8 +2466,7 @@ instance IsPath Report URI
           pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
                                                                      ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
-                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
-                                                                            URI])
+                         in map Path_Report_View (pathsOf x' a)
 instance IsPath Report Text
     where type PathType Report Text = Path_Report Text
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
@@ -2521,8 +2474,7 @@ instance IsPath Report Text
           pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
                                                                      ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
-                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
-                                                                            Text])
+                         in map Path_Report_View (pathsOf x' a)
 instance IsPath Report UserId
     where type PathType Report UserId = Path_Report UserId
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
@@ -2530,8 +2482,7 @@ instance IsPath Report UserId
           pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
                                                                      ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
-                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
-                                                                            UserId])
+                         in map Path_Report_View (pathsOf x' a)
 instance IsPath Report UUID
     where type PathType Report UUID = Path_Report UUID
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
@@ -2539,8 +2490,7 @@ instance IsPath Report UUID
           pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
                                                                      ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
-                         in map Path_Report_View (pathsOf x' a :: [PathType ReportView
-                                                                            UUID])
+                         in map Path_Report_View (pathsOf x' a)
 instance IsPath ReportElem (Either URI ImageFile)
     where type PathType ReportElem
                         (Either URI ImageFile) = Path_ReportElem (Either URI ImageFile)
@@ -2819,8 +2769,7 @@ instance IsPath ReportIntendedUse String
           pathsOf x a = let {p = Path_ReportIntendedUse_View idPath :: PathType ReportIntendedUse
                                                                                 ([Char]);
                              [x'] = toListOf (toLens p) x :: [[Char]]}
-                         in map Path_ReportIntendedUse_View (pathsOf x' a :: [PathType ([Char])
-                                                                                       ([Char])])
+                         in map Path_ReportIntendedUse_View (pathsOf x' a)
 instance IsPath ReportIntendedUse JSONText
     where type PathType ReportIntendedUse
                         JSONText = Path_ReportIntendedUse JSONText
@@ -2829,8 +2778,7 @@ instance IsPath ReportIntendedUse JSONText
           pathsOf x a = let {p = Path_ReportIntendedUse_View idPath :: PathType ReportIntendedUse
                                                                                 ([Char]);
                              [x'] = toListOf (toLens p) x :: [[Char]]}
-                         in map Path_ReportIntendedUse_View (pathsOf x' a :: [PathType ([Char])
-                                                                                       JSONText])
+                         in map Path_ReportIntendedUse_View (pathsOf x' a)
 instance IsPath ReportIntendedUse ReportIntendedUse
     where type PathType ReportIntendedUse
                         ReportIntendedUse = Path_ReportIntendedUse ReportIntendedUse
@@ -2852,8 +2800,7 @@ instance IsPath ReportStatus String
           pathsOf x a = let {p = Path_ReportStatus_View idPath :: PathType ReportStatus
                                                                            ([Char]);
                              [x'] = toListOf (toLens p) x :: [[Char]]}
-                         in map Path_ReportStatus_View (pathsOf x' a :: [PathType ([Char])
-                                                                                  ([Char])])
+                         in map Path_ReportStatus_View (pathsOf x' a)
 instance IsPath ReportStatus JSONText
     where type PathType ReportStatus
                         JSONText = Path_ReportStatus JSONText
@@ -2862,8 +2809,7 @@ instance IsPath ReportStatus JSONText
           pathsOf x a = let {p = Path_ReportStatus_View idPath :: PathType ReportStatus
                                                                            ([Char]);
                              [x'] = toListOf (toLens p) x :: [[Char]]}
-                         in map Path_ReportStatus_View (pathsOf x' a :: [PathType ([Char])
-                                                                                  JSONText])
+                         in map Path_ReportStatus_View (pathsOf x' a)
 instance IsPath ReportStatus ReportStatus
     where type PathType ReportStatus
                         ReportStatus = Path_ReportStatus ReportStatus
@@ -2926,8 +2872,7 @@ instance IsPath MaybeImageFile String
           pathsOf x a = let {p = Path_MaybeImageFile_View idPath :: PathType (Maybe ImageFile)
                                                                              ([Char]);
                              [x'] = toListOf (toLens p) x :: [[Char]]}
-                         in map Path_MaybeImageFile_View (pathsOf x' a :: [PathType ([Char])
-                                                                                    ([Char])])
+                         in map Path_MaybeImageFile_View (pathsOf x' a)
 instance IsPath MaybeImageFile JSONText
     where type PathType MaybeImageFile
                         JSONText = Path_MaybeImageFile JSONText
@@ -2936,8 +2881,7 @@ instance IsPath MaybeImageFile JSONText
           pathsOf x a = let {p = Path_MaybeImageFile_View idPath :: PathType (Maybe ImageFile)
                                                                              ([Char]);
                              [x'] = toListOf (toLens p) x :: [[Char]]}
-                         in map Path_MaybeImageFile_View (pathsOf x' a :: [PathType ([Char])
-                                                                                    JSONText])
+                         in map Path_MaybeImageFile_View (pathsOf x' a)
 instance IsPath MaybeImageFile MaybeImageFile
     where type PathType MaybeImageFile
                         MaybeImageFile = Path_MaybeImageFile MaybeImageFile
@@ -2951,9 +2895,7 @@ instance IsPath ReportImage (Either URI ImageFile)
           pathsOf x a = let {p = Path_ReportImage_View idPath :: PathType ReportImage
                                                                           ReportImageView;
                              [x'] = toListOf (toLens p) x :: [ReportImageView]}
-                         in map Path_ReportImage_View (pathsOf x' a :: [PathType ReportImageView
-                                                                                 (Either URI
-                                                                                         ImageFile)])
+                         in map Path_ReportImage_View (pathsOf x' a)
 instance IsPath ReportImage (Maybe (Either URI ImageFile))
     where type PathType ReportImage
                         (Maybe (Either URI
@@ -2963,9 +2905,7 @@ instance IsPath ReportImage (Maybe (Either URI ImageFile))
           pathsOf x a = let {p = Path_ReportImage_View idPath :: PathType ReportImage
                                                                           ReportImageView;
                              [x'] = toListOf (toLens p) x :: [ReportImageView]}
-                         in map Path_ReportImage_View (pathsOf x' a :: [PathType ReportImageView
-                                                                                 (Maybe (Either URI
-                                                                                                ImageFile))])
+                         in map Path_ReportImage_View (pathsOf x' a)
 instance IsPath ReportImage String
     where type PathType ReportImage String = Path_ReportImage String
           toLens (Path_ReportImage_View v) = (viewLens :: Lens' ReportImage
@@ -2973,8 +2913,7 @@ instance IsPath ReportImage String
           pathsOf x a = let {p = Path_ReportImage_View idPath :: PathType ReportImage
                                                                           ReportImageView;
                              [x'] = toListOf (toLens p) x :: [ReportImageView]}
-                         in map Path_ReportImage_View (pathsOf x' a :: [PathType ReportImageView
-                                                                                 ([Char])])
+                         in map Path_ReportImage_View (pathsOf x' a)
 instance IsPath ReportImage Bool
     where type PathType ReportImage Bool = Path_ReportImage Bool
           toLens (Path_ReportImage_View v) = (viewLens :: Lens' ReportImage
@@ -2982,8 +2921,7 @@ instance IsPath ReportImage Bool
           pathsOf x a = let {p = Path_ReportImage_View idPath :: PathType ReportImage
                                                                           ReportImageView;
                              [x'] = toListOf (toLens p) x :: [ReportImageView]}
-                         in map Path_ReportImage_View (pathsOf x' a :: [PathType ReportImageView
-                                                                                 Bool])
+                         in map Path_ReportImage_View (pathsOf x' a)
 instance IsPath ReportImage Double
     where type PathType ReportImage Double = Path_ReportImage Double
           toLens (Path_ReportImage_View v) = (viewLens :: Lens' ReportImage
@@ -2991,8 +2929,7 @@ instance IsPath ReportImage Double
           pathsOf x a = let {p = Path_ReportImage_View idPath :: PathType ReportImage
                                                                           ReportImageView;
                              [x'] = toListOf (toLens p) x :: [ReportImageView]}
-                         in map Path_ReportImage_View (pathsOf x' a :: [PathType ReportImageView
-                                                                                 Double])
+                         in map Path_ReportImage_View (pathsOf x' a)
 instance IsPath ReportImage Dimension
     where type PathType ReportImage
                         Dimension = Path_ReportImage Dimension
@@ -3001,8 +2938,7 @@ instance IsPath ReportImage Dimension
           pathsOf x a = let {p = Path_ReportImage_View idPath :: PathType ReportImage
                                                                           ReportImageView;
                              [x'] = toListOf (toLens p) x :: [ReportImageView]}
-                         in map Path_ReportImage_View (pathsOf x' a :: [PathType ReportImageView
-                                                                                 Dimension])
+                         in map Path_ReportImage_View (pathsOf x' a)
 instance IsPath ReportImage ImageCrop
     where type PathType ReportImage
                         ImageCrop = Path_ReportImage ImageCrop
@@ -3011,8 +2947,7 @@ instance IsPath ReportImage ImageCrop
           pathsOf x a = let {p = Path_ReportImage_View idPath :: PathType ReportImage
                                                                           ReportImageView;
                              [x'] = toListOf (toLens p) x :: [ReportImageView]}
-                         in map Path_ReportImage_View (pathsOf x' a :: [PathType ReportImageView
-                                                                                 ImageCrop])
+                         in map Path_ReportImage_View (pathsOf x' a)
 instance IsPath ReportImage ImageSize
     where type PathType ReportImage
                         ImageSize = Path_ReportImage ImageSize
@@ -3021,8 +2956,7 @@ instance IsPath ReportImage ImageSize
           pathsOf x a = let {p = Path_ReportImage_View idPath :: PathType ReportImage
                                                                           ReportImageView;
                              [x'] = toListOf (toLens p) x :: [ReportImageView]}
-                         in map Path_ReportImage_View (pathsOf x' a :: [PathType ReportImageView
-                                                                                 ImageSize])
+                         in map Path_ReportImage_View (pathsOf x' a)
 instance IsPath ReportImage Units
     where type PathType ReportImage Units = Path_ReportImage Units
           toLens (Path_ReportImage_View v) = (viewLens :: Lens' ReportImage
@@ -3030,8 +2964,7 @@ instance IsPath ReportImage Units
           pathsOf x a = let {p = Path_ReportImage_View idPath :: PathType ReportImage
                                                                           ReportImageView;
                              [x'] = toListOf (toLens p) x :: [ReportImageView]}
-                         in map Path_ReportImage_View (pathsOf x' a :: [PathType ReportImageView
-                                                                                 Units])
+                         in map Path_ReportImage_View (pathsOf x' a)
 instance IsPath ReportImage ImageFile
     where type PathType ReportImage
                         ImageFile = Path_ReportImage ImageFile
@@ -3040,8 +2973,7 @@ instance IsPath ReportImage ImageFile
           pathsOf x a = let {p = Path_ReportImage_View idPath :: PathType ReportImage
                                                                           ReportImageView;
                              [x'] = toListOf (toLens p) x :: [ReportImageView]}
-                         in map Path_ReportImage_View (pathsOf x' a :: [PathType ReportImageView
-                                                                                 ImageFile])
+                         in map Path_ReportImage_View (pathsOf x' a)
 instance IsPath ReportImage JSONText
     where type PathType ReportImage
                         JSONText = Path_ReportImage JSONText
@@ -3050,8 +2982,7 @@ instance IsPath ReportImage JSONText
           pathsOf x a = let {p = Path_ReportImage_View idPath :: PathType ReportImage
                                                                           ReportImageView;
                              [x'] = toListOf (toLens p) x :: [ReportImageView]}
-                         in map Path_ReportImage_View (pathsOf x' a :: [PathType ReportImageView
-                                                                                 JSONText])
+                         in map Path_ReportImage_View (pathsOf x' a)
 instance IsPath ReportImage Markup
     where type PathType ReportImage Markup = Path_ReportImage Markup
           toLens (Path_ReportImage_View v) = (viewLens :: Lens' ReportImage
@@ -3059,8 +2990,7 @@ instance IsPath ReportImage Markup
           pathsOf x a = let {p = Path_ReportImage_View idPath :: PathType ReportImage
                                                                           ReportImageView;
                              [x'] = toListOf (toLens p) x :: [ReportImageView]}
-                         in map Path_ReportImage_View (pathsOf x' a :: [PathType ReportImageView
-                                                                                 Markup])
+                         in map Path_ReportImage_View (pathsOf x' a)
 instance IsPath ReportImage MaybeImageFile
     where type PathType ReportImage
                         MaybeImageFile = Path_ReportImage MaybeImageFile
@@ -3069,8 +2999,7 @@ instance IsPath ReportImage MaybeImageFile
           pathsOf x a = let {p = Path_ReportImage_View idPath :: PathType ReportImage
                                                                           ReportImageView;
                              [x'] = toListOf (toLens p) x :: [ReportImageView]}
-                         in map Path_ReportImage_View (pathsOf x' a :: [PathType ReportImageView
-                                                                                 (Maybe ImageFile)])
+                         in map Path_ReportImage_View (pathsOf x' a)
 instance IsPath ReportImage ReportImage
     where type PathType ReportImage
                         ReportImage = Path_ReportImage ReportImage
@@ -3084,8 +3013,7 @@ instance IsPath ReportImage ReportImageView
           pathsOf x a = let {p = Path_ReportImage_View idPath :: PathType ReportImage
                                                                           ReportImageView;
                              [x'] = toListOf (toLens p) x :: [ReportImageView]}
-                         in map Path_ReportImage_View (pathsOf x' a :: [PathType ReportImageView
-                                                                                 ReportImageView])
+                         in map Path_ReportImage_View (pathsOf x' a)
 instance IsPath ReportImage SaneSizeImageSize
     where type PathType ReportImage
                         SaneSizeImageSize = Path_ReportImage SaneSizeImageSize
@@ -3094,8 +3022,7 @@ instance IsPath ReportImage SaneSizeImageSize
           pathsOf x a = let {p = Path_ReportImage_View idPath :: PathType ReportImage
                                                                           ReportImageView;
                              [x'] = toListOf (toLens p) x :: [ReportImageView]}
-                         in map Path_ReportImage_View (pathsOf x' a :: [PathType ReportImageView
-                                                                                 (SaneSize ImageSize)])
+                         in map Path_ReportImage_View (pathsOf x' a)
 instance IsPath ReportImage URI
     where type PathType ReportImage URI = Path_ReportImage URI
           toLens (Path_ReportImage_View v) = (viewLens :: Lens' ReportImage
@@ -3103,8 +3030,7 @@ instance IsPath ReportImage URI
           pathsOf x a = let {p = Path_ReportImage_View idPath :: PathType ReportImage
                                                                           ReportImageView;
                              [x'] = toListOf (toLens p) x :: [ReportImageView]}
-                         in map Path_ReportImage_View (pathsOf x' a :: [PathType ReportImageView
-                                                                                 URI])
+                         in map Path_ReportImage_View (pathsOf x' a)
 instance IsPath ReportImage Text
     where type PathType ReportImage Text = Path_ReportImage Text
           toLens (Path_ReportImage_View v) = (viewLens :: Lens' ReportImage
@@ -3112,8 +3038,7 @@ instance IsPath ReportImage Text
           pathsOf x a = let {p = Path_ReportImage_View idPath :: PathType ReportImage
                                                                           ReportImageView;
                              [x'] = toListOf (toLens p) x :: [ReportImageView]}
-                         in map Path_ReportImage_View (pathsOf x' a :: [PathType ReportImageView
-                                                                                 Text])
+                         in map Path_ReportImage_View (pathsOf x' a)
 instance IsPath ReportImages (Either URI ImageFile)
     where type PathType ReportImages
                         (Either URI ImageFile) = Path_OMap ReportImageID
@@ -3243,8 +3168,7 @@ instance IsPath ReadOnlyFilePath String
           pathsOf x a = let {p = Path_ReadOnlyFilePath_View idPath :: PathType (ReadOnly ([Char]))
                                                                                ([Char]);
                              [x'] = toListOf (toLens p) x :: [[Char]]}
-                         in map Path_ReadOnlyFilePath_View (pathsOf x' a :: [PathType ([Char])
-                                                                                      ([Char])])
+                         in map Path_ReadOnlyFilePath_View (pathsOf x' a)
 instance IsPath ReadOnlyFilePath JSONText
     where type PathType ReadOnlyFilePath
                         JSONText = Path_ReadOnlyFilePath JSONText
@@ -3253,8 +3177,7 @@ instance IsPath ReadOnlyFilePath JSONText
           pathsOf x a = let {p = Path_ReadOnlyFilePath_View idPath :: PathType (ReadOnly ([Char]))
                                                                                ([Char]);
                              [x'] = toListOf (toLens p) x :: [[Char]]}
-                         in map Path_ReadOnlyFilePath_View (pathsOf x' a :: [PathType ([Char])
-                                                                                      JSONText])
+                         in map Path_ReadOnlyFilePath_View (pathsOf x' a)
 instance IsPath ReadOnlyFilePath ReadOnlyFilePath
     where type PathType ReadOnlyFilePath
                         ReadOnlyFilePath = Path_ReadOnlyFilePath ReadOnlyFilePath
@@ -3704,8 +3627,7 @@ instance IsPath SaneSizeImageSize String
           pathsOf x a = let {p = Path_SaneSizeImageSize_View idPath :: PathType (SaneSize ImageSize)
                                                                                 ImageSize;
                              [x'] = toListOf (toLens p) x :: [ImageSize]}
-                         in map Path_SaneSizeImageSize_View (pathsOf x' a :: [PathType ImageSize
-                                                                                       ([Char])])
+                         in map Path_SaneSizeImageSize_View (pathsOf x' a)
 instance IsPath SaneSizeImageSize Double
     where type PathType SaneSizeImageSize
                         Double = Path_SaneSizeImageSize Double
@@ -3714,8 +3636,7 @@ instance IsPath SaneSizeImageSize Double
           pathsOf x a = let {p = Path_SaneSizeImageSize_View idPath :: PathType (SaneSize ImageSize)
                                                                                 ImageSize;
                              [x'] = toListOf (toLens p) x :: [ImageSize]}
-                         in map Path_SaneSizeImageSize_View (pathsOf x' a :: [PathType ImageSize
-                                                                                       Double])
+                         in map Path_SaneSizeImageSize_View (pathsOf x' a)
 instance IsPath SaneSizeImageSize Dimension
     where type PathType SaneSizeImageSize
                         Dimension = Path_SaneSizeImageSize Dimension
@@ -3724,8 +3645,7 @@ instance IsPath SaneSizeImageSize Dimension
           pathsOf x a = let {p = Path_SaneSizeImageSize_View idPath :: PathType (SaneSize ImageSize)
                                                                                 ImageSize;
                              [x'] = toListOf (toLens p) x :: [ImageSize]}
-                         in map Path_SaneSizeImageSize_View (pathsOf x' a :: [PathType ImageSize
-                                                                                       Dimension])
+                         in map Path_SaneSizeImageSize_View (pathsOf x' a)
 instance IsPath SaneSizeImageSize ImageSize
     where type PathType SaneSizeImageSize
                         ImageSize = Path_SaneSizeImageSize ImageSize
@@ -3734,8 +3654,7 @@ instance IsPath SaneSizeImageSize ImageSize
           pathsOf x a = let {p = Path_SaneSizeImageSize_View idPath :: PathType (SaneSize ImageSize)
                                                                                 ImageSize;
                              [x'] = toListOf (toLens p) x :: [ImageSize]}
-                         in map Path_SaneSizeImageSize_View (pathsOf x' a :: [PathType ImageSize
-                                                                                       ImageSize])
+                         in map Path_SaneSizeImageSize_View (pathsOf x' a)
 instance IsPath SaneSizeImageSize Units
     where type PathType SaneSizeImageSize
                         Units = Path_SaneSizeImageSize Units
@@ -3744,8 +3663,7 @@ instance IsPath SaneSizeImageSize Units
           pathsOf x a = let {p = Path_SaneSizeImageSize_View idPath :: PathType (SaneSize ImageSize)
                                                                                 ImageSize;
                              [x'] = toListOf (toLens p) x :: [ImageSize]}
-                         in map Path_SaneSizeImageSize_View (pathsOf x' a :: [PathType ImageSize
-                                                                                       Units])
+                         in map Path_SaneSizeImageSize_View (pathsOf x' a)
 instance IsPath SaneSizeImageSize JSONText
     where type PathType SaneSizeImageSize
                         JSONText = Path_SaneSizeImageSize JSONText
@@ -3754,8 +3672,7 @@ instance IsPath SaneSizeImageSize JSONText
           pathsOf x a = let {p = Path_SaneSizeImageSize_View idPath :: PathType (SaneSize ImageSize)
                                                                                 ImageSize;
                              [x'] = toListOf (toLens p) x :: [ImageSize]}
-                         in map Path_SaneSizeImageSize_View (pathsOf x' a :: [PathType ImageSize
-                                                                                       JSONText])
+                         in map Path_SaneSizeImageSize_View (pathsOf x' a)
 instance IsPath SaneSizeImageSize SaneSizeImageSize
     where type PathType SaneSizeImageSize
                         SaneSizeImageSize = Path_SaneSizeImageSize SaneSizeImageSize
@@ -4089,8 +4006,7 @@ instance IsPath CIString JSONText
           pathsOf x a = let {p = Path_CIString_View idPath :: PathType CIString
                                                                        Text;
                              [x'] = toListOf (toLens p) x :: [Text]}
-                         in map Path_CIString_View (pathsOf x' a :: [PathType Text
-                                                                              JSONText])
+                         in map Path_CIString_View (pathsOf x' a)
 instance IsPath CIString CIString
     where type PathType CIString CIString = Path_CIString CIString
           toLens _ = iso id id
@@ -4101,7 +4017,7 @@ instance IsPath CIString Text
           pathsOf x a = let {p = Path_CIString_View idPath :: PathType CIString
                                                                        Text;
                              [x'] = toListOf (toLens p) x :: [Text]}
-                         in map Path_CIString_View (pathsOf x' a :: [PathType Text Text])
+                         in map Path_CIString_View (pathsOf x' a)
 instance IsPath URI URI
     where type PathType URI URI = Path_URI URI
           toLens _ = iso id id
@@ -4112,8 +4028,7 @@ instance IsPath Text JSONText
           pathsOf x a = let {p = Path_Text_View idPath :: PathType Text
                                                                    JSONText;
                              [x'] = toListOf (toLens p) x :: [JSONText]}
-                         in map Path_Text_View (pathsOf x' a :: [PathType JSONText
-                                                                          JSONText])
+                         in map Path_Text_View (pathsOf x' a)
 instance IsPath Text Text
     where type PathType Text Text = Path_Text Text
           toLens _ = iso id id
