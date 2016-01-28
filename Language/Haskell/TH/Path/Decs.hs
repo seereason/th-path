@@ -33,7 +33,7 @@ import Data.Char (toLower)
 import Data.Data (Data, Typeable)
 import Data.Foldable as Foldable (mapM_)
 import Data.Foldable
-import Data.List as List (intercalate, map)
+import Data.List as List (concatMap, intercalate, map)
 import Data.Map as Map (Map)
 import Data.Maybe (fromJust, fromMaybe, isJust)
 import Data.Set as Set (delete, minView)
@@ -46,7 +46,7 @@ import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Core (mat, IsPathType(idPath), IsPathNode(PVType, pvTree), IsPath(..), Path_List, Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
 import Language.Haskell.TH.Path.Graph (SelfPath, SinkType)
-import Language.Haskell.TH.Path.Order (lens_omat, Order, Path_OMap(..))
+import Language.Haskell.TH.Path.Order (lens_omat, Order, Path_OMap(..), toPairs)
 import Language.Haskell.TH.Path.View (viewInstanceType, viewLens)
 import Language.Haskell.TH.Syntax as TH (Quasi(qReify), VarStrictType)
 import Language.Haskell.TH.TypeGraph.Expand (E(E), unE, ExpandMap, expandType)
@@ -560,7 +560,13 @@ pathsOfClauses key gkey ptyp =
            doName tname
        AppT (AppT mtyp _ityp) vtyp
            | mtyp == ConT ''Order ->
-               tell [clause [wildP, wildP] (normalB [|undefined|]) []]
+               -- Return a path for each element of an order, assuming
+               -- there is a path from the element type to the goal.
+               do vIsPath <- testIsPath vtyp gkey
+                  runQ [d| f o a =
+                             $(case vIsPath of
+                                 True -> [| List.concatMap (\(k, v) -> List.map (Path_At k) (pathsOf (v :: $(pure vtyp)) a {-:: [PathType $(pure vtyp) (pure (view (etype . unE) gkey))]-})) (toPairs o) |]
+                                 False -> [| [] |]) |] >>= tell . clauses
        AppT ListT _etyp -> return ()
        AppT (AppT t3 _ktyp) vtyp
            | t3 == ConT ''Map ->

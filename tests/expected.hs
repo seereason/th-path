@@ -1857,19 +1857,25 @@ instance IsPath AbbrevPairs JSONText
                                                          (Path_Pair (Path_CIString JSONText)
                                                                     (Path_Markup JSONText))
           toLens (Path_At k v) = lens_omat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf o a = concatMap (\(k,
+                                     v) -> map (Path_At k) (pathsOf (v :: (CIString,
+                                                                           Markup)) a)) (toPairs o)
 instance IsPath AbbrevPairs Markup
     where type PathType AbbrevPairs Markup = Path_OMap AbbrevPairID
                                                        (Path_Pair (Path_CIString Markup)
                                                                   (Path_Markup Markup))
           toLens (Path_At k v) = lens_omat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf o a = concatMap (\(k,
+                                     v) -> map (Path_At k) (pathsOf (v :: (CIString,
+                                                                           Markup)) a)) (toPairs o)
 instance IsPath AbbrevPairs AbbrevPair
     where type PathType AbbrevPairs AbbrevPair = Path_OMap AbbrevPairID
                                                            (Path_Pair (Path_CIString AbbrevPair)
                                                                       (Path_Markup AbbrevPair))
           toLens (Path_At k _) = lens_omat k
-          pathsOf _ _ = undefined
+          pathsOf o a = concatMap (\(k,
+                                     v) -> map (Path_At k) (pathsOf (v :: (CIString,
+                                                                           Markup)) a)) (toPairs o)
 instance IsPath AbbrevPairs AbbrevPairs
     where type PathType AbbrevPairs
                         AbbrevPairs = Path_OMap AbbrevPairID
@@ -1882,13 +1888,17 @@ instance IsPath AbbrevPairs CIString
                                                          (Path_Pair (Path_CIString CIString)
                                                                     (Path_Markup CIString))
           toLens (Path_At k v) = lens_omat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf o a = concatMap (\(k,
+                                     v) -> map (Path_At k) (pathsOf (v :: (CIString,
+                                                                           Markup)) a)) (toPairs o)
 instance IsPath AbbrevPairs Text
     where type PathType AbbrevPairs Text = Path_OMap AbbrevPairID
                                                      (Path_Pair (Path_CIString Text)
                                                                 (Path_Markup Text))
           toLens (Path_At k v) = lens_omat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf o a = concatMap (\(k,
+                                     v) -> map (Path_At k) (pathsOf (v :: (CIString,
+                                                                           Markup)) a)) (toPairs o)
 instance IsPath Author JSONText
     where type PathType Author JSONText = Path_Author JSONText
           toLens (Path_Author_authorName _x) = lens_Author_authorName . toLens _x
@@ -1912,17 +1922,20 @@ instance IsPath Authors JSONText
     where type PathType Authors JSONText = Path_OMap AuthorID
                                                      (Path_Author JSONText)
           toLens (Path_At k v) = lens_omat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf o a = concatMap (\(k,
+                                     v) -> map (Path_At k) (pathsOf (v :: Author) a)) (toPairs o)
 instance IsPath Authors Markup
     where type PathType Authors Markup = Path_OMap AuthorID
                                                    (Path_Author Markup)
           toLens (Path_At k v) = lens_omat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf o a = concatMap (\(k,
+                                     v) -> map (Path_At k) (pathsOf (v :: Author) a)) (toPairs o)
 instance IsPath Authors Author
     where type PathType Authors Author = Path_OMap AuthorID
                                                    (Path_Author Author)
           toLens (Path_At k _) = lens_omat k
-          pathsOf _ _ = undefined
+          pathsOf o a = concatMap (\(k,
+                                     v) -> map (Path_At k) (pathsOf (v :: Author) a)) (toPairs o)
 instance IsPath Authors Authors
     where type PathType Authors Authors = Path_OMap AuthorID
                                                     (Path_Author Authors)
@@ -1932,7 +1945,8 @@ instance IsPath Authors Text
     where type PathType Authors Text = Path_OMap AuthorID
                                                  (Path_Author Text)
           toLens (Path_At k v) = lens_omat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf o a = concatMap (\(k,
+                                     v) -> map (Path_At k) (pathsOf (v :: Author) a)) (toPairs o)
 instance IsPath Branding JSONText
     where type PathType Branding JSONText = Path_Branding JSONText
           toLens (Path_Branding_View v) = (viewLens :: Lens' Branding
@@ -1997,19 +2011,25 @@ instance IsPath MarkupPairs JSONText
                                                          (Path_Pair (Path_Markup JSONText)
                                                                     (Path_Markup JSONText))
           toLens (Path_At k v) = lens_omat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf o a = concatMap (\(k,
+                                     v) -> map (Path_At k) (pathsOf (v :: (Markup,
+                                                                           Markup)) a)) (toPairs o)
 instance IsPath MarkupPairs Markup
     where type PathType MarkupPairs Markup = Path_OMap MarkupPairID
                                                        (Path_Pair (Path_Markup Markup)
                                                                   (Path_Markup Markup))
           toLens (Path_At k v) = lens_omat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf o a = concatMap (\(k,
+                                     v) -> map (Path_At k) (pathsOf (v :: (Markup,
+                                                                           Markup)) a)) (toPairs o)
 instance IsPath MarkupPairs MarkupPair
     where type PathType MarkupPairs MarkupPair = Path_OMap MarkupPairID
                                                            (Path_Pair (Path_Markup MarkupPair)
                                                                       (Path_Markup MarkupPair))
           toLens (Path_At k _) = lens_omat k
-          pathsOf _ _ = undefined
+          pathsOf o a = concatMap (\(k,
+                                     v) -> map (Path_At k) (pathsOf (v :: (Markup,
+                                                                           Markup)) a)) (toPairs o)
 instance IsPath MarkupPairs MarkupPairs
     where type PathType MarkupPairs
                         MarkupPairs = Path_OMap MarkupPairID
@@ -2022,17 +2042,21 @@ instance IsPath MarkupPairs Text
                                                      (Path_Pair (Path_Markup Text)
                                                                 (Path_Markup Text))
           toLens (Path_At k v) = lens_omat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf o a = concatMap (\(k,
+                                     v) -> map (Path_At k) (pathsOf (v :: (Markup,
+                                                                           Markup)) a)) (toPairs o)
 instance IsPath Markups JSONText
     where type PathType Markups JSONText = Path_OMap MarkupID
                                                      (Path_Markup JSONText)
           toLens (Path_At k v) = lens_omat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf o a = concatMap (\(k,
+                                     v) -> map (Path_At k) (pathsOf (v :: Markup) a)) (toPairs o)
 instance IsPath Markups Markup
     where type PathType Markups Markup = Path_OMap MarkupID
                                                    (Path_Markup Markup)
           toLens (Path_At k _) = lens_omat k
-          pathsOf _ _ = undefined
+          pathsOf o a = concatMap (\(k,
+                                     v) -> map (Path_At k) (pathsOf (v :: Markup) a)) (toPairs o)
 instance IsPath Markups Markups
     where type PathType Markups Markups = Path_OMap MarkupID
                                                     (Path_Markup Markups)
@@ -2042,7 +2066,8 @@ instance IsPath Markups Text
     where type PathType Markups Text = Path_OMap MarkupID
                                                  (Path_Markup Text)
           toLens (Path_At k v) = lens_omat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf o a = concatMap (\(k,
+                                     v) -> map (Path_At k) (pathsOf (v :: Markup) a)) (toPairs o)
 instance IsPath MaybeReportIntendedUse String
     where type PathType MaybeReportIntendedUse
                         String = Path_MaybeReportIntendedUse String
@@ -2627,76 +2652,90 @@ instance IsPath ReportElems (Either URI ImageFile)
                         (Either URI ImageFile) = Path_OMap ReportElemID
                                                            (Path_ReportElem (Either URI ImageFile))
           toLens (Path_At k v) = lens_omat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf o a = concatMap (\(k,
+                                     v) -> map (Path_At k) (pathsOf (v :: ReportElem) a)) (toPairs o)
 instance IsPath ReportElems (Map ItemFieldName Markup)
     where type PathType ReportElems
                         (Map ItemFieldName Markup) = Path_OMap ReportElemID
                                                                (Path_ReportElem (Map ItemFieldName
                                                                                      Markup))
           toLens (Path_At k v) = lens_omat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf o a = concatMap (\(k,
+                                     v) -> map (Path_At k) (pathsOf (v :: ReportElem) a)) (toPairs o)
 instance IsPath ReportElems (Maybe (Either URI ImageFile))
     where type PathType ReportElems
                         (Maybe (Either URI ImageFile)) = Path_OMap ReportElemID
                                                                    (Path_ReportElem (Maybe (Either URI
                                                                                                    ImageFile)))
           toLens (Path_At k v) = lens_omat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf o a = concatMap (\(k,
+                                     v) -> map (Path_At k) (pathsOf (v :: ReportElem) a)) (toPairs o)
 instance IsPath ReportElems String
     where type PathType ReportElems String = Path_OMap ReportElemID
                                                        (Path_ReportElem String)
           toLens (Path_At k v) = lens_omat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf o a = concatMap (\(k,
+                                     v) -> map (Path_At k) (pathsOf (v :: ReportElem) a)) (toPairs o)
 instance IsPath ReportElems Bool
     where type PathType ReportElems Bool = Path_OMap ReportElemID
                                                      (Path_ReportElem Bool)
           toLens (Path_At k v) = lens_omat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf o a = concatMap (\(k,
+                                     v) -> map (Path_At k) (pathsOf (v :: ReportElem) a)) (toPairs o)
 instance IsPath ReportElems Double
     where type PathType ReportElems Double = Path_OMap ReportElemID
                                                        (Path_ReportElem Double)
           toLens (Path_At k v) = lens_omat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf o a = concatMap (\(k,
+                                     v) -> map (Path_At k) (pathsOf (v :: ReportElem) a)) (toPairs o)
 instance IsPath ReportElems Dimension
     where type PathType ReportElems Dimension = Path_OMap ReportElemID
                                                           (Path_ReportElem Dimension)
           toLens (Path_At k v) = lens_omat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf o a = concatMap (\(k,
+                                     v) -> map (Path_At k) (pathsOf (v :: ReportElem) a)) (toPairs o)
 instance IsPath ReportElems ImageCrop
     where type PathType ReportElems ImageCrop = Path_OMap ReportElemID
                                                           (Path_ReportElem ImageCrop)
           toLens (Path_At k v) = lens_omat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf o a = concatMap (\(k,
+                                     v) -> map (Path_At k) (pathsOf (v :: ReportElem) a)) (toPairs o)
 instance IsPath ReportElems ImageSize
     where type PathType ReportElems ImageSize = Path_OMap ReportElemID
                                                           (Path_ReportElem ImageSize)
           toLens (Path_At k v) = lens_omat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf o a = concatMap (\(k,
+                                     v) -> map (Path_At k) (pathsOf (v :: ReportElem) a)) (toPairs o)
 instance IsPath ReportElems Units
     where type PathType ReportElems Units = Path_OMap ReportElemID
                                                       (Path_ReportElem Units)
           toLens (Path_At k v) = lens_omat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf o a = concatMap (\(k,
+                                     v) -> map (Path_At k) (pathsOf (v :: ReportElem) a)) (toPairs o)
 instance IsPath ReportElems ImageFile
     where type PathType ReportElems ImageFile = Path_OMap ReportElemID
                                                           (Path_ReportElem ImageFile)
           toLens (Path_At k v) = lens_omat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf o a = concatMap (\(k,
+                                     v) -> map (Path_At k) (pathsOf (v :: ReportElem) a)) (toPairs o)
 instance IsPath ReportElems JSONText
     where type PathType ReportElems JSONText = Path_OMap ReportElemID
                                                          (Path_ReportElem JSONText)
           toLens (Path_At k v) = lens_omat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf o a = concatMap (\(k,
+                                     v) -> map (Path_At k) (pathsOf (v :: ReportElem) a)) (toPairs o)
 instance IsPath ReportElems Markup
     where type PathType ReportElems Markup = Path_OMap ReportElemID
                                                        (Path_ReportElem Markup)
           toLens (Path_At k v) = lens_omat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf o a = concatMap (\(k,
+                                     v) -> map (Path_At k) (pathsOf (v :: ReportElem) a)) (toPairs o)
 instance IsPath ReportElems ReportElem
     where type PathType ReportElems ReportElem = Path_OMap ReportElemID
                                                            (Path_ReportElem ReportElem)
           toLens (Path_At k _) = lens_omat k
-          pathsOf _ _ = undefined
+          pathsOf o a = concatMap (\(k,
+                                     v) -> map (Path_At k) (pathsOf (v :: ReportElem) a)) (toPairs o)
 instance IsPath ReportElems ReportElems
     where type PathType ReportElems
                         ReportElems = Path_OMap ReportElemID (Path_ReportElem ReportElems)
@@ -2707,45 +2746,53 @@ instance IsPath ReportElems MaybeImageFile
                         MaybeImageFile = Path_OMap ReportElemID
                                                    (Path_ReportElem MaybeImageFile)
           toLens (Path_At k v) = lens_omat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf o a = concatMap (\(k,
+                                     v) -> map (Path_At k) (pathsOf (v :: ReportElem) a)) (toPairs o)
 instance IsPath ReportElems ReportImage
     where type PathType ReportElems
                         ReportImage = Path_OMap ReportElemID (Path_ReportElem ReportImage)
           toLens (Path_At k v) = lens_omat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf o a = concatMap (\(k,
+                                     v) -> map (Path_At k) (pathsOf (v :: ReportElem) a)) (toPairs o)
 instance IsPath ReportElems ReportImages
     where type PathType ReportElems
                         ReportImages = Path_OMap ReportElemID
                                                  (Path_ReportElem ReportImages)
           toLens (Path_At k v) = lens_omat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf o a = concatMap (\(k,
+                                     v) -> map (Path_At k) (pathsOf (v :: ReportElem) a)) (toPairs o)
 instance IsPath ReportElems ReportImageView
     where type PathType ReportElems
                         ReportImageView = Path_OMap ReportElemID
                                                     (Path_ReportElem ReportImageView)
           toLens (Path_At k v) = lens_omat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf o a = concatMap (\(k,
+                                     v) -> map (Path_At k) (pathsOf (v :: ReportElem) a)) (toPairs o)
 instance IsPath ReportElems SaneSizeImageSize
     where type PathType ReportElems
                         SaneSizeImageSize = Path_OMap ReportElemID
                                                       (Path_ReportElem SaneSizeImageSize)
           toLens (Path_At k v) = lens_omat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf o a = concatMap (\(k,
+                                     v) -> map (Path_At k) (pathsOf (v :: ReportElem) a)) (toPairs o)
 instance IsPath ReportElems Item
     where type PathType ReportElems Item = Path_OMap ReportElemID
                                                      (Path_ReportElem Item)
           toLens (Path_At k v) = lens_omat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf o a = concatMap (\(k,
+                                     v) -> map (Path_At k) (pathsOf (v :: ReportElem) a)) (toPairs o)
 instance IsPath ReportElems URI
     where type PathType ReportElems URI = Path_OMap ReportElemID
                                                     (Path_ReportElem URI)
           toLens (Path_At k v) = lens_omat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf o a = concatMap (\(k,
+                                     v) -> map (Path_At k) (pathsOf (v :: ReportElem) a)) (toPairs o)
 instance IsPath ReportElems Text
     where type PathType ReportElems Text = Path_OMap ReportElemID
                                                      (Path_ReportElem Text)
           toLens (Path_At k v) = lens_omat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf o a = concatMap (\(k,
+                                     v) -> map (Path_At k) (pathsOf (v :: ReportElem) a)) (toPairs o)
 instance IsPath ReportFlags String
     where type PathType ReportFlags String = Path_ReportFlags String
           toLens (Path_ReportFlags_hideEmptyItemFields _x) = lens_ReportFlags_hideEmptyItemFields . toLens _x
@@ -3072,76 +3119,90 @@ instance IsPath ReportImages (Either URI ImageFile)
                         (Either URI ImageFile) = Path_OMap ReportImageID
                                                            (Path_ReportImage (Either URI ImageFile))
           toLens (Path_At k v) = lens_omat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf o a = concatMap (\(k,
+                                     v) -> map (Path_At k) (pathsOf (v :: ReportImage) a)) (toPairs o)
 instance IsPath ReportImages (Maybe (Either URI ImageFile))
     where type PathType ReportImages
                         (Maybe (Either URI ImageFile)) = Path_OMap ReportImageID
                                                                    (Path_ReportImage (Maybe (Either URI
                                                                                                     ImageFile)))
           toLens (Path_At k v) = lens_omat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf o a = concatMap (\(k,
+                                     v) -> map (Path_At k) (pathsOf (v :: ReportImage) a)) (toPairs o)
 instance IsPath ReportImages String
     where type PathType ReportImages String = Path_OMap ReportImageID
                                                         (Path_ReportImage String)
           toLens (Path_At k v) = lens_omat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf o a = concatMap (\(k,
+                                     v) -> map (Path_At k) (pathsOf (v :: ReportImage) a)) (toPairs o)
 instance IsPath ReportImages Bool
     where type PathType ReportImages Bool = Path_OMap ReportImageID
                                                       (Path_ReportImage Bool)
           toLens (Path_At k v) = lens_omat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf o a = concatMap (\(k,
+                                     v) -> map (Path_At k) (pathsOf (v :: ReportImage) a)) (toPairs o)
 instance IsPath ReportImages Double
     where type PathType ReportImages Double = Path_OMap ReportImageID
                                                         (Path_ReportImage Double)
           toLens (Path_At k v) = lens_omat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf o a = concatMap (\(k,
+                                     v) -> map (Path_At k) (pathsOf (v :: ReportImage) a)) (toPairs o)
 instance IsPath ReportImages Dimension
     where type PathType ReportImages
                         Dimension = Path_OMap ReportImageID (Path_ReportImage Dimension)
           toLens (Path_At k v) = lens_omat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf o a = concatMap (\(k,
+                                     v) -> map (Path_At k) (pathsOf (v :: ReportImage) a)) (toPairs o)
 instance IsPath ReportImages ImageCrop
     where type PathType ReportImages
                         ImageCrop = Path_OMap ReportImageID (Path_ReportImage ImageCrop)
           toLens (Path_At k v) = lens_omat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf o a = concatMap (\(k,
+                                     v) -> map (Path_At k) (pathsOf (v :: ReportImage) a)) (toPairs o)
 instance IsPath ReportImages ImageSize
     where type PathType ReportImages
                         ImageSize = Path_OMap ReportImageID (Path_ReportImage ImageSize)
           toLens (Path_At k v) = lens_omat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf o a = concatMap (\(k,
+                                     v) -> map (Path_At k) (pathsOf (v :: ReportImage) a)) (toPairs o)
 instance IsPath ReportImages Units
     where type PathType ReportImages Units = Path_OMap ReportImageID
                                                        (Path_ReportImage Units)
           toLens (Path_At k v) = lens_omat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf o a = concatMap (\(k,
+                                     v) -> map (Path_At k) (pathsOf (v :: ReportImage) a)) (toPairs o)
 instance IsPath ReportImages ImageFile
     where type PathType ReportImages
                         ImageFile = Path_OMap ReportImageID (Path_ReportImage ImageFile)
           toLens (Path_At k v) = lens_omat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf o a = concatMap (\(k,
+                                     v) -> map (Path_At k) (pathsOf (v :: ReportImage) a)) (toPairs o)
 instance IsPath ReportImages JSONText
     where type PathType ReportImages JSONText = Path_OMap ReportImageID
                                                           (Path_ReportImage JSONText)
           toLens (Path_At k v) = lens_omat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf o a = concatMap (\(k,
+                                     v) -> map (Path_At k) (pathsOf (v :: ReportImage) a)) (toPairs o)
 instance IsPath ReportImages Markup
     where type PathType ReportImages Markup = Path_OMap ReportImageID
                                                         (Path_ReportImage Markup)
           toLens (Path_At k v) = lens_omat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf o a = concatMap (\(k,
+                                     v) -> map (Path_At k) (pathsOf (v :: ReportImage) a)) (toPairs o)
 instance IsPath ReportImages MaybeImageFile
     where type PathType ReportImages
                         MaybeImageFile = Path_OMap ReportImageID
                                                    (Path_ReportImage MaybeImageFile)
           toLens (Path_At k v) = lens_omat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf o a = concatMap (\(k,
+                                     v) -> map (Path_At k) (pathsOf (v :: ReportImage) a)) (toPairs o)
 instance IsPath ReportImages ReportImage
     where type PathType ReportImages
                         ReportImage = Path_OMap ReportImageID
                                                 (Path_ReportImage ReportImage)
           toLens (Path_At k _) = lens_omat k
-          pathsOf _ _ = undefined
+          pathsOf o a = concatMap (\(k,
+                                     v) -> map (Path_At k) (pathsOf (v :: ReportImage) a)) (toPairs o)
 instance IsPath ReportImages ReportImages
     where type PathType ReportImages
                         ReportImages = Path_OMap ReportImageID
@@ -3153,23 +3214,27 @@ instance IsPath ReportImages ReportImageView
                         ReportImageView = Path_OMap ReportImageID
                                                     (Path_ReportImage ReportImageView)
           toLens (Path_At k v) = lens_omat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf o a = concatMap (\(k,
+                                     v) -> map (Path_At k) (pathsOf (v :: ReportImage) a)) (toPairs o)
 instance IsPath ReportImages SaneSizeImageSize
     where type PathType ReportImages
                         SaneSizeImageSize = Path_OMap ReportImageID
                                                       (Path_ReportImage SaneSizeImageSize)
           toLens (Path_At k v) = lens_omat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf o a = concatMap (\(k,
+                                     v) -> map (Path_At k) (pathsOf (v :: ReportImage) a)) (toPairs o)
 instance IsPath ReportImages URI
     where type PathType ReportImages URI = Path_OMap ReportImageID
                                                      (Path_ReportImage URI)
           toLens (Path_At k v) = lens_omat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf o a = concatMap (\(k,
+                                     v) -> map (Path_At k) (pathsOf (v :: ReportImage) a)) (toPairs o)
 instance IsPath ReportImages Text
     where type PathType ReportImages Text = Path_OMap ReportImageID
                                                       (Path_ReportImage Text)
           toLens (Path_At k v) = lens_omat k . toLens v
-          pathsOf _ _ = undefined
+          pathsOf o a = concatMap (\(k,
+                                     v) -> map (Path_At k) (pathsOf (v :: ReportImage) a)) (toPairs o)
 instance IsPath ReadOnlyFilePath String
     where type PathType ReadOnlyFilePath
                         String = Path_ReadOnlyFilePath String
