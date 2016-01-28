@@ -1736,15 +1736,23 @@ instance IsPath ImageCrop ImageCrop
 instance IsPath ImageSize String
     where type PathType ImageSize String = Path_ImageSize String
           toLens (Path_ImageSize_size _x) = lens_ImageSize_size . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ImageSize a1 a2 a3) a = concat [[],
+                                                   map Path_ImageSize_size (pathsOf (a2 :: Double) a),
+                                                   []]
 instance IsPath ImageSize Double
     where type PathType ImageSize Double = Path_ImageSize Double
           toLens (Path_ImageSize_size _x) = lens_ImageSize_size
-          pathsOf _ _ = undefined
+          pathsOf (ImageSize a1 a2 a3) a = concat [[],
+                                                   map Path_ImageSize_size (pathsOf (a2 :: Double) a),
+                                                   []]
 instance IsPath ImageSize Dimension
     where type PathType ImageSize Dimension = Path_ImageSize Dimension
           toLens (Path_ImageSize_dim _x) = lens_ImageSize_dim
-          pathsOf _ _ = undefined
+          pathsOf (ImageSize a1
+                             a2
+                             a3) a = concat [map Path_ImageSize_dim (pathsOf (a1 :: Dimension) a),
+                                             [],
+                                             []]
 instance IsPath ImageSize ImageSize
     where type PathType ImageSize ImageSize = Path_ImageSize ImageSize
           toLens _ = iso id id
@@ -1752,13 +1760,19 @@ instance IsPath ImageSize ImageSize
 instance IsPath ImageSize Units
     where type PathType ImageSize Units = Path_ImageSize Units
           toLens (Path_ImageSize_units _x) = lens_ImageSize_units
-          pathsOf _ _ = undefined
+          pathsOf (ImageSize a1 a2 a3) a = concat [[],
+                                                   [],
+                                                   map Path_ImageSize_units (pathsOf (a3 :: Units) a)]
 instance IsPath ImageSize JSONText
     where type PathType ImageSize JSONText = Path_ImageSize JSONText
           toLens (Path_ImageSize_dim _x) = lens_ImageSize_dim . toLens _x
           toLens (Path_ImageSize_size _x) = lens_ImageSize_size . toLens _x
           toLens (Path_ImageSize_units _x) = lens_ImageSize_units . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ImageSize a1
+                             a2
+                             a3) a = concat [map Path_ImageSize_dim (pathsOf (a1 :: Dimension) a),
+                                             map Path_ImageSize_size (pathsOf (a2 :: Double) a),
+                                             map Path_ImageSize_units (pathsOf (a3 :: Units) a)]
 instance IsPath Units Units
     where type PathType Units Units = Path_Units Units
           toLens _ = iso id id
@@ -1786,7 +1800,11 @@ instance IsPath Markup JSONText
     where type PathType Markup JSONText = Path_Markup JSONText
           toLens (Path_Markup_markdownText _x) = lens_Markup_markdownText . toLens _x
           toLens (Path_Markup_htmlText _x) = lens_Markup_htmlText . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (Markdown a1) a = concat [map Path_Markup_markdownText (pathsOf (a1 :: Text) a)]
+          pathsOf (Html a1) a = concat [map Path_Markup_htmlText (pathsOf (a1 :: Text) a)]
+          pathsOf (LaTeX a1) a = concat [[]]
+          pathsOf (Pandoc a1) a = concat [[]]
+          pathsOf (Markup a1) a = concat [[]]
 instance IsPath Markup Markup
     where type PathType Markup Markup = Path_Markup Markup
           toLens _ = iso id id
@@ -1795,13 +1813,19 @@ instance IsPath Markup Text
     where type PathType Markup Text = Path_Markup Text
           toLens (Path_Markup_markdownText _x) = lens_Markup_markdownText
           toLens (Path_Markup_htmlText _x) = lens_Markup_htmlText
-          pathsOf _ _ = undefined
+          pathsOf (Markdown a1) a = concat [map Path_Markup_markdownText (pathsOf (a1 :: Text) a)]
+          pathsOf (Html a1) a = concat [map Path_Markup_htmlText (pathsOf (a1 :: Text) a)]
+          pathsOf (LaTeX a1) a = concat [[]]
+          pathsOf (Pandoc a1) a = concat [[]]
+          pathsOf (Markup a1) a = concat [[]]
 instance IsPath Permissions JSONText
     where type PathType Permissions
                         JSONText = Path_Permissions JSONText
           toLens (Path_Permissions_writers _x) = lens_Permissions_writers . toLens _x
           toLens (Path_Permissions_readers _x) = lens_Permissions_readers . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (Permissions a1 a2 a3) a = concat [[],
+                                                     map Path_Permissions_writers (pathsOf (a2 :: UserIds) a),
+                                                     map Path_Permissions_readers (pathsOf (a3 :: UserIds) a)]
 instance IsPath Permissions Permissions
     where type PathType Permissions
                         Permissions = Path_Permissions Permissions
@@ -1811,16 +1835,24 @@ instance IsPath Permissions UserIds
     where type PathType Permissions UserIds = Path_Permissions UserIds
           toLens (Path_Permissions_writers _x) = lens_Permissions_writers
           toLens (Path_Permissions_readers _x) = lens_Permissions_readers
-          pathsOf _ _ = undefined
+          pathsOf (Permissions a1 a2 a3) a = concat [[],
+                                                     map Path_Permissions_writers (pathsOf (a2 :: UserIds) a),
+                                                     map Path_Permissions_readers (pathsOf (a3 :: UserIds) a)]
 instance IsPath Permissions Text
     where type PathType Permissions Text = Path_Permissions Text
           toLens (Path_Permissions_writers _x) = lens_Permissions_writers . toLens _x
           toLens (Path_Permissions_readers _x) = lens_Permissions_readers . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (Permissions a1 a2 a3) a = concat [[],
+                                                     map Path_Permissions_writers (pathsOf (a2 :: UserIds) a),
+                                                     map Path_Permissions_readers (pathsOf (a3 :: UserIds) a)]
 instance IsPath Permissions UserId
     where type PathType Permissions UserId = Path_Permissions UserId
           toLens (Path_Permissions_owner _x) = lens_Permissions_owner
-          pathsOf _ _ = undefined
+          pathsOf (Permissions a1
+                               a2
+                               a3) a = concat [map Path_Permissions_owner (pathsOf (a1 :: UserId) a),
+                                               [],
+                                               []]
 instance IsPath UserIds JSONText
     where type PathType UserIds JSONText = Path_UserIds JSONText
           toLens (Path_UserIds_View v) = (viewLens :: Lens' ([UserId])
@@ -1925,12 +1957,16 @@ instance IsPath Author JSONText
     where type PathType Author JSONText = Path_Author JSONText
           toLens (Path_Author_authorName _x) = lens_Author_authorName . toLens _x
           toLens (Path_Author_authorCredentials _x) = lens_Author_authorCredentials . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (Author a1
+                          a2) a = concat [map Path_Author_authorName (pathsOf (a1 :: Markup) a),
+                                          map Path_Author_authorCredentials (pathsOf (a2 :: Markup) a)]
 instance IsPath Author Markup
     where type PathType Author Markup = Path_Author Markup
           toLens (Path_Author_authorName _x) = lens_Author_authorName
           toLens (Path_Author_authorCredentials _x) = lens_Author_authorCredentials
-          pathsOf _ _ = undefined
+          pathsOf (Author a1
+                          a2) a = concat [map Path_Author_authorName (pathsOf (a1 :: Markup) a),
+                                          map Path_Author_authorCredentials (pathsOf (a2 :: Markup) a)]
 instance IsPath Author Author
     where type PathType Author Author = Path_Author Author
           toLens _ = iso id id
@@ -1939,7 +1975,9 @@ instance IsPath Author Text
     where type PathType Author Text = Path_Author Text
           toLens (Path_Author_authorName _x) = lens_Author_authorName . toLens _x
           toLens (Path_Author_authorCredentials _x) = lens_Author_authorCredentials . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (Author a1
+                          a2) a = concat [map Path_Author_authorName (pathsOf (a1 :: Markup) a),
+                                          map Path_Author_authorCredentials (pathsOf (a2 :: Markup) a)]
 instance IsPath Authors JSONText
     where type PathType Authors JSONText = Path_OMap AuthorID
                                                      (Path_Author JSONText)
@@ -2495,65 +2533,91 @@ instance IsPath ReportElem (Either URI ImageFile)
     where type PathType ReportElem
                         (Either URI ImageFile) = Path_ReportElem (Either URI ImageFile)
           toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportItem a1) a = concat [map Path_ReportElem_elemItem (pathsOf (a1 :: Item) a)]
+          pathsOf (ReportParagraph a1) a = concat [[]]
+          pathsOf (ReportUndecided) a = concat []
 instance IsPath ReportElem (Map ItemFieldName Markup)
     where type PathType ReportElem
                         (Map ItemFieldName Markup) = Path_ReportElem (Map ItemFieldName
                                                                           Markup)
           toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportItem a1) a = concat [map Path_ReportElem_elemItem (pathsOf (a1 :: Item) a)]
+          pathsOf (ReportParagraph a1) a = concat [[]]
+          pathsOf (ReportUndecided) a = concat []
 instance IsPath ReportElem (Maybe (Either URI ImageFile))
     where type PathType ReportElem
                         (Maybe (Either URI ImageFile)) = Path_ReportElem (Maybe (Either URI
                                                                                         ImageFile))
           toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportItem a1) a = concat [map Path_ReportElem_elemItem (pathsOf (a1 :: Item) a)]
+          pathsOf (ReportParagraph a1) a = concat [[]]
+          pathsOf (ReportUndecided) a = concat []
 instance IsPath ReportElem String
     where type PathType ReportElem String = Path_ReportElem String
           toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportItem a1) a = concat [map Path_ReportElem_elemItem (pathsOf (a1 :: Item) a)]
+          pathsOf (ReportParagraph a1) a = concat [[]]
+          pathsOf (ReportUndecided) a = concat []
 instance IsPath ReportElem Bool
     where type PathType ReportElem Bool = Path_ReportElem Bool
           toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportItem a1) a = concat [map Path_ReportElem_elemItem (pathsOf (a1 :: Item) a)]
+          pathsOf (ReportParagraph a1) a = concat [[]]
+          pathsOf (ReportUndecided) a = concat []
 instance IsPath ReportElem Double
     where type PathType ReportElem Double = Path_ReportElem Double
           toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportItem a1) a = concat [map Path_ReportElem_elemItem (pathsOf (a1 :: Item) a)]
+          pathsOf (ReportParagraph a1) a = concat [[]]
+          pathsOf (ReportUndecided) a = concat []
 instance IsPath ReportElem Dimension
     where type PathType ReportElem
                         Dimension = Path_ReportElem Dimension
           toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportItem a1) a = concat [map Path_ReportElem_elemItem (pathsOf (a1 :: Item) a)]
+          pathsOf (ReportParagraph a1) a = concat [[]]
+          pathsOf (ReportUndecided) a = concat []
 instance IsPath ReportElem ImageCrop
     where type PathType ReportElem
                         ImageCrop = Path_ReportElem ImageCrop
           toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportItem a1) a = concat [map Path_ReportElem_elemItem (pathsOf (a1 :: Item) a)]
+          pathsOf (ReportParagraph a1) a = concat [[]]
+          pathsOf (ReportUndecided) a = concat []
 instance IsPath ReportElem ImageSize
     where type PathType ReportElem
                         ImageSize = Path_ReportElem ImageSize
           toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportItem a1) a = concat [map Path_ReportElem_elemItem (pathsOf (a1 :: Item) a)]
+          pathsOf (ReportParagraph a1) a = concat [[]]
+          pathsOf (ReportUndecided) a = concat []
 instance IsPath ReportElem Units
     where type PathType ReportElem Units = Path_ReportElem Units
           toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportItem a1) a = concat [map Path_ReportElem_elemItem (pathsOf (a1 :: Item) a)]
+          pathsOf (ReportParagraph a1) a = concat [[]]
+          pathsOf (ReportUndecided) a = concat []
 instance IsPath ReportElem ImageFile
     where type PathType ReportElem
                         ImageFile = Path_ReportElem ImageFile
           toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportItem a1) a = concat [map Path_ReportElem_elemItem (pathsOf (a1 :: Item) a)]
+          pathsOf (ReportParagraph a1) a = concat [[]]
+          pathsOf (ReportUndecided) a = concat []
 instance IsPath ReportElem JSONText
     where type PathType ReportElem JSONText = Path_ReportElem JSONText
           toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
           toLens (Path_ReportElem_elemText _x) = lens_ReportElem_elemText . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportItem a1) a = concat [map Path_ReportElem_elemItem (pathsOf (a1 :: Item) a)]
+          pathsOf (ReportParagraph a1) a = concat [map Path_ReportElem_elemText (pathsOf (a1 :: Markup) a)]
+          pathsOf (ReportUndecided) a = concat []
 instance IsPath ReportElem Markup
     where type PathType ReportElem Markup = Path_ReportElem Markup
           toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
           toLens (Path_ReportElem_elemText _x) = lens_ReportElem_elemText
-          pathsOf _ _ = undefined
+          pathsOf (ReportItem a1) a = concat [map Path_ReportElem_elemItem (pathsOf (a1 :: Item) a)]
+          pathsOf (ReportParagraph a1) a = concat [map Path_ReportElem_elemText (pathsOf (a1 :: Markup) a)]
+          pathsOf (ReportUndecided) a = concat []
 instance IsPath ReportElem ReportElem
     where type PathType ReportElem
                         ReportElem = Path_ReportElem ReportElem
@@ -2563,40 +2627,56 @@ instance IsPath ReportElem MaybeImageFile
     where type PathType ReportElem
                         MaybeImageFile = Path_ReportElem MaybeImageFile
           toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportItem a1) a = concat [map Path_ReportElem_elemItem (pathsOf (a1 :: Item) a)]
+          pathsOf (ReportParagraph a1) a = concat [[]]
+          pathsOf (ReportUndecided) a = concat []
 instance IsPath ReportElem ReportImage
     where type PathType ReportElem
                         ReportImage = Path_ReportElem ReportImage
           toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportItem a1) a = concat [map Path_ReportElem_elemItem (pathsOf (a1 :: Item) a)]
+          pathsOf (ReportParagraph a1) a = concat [[]]
+          pathsOf (ReportUndecided) a = concat []
 instance IsPath ReportElem ReportImages
     where type PathType ReportElem
                         ReportImages = Path_ReportElem ReportImages
           toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportItem a1) a = concat [map Path_ReportElem_elemItem (pathsOf (a1 :: Item) a)]
+          pathsOf (ReportParagraph a1) a = concat [[]]
+          pathsOf (ReportUndecided) a = concat []
 instance IsPath ReportElem ReportImageView
     where type PathType ReportElem
                         ReportImageView = Path_ReportElem ReportImageView
           toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportItem a1) a = concat [map Path_ReportElem_elemItem (pathsOf (a1 :: Item) a)]
+          pathsOf (ReportParagraph a1) a = concat [[]]
+          pathsOf (ReportUndecided) a = concat []
 instance IsPath ReportElem SaneSizeImageSize
     where type PathType ReportElem
                         SaneSizeImageSize = Path_ReportElem SaneSizeImageSize
           toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportItem a1) a = concat [map Path_ReportElem_elemItem (pathsOf (a1 :: Item) a)]
+          pathsOf (ReportParagraph a1) a = concat [[]]
+          pathsOf (ReportUndecided) a = concat []
 instance IsPath ReportElem Item
     where type PathType ReportElem Item = Path_ReportElem Item
           toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem
-          pathsOf _ _ = undefined
+          pathsOf (ReportItem a1) a = concat [map Path_ReportElem_elemItem (pathsOf (a1 :: Item) a)]
+          pathsOf (ReportParagraph a1) a = concat [[]]
+          pathsOf (ReportUndecided) a = concat []
 instance IsPath ReportElem URI
     where type PathType ReportElem URI = Path_ReportElem URI
           toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportItem a1) a = concat [map Path_ReportElem_elemItem (pathsOf (a1 :: Item) a)]
+          pathsOf (ReportParagraph a1) a = concat [[]]
+          pathsOf (ReportUndecided) a = concat []
 instance IsPath ReportElem Text
     where type PathType ReportElem Text = Path_ReportElem Text
           toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
           toLens (Path_ReportElem_elemText _x) = lens_ReportElem_elemText . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportItem a1) a = concat [map Path_ReportElem_elemItem (pathsOf (a1 :: Item) a)]
+          pathsOf (ReportParagraph a1) a = concat [map Path_ReportElem_elemText (pathsOf (a1 :: Markup) a)]
+          pathsOf (ReportUndecided) a = concat []
 instance IsPath ReportElems (Either URI ImageFile)
     where type PathType ReportElems
                         (Either URI ImageFile) = Path_OMap ReportElemID
@@ -2746,16 +2826,16 @@ instance IsPath ReportElems Text
 instance IsPath ReportFlags String
     where type PathType ReportFlags String = Path_ReportFlags String
           toLens (Path_ReportFlags_hideEmptyItemFields _x) = lens_ReportFlags_hideEmptyItemFields . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportFlags a1) a = concat [map Path_ReportFlags_hideEmptyItemFields (pathsOf (a1 :: Bool) a)]
 instance IsPath ReportFlags Bool
     where type PathType ReportFlags Bool = Path_ReportFlags Bool
           toLens (Path_ReportFlags_hideEmptyItemFields _x) = lens_ReportFlags_hideEmptyItemFields
-          pathsOf _ _ = undefined
+          pathsOf (ReportFlags a1) a = concat [map Path_ReportFlags_hideEmptyItemFields (pathsOf (a1 :: Bool) a)]
 instance IsPath ReportFlags JSONText
     where type PathType ReportFlags
                         JSONText = Path_ReportFlags JSONText
           toLens (Path_ReportFlags_hideEmptyItemFields _x) = lens_ReportFlags_hideEmptyItemFields . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportFlags a1) a = concat [map Path_ReportFlags_hideEmptyItemFields (pathsOf (a1 :: Bool) a)]
 instance IsPath ReportFlags ReportFlags
     where type PathType ReportFlags
                         ReportFlags = Path_ReportFlags ReportFlags
@@ -2787,7 +2867,7 @@ instance IsPath ReportIntendedUse ReportIntendedUse
 instance IsPath ReportStandard Int
     where type PathType ReportStandard Int = Path_ReportStandard Int
           toLens (Path_ReportStandard_unReportStandard _x) = lens_ReportStandard_unReportStandard
-          pathsOf _ _ = undefined
+          pathsOf (ReportStandard a1) a = concat [map Path_ReportStandard_unReportStandard (pathsOf (a1 :: Int) a)]
 instance IsPath ReportStandard ReportStandard
     where type PathType ReportStandard
                         ReportStandard = Path_ReportStandard ReportStandard
@@ -2820,13 +2900,17 @@ instance IsPath ReportValueApproachInfo JSONText
                         JSONText = Path_ReportValueApproachInfo JSONText
           toLens (Path_ReportValueApproachInfo_reportValueApproachName _x) = lens_ReportValueApproachInfo_reportValueApproachName . toLens _x
           toLens (Path_ReportValueApproachInfo_reportValueApproachDescription _x) = lens_ReportValueApproachInfo_reportValueApproachDescription . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportValueApproachInfo a1
+                                           a2) a = concat [map Path_ReportValueApproachInfo_reportValueApproachName (pathsOf (a1 :: Markup) a),
+                                                           map Path_ReportValueApproachInfo_reportValueApproachDescription (pathsOf (a2 :: Markup) a)]
 instance IsPath ReportValueApproachInfo Markup
     where type PathType ReportValueApproachInfo
                         Markup = Path_ReportValueApproachInfo Markup
           toLens (Path_ReportValueApproachInfo_reportValueApproachName _x) = lens_ReportValueApproachInfo_reportValueApproachName
           toLens (Path_ReportValueApproachInfo_reportValueApproachDescription _x) = lens_ReportValueApproachInfo_reportValueApproachDescription
-          pathsOf _ _ = undefined
+          pathsOf (ReportValueApproachInfo a1
+                                           a2) a = concat [map Path_ReportValueApproachInfo_reportValueApproachName (pathsOf (a1 :: Markup) a),
+                                                           map Path_ReportValueApproachInfo_reportValueApproachDescription (pathsOf (a2 :: Markup) a)]
 instance IsPath ReportValueApproachInfo ReportValueApproachInfo
     where type PathType ReportValueApproachInfo
                         ReportValueApproachInfo = Path_ReportValueApproachInfo ReportValueApproachInfo
@@ -2837,21 +2921,31 @@ instance IsPath ReportValueApproachInfo Text
                         Text = Path_ReportValueApproachInfo Text
           toLens (Path_ReportValueApproachInfo_reportValueApproachName _x) = lens_ReportValueApproachInfo_reportValueApproachName . toLens _x
           toLens (Path_ReportValueApproachInfo_reportValueApproachDescription _x) = lens_ReportValueApproachInfo_reportValueApproachDescription . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportValueApproachInfo a1
+                                           a2) a = concat [map Path_ReportValueApproachInfo_reportValueApproachName (pathsOf (a1 :: Markup) a),
+                                                           map Path_ReportValueApproachInfo_reportValueApproachDescription (pathsOf (a2 :: Markup) a)]
 instance IsPath ReportValueTypeInfo JSONText
     where type PathType ReportValueTypeInfo
                         JSONText = Path_ReportValueTypeInfo JSONText
           toLens (Path_ReportValueTypeInfo_reportValueTypeName _x) = lens_ReportValueTypeInfo_reportValueTypeName . toLens _x
           toLens (Path_ReportValueTypeInfo_reportValueTypeDescription _x) = lens_ReportValueTypeInfo_reportValueTypeDescription . toLens _x
           toLens (Path_ReportValueTypeInfo_reportValueTypeDefinition _x) = lens_ReportValueTypeInfo_reportValueTypeDefinition . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportValueTypeInfo a1
+                                       a2
+                                       a3) a = concat [map Path_ReportValueTypeInfo_reportValueTypeName (pathsOf (a1 :: Markup) a),
+                                                       map Path_ReportValueTypeInfo_reportValueTypeDescription (pathsOf (a2 :: Markup) a),
+                                                       map Path_ReportValueTypeInfo_reportValueTypeDefinition (pathsOf (a3 :: Markup) a)]
 instance IsPath ReportValueTypeInfo Markup
     where type PathType ReportValueTypeInfo
                         Markup = Path_ReportValueTypeInfo Markup
           toLens (Path_ReportValueTypeInfo_reportValueTypeName _x) = lens_ReportValueTypeInfo_reportValueTypeName
           toLens (Path_ReportValueTypeInfo_reportValueTypeDescription _x) = lens_ReportValueTypeInfo_reportValueTypeDescription
           toLens (Path_ReportValueTypeInfo_reportValueTypeDefinition _x) = lens_ReportValueTypeInfo_reportValueTypeDefinition
-          pathsOf _ _ = undefined
+          pathsOf (ReportValueTypeInfo a1
+                                       a2
+                                       a3) a = concat [map Path_ReportValueTypeInfo_reportValueTypeName (pathsOf (a1 :: Markup) a),
+                                                       map Path_ReportValueTypeInfo_reportValueTypeDescription (pathsOf (a2 :: Markup) a),
+                                                       map Path_ReportValueTypeInfo_reportValueTypeDefinition (pathsOf (a3 :: Markup) a)]
 instance IsPath ReportValueTypeInfo ReportValueTypeInfo
     where type PathType ReportValueTypeInfo
                         ReportValueTypeInfo = Path_ReportValueTypeInfo ReportValueTypeInfo
@@ -2863,7 +2957,11 @@ instance IsPath ReportValueTypeInfo Text
           toLens (Path_ReportValueTypeInfo_reportValueTypeName _x) = lens_ReportValueTypeInfo_reportValueTypeName . toLens _x
           toLens (Path_ReportValueTypeInfo_reportValueTypeDescription _x) = lens_ReportValueTypeInfo_reportValueTypeDescription . toLens _x
           toLens (Path_ReportValueTypeInfo_reportValueTypeDefinition _x) = lens_ReportValueTypeInfo_reportValueTypeDefinition . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportValueTypeInfo a1
+                                       a2
+                                       a3) a = concat [map Path_ReportValueTypeInfo_reportValueTypeName (pathsOf (a1 :: Markup) a),
+                                                       map Path_ReportValueTypeInfo_reportValueTypeDescription (pathsOf (a2 :: Markup) a),
+                                                       map Path_ReportValueTypeInfo_reportValueTypeDefinition (pathsOf (a3 :: Markup) a)]
 instance IsPath MaybeImageFile String
     where type PathType MaybeImageFile
                         String = Path_MaybeImageFile String
@@ -3188,14 +3286,48 @@ instance IsPath ReportImageView (Either URI ImageFile)
                         (Either URI ImageFile) = Path_ReportImageView (Either URI
                                                                               ImageFile)
           toLens (Path_ReportImageView__picOriginal _x) = lens_ReportImageView__picOriginal . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportImageView a1
+                                   a2
+                                   a3
+                                   a4
+                                   a5
+                                   a6
+                                   a7
+                                   a8
+                                   a9) a = concat [[],
+                                                   [],
+                                                   [],
+                                                   map Path_ReportImageView__picOriginal (pathsOf (a4 :: Maybe (Either URI
+                                                                                                                       ImageFile)) a),
+                                                   [],
+                                                   [],
+                                                   [],
+                                                   [],
+                                                   []]
 instance IsPath ReportImageView (Maybe (Either URI ImageFile))
     where type PathType ReportImageView
                         (Maybe (Either URI
                                        ImageFile)) = Path_ReportImageView (Maybe (Either URI
                                                                                          ImageFile))
           toLens (Path_ReportImageView__picOriginal _x) = lens_ReportImageView__picOriginal
-          pathsOf _ _ = undefined
+          pathsOf (ReportImageView a1
+                                   a2
+                                   a3
+                                   a4
+                                   a5
+                                   a6
+                                   a7
+                                   a8
+                                   a9) a = concat [[],
+                                                   [],
+                                                   [],
+                                                   map Path_ReportImageView__picOriginal (pathsOf (a4 :: Maybe (Either URI
+                                                                                                                       ImageFile)) a),
+                                                   [],
+                                                   [],
+                                                   [],
+                                                   [],
+                                                   []]
 instance IsPath ReportImageView String
     where type PathType ReportImageView
                         String = Path_ReportImageView String
@@ -3205,42 +3337,171 @@ instance IsPath ReportImageView String
           toLens (Path_ReportImageView__picPrinterDeprecated _x) = lens_ReportImageView__picPrinterDeprecated . toLens _x
           toLens (Path_ReportImageView__picMustEnlarge _x) = lens_ReportImageView__picMustEnlarge . toLens _x
           toLens (Path_ReportImageView__picEnlargedDeprecated _x) = lens_ReportImageView__picEnlargedDeprecated . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportImageView a1
+                                   a2
+                                   a3
+                                   a4
+                                   a5
+                                   a6
+                                   a7
+                                   a8
+                                   a9) a = concat [map Path_ReportImageView__picSize (pathsOf (a1 :: SaneSizeImageSize) a),
+                                                   [],
+                                                   [],
+                                                   [],
+                                                   map Path_ReportImageView__picEditedDeprecated (pathsOf (a5 :: MaybeImageFile) a),
+                                                   map Path_ReportImageView__picThumbDeprecated (pathsOf (a6 :: MaybeImageFile) a),
+                                                   map Path_ReportImageView__picPrinterDeprecated (pathsOf (a7 :: MaybeImageFile) a),
+                                                   map Path_ReportImageView__picMustEnlarge (pathsOf (a8 :: Bool) a),
+                                                   map Path_ReportImageView__picEnlargedDeprecated (pathsOf (a9 :: MaybeImageFile) a)]
 instance IsPath ReportImageView Bool
     where type PathType ReportImageView
                         Bool = Path_ReportImageView Bool
           toLens (Path_ReportImageView__picMustEnlarge _x) = lens_ReportImageView__picMustEnlarge
-          pathsOf _ _ = undefined
+          pathsOf (ReportImageView a1
+                                   a2
+                                   a3
+                                   a4
+                                   a5
+                                   a6
+                                   a7
+                                   a8
+                                   a9) a = concat [[],
+                                                   [],
+                                                   [],
+                                                   [],
+                                                   [],
+                                                   [],
+                                                   [],
+                                                   map Path_ReportImageView__picMustEnlarge (pathsOf (a8 :: Bool) a),
+                                                   []]
 instance IsPath ReportImageView Double
     where type PathType ReportImageView
                         Double = Path_ReportImageView Double
           toLens (Path_ReportImageView__picSize _x) = lens_ReportImageView__picSize . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportImageView a1
+                                   a2
+                                   a3
+                                   a4
+                                   a5
+                                   a6
+                                   a7
+                                   a8
+                                   a9) a = concat [map Path_ReportImageView__picSize (pathsOf (a1 :: SaneSizeImageSize) a),
+                                                   [],
+                                                   [],
+                                                   [],
+                                                   [],
+                                                   [],
+                                                   [],
+                                                   [],
+                                                   []]
 instance IsPath ReportImageView Dimension
     where type PathType ReportImageView
                         Dimension = Path_ReportImageView Dimension
           toLens (Path_ReportImageView__picSize _x) = lens_ReportImageView__picSize . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportImageView a1
+                                   a2
+                                   a3
+                                   a4
+                                   a5
+                                   a6
+                                   a7
+                                   a8
+                                   a9) a = concat [map Path_ReportImageView__picSize (pathsOf (a1 :: SaneSizeImageSize) a),
+                                                   [],
+                                                   [],
+                                                   [],
+                                                   [],
+                                                   [],
+                                                   [],
+                                                   [],
+                                                   []]
 instance IsPath ReportImageView ImageCrop
     where type PathType ReportImageView
                         ImageCrop = Path_ReportImageView ImageCrop
           toLens (Path_ReportImageView__picCrop _x) = lens_ReportImageView__picCrop
-          pathsOf _ _ = undefined
+          pathsOf (ReportImageView a1
+                                   a2
+                                   a3
+                                   a4
+                                   a5
+                                   a6
+                                   a7
+                                   a8
+                                   a9) a = concat [[],
+                                                   map Path_ReportImageView__picCrop (pathsOf (a2 :: ImageCrop) a),
+                                                   [],
+                                                   [],
+                                                   [],
+                                                   [],
+                                                   [],
+                                                   [],
+                                                   []]
 instance IsPath ReportImageView ImageSize
     where type PathType ReportImageView
                         ImageSize = Path_ReportImageView ImageSize
           toLens (Path_ReportImageView__picSize _x) = lens_ReportImageView__picSize . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportImageView a1
+                                   a2
+                                   a3
+                                   a4
+                                   a5
+                                   a6
+                                   a7
+                                   a8
+                                   a9) a = concat [map Path_ReportImageView__picSize (pathsOf (a1 :: SaneSizeImageSize) a),
+                                                   [],
+                                                   [],
+                                                   [],
+                                                   [],
+                                                   [],
+                                                   [],
+                                                   [],
+                                                   []]
 instance IsPath ReportImageView Units
     where type PathType ReportImageView
                         Units = Path_ReportImageView Units
           toLens (Path_ReportImageView__picSize _x) = lens_ReportImageView__picSize . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportImageView a1
+                                   a2
+                                   a3
+                                   a4
+                                   a5
+                                   a6
+                                   a7
+                                   a8
+                                   a9) a = concat [map Path_ReportImageView__picSize (pathsOf (a1 :: SaneSizeImageSize) a),
+                                                   [],
+                                                   [],
+                                                   [],
+                                                   [],
+                                                   [],
+                                                   [],
+                                                   [],
+                                                   []]
 instance IsPath ReportImageView ImageFile
     where type PathType ReportImageView
                         ImageFile = Path_ReportImageView ImageFile
           toLens (Path_ReportImageView__picOriginal _x) = lens_ReportImageView__picOriginal . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportImageView a1
+                                   a2
+                                   a3
+                                   a4
+                                   a5
+                                   a6
+                                   a7
+                                   a8
+                                   a9) a = concat [[],
+                                                   [],
+                                                   [],
+                                                   map Path_ReportImageView__picOriginal (pathsOf (a4 :: Maybe (Either URI
+                                                                                                                       ImageFile)) a),
+                                                   [],
+                                                   [],
+                                                   [],
+                                                   [],
+                                                   []]
 instance IsPath ReportImageView JSONText
     where type PathType ReportImageView
                         JSONText = Path_ReportImageView JSONText
@@ -3251,12 +3512,44 @@ instance IsPath ReportImageView JSONText
           toLens (Path_ReportImageView__picPrinterDeprecated _x) = lens_ReportImageView__picPrinterDeprecated . toLens _x
           toLens (Path_ReportImageView__picMustEnlarge _x) = lens_ReportImageView__picMustEnlarge . toLens _x
           toLens (Path_ReportImageView__picEnlargedDeprecated _x) = lens_ReportImageView__picEnlargedDeprecated . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportImageView a1
+                                   a2
+                                   a3
+                                   a4
+                                   a5
+                                   a6
+                                   a7
+                                   a8
+                                   a9) a = concat [map Path_ReportImageView__picSize (pathsOf (a1 :: SaneSizeImageSize) a),
+                                                   [],
+                                                   map Path_ReportImageView__picCaption (pathsOf (a3 :: Markup) a),
+                                                   [],
+                                                   map Path_ReportImageView__picEditedDeprecated (pathsOf (a5 :: MaybeImageFile) a),
+                                                   map Path_ReportImageView__picThumbDeprecated (pathsOf (a6 :: MaybeImageFile) a),
+                                                   map Path_ReportImageView__picPrinterDeprecated (pathsOf (a7 :: MaybeImageFile) a),
+                                                   map Path_ReportImageView__picMustEnlarge (pathsOf (a8 :: Bool) a),
+                                                   map Path_ReportImageView__picEnlargedDeprecated (pathsOf (a9 :: MaybeImageFile) a)]
 instance IsPath ReportImageView Markup
     where type PathType ReportImageView
                         Markup = Path_ReportImageView Markup
           toLens (Path_ReportImageView__picCaption _x) = lens_ReportImageView__picCaption
-          pathsOf _ _ = undefined
+          pathsOf (ReportImageView a1
+                                   a2
+                                   a3
+                                   a4
+                                   a5
+                                   a6
+                                   a7
+                                   a8
+                                   a9) a = concat [[],
+                                                   [],
+                                                   map Path_ReportImageView__picCaption (pathsOf (a3 :: Markup) a),
+                                                   [],
+                                                   [],
+                                                   [],
+                                                   [],
+                                                   [],
+                                                   []]
 instance IsPath ReportImageView MaybeImageFile
     where type PathType ReportImageView
                         MaybeImageFile = Path_ReportImageView MaybeImageFile
@@ -3264,7 +3557,23 @@ instance IsPath ReportImageView MaybeImageFile
           toLens (Path_ReportImageView__picThumbDeprecated _x) = lens_ReportImageView__picThumbDeprecated
           toLens (Path_ReportImageView__picPrinterDeprecated _x) = lens_ReportImageView__picPrinterDeprecated
           toLens (Path_ReportImageView__picEnlargedDeprecated _x) = lens_ReportImageView__picEnlargedDeprecated
-          pathsOf _ _ = undefined
+          pathsOf (ReportImageView a1
+                                   a2
+                                   a3
+                                   a4
+                                   a5
+                                   a6
+                                   a7
+                                   a8
+                                   a9) a = concat [[],
+                                                   [],
+                                                   [],
+                                                   [],
+                                                   map Path_ReportImageView__picEditedDeprecated (pathsOf (a5 :: MaybeImageFile) a),
+                                                   map Path_ReportImageView__picThumbDeprecated (pathsOf (a6 :: MaybeImageFile) a),
+                                                   map Path_ReportImageView__picPrinterDeprecated (pathsOf (a7 :: MaybeImageFile) a),
+                                                   [],
+                                                   map Path_ReportImageView__picEnlargedDeprecated (pathsOf (a9 :: MaybeImageFile) a)]
 instance IsPath ReportImageView ReportImageView
     where type PathType ReportImageView
                         ReportImageView = Path_ReportImageView ReportImageView
@@ -3274,33 +3583,346 @@ instance IsPath ReportImageView SaneSizeImageSize
     where type PathType ReportImageView
                         SaneSizeImageSize = Path_ReportImageView SaneSizeImageSize
           toLens (Path_ReportImageView__picSize _x) = lens_ReportImageView__picSize
-          pathsOf _ _ = undefined
+          pathsOf (ReportImageView a1
+                                   a2
+                                   a3
+                                   a4
+                                   a5
+                                   a6
+                                   a7
+                                   a8
+                                   a9) a = concat [map Path_ReportImageView__picSize (pathsOf (a1 :: SaneSizeImageSize) a),
+                                                   [],
+                                                   [],
+                                                   [],
+                                                   [],
+                                                   [],
+                                                   [],
+                                                   [],
+                                                   []]
 instance IsPath ReportImageView URI
     where type PathType ReportImageView URI = Path_ReportImageView URI
           toLens (Path_ReportImageView__picOriginal _x) = lens_ReportImageView__picOriginal . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportImageView a1
+                                   a2
+                                   a3
+                                   a4
+                                   a5
+                                   a6
+                                   a7
+                                   a8
+                                   a9) a = concat [[],
+                                                   [],
+                                                   [],
+                                                   map Path_ReportImageView__picOriginal (pathsOf (a4 :: Maybe (Either URI
+                                                                                                                       ImageFile)) a),
+                                                   [],
+                                                   [],
+                                                   [],
+                                                   [],
+                                                   []]
 instance IsPath ReportImageView Text
     where type PathType ReportImageView
                         Text = Path_ReportImageView Text
           toLens (Path_ReportImageView__picCaption _x) = lens_ReportImageView__picCaption . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportImageView a1
+                                   a2
+                                   a3
+                                   a4
+                                   a5
+                                   a6
+                                   a7
+                                   a8
+                                   a9) a = concat [[],
+                                                   [],
+                                                   map Path_ReportImageView__picCaption (pathsOf (a3 :: Markup) a),
+                                                   [],
+                                                   [],
+                                                   [],
+                                                   [],
+                                                   [],
+                                                   []]
 instance IsPath ReportView (Either URI ImageFile)
     where type PathType ReportView
                         (Either URI ImageFile) = Path_ReportView (Either URI ImageFile)
           toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportView a1
+                              a2
+                              a3
+                              a4
+                              a5
+                              a6
+                              a7
+                              a8
+                              a9
+                              a10
+                              a11
+                              a12
+                              a13
+                              a14
+                              a15
+                              a16
+                              a17
+                              a18
+                              a19
+                              a20
+                              a21
+                              a22
+                              a23
+                              a24
+                              a25
+                              a26
+                              a27
+                              a28
+                              a29
+                              a30
+                              a31
+                              a32
+                              a33
+                              a34
+                              a35
+                              a36
+                              a37
+                              a38
+                              a39
+                              a40
+                              a41
+                              a42
+                              a43
+                              a44
+                              a45) a = concat [[],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               map Path_ReportView__reportBody (pathsOf (a27 :: ReportElems) a),
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               []]
 instance IsPath ReportView (Map ItemFieldName Markup)
     where type PathType ReportView
                         (Map ItemFieldName Markup) = Path_ReportView (Map ItemFieldName
                                                                           Markup)
           toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportView a1
+                              a2
+                              a3
+                              a4
+                              a5
+                              a6
+                              a7
+                              a8
+                              a9
+                              a10
+                              a11
+                              a12
+                              a13
+                              a14
+                              a15
+                              a16
+                              a17
+                              a18
+                              a19
+                              a20
+                              a21
+                              a22
+                              a23
+                              a24
+                              a25
+                              a26
+                              a27
+                              a28
+                              a29
+                              a30
+                              a31
+                              a32
+                              a33
+                              a34
+                              a35
+                              a36
+                              a37
+                              a38
+                              a39
+                              a40
+                              a41
+                              a42
+                              a43
+                              a44
+                              a45) a = concat [[],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               map Path_ReportView__reportBody (pathsOf (a27 :: ReportElems) a),
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               []]
 instance IsPath ReportView (Maybe (Either URI ImageFile))
     where type PathType ReportView
                         (Maybe (Either URI ImageFile)) = Path_ReportView (Maybe (Either URI
                                                                                         ImageFile))
           toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportView a1
+                              a2
+                              a3
+                              a4
+                              a5
+                              a6
+                              a7
+                              a8
+                              a9
+                              a10
+                              a11
+                              a12
+                              a13
+                              a14
+                              a15
+                              a16
+                              a17
+                              a18
+                              a19
+                              a20
+                              a21
+                              a22
+                              a23
+                              a24
+                              a25
+                              a26
+                              a27
+                              a28
+                              a29
+                              a30
+                              a31
+                              a32
+                              a33
+                              a34
+                              a35
+                              a36
+                              a37
+                              a38
+                              a39
+                              a40
+                              a41
+                              a42
+                              a43
+                              a44
+                              a45) a = concat [[],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               map Path_ReportView__reportBody (pathsOf (a27 :: ReportElems) a),
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               []]
 instance IsPath ReportView String
     where type PathType ReportView String = Path_ReportView String
           toLens (Path_ReportView__reportFolder _x) = lens_ReportView__reportFolder . toLens _x
@@ -3311,11 +3933,187 @@ instance IsPath ReportView String
           toLens (Path_ReportView__reportFlags _x) = lens_ReportView__reportFlags . toLens _x
           toLens (Path_ReportView__reportOrderByItemName _x) = lens_ReportView__reportOrderByItemName . toLens _x
           toLens (Path_ReportView__reportDisplayItemName _x) = lens_ReportView__reportDisplayItemName . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportView a1
+                              a2
+                              a3
+                              a4
+                              a5
+                              a6
+                              a7
+                              a8
+                              a9
+                              a10
+                              a11
+                              a12
+                              a13
+                              a14
+                              a15
+                              a16
+                              a17
+                              a18
+                              a19
+                              a20
+                              a21
+                              a22
+                              a23
+                              a24
+                              a25
+                              a26
+                              a27
+                              a28
+                              a29
+                              a30
+                              a31
+                              a32
+                              a33
+                              a34
+                              a35
+                              a36
+                              a37
+                              a38
+                              a39
+                              a40
+                              a41
+                              a42
+                              a43
+                              a44
+                              a45) a = concat [map Path_ReportView__reportFolder (pathsOf (a1 :: ReadOnlyFilePath) a),
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               map Path_ReportView__reportIntendedUse (pathsOf (a17 :: MaybeReportIntendedUse) a),
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               map Path_ReportView__reportBody (pathsOf (a27 :: ReportElems) a),
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               map Path_ReportView__reportStatus (pathsOf (a39 :: ReportStatus) a),
+                                               map Path_ReportView__reportRedacted (pathsOf (a40 :: Bool) a),
+                                               map Path_ReportView__reportFlags (pathsOf (a41 :: ReportFlags) a),
+                                               [],
+                                               map Path_ReportView__reportOrderByItemName (pathsOf (a43 :: Bool) a),
+                                               map Path_ReportView__reportDisplayItemName (pathsOf (a44 :: Bool) a),
+                                               []]
 instance IsPath ReportView Int64
     where type PathType ReportView Int64 = Path_ReportView Int64
           toLens (Path_ReportView__reportCreated _x) = lens_ReportView__reportCreated
-          pathsOf _ _ = undefined
+          pathsOf (ReportView a1
+                              a2
+                              a3
+                              a4
+                              a5
+                              a6
+                              a7
+                              a8
+                              a9
+                              a10
+                              a11
+                              a12
+                              a13
+                              a14
+                              a15
+                              a16
+                              a17
+                              a18
+                              a19
+                              a20
+                              a21
+                              a22
+                              a23
+                              a24
+                              a25
+                              a26
+                              a27
+                              a28
+                              a29
+                              a30
+                              a31
+                              a32
+                              a33
+                              a34
+                              a35
+                              a36
+                              a37
+                              a38
+                              a39
+                              a40
+                              a41
+                              a42
+                              a43
+                              a44
+                              a45) a = concat [[],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               map Path_ReportView__reportCreated (pathsOf (a37 :: EpochMilli) a),
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               []]
 instance IsPath ReportView Bool
     where type PathType ReportView Bool = Path_ReportView Bool
           toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
@@ -3323,43 +4121,835 @@ instance IsPath ReportView Bool
           toLens (Path_ReportView__reportFlags _x) = lens_ReportView__reportFlags . toLens _x
           toLens (Path_ReportView__reportOrderByItemName _x) = lens_ReportView__reportOrderByItemName
           toLens (Path_ReportView__reportDisplayItemName _x) = lens_ReportView__reportDisplayItemName
-          pathsOf _ _ = undefined
+          pathsOf (ReportView a1
+                              a2
+                              a3
+                              a4
+                              a5
+                              a6
+                              a7
+                              a8
+                              a9
+                              a10
+                              a11
+                              a12
+                              a13
+                              a14
+                              a15
+                              a16
+                              a17
+                              a18
+                              a19
+                              a20
+                              a21
+                              a22
+                              a23
+                              a24
+                              a25
+                              a26
+                              a27
+                              a28
+                              a29
+                              a30
+                              a31
+                              a32
+                              a33
+                              a34
+                              a35
+                              a36
+                              a37
+                              a38
+                              a39
+                              a40
+                              a41
+                              a42
+                              a43
+                              a44
+                              a45) a = concat [[],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               map Path_ReportView__reportBody (pathsOf (a27 :: ReportElems) a),
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               map Path_ReportView__reportRedacted (pathsOf (a40 :: Bool) a),
+                                               map Path_ReportView__reportFlags (pathsOf (a41 :: ReportFlags) a),
+                                               [],
+                                               map Path_ReportView__reportOrderByItemName (pathsOf (a43 :: Bool) a),
+                                               map Path_ReportView__reportDisplayItemName (pathsOf (a44 :: Bool) a),
+                                               []]
 instance IsPath ReportView Double
     where type PathType ReportView Double = Path_ReportView Double
           toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportView a1
+                              a2
+                              a3
+                              a4
+                              a5
+                              a6
+                              a7
+                              a8
+                              a9
+                              a10
+                              a11
+                              a12
+                              a13
+                              a14
+                              a15
+                              a16
+                              a17
+                              a18
+                              a19
+                              a20
+                              a21
+                              a22
+                              a23
+                              a24
+                              a25
+                              a26
+                              a27
+                              a28
+                              a29
+                              a30
+                              a31
+                              a32
+                              a33
+                              a34
+                              a35
+                              a36
+                              a37
+                              a38
+                              a39
+                              a40
+                              a41
+                              a42
+                              a43
+                              a44
+                              a45) a = concat [[],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               map Path_ReportView__reportBody (pathsOf (a27 :: ReportElems) a),
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               []]
 instance IsPath ReportView Int
     where type PathType ReportView Int = Path_ReportView Int
           toLens (Path_ReportView__reportStandardsVersion _x) = lens_ReportView__reportStandardsVersion . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportView a1
+                              a2
+                              a3
+                              a4
+                              a5
+                              a6
+                              a7
+                              a8
+                              a9
+                              a10
+                              a11
+                              a12
+                              a13
+                              a14
+                              a15
+                              a16
+                              a17
+                              a18
+                              a19
+                              a20
+                              a21
+                              a22
+                              a23
+                              a24
+                              a25
+                              a26
+                              a27
+                              a28
+                              a29
+                              a30
+                              a31
+                              a32
+                              a33
+                              a34
+                              a35
+                              a36
+                              a37
+                              a38
+                              a39
+                              a40
+                              a41
+                              a42
+                              a43
+                              a44
+                              a45) a = concat [[],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               map Path_ReportView__reportStandardsVersion (pathsOf (a45 :: ReportStandard) a)]
 instance IsPath ReportView Dimension
     where type PathType ReportView
                         Dimension = Path_ReportView Dimension
           toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportView a1
+                              a2
+                              a3
+                              a4
+                              a5
+                              a6
+                              a7
+                              a8
+                              a9
+                              a10
+                              a11
+                              a12
+                              a13
+                              a14
+                              a15
+                              a16
+                              a17
+                              a18
+                              a19
+                              a20
+                              a21
+                              a22
+                              a23
+                              a24
+                              a25
+                              a26
+                              a27
+                              a28
+                              a29
+                              a30
+                              a31
+                              a32
+                              a33
+                              a34
+                              a35
+                              a36
+                              a37
+                              a38
+                              a39
+                              a40
+                              a41
+                              a42
+                              a43
+                              a44
+                              a45) a = concat [[],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               map Path_ReportView__reportBody (pathsOf (a27 :: ReportElems) a),
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               []]
 instance IsPath ReportView ImageCrop
     where type PathType ReportView
                         ImageCrop = Path_ReportView ImageCrop
           toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportView a1
+                              a2
+                              a3
+                              a4
+                              a5
+                              a6
+                              a7
+                              a8
+                              a9
+                              a10
+                              a11
+                              a12
+                              a13
+                              a14
+                              a15
+                              a16
+                              a17
+                              a18
+                              a19
+                              a20
+                              a21
+                              a22
+                              a23
+                              a24
+                              a25
+                              a26
+                              a27
+                              a28
+                              a29
+                              a30
+                              a31
+                              a32
+                              a33
+                              a34
+                              a35
+                              a36
+                              a37
+                              a38
+                              a39
+                              a40
+                              a41
+                              a42
+                              a43
+                              a44
+                              a45) a = concat [[],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               map Path_ReportView__reportBody (pathsOf (a27 :: ReportElems) a),
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               []]
 instance IsPath ReportView ImageSize
     where type PathType ReportView
                         ImageSize = Path_ReportView ImageSize
           toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportView a1
+                              a2
+                              a3
+                              a4
+                              a5
+                              a6
+                              a7
+                              a8
+                              a9
+                              a10
+                              a11
+                              a12
+                              a13
+                              a14
+                              a15
+                              a16
+                              a17
+                              a18
+                              a19
+                              a20
+                              a21
+                              a22
+                              a23
+                              a24
+                              a25
+                              a26
+                              a27
+                              a28
+                              a29
+                              a30
+                              a31
+                              a32
+                              a33
+                              a34
+                              a35
+                              a36
+                              a37
+                              a38
+                              a39
+                              a40
+                              a41
+                              a42
+                              a43
+                              a44
+                              a45) a = concat [[],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               map Path_ReportView__reportBody (pathsOf (a27 :: ReportElems) a),
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               []]
 instance IsPath ReportView Units
     where type PathType ReportView Units = Path_ReportView Units
           toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportView a1
+                              a2
+                              a3
+                              a4
+                              a5
+                              a6
+                              a7
+                              a8
+                              a9
+                              a10
+                              a11
+                              a12
+                              a13
+                              a14
+                              a15
+                              a16
+                              a17
+                              a18
+                              a19
+                              a20
+                              a21
+                              a22
+                              a23
+                              a24
+                              a25
+                              a26
+                              a27
+                              a28
+                              a29
+                              a30
+                              a31
+                              a32
+                              a33
+                              a34
+                              a35
+                              a36
+                              a37
+                              a38
+                              a39
+                              a40
+                              a41
+                              a42
+                              a43
+                              a44
+                              a45) a = concat [[],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               map Path_ReportView__reportBody (pathsOf (a27 :: ReportElems) a),
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               []]
 instance IsPath ReportView ImageFile
     where type PathType ReportView
                         ImageFile = Path_ReportView ImageFile
           toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportView a1
+                              a2
+                              a3
+                              a4
+                              a5
+                              a6
+                              a7
+                              a8
+                              a9
+                              a10
+                              a11
+                              a12
+                              a13
+                              a14
+                              a15
+                              a16
+                              a17
+                              a18
+                              a19
+                              a20
+                              a21
+                              a22
+                              a23
+                              a24
+                              a25
+                              a26
+                              a27
+                              a28
+                              a29
+                              a30
+                              a31
+                              a32
+                              a33
+                              a34
+                              a35
+                              a36
+                              a37
+                              a38
+                              a39
+                              a40
+                              a41
+                              a42
+                              a43
+                              a44
+                              a45) a = concat [[],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               map Path_ReportView__reportBody (pathsOf (a27 :: ReportElems) a),
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               []]
 instance IsPath ReportView Integer
     where type PathType ReportView Integer = Path_ReportView Integer
           toLens (Path_ReportView__reportRevision _x) = lens_ReportView__reportRevision
-          pathsOf _ _ = undefined
+          pathsOf (ReportView a1
+                              a2
+                              a3
+                              a4
+                              a5
+                              a6
+                              a7
+                              a8
+                              a9
+                              a10
+                              a11
+                              a12
+                              a13
+                              a14
+                              a15
+                              a16
+                              a17
+                              a18
+                              a19
+                              a20
+                              a21
+                              a22
+                              a23
+                              a24
+                              a25
+                              a26
+                              a27
+                              a28
+                              a29
+                              a30
+                              a31
+                              a32
+                              a33
+                              a34
+                              a35
+                              a36
+                              a37
+                              a38
+                              a39
+                              a40
+                              a41
+                              a42
+                              a43
+                              a44
+                              a45) a = concat [[],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               map Path_ReportView__reportRevision (pathsOf (a36 :: Integer) a),
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               []]
 instance IsPath ReportView JSONText
     where type PathType ReportView JSONText = Path_ReportView JSONText
           toLens (Path_ReportView__reportFolder _x) = lens_ReportView__reportFolder . toLens _x
@@ -3403,7 +4993,95 @@ instance IsPath ReportView JSONText
           toLens (Path_ReportView__reportFlags _x) = lens_ReportView__reportFlags . toLens _x
           toLens (Path_ReportView__reportOrderByItemName _x) = lens_ReportView__reportOrderByItemName . toLens _x
           toLens (Path_ReportView__reportDisplayItemName _x) = lens_ReportView__reportDisplayItemName . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportView a1
+                              a2
+                              a3
+                              a4
+                              a5
+                              a6
+                              a7
+                              a8
+                              a9
+                              a10
+                              a11
+                              a12
+                              a13
+                              a14
+                              a15
+                              a16
+                              a17
+                              a18
+                              a19
+                              a20
+                              a21
+                              a22
+                              a23
+                              a24
+                              a25
+                              a26
+                              a27
+                              a28
+                              a29
+                              a30
+                              a31
+                              a32
+                              a33
+                              a34
+                              a35
+                              a36
+                              a37
+                              a38
+                              a39
+                              a40
+                              a41
+                              a42
+                              a43
+                              a44
+                              a45) a = concat [map Path_ReportView__reportFolder (pathsOf (a1 :: ReadOnlyFilePath) a),
+                                               map Path_ReportView__reportName (pathsOf (a2 :: Markup) a),
+                                               map Path_ReportView__reportDate (pathsOf (a3 :: Markup) a),
+                                               map Path_ReportView__reportContractDate (pathsOf (a4 :: Markup) a),
+                                               map Path_ReportView__reportInspectionDate (pathsOf (a5 :: Markup) a),
+                                               map Path_ReportView__reportEffectiveDate (pathsOf (a6 :: Markup) a),
+                                               map Path_ReportView__reportAuthors (pathsOf (a7 :: Authors) a),
+                                               map Path_ReportView__reportPreparer (pathsOf (a8 :: Markup) a),
+                                               map Path_ReportView__reportPreparerEIN (pathsOf (a9 :: Markup) a),
+                                               map Path_ReportView__reportPreparerAddress (pathsOf (a10 :: Markup) a),
+                                               map Path_ReportView__reportPreparerEMail (pathsOf (a11 :: Markup) a),
+                                               map Path_ReportView__reportPreparerWebsite (pathsOf (a12 :: Markup) a),
+                                               map Path_ReportView__reportAbbrevs (pathsOf (a13 :: AbbrevPairs) a),
+                                               map Path_ReportView__reportTitle (pathsOf (a14 :: Markup) a),
+                                               map Path_ReportView__reportHeader (pathsOf (a15 :: Markup) a),
+                                               map Path_ReportView__reportFooter (pathsOf (a16 :: Markup) a),
+                                               map Path_ReportView__reportIntendedUse (pathsOf (a17 :: MaybeReportIntendedUse) a),
+                                               map Path_ReportView__reportValueTypeInfo (pathsOf (a18 :: ReportValueTypeInfo) a),
+                                               map Path_ReportView__reportValueApproachInfo (pathsOf (a19 :: ReportValueApproachInfo) a),
+                                               map Path_ReportView__reportClientName (pathsOf (a20 :: Markup) a),
+                                               map Path_ReportView__reportClientAddress (pathsOf (a21 :: Markup) a),
+                                               map Path_ReportView__reportClientGreeting (pathsOf (a22 :: Markup) a),
+                                               map Path_ReportView__reportItemsOwnerFull (pathsOf (a23 :: Markup) a),
+                                               map Path_ReportView__reportItemsOwner (pathsOf (a24 :: Markup) a),
+                                               map Path_ReportView__reportBriefItems (pathsOf (a25 :: Markup) a),
+                                               map Path_ReportView__reportInspectionLocation (pathsOf (a26 :: Markup) a),
+                                               map Path_ReportView__reportBody (pathsOf (a27 :: ReportElems) a),
+                                               map Path_ReportView__reportGlossary (pathsOf (a28 :: MarkupPairs) a),
+                                               map Path_ReportView__reportSources (pathsOf (a29 :: MarkupPairs) a),
+                                               map Path_ReportView__reportLetterOfTransmittal (pathsOf (a30 :: Markup) a),
+                                               map Path_ReportView__reportScopeOfWork (pathsOf (a31 :: Markup) a),
+                                               map Path_ReportView__reportCertification (pathsOf (a32 :: Markups) a),
+                                               map Path_ReportView__reportLimitingConditions (pathsOf (a33 :: Markups) a),
+                                               map Path_ReportView__reportPrivacyPolicy (pathsOf (a34 :: Markup) a),
+                                               map Path_ReportView__reportPerms (pathsOf (a35 :: Permissions) a),
+                                               [],
+                                               [],
+                                               map Path_ReportView__reportBranding (pathsOf (a38 :: Branding) a),
+                                               map Path_ReportView__reportStatus (pathsOf (a39 :: ReportStatus) a),
+                                               map Path_ReportView__reportRedacted (pathsOf (a40 :: Bool) a),
+                                               map Path_ReportView__reportFlags (pathsOf (a41 :: ReportFlags) a),
+                                               [],
+                                               map Path_ReportView__reportOrderByItemName (pathsOf (a43 :: Bool) a),
+                                               map Path_ReportView__reportDisplayItemName (pathsOf (a44 :: Bool) a),
+                                               []]
 instance IsPath ReportView Markup
     where type PathType ReportView Markup = Path_ReportView Markup
           toLens (Path_ReportView__reportName _x) = lens_ReportView__reportName
@@ -3438,120 +5116,2232 @@ instance IsPath ReportView Markup
           toLens (Path_ReportView__reportCertification _x) = lens_ReportView__reportCertification . toLens _x
           toLens (Path_ReportView__reportLimitingConditions _x) = lens_ReportView__reportLimitingConditions . toLens _x
           toLens (Path_ReportView__reportPrivacyPolicy _x) = lens_ReportView__reportPrivacyPolicy
-          pathsOf _ _ = undefined
+          pathsOf (ReportView a1
+                              a2
+                              a3
+                              a4
+                              a5
+                              a6
+                              a7
+                              a8
+                              a9
+                              a10
+                              a11
+                              a12
+                              a13
+                              a14
+                              a15
+                              a16
+                              a17
+                              a18
+                              a19
+                              a20
+                              a21
+                              a22
+                              a23
+                              a24
+                              a25
+                              a26
+                              a27
+                              a28
+                              a29
+                              a30
+                              a31
+                              a32
+                              a33
+                              a34
+                              a35
+                              a36
+                              a37
+                              a38
+                              a39
+                              a40
+                              a41
+                              a42
+                              a43
+                              a44
+                              a45) a = concat [[],
+                                               map Path_ReportView__reportName (pathsOf (a2 :: Markup) a),
+                                               map Path_ReportView__reportDate (pathsOf (a3 :: Markup) a),
+                                               map Path_ReportView__reportContractDate (pathsOf (a4 :: Markup) a),
+                                               map Path_ReportView__reportInspectionDate (pathsOf (a5 :: Markup) a),
+                                               map Path_ReportView__reportEffectiveDate (pathsOf (a6 :: Markup) a),
+                                               map Path_ReportView__reportAuthors (pathsOf (a7 :: Authors) a),
+                                               map Path_ReportView__reportPreparer (pathsOf (a8 :: Markup) a),
+                                               map Path_ReportView__reportPreparerEIN (pathsOf (a9 :: Markup) a),
+                                               map Path_ReportView__reportPreparerAddress (pathsOf (a10 :: Markup) a),
+                                               map Path_ReportView__reportPreparerEMail (pathsOf (a11 :: Markup) a),
+                                               map Path_ReportView__reportPreparerWebsite (pathsOf (a12 :: Markup) a),
+                                               map Path_ReportView__reportAbbrevs (pathsOf (a13 :: AbbrevPairs) a),
+                                               map Path_ReportView__reportTitle (pathsOf (a14 :: Markup) a),
+                                               map Path_ReportView__reportHeader (pathsOf (a15 :: Markup) a),
+                                               map Path_ReportView__reportFooter (pathsOf (a16 :: Markup) a),
+                                               [],
+                                               map Path_ReportView__reportValueTypeInfo (pathsOf (a18 :: ReportValueTypeInfo) a),
+                                               map Path_ReportView__reportValueApproachInfo (pathsOf (a19 :: ReportValueApproachInfo) a),
+                                               map Path_ReportView__reportClientName (pathsOf (a20 :: Markup) a),
+                                               map Path_ReportView__reportClientAddress (pathsOf (a21 :: Markup) a),
+                                               map Path_ReportView__reportClientGreeting (pathsOf (a22 :: Markup) a),
+                                               map Path_ReportView__reportItemsOwnerFull (pathsOf (a23 :: Markup) a),
+                                               map Path_ReportView__reportItemsOwner (pathsOf (a24 :: Markup) a),
+                                               map Path_ReportView__reportBriefItems (pathsOf (a25 :: Markup) a),
+                                               map Path_ReportView__reportInspectionLocation (pathsOf (a26 :: Markup) a),
+                                               map Path_ReportView__reportBody (pathsOf (a27 :: ReportElems) a),
+                                               map Path_ReportView__reportGlossary (pathsOf (a28 :: MarkupPairs) a),
+                                               map Path_ReportView__reportSources (pathsOf (a29 :: MarkupPairs) a),
+                                               map Path_ReportView__reportLetterOfTransmittal (pathsOf (a30 :: Markup) a),
+                                               map Path_ReportView__reportScopeOfWork (pathsOf (a31 :: Markup) a),
+                                               map Path_ReportView__reportCertification (pathsOf (a32 :: Markups) a),
+                                               map Path_ReportView__reportLimitingConditions (pathsOf (a33 :: Markups) a),
+                                               map Path_ReportView__reportPrivacyPolicy (pathsOf (a34 :: Markup) a),
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               []]
 instance IsPath ReportView Permissions
     where type PathType ReportView
                         Permissions = Path_ReportView Permissions
           toLens (Path_ReportView__reportPerms _x) = lens_ReportView__reportPerms
-          pathsOf _ _ = undefined
+          pathsOf (ReportView a1
+                              a2
+                              a3
+                              a4
+                              a5
+                              a6
+                              a7
+                              a8
+                              a9
+                              a10
+                              a11
+                              a12
+                              a13
+                              a14
+                              a15
+                              a16
+                              a17
+                              a18
+                              a19
+                              a20
+                              a21
+                              a22
+                              a23
+                              a24
+                              a25
+                              a26
+                              a27
+                              a28
+                              a29
+                              a30
+                              a31
+                              a32
+                              a33
+                              a34
+                              a35
+                              a36
+                              a37
+                              a38
+                              a39
+                              a40
+                              a41
+                              a42
+                              a43
+                              a44
+                              a45) a = concat [[],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               map Path_ReportView__reportPerms (pathsOf (a35 :: Permissions) a),
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               []]
 instance IsPath ReportView UserIds
     where type PathType ReportView UserIds = Path_ReportView UserIds
           toLens (Path_ReportView__reportPerms _x) = lens_ReportView__reportPerms . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportView a1
+                              a2
+                              a3
+                              a4
+                              a5
+                              a6
+                              a7
+                              a8
+                              a9
+                              a10
+                              a11
+                              a12
+                              a13
+                              a14
+                              a15
+                              a16
+                              a17
+                              a18
+                              a19
+                              a20
+                              a21
+                              a22
+                              a23
+                              a24
+                              a25
+                              a26
+                              a27
+                              a28
+                              a29
+                              a30
+                              a31
+                              a32
+                              a33
+                              a34
+                              a35
+                              a36
+                              a37
+                              a38
+                              a39
+                              a40
+                              a41
+                              a42
+                              a43
+                              a44
+                              a45) a = concat [[],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               map Path_ReportView__reportPerms (pathsOf (a35 :: Permissions) a),
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               []]
 instance IsPath ReportView AbbrevPair
     where type PathType ReportView
                         AbbrevPair = Path_ReportView AbbrevPair
           toLens (Path_ReportView__reportAbbrevs _x) = lens_ReportView__reportAbbrevs . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportView a1
+                              a2
+                              a3
+                              a4
+                              a5
+                              a6
+                              a7
+                              a8
+                              a9
+                              a10
+                              a11
+                              a12
+                              a13
+                              a14
+                              a15
+                              a16
+                              a17
+                              a18
+                              a19
+                              a20
+                              a21
+                              a22
+                              a23
+                              a24
+                              a25
+                              a26
+                              a27
+                              a28
+                              a29
+                              a30
+                              a31
+                              a32
+                              a33
+                              a34
+                              a35
+                              a36
+                              a37
+                              a38
+                              a39
+                              a40
+                              a41
+                              a42
+                              a43
+                              a44
+                              a45) a = concat [[],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               map Path_ReportView__reportAbbrevs (pathsOf (a13 :: AbbrevPairs) a),
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               []]
 instance IsPath ReportView AbbrevPairs
     where type PathType ReportView
                         AbbrevPairs = Path_ReportView AbbrevPairs
           toLens (Path_ReportView__reportAbbrevs _x) = lens_ReportView__reportAbbrevs
-          pathsOf _ _ = undefined
+          pathsOf (ReportView a1
+                              a2
+                              a3
+                              a4
+                              a5
+                              a6
+                              a7
+                              a8
+                              a9
+                              a10
+                              a11
+                              a12
+                              a13
+                              a14
+                              a15
+                              a16
+                              a17
+                              a18
+                              a19
+                              a20
+                              a21
+                              a22
+                              a23
+                              a24
+                              a25
+                              a26
+                              a27
+                              a28
+                              a29
+                              a30
+                              a31
+                              a32
+                              a33
+                              a34
+                              a35
+                              a36
+                              a37
+                              a38
+                              a39
+                              a40
+                              a41
+                              a42
+                              a43
+                              a44
+                              a45) a = concat [[],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               map Path_ReportView__reportAbbrevs (pathsOf (a13 :: AbbrevPairs) a),
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               []]
 instance IsPath ReportView Author
     where type PathType ReportView Author = Path_ReportView Author
           toLens (Path_ReportView__reportAuthors _x) = lens_ReportView__reportAuthors . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportView a1
+                              a2
+                              a3
+                              a4
+                              a5
+                              a6
+                              a7
+                              a8
+                              a9
+                              a10
+                              a11
+                              a12
+                              a13
+                              a14
+                              a15
+                              a16
+                              a17
+                              a18
+                              a19
+                              a20
+                              a21
+                              a22
+                              a23
+                              a24
+                              a25
+                              a26
+                              a27
+                              a28
+                              a29
+                              a30
+                              a31
+                              a32
+                              a33
+                              a34
+                              a35
+                              a36
+                              a37
+                              a38
+                              a39
+                              a40
+                              a41
+                              a42
+                              a43
+                              a44
+                              a45) a = concat [[],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               map Path_ReportView__reportAuthors (pathsOf (a7 :: Authors) a),
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               []]
 instance IsPath ReportView Authors
     where type PathType ReportView Authors = Path_ReportView Authors
           toLens (Path_ReportView__reportAuthors _x) = lens_ReportView__reportAuthors
-          pathsOf _ _ = undefined
+          pathsOf (ReportView a1
+                              a2
+                              a3
+                              a4
+                              a5
+                              a6
+                              a7
+                              a8
+                              a9
+                              a10
+                              a11
+                              a12
+                              a13
+                              a14
+                              a15
+                              a16
+                              a17
+                              a18
+                              a19
+                              a20
+                              a21
+                              a22
+                              a23
+                              a24
+                              a25
+                              a26
+                              a27
+                              a28
+                              a29
+                              a30
+                              a31
+                              a32
+                              a33
+                              a34
+                              a35
+                              a36
+                              a37
+                              a38
+                              a39
+                              a40
+                              a41
+                              a42
+                              a43
+                              a44
+                              a45) a = concat [[],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               map Path_ReportView__reportAuthors (pathsOf (a7 :: Authors) a),
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               []]
 instance IsPath ReportView Branding
     where type PathType ReportView Branding = Path_ReportView Branding
           toLens (Path_ReportView__reportBranding _x) = lens_ReportView__reportBranding
-          pathsOf _ _ = undefined
+          pathsOf (ReportView a1
+                              a2
+                              a3
+                              a4
+                              a5
+                              a6
+                              a7
+                              a8
+                              a9
+                              a10
+                              a11
+                              a12
+                              a13
+                              a14
+                              a15
+                              a16
+                              a17
+                              a18
+                              a19
+                              a20
+                              a21
+                              a22
+                              a23
+                              a24
+                              a25
+                              a26
+                              a27
+                              a28
+                              a29
+                              a30
+                              a31
+                              a32
+                              a33
+                              a34
+                              a35
+                              a36
+                              a37
+                              a38
+                              a39
+                              a40
+                              a41
+                              a42
+                              a43
+                              a44
+                              a45) a = concat [[],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               map Path_ReportView__reportBranding (pathsOf (a38 :: Branding) a),
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               []]
 instance IsPath ReportView MarkupPair
     where type PathType ReportView
                         MarkupPair = Path_ReportView MarkupPair
           toLens (Path_ReportView__reportGlossary _x) = lens_ReportView__reportGlossary . toLens _x
           toLens (Path_ReportView__reportSources _x) = lens_ReportView__reportSources . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportView a1
+                              a2
+                              a3
+                              a4
+                              a5
+                              a6
+                              a7
+                              a8
+                              a9
+                              a10
+                              a11
+                              a12
+                              a13
+                              a14
+                              a15
+                              a16
+                              a17
+                              a18
+                              a19
+                              a20
+                              a21
+                              a22
+                              a23
+                              a24
+                              a25
+                              a26
+                              a27
+                              a28
+                              a29
+                              a30
+                              a31
+                              a32
+                              a33
+                              a34
+                              a35
+                              a36
+                              a37
+                              a38
+                              a39
+                              a40
+                              a41
+                              a42
+                              a43
+                              a44
+                              a45) a = concat [[],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               map Path_ReportView__reportGlossary (pathsOf (a28 :: MarkupPairs) a),
+                                               map Path_ReportView__reportSources (pathsOf (a29 :: MarkupPairs) a),
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               []]
 instance IsPath ReportView MarkupPairs
     where type PathType ReportView
                         MarkupPairs = Path_ReportView MarkupPairs
           toLens (Path_ReportView__reportGlossary _x) = lens_ReportView__reportGlossary
           toLens (Path_ReportView__reportSources _x) = lens_ReportView__reportSources
-          pathsOf _ _ = undefined
+          pathsOf (ReportView a1
+                              a2
+                              a3
+                              a4
+                              a5
+                              a6
+                              a7
+                              a8
+                              a9
+                              a10
+                              a11
+                              a12
+                              a13
+                              a14
+                              a15
+                              a16
+                              a17
+                              a18
+                              a19
+                              a20
+                              a21
+                              a22
+                              a23
+                              a24
+                              a25
+                              a26
+                              a27
+                              a28
+                              a29
+                              a30
+                              a31
+                              a32
+                              a33
+                              a34
+                              a35
+                              a36
+                              a37
+                              a38
+                              a39
+                              a40
+                              a41
+                              a42
+                              a43
+                              a44
+                              a45) a = concat [[],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               map Path_ReportView__reportGlossary (pathsOf (a28 :: MarkupPairs) a),
+                                               map Path_ReportView__reportSources (pathsOf (a29 :: MarkupPairs) a),
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               []]
 instance IsPath ReportView Markups
     where type PathType ReportView Markups = Path_ReportView Markups
           toLens (Path_ReportView__reportCertification _x) = lens_ReportView__reportCertification
           toLens (Path_ReportView__reportLimitingConditions _x) = lens_ReportView__reportLimitingConditions
-          pathsOf _ _ = undefined
+          pathsOf (ReportView a1
+                              a2
+                              a3
+                              a4
+                              a5
+                              a6
+                              a7
+                              a8
+                              a9
+                              a10
+                              a11
+                              a12
+                              a13
+                              a14
+                              a15
+                              a16
+                              a17
+                              a18
+                              a19
+                              a20
+                              a21
+                              a22
+                              a23
+                              a24
+                              a25
+                              a26
+                              a27
+                              a28
+                              a29
+                              a30
+                              a31
+                              a32
+                              a33
+                              a34
+                              a35
+                              a36
+                              a37
+                              a38
+                              a39
+                              a40
+                              a41
+                              a42
+                              a43
+                              a44
+                              a45) a = concat [[],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               map Path_ReportView__reportCertification (pathsOf (a32 :: Markups) a),
+                                               map Path_ReportView__reportLimitingConditions (pathsOf (a33 :: Markups) a),
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               []]
 instance IsPath ReportView MaybeReportIntendedUse
     where type PathType ReportView
                         MaybeReportIntendedUse = Path_ReportView MaybeReportIntendedUse
           toLens (Path_ReportView__reportIntendedUse _x) = lens_ReportView__reportIntendedUse
-          pathsOf _ _ = undefined
+          pathsOf (ReportView a1
+                              a2
+                              a3
+                              a4
+                              a5
+                              a6
+                              a7
+                              a8
+                              a9
+                              a10
+                              a11
+                              a12
+                              a13
+                              a14
+                              a15
+                              a16
+                              a17
+                              a18
+                              a19
+                              a20
+                              a21
+                              a22
+                              a23
+                              a24
+                              a25
+                              a26
+                              a27
+                              a28
+                              a29
+                              a30
+                              a31
+                              a32
+                              a33
+                              a34
+                              a35
+                              a36
+                              a37
+                              a38
+                              a39
+                              a40
+                              a41
+                              a42
+                              a43
+                              a44
+                              a45) a = concat [[],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               map Path_ReportView__reportIntendedUse (pathsOf (a17 :: MaybeReportIntendedUse) a),
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               []]
 instance IsPath ReportView ReportElem
     where type PathType ReportView
                         ReportElem = Path_ReportView ReportElem
           toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportView a1
+                              a2
+                              a3
+                              a4
+                              a5
+                              a6
+                              a7
+                              a8
+                              a9
+                              a10
+                              a11
+                              a12
+                              a13
+                              a14
+                              a15
+                              a16
+                              a17
+                              a18
+                              a19
+                              a20
+                              a21
+                              a22
+                              a23
+                              a24
+                              a25
+                              a26
+                              a27
+                              a28
+                              a29
+                              a30
+                              a31
+                              a32
+                              a33
+                              a34
+                              a35
+                              a36
+                              a37
+                              a38
+                              a39
+                              a40
+                              a41
+                              a42
+                              a43
+                              a44
+                              a45) a = concat [[],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               map Path_ReportView__reportBody (pathsOf (a27 :: ReportElems) a),
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               []]
 instance IsPath ReportView ReportElems
     where type PathType ReportView
                         ReportElems = Path_ReportView ReportElems
           toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody
-          pathsOf _ _ = undefined
+          pathsOf (ReportView a1
+                              a2
+                              a3
+                              a4
+                              a5
+                              a6
+                              a7
+                              a8
+                              a9
+                              a10
+                              a11
+                              a12
+                              a13
+                              a14
+                              a15
+                              a16
+                              a17
+                              a18
+                              a19
+                              a20
+                              a21
+                              a22
+                              a23
+                              a24
+                              a25
+                              a26
+                              a27
+                              a28
+                              a29
+                              a30
+                              a31
+                              a32
+                              a33
+                              a34
+                              a35
+                              a36
+                              a37
+                              a38
+                              a39
+                              a40
+                              a41
+                              a42
+                              a43
+                              a44
+                              a45) a = concat [[],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               map Path_ReportView__reportBody (pathsOf (a27 :: ReportElems) a),
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               []]
 instance IsPath ReportView ReportFlags
     where type PathType ReportView
                         ReportFlags = Path_ReportView ReportFlags
           toLens (Path_ReportView__reportFlags _x) = lens_ReportView__reportFlags
-          pathsOf _ _ = undefined
+          pathsOf (ReportView a1
+                              a2
+                              a3
+                              a4
+                              a5
+                              a6
+                              a7
+                              a8
+                              a9
+                              a10
+                              a11
+                              a12
+                              a13
+                              a14
+                              a15
+                              a16
+                              a17
+                              a18
+                              a19
+                              a20
+                              a21
+                              a22
+                              a23
+                              a24
+                              a25
+                              a26
+                              a27
+                              a28
+                              a29
+                              a30
+                              a31
+                              a32
+                              a33
+                              a34
+                              a35
+                              a36
+                              a37
+                              a38
+                              a39
+                              a40
+                              a41
+                              a42
+                              a43
+                              a44
+                              a45) a = concat [[],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               map Path_ReportView__reportFlags (pathsOf (a41 :: ReportFlags) a),
+                                               [],
+                                               [],
+                                               [],
+                                               []]
 instance IsPath ReportView ReportStandard
     where type PathType ReportView
                         ReportStandard = Path_ReportView ReportStandard
           toLens (Path_ReportView__reportStandardsVersion _x) = lens_ReportView__reportStandardsVersion
-          pathsOf _ _ = undefined
+          pathsOf (ReportView a1
+                              a2
+                              a3
+                              a4
+                              a5
+                              a6
+                              a7
+                              a8
+                              a9
+                              a10
+                              a11
+                              a12
+                              a13
+                              a14
+                              a15
+                              a16
+                              a17
+                              a18
+                              a19
+                              a20
+                              a21
+                              a22
+                              a23
+                              a24
+                              a25
+                              a26
+                              a27
+                              a28
+                              a29
+                              a30
+                              a31
+                              a32
+                              a33
+                              a34
+                              a35
+                              a36
+                              a37
+                              a38
+                              a39
+                              a40
+                              a41
+                              a42
+                              a43
+                              a44
+                              a45) a = concat [[],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               map Path_ReportView__reportStandardsVersion (pathsOf (a45 :: ReportStandard) a)]
 instance IsPath ReportView ReportStatus
     where type PathType ReportView
                         ReportStatus = Path_ReportView ReportStatus
           toLens (Path_ReportView__reportStatus _x) = lens_ReportView__reportStatus
-          pathsOf _ _ = undefined
+          pathsOf (ReportView a1
+                              a2
+                              a3
+                              a4
+                              a5
+                              a6
+                              a7
+                              a8
+                              a9
+                              a10
+                              a11
+                              a12
+                              a13
+                              a14
+                              a15
+                              a16
+                              a17
+                              a18
+                              a19
+                              a20
+                              a21
+                              a22
+                              a23
+                              a24
+                              a25
+                              a26
+                              a27
+                              a28
+                              a29
+                              a30
+                              a31
+                              a32
+                              a33
+                              a34
+                              a35
+                              a36
+                              a37
+                              a38
+                              a39
+                              a40
+                              a41
+                              a42
+                              a43
+                              a44
+                              a45) a = concat [[],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               map Path_ReportView__reportStatus (pathsOf (a39 :: ReportStatus) a),
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               []]
 instance IsPath ReportView ReportValueApproachInfo
     where type PathType ReportView
                         ReportValueApproachInfo = Path_ReportView ReportValueApproachInfo
           toLens (Path_ReportView__reportValueApproachInfo _x) = lens_ReportView__reportValueApproachInfo
-          pathsOf _ _ = undefined
+          pathsOf (ReportView a1
+                              a2
+                              a3
+                              a4
+                              a5
+                              a6
+                              a7
+                              a8
+                              a9
+                              a10
+                              a11
+                              a12
+                              a13
+                              a14
+                              a15
+                              a16
+                              a17
+                              a18
+                              a19
+                              a20
+                              a21
+                              a22
+                              a23
+                              a24
+                              a25
+                              a26
+                              a27
+                              a28
+                              a29
+                              a30
+                              a31
+                              a32
+                              a33
+                              a34
+                              a35
+                              a36
+                              a37
+                              a38
+                              a39
+                              a40
+                              a41
+                              a42
+                              a43
+                              a44
+                              a45) a = concat [[],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               map Path_ReportView__reportValueApproachInfo (pathsOf (a19 :: ReportValueApproachInfo) a),
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               []]
 instance IsPath ReportView ReportValueTypeInfo
     where type PathType ReportView
                         ReportValueTypeInfo = Path_ReportView ReportValueTypeInfo
           toLens (Path_ReportView__reportValueTypeInfo _x) = lens_ReportView__reportValueTypeInfo
-          pathsOf _ _ = undefined
+          pathsOf (ReportView a1
+                              a2
+                              a3
+                              a4
+                              a5
+                              a6
+                              a7
+                              a8
+                              a9
+                              a10
+                              a11
+                              a12
+                              a13
+                              a14
+                              a15
+                              a16
+                              a17
+                              a18
+                              a19
+                              a20
+                              a21
+                              a22
+                              a23
+                              a24
+                              a25
+                              a26
+                              a27
+                              a28
+                              a29
+                              a30
+                              a31
+                              a32
+                              a33
+                              a34
+                              a35
+                              a36
+                              a37
+                              a38
+                              a39
+                              a40
+                              a41
+                              a42
+                              a43
+                              a44
+                              a45) a = concat [[],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               map Path_ReportView__reportValueTypeInfo (pathsOf (a18 :: ReportValueTypeInfo) a),
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               []]
 instance IsPath ReportView MaybeImageFile
     where type PathType ReportView
                         MaybeImageFile = Path_ReportView MaybeImageFile
           toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportView a1
+                              a2
+                              a3
+                              a4
+                              a5
+                              a6
+                              a7
+                              a8
+                              a9
+                              a10
+                              a11
+                              a12
+                              a13
+                              a14
+                              a15
+                              a16
+                              a17
+                              a18
+                              a19
+                              a20
+                              a21
+                              a22
+                              a23
+                              a24
+                              a25
+                              a26
+                              a27
+                              a28
+                              a29
+                              a30
+                              a31
+                              a32
+                              a33
+                              a34
+                              a35
+                              a36
+                              a37
+                              a38
+                              a39
+                              a40
+                              a41
+                              a42
+                              a43
+                              a44
+                              a45) a = concat [[],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               map Path_ReportView__reportBody (pathsOf (a27 :: ReportElems) a),
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               []]
 instance IsPath ReportView ReportImage
     where type PathType ReportView
                         ReportImage = Path_ReportView ReportImage
           toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportView a1
+                              a2
+                              a3
+                              a4
+                              a5
+                              a6
+                              a7
+                              a8
+                              a9
+                              a10
+                              a11
+                              a12
+                              a13
+                              a14
+                              a15
+                              a16
+                              a17
+                              a18
+                              a19
+                              a20
+                              a21
+                              a22
+                              a23
+                              a24
+                              a25
+                              a26
+                              a27
+                              a28
+                              a29
+                              a30
+                              a31
+                              a32
+                              a33
+                              a34
+                              a35
+                              a36
+                              a37
+                              a38
+                              a39
+                              a40
+                              a41
+                              a42
+                              a43
+                              a44
+                              a45) a = concat [[],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               map Path_ReportView__reportBody (pathsOf (a27 :: ReportElems) a),
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               []]
 instance IsPath ReportView ReportImages
     where type PathType ReportView
                         ReportImages = Path_ReportView ReportImages
           toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportView a1
+                              a2
+                              a3
+                              a4
+                              a5
+                              a6
+                              a7
+                              a8
+                              a9
+                              a10
+                              a11
+                              a12
+                              a13
+                              a14
+                              a15
+                              a16
+                              a17
+                              a18
+                              a19
+                              a20
+                              a21
+                              a22
+                              a23
+                              a24
+                              a25
+                              a26
+                              a27
+                              a28
+                              a29
+                              a30
+                              a31
+                              a32
+                              a33
+                              a34
+                              a35
+                              a36
+                              a37
+                              a38
+                              a39
+                              a40
+                              a41
+                              a42
+                              a43
+                              a44
+                              a45) a = concat [[],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               map Path_ReportView__reportBody (pathsOf (a27 :: ReportElems) a),
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               []]
 instance IsPath ReportView ReadOnlyFilePath
     where type PathType ReportView
                         ReadOnlyFilePath = Path_ReportView ReadOnlyFilePath
           toLens (Path_ReportView__reportFolder _x) = lens_ReportView__reportFolder
-          pathsOf _ _ = undefined
+          pathsOf (ReportView a1
+                              a2
+                              a3
+                              a4
+                              a5
+                              a6
+                              a7
+                              a8
+                              a9
+                              a10
+                              a11
+                              a12
+                              a13
+                              a14
+                              a15
+                              a16
+                              a17
+                              a18
+                              a19
+                              a20
+                              a21
+                              a22
+                              a23
+                              a24
+                              a25
+                              a26
+                              a27
+                              a28
+                              a29
+                              a30
+                              a31
+                              a32
+                              a33
+                              a34
+                              a35
+                              a36
+                              a37
+                              a38
+                              a39
+                              a40
+                              a41
+                              a42
+                              a43
+                              a44
+                              a45) a = concat [map Path_ReportView__reportFolder (pathsOf (a1 :: ReadOnlyFilePath) a),
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               []]
 instance IsPath ReportView ReportImageView
     where type PathType ReportView
                         ReportImageView = Path_ReportView ReportImageView
           toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportView a1
+                              a2
+                              a3
+                              a4
+                              a5
+                              a6
+                              a7
+                              a8
+                              a9
+                              a10
+                              a11
+                              a12
+                              a13
+                              a14
+                              a15
+                              a16
+                              a17
+                              a18
+                              a19
+                              a20
+                              a21
+                              a22
+                              a23
+                              a24
+                              a25
+                              a26
+                              a27
+                              a28
+                              a29
+                              a30
+                              a31
+                              a32
+                              a33
+                              a34
+                              a35
+                              a36
+                              a37
+                              a38
+                              a39
+                              a40
+                              a41
+                              a42
+                              a43
+                              a44
+                              a45) a = concat [[],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               map Path_ReportView__reportBody (pathsOf (a27 :: ReportElems) a),
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               []]
 instance IsPath ReportView ReportView
     where type PathType ReportView
                         ReportView = Path_ReportView ReportView
@@ -3561,19 +7351,371 @@ instance IsPath ReportView SaneSizeImageSize
     where type PathType ReportView
                         SaneSizeImageSize = Path_ReportView SaneSizeImageSize
           toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportView a1
+                              a2
+                              a3
+                              a4
+                              a5
+                              a6
+                              a7
+                              a8
+                              a9
+                              a10
+                              a11
+                              a12
+                              a13
+                              a14
+                              a15
+                              a16
+                              a17
+                              a18
+                              a19
+                              a20
+                              a21
+                              a22
+                              a23
+                              a24
+                              a25
+                              a26
+                              a27
+                              a28
+                              a29
+                              a30
+                              a31
+                              a32
+                              a33
+                              a34
+                              a35
+                              a36
+                              a37
+                              a38
+                              a39
+                              a40
+                              a41
+                              a42
+                              a43
+                              a44
+                              a45) a = concat [[],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               map Path_ReportView__reportBody (pathsOf (a27 :: ReportElems) a),
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               []]
 instance IsPath ReportView Item
     where type PathType ReportView Item = Path_ReportView Item
           toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportView a1
+                              a2
+                              a3
+                              a4
+                              a5
+                              a6
+                              a7
+                              a8
+                              a9
+                              a10
+                              a11
+                              a12
+                              a13
+                              a14
+                              a15
+                              a16
+                              a17
+                              a18
+                              a19
+                              a20
+                              a21
+                              a22
+                              a23
+                              a24
+                              a25
+                              a26
+                              a27
+                              a28
+                              a29
+                              a30
+                              a31
+                              a32
+                              a33
+                              a34
+                              a35
+                              a36
+                              a37
+                              a38
+                              a39
+                              a40
+                              a41
+                              a42
+                              a43
+                              a44
+                              a45) a = concat [[],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               map Path_ReportView__reportBody (pathsOf (a27 :: ReportElems) a),
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               []]
 instance IsPath ReportView CIString
     where type PathType ReportView CIString = Path_ReportView CIString
           toLens (Path_ReportView__reportAbbrevs _x) = lens_ReportView__reportAbbrevs . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportView a1
+                              a2
+                              a3
+                              a4
+                              a5
+                              a6
+                              a7
+                              a8
+                              a9
+                              a10
+                              a11
+                              a12
+                              a13
+                              a14
+                              a15
+                              a16
+                              a17
+                              a18
+                              a19
+                              a20
+                              a21
+                              a22
+                              a23
+                              a24
+                              a25
+                              a26
+                              a27
+                              a28
+                              a29
+                              a30
+                              a31
+                              a32
+                              a33
+                              a34
+                              a35
+                              a36
+                              a37
+                              a38
+                              a39
+                              a40
+                              a41
+                              a42
+                              a43
+                              a44
+                              a45) a = concat [[],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               map Path_ReportView__reportAbbrevs (pathsOf (a13 :: AbbrevPairs) a),
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               []]
 instance IsPath ReportView URI
     where type PathType ReportView URI = Path_ReportView URI
           toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportView a1
+                              a2
+                              a3
+                              a4
+                              a5
+                              a6
+                              a7
+                              a8
+                              a9
+                              a10
+                              a11
+                              a12
+                              a13
+                              a14
+                              a15
+                              a16
+                              a17
+                              a18
+                              a19
+                              a20
+                              a21
+                              a22
+                              a23
+                              a24
+                              a25
+                              a26
+                              a27
+                              a28
+                              a29
+                              a30
+                              a31
+                              a32
+                              a33
+                              a34
+                              a35
+                              a36
+                              a37
+                              a38
+                              a39
+                              a40
+                              a41
+                              a42
+                              a43
+                              a44
+                              a45) a = concat [[],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               map Path_ReportView__reportBody (pathsOf (a27 :: ReportElems) a),
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               []]
 instance IsPath ReportView Text
     where type PathType ReportView Text = Path_ReportView Text
           toLens (Path_ReportView__reportName _x) = lens_ReportView__reportName . toLens _x
@@ -3610,15 +7752,279 @@ instance IsPath ReportView Text
           toLens (Path_ReportView__reportPrivacyPolicy _x) = lens_ReportView__reportPrivacyPolicy . toLens _x
           toLens (Path_ReportView__reportPerms _x) = lens_ReportView__reportPerms . toLens _x
           toLens (Path_ReportView__reportBranding _x) = lens_ReportView__reportBranding . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportView a1
+                              a2
+                              a3
+                              a4
+                              a5
+                              a6
+                              a7
+                              a8
+                              a9
+                              a10
+                              a11
+                              a12
+                              a13
+                              a14
+                              a15
+                              a16
+                              a17
+                              a18
+                              a19
+                              a20
+                              a21
+                              a22
+                              a23
+                              a24
+                              a25
+                              a26
+                              a27
+                              a28
+                              a29
+                              a30
+                              a31
+                              a32
+                              a33
+                              a34
+                              a35
+                              a36
+                              a37
+                              a38
+                              a39
+                              a40
+                              a41
+                              a42
+                              a43
+                              a44
+                              a45) a = concat [[],
+                                               map Path_ReportView__reportName (pathsOf (a2 :: Markup) a),
+                                               map Path_ReportView__reportDate (pathsOf (a3 :: Markup) a),
+                                               map Path_ReportView__reportContractDate (pathsOf (a4 :: Markup) a),
+                                               map Path_ReportView__reportInspectionDate (pathsOf (a5 :: Markup) a),
+                                               map Path_ReportView__reportEffectiveDate (pathsOf (a6 :: Markup) a),
+                                               map Path_ReportView__reportAuthors (pathsOf (a7 :: Authors) a),
+                                               map Path_ReportView__reportPreparer (pathsOf (a8 :: Markup) a),
+                                               map Path_ReportView__reportPreparerEIN (pathsOf (a9 :: Markup) a),
+                                               map Path_ReportView__reportPreparerAddress (pathsOf (a10 :: Markup) a),
+                                               map Path_ReportView__reportPreparerEMail (pathsOf (a11 :: Markup) a),
+                                               map Path_ReportView__reportPreparerWebsite (pathsOf (a12 :: Markup) a),
+                                               map Path_ReportView__reportAbbrevs (pathsOf (a13 :: AbbrevPairs) a),
+                                               map Path_ReportView__reportTitle (pathsOf (a14 :: Markup) a),
+                                               map Path_ReportView__reportHeader (pathsOf (a15 :: Markup) a),
+                                               map Path_ReportView__reportFooter (pathsOf (a16 :: Markup) a),
+                                               [],
+                                               map Path_ReportView__reportValueTypeInfo (pathsOf (a18 :: ReportValueTypeInfo) a),
+                                               map Path_ReportView__reportValueApproachInfo (pathsOf (a19 :: ReportValueApproachInfo) a),
+                                               map Path_ReportView__reportClientName (pathsOf (a20 :: Markup) a),
+                                               map Path_ReportView__reportClientAddress (pathsOf (a21 :: Markup) a),
+                                               map Path_ReportView__reportClientGreeting (pathsOf (a22 :: Markup) a),
+                                               map Path_ReportView__reportItemsOwnerFull (pathsOf (a23 :: Markup) a),
+                                               map Path_ReportView__reportItemsOwner (pathsOf (a24 :: Markup) a),
+                                               map Path_ReportView__reportBriefItems (pathsOf (a25 :: Markup) a),
+                                               map Path_ReportView__reportInspectionLocation (pathsOf (a26 :: Markup) a),
+                                               map Path_ReportView__reportBody (pathsOf (a27 :: ReportElems) a),
+                                               map Path_ReportView__reportGlossary (pathsOf (a28 :: MarkupPairs) a),
+                                               map Path_ReportView__reportSources (pathsOf (a29 :: MarkupPairs) a),
+                                               map Path_ReportView__reportLetterOfTransmittal (pathsOf (a30 :: Markup) a),
+                                               map Path_ReportView__reportScopeOfWork (pathsOf (a31 :: Markup) a),
+                                               map Path_ReportView__reportCertification (pathsOf (a32 :: Markups) a),
+                                               map Path_ReportView__reportLimitingConditions (pathsOf (a33 :: Markups) a),
+                                               map Path_ReportView__reportPrivacyPolicy (pathsOf (a34 :: Markup) a),
+                                               map Path_ReportView__reportPerms (pathsOf (a35 :: Permissions) a),
+                                               [],
+                                               [],
+                                               map Path_ReportView__reportBranding (pathsOf (a38 :: Branding) a),
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               []]
 instance IsPath ReportView UserId
     where type PathType ReportView UserId = Path_ReportView UserId
           toLens (Path_ReportView__reportPerms _x) = lens_ReportView__reportPerms . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportView a1
+                              a2
+                              a3
+                              a4
+                              a5
+                              a6
+                              a7
+                              a8
+                              a9
+                              a10
+                              a11
+                              a12
+                              a13
+                              a14
+                              a15
+                              a16
+                              a17
+                              a18
+                              a19
+                              a20
+                              a21
+                              a22
+                              a23
+                              a24
+                              a25
+                              a26
+                              a27
+                              a28
+                              a29
+                              a30
+                              a31
+                              a32
+                              a33
+                              a34
+                              a35
+                              a36
+                              a37
+                              a38
+                              a39
+                              a40
+                              a41
+                              a42
+                              a43
+                              a44
+                              a45) a = concat [[],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               map Path_ReportView__reportPerms (pathsOf (a35 :: Permissions) a),
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               []]
 instance IsPath ReportView UUID
     where type PathType ReportView UUID = Path_ReportView UUID
           toLens (Path_ReportView__reportUUID _x) = lens_ReportView__reportUUID
-          pathsOf _ _ = undefined
+          pathsOf (ReportView a1
+                              a2
+                              a3
+                              a4
+                              a5
+                              a6
+                              a7
+                              a8
+                              a9
+                              a10
+                              a11
+                              a12
+                              a13
+                              a14
+                              a15
+                              a16
+                              a17
+                              a18
+                              a19
+                              a20
+                              a21
+                              a22
+                              a23
+                              a24
+                              a25
+                              a26
+                              a27
+                              a28
+                              a29
+                              a30
+                              a31
+                              a32
+                              a33
+                              a34
+                              a35
+                              a36
+                              a37
+                              a38
+                              a39
+                              a40
+                              a41
+                              a42
+                              a43
+                              a44
+                              a45) a = concat [[],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               map Path_ReportView__reportUUID (pathsOf (a42 :: UUID) a),
+                                               [],
+                                               [],
+                                               []]
 instance IsPath SaneSizeImageSize String
     where type PathType SaneSizeImageSize
                         String = Path_SaneSizeImageSize String
@@ -3682,83 +8088,124 @@ instance IsPath Item (Either URI ImageFile)
     where type PathType Item
                         (Either URI ImageFile) = Path_Item (Either URI ImageFile)
           toLens (Path_Item_images _x) = lens_Item_images . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (Item a1 a2 a3) a = concat [[],
+                                              [],
+                                              map Path_Item_images (pathsOf (a3 :: ReportImages) a)]
 instance IsPath Item (Map ItemFieldName Markup)
     where type PathType Item
                         (Map ItemFieldName Markup) = Path_Item (Map ItemFieldName Markup)
           toLens (Path_Item_fields _x) = lens_Item_fields
-          pathsOf _ _ = undefined
+          pathsOf (Item a1 a2 a3) a = concat [[],
+                                              map Path_Item_fields (pathsOf (a2 :: Map ItemFieldName
+                                                                                       Markup) a),
+                                              []]
 instance IsPath Item (Maybe (Either URI ImageFile))
     where type PathType Item
                         (Maybe (Either URI ImageFile)) = Path_Item (Maybe (Either URI
                                                                                   ImageFile))
           toLens (Path_Item_images _x) = lens_Item_images . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (Item a1 a2 a3) a = concat [[],
+                                              [],
+                                              map Path_Item_images (pathsOf (a3 :: ReportImages) a)]
 instance IsPath Item String
     where type PathType Item String = Path_Item String
           toLens (Path_Item_images _x) = lens_Item_images . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (Item a1 a2 a3) a = concat [[],
+                                              [],
+                                              map Path_Item_images (pathsOf (a3 :: ReportImages) a)]
 instance IsPath Item Bool
     where type PathType Item Bool = Path_Item Bool
           toLens (Path_Item_images _x) = lens_Item_images . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (Item a1 a2 a3) a = concat [[],
+                                              [],
+                                              map Path_Item_images (pathsOf (a3 :: ReportImages) a)]
 instance IsPath Item Double
     where type PathType Item Double = Path_Item Double
           toLens (Path_Item_images _x) = lens_Item_images . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (Item a1 a2 a3) a = concat [[],
+                                              [],
+                                              map Path_Item_images (pathsOf (a3 :: ReportImages) a)]
 instance IsPath Item Dimension
     where type PathType Item Dimension = Path_Item Dimension
           toLens (Path_Item_images _x) = lens_Item_images . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (Item a1 a2 a3) a = concat [[],
+                                              [],
+                                              map Path_Item_images (pathsOf (a3 :: ReportImages) a)]
 instance IsPath Item ImageCrop
     where type PathType Item ImageCrop = Path_Item ImageCrop
           toLens (Path_Item_images _x) = lens_Item_images . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (Item a1 a2 a3) a = concat [[],
+                                              [],
+                                              map Path_Item_images (pathsOf (a3 :: ReportImages) a)]
 instance IsPath Item ImageSize
     where type PathType Item ImageSize = Path_Item ImageSize
           toLens (Path_Item_images _x) = lens_Item_images . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (Item a1 a2 a3) a = concat [[],
+                                              [],
+                                              map Path_Item_images (pathsOf (a3 :: ReportImages) a)]
 instance IsPath Item Units
     where type PathType Item Units = Path_Item Units
           toLens (Path_Item_images _x) = lens_Item_images . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (Item a1 a2 a3) a = concat [[],
+                                              [],
+                                              map Path_Item_images (pathsOf (a3 :: ReportImages) a)]
 instance IsPath Item ImageFile
     where type PathType Item ImageFile = Path_Item ImageFile
           toLens (Path_Item_images _x) = lens_Item_images . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (Item a1 a2 a3) a = concat [[],
+                                              [],
+                                              map Path_Item_images (pathsOf (a3 :: ReportImages) a)]
 instance IsPath Item JSONText
     where type PathType Item JSONText = Path_Item JSONText
           toLens (Path_Item_itemName _x) = lens_Item_itemName . toLens _x
           toLens (Path_Item_fields _x) = lens_Item_fields . toLens _x
           toLens (Path_Item_images _x) = lens_Item_images . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (Item a1
+                        a2
+                        a3) a = concat [map Path_Item_itemName (pathsOf (a1 :: Text) a),
+                                        map Path_Item_fields (pathsOf (a2 :: Map ItemFieldName
+                                                                                 Markup) a),
+                                        map Path_Item_images (pathsOf (a3 :: ReportImages) a)]
 instance IsPath Item Markup
     where type PathType Item Markup = Path_Item Markup
           toLens (Path_Item_fields _x) = lens_Item_fields . toLens _x
           toLens (Path_Item_images _x) = lens_Item_images . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (Item a1 a2 a3) a = concat [[],
+                                              map Path_Item_fields (pathsOf (a2 :: Map ItemFieldName
+                                                                                       Markup) a),
+                                              map Path_Item_images (pathsOf (a3 :: ReportImages) a)]
 instance IsPath Item MaybeImageFile
     where type PathType Item MaybeImageFile = Path_Item MaybeImageFile
           toLens (Path_Item_images _x) = lens_Item_images . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (Item a1 a2 a3) a = concat [[],
+                                              [],
+                                              map Path_Item_images (pathsOf (a3 :: ReportImages) a)]
 instance IsPath Item ReportImage
     where type PathType Item ReportImage = Path_Item ReportImage
           toLens (Path_Item_images _x) = lens_Item_images . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (Item a1 a2 a3) a = concat [[],
+                                              [],
+                                              map Path_Item_images (pathsOf (a3 :: ReportImages) a)]
 instance IsPath Item ReportImages
     where type PathType Item ReportImages = Path_Item ReportImages
           toLens (Path_Item_images _x) = lens_Item_images
-          pathsOf _ _ = undefined
+          pathsOf (Item a1 a2 a3) a = concat [[],
+                                              [],
+                                              map Path_Item_images (pathsOf (a3 :: ReportImages) a)]
 instance IsPath Item ReportImageView
     where type PathType Item
                         ReportImageView = Path_Item ReportImageView
           toLens (Path_Item_images _x) = lens_Item_images . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (Item a1 a2 a3) a = concat [[],
+                                              [],
+                                              map Path_Item_images (pathsOf (a3 :: ReportImages) a)]
 instance IsPath Item SaneSizeImageSize
     where type PathType Item
                         SaneSizeImageSize = Path_Item SaneSizeImageSize
           toLens (Path_Item_images _x) = lens_Item_images . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (Item a1 a2 a3) a = concat [[],
+                                              [],
+                                              map Path_Item_images (pathsOf (a3 :: ReportImages) a)]
 instance IsPath Item Item
     where type PathType Item Item = Path_Item Item
           toLens _ = iso id id
@@ -3766,215 +8213,266 @@ instance IsPath Item Item
 instance IsPath Item URI
     where type PathType Item URI = Path_Item URI
           toLens (Path_Item_images _x) = lens_Item_images . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (Item a1 a2 a3) a = concat [[],
+                                              [],
+                                              map Path_Item_images (pathsOf (a3 :: ReportImages) a)]
 instance IsPath Item Text
     where type PathType Item Text = Path_Item Text
           toLens (Path_Item_itemName _x) = lens_Item_itemName
           toLens (Path_Item_fields _x) = lens_Item_fields . toLens _x
           toLens (Path_Item_images _x) = lens_Item_images . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (Item a1
+                        a2
+                        a3) a = concat [map Path_Item_itemName (pathsOf (a1 :: Text) a),
+                                        map Path_Item_fields (pathsOf (a2 :: Map ItemFieldName
+                                                                                 Markup) a),
+                                        map Path_Item_images (pathsOf (a3 :: ReportImages) a)]
 instance IsPath ReportMap (Either URI ImageFile)
     where type PathType ReportMap
                         (Either URI ImageFile) = Path_ReportMap (Either URI ImageFile)
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
+                                                                                                Report) a)]
 instance IsPath ReportMap (Map ItemFieldName Markup)
     where type PathType ReportMap
                         (Map ItemFieldName Markup) = Path_ReportMap (Map ItemFieldName
                                                                          Markup)
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
+                                                                                                Report) a)]
 instance IsPath ReportMap (Map ReportID Report)
     where type PathType ReportMap
                         (Map ReportID Report) = Path_ReportMap (Map ReportID Report)
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap
-          pathsOf _ _ = undefined
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
+                                                                                                Report) a)]
 instance IsPath ReportMap (Maybe (Either URI ImageFile))
     where type PathType ReportMap
                         (Maybe (Either URI ImageFile)) = Path_ReportMap (Maybe (Either URI
                                                                                        ImageFile))
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
+                                                                                                Report) a)]
 instance IsPath ReportMap String
     where type PathType ReportMap String = Path_ReportMap String
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
+                                                                                                Report) a)]
 instance IsPath ReportMap Int64
     where type PathType ReportMap Int64 = Path_ReportMap Int64
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
+                                                                                                Report) a)]
 instance IsPath ReportMap Bool
     where type PathType ReportMap Bool = Path_ReportMap Bool
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
+                                                                                                Report) a)]
 instance IsPath ReportMap Double
     where type PathType ReportMap Double = Path_ReportMap Double
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
+                                                                                                Report) a)]
 instance IsPath ReportMap Int
     where type PathType ReportMap Int = Path_ReportMap Int
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
+                                                                                                Report) a)]
 instance IsPath ReportMap Dimension
     where type PathType ReportMap Dimension = Path_ReportMap Dimension
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
+                                                                                                Report) a)]
 instance IsPath ReportMap ImageCrop
     where type PathType ReportMap ImageCrop = Path_ReportMap ImageCrop
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
+                                                                                                Report) a)]
 instance IsPath ReportMap ImageSize
     where type PathType ReportMap ImageSize = Path_ReportMap ImageSize
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
+                                                                                                Report) a)]
 instance IsPath ReportMap Units
     where type PathType ReportMap Units = Path_ReportMap Units
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
+                                                                                                Report) a)]
 instance IsPath ReportMap ImageFile
     where type PathType ReportMap ImageFile = Path_ReportMap ImageFile
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
+                                                                                                Report) a)]
 instance IsPath ReportMap Integer
     where type PathType ReportMap Integer = Path_ReportMap Integer
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
+                                                                                                Report) a)]
 instance IsPath ReportMap JSONText
     where type PathType ReportMap JSONText = Path_ReportMap JSONText
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
+                                                                                                Report) a)]
 instance IsPath ReportMap Markup
     where type PathType ReportMap Markup = Path_ReportMap Markup
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
+                                                                                                Report) a)]
 instance IsPath ReportMap Permissions
     where type PathType ReportMap
                         Permissions = Path_ReportMap Permissions
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
+                                                                                                Report) a)]
 instance IsPath ReportMap UserIds
     where type PathType ReportMap UserIds = Path_ReportMap UserIds
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
+                                                                                                Report) a)]
 instance IsPath ReportMap AbbrevPair
     where type PathType ReportMap
                         AbbrevPair = Path_ReportMap AbbrevPair
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
+                                                                                                Report) a)]
 instance IsPath ReportMap AbbrevPairs
     where type PathType ReportMap
                         AbbrevPairs = Path_ReportMap AbbrevPairs
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
+                                                                                                Report) a)]
 instance IsPath ReportMap Author
     where type PathType ReportMap Author = Path_ReportMap Author
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
+                                                                                                Report) a)]
 instance IsPath ReportMap Authors
     where type PathType ReportMap Authors = Path_ReportMap Authors
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
+                                                                                                Report) a)]
 instance IsPath ReportMap Branding
     where type PathType ReportMap Branding = Path_ReportMap Branding
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
+                                                                                                Report) a)]
 instance IsPath ReportMap MarkupPair
     where type PathType ReportMap
                         MarkupPair = Path_ReportMap MarkupPair
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
+                                                                                                Report) a)]
 instance IsPath ReportMap MarkupPairs
     where type PathType ReportMap
                         MarkupPairs = Path_ReportMap MarkupPairs
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
+                                                                                                Report) a)]
 instance IsPath ReportMap Markups
     where type PathType ReportMap Markups = Path_ReportMap Markups
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
+                                                                                                Report) a)]
 instance IsPath ReportMap MaybeReportIntendedUse
     where type PathType ReportMap
                         MaybeReportIntendedUse = Path_ReportMap MaybeReportIntendedUse
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
+                                                                                                Report) a)]
 instance IsPath ReportMap Report
     where type PathType ReportMap Report = Path_ReportMap Report
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
+                                                                                                Report) a)]
 instance IsPath ReportMap ReportElem
     where type PathType ReportMap
                         ReportElem = Path_ReportMap ReportElem
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
+                                                                                                Report) a)]
 instance IsPath ReportMap ReportElems
     where type PathType ReportMap
                         ReportElems = Path_ReportMap ReportElems
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
+                                                                                                Report) a)]
 instance IsPath ReportMap ReportFlags
     where type PathType ReportMap
                         ReportFlags = Path_ReportMap ReportFlags
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
+                                                                                                Report) a)]
 instance IsPath ReportMap ReportStandard
     where type PathType ReportMap
                         ReportStandard = Path_ReportMap ReportStandard
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
+                                                                                                Report) a)]
 instance IsPath ReportMap ReportStatus
     where type PathType ReportMap
                         ReportStatus = Path_ReportMap ReportStatus
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
+                                                                                                Report) a)]
 instance IsPath ReportMap ReportValueApproachInfo
     where type PathType ReportMap
                         ReportValueApproachInfo = Path_ReportMap ReportValueApproachInfo
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
+                                                                                                Report) a)]
 instance IsPath ReportMap ReportValueTypeInfo
     where type PathType ReportMap
                         ReportValueTypeInfo = Path_ReportMap ReportValueTypeInfo
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
+                                                                                                Report) a)]
 instance IsPath ReportMap MaybeImageFile
     where type PathType ReportMap
                         MaybeImageFile = Path_ReportMap MaybeImageFile
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
+                                                                                                Report) a)]
 instance IsPath ReportMap ReportImage
     where type PathType ReportMap
                         ReportImage = Path_ReportMap ReportImage
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
+                                                                                                Report) a)]
 instance IsPath ReportMap ReportImages
     where type PathType ReportMap
                         ReportImages = Path_ReportMap ReportImages
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
+                                                                                                Report) a)]
 instance IsPath ReportMap ReadOnlyFilePath
     where type PathType ReportMap
                         ReadOnlyFilePath = Path_ReportMap ReadOnlyFilePath
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
+                                                                                                Report) a)]
 instance IsPath ReportMap ReportImageView
     where type PathType ReportMap
                         ReportImageView = Path_ReportMap ReportImageView
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
+                                                                                                Report) a)]
 instance IsPath ReportMap ReportView
     where type PathType ReportMap
                         ReportView = Path_ReportMap ReportView
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
+                                                                                                Report) a)]
 instance IsPath ReportMap SaneSizeImageSize
     where type PathType ReportMap
                         SaneSizeImageSize = Path_ReportMap SaneSizeImageSize
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
+                                                                                                Report) a)]
 instance IsPath ReportMap Item
     where type PathType ReportMap Item = Path_ReportMap Item
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
+                                                                                                Report) a)]
 instance IsPath ReportMap ReportMap
     where type PathType ReportMap ReportMap = Path_ReportMap ReportMap
           toLens _ = iso id id
@@ -3982,23 +8480,28 @@ instance IsPath ReportMap ReportMap
 instance IsPath ReportMap CIString
     where type PathType ReportMap CIString = Path_ReportMap CIString
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
+                                                                                                Report) a)]
 instance IsPath ReportMap URI
     where type PathType ReportMap URI = Path_ReportMap URI
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
+                                                                                                Report) a)]
 instance IsPath ReportMap Text
     where type PathType ReportMap Text = Path_ReportMap Text
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
+                                                                                                Report) a)]
 instance IsPath ReportMap UserId
     where type PathType ReportMap UserId = Path_ReportMap UserId
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
+                                                                                                Report) a)]
 instance IsPath ReportMap UUID
     where type PathType ReportMap UUID = Path_ReportMap UUID
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf _ _ = undefined
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
+                                                                                                Report) a)]
 instance IsPath CIString JSONText
     where type PathType CIString JSONText = Path_CIString JSONText
           toLens (Path_CIString_View v) = (viewLens :: Lens' CIString

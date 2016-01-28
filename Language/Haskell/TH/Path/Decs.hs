@@ -19,15 +19,15 @@ module Language.Haskell.TH.Path.Decs
     ( pathDecs
     ) where
 
-import Control.Lens hiding (cons)
+import Control.Lens hiding (cons, Strict)
 import Control.Monad (when)
 import Control.Monad as List ( mapM )
 import Control.Monad.Reader (runReaderT)
 import Control.Monad.Readers (askPoly, MonadReaders)
-import Control.Monad.State (evalStateT, StateT)
+import Control.Monad.State (evalStateT, get, modify, StateT)
 import Control.Monad.States (MonadStates(getPoly, putPoly), modifyPoly)
 import Control.Monad.Trans as Monad (lift)
-import Control.Monad.Writer (MonadWriter, execWriterT, tell)
+import Control.Monad.Writer (MonadWriter, execWriterT, tell, WriterT)
 import Data.Bool (bool)
 import Data.Char (toLower)
 import Data.Data (Data, Typeable)
@@ -365,7 +365,20 @@ instance (Monad m, MonadStates String m) => MonadStates String (StateT (Set Name
     getPoly = Monad.lift getPoly
     putPoly = Monad.lift . putPoly
 
+instance (Monad m, MonadStates InstMap m) => MonadStates InstMap (StateT (Set TGVSimple) m) where
+    getPoly = Monad.lift getPoly
+    putPoly = Monad.lift . putPoly
+
+instance (Monad m, MonadStates ExpandMap m) => MonadStates ExpandMap (StateT (Set TGVSimple) m) where
+    getPoly = Monad.lift getPoly
+    putPoly = Monad.lift . putPoly
+
+instance (Monad m, MonadStates String m) => MonadStates String (StateT (Set TGVSimple) m) where
+    getPoly = Monad.lift getPoly
+    putPoly = Monad.lift . putPoly
+
 instance ContextM m => ContextM (StateT (Set Name) m)
+instance ContextM m => ContextM (StateT (Set TGVSimple) m)
 
 toLensClauses :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [ClauseQ] m) =>
                        TGVSimple -- ^ the type whose clauses we are generating
@@ -529,7 +542,7 @@ namedTypeClause tname gkey ptyp =
 pathsOfClauses :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [ClauseQ] m) =>
                        TGVSimple -- ^ the type whose clauses we are generating
                     -> TGVSimple -- ^ the goal type key
-                    -> StateT (Set Name) m ()
+                    -> StateT (Set TGVSimple) m ()
 pathsOfClauses key gkey
     | view etype key == view etype gkey = tell [clause [wildP, wildP] (normalB [|[idPath] |]) []]
 pathsOfClauses key gkey =
@@ -613,11 +626,81 @@ pathsOfClauses key gkey =
                                  False -> [| [] |]) |] >>= tell . clauses
        _ -> tell [clause [wildP, wildP] (normalB [|error $ "pathsOfClauses - unexpected type: " ++ pprint key|]) []]
     where
-      doName :: Name -> StateT (Set Name) m ()
-      doName tname = tell [clause [wildP, wildP] (normalB [|undefined|]) []]
+      doName :: Name -> StateT (Set TGVSimple) m ()
+      doName tname = do
+        ns <- get
+        case Set.member key ns of
+          True -> return ()
+          False -> modify (Set.insert key) >> qReify tname >>= lift . doInfo
+      doInfo :: Info -> m ()
+      doInfo (TyConI dec) = doDec dec
+      doInfo _ = return ()
+      doDec :: Dec -> m ()
+      doDec (NewtypeD cx tname binds con supers) = doDec (DataD cx tname binds [con] supers)
+      doDec (DataD cx tname binds cons supers) = mapM_ (doCon cons) cons
+      doCon :: [Con] -> Con -> m ()
+      doCon cons (InfixC lhs cname rhs) = doCon cons (NormalC cname [lhs, rhs])
+      doCon cons (ForallC binds cx con) = doCon cons con -- Should probably do something here
+      doCon cons con@(InfixC lhs cname rhs) = do
+        [b@(btype, bname, bpath),
+         c@(ctype, cname, cpath)] <- mapM (\((_, ftype), n) -> do
+                                             fname <- runQ (newName ("a" ++ show n))
+                                             fpath <- testIsPath ftype gkey
+                                             return (ftype, fname, fpath)) (zip [lhs, rhs] [1..]) :: m [(Type, Name, Bool)]
+        runQ [d| f $(infixP (varP bname) cname (varP cname)) a =
+                   concat [$(case bpath of
+                               True -> [|List.map (error "doCon InfixC") (pathsOf ($(varE bname) :: $(pure btype)) a)|]
+                               False -> [| [] |]),
+                           $(case cpath of
+                               True -> [|List.map (error "doCon InfixC") (pathsOf ($(varE cname) :: $(pure ctype)) a)|]
+                               False -> [| [] |])] |] >>= tell . clauses
+      doCon cons con@(NormalC cname binds) = do
+        tns <- mapM (\((_, ftype), n) -> do
+                       fname <- runQ (newName ("a" ++ show n))
+                       fpath <- testIsPath ftype gkey
+                       return (ftype, fname, fpath)) (zip binds [1..]) :: m [(Type, Name, Bool)]
+        runQ [d| f $(conP cname (List.map (varP . view _2) tns)) a =
+                   concat $(listE (List.map (\(ftype, fname, fpath) ->
+                                                 case fpath of
+                                                   True -> [|List.map (error "doCon NormalC") (pathsOf ($(varE fname) :: $(pure ftype)) a)|]
+                                                   False -> [| [] |]) tns)) |] >>= tell . clauses
+      doCon cons con@(RecC cname vbinds) = do
+        tns <- mapM (\((fname, _, ftype), n) -> do
+                       fparm <- runQ (newName ("a" ++ show n))
+                       fpath <- testIsPath ftype gkey
+                       return (ftype, fparm, fpath, fname)) (zip vbinds [1..]) :: m [(Type, Name, Bool, Name)]
+        runQ [d| f $(conP cname (List.map (varP . view _2) tns)) a =
+                   concat $(listE (List.map (\(ftype, fparm, fpath, fname) ->
+                                                 let Just tname = bestName key in
+                                                 let pcon = conE (mkName ("Path_" ++ nameBase tname ++ "_" ++ nameBase fname)) in
+                                                 case fpath of
+                                                   True -> [|List.map $pcon (pathsOf ($(varE fparm) :: $(pure ftype)) a)|]
+                                                   False -> [| [] |]) tns)) |] >>= tell . clauses
+{-
+          -- Each constructor will generate a clause that matches
+          do runQ [d| f x a =
+                        ca
+          mapM_ (doNamedField cons con vbinds) vbinds
+      doCon cons con@(NormalC cname binds) = mapM_ (doField cons con binds) binds
+      doField cons con flds (_, ftype) =
+          do fIsPath <- testIsPath ftype gkey
+          run [d| f x a =
+                    undefined
+      doNamedField cons con flds (fname, _, ftype) =
+          undefined
+-}
 
       testIsPath typ gkey = do
         expandType typ >>= typeVertex >>= \key -> execWriterT (evalStateT (toLensClauses key gkey) mempty) >>= return . not . null
+
+class ToPat x where
+    toPat :: x -> PatQ
+
+instance ToPat (Strict, Type) where
+    toPat _ = wildP
+
+instance ToPat (Name, Strict, Type) where
+    toPat _ = wildP
 
 -- | Extract the template haskell Clauses
 class Clauses x where
