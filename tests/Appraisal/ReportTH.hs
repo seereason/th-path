@@ -51,6 +51,9 @@ import System.FilePath ((</>))
 --import Control.Exception as E (catch, IOException, throw, try)
 --import Data.ListLike as LL (hPutStr, ListLikeIO, readFile, writeFile)
 --import GHC.IO.Exception (ioe_description)
+import Data.List (sort)
+import Language.Haskell.TH.Ppr (pprint)
+import Language.Haskell.TH.TypeGraph.Prelude (friendlyNames)
 import Prelude hiding (readFile)
 --import System.Directory (removeFile)
 --import qualified System.IO as IO
@@ -59,6 +62,9 @@ import Prelude hiding (readFile)
 --import System.Posix.IO (handleToFd, closeFd)
 
 decs :: [Dec]
-decs = $(let dir s = runIO (getDirectoryContents s) >>= mapM_ (addDependentFile) . map (s </>) . filter (isSuffixOf ".hs") in
-         mapM_ dir ["Language/Haskell/TH/Path", "../th-typegraph/Language/Haskell/TH/TypeGraph"] >>
-         startTypes >>= runTypeGraphT pathDecs >>= lift)
+decs = $(do let dir s = runIO (getDirectoryContents s) >>= mapM_ (addDependentFile) . map (s </>) . filter (isSuffixOf ".hs")
+            mapM_ dir ["Language/Haskell/TH/Path", "../th-typegraph/Language/Haskell/TH/TypeGraph"]
+            decs' <- startTypes >>= runTypeGraphT pathDecs -- >>= lift
+            let code = (unlines . map (pprint . friendlyNames) . sort) decs'
+            runIO $ writeFile "tests/actual.hs" code
+            lift decs')

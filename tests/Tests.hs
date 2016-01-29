@@ -53,7 +53,6 @@ elem = let p = head (pathsOf Report.report (undefined :: Proxy ReportElem)) in
 main :: IO ()
 main = do
   let code = (unlines . map (pprint . friendlyNames) . sort) decs
-  writeFile "tests/actual.hs" code
   r <- runTestTT $ TestList $
          [ let expected :: String
                expected = toString $(embedFile "tests/expected.hs")
@@ -89,7 +88,13 @@ main = do
                             _ -> error "multi"
                actual :: [Tree PV_Report]
                actual = pvTree Report.report in
-           TestLabel "xyz" $ TestCase $ assertEqual "Tree PV_Report" expected actual
+           TestLabel "pvTree view" $ TestCase $ assertEqual "pvTree view" expected actual
+
+         , let expected :: [Tree PV_AbbrevPairs]
+               expected = []
+               actual :: [Tree PV_AbbrevPairs]
+               actual = pvTree (reportAbbrevs Report.report) in
+           TestLabel "pvTree order" $ TestCase $ assertEqual "pvTree order" expected actual
 {-
          , let p :: Path_Report ReportElem
                p = head (pathsOf Report.report (undefined :: Proxy ReportElem))

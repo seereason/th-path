@@ -33,7 +33,7 @@ import Data.Char (toLower)
 import Data.Data (Data, Typeable)
 import Data.Foldable as Foldable (mapM_)
 import Data.Foldable as Foldable
-import Data.List as List (concatMap, intercalate, map)
+import Data.List as List (concatMap, intercalate, isPrefixOf, map)
 import Data.Map as Map (Map, toList)
 import Data.Maybe (fromJust, fromMaybe, isJust)
 import Data.Proxy
@@ -150,7 +150,10 @@ doNode v = do
           do a <- runQ $ newName "a"
              key' <- expandType typ' >>= typeVertex
              ptype <- pathType (varT a) key'
-             mapM_ (\pname -> runQ (tySynD pname [PlainTV a] (return ptype)) >>= tell . (: [])) (pathTypeNames' v)
+             mapM_ (\pname ->
+                        do -- doIsPathType pname a
+                           doIsPathNode v
+                           runQ (tySynD pname [PlainTV a] (return ptype)) >>= tell . (: [])) (pathTypeNames' v)
       doDec (NewtypeD _ tname _ con _) = doDataD tname [con]
       doDec (DataD _ tname _ cons _) = doDataD tname cons
       doDec (FamilyD _flavour _name _tvbs _mkind) = return ()
@@ -746,14 +749,18 @@ pvTreeClauses v =
                     pcname = mkName ("PV_" ++ nameBase tname ++ "_" ++ nameBase wname)
                 sf <- pvTreeClauses w
                 runQ [d|f x = (case pathsOf (x :: $(conT tname)) (undefined :: Proxy $(conT wname)) :: [$(conT ptname) $(conT wname)] of
-                                 [p] -> [Node ($(conE pcname) p (let [r] = toListOf (toLens p) x in r))
-                                              [] {-(error $(litE (stringL ("subtype nodes for " ++ nameBase wname))))-}]
+                                 [p] -> let [y] = toListOf (toLens p) x in
+                                        [Node ($(conE pcname) p y) [{-Compute the nodes for y and then "lift" them to type x-}]]
                                  [] -> []
                                  _ -> error "More than one path returned for view"
                               ) :: [Tree (PVType $(pure (view (etype . unE) v)))] |] >>= return . clauses
        ConT tname -> return [clause [wildP] (normalB [|error "named"|]) []]
        AppT (AppT mtyp _ityp) vtyp
-           | mtyp == ConT ''Order -> return [clause [wildP] (normalB [|error "order"|]) []]
+           | mtyp == ConT ''Order ->
+               do w <- expandType vtyp >>= typeVertex
+                  runQ [d|f x = List.map (\p -> let [y] = toListOf (toLens p) x in
+                                                Node ($(conE (pvName v w)) p y) []) (pathsOf x (undefined :: Proxy $(pure vtyp))) |] >>= return . clauses
+               -- return [clause [wildP] (normalB [|error "order"|]) []]
        AppT ListT _etyp -> return [clause [wildP] (normalB [|error "list"|]) []]
        AppT (AppT t3 _ktyp) vtyp
            | t3 == ConT ''Map -> return [clause [wildP] (normalB [|error "map"|]) []]
@@ -770,3 +777,21 @@ pvTreeClauses key gkey _ptyp
 pvTreeClauses key gkey ptyp =
     tell [clause [wildP] (normalB [|undefined|]) []]
 -}
+
+pvName :: TGVSimple -> TGVSimple -> Name
+pvName t v =
+    let Just tname = bestTypeName t
+        Just vname = bestTypeName v in
+    mkName ("PV_" ++ nameBase tname ++ "_" ++ nameBase vname)
+
+-- | Change the s type of a PV value
+pvLift :: Name -> Name -> Exp -> Exp
+pvLift old new (AppE (AppE (ConE pv)
+                           (AppE (ConE p) a)) x)
+    | not (isPrefixOf pvPrefix (nameBase pv)) || pname /= nameBase p = error "pvLift"
+    | otherwise =
+        AppE (AppE (ConE (mkName ("PV_" ++ nameBase new ++ "_" ++ drop (length pvPrefix) (nameBase pv))))
+                   (AppE (ConE (mkName ("Path_" ++ nameBase new))) a)) x
+    where
+      pvPrefix = "PV_" ++ nameBase old ++ "_"
+      pname = ("Path_" ++ nameBase old)
