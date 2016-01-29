@@ -81,9 +81,13 @@ main = do
                         PV_Report_ReportElem p (head (toListOf (toLens p) Report.report)) in
             TestCase $ assertEqual "PV_Report_ReportElem" expected actual
 
-         , let expected :: Tree PV_Report
-               expected = Node (PV_Report_Report (Path_Report_View idPath) Report.report) []
-               actual :: Tree PV_Report
+         , let expected :: [Tree PV_Report]
+               expected = let p = Path_Report_View Path_ReportView in
+                          case toListOf (toLens p) Report.report of
+                            [] -> []
+                            [x] -> [Node (PV_Report_ReportView p x) [{-actually we expect stuff in here-}]]
+                            _ -> error "multi"
+               actual :: [Tree PV_Report]
                actual = pvTree Report.report in
            TestLabel "xyz" $ TestCase $ assertEqual "Tree PV_Report" expected actual
 {-

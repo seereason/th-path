@@ -105,8 +105,8 @@ class IsPathType p where
 class IsPathNode s where
     type PVType s
     -- ^ The Path/Value type for s
-    pvTree :: s -> Tree (PVType s)
-    -- ^ Given a value, build the corresponding Tree (PVType s)
+    pvTree :: s -> [Tree (PVType s)]
+    -- ^ Given a value, build the corresponding forest of (PVType s)
 
 -- Primitive path types
 

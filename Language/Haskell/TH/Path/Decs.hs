@@ -541,7 +541,10 @@ namedTypeClause tname gkey ptyp =
                 runQ clauseq >>= \(Clause [pat] (NormalB lns) xs) -> return $ clause [patf (pure pat)] (normalB (lnsf (pure lns))) (List.map pure xs)
 
 -- | Clauses of the pathsOf function.  Each clause matches a value of
--- type s and returns a path from s to some subtype a.
+-- type s and returns a path from s to some subtype a.  These clauses
+-- are of the form
+--
+--    f x = exp :: [PathType s (Proxy a)]
 pathsOfClauses :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [ClauseQ] m) =>
                        TGVSimple -- ^ the type whose clauses we are generating
                     -> TGVSimple -- ^ the goal type key
@@ -716,7 +719,15 @@ instance Clauses Dec where
 instance Clauses a => Clauses [a] where
     clauses = concatMap clauses
 
--- | Clauses of the pvTree function.
+-- | Clauses of the pvTree function.  Like pathsOf, but returns all
+-- the existing values in the tree, not just the ones specified by
+-- pathsOf second argument.  These clauses are of the form
+--
+--    f x = exp :: Tree (PVType <s>)
+--
+-- where PVType values are of the form
+--
+--    PV_<s>_<a> (PathType <s> <a>) <a>
 pvTreeClauses :: forall m v. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) =>
                  TGVSimple -> StateT (Set Name) m [ClauseQ]
 pvTreeClauses v =
@@ -729,23 +740,17 @@ pvTreeClauses v =
        typ
          | isJust viewType ->
              do w <- expandType (fromJust viewType) >>= typeVertex :: StateT (Set Name) m TGVSimple
-                let vname = fromMaybe (error $ "No name for " ++ pprint v) (bestTypeName v)
+                let tname = fromMaybe (error $ "No name for " ++ pprint v) (bestTypeName v)
                     wname = fromMaybe (error $ "No name for " ++ pprint w ++ ", view of " ++ pprint v) (bestTypeName w)
-                    ptname = mkName ("Path_" ++ nameBase vname)
-                    -- pcname = mkName ("Path_" ++ nameBase vname ++ "_" ++ nameBase wname)
-                    pvname = mkName ("PV_" ++ nameBase vname ++ "_" ++ nameBase wname)
-                -- mname <- runQ $ lookupValueName s
-                -- let pvname = fromMaybe (error $ "Not declared: " ++ show s) mname
+                    ptname = mkName ("Path_" ++ nameBase tname)
+                    pcname = mkName ("PV_" ++ nameBase tname ++ "_" ++ nameBase wname)
                 sf <- pvTreeClauses w
-                -- Node (PV_Report_ReportView p $(varE x)) [pvTree w]
-                runQ [d|f x = let [p] = pathsOf (x :: $(conT vname)) (undefined :: Proxy $(conT wname)) :: [$(conT ptname) $(conT wname)] in
-                              Node ($(conE pvname) p (let [r] = toListOf (toLens p) x in r))
-                                   [error $(litE (stringL ("subtype nodes for " ++ nameBase wname)))]
-                                       :: Tree (PVType $(pure (view (etype . unE) v))) |] >>= return . clauses
-                -- PV_Report_ReportView (Path_Report_View undefined)
-                -- return [clause [wildP] (normalB [|error "view"|]) []]
-             -- [|Node (PV_Report_ReportView p x) <$> pvTreeClauses (doReportViewFields x
-             -- tell [clause [wildP] (normalB [|error "view"|]) []]
+                runQ [d|f x = (case pathsOf (x :: $(conT tname)) (undefined :: Proxy $(conT wname)) :: [$(conT ptname) $(conT wname)] of
+                                 [p] -> [Node ($(conE pcname) p (let [r] = toListOf (toLens p) x in r))
+                                              [] {-(error $(litE (stringL ("subtype nodes for " ++ nameBase wname))))-}]
+                                 [] -> []
+                                 _ -> error "More than one path returned for view"
+                              ) :: [Tree (PVType $(pure (view (etype . unE) v)))] |] >>= return . clauses
        ConT tname -> return [clause [wildP] (normalB [|error "named"|]) []]
        AppT (AppT mtyp _ityp) vtyp
            | mtyp == ConT ''Order -> return [clause [wildP] (normalB [|error "order"|]) []]
