@@ -13002,32 +13002,32 @@ instance HasUnits Units
     where lens_units = id
 instance IsPathNode (Maybe ImageFile)
     where type PVType (Maybe ImageFile) = PV_MaybeImageFile
-          pvTree x = let p = error "view" :: Path_MaybeImageFile String
+          pvTree x = let [p] = pathsOf (x :: MaybeImageFile) (undefined :: Proxy String) :: [Path_MaybeImageFile String]
                       in Node (PV_MaybeImageFile_String p (let [r] = toListOf (toLens p) x
                                                             in r)) [error "subtype nodes for String"] :: Tree (PVType (Maybe ImageFile))
 instance IsPathNode (Maybe ReportIntendedUse)
     where type PVType (Maybe ReportIntendedUse) = PV_MaybeReportIntendedUse
-          pvTree x = let p = error "view" :: Path_MaybeReportIntendedUse String
+          pvTree x = let [p] = pathsOf (x :: MaybeReportIntendedUse) (undefined :: Proxy String) :: [Path_MaybeReportIntendedUse String]
                       in Node (PV_MaybeReportIntendedUse_String p (let [r] = toListOf (toLens p) x
                                                                     in r)) [error "subtype nodes for String"] :: Tree (PVType (Maybe ReportIntendedUse))
 instance IsPathNode (ReadOnly ([Char]))
     where type PVType (ReadOnly ([Char])) = PV_ReadOnlyFilePath
-          pvTree x = let p = error "view" :: Path_ReadOnlyFilePath String
+          pvTree x = let [p] = pathsOf (x :: ReadOnlyFilePath) (undefined :: Proxy String) :: [Path_ReadOnlyFilePath String]
                       in Node (PV_ReadOnlyFilePath_String p (let [r] = toListOf (toLens p) x
                                                               in r)) [error "subtype nodes for String"] :: Tree (PVType (ReadOnly ([Char])))
 instance IsPathNode (SaneSize ImageSize)
     where type PVType (SaneSize ImageSize) = PV_SaneSizeImageSize
-          pvTree x = let p = error "view" :: Path_SaneSizeImageSize ImageSize
+          pvTree x = let [p] = pathsOf (x :: SaneSizeImageSize) (undefined :: Proxy ImageSize) :: [Path_SaneSizeImageSize ImageSize]
                       in Node (PV_SaneSizeImageSize_ImageSize p (let [r] = toListOf (toLens p) x
                                                                   in r)) [error "subtype nodes for ImageSize"] :: Tree (PVType (SaneSize ImageSize))
 instance IsPathNode ([Char])
     where type PVType ([Char]) = PV_String
-          pvTree x = let p = error "view" :: Path_String JSONText
+          pvTree x = let [p] = pathsOf (x :: String) (undefined :: Proxy JSONText) :: [Path_String JSONText]
                       in Node (PV_String_JSONText p (let [r] = toListOf (toLens p) x
                                                       in r)) [error "subtype nodes for JSONText"] :: Tree (PVType ([Char]))
 instance IsPathNode ([UserId])
     where type PVType ([UserId]) = PV_UserIds
-          pvTree x = let p = error "view" :: Path_UserIds Text
+          pvTree x = let [p] = pathsOf (x :: UserIds) (undefined :: Proxy Text) :: [Path_UserIds Text]
                       in Node (PV_UserIds_Text p (let [r] = toListOf (toLens p) x
                                                    in r)) [error "subtype nodes for Text"] :: Tree (PVType ([UserId]))
 instance IsPathNode Int64
@@ -13035,12 +13035,12 @@ instance IsPathNode Int64
           pvTree _ = error "simple"
 instance IsPathNode Bool
     where type PVType Bool = PV_Bool
-          pvTree x = let p = error "view" :: Path_Bool String
+          pvTree x = let [p] = pathsOf (x :: Bool) (undefined :: Proxy String) :: [Path_Bool String]
                       in Node (PV_Bool_String p (let [r] = toListOf (toLens p) x
                                                   in r)) [error "subtype nodes for String"] :: Tree (PVType Bool)
 instance IsPathNode Double
     where type PVType Double = PV_Double
-          pvTree x = let p = error "view" :: Path_Double String
+          pvTree x = let [p] = pathsOf (x :: Double) (undefined :: Proxy String) :: [Path_Double String]
                       in Node (PV_Double_String p (let [r] = toListOf (toLens p) x
                                                     in r)) [error "subtype nodes for String"] :: Tree (PVType Double)
 instance IsPathNode Int
@@ -13048,7 +13048,7 @@ instance IsPathNode Int
           pvTree _ = error "simple"
 instance IsPathNode Dimension
     where type PVType Dimension = PV_Dimension
-          pvTree x = let p = error "view" :: Path_Dimension JSONText
+          pvTree x = let [p] = pathsOf (x :: Dimension) (undefined :: Proxy JSONText) :: [Path_Dimension JSONText]
                       in Node (PV_Dimension_JSONText p (let [r] = toListOf (toLens p) x
                                                          in r)) [error "subtype nodes for JSONText"] :: Tree (PVType Dimension)
 instance IsPathNode ImageCrop
@@ -13059,7 +13059,7 @@ instance IsPathNode ImageSize
           pvTree _ = error "named"
 instance IsPathNode Units
     where type PVType Units = PV_Units
-          pvTree x = let p = error "view" :: Path_Units JSONText
+          pvTree x = let [p] = pathsOf (x :: Units) (undefined :: Proxy JSONText) :: [Path_Units JSONText]
                       in Node (PV_Units_JSONText p (let [r] = toListOf (toLens p) x
                                                      in r)) [error "subtype nodes for JSONText"] :: Tree (PVType Units)
 instance IsPathNode ImageFile
@@ -13082,12 +13082,12 @@ instance IsPathNode Author
           pvTree _ = error "named"
 instance IsPathNode Branding
     where type PVType Branding = PV_Branding
-          pvTree x = let p = error "view" :: Path_Branding Text
+          pvTree x = let [p] = pathsOf (x :: Branding) (undefined :: Proxy Text) :: [Path_Branding Text]
                       in Node (PV_Branding_Text p (let [r] = toListOf (toLens p) x
                                                     in r)) [error "subtype nodes for Text"] :: Tree (PVType Branding)
 instance IsPathNode Report
     where type PVType Report = PV_Report
-          pvTree x = let p = error "view" :: Path_Report ReportView
+          pvTree x = let [p] = pathsOf (x :: Report) (undefined :: Proxy ReportView) :: [Path_Report ReportView]
                       in Node (PV_Report_ReportView p (let [r] = toListOf (toLens p) x
                                                         in r)) [error "subtype nodes for ReportView"] :: Tree (PVType Report)
 instance IsPathNode ReportElem
@@ -13098,7 +13098,7 @@ instance IsPathNode ReportFlags
           pvTree _ = error "named"
 instance IsPathNode ReportIntendedUse
     where type PVType ReportIntendedUse = PV_ReportIntendedUse
-          pvTree x = let p = error "view" :: Path_ReportIntendedUse String
+          pvTree x = let [p] = pathsOf (x :: ReportIntendedUse) (undefined :: Proxy String) :: [Path_ReportIntendedUse String]
                       in Node (PV_ReportIntendedUse_String p (let [r] = toListOf (toLens p) x
                                                                in r)) [error "subtype nodes for String"] :: Tree (PVType ReportIntendedUse)
 instance IsPathNode ReportStandard
@@ -13106,7 +13106,7 @@ instance IsPathNode ReportStandard
           pvTree _ = error "named"
 instance IsPathNode ReportStatus
     where type PVType ReportStatus = PV_ReportStatus
-          pvTree x = let p = error "view" :: Path_ReportStatus String
+          pvTree x = let [p] = pathsOf (x :: ReportStatus) (undefined :: Proxy String) :: [Path_ReportStatus String]
                       in Node (PV_ReportStatus_String p (let [r] = toListOf (toLens p) x
                                                           in r)) [error "subtype nodes for String"] :: Tree (PVType ReportStatus)
 instance IsPathNode ReportValueApproachInfo
@@ -13117,7 +13117,7 @@ instance IsPathNode ReportValueTypeInfo
           pvTree _ = error "named"
 instance IsPathNode ReportImage
     where type PVType ReportImage = PV_ReportImage
-          pvTree x = let p = error "view" :: Path_ReportImage ReportImageView
+          pvTree x = let [p] = pathsOf (x :: ReportImage) (undefined :: Proxy ReportImageView) :: [Path_ReportImage ReportImageView]
                       in Node (PV_ReportImage_ReportImageView p (let [r] = toListOf (toLens p) x
                                                                   in r)) [error "subtype nodes for ReportImageView"] :: Tree (PVType ReportImage)
 instance IsPathNode ReportImageView
@@ -13134,7 +13134,7 @@ instance IsPathNode ReportMap
           pvTree _ = error "named"
 instance IsPathNode CIString
     where type PVType CIString = PV_CIString
-          pvTree x = let p = error "view" :: Path_CIString Text
+          pvTree x = let [p] = pathsOf (x :: CIString) (undefined :: Proxy Text) :: [Path_CIString Text]
                       in Node (PV_CIString_Text p (let [r] = toListOf (toLens p) x
                                                     in r)) [error "subtype nodes for Text"] :: Tree (PVType CIString)
 instance IsPathNode URI
@@ -13142,7 +13142,7 @@ instance IsPathNode URI
           pvTree _ = error "simple"
 instance IsPathNode Text
     where type PVType Text = PV_Text
-          pvTree x = let p = error "view" :: Path_Text JSONText
+          pvTree x = let [p] = pathsOf (x :: Text) (undefined :: Proxy JSONText) :: [Path_Text JSONText]
                       in Node (PV_Text_JSONText p (let [r] = toListOf (toLens p) x
                                                     in r)) [error "subtype nodes for JSONText"] :: Tree (PVType Text)
 instance IsPathNode UserId

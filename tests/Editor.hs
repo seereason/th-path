@@ -100,7 +100,7 @@ editor tname value =
       doType typ value = do
         typ' <- runQ typ
         value' <- runQ value
-        trace ("doType " ++ show typ' ++ " " ++ show value') (return ())
+        -- trace ("doType " ++ show typ' ++ " " ++ show value') (return ())
         g <- askPoly :: m TypeGraph
         let (_, keyFunction, vertexFunction) = view graph g
         -- Find the vertex key corresponding to typ
@@ -109,8 +109,8 @@ editor tname value =
         let Just v = vertexFunction k
         -- Find the vertex keys adjacent to k
         let g@(_, _, ks) = keyFunction v
-        trace (show (hang (text "vertex Report:") 2 (ppr g))) (return ())
-        trace ("bestNames: " ++ show (map bestName ks)) (return ())
+        -- trace (show (hang (text "vertex Report:") 2 (ppr g))) (return ())
+        -- trace ("bestNames: " ++ show (map bestName ks)) (return ())
         -- The root node represents the original value
         Just leRootCon <- runQ $ lookupValueName ("PV_" ++ nameBase tname ++ "_" ++ nameBase tname)
         Just pvType <- runQ $ lookupTypeName ("PV_" ++ nameBase tname)
