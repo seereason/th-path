@@ -1,5 +1,5 @@
 name:               th-path
-version:            0.23
+version:            0.24
 cabal-version:      >= 1.10
 build-type:         Simple
 license:            BSD3

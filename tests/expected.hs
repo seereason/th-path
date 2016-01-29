@@ -13004,32 +13004,32 @@ instance IsPathNode (Maybe ImageFile)
     where type PVType (Maybe ImageFile) = PV_MaybeImageFile
           pvTree x = let p = error "view" :: Path_MaybeImageFile String
                       in Node (PV_MaybeImageFile_String p (let [r] = toListOf (toLens p) x
-                                                            in r)) [error ("subtype nodes for " ++ show (Name (mkOccName "String") (NameG TcClsName (mkPkgName "base") (mkModName "GHC.Base"))))] :: Tree (PVType (Maybe ImageFile))
+                                                            in r)) [error "subtype nodes for String"] :: Tree (PVType (Maybe ImageFile))
 instance IsPathNode (Maybe ReportIntendedUse)
     where type PVType (Maybe ReportIntendedUse) = PV_MaybeReportIntendedUse
           pvTree x = let p = error "view" :: Path_MaybeReportIntendedUse String
                       in Node (PV_MaybeReportIntendedUse_String p (let [r] = toListOf (toLens p) x
-                                                                    in r)) [error ("subtype nodes for " ++ show (Name (mkOccName "String") (NameG TcClsName (mkPkgName "base") (mkModName "GHC.Base"))))] :: Tree (PVType (Maybe ReportIntendedUse))
+                                                                    in r)) [error "subtype nodes for String"] :: Tree (PVType (Maybe ReportIntendedUse))
 instance IsPathNode (ReadOnly ([Char]))
     where type PVType (ReadOnly ([Char])) = PV_ReadOnlyFilePath
           pvTree x = let p = error "view" :: Path_ReadOnlyFilePath String
                       in Node (PV_ReadOnlyFilePath_String p (let [r] = toListOf (toLens p) x
-                                                              in r)) [error ("subtype nodes for " ++ show (Name (mkOccName "String") (NameG TcClsName (mkPkgName "base") (mkModName "GHC.Base"))))] :: Tree (PVType (ReadOnly ([Char])))
+                                                              in r)) [error "subtype nodes for String"] :: Tree (PVType (ReadOnly ([Char])))
 instance IsPathNode (SaneSize ImageSize)
     where type PVType (SaneSize ImageSize) = PV_SaneSizeImageSize
           pvTree x = let p = error "view" :: Path_SaneSizeImageSize ImageSize
                       in Node (PV_SaneSizeImageSize_ImageSize p (let [r] = toListOf (toLens p) x
-                                                                  in r)) [error ("subtype nodes for " ++ show (Name (mkOccName "ImageSize") (NameG TcClsName (mkPkgName "image_JiYCm9GqyBqJvH5sfh90cX") (mkModName "Appraisal.Image"))))] :: Tree (PVType (SaneSize ImageSize))
+                                                                  in r)) [error "subtype nodes for ImageSize"] :: Tree (PVType (SaneSize ImageSize))
 instance IsPathNode ([Char])
     where type PVType ([Char]) = PV_String
           pvTree x = let p = error "view" :: Path_String JSONText
                       in Node (PV_String_JSONText p (let [r] = toListOf (toLens p) x
-                                                      in r)) [error ("subtype nodes for " ++ show (Name (mkOccName "JSONText") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.IntJS"))))] :: Tree (PVType ([Char]))
+                                                      in r)) [error "subtype nodes for JSONText"] :: Tree (PVType ([Char]))
 instance IsPathNode ([UserId])
     where type PVType ([UserId]) = PV_UserIds
           pvTree x = let p = error "view" :: Path_UserIds Text
                       in Node (PV_UserIds_Text p (let [r] = toListOf (toLens p) x
-                                                   in r)) [error ("subtype nodes for " ++ show (Name (mkOccName "Text") (NameG TcClsName (mkPkgName "text_FGvB6qqz81tFju4pBPAqne") (mkModName "Data.Text.Internal"))))] :: Tree (PVType ([UserId]))
+                                                   in r)) [error "subtype nodes for Text"] :: Tree (PVType ([UserId]))
 instance IsPathNode Int64
     where type PVType Int64 = PV_Int64
           pvTree _ = error "simple"
@@ -13037,12 +13037,12 @@ instance IsPathNode Bool
     where type PVType Bool = PV_Bool
           pvTree x = let p = error "view" :: Path_Bool String
                       in Node (PV_Bool_String p (let [r] = toListOf (toLens p) x
-                                                  in r)) [error ("subtype nodes for " ++ show (Name (mkOccName "String") (NameG TcClsName (mkPkgName "base") (mkModName "GHC.Base"))))] :: Tree (PVType Bool)
+                                                  in r)) [error "subtype nodes for String"] :: Tree (PVType Bool)
 instance IsPathNode Double
     where type PVType Double = PV_Double
           pvTree x = let p = error "view" :: Path_Double String
                       in Node (PV_Double_String p (let [r] = toListOf (toLens p) x
-                                                    in r)) [error ("subtype nodes for " ++ show (Name (mkOccName "String") (NameG TcClsName (mkPkgName "base") (mkModName "GHC.Base"))))] :: Tree (PVType Double)
+                                                    in r)) [error "subtype nodes for String"] :: Tree (PVType Double)
 instance IsPathNode Int
     where type PVType Int = PV_Int
           pvTree _ = error "simple"
@@ -13050,7 +13050,7 @@ instance IsPathNode Dimension
     where type PVType Dimension = PV_Dimension
           pvTree x = let p = error "view" :: Path_Dimension JSONText
                       in Node (PV_Dimension_JSONText p (let [r] = toListOf (toLens p) x
-                                                         in r)) [error ("subtype nodes for " ++ show (Name (mkOccName "JSONText") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.IntJS"))))] :: Tree (PVType Dimension)
+                                                         in r)) [error "subtype nodes for JSONText"] :: Tree (PVType Dimension)
 instance IsPathNode ImageCrop
     where type PVType ImageCrop = PV_ImageCrop
           pvTree _ = error "simple"
@@ -13061,7 +13061,7 @@ instance IsPathNode Units
     where type PVType Units = PV_Units
           pvTree x = let p = error "view" :: Path_Units JSONText
                       in Node (PV_Units_JSONText p (let [r] = toListOf (toLens p) x
-                                                     in r)) [error ("subtype nodes for " ++ show (Name (mkOccName "JSONText") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.IntJS"))))] :: Tree (PVType Units)
+                                                     in r)) [error "subtype nodes for JSONText"] :: Tree (PVType Units)
 instance IsPathNode ImageFile
     where type PVType ImageFile = PV_ImageFile
           pvTree _ = error "simple"
@@ -13084,12 +13084,12 @@ instance IsPathNode Branding
     where type PVType Branding = PV_Branding
           pvTree x = let p = error "view" :: Path_Branding Text
                       in Node (PV_Branding_Text p (let [r] = toListOf (toLens p) x
-                                                    in r)) [error ("subtype nodes for " ++ show (Name (mkOccName "Text") (NameG TcClsName (mkPkgName "text_FGvB6qqz81tFju4pBPAqne") (mkModName "Data.Text.Internal"))))] :: Tree (PVType Branding)
+                                                    in r)) [error "subtype nodes for Text"] :: Tree (PVType Branding)
 instance IsPathNode Report
     where type PVType Report = PV_Report
           pvTree x = let p = error "view" :: Path_Report ReportView
                       in Node (PV_Report_ReportView p (let [r] = toListOf (toLens p) x
-                                                        in r)) [error ("subtype nodes for " ++ show (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))] :: Tree (PVType Report)
+                                                        in r)) [error "subtype nodes for ReportView"] :: Tree (PVType Report)
 instance IsPathNode ReportElem
     where type PVType ReportElem = PV_ReportElem
           pvTree _ = error "named"
@@ -13100,7 +13100,7 @@ instance IsPathNode ReportIntendedUse
     where type PVType ReportIntendedUse = PV_ReportIntendedUse
           pvTree x = let p = error "view" :: Path_ReportIntendedUse String
                       in Node (PV_ReportIntendedUse_String p (let [r] = toListOf (toLens p) x
-                                                               in r)) [error ("subtype nodes for " ++ show (Name (mkOccName "String") (NameG TcClsName (mkPkgName "base") (mkModName "GHC.Base"))))] :: Tree (PVType ReportIntendedUse)
+                                                               in r)) [error "subtype nodes for String"] :: Tree (PVType ReportIntendedUse)
 instance IsPathNode ReportStandard
     where type PVType ReportStandard = PV_ReportStandard
           pvTree _ = error "named"
@@ -13108,7 +13108,7 @@ instance IsPathNode ReportStatus
     where type PVType ReportStatus = PV_ReportStatus
           pvTree x = let p = error "view" :: Path_ReportStatus String
                       in Node (PV_ReportStatus_String p (let [r] = toListOf (toLens p) x
-                                                          in r)) [error ("subtype nodes for " ++ show (Name (mkOccName "String") (NameG TcClsName (mkPkgName "base") (mkModName "GHC.Base"))))] :: Tree (PVType ReportStatus)
+                                                          in r)) [error "subtype nodes for String"] :: Tree (PVType ReportStatus)
 instance IsPathNode ReportValueApproachInfo
     where type PVType ReportValueApproachInfo = PV_ReportValueApproachInfo
           pvTree _ = error "named"
@@ -13119,7 +13119,7 @@ instance IsPathNode ReportImage
     where type PVType ReportImage = PV_ReportImage
           pvTree x = let p = error "view" :: Path_ReportImage ReportImageView
                       in Node (PV_ReportImage_ReportImageView p (let [r] = toListOf (toLens p) x
-                                                                  in r)) [error ("subtype nodes for " ++ show (Name (mkOccName "ReportImageView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))] :: Tree (PVType ReportImage)
+                                                                  in r)) [error "subtype nodes for ReportImageView"] :: Tree (PVType ReportImage)
 instance IsPathNode ReportImageView
     where type PVType ReportImageView = PV_ReportImageView
           pvTree _ = error "named"
@@ -13136,7 +13136,7 @@ instance IsPathNode CIString
     where type PVType CIString = PV_CIString
           pvTree x = let p = error "view" :: Path_CIString Text
                       in Node (PV_CIString_Text p (let [r] = toListOf (toLens p) x
-                                                    in r)) [error ("subtype nodes for " ++ show (Name (mkOccName "Text") (NameG TcClsName (mkPkgName "text_FGvB6qqz81tFju4pBPAqne") (mkModName "Data.Text.Internal"))))] :: Tree (PVType CIString)
+                                                    in r)) [error "subtype nodes for Text"] :: Tree (PVType CIString)
 instance IsPathNode URI
     where type PVType URI = PV_URI
           pvTree _ = error "simple"
@@ -13144,7 +13144,7 @@ instance IsPathNode Text
     where type PVType Text = PV_Text
           pvTree x = let p = error "view" :: Path_Text JSONText
                       in Node (PV_Text_JSONText p (let [r] = toListOf (toLens p) x
-                                                    in r)) [error ("subtype nodes for " ++ show (Name (mkOccName "JSONText") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.IntJS"))))] :: Tree (PVType Text)
+                                                    in r)) [error "subtype nodes for JSONText"] :: Tree (PVType Text)
 instance IsPathNode UserId
     where type PVType UserId = PV_UserId
           pvTree _ = error "simple"

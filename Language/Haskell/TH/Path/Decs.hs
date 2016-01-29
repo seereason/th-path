@@ -737,7 +737,7 @@ pvTreeClauses v =
                 -- Node (PV_Report_ReportView p $(varE x)) [pvTree w]
                 return [clause [varP x] (normalB [| let p = (error "view") :: $(conT ptname) $(conT wname) in
                                                     Node ($(conE pvname) p (let [r] = toListOf (toLens p) $(varE x) in r))
-                                                         [error ("subtype nodes for " ++ show wname)] :: Tree (PVType $(pure (view (etype . unE) v))) |]) []]
+                                                         [error $(litE (stringL ("subtype nodes for " ++ nameBase wname)))] :: Tree (PVType $(pure (view (etype . unE) v))) |]) []]
                 -- PV_Report_ReportView (Path_Report_View undefined)
                 -- return [clause [wildP] (normalB [|error "view"|]) []]
              -- [|Node (PV_Report_ReportView p x) <$> pvTreeClauses (doReportViewFields x
