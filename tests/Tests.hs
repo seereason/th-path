@@ -20,6 +20,7 @@ import Appraisal.Markup (rawMarkdown)
 import Appraisal.Report
 import Appraisal.ReportInstances
 import Appraisal.ReportMap
+import Appraisal.Utils.CIString
 import Control.Lens (Lens', toListOf)
 import Control.Monad.Readers (MonadReaders)
 import Data.Algorithm.DiffContext (getContextDiff, prettyContextDiff)
@@ -32,7 +33,7 @@ import Debug.Trace
 import Editor (editor)
 import Language.Haskell.TH
 import Language.Haskell.TH.Context (ContextM)
-import Language.Haskell.TH.Path.Core (IsPath(pathsOf), IsPathNode(pvTree), IsPathType(idPath), toLens)
+import Language.Haskell.TH.Path.Core
 import Language.Haskell.TH.Path.Graph (runTypeGraphT)
 import Language.Haskell.TH.Path.Order (Path_OMap(Path_At))
 import Language.Haskell.TH.TypeGraph.Prelude (friendlyNames)

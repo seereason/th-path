@@ -13085,7 +13085,7 @@ instance IsPathNode ([UserId])
                          _ -> error "More than one path returned for view" :: [Tree (PVType ([UserId]))]
 instance IsPathNode Int64
     where type PVType Int64 = PV_Int64
-          pvTree _ = error "simple"
+          pvTree _ = error "no clauses"
 instance IsPathNode Bool
     where type PVType Bool = PV_Bool
           pvTree x = case pathsOf (x :: Bool) (undefined :: Proxy String) :: [Path_Bool String] of
@@ -13102,7 +13102,7 @@ instance IsPathNode Double
                          _ -> error "More than one path returned for view" :: [Tree (PVType Double)]
 instance IsPathNode Int
     where type PVType Int = PV_Int
-          pvTree _ = error "simple"
+          pvTree _ = error "no clauses"
 instance IsPathNode Dimension
     where type PVType Dimension = PV_Dimension
           pvTree x = case pathsOf (x :: Dimension) (undefined :: Proxy JSONText) :: [Path_Dimension JSONText] of
@@ -13112,10 +13112,10 @@ instance IsPathNode Dimension
                          _ -> error "More than one path returned for view" :: [Tree (PVType Dimension)]
 instance IsPathNode ImageCrop
     where type PVType ImageCrop = PV_ImageCrop
-          pvTree _ = error "simple"
+          pvTree _ = error "no clauses"
 instance IsPathNode ImageSize
     where type PVType ImageSize = PV_ImageSize
-          pvTree _ = error "named"
+          pvTree _ = error "no clauses"
 instance IsPathNode Units
     where type PVType Units = PV_Units
           pvTree x = case pathsOf (x :: Units) (undefined :: Proxy JSONText) :: [Path_Units JSONText] of
@@ -13125,22 +13125,22 @@ instance IsPathNode Units
                          _ -> error "More than one path returned for view" :: [Tree (PVType Units)]
 instance IsPathNode ImageFile
     where type PVType ImageFile = PV_ImageFile
-          pvTree _ = error "simple"
+          pvTree _ = error "no clauses"
 instance IsPathNode Integer
     where type PVType Integer = PV_Integer
-          pvTree _ = error "simple"
+          pvTree _ = error "no clauses"
 instance IsPathNode JSONText
     where type PVType JSONText = PV_JSONText
-          pvTree _ = error "simple"
+          pvTree _ = error "no clauses"
 instance IsPathNode Markup
     where type PVType Markup = PV_Markup
-          pvTree _ = error "named"
+          pvTree _ = error "no clauses"
 instance IsPathNode Permissions
     where type PVType Permissions = PV_Permissions
-          pvTree _ = error "named"
+          pvTree _ = error "no clauses"
 instance IsPathNode Author
     where type PVType Author = PV_Author
-          pvTree _ = error "named"
+          pvTree _ = error "no clauses"
 instance IsPathNode Branding
     where type PVType Branding = PV_Branding
           pvTree x = case pathsOf (x :: Branding) (undefined :: Proxy Text) :: [Path_Branding Text] of
@@ -13157,10 +13157,10 @@ instance IsPathNode Report
                          _ -> error "More than one path returned for view" :: [Tree (PVType Report)]
 instance IsPathNode ReportElem
     where type PVType ReportElem = PV_ReportElem
-          pvTree _ = error "named"
+          pvTree _ = error "no clauses"
 instance IsPathNode ReportFlags
     where type PVType ReportFlags = PV_ReportFlags
-          pvTree _ = error "named"
+          pvTree _ = error "no clauses"
 instance IsPathNode ReportIntendedUse
     where type PVType ReportIntendedUse = PV_ReportIntendedUse
           pvTree x = case pathsOf (x :: ReportIntendedUse) (undefined :: Proxy String) :: [Path_ReportIntendedUse String] of
@@ -13170,7 +13170,7 @@ instance IsPathNode ReportIntendedUse
                          _ -> error "More than one path returned for view" :: [Tree (PVType ReportIntendedUse)]
 instance IsPathNode ReportStandard
     where type PVType ReportStandard = PV_ReportStandard
-          pvTree _ = error "named"
+          pvTree _ = error "no clauses"
 instance IsPathNode ReportStatus
     where type PVType ReportStatus = PV_ReportStatus
           pvTree x = case pathsOf (x :: ReportStatus) (undefined :: Proxy String) :: [Path_ReportStatus String] of
@@ -13180,10 +13180,10 @@ instance IsPathNode ReportStatus
                          _ -> error "More than one path returned for view" :: [Tree (PVType ReportStatus)]
 instance IsPathNode ReportValueApproachInfo
     where type PVType ReportValueApproachInfo = PV_ReportValueApproachInfo
-          pvTree _ = error "named"
+          pvTree _ = error "no clauses"
 instance IsPathNode ReportValueTypeInfo
     where type PVType ReportValueTypeInfo = PV_ReportValueTypeInfo
-          pvTree _ = error "named"
+          pvTree _ = error "no clauses"
 instance IsPathNode ReportImage
     where type PVType ReportImage = PV_ReportImage
           pvTree x = case pathsOf (x :: ReportImage) (undefined :: Proxy ReportImageView) :: [Path_ReportImage ReportImageView] of
@@ -13193,16 +13193,16 @@ instance IsPathNode ReportImage
                          _ -> error "More than one path returned for view" :: [Tree (PVType ReportImage)]
 instance IsPathNode ReportImageView
     where type PVType ReportImageView = PV_ReportImageView
-          pvTree _ = error "named"
+          pvTree _ = error "no clauses"
 instance IsPathNode ReportView
     where type PVType ReportView = PV_ReportView
-          pvTree _ = error "named"
+          pvTree _ = error "no clauses"
 instance IsPathNode Item
     where type PVType Item = PV_Item
-          pvTree _ = error "named"
+          pvTree _ = error "no clauses"
 instance IsPathNode ReportMap
     where type PVType ReportMap = PV_ReportMap
-          pvTree _ = error "named"
+          pvTree _ = error "no clauses"
 instance IsPathNode CIString
     where type PVType CIString = PV_CIString
           pvTree x = case pathsOf (x :: CIString) (undefined :: Proxy Text) :: [Path_CIString Text] of
@@ -13212,7 +13212,7 @@ instance IsPathNode CIString
                          _ -> error "More than one path returned for view" :: [Tree (PVType CIString)]
 instance IsPathNode URI
     where type PVType URI = PV_URI
-          pvTree _ = error "simple"
+          pvTree _ = error "no clauses"
 instance IsPathNode Text
     where type PVType Text = PV_Text
           pvTree x = case pathsOf (x :: Text) (undefined :: Proxy JSONText) :: [Path_Text JSONText] of
@@ -13222,10 +13222,10 @@ instance IsPathNode Text
                          _ -> error "More than one path returned for view" :: [Tree (PVType Text)]
 instance IsPathNode UserId
     where type PVType UserId = PV_UserId
-          pvTree _ = error "simple"
+          pvTree _ = error "no clauses"
 instance IsPathNode UUID
     where type PVType UUID = PV_UUID
-          pvTree _ = error "simple"
+          pvTree _ = error "no clauses"
 instance IsPathType (Path_Author a)
     where idPath = Path_Author
 instance IsPathType (Path_Bool a)
