@@ -763,8 +763,17 @@ pvTreeClauses v =
                -- return [clause [wildP] (normalB [|error "order"|]) []]
        AppT ListT _etyp -> return [clause [wildP] (normalB [|error "list"|]) []]
        AppT (AppT t3 _ktyp) vtyp
-           | t3 == ConT ''Map -> return [clause [wildP] (normalB [|error "map"|]) []]
-       AppT (AppT (TupleT 2) ftyp) styp -> return [clause [wildP] (normalB [|error "pair"|]) []]
+           | t3 == ConT ''Map ->
+               do w <- expandType vtyp >>= typeVertex
+                  runQ [d|f x = List.map (\p -> let [y] = toListOf (toLens p) x in
+                                                Node ($(conE (pvName v w)) p y) []) (pathsOf x (undefined :: Proxy $(pure vtyp))) |] >>= return . clauses
+       AppT (AppT (TupleT 2) ftyp) styp ->
+           do -- Result is two nodes, fst and snd
+              f <- expandType ftyp >>= typeVertex
+              s <- expandType styp >>= typeVertex
+              let typ = view (etype . unE) v
+              runQ [d|_f x = [let p = (head (pathsOf x (undefined :: Proxy $(pure ftyp)))) in Node ($(conE (pvName v f)) p (head (toListOf (toLens p) x))) [],
+                              let p = (head (pathsOf x (undefined :: Proxy $(pure styp)))) in Node ($(conE (pvName v s)) p (head (toListOf (toLens p) x))) []] |] >>= return . clauses
        AppT t1 etyp
            | t1 == ConT ''Maybe -> return [clause [wildP] (normalB [|error "maybe"|]) []]
        AppT (AppT t3 ltyp) rtyp

@@ -13031,10 +13031,16 @@ instance IsPathNode (Order ReportImageID ReportImage)
                                  in Node (PV_ReportImages_ReportImage p y) []) (pathsOf x (undefined :: Proxy ReportImage))
 instance IsPathNode ((Markup, Markup))
     where type PVType ((Markup, Markup)) = PV_MarkupPair
-          pvTree _ = error "pair"
+          pvTree x = [let p = head (pathsOf x (undefined :: Proxy Markup))
+                       in Node (PV_MarkupPair_Markup p (head (toListOf (toLens p) x))) [],
+                      let p = head (pathsOf x (undefined :: Proxy Markup))
+                       in Node (PV_MarkupPair_Markup p (head (toListOf (toLens p) x))) []]
 instance IsPathNode ((CIString, Markup))
     where type PVType ((CIString, Markup)) = PV_AbbrevPair
-          pvTree _ = error "pair"
+          pvTree x = [let p = head (pathsOf x (undefined :: Proxy CIString))
+                       in Node (PV_AbbrevPair_CIString p (head (toListOf (toLens p) x))) [],
+                      let p = head (pathsOf x (undefined :: Proxy Markup))
+                       in Node (PV_AbbrevPair_Markup p (head (toListOf (toLens p) x))) []]
 instance IsPathNode (Maybe ImageFile)
     where type PVType (Maybe ImageFile) = PV_MaybeImageFile
           pvTree x = case pathsOf (x :: MaybeImageFile) (undefined :: Proxy String) :: [Path_MaybeImageFile String] of
