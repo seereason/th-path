@@ -63,7 +63,7 @@ import Prelude hiding (readFile)
 
 decs :: [Dec]
 decs = $(do let dir s = runIO (getDirectoryContents s) >>= mapM_ (addDependentFile) . map (s </>) . filter (isSuffixOf ".hs")
-            mapM_ dir ["Language/Haskell/TH/Path", "../th-typegraph/Language/Haskell/TH/TypeGraph"]
+            mapM_ dir ["Language/Haskell/TH/Path", "Language/Haskell/TH/Path/Decs"]
             decs' <- startTypes >>= runTypeGraphT pathDecs -- >>= lift
             let code = (unlines . map (pprint . friendlyNames) . sort) decs'
             runIO $ writeFile "tests/actual.hs" code

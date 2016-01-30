@@ -54,6 +54,12 @@ library
   exposed-modules:
     Language.Haskell.TH.Path.Core
     Language.Haskell.TH.Path.Decs
+    Language.Haskell.TH.Path.Decs.Common
+    Language.Haskell.TH.Path.Decs.IsPath
+    Language.Haskell.TH.Path.Decs.PathsOf
+    Language.Haskell.TH.Path.Decs.PathType
+    Language.Haskell.TH.Path.Decs.PVType
+    Language.Haskell.TH.Path.Decs.ToLens
     Language.Haskell.TH.Path.Graph
     Language.Haskell.TH.Path.Order
     Language.Haskell.TH.Path.View
