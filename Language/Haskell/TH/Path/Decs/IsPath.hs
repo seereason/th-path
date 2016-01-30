@@ -142,17 +142,75 @@ pvNodeClauses v =
                                   let p = (head (pathsOf x (undefined :: Proxy $(pure rtyp)))) in $(conE (pvName v r)) p (head (toListOf (toLens p) x))] |] >>= return . clauses
        _ -> return []
     where
-      doName tname = return []
-{-
-      doName tname = qReify tname >>= doInfo
-      doInfo (TyConI dec) = doDec dec
-      doInfo _ = return []
-      doDec (NewtypeD cx tname binds con supers) = doDec (DataD cx tname binds [con] supers)
-      doDec (DataD cx tname binds cons supers) = concat <$> mapM doCon cons
-      doCon (InfixC lhs cname rhs) = return []
--}
       doSingleton :: Name -> TGVSimple -> Type -> m Exp
       doSingleton x v etyp = do
         e <- expandType etyp >>= typeVertex
         runQ [|let p = (head (pathsOf $(varE x) (undefined :: Proxy $(pure etyp)))) in
                $(conE (pvName v e)) p (head (toListOf (toLens p) $(varE x))) |]
+
+      doName :: Name -> m [ClauseQ]
+      doName tname = qReify tname >>= doInfo
+      doInfo :: Info -> m [ClauseQ]
+      doInfo (TyConI dec) = doDec dec
+      doInfo _ = return []
+      doDec :: Dec -> m [ClauseQ]
+      doDec (NewtypeD cx tname binds con supers) = doCons tname [con]
+      doDec (DataD cx tname binds cons supers) = doCons tname cons
+      -- concat <$> mapM doCon cons
+      doCons :: Name -> [Con] -> m [ClauseQ]
+      doCons tname [] = error "No constructors"
+      doCons tname [ForallC _ _ con] = doCons tname [con]
+      doCons tname [RecC cname vsts] = do
+        x <- runQ $ newName "x"
+        flds <- mapM (doField tname) vsts
+        return [clause [wildP] (normalB (listE (List.map pure flds))) []]
+      doCons tname [NormalC cname sts] = do
+        x <- runQ $ newName "x"
+        flds <- mapM (doField' tname) sts
+        return [clause [wildP] (normalB (listE (List.map pure flds))) []]
+      doCons tname [InfixC lhs cname rhs] = do
+        x <- runQ $ newName "x"
+        flds <- mapM (doField' tname) [lhs, rhs]
+        return [clause [wildP] (normalB (listE (List.map pure flds))) []]
+      doCons tname cons = concat <$> mapM (doCon tname) cons
+      -- If we have multiple constructors, only generate values for
+      -- the one that matches
+      doCon :: Name -> Con -> m [ClauseQ]
+      doCon tname (ForallC _ _ con) = doCon tname con
+      -- doCon ''Markup _ con@(Markdown {}) = runQ [d|_f (Markdown {}) = doFields ''Markup con
+      --                                              _f (Html {}) = doFields ''Markup con
+      --                                              _f _ = [] |]
+      -- doCon ''Markup _ (Html {htmlText :: Text}) = ...
+      doCon tname (RecC cname vsts) = doMatchingFields tname cname vsts
+      doCon tname (NormalC cname sts) = doMatchingFields' tname cname sts
+      doCon tname (InfixC lhs cname rhs) = doMatchingFields' tname cname [lhs, rhs]
+
+      doMatchingFields :: Name -> Name -> [(Name, Strict, Type)] -> m [ClauseQ]
+      doMatchingFields tname cname vsts = do
+        x <- runQ $ newName "x"
+        flds <- mapM (doField tname) vsts
+        return [clause [asP x (recP cname [])] (normalB (listE (List.map pure flds))) []]
+      doMatchingFields' :: Name -> Name -> [(Strict, Type)] -> m [ClauseQ]
+      doMatchingFields' tname cname sts = do
+        x <- runQ $ newName "x"
+        flds <- mapM (doField' tname) sts
+        return [clause [asP x (recP cname [])] (normalB (listE (List.map pure flds))) []]
+
+      doField :: Name -> (Name, Strict, Type) -> m Exp
+      doField tname (fname, _, ftype) =
+          runQ [|error $(litE (stringL ("doField " ++ pprint fname)))|]
+          -- runQ [|conE (mkName $(litE (stringL ("Path_" ++ nameBase tname ++ "_" ++ nameBase fname)))) idPath|]
+      doField' :: Name -> (Strict, Type) -> m Exp
+      doField' tname (_, ftype) = runQ [|error $(litE (stringL ("doField' " ++ pprint ftype)))|]
+{-
+      doCon tname binds (InfixC st1 cname st2) =
+          do l <- runQ $ newName "l"
+             r <- runQ $ newName "r"
+             clause [infixP (varP l) cname (varP r)] (normalB [|map (\p -> ) (pathsOf x (undefined :: Proxy $(pure
+          recP
+          -- If constructor of x matches return PVTypes for its fields (what if it has no fields?)
+
+          runQ [d|_f x = map (\con -> case x of
+          map (\con -> runQ
+      doCon (InfixC lhs cname rhs) = return []
+-}
