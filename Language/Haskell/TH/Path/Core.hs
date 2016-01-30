@@ -17,7 +17,7 @@ module Language.Haskell.TH.Path.Core
     ( -- * Type classes and associated types
       IsPath(toLens, pathsOf, PathType)
     , IsPathType(idPath)
-    , IsPathNode(PVType, pvNodes, pvTree)
+    , IsPathNode(PVType, pvNodes), pvTree
 
     -- * Basic Path Types
     , Path_Pair(..)
@@ -61,7 +61,7 @@ import Data.Proxy
 import Data.SafeCopy (base, deriveSafeCopy)
 import Data.Set as Set ({-difference,-} fromList, Set)
 import Data.Text as Text (Text, pack, unpack, unwords, words)
-import Data.Tree (Tree)
+import Data.Tree (Tree(Node), Forest)
 import Data.UserId (UserId(..))
 import Debug.Trace (trace)
 import Language.Haskell.TH
@@ -107,8 +107,17 @@ class IsPathNode s where
     -- ^ The Path/Value type for s
     pvNodes :: s -> [PVType s]
     -- ^ Given a value, return the corresponding @PVType s@ list
+{-
     pvTree :: s -> [Tree (PVType s)]
     -- ^ Given a value, build the corresponding forest of @PVType s@
+-}
+
+pvTree :: forall s. IsPathNode s => s -> Forest (PVType s)
+pvTree s =
+    map pvTree' (pvNodes s)
+    where
+      pvTree' :: PVType s -> Tree (PVType s)
+      pvTree' n = (Node n (pvTree (undefined :: s)))
 
 -- Primitive path types
 
