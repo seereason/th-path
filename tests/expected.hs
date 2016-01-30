@@ -13003,229 +13003,229 @@ instance HasUnits Units
 instance IsPathNode (Order AbbrevPairID ((CIString, Markup)))
     where type PVType (Order AbbrevPairID
                              ((CIString, Markup))) = PV_AbbrevPairs
-          pvTree x = map (\p -> let [y] = toListOf (toLens p) x
-                                 in Node (PV_AbbrevPairs_AbbrevPair p y) []) (pathsOf x (undefined :: Proxy ((CIString,
-                                                                                                              Markup))))
+          pvNodes x = map (\p -> let [y] = toListOf (toLens p) x
+                                  in PV_AbbrevPairs_AbbrevPair p y) (pathsOf x (undefined :: Proxy ((CIString,
+                                                                                                     Markup))))
 instance IsPathNode (Order AuthorID Author)
     where type PVType (Order AuthorID Author) = PV_Authors
-          pvTree x = map (\p -> let [y] = toListOf (toLens p) x
-                                 in Node (PV_Authors_Author p y) []) (pathsOf x (undefined :: Proxy Author))
+          pvNodes x = map (\p -> let [y] = toListOf (toLens p) x
+                                  in PV_Authors_Author p y) (pathsOf x (undefined :: Proxy Author))
 instance IsPathNode (Order MarkupID Markup)
     where type PVType (Order MarkupID Markup) = PV_Markups
-          pvTree x = map (\p -> let [y] = toListOf (toLens p) x
-                                 in Node (PV_Markups_Markup p y) []) (pathsOf x (undefined :: Proxy Markup))
+          pvNodes x = map (\p -> let [y] = toListOf (toLens p) x
+                                  in PV_Markups_Markup p y) (pathsOf x (undefined :: Proxy Markup))
 instance IsPathNode (Order MarkupPairID ((Markup, Markup)))
     where type PVType (Order MarkupPairID
                              ((Markup, Markup))) = PV_MarkupPairs
-          pvTree x = map (\p -> let [y] = toListOf (toLens p) x
-                                 in Node (PV_MarkupPairs_MarkupPair p y) []) (pathsOf x (undefined :: Proxy ((Markup,
-                                                                                                              Markup))))
+          pvNodes x = map (\p -> let [y] = toListOf (toLens p) x
+                                  in PV_MarkupPairs_MarkupPair p y) (pathsOf x (undefined :: Proxy ((Markup,
+                                                                                                     Markup))))
 instance IsPathNode (Order ReportElemID ReportElem)
     where type PVType (Order ReportElemID ReportElem) = PV_ReportElems
-          pvTree x = map (\p -> let [y] = toListOf (toLens p) x
-                                 in Node (PV_ReportElems_ReportElem p y) []) (pathsOf x (undefined :: Proxy ReportElem))
+          pvNodes x = map (\p -> let [y] = toListOf (toLens p) x
+                                  in PV_ReportElems_ReportElem p y) (pathsOf x (undefined :: Proxy ReportElem))
 instance IsPathNode (Order ReportImageID ReportImage)
     where type PVType (Order ReportImageID
                              ReportImage) = PV_ReportImages
-          pvTree x = map (\p -> let [y] = toListOf (toLens p) x
-                                 in Node (PV_ReportImages_ReportImage p y) []) (pathsOf x (undefined :: Proxy ReportImage))
+          pvNodes x = map (\p -> let [y] = toListOf (toLens p) x
+                                  in PV_ReportImages_ReportImage p y) (pathsOf x (undefined :: Proxy ReportImage))
 instance IsPathNode ((Markup, Markup))
     where type PVType ((Markup, Markup)) = PV_MarkupPair
-          pvTree x = [let p = head (pathsOf x (undefined :: Proxy Markup))
-                       in Node (PV_MarkupPair_Markup p (head (toListOf (toLens p) x))) [],
-                      let p = head (pathsOf x (undefined :: Proxy Markup))
-                       in Node (PV_MarkupPair_Markup p (head (toListOf (toLens p) x))) []]
+          pvNodes x = [let p = head (pathsOf x (undefined :: Proxy Markup))
+                        in PV_MarkupPair_Markup p (head (toListOf (toLens p) x)),
+                       let p = head (pathsOf x (undefined :: Proxy Markup))
+                        in PV_MarkupPair_Markup p (head (toListOf (toLens p) x))]
 instance IsPathNode ((CIString, Markup))
     where type PVType ((CIString, Markup)) = PV_AbbrevPair
-          pvTree x = [let p = head (pathsOf x (undefined :: Proxy CIString))
-                       in Node (PV_AbbrevPair_CIString p (head (toListOf (toLens p) x))) [],
-                      let p = head (pathsOf x (undefined :: Proxy Markup))
-                       in Node (PV_AbbrevPair_Markup p (head (toListOf (toLens p) x))) []]
+          pvNodes x = [let p = head (pathsOf x (undefined :: Proxy CIString))
+                        in PV_AbbrevPair_CIString p (head (toListOf (toLens p) x)),
+                       let p = head (pathsOf x (undefined :: Proxy Markup))
+                        in PV_AbbrevPair_Markup p (head (toListOf (toLens p) x))]
 instance IsPathNode (Maybe ImageFile)
     where type PVType (Maybe ImageFile) = PV_MaybeImageFile
-          pvTree x = case pathsOf (x :: MaybeImageFile) (undefined :: Proxy String) :: [Path_MaybeImageFile String] of
-                         [p] -> let [y] = toListOf (toLens p) x
-                                 in [Node (PV_MaybeImageFile_String p y) []]
-                         [] -> []
-                         _ -> error "More than one path returned for view" :: [Tree (PVType (Maybe ImageFile))]
+          pvNodes x = case pathsOf (x :: MaybeImageFile) (undefined :: Proxy String) :: [Path_MaybeImageFile String] of
+                          [p] -> let [y] = toListOf (toLens p) x
+                                  in [PV_MaybeImageFile_String p y]
+                          [] -> []
+                          _ -> error "More than one path returned for view" :: [PVType (Maybe ImageFile)]
 instance IsPathNode (Maybe ReportIntendedUse)
     where type PVType (Maybe ReportIntendedUse) = PV_MaybeReportIntendedUse
-          pvTree x = case pathsOf (x :: MaybeReportIntendedUse) (undefined :: Proxy String) :: [Path_MaybeReportIntendedUse String] of
-                         [p] -> let [y] = toListOf (toLens p) x
-                                 in [Node (PV_MaybeReportIntendedUse_String p y) []]
-                         [] -> []
-                         _ -> error "More than one path returned for view" :: [Tree (PVType (Maybe ReportIntendedUse))]
+          pvNodes x = case pathsOf (x :: MaybeReportIntendedUse) (undefined :: Proxy String) :: [Path_MaybeReportIntendedUse String] of
+                          [p] -> let [y] = toListOf (toLens p) x
+                                  in [PV_MaybeReportIntendedUse_String p y]
+                          [] -> []
+                          _ -> error "More than one path returned for view" :: [PVType (Maybe ReportIntendedUse)]
 instance IsPathNode (ReadOnly ([Char]))
     where type PVType (ReadOnly ([Char])) = PV_ReadOnlyFilePath
-          pvTree x = case pathsOf (x :: ReadOnlyFilePath) (undefined :: Proxy String) :: [Path_ReadOnlyFilePath String] of
-                         [p] -> let [y] = toListOf (toLens p) x
-                                 in [Node (PV_ReadOnlyFilePath_String p y) []]
-                         [] -> []
-                         _ -> error "More than one path returned for view" :: [Tree (PVType (ReadOnly ([Char])))]
+          pvNodes x = case pathsOf (x :: ReadOnlyFilePath) (undefined :: Proxy String) :: [Path_ReadOnlyFilePath String] of
+                          [p] -> let [y] = toListOf (toLens p) x
+                                  in [PV_ReadOnlyFilePath_String p y]
+                          [] -> []
+                          _ -> error "More than one path returned for view" :: [PVType (ReadOnly ([Char]))]
 instance IsPathNode (SaneSize ImageSize)
     where type PVType (SaneSize ImageSize) = PV_SaneSizeImageSize
-          pvTree x = case pathsOf (x :: SaneSizeImageSize) (undefined :: Proxy ImageSize) :: [Path_SaneSizeImageSize ImageSize] of
-                         [p] -> let [y] = toListOf (toLens p) x
-                                 in [Node (PV_SaneSizeImageSize_ImageSize p y) []]
-                         [] -> []
-                         _ -> error "More than one path returned for view" :: [Tree (PVType (SaneSize ImageSize))]
+          pvNodes x = case pathsOf (x :: SaneSizeImageSize) (undefined :: Proxy ImageSize) :: [Path_SaneSizeImageSize ImageSize] of
+                          [p] -> let [y] = toListOf (toLens p) x
+                                  in [PV_SaneSizeImageSize_ImageSize p y]
+                          [] -> []
+                          _ -> error "More than one path returned for view" :: [PVType (SaneSize ImageSize)]
 instance IsPathNode ([Char])
     where type PVType ([Char]) = PV_String
-          pvTree x = case pathsOf (x :: String) (undefined :: Proxy JSONText) :: [Path_String JSONText] of
-                         [p] -> let [y] = toListOf (toLens p) x
-                                 in [Node (PV_String_JSONText p y) []]
-                         [] -> []
-                         _ -> error "More than one path returned for view" :: [Tree (PVType ([Char]))]
+          pvNodes x = case pathsOf (x :: String) (undefined :: Proxy JSONText) :: [Path_String JSONText] of
+                          [p] -> let [y] = toListOf (toLens p) x
+                                  in [PV_String_JSONText p y]
+                          [] -> []
+                          _ -> error "More than one path returned for view" :: [PVType ([Char])]
 instance IsPathNode ([UserId])
     where type PVType ([UserId]) = PV_UserIds
-          pvTree x = case pathsOf (x :: UserIds) (undefined :: Proxy Text) :: [Path_UserIds Text] of
-                         [p] -> let [y] = toListOf (toLens p) x
-                                 in [Node (PV_UserIds_Text p y) []]
-                         [] -> []
-                         _ -> error "More than one path returned for view" :: [Tree (PVType ([UserId]))]
+          pvNodes x = case pathsOf (x :: UserIds) (undefined :: Proxy Text) :: [Path_UserIds Text] of
+                          [p] -> let [y] = toListOf (toLens p) x
+                                  in [PV_UserIds_Text p y]
+                          [] -> []
+                          _ -> error "More than one path returned for view" :: [PVType ([UserId])]
 instance IsPathNode Int64
     where type PVType Int64 = PV_Int64
-          pvTree _ = error "no clauses"
+          pvNodes _ = error "no pvNode clauses"
 instance IsPathNode Bool
     where type PVType Bool = PV_Bool
-          pvTree x = case pathsOf (x :: Bool) (undefined :: Proxy String) :: [Path_Bool String] of
-                         [p] -> let [y] = toListOf (toLens p) x
-                                 in [Node (PV_Bool_String p y) []]
-                         [] -> []
-                         _ -> error "More than one path returned for view" :: [Tree (PVType Bool)]
+          pvNodes x = case pathsOf (x :: Bool) (undefined :: Proxy String) :: [Path_Bool String] of
+                          [p] -> let [y] = toListOf (toLens p) x
+                                  in [PV_Bool_String p y]
+                          [] -> []
+                          _ -> error "More than one path returned for view" :: [PVType Bool]
 instance IsPathNode Double
     where type PVType Double = PV_Double
-          pvTree x = case pathsOf (x :: Double) (undefined :: Proxy String) :: [Path_Double String] of
-                         [p] -> let [y] = toListOf (toLens p) x
-                                 in [Node (PV_Double_String p y) []]
-                         [] -> []
-                         _ -> error "More than one path returned for view" :: [Tree (PVType Double)]
+          pvNodes x = case pathsOf (x :: Double) (undefined :: Proxy String) :: [Path_Double String] of
+                          [p] -> let [y] = toListOf (toLens p) x
+                                  in [PV_Double_String p y]
+                          [] -> []
+                          _ -> error "More than one path returned for view" :: [PVType Double]
 instance IsPathNode Int
     where type PVType Int = PV_Int
-          pvTree _ = error "no clauses"
+          pvNodes _ = error "no pvNode clauses"
 instance IsPathNode Dimension
     where type PVType Dimension = PV_Dimension
-          pvTree x = case pathsOf (x :: Dimension) (undefined :: Proxy JSONText) :: [Path_Dimension JSONText] of
-                         [p] -> let [y] = toListOf (toLens p) x
-                                 in [Node (PV_Dimension_JSONText p y) []]
-                         [] -> []
-                         _ -> error "More than one path returned for view" :: [Tree (PVType Dimension)]
+          pvNodes x = case pathsOf (x :: Dimension) (undefined :: Proxy JSONText) :: [Path_Dimension JSONText] of
+                          [p] -> let [y] = toListOf (toLens p) x
+                                  in [PV_Dimension_JSONText p y]
+                          [] -> []
+                          _ -> error "More than one path returned for view" :: [PVType Dimension]
 instance IsPathNode ImageCrop
     where type PVType ImageCrop = PV_ImageCrop
-          pvTree _ = error "no clauses"
+          pvNodes _ = error "no pvNode clauses"
 instance IsPathNode ImageSize
     where type PVType ImageSize = PV_ImageSize
-          pvTree _ = error "no clauses"
+          pvNodes _ = error "no pvNode clauses"
 instance IsPathNode Units
     where type PVType Units = PV_Units
-          pvTree x = case pathsOf (x :: Units) (undefined :: Proxy JSONText) :: [Path_Units JSONText] of
-                         [p] -> let [y] = toListOf (toLens p) x
-                                 in [Node (PV_Units_JSONText p y) []]
-                         [] -> []
-                         _ -> error "More than one path returned for view" :: [Tree (PVType Units)]
+          pvNodes x = case pathsOf (x :: Units) (undefined :: Proxy JSONText) :: [Path_Units JSONText] of
+                          [p] -> let [y] = toListOf (toLens p) x
+                                  in [PV_Units_JSONText p y]
+                          [] -> []
+                          _ -> error "More than one path returned for view" :: [PVType Units]
 instance IsPathNode ImageFile
     where type PVType ImageFile = PV_ImageFile
-          pvTree _ = error "no clauses"
+          pvNodes _ = error "no pvNode clauses"
 instance IsPathNode Integer
     where type PVType Integer = PV_Integer
-          pvTree _ = error "no clauses"
+          pvNodes _ = error "no pvNode clauses"
 instance IsPathNode JSONText
     where type PVType JSONText = PV_JSONText
-          pvTree _ = error "no clauses"
+          pvNodes _ = error "no pvNode clauses"
 instance IsPathNode Markup
     where type PVType Markup = PV_Markup
-          pvTree _ = error "no clauses"
+          pvNodes _ = error "no pvNode clauses"
 instance IsPathNode Permissions
     where type PVType Permissions = PV_Permissions
-          pvTree _ = error "no clauses"
+          pvNodes _ = error "no pvNode clauses"
 instance IsPathNode Author
     where type PVType Author = PV_Author
-          pvTree _ = error "no clauses"
+          pvNodes _ = error "no pvNode clauses"
 instance IsPathNode Branding
     where type PVType Branding = PV_Branding
-          pvTree x = case pathsOf (x :: Branding) (undefined :: Proxy Text) :: [Path_Branding Text] of
-                         [p] -> let [y] = toListOf (toLens p) x
-                                 in [Node (PV_Branding_Text p y) []]
-                         [] -> []
-                         _ -> error "More than one path returned for view" :: [Tree (PVType Branding)]
+          pvNodes x = case pathsOf (x :: Branding) (undefined :: Proxy Text) :: [Path_Branding Text] of
+                          [p] -> let [y] = toListOf (toLens p) x
+                                  in [PV_Branding_Text p y]
+                          [] -> []
+                          _ -> error "More than one path returned for view" :: [PVType Branding]
 instance IsPathNode Report
     where type PVType Report = PV_Report
-          pvTree x = case pathsOf (x :: Report) (undefined :: Proxy ReportView) :: [Path_Report ReportView] of
-                         [p] -> let [y] = toListOf (toLens p) x
-                                 in [Node (PV_Report_ReportView p y) []]
-                         [] -> []
-                         _ -> error "More than one path returned for view" :: [Tree (PVType Report)]
+          pvNodes x = case pathsOf (x :: Report) (undefined :: Proxy ReportView) :: [Path_Report ReportView] of
+                          [p] -> let [y] = toListOf (toLens p) x
+                                  in [PV_Report_ReportView p y]
+                          [] -> []
+                          _ -> error "More than one path returned for view" :: [PVType Report]
 instance IsPathNode ReportElem
     where type PVType ReportElem = PV_ReportElem
-          pvTree _ = error "no clauses"
+          pvNodes _ = error "no pvNode clauses"
 instance IsPathNode ReportFlags
     where type PVType ReportFlags = PV_ReportFlags
-          pvTree _ = error "no clauses"
+          pvNodes _ = error "no pvNode clauses"
 instance IsPathNode ReportIntendedUse
     where type PVType ReportIntendedUse = PV_ReportIntendedUse
-          pvTree x = case pathsOf (x :: ReportIntendedUse) (undefined :: Proxy String) :: [Path_ReportIntendedUse String] of
-                         [p] -> let [y] = toListOf (toLens p) x
-                                 in [Node (PV_ReportIntendedUse_String p y) []]
-                         [] -> []
-                         _ -> error "More than one path returned for view" :: [Tree (PVType ReportIntendedUse)]
+          pvNodes x = case pathsOf (x :: ReportIntendedUse) (undefined :: Proxy String) :: [Path_ReportIntendedUse String] of
+                          [p] -> let [y] = toListOf (toLens p) x
+                                  in [PV_ReportIntendedUse_String p y]
+                          [] -> []
+                          _ -> error "More than one path returned for view" :: [PVType ReportIntendedUse]
 instance IsPathNode ReportStandard
     where type PVType ReportStandard = PV_ReportStandard
-          pvTree _ = error "no clauses"
+          pvNodes _ = error "no pvNode clauses"
 instance IsPathNode ReportStatus
     where type PVType ReportStatus = PV_ReportStatus
-          pvTree x = case pathsOf (x :: ReportStatus) (undefined :: Proxy String) :: [Path_ReportStatus String] of
-                         [p] -> let [y] = toListOf (toLens p) x
-                                 in [Node (PV_ReportStatus_String p y) []]
-                         [] -> []
-                         _ -> error "More than one path returned for view" :: [Tree (PVType ReportStatus)]
+          pvNodes x = case pathsOf (x :: ReportStatus) (undefined :: Proxy String) :: [Path_ReportStatus String] of
+                          [p] -> let [y] = toListOf (toLens p) x
+                                  in [PV_ReportStatus_String p y]
+                          [] -> []
+                          _ -> error "More than one path returned for view" :: [PVType ReportStatus]
 instance IsPathNode ReportValueApproachInfo
     where type PVType ReportValueApproachInfo = PV_ReportValueApproachInfo
-          pvTree _ = error "no clauses"
+          pvNodes _ = error "no pvNode clauses"
 instance IsPathNode ReportValueTypeInfo
     where type PVType ReportValueTypeInfo = PV_ReportValueTypeInfo
-          pvTree _ = error "no clauses"
+          pvNodes _ = error "no pvNode clauses"
 instance IsPathNode ReportImage
     where type PVType ReportImage = PV_ReportImage
-          pvTree x = case pathsOf (x :: ReportImage) (undefined :: Proxy ReportImageView) :: [Path_ReportImage ReportImageView] of
-                         [p] -> let [y] = toListOf (toLens p) x
-                                 in [Node (PV_ReportImage_ReportImageView p y) []]
-                         [] -> []
-                         _ -> error "More than one path returned for view" :: [Tree (PVType ReportImage)]
+          pvNodes x = case pathsOf (x :: ReportImage) (undefined :: Proxy ReportImageView) :: [Path_ReportImage ReportImageView] of
+                          [p] -> let [y] = toListOf (toLens p) x
+                                  in [PV_ReportImage_ReportImageView p y]
+                          [] -> []
+                          _ -> error "More than one path returned for view" :: [PVType ReportImage]
 instance IsPathNode ReportImageView
     where type PVType ReportImageView = PV_ReportImageView
-          pvTree _ = error "no clauses"
+          pvNodes _ = error "no pvNode clauses"
 instance IsPathNode ReportView
     where type PVType ReportView = PV_ReportView
-          pvTree _ = error "no clauses"
+          pvNodes _ = error "no pvNode clauses"
 instance IsPathNode Item
     where type PVType Item = PV_Item
-          pvTree _ = error "no clauses"
+          pvNodes _ = error "no pvNode clauses"
 instance IsPathNode ReportMap
     where type PVType ReportMap = PV_ReportMap
-          pvTree _ = error "no clauses"
+          pvNodes _ = error "no pvNode clauses"
 instance IsPathNode CIString
     where type PVType CIString = PV_CIString
-          pvTree x = case pathsOf (x :: CIString) (undefined :: Proxy Text) :: [Path_CIString Text] of
-                         [p] -> let [y] = toListOf (toLens p) x
-                                 in [Node (PV_CIString_Text p y) []]
-                         [] -> []
-                         _ -> error "More than one path returned for view" :: [Tree (PVType CIString)]
+          pvNodes x = case pathsOf (x :: CIString) (undefined :: Proxy Text) :: [Path_CIString Text] of
+                          [p] -> let [y] = toListOf (toLens p) x
+                                  in [PV_CIString_Text p y]
+                          [] -> []
+                          _ -> error "More than one path returned for view" :: [PVType CIString]
 instance IsPathNode URI
     where type PVType URI = PV_URI
-          pvTree _ = error "no clauses"
+          pvNodes _ = error "no pvNode clauses"
 instance IsPathNode Text
     where type PVType Text = PV_Text
-          pvTree x = case pathsOf (x :: Text) (undefined :: Proxy JSONText) :: [Path_Text JSONText] of
-                         [p] -> let [y] = toListOf (toLens p) x
-                                 in [Node (PV_Text_JSONText p y) []]
-                         [] -> []
-                         _ -> error "More than one path returned for view" :: [Tree (PVType Text)]
+          pvNodes x = case pathsOf (x :: Text) (undefined :: Proxy JSONText) :: [Path_Text JSONText] of
+                          [p] -> let [y] = toListOf (toLens p) x
+                                  in [PV_Text_JSONText p y]
+                          [] -> []
+                          _ -> error "More than one path returned for view" :: [PVType Text]
 instance IsPathNode UserId
     where type PVType UserId = PV_UserId
-          pvTree _ = error "no clauses"
+          pvNodes _ = error "no pvNode clauses"
 instance IsPathNode UUID
     where type PVType UUID = PV_UUID
-          pvTree _ = error "no clauses"
+          pvNodes _ = error "no pvNode clauses"
 instance IsPathType (Path_Author a)
     where idPath = Path_Author
 instance IsPathType (Path_Bool a)
