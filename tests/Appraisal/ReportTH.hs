@@ -15,7 +15,7 @@ module Appraisal.ReportTH where
 --import Appraisal.Permissions
 --import Appraisal.Report
 --import Appraisal.ReportImage
-import Appraisal.ReportInstances
+import Appraisal.ReportInstances (startTypes)
 --import Appraisal.ReportItem
 --import Appraisal.ReportMap (ReportMap(ReportMap), ReportID)
 --import Appraisal.Utils.CIString (CIString(..))

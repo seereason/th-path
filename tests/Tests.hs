@@ -44,7 +44,10 @@ import Test.HUnit
 import Text.PrettyPrint (text)
 
 import Appraisal.ReportTH (decs)
-import Report (report)
+import Report (report, image)
+#if 0
+import ReportDecs
+#endif
 import ReportPaths
 
 elem :: ReportElem
@@ -85,7 +88,7 @@ main = do
                expected = let r = Report.report in
                           [let p = Path_Report_View Path_ReportView :: PathType Report ReportView in
                            Node (PV_Report_ReportView p (head (toListOf (toLens p) r)))
-                                [let q = Path_Report_View (Path_ReportView__reportFolder idPath) :: PathType Report String in
+                                [let q = Path_Report_View (Path_ReportView__reportFolder (Path_ReadOnlyFilePath_View idPath)) :: PathType Report String in
                                  Node (PV_Report_String q (head (toListOf (toLens q) r))) []]]
 {-
                expected = let p = Path_Report_View Path_ReportView in
