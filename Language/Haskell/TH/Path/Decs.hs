@@ -51,7 +51,7 @@ import Language.Haskell.TH.Path.Decs.Common (bestNames, bestTypeName, bestPathTy
                                              clauses, fieldLensNamePair, fieldLensNameOld, makePathLens,
                                              pathConNameOfField, pathTypeNameFromTypeName, pvName, uncap)
 import Language.Haskell.TH.Path.Decs.IsPath (doIsPathNode)
-import Language.Haskell.TH.Path.Decs.PathsOf (pathsOfClauses)
+import Language.Haskell.TH.Path.Decs.PathsOf (pathInstanceDecs)
 import Language.Haskell.TH.Path.Decs.PathType (pathType)
 import Language.Haskell.TH.Path.Decs.PVType (doPVType)
 import Language.Haskell.TH.Path.Decs.ToLens (toLensClauses)
@@ -201,27 +201,3 @@ doNode v = do
       pathTypeNames' = Set.map pathTypeNameFromTypeName . typeNames
 
 doIsPathType pname a = runQ [d|instance IsPathType ($(conT pname) a) where idPath = $(conE (mkName (nameBase pname)))|] >>= tell
-
--- | For a given pair of TGVSimples, compute the declaration of the
--- corresponding Path instance.  Each clause matches some possible value
--- of the path type, and returns a lens that extracts the value the
--- path type value specifies.
-pathInstanceDecs :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) =>
-                     TGVSimple -> TGVSimple -> m ()
-pathInstanceDecs key gkey = do
-  ptyp <- pathType (pure (bestType gkey)) key
-  tlc <- execWriterT $ evalStateT (toLensClauses key gkey) mempty
-  poc <- execWriterT $ evalStateT (pathsOfClauses key gkey) mempty
-  -- clauses' <- runQ $ sequence clauses
-  -- exp <- thePathExp gkey key ptyp clauses'
-  when (not (null tlc)) $
-       (runQ $ sequence
-             [instanceD (pure []) [t|IsPath $(pure (bestType key)) $(pure (bestType gkey))|]
-                [ tySynInstD ''PathType (tySynEqn [pure (bestType key), pure (bestType gkey)] (pure ptyp))
-                , funD 'toLens tlc
-                , funD 'pathsOf poc
-                ]]) >>= tell
-    where
-      -- Send a single dec to our funky writer monad
-      -- tell :: (DsMonad m, MonadWriter [Dec] m) => [DecQ] -> m ()
-      -- tell dec = runQ (sequence dec) >>= tell

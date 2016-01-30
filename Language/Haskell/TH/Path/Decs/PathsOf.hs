@@ -16,7 +16,7 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeSynonymInstances #-}
-module Language.Haskell.TH.Path.Decs.PathsOf where
+module Language.Haskell.TH.Path.Decs.PathsOf (pathInstanceDecs) where
 
 import Control.Lens hiding (cons, Strict)
 import Control.Monad (when)
@@ -58,6 +58,30 @@ import Language.Haskell.TH.TypeGraph.Prelude (pprint')
 import Language.Haskell.TH.TypeGraph.TypeGraph (pathKeys, allPathStarts, goalReachableSimple, reachableFromSimple, TypeGraph)
 import Language.Haskell.TH.TypeGraph.TypeInfo (fieldVertex, TypeInfo, typeVertex)
 import Language.Haskell.TH.TypeGraph.Vertex (bestName, etype, field, TGV, TGVSimple, syns, TypeGraphVertex(bestType), typeNames, vsimple)
+
+-- | For a given pair of TGVSimples, compute the declaration of the
+-- corresponding Path instance.  Each clause matches some possible value
+-- of the path type, and returns a lens that extracts the value the
+-- path type value specifies.
+pathInstanceDecs :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) =>
+                     TGVSimple -> TGVSimple -> m ()
+pathInstanceDecs key gkey = do
+  ptyp <- pathType (pure (bestType gkey)) key
+  tlc <- execWriterT $ evalStateT (toLensClauses key gkey) mempty
+  poc <- execWriterT $ evalStateT (pathsOfClauses key gkey) mempty
+  -- clauses' <- runQ $ sequence clauses
+  -- exp <- thePathExp gkey key ptyp clauses'
+  when (not (null tlc)) $
+       (runQ $ sequence
+             [instanceD (pure []) [t|IsPath $(pure (bestType key)) $(pure (bestType gkey))|]
+                [ tySynInstD ''PathType (tySynEqn [pure (bestType key), pure (bestType gkey)] (pure ptyp))
+                , funD 'toLens tlc
+                , funD 'pathsOf poc
+                ]]) >>= tell
+    where
+      -- Send a single dec to our funky writer monad
+      -- tell :: (DsMonad m, MonadWriter [Dec] m) => [DecQ] -> m ()
+      -- tell dec = runQ (sequence dec) >>= tell
 
 -- | Clauses of the pathsOf function.  Each clause matches a value of
 -- type s and returns a path from s to some subtype a.  These clauses

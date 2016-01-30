@@ -162,16 +162,16 @@ pvNodeClauses v =
       doCons tname [ForallC _ _ con] = doCons tname [con]
       doCons tname [RecC cname vsts] = do
         x <- runQ $ newName "x"
-        flds <- mapM (doField tname) vsts
-        return [clause [wildP] (normalB (listE (List.map pure flds))) []]
+        flds <- mapM (doField tname x) vsts
+        return [clause [varP x] (normalB (listE (List.map pure flds))) []]
       doCons tname [NormalC cname sts] = do
         x <- runQ $ newName "x"
-        flds <- mapM (doField' tname) sts
-        return [clause [wildP] (normalB (listE (List.map pure flds))) []]
+        flds <- mapM (doField' tname x) sts
+        return [clause [varP x] (normalB (listE (List.map pure flds))) []]
       doCons tname [InfixC lhs cname rhs] = do
         x <- runQ $ newName "x"
-        flds <- mapM (doField' tname) [lhs, rhs]
-        return [clause [wildP] (normalB (listE (List.map pure flds))) []]
+        flds <- mapM (doField' tname x) [lhs, rhs]
+        return [clause [varP x] (normalB (listE (List.map pure flds))) []]
       doCons tname cons = concat <$> mapM (doCon tname) cons
       -- If we have multiple constructors, only generate values for
       -- the one that matches
@@ -188,20 +188,28 @@ pvNodeClauses v =
       doMatchingFields :: Name -> Name -> [(Name, Strict, Type)] -> m [ClauseQ]
       doMatchingFields tname cname vsts = do
         x <- runQ $ newName "x"
-        flds <- mapM (doField tname) vsts
+        flds <- mapM (doField tname x) vsts
         return [clause [asP x (recP cname [])] (normalB (listE (List.map pure flds))) []]
       doMatchingFields' :: Name -> Name -> [(Strict, Type)] -> m [ClauseQ]
       doMatchingFields' tname cname sts = do
         x <- runQ $ newName "x"
-        flds <- mapM (doField' tname) sts
+        flds <- mapM (doField' tname x) sts
         return [clause [asP x (recP cname [])] (normalB (listE (List.map pure flds))) []]
 
-      doField :: Name -> (Name, Strict, Type) -> m Exp
-      doField tname (fname, _, ftype) =
-          runQ [|error $(litE (stringL ("doField " ++ pprint fname)))|]
+      doField :: Name -> Name -> (Name, Strict, Type) -> m Exp
+      doField tname x (fname, _, ftype) = do
+        f <- expandType ftype >>= typeVertex
+        f' <- expandType ftype >>= fieldVertex (tname, undefined, Right fname)
+        let p = pathConNameOfField f'
+        case (bestName f, p) of
+          (Nothing, _) -> runQ [|error $(litE (stringL ("doField " ++ pprint fname)))|]
+          (Just _, Just n) -> runQ [|$(conE (pvName v f)) ($(conE n) idPath) ($(varE fname) $(varE x)) |]
           -- runQ [|conE (mkName $(litE (stringL ("Path_" ++ nameBase tname ++ "_" ++ nameBase fname)))) idPath|]
-      doField' :: Name -> (Strict, Type) -> m Exp
-      doField' tname (_, ftype) = runQ [|error $(litE (stringL ("doField' " ++ pprint ftype)))|]
+      doField' :: Name -> Name -> (Strict, Type) -> m Exp
+      doField' tname x (_, ftype) = do
+        f <- expandType ftype >>= typeVertex
+        -- Anonymous fields are not supported.
+        runQ [|error $(litE (stringL ("doField' " ++ pprint ftype)))|]
 {-
       doCon tname binds (InfixC st1 cname st2) =
           do l <- runQ $ newName "l"

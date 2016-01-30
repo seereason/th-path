@@ -13115,7 +13115,9 @@ instance IsPathNode ImageCrop
           pvNodes _ = error "no pvNode clauses"
 instance IsPathNode ImageSize
     where type PVType ImageSize = PV_ImageSize
-          pvNodes _ = error "no pvNode clauses"
+          pvNodes x = [PV_ImageSize_Dimension (Path_ImageSize_dim idPath) (dim x),
+                       PV_ImageSize_Double (Path_ImageSize_size idPath) (size x),
+                       PV_ImageSize_Units (Path_ImageSize_units idPath) (units x)]
 instance IsPathNode Units
     where type PVType Units = PV_Units
           pvNodes x = case pathsOf (x :: Units) (undefined :: Proxy JSONText) :: [Path_Units JSONText] of
@@ -13134,13 +13136,20 @@ instance IsPathNode JSONText
           pvNodes _ = error "no pvNode clauses"
 instance IsPathNode Markup
     where type PVType Markup = PV_Markup
-          pvNodes _ = error "no pvNode clauses"
+          pvNodes (x@(Markdown {})) = [PV_Markup_Text (Path_Markup_markdownText idPath) (markdownText x)]
+          pvNodes (x@(Html {})) = [PV_Markup_Text (Path_Markup_htmlText idPath) (htmlText x)]
+          pvNodes (x@(LaTeX {})) = [error "doField' Text.LaTeX.Base.Syntax.LaTeX"]
+          pvNodes (x@(Pandoc {})) = [error "doField' Text.Pandoc.Definition.Pandoc"]
+          pvNodes (x@(Markup {})) = [error "doField' [Appraisal.Markup.Markup]"]
 instance IsPathNode Permissions
     where type PVType Permissions = PV_Permissions
-          pvNodes _ = error "no pvNode clauses"
+          pvNodes x = [PV_Permissions_UserId (Path_Permissions_owner idPath) (owner x),
+                       PV_Permissions_UserIds (Path_Permissions_writers idPath) (writers x),
+                       PV_Permissions_UserIds (Path_Permissions_readers idPath) (readers x)]
 instance IsPathNode Author
     where type PVType Author = PV_Author
-          pvNodes _ = error "no pvNode clauses"
+          pvNodes x = [PV_Author_Markup (Path_Author_authorName idPath) (authorName x),
+                       PV_Author_Markup (Path_Author_authorCredentials idPath) (authorCredentials x)]
 instance IsPathNode Branding
     where type PVType Branding = PV_Branding
           pvNodes x = case pathsOf (x :: Branding) (undefined :: Proxy Text) :: [Path_Branding Text] of
@@ -13157,10 +13166,12 @@ instance IsPathNode Report
                           _ -> error "More than one path returned for view" :: [PVType Report]
 instance IsPathNode ReportElem
     where type PVType ReportElem = PV_ReportElem
-          pvNodes _ = error "no pvNode clauses"
+          pvNodes (x@(ReportItem {})) = [PV_ReportElem_Item (Path_ReportElem_elemItem idPath) (elemItem x)]
+          pvNodes (x@(ReportParagraph {})) = [PV_ReportElem_Markup (Path_ReportElem_elemText idPath) (elemText x)]
+          pvNodes (x@(ReportUndecided {})) = []
 instance IsPathNode ReportFlags
     where type PVType ReportFlags = PV_ReportFlags
-          pvNodes _ = error "no pvNode clauses"
+          pvNodes x = [PV_ReportFlags_Bool (Path_ReportFlags_hideEmptyItemFields idPath) (hideEmptyItemFields x)]
 instance IsPathNode ReportIntendedUse
     where type PVType ReportIntendedUse = PV_ReportIntendedUse
           pvNodes x = case pathsOf (x :: ReportIntendedUse) (undefined :: Proxy String) :: [Path_ReportIntendedUse String] of
@@ -13170,7 +13181,7 @@ instance IsPathNode ReportIntendedUse
                           _ -> error "More than one path returned for view" :: [PVType ReportIntendedUse]
 instance IsPathNode ReportStandard
     where type PVType ReportStandard = PV_ReportStandard
-          pvNodes _ = error "no pvNode clauses"
+          pvNodes x = [PV_ReportStandard_Int (Path_ReportStandard_unReportStandard idPath) (unReportStandard x)]
 instance IsPathNode ReportStatus
     where type PVType ReportStatus = PV_ReportStatus
           pvNodes x = case pathsOf (x :: ReportStatus) (undefined :: Proxy String) :: [Path_ReportStatus String] of
@@ -13180,10 +13191,13 @@ instance IsPathNode ReportStatus
                           _ -> error "More than one path returned for view" :: [PVType ReportStatus]
 instance IsPathNode ReportValueApproachInfo
     where type PVType ReportValueApproachInfo = PV_ReportValueApproachInfo
-          pvNodes _ = error "no pvNode clauses"
+          pvNodes x = [PV_ReportValueApproachInfo_Markup (Path_ReportValueApproachInfo_reportValueApproachName idPath) (reportValueApproachName x),
+                       PV_ReportValueApproachInfo_Markup (Path_ReportValueApproachInfo_reportValueApproachDescription idPath) (reportValueApproachDescription x)]
 instance IsPathNode ReportValueTypeInfo
     where type PVType ReportValueTypeInfo = PV_ReportValueTypeInfo
-          pvNodes _ = error "no pvNode clauses"
+          pvNodes x = [PV_ReportValueTypeInfo_Markup (Path_ReportValueTypeInfo_reportValueTypeName idPath) (reportValueTypeName x),
+                       PV_ReportValueTypeInfo_Markup (Path_ReportValueTypeInfo_reportValueTypeDescription idPath) (reportValueTypeDescription x),
+                       PV_ReportValueTypeInfo_Markup (Path_ReportValueTypeInfo_reportValueTypeDefinition idPath) (reportValueTypeDefinition x)]
 instance IsPathNode ReportImage
     where type PVType ReportImage = PV_ReportImage
           pvNodes x = case pathsOf (x :: ReportImage) (undefined :: Proxy ReportImageView) :: [Path_ReportImage ReportImageView] of
@@ -13193,16 +13207,70 @@ instance IsPathNode ReportImage
                           _ -> error "More than one path returned for view" :: [PVType ReportImage]
 instance IsPathNode ReportImageView
     where type PVType ReportImageView = PV_ReportImageView
-          pvNodes _ = error "no pvNode clauses"
+          pvNodes x = [PV_ReportImageView_SaneSizeImageSize (Path_ReportImageView__picSize idPath) (_picSize x),
+                       PV_ReportImageView_ImageCrop (Path_ReportImageView__picCrop idPath) (_picCrop x),
+                       PV_ReportImageView_Markup (Path_ReportImageView__picCaption idPath) (_picCaption x),
+                       error "doField Appraisal.ReportInstances._picOriginal",
+                       PV_ReportImageView_MaybeImageFile (Path_ReportImageView__picEditedDeprecated idPath) (_picEditedDeprecated x),
+                       PV_ReportImageView_MaybeImageFile (Path_ReportImageView__picThumbDeprecated idPath) (_picThumbDeprecated x),
+                       PV_ReportImageView_MaybeImageFile (Path_ReportImageView__picPrinterDeprecated idPath) (_picPrinterDeprecated x),
+                       PV_ReportImageView_Bool (Path_ReportImageView__picMustEnlarge idPath) (_picMustEnlarge x),
+                       PV_ReportImageView_MaybeImageFile (Path_ReportImageView__picEnlargedDeprecated idPath) (_picEnlargedDeprecated x)]
 instance IsPathNode ReportView
     where type PVType ReportView = PV_ReportView
-          pvNodes _ = error "no pvNode clauses"
+          pvNodes x = [PV_ReportView_ReadOnlyFilePath (Path_ReportView__reportFolder idPath) (_reportFolder x),
+                       PV_ReportView_Markup (Path_ReportView__reportName idPath) (_reportName x),
+                       PV_ReportView_Markup (Path_ReportView__reportDate idPath) (_reportDate x),
+                       PV_ReportView_Markup (Path_ReportView__reportContractDate idPath) (_reportContractDate x),
+                       PV_ReportView_Markup (Path_ReportView__reportInspectionDate idPath) (_reportInspectionDate x),
+                       PV_ReportView_Markup (Path_ReportView__reportEffectiveDate idPath) (_reportEffectiveDate x),
+                       PV_ReportView_Authors (Path_ReportView__reportAuthors idPath) (_reportAuthors x),
+                       PV_ReportView_Markup (Path_ReportView__reportPreparer idPath) (_reportPreparer x),
+                       PV_ReportView_Markup (Path_ReportView__reportPreparerEIN idPath) (_reportPreparerEIN x),
+                       PV_ReportView_Markup (Path_ReportView__reportPreparerAddress idPath) (_reportPreparerAddress x),
+                       PV_ReportView_Markup (Path_ReportView__reportPreparerEMail idPath) (_reportPreparerEMail x),
+                       PV_ReportView_Markup (Path_ReportView__reportPreparerWebsite idPath) (_reportPreparerWebsite x),
+                       PV_ReportView_AbbrevPairs (Path_ReportView__reportAbbrevs idPath) (_reportAbbrevs x),
+                       PV_ReportView_Markup (Path_ReportView__reportTitle idPath) (_reportTitle x),
+                       PV_ReportView_Markup (Path_ReportView__reportHeader idPath) (_reportHeader x),
+                       PV_ReportView_Markup (Path_ReportView__reportFooter idPath) (_reportFooter x),
+                       PV_ReportView_MaybeReportIntendedUse (Path_ReportView__reportIntendedUse idPath) (_reportIntendedUse x),
+                       PV_ReportView_ReportValueTypeInfo (Path_ReportView__reportValueTypeInfo idPath) (_reportValueTypeInfo x),
+                       PV_ReportView_ReportValueApproachInfo (Path_ReportView__reportValueApproachInfo idPath) (_reportValueApproachInfo x),
+                       PV_ReportView_Markup (Path_ReportView__reportClientName idPath) (_reportClientName x),
+                       PV_ReportView_Markup (Path_ReportView__reportClientAddress idPath) (_reportClientAddress x),
+                       PV_ReportView_Markup (Path_ReportView__reportClientGreeting idPath) (_reportClientGreeting x),
+                       PV_ReportView_Markup (Path_ReportView__reportItemsOwnerFull idPath) (_reportItemsOwnerFull x),
+                       PV_ReportView_Markup (Path_ReportView__reportItemsOwner idPath) (_reportItemsOwner x),
+                       PV_ReportView_Markup (Path_ReportView__reportBriefItems idPath) (_reportBriefItems x),
+                       PV_ReportView_Markup (Path_ReportView__reportInspectionLocation idPath) (_reportInspectionLocation x),
+                       PV_ReportView_ReportElems (Path_ReportView__reportBody idPath) (_reportBody x),
+                       PV_ReportView_MarkupPairs (Path_ReportView__reportGlossary idPath) (_reportGlossary x),
+                       PV_ReportView_MarkupPairs (Path_ReportView__reportSources idPath) (_reportSources x),
+                       PV_ReportView_Markup (Path_ReportView__reportLetterOfTransmittal idPath) (_reportLetterOfTransmittal x),
+                       PV_ReportView_Markup (Path_ReportView__reportScopeOfWork idPath) (_reportScopeOfWork x),
+                       PV_ReportView_Markups (Path_ReportView__reportCertification idPath) (_reportCertification x),
+                       PV_ReportView_Markups (Path_ReportView__reportLimitingConditions idPath) (_reportLimitingConditions x),
+                       PV_ReportView_Markup (Path_ReportView__reportPrivacyPolicy idPath) (_reportPrivacyPolicy x),
+                       PV_ReportView_Permissions (Path_ReportView__reportPerms idPath) (_reportPerms x),
+                       PV_ReportView_Integer (Path_ReportView__reportRevision idPath) (_reportRevision x),
+                       PV_ReportView_Int64 (Path_ReportView__reportCreated idPath) (_reportCreated x),
+                       PV_ReportView_Branding (Path_ReportView__reportBranding idPath) (_reportBranding x),
+                       PV_ReportView_ReportStatus (Path_ReportView__reportStatus idPath) (_reportStatus x),
+                       PV_ReportView_Bool (Path_ReportView__reportRedacted idPath) (_reportRedacted x),
+                       PV_ReportView_ReportFlags (Path_ReportView__reportFlags idPath) (_reportFlags x),
+                       PV_ReportView_UUID (Path_ReportView__reportUUID idPath) (_reportUUID x),
+                       PV_ReportView_Bool (Path_ReportView__reportOrderByItemName idPath) (_reportOrderByItemName x),
+                       PV_ReportView_Bool (Path_ReportView__reportDisplayItemName idPath) (_reportDisplayItemName x),
+                       PV_ReportView_ReportStandard (Path_ReportView__reportStandardsVersion idPath) (_reportStandardsVersion x)]
 instance IsPathNode Item
     where type PVType Item = PV_Item
-          pvNodes _ = error "no pvNode clauses"
+          pvNodes x = [PV_Item_Text (Path_Item_itemName idPath) (itemName x),
+                       error "doField Appraisal.ReportItem.fields",
+                       PV_Item_ReportImages (Path_Item_images idPath) (images x)]
 instance IsPathNode ReportMap
     where type PVType ReportMap = PV_ReportMap
-          pvNodes _ = error "no pvNode clauses"
+          pvNodes x = [error "doField Appraisal.ReportMap.unReportMap"]
 instance IsPathNode CIString
     where type PVType CIString = PV_CIString
           pvNodes x = case pathsOf (x :: CIString) (undefined :: Proxy Text) :: [Path_CIString Text] of
