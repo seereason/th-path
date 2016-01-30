@@ -78,6 +78,8 @@ doIsPathNode v =
                                  _ -> pnc)]) >>= tell . (: [])
       Nothing -> return ()
 
+subforest = []
+
 -- | Clauses of the pvNodes function.  Like pathsOf, but returns a
 -- PVType instead of an IsPath.
 --
@@ -104,23 +106,25 @@ pvNodeClauses v =
                 sf <- pvNodeClauses w
                 runQ [d|f x = (case pathsOf (x :: $(conT tname)) (undefined :: Proxy $(conT wname)) :: [$(conT ptname) $(conT wname)] of
                                  [p] -> let [y] = toListOf (toLens p) x in
-                                        [($(conE pcname) p y)]
+                                        [Node ($(conE pcname) p y) subforest]
                                  [] -> []
                                  _ -> error "More than one path returned for view"
-                              ) :: [PVType $(pure (view (etype . unE) v))] |] >>= return . clauses
+                              ) :: [Tree (PVType $(pure (view (etype . unE) v)))] |] >>= return . clauses
        ConT tname -> doName tname
        AppT (AppT mtyp _ityp) vtyp
            | mtyp == ConT ''Order ->
                do w <- expandType vtyp >>= typeVertex
                   runQ [d|f x = List.map (\p -> let [y] = toListOf (toLens p) x in
-                                                $(conE (pvName v w)) p y) (pathsOf x (undefined :: Proxy $(pure vtyp))) |] >>= return . clauses
+                                                Node ($(conE (pvName v w)) p y) subforest)
+                                         (pathsOf x (undefined :: Proxy $(pure vtyp))) |] >>= return . clauses
                -- return [clause [wildP] (normalB [|error "order"|]) []]
        AppT ListT _etyp -> error "list" {- return [clause [wildP] (normalB [|error "list"|]) []]-}
        AppT (AppT t3 _ktyp) vtyp
            | t3 == ConT ''Map ->
                do w <- expandType vtyp >>= typeVertex
                   runQ [d|f x = List.map (\p -> let [y] = toListOf (toLens p) x in
-                                                $(conE (pvName v w)) p y) (pathsOf x (undefined :: Proxy $(pure vtyp))) |] >>= return . clauses
+                                                Node ($(conE (pvName v w)) p y) subforest)
+                                         (pathsOf x (undefined :: Proxy $(pure vtyp))) |] >>= return . clauses
        AppT (AppT (TupleT 2) ftyp) styp ->
            do x <- runQ $ newName "x"
               f <- doSingleton x v ftyp
@@ -131,22 +135,24 @@ pvNodeClauses v =
                do e <- expandType etyp >>= typeVertex
                   let typ = view (etype . unE) v
                   runQ [d|_f x = List.map
-                                   (\p -> $(conE (pvName v e)) p (head (toListOf (toLens p) x)))
+                                   (\p -> Node ($(conE (pvName v e)) p (head (toListOf (toLens p) x))) subforest)
                                    (pathsOf x (undefined :: Proxy $(pure etyp))) |] >>= return . clauses
        AppT (AppT t3 ltyp) rtyp
            | t3 == ConT ''Either ->
                do l <- expandType ltyp >>= typeVertex
                   r <- expandType rtyp >>= typeVertex
                   let typ = view (etype . unE) v
-                  runQ [d|_f x = [let p = (head (pathsOf x (undefined :: Proxy $(pure ltyp)))) in $(conE (pvName v l)) p (head (toListOf (toLens p) x)),
-                                  let p = (head (pathsOf x (undefined :: Proxy $(pure rtyp)))) in $(conE (pvName v r)) p (head (toListOf (toLens p) x))] |] >>= return . clauses
+                  runQ [d|_f x = [let p = (head (pathsOf x (undefined :: Proxy $(pure ltyp)))) in
+                                  Node ($(conE (pvName v l)) p (head (toListOf (toLens p) x))) subforest,
+                                  let p = (head (pathsOf x (undefined :: Proxy $(pure rtyp)))) in
+                                  Node ($(conE (pvName v r)) p (head (toListOf (toLens p) x))) subforest] |] >>= return . clauses
        _ -> return []
     where
       doSingleton :: Name -> TGVSimple -> Type -> m Exp
       doSingleton x v etyp = do
         e <- expandType etyp >>= typeVertex
         runQ [|let p = (head (pathsOf $(varE x) (undefined :: Proxy $(pure etyp)))) in
-               $(conE (pvName v e)) p (head (toListOf (toLens p) $(varE x))) |]
+               Node ($(conE (pvName v e)) p (head (toListOf (toLens p) $(varE x)))) subforest |]
 
       doName :: Name -> m [ClauseQ]
       doName tname = qReify tname >>= doInfo
@@ -203,7 +209,7 @@ pvNodeClauses v =
         let p = pathConNameOfField f'
         case (bestName f, p) of
           (Nothing, _) -> runQ [|error $(litE (stringL ("doField " ++ pprint fname)))|]
-          (Just _, Just n) -> runQ [|$(conE (pvName v f)) ($(conE n) idPath) ($(varE fname) $(varE x)) |]
+          (Just _, Just n) -> runQ [| Node ($(conE (pvName v f)) ($(conE n) idPath) ($(varE fname) $(varE x))) subforest |]
           -- runQ [|conE (mkName $(litE (stringL ("Path_" ++ nameBase tname ++ "_" ++ nameBase fname)))) idPath|]
       doField' :: Name -> Name -> (Strict, Type) -> m Exp
       doField' tname x (_, ftype) = do

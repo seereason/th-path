@@ -13004,85 +13004,85 @@ instance IsPathNode (Order AbbrevPairID ((CIString, Markup)))
     where type PVType (Order AbbrevPairID
                              ((CIString, Markup))) = PV_AbbrevPairs
           pvNodes x = map (\p -> let [y] = toListOf (toLens p) x
-                                  in PV_AbbrevPairs_AbbrevPair p y) (pathsOf x (undefined :: Proxy ((CIString,
-                                                                                                     Markup))))
+                                  in Node (PV_AbbrevPairs_AbbrevPair p y) subforest) (pathsOf x (undefined :: Proxy ((CIString,
+                                                                                                                      Markup))))
 instance IsPathNode (Order AuthorID Author)
     where type PVType (Order AuthorID Author) = PV_Authors
           pvNodes x = map (\p -> let [y] = toListOf (toLens p) x
-                                  in PV_Authors_Author p y) (pathsOf x (undefined :: Proxy Author))
+                                  in Node (PV_Authors_Author p y) subforest) (pathsOf x (undefined :: Proxy Author))
 instance IsPathNode (Order MarkupID Markup)
     where type PVType (Order MarkupID Markup) = PV_Markups
           pvNodes x = map (\p -> let [y] = toListOf (toLens p) x
-                                  in PV_Markups_Markup p y) (pathsOf x (undefined :: Proxy Markup))
+                                  in Node (PV_Markups_Markup p y) subforest) (pathsOf x (undefined :: Proxy Markup))
 instance IsPathNode (Order MarkupPairID ((Markup, Markup)))
     where type PVType (Order MarkupPairID
                              ((Markup, Markup))) = PV_MarkupPairs
           pvNodes x = map (\p -> let [y] = toListOf (toLens p) x
-                                  in PV_MarkupPairs_MarkupPair p y) (pathsOf x (undefined :: Proxy ((Markup,
-                                                                                                     Markup))))
+                                  in Node (PV_MarkupPairs_MarkupPair p y) subforest) (pathsOf x (undefined :: Proxy ((Markup,
+                                                                                                                      Markup))))
 instance IsPathNode (Order ReportElemID ReportElem)
     where type PVType (Order ReportElemID ReportElem) = PV_ReportElems
           pvNodes x = map (\p -> let [y] = toListOf (toLens p) x
-                                  in PV_ReportElems_ReportElem p y) (pathsOf x (undefined :: Proxy ReportElem))
+                                  in Node (PV_ReportElems_ReportElem p y) subforest) (pathsOf x (undefined :: Proxy ReportElem))
 instance IsPathNode (Order ReportImageID ReportImage)
     where type PVType (Order ReportImageID
                              ReportImage) = PV_ReportImages
           pvNodes x = map (\p -> let [y] = toListOf (toLens p) x
-                                  in PV_ReportImages_ReportImage p y) (pathsOf x (undefined :: Proxy ReportImage))
+                                  in Node (PV_ReportImages_ReportImage p y) subforest) (pathsOf x (undefined :: Proxy ReportImage))
 instance IsPathNode ((Markup, Markup))
     where type PVType ((Markup, Markup)) = PV_MarkupPair
           pvNodes x = [let p = head (pathsOf x (undefined :: Proxy Markup))
-                        in PV_MarkupPair_Markup p (head (toListOf (toLens p) x)),
+                        in Node (PV_MarkupPair_Markup p (head (toListOf (toLens p) x))) subforest,
                        let p = head (pathsOf x (undefined :: Proxy Markup))
-                        in PV_MarkupPair_Markup p (head (toListOf (toLens p) x))]
+                        in Node (PV_MarkupPair_Markup p (head (toListOf (toLens p) x))) subforest]
 instance IsPathNode ((CIString, Markup))
     where type PVType ((CIString, Markup)) = PV_AbbrevPair
           pvNodes x = [let p = head (pathsOf x (undefined :: Proxy CIString))
-                        in PV_AbbrevPair_CIString p (head (toListOf (toLens p) x)),
+                        in Node (PV_AbbrevPair_CIString p (head (toListOf (toLens p) x))) subforest,
                        let p = head (pathsOf x (undefined :: Proxy Markup))
-                        in PV_AbbrevPair_Markup p (head (toListOf (toLens p) x))]
+                        in Node (PV_AbbrevPair_Markup p (head (toListOf (toLens p) x))) subforest]
 instance IsPathNode (Maybe ImageFile)
     where type PVType (Maybe ImageFile) = PV_MaybeImageFile
           pvNodes x = case pathsOf (x :: MaybeImageFile) (undefined :: Proxy String) :: [Path_MaybeImageFile String] of
                           [p] -> let [y] = toListOf (toLens p) x
-                                  in [PV_MaybeImageFile_String p y]
+                                  in [Node (PV_MaybeImageFile_String p y) subforest]
                           [] -> []
-                          _ -> error "More than one path returned for view" :: [PVType (Maybe ImageFile)]
+                          _ -> error "More than one path returned for view" :: [Tree (PVType (Maybe ImageFile))]
 instance IsPathNode (Maybe ReportIntendedUse)
     where type PVType (Maybe ReportIntendedUse) = PV_MaybeReportIntendedUse
           pvNodes x = case pathsOf (x :: MaybeReportIntendedUse) (undefined :: Proxy String) :: [Path_MaybeReportIntendedUse String] of
                           [p] -> let [y] = toListOf (toLens p) x
-                                  in [PV_MaybeReportIntendedUse_String p y]
+                                  in [Node (PV_MaybeReportIntendedUse_String p y) subforest]
                           [] -> []
-                          _ -> error "More than one path returned for view" :: [PVType (Maybe ReportIntendedUse)]
+                          _ -> error "More than one path returned for view" :: [Tree (PVType (Maybe ReportIntendedUse))]
 instance IsPathNode (ReadOnly ([Char]))
     where type PVType (ReadOnly ([Char])) = PV_ReadOnlyFilePath
           pvNodes x = case pathsOf (x :: ReadOnlyFilePath) (undefined :: Proxy String) :: [Path_ReadOnlyFilePath String] of
                           [p] -> let [y] = toListOf (toLens p) x
-                                  in [PV_ReadOnlyFilePath_String p y]
+                                  in [Node (PV_ReadOnlyFilePath_String p y) subforest]
                           [] -> []
-                          _ -> error "More than one path returned for view" :: [PVType (ReadOnly ([Char]))]
+                          _ -> error "More than one path returned for view" :: [Tree (PVType (ReadOnly ([Char])))]
 instance IsPathNode (SaneSize ImageSize)
     where type PVType (SaneSize ImageSize) = PV_SaneSizeImageSize
           pvNodes x = case pathsOf (x :: SaneSizeImageSize) (undefined :: Proxy ImageSize) :: [Path_SaneSizeImageSize ImageSize] of
                           [p] -> let [y] = toListOf (toLens p) x
-                                  in [PV_SaneSizeImageSize_ImageSize p y]
+                                  in [Node (PV_SaneSizeImageSize_ImageSize p y) subforest]
                           [] -> []
-                          _ -> error "More than one path returned for view" :: [PVType (SaneSize ImageSize)]
+                          _ -> error "More than one path returned for view" :: [Tree (PVType (SaneSize ImageSize))]
 instance IsPathNode ([Char])
     where type PVType ([Char]) = PV_String
           pvNodes x = case pathsOf (x :: String) (undefined :: Proxy JSONText) :: [Path_String JSONText] of
                           [p] -> let [y] = toListOf (toLens p) x
-                                  in [PV_String_JSONText p y]
+                                  in [Node (PV_String_JSONText p y) subforest]
                           [] -> []
-                          _ -> error "More than one path returned for view" :: [PVType ([Char])]
+                          _ -> error "More than one path returned for view" :: [Tree (PVType ([Char]))]
 instance IsPathNode ([UserId])
     where type PVType ([UserId]) = PV_UserIds
           pvNodes x = case pathsOf (x :: UserIds) (undefined :: Proxy Text) :: [Path_UserIds Text] of
                           [p] -> let [y] = toListOf (toLens p) x
-                                  in [PV_UserIds_Text p y]
+                                  in [Node (PV_UserIds_Text p y) subforest]
                           [] -> []
-                          _ -> error "More than one path returned for view" :: [PVType ([UserId])]
+                          _ -> error "More than one path returned for view" :: [Tree (PVType ([UserId]))]
 instance IsPathNode Int64
     where type PVType Int64 = PV_Int64
           pvNodes _ = error "no pvNode clauses"
@@ -13090,16 +13090,16 @@ instance IsPathNode Bool
     where type PVType Bool = PV_Bool
           pvNodes x = case pathsOf (x :: Bool) (undefined :: Proxy String) :: [Path_Bool String] of
                           [p] -> let [y] = toListOf (toLens p) x
-                                  in [PV_Bool_String p y]
+                                  in [Node (PV_Bool_String p y) subforest]
                           [] -> []
-                          _ -> error "More than one path returned for view" :: [PVType Bool]
+                          _ -> error "More than one path returned for view" :: [Tree (PVType Bool)]
 instance IsPathNode Double
     where type PVType Double = PV_Double
           pvNodes x = case pathsOf (x :: Double) (undefined :: Proxy String) :: [Path_Double String] of
                           [p] -> let [y] = toListOf (toLens p) x
-                                  in [PV_Double_String p y]
+                                  in [Node (PV_Double_String p y) subforest]
                           [] -> []
-                          _ -> error "More than one path returned for view" :: [PVType Double]
+                          _ -> error "More than one path returned for view" :: [Tree (PVType Double)]
 instance IsPathNode Int
     where type PVType Int = PV_Int
           pvNodes _ = error "no pvNode clauses"
@@ -13107,24 +13107,24 @@ instance IsPathNode Dimension
     where type PVType Dimension = PV_Dimension
           pvNodes x = case pathsOf (x :: Dimension) (undefined :: Proxy JSONText) :: [Path_Dimension JSONText] of
                           [p] -> let [y] = toListOf (toLens p) x
-                                  in [PV_Dimension_JSONText p y]
+                                  in [Node (PV_Dimension_JSONText p y) subforest]
                           [] -> []
-                          _ -> error "More than one path returned for view" :: [PVType Dimension]
+                          _ -> error "More than one path returned for view" :: [Tree (PVType Dimension)]
 instance IsPathNode ImageCrop
     where type PVType ImageCrop = PV_ImageCrop
           pvNodes _ = error "no pvNode clauses"
 instance IsPathNode ImageSize
     where type PVType ImageSize = PV_ImageSize
-          pvNodes x = [PV_ImageSize_Dimension (Path_ImageSize_dim idPath) (dim x),
-                       PV_ImageSize_Double (Path_ImageSize_size idPath) (size x),
-                       PV_ImageSize_Units (Path_ImageSize_units idPath) (units x)]
+          pvNodes x = [Node (PV_ImageSize_Dimension (Path_ImageSize_dim idPath) (dim x)) subforest,
+                       Node (PV_ImageSize_Double (Path_ImageSize_size idPath) (size x)) subforest,
+                       Node (PV_ImageSize_Units (Path_ImageSize_units idPath) (units x)) subforest]
 instance IsPathNode Units
     where type PVType Units = PV_Units
           pvNodes x = case pathsOf (x :: Units) (undefined :: Proxy JSONText) :: [Path_Units JSONText] of
                           [p] -> let [y] = toListOf (toLens p) x
-                                  in [PV_Units_JSONText p y]
+                                  in [Node (PV_Units_JSONText p y) subforest]
                           [] -> []
-                          _ -> error "More than one path returned for view" :: [PVType Units]
+                          _ -> error "More than one path returned for view" :: [Tree (PVType Units)]
 instance IsPathNode ImageFile
     where type PVType ImageFile = PV_ImageFile
           pvNodes _ = error "no pvNode clauses"
@@ -13136,138 +13136,138 @@ instance IsPathNode JSONText
           pvNodes _ = error "no pvNode clauses"
 instance IsPathNode Markup
     where type PVType Markup = PV_Markup
-          pvNodes (x@(Markdown {})) = [PV_Markup_Text (Path_Markup_markdownText idPath) (markdownText x)]
-          pvNodes (x@(Html {})) = [PV_Markup_Text (Path_Markup_htmlText idPath) (htmlText x)]
+          pvNodes (x@(Markdown {})) = [Node (PV_Markup_Text (Path_Markup_markdownText idPath) (markdownText x)) subforest]
+          pvNodes (x@(Html {})) = [Node (PV_Markup_Text (Path_Markup_htmlText idPath) (htmlText x)) subforest]
           pvNodes (x@(LaTeX {})) = [error "doField' Text.LaTeX.Base.Syntax.LaTeX"]
           pvNodes (x@(Pandoc {})) = [error "doField' Text.Pandoc.Definition.Pandoc"]
           pvNodes (x@(Markup {})) = [error "doField' [Appraisal.Markup.Markup]"]
 instance IsPathNode Permissions
     where type PVType Permissions = PV_Permissions
-          pvNodes x = [PV_Permissions_UserId (Path_Permissions_owner idPath) (owner x),
-                       PV_Permissions_UserIds (Path_Permissions_writers idPath) (writers x),
-                       PV_Permissions_UserIds (Path_Permissions_readers idPath) (readers x)]
+          pvNodes x = [Node (PV_Permissions_UserId (Path_Permissions_owner idPath) (owner x)) subforest,
+                       Node (PV_Permissions_UserIds (Path_Permissions_writers idPath) (writers x)) subforest,
+                       Node (PV_Permissions_UserIds (Path_Permissions_readers idPath) (readers x)) subforest]
 instance IsPathNode Author
     where type PVType Author = PV_Author
-          pvNodes x = [PV_Author_Markup (Path_Author_authorName idPath) (authorName x),
-                       PV_Author_Markup (Path_Author_authorCredentials idPath) (authorCredentials x)]
+          pvNodes x = [Node (PV_Author_Markup (Path_Author_authorName idPath) (authorName x)) subforest,
+                       Node (PV_Author_Markup (Path_Author_authorCredentials idPath) (authorCredentials x)) subforest]
 instance IsPathNode Branding
     where type PVType Branding = PV_Branding
           pvNodes x = case pathsOf (x :: Branding) (undefined :: Proxy Text) :: [Path_Branding Text] of
                           [p] -> let [y] = toListOf (toLens p) x
-                                  in [PV_Branding_Text p y]
+                                  in [Node (PV_Branding_Text p y) subforest]
                           [] -> []
-                          _ -> error "More than one path returned for view" :: [PVType Branding]
+                          _ -> error "More than one path returned for view" :: [Tree (PVType Branding)]
 instance IsPathNode Report
     where type PVType Report = PV_Report
           pvNodes x = case pathsOf (x :: Report) (undefined :: Proxy ReportView) :: [Path_Report ReportView] of
                           [p] -> let [y] = toListOf (toLens p) x
-                                  in [PV_Report_ReportView p y]
+                                  in [Node (PV_Report_ReportView p y) subforest]
                           [] -> []
-                          _ -> error "More than one path returned for view" :: [PVType Report]
+                          _ -> error "More than one path returned for view" :: [Tree (PVType Report)]
 instance IsPathNode ReportElem
     where type PVType ReportElem = PV_ReportElem
-          pvNodes (x@(ReportItem {})) = [PV_ReportElem_Item (Path_ReportElem_elemItem idPath) (elemItem x)]
-          pvNodes (x@(ReportParagraph {})) = [PV_ReportElem_Markup (Path_ReportElem_elemText idPath) (elemText x)]
+          pvNodes (x@(ReportItem {})) = [Node (PV_ReportElem_Item (Path_ReportElem_elemItem idPath) (elemItem x)) subforest]
+          pvNodes (x@(ReportParagraph {})) = [Node (PV_ReportElem_Markup (Path_ReportElem_elemText idPath) (elemText x)) subforest]
           pvNodes (x@(ReportUndecided {})) = []
 instance IsPathNode ReportFlags
     where type PVType ReportFlags = PV_ReportFlags
-          pvNodes x = [PV_ReportFlags_Bool (Path_ReportFlags_hideEmptyItemFields idPath) (hideEmptyItemFields x)]
+          pvNodes x = [Node (PV_ReportFlags_Bool (Path_ReportFlags_hideEmptyItemFields idPath) (hideEmptyItemFields x)) subforest]
 instance IsPathNode ReportIntendedUse
     where type PVType ReportIntendedUse = PV_ReportIntendedUse
           pvNodes x = case pathsOf (x :: ReportIntendedUse) (undefined :: Proxy String) :: [Path_ReportIntendedUse String] of
                           [p] -> let [y] = toListOf (toLens p) x
-                                  in [PV_ReportIntendedUse_String p y]
+                                  in [Node (PV_ReportIntendedUse_String p y) subforest]
                           [] -> []
-                          _ -> error "More than one path returned for view" :: [PVType ReportIntendedUse]
+                          _ -> error "More than one path returned for view" :: [Tree (PVType ReportIntendedUse)]
 instance IsPathNode ReportStandard
     where type PVType ReportStandard = PV_ReportStandard
-          pvNodes x = [PV_ReportStandard_Int (Path_ReportStandard_unReportStandard idPath) (unReportStandard x)]
+          pvNodes x = [Node (PV_ReportStandard_Int (Path_ReportStandard_unReportStandard idPath) (unReportStandard x)) subforest]
 instance IsPathNode ReportStatus
     where type PVType ReportStatus = PV_ReportStatus
           pvNodes x = case pathsOf (x :: ReportStatus) (undefined :: Proxy String) :: [Path_ReportStatus String] of
                           [p] -> let [y] = toListOf (toLens p) x
-                                  in [PV_ReportStatus_String p y]
+                                  in [Node (PV_ReportStatus_String p y) subforest]
                           [] -> []
-                          _ -> error "More than one path returned for view" :: [PVType ReportStatus]
+                          _ -> error "More than one path returned for view" :: [Tree (PVType ReportStatus)]
 instance IsPathNode ReportValueApproachInfo
     where type PVType ReportValueApproachInfo = PV_ReportValueApproachInfo
-          pvNodes x = [PV_ReportValueApproachInfo_Markup (Path_ReportValueApproachInfo_reportValueApproachName idPath) (reportValueApproachName x),
-                       PV_ReportValueApproachInfo_Markup (Path_ReportValueApproachInfo_reportValueApproachDescription idPath) (reportValueApproachDescription x)]
+          pvNodes x = [Node (PV_ReportValueApproachInfo_Markup (Path_ReportValueApproachInfo_reportValueApproachName idPath) (reportValueApproachName x)) subforest,
+                       Node (PV_ReportValueApproachInfo_Markup (Path_ReportValueApproachInfo_reportValueApproachDescription idPath) (reportValueApproachDescription x)) subforest]
 instance IsPathNode ReportValueTypeInfo
     where type PVType ReportValueTypeInfo = PV_ReportValueTypeInfo
-          pvNodes x = [PV_ReportValueTypeInfo_Markup (Path_ReportValueTypeInfo_reportValueTypeName idPath) (reportValueTypeName x),
-                       PV_ReportValueTypeInfo_Markup (Path_ReportValueTypeInfo_reportValueTypeDescription idPath) (reportValueTypeDescription x),
-                       PV_ReportValueTypeInfo_Markup (Path_ReportValueTypeInfo_reportValueTypeDefinition idPath) (reportValueTypeDefinition x)]
+          pvNodes x = [Node (PV_ReportValueTypeInfo_Markup (Path_ReportValueTypeInfo_reportValueTypeName idPath) (reportValueTypeName x)) subforest,
+                       Node (PV_ReportValueTypeInfo_Markup (Path_ReportValueTypeInfo_reportValueTypeDescription idPath) (reportValueTypeDescription x)) subforest,
+                       Node (PV_ReportValueTypeInfo_Markup (Path_ReportValueTypeInfo_reportValueTypeDefinition idPath) (reportValueTypeDefinition x)) subforest]
 instance IsPathNode ReportImage
     where type PVType ReportImage = PV_ReportImage
           pvNodes x = case pathsOf (x :: ReportImage) (undefined :: Proxy ReportImageView) :: [Path_ReportImage ReportImageView] of
                           [p] -> let [y] = toListOf (toLens p) x
-                                  in [PV_ReportImage_ReportImageView p y]
+                                  in [Node (PV_ReportImage_ReportImageView p y) subforest]
                           [] -> []
-                          _ -> error "More than one path returned for view" :: [PVType ReportImage]
+                          _ -> error "More than one path returned for view" :: [Tree (PVType ReportImage)]
 instance IsPathNode ReportImageView
     where type PVType ReportImageView = PV_ReportImageView
-          pvNodes x = [PV_ReportImageView_SaneSizeImageSize (Path_ReportImageView__picSize idPath) (_picSize x),
-                       PV_ReportImageView_ImageCrop (Path_ReportImageView__picCrop idPath) (_picCrop x),
-                       PV_ReportImageView_Markup (Path_ReportImageView__picCaption idPath) (_picCaption x),
+          pvNodes x = [Node (PV_ReportImageView_SaneSizeImageSize (Path_ReportImageView__picSize idPath) (_picSize x)) subforest,
+                       Node (PV_ReportImageView_ImageCrop (Path_ReportImageView__picCrop idPath) (_picCrop x)) subforest,
+                       Node (PV_ReportImageView_Markup (Path_ReportImageView__picCaption idPath) (_picCaption x)) subforest,
                        error "doField Appraisal.ReportInstances._picOriginal",
-                       PV_ReportImageView_MaybeImageFile (Path_ReportImageView__picEditedDeprecated idPath) (_picEditedDeprecated x),
-                       PV_ReportImageView_MaybeImageFile (Path_ReportImageView__picThumbDeprecated idPath) (_picThumbDeprecated x),
-                       PV_ReportImageView_MaybeImageFile (Path_ReportImageView__picPrinterDeprecated idPath) (_picPrinterDeprecated x),
-                       PV_ReportImageView_Bool (Path_ReportImageView__picMustEnlarge idPath) (_picMustEnlarge x),
-                       PV_ReportImageView_MaybeImageFile (Path_ReportImageView__picEnlargedDeprecated idPath) (_picEnlargedDeprecated x)]
+                       Node (PV_ReportImageView_MaybeImageFile (Path_ReportImageView__picEditedDeprecated idPath) (_picEditedDeprecated x)) subforest,
+                       Node (PV_ReportImageView_MaybeImageFile (Path_ReportImageView__picThumbDeprecated idPath) (_picThumbDeprecated x)) subforest,
+                       Node (PV_ReportImageView_MaybeImageFile (Path_ReportImageView__picPrinterDeprecated idPath) (_picPrinterDeprecated x)) subforest,
+                       Node (PV_ReportImageView_Bool (Path_ReportImageView__picMustEnlarge idPath) (_picMustEnlarge x)) subforest,
+                       Node (PV_ReportImageView_MaybeImageFile (Path_ReportImageView__picEnlargedDeprecated idPath) (_picEnlargedDeprecated x)) subforest]
 instance IsPathNode ReportView
     where type PVType ReportView = PV_ReportView
-          pvNodes x = [PV_ReportView_ReadOnlyFilePath (Path_ReportView__reportFolder idPath) (_reportFolder x),
-                       PV_ReportView_Markup (Path_ReportView__reportName idPath) (_reportName x),
-                       PV_ReportView_Markup (Path_ReportView__reportDate idPath) (_reportDate x),
-                       PV_ReportView_Markup (Path_ReportView__reportContractDate idPath) (_reportContractDate x),
-                       PV_ReportView_Markup (Path_ReportView__reportInspectionDate idPath) (_reportInspectionDate x),
-                       PV_ReportView_Markup (Path_ReportView__reportEffectiveDate idPath) (_reportEffectiveDate x),
-                       PV_ReportView_Authors (Path_ReportView__reportAuthors idPath) (_reportAuthors x),
-                       PV_ReportView_Markup (Path_ReportView__reportPreparer idPath) (_reportPreparer x),
-                       PV_ReportView_Markup (Path_ReportView__reportPreparerEIN idPath) (_reportPreparerEIN x),
-                       PV_ReportView_Markup (Path_ReportView__reportPreparerAddress idPath) (_reportPreparerAddress x),
-                       PV_ReportView_Markup (Path_ReportView__reportPreparerEMail idPath) (_reportPreparerEMail x),
-                       PV_ReportView_Markup (Path_ReportView__reportPreparerWebsite idPath) (_reportPreparerWebsite x),
-                       PV_ReportView_AbbrevPairs (Path_ReportView__reportAbbrevs idPath) (_reportAbbrevs x),
-                       PV_ReportView_Markup (Path_ReportView__reportTitle idPath) (_reportTitle x),
-                       PV_ReportView_Markup (Path_ReportView__reportHeader idPath) (_reportHeader x),
-                       PV_ReportView_Markup (Path_ReportView__reportFooter idPath) (_reportFooter x),
-                       PV_ReportView_MaybeReportIntendedUse (Path_ReportView__reportIntendedUse idPath) (_reportIntendedUse x),
-                       PV_ReportView_ReportValueTypeInfo (Path_ReportView__reportValueTypeInfo idPath) (_reportValueTypeInfo x),
-                       PV_ReportView_ReportValueApproachInfo (Path_ReportView__reportValueApproachInfo idPath) (_reportValueApproachInfo x),
-                       PV_ReportView_Markup (Path_ReportView__reportClientName idPath) (_reportClientName x),
-                       PV_ReportView_Markup (Path_ReportView__reportClientAddress idPath) (_reportClientAddress x),
-                       PV_ReportView_Markup (Path_ReportView__reportClientGreeting idPath) (_reportClientGreeting x),
-                       PV_ReportView_Markup (Path_ReportView__reportItemsOwnerFull idPath) (_reportItemsOwnerFull x),
-                       PV_ReportView_Markup (Path_ReportView__reportItemsOwner idPath) (_reportItemsOwner x),
-                       PV_ReportView_Markup (Path_ReportView__reportBriefItems idPath) (_reportBriefItems x),
-                       PV_ReportView_Markup (Path_ReportView__reportInspectionLocation idPath) (_reportInspectionLocation x),
-                       PV_ReportView_ReportElems (Path_ReportView__reportBody idPath) (_reportBody x),
-                       PV_ReportView_MarkupPairs (Path_ReportView__reportGlossary idPath) (_reportGlossary x),
-                       PV_ReportView_MarkupPairs (Path_ReportView__reportSources idPath) (_reportSources x),
-                       PV_ReportView_Markup (Path_ReportView__reportLetterOfTransmittal idPath) (_reportLetterOfTransmittal x),
-                       PV_ReportView_Markup (Path_ReportView__reportScopeOfWork idPath) (_reportScopeOfWork x),
-                       PV_ReportView_Markups (Path_ReportView__reportCertification idPath) (_reportCertification x),
-                       PV_ReportView_Markups (Path_ReportView__reportLimitingConditions idPath) (_reportLimitingConditions x),
-                       PV_ReportView_Markup (Path_ReportView__reportPrivacyPolicy idPath) (_reportPrivacyPolicy x),
-                       PV_ReportView_Permissions (Path_ReportView__reportPerms idPath) (_reportPerms x),
-                       PV_ReportView_Integer (Path_ReportView__reportRevision idPath) (_reportRevision x),
-                       PV_ReportView_Int64 (Path_ReportView__reportCreated idPath) (_reportCreated x),
-                       PV_ReportView_Branding (Path_ReportView__reportBranding idPath) (_reportBranding x),
-                       PV_ReportView_ReportStatus (Path_ReportView__reportStatus idPath) (_reportStatus x),
-                       PV_ReportView_Bool (Path_ReportView__reportRedacted idPath) (_reportRedacted x),
-                       PV_ReportView_ReportFlags (Path_ReportView__reportFlags idPath) (_reportFlags x),
-                       PV_ReportView_UUID (Path_ReportView__reportUUID idPath) (_reportUUID x),
-                       PV_ReportView_Bool (Path_ReportView__reportOrderByItemName idPath) (_reportOrderByItemName x),
-                       PV_ReportView_Bool (Path_ReportView__reportDisplayItemName idPath) (_reportDisplayItemName x),
-                       PV_ReportView_ReportStandard (Path_ReportView__reportStandardsVersion idPath) (_reportStandardsVersion x)]
+          pvNodes x = [Node (PV_ReportView_ReadOnlyFilePath (Path_ReportView__reportFolder idPath) (_reportFolder x)) subforest,
+                       Node (PV_ReportView_Markup (Path_ReportView__reportName idPath) (_reportName x)) subforest,
+                       Node (PV_ReportView_Markup (Path_ReportView__reportDate idPath) (_reportDate x)) subforest,
+                       Node (PV_ReportView_Markup (Path_ReportView__reportContractDate idPath) (_reportContractDate x)) subforest,
+                       Node (PV_ReportView_Markup (Path_ReportView__reportInspectionDate idPath) (_reportInspectionDate x)) subforest,
+                       Node (PV_ReportView_Markup (Path_ReportView__reportEffectiveDate idPath) (_reportEffectiveDate x)) subforest,
+                       Node (PV_ReportView_Authors (Path_ReportView__reportAuthors idPath) (_reportAuthors x)) subforest,
+                       Node (PV_ReportView_Markup (Path_ReportView__reportPreparer idPath) (_reportPreparer x)) subforest,
+                       Node (PV_ReportView_Markup (Path_ReportView__reportPreparerEIN idPath) (_reportPreparerEIN x)) subforest,
+                       Node (PV_ReportView_Markup (Path_ReportView__reportPreparerAddress idPath) (_reportPreparerAddress x)) subforest,
+                       Node (PV_ReportView_Markup (Path_ReportView__reportPreparerEMail idPath) (_reportPreparerEMail x)) subforest,
+                       Node (PV_ReportView_Markup (Path_ReportView__reportPreparerWebsite idPath) (_reportPreparerWebsite x)) subforest,
+                       Node (PV_ReportView_AbbrevPairs (Path_ReportView__reportAbbrevs idPath) (_reportAbbrevs x)) subforest,
+                       Node (PV_ReportView_Markup (Path_ReportView__reportTitle idPath) (_reportTitle x)) subforest,
+                       Node (PV_ReportView_Markup (Path_ReportView__reportHeader idPath) (_reportHeader x)) subforest,
+                       Node (PV_ReportView_Markup (Path_ReportView__reportFooter idPath) (_reportFooter x)) subforest,
+                       Node (PV_ReportView_MaybeReportIntendedUse (Path_ReportView__reportIntendedUse idPath) (_reportIntendedUse x)) subforest,
+                       Node (PV_ReportView_ReportValueTypeInfo (Path_ReportView__reportValueTypeInfo idPath) (_reportValueTypeInfo x)) subforest,
+                       Node (PV_ReportView_ReportValueApproachInfo (Path_ReportView__reportValueApproachInfo idPath) (_reportValueApproachInfo x)) subforest,
+                       Node (PV_ReportView_Markup (Path_ReportView__reportClientName idPath) (_reportClientName x)) subforest,
+                       Node (PV_ReportView_Markup (Path_ReportView__reportClientAddress idPath) (_reportClientAddress x)) subforest,
+                       Node (PV_ReportView_Markup (Path_ReportView__reportClientGreeting idPath) (_reportClientGreeting x)) subforest,
+                       Node (PV_ReportView_Markup (Path_ReportView__reportItemsOwnerFull idPath) (_reportItemsOwnerFull x)) subforest,
+                       Node (PV_ReportView_Markup (Path_ReportView__reportItemsOwner idPath) (_reportItemsOwner x)) subforest,
+                       Node (PV_ReportView_Markup (Path_ReportView__reportBriefItems idPath) (_reportBriefItems x)) subforest,
+                       Node (PV_ReportView_Markup (Path_ReportView__reportInspectionLocation idPath) (_reportInspectionLocation x)) subforest,
+                       Node (PV_ReportView_ReportElems (Path_ReportView__reportBody idPath) (_reportBody x)) subforest,
+                       Node (PV_ReportView_MarkupPairs (Path_ReportView__reportGlossary idPath) (_reportGlossary x)) subforest,
+                       Node (PV_ReportView_MarkupPairs (Path_ReportView__reportSources idPath) (_reportSources x)) subforest,
+                       Node (PV_ReportView_Markup (Path_ReportView__reportLetterOfTransmittal idPath) (_reportLetterOfTransmittal x)) subforest,
+                       Node (PV_ReportView_Markup (Path_ReportView__reportScopeOfWork idPath) (_reportScopeOfWork x)) subforest,
+                       Node (PV_ReportView_Markups (Path_ReportView__reportCertification idPath) (_reportCertification x)) subforest,
+                       Node (PV_ReportView_Markups (Path_ReportView__reportLimitingConditions idPath) (_reportLimitingConditions x)) subforest,
+                       Node (PV_ReportView_Markup (Path_ReportView__reportPrivacyPolicy idPath) (_reportPrivacyPolicy x)) subforest,
+                       Node (PV_ReportView_Permissions (Path_ReportView__reportPerms idPath) (_reportPerms x)) subforest,
+                       Node (PV_ReportView_Integer (Path_ReportView__reportRevision idPath) (_reportRevision x)) subforest,
+                       Node (PV_ReportView_Int64 (Path_ReportView__reportCreated idPath) (_reportCreated x)) subforest,
+                       Node (PV_ReportView_Branding (Path_ReportView__reportBranding idPath) (_reportBranding x)) subforest,
+                       Node (PV_ReportView_ReportStatus (Path_ReportView__reportStatus idPath) (_reportStatus x)) subforest,
+                       Node (PV_ReportView_Bool (Path_ReportView__reportRedacted idPath) (_reportRedacted x)) subforest,
+                       Node (PV_ReportView_ReportFlags (Path_ReportView__reportFlags idPath) (_reportFlags x)) subforest,
+                       Node (PV_ReportView_UUID (Path_ReportView__reportUUID idPath) (_reportUUID x)) subforest,
+                       Node (PV_ReportView_Bool (Path_ReportView__reportOrderByItemName idPath) (_reportOrderByItemName x)) subforest,
+                       Node (PV_ReportView_Bool (Path_ReportView__reportDisplayItemName idPath) (_reportDisplayItemName x)) subforest,
+                       Node (PV_ReportView_ReportStandard (Path_ReportView__reportStandardsVersion idPath) (_reportStandardsVersion x)) subforest]
 instance IsPathNode Item
     where type PVType Item = PV_Item
-          pvNodes x = [PV_Item_Text (Path_Item_itemName idPath) (itemName x),
+          pvNodes x = [Node (PV_Item_Text (Path_Item_itemName idPath) (itemName x)) subforest,
                        error "doField Appraisal.ReportItem.fields",
-                       PV_Item_ReportImages (Path_Item_images idPath) (images x)]
+                       Node (PV_Item_ReportImages (Path_Item_images idPath) (images x)) subforest]
 instance IsPathNode ReportMap
     where type PVType ReportMap = PV_ReportMap
           pvNodes x = [error "doField Appraisal.ReportMap.unReportMap"]
@@ -13275,9 +13275,9 @@ instance IsPathNode CIString
     where type PVType CIString = PV_CIString
           pvNodes x = case pathsOf (x :: CIString) (undefined :: Proxy Text) :: [Path_CIString Text] of
                           [p] -> let [y] = toListOf (toLens p) x
-                                  in [PV_CIString_Text p y]
+                                  in [Node (PV_CIString_Text p y) subforest]
                           [] -> []
-                          _ -> error "More than one path returned for view" :: [PVType CIString]
+                          _ -> error "More than one path returned for view" :: [Tree (PVType CIString)]
 instance IsPathNode URI
     where type PVType URI = PV_URI
           pvNodes _ = error "no pvNode clauses"
@@ -13285,9 +13285,9 @@ instance IsPathNode Text
     where type PVType Text = PV_Text
           pvNodes x = case pathsOf (x :: Text) (undefined :: Proxy JSONText) :: [Path_Text JSONText] of
                           [p] -> let [y] = toListOf (toLens p) x
-                                  in [PV_Text_JSONText p y]
+                                  in [Node (PV_Text_JSONText p y) subforest]
                           [] -> []
-                          _ -> error "More than one path returned for view" :: [PVType Text]
+                          _ -> error "More than one path returned for view" :: [Tree (PVType Text)]
 instance IsPathNode UserId
     where type PVType UserId = PV_UserId
           pvNodes _ = error "no pvNode clauses"
