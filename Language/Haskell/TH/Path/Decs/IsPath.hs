@@ -39,13 +39,13 @@ import Data.Proxy
 import Data.Set as Set (delete, minView)
 import Data.Set.Extra as Set (insert, map, member, Set)
 import qualified Data.Set.Extra as Set (mapM_)
-import Data.Tree (Tree(Node))
+import Data.Tree (Tree(Node), Forest)
 import Language.Haskell.TH
 import Language.Haskell.TH.Context (ContextM, InstMap, reifyInstancesWithContext)
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Core (mat, IsPathType(idPath), IsPathNode(PVType, pvNodes), IsPath(..), Path_List, Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
-import Language.Haskell.TH.Path.Decs.Common (bestPathTypeName, bestTypeName, clauses, fieldLensNameOld, pathConNameOfField, pvName)
+import Language.Haskell.TH.Path.Decs.Common (bestPathTypeName, bestTypeName, clauses, fieldLensNameOld, pathConNameOfField, pvName, forestMap)
 import Language.Haskell.TH.Path.Decs.PathType (pathType)
 import Language.Haskell.TH.Path.Graph (SelfPath, SinkType)
 import Language.Haskell.TH.Path.Order (lens_omat, Order, Path_OMap(..), toPairs)
@@ -98,54 +98,25 @@ pvNodeClauses v =
        _ | selfPath -> return []
          | simplePath -> return []
          | isJust viewType ->
-             do w <- expandType (fromJust viewType) >>= typeVertex :: {-StateT (Set Name)-} m TGVSimple
-                let tname = fromMaybe (error $ "No name for " ++ pprint v) (bestTypeName v)
-                    wname = fromMaybe (error $ "No name for " ++ pprint w ++ ", view of " ++ pprint v) (bestTypeName w)
-                    ptname = mkName ("Path_" ++ nameBase tname)
-                    pcname = mkName ("PV_" ++ nameBase tname ++ "_" ++ nameBase wname)
-                sf <- pvNodeClauses w
-                runQ [d|f x = (case pathsOf (x :: $(conT tname)) (undefined :: Proxy $(conT wname)) :: [$(conT ptname) $(conT wname)] of
-                                 [p] -> let [y] = toListOf (toLens p) x in
-                                        [Node ($(conE pcname) p y) subforest]
-                                 [] -> []
-                                 _ -> error "More than one path returned for view"
-                              ) :: [Tree (PVType $(pure (view (etype . unE) v)))] |] >>= return . clauses
+             doPVNodesOfView v (fromJust viewType)
        ConT tname -> doName tname
        AppT (AppT mtyp _ityp) vtyp
            | mtyp == ConT ''Order ->
-               do w <- expandType vtyp >>= typeVertex
-                  runQ [d|f x = List.map (\p -> let [y] = toListOf (toLens p) x in
-                                                Node ($(conE (pvName v w)) p y) subforest)
-                                         (pathsOf x (undefined :: Proxy $(pure vtyp))) |] >>= return . clauses
-               -- return [clause [wildP] (normalB [|error "order"|]) []]
+               doPVNodesOfOrder v vtyp
        AppT ListT _etyp -> error "list" {- return [clause [wildP] (normalB [|error "list"|]) []]-}
        AppT (AppT t3 _ktyp) vtyp
            | t3 == ConT ''Map ->
-               do w <- expandType vtyp >>= typeVertex
-                  runQ [d|f x = List.map (\p -> let [y] = toListOf (toLens p) x in
-                                                Node ($(conE (pvName v w)) p y) subforest)
-                                         (pathsOf x (undefined :: Proxy $(pure vtyp))) |] >>= return . clauses
+               doPVNodesOfMap v vtyp
        AppT (AppT (TupleT 2) ftyp) styp ->
-           do x <- runQ $ newName "x"
-              f <- doSingleton x v ftyp
-              s <- doSingleton x v styp
-              runQ [d| _f $(varP x) = [$(pure f), $(pure s)] |] >>= return . clauses
+           do doPVNodesOf v ftyp 'Path_First
+              doPVNodesOf v styp 'Path_Second
        AppT t1 etyp
            | t1 == ConT ''Maybe ->
-               do e <- expandType etyp >>= typeVertex
-                  let typ = view (etype . unE) v
-                  runQ [d|_f x = List.map
-                                   (\p -> Node ($(conE (pvName v e)) p (head (toListOf (toLens p) x))) subforest)
-                                   (pathsOf x (undefined :: Proxy $(pure etyp))) |] >>= return . clauses
+               doPVNodesOf v etyp 'Path_Just
        AppT (AppT t3 ltyp) rtyp
            | t3 == ConT ''Either ->
-               do l <- expandType ltyp >>= typeVertex
-                  r <- expandType rtyp >>= typeVertex
-                  let typ = view (etype . unE) v
-                  runQ [d|_f x = [let p = (head (pathsOf x (undefined :: Proxy $(pure ltyp)))) in
-                                  Node ($(conE (pvName v l)) p (head (toListOf (toLens p) x))) subforest,
-                                  let p = (head (pathsOf x (undefined :: Proxy $(pure rtyp)))) in
-                                  Node ($(conE (pvName v r)) p (head (toListOf (toLens p) x))) subforest] |] >>= return . clauses
+               do doPVNodesOf v ltyp 'Path_Left
+                  doPVNodesOf v rtyp 'Path_Right
        _ -> return []
     where
       doSingleton :: Name -> TGVSimple -> Type -> m Exp
@@ -209,22 +180,101 @@ pvNodeClauses v =
         let p = pathConNameOfField f'
         case (bestName f, p) of
           (Nothing, _) -> runQ [|error $(litE (stringL ("doField " ++ pprint fname)))|]
-          (Just _, Just n) -> runQ [| Node ($(conE (pvName v f)) ($(conE n) idPath) ($(varE fname) $(varE x))) subforest |]
+          (Just _, Just n) -> doPVNodesOfField x v f' n
+          -- (Just _, Just n) -> runQ [| Node ($(conE (pvName v f)) ($(conE n) idPath) ($(varE fname) $(varE x))) subforest |]
           -- runQ [|conE (mkName $(litE (stringL ("Path_" ++ nameBase tname ++ "_" ++ nameBase fname)))) idPath|]
       doField' :: Name -> Name -> (Strict, Type) -> m Exp
       doField' tname x (_, ftype) = do
         f <- expandType ftype >>= typeVertex
         -- Anonymous fields are not supported.
         runQ [|error $(litE (stringL ("doField' " ++ pprint ftype)))|]
-{-
-      doCon tname binds (InfixC st1 cname st2) =
-          do l <- runQ $ newName "l"
-             r <- runQ $ newName "r"
-             clause [infixP (varP l) cname (varP r)] (normalB [|map (\p -> ) (pathsOf x (undefined :: Proxy $(pure
-          recP
-          -- If constructor of x matches return PVTypes for its fields (what if it has no fields?)
 
-          runQ [d|_f x = map (\con -> case x of
-          map (\con -> runQ
-      doCon (InfixC lhs cname rhs) = return []
--}
+shim :: Name -> Name -> Name -> Name -> ExpQ
+shim t1 t2 pvname pcname =
+    case (nameBase t1, nameBase t2) of
+        _ -> [|error $(litE (stringL ("Cannot convert " ++ nameBase t1 ++ " -> " ++ nameBase t2 ++ " using " ++ nameBase pvname ++ " and " ++ nameBase pcname)))|]
+
+doPVNodesOfField :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => Name -> TGVSimple -> TGV -> Name -> m Exp
+doPVNodesOfField x v f n =
+  do let wtyp = view (vsimple . etype . unE) f
+     w <- expandType wtyp >>= typeVertex
+     let tname = fromMaybe (error $ "No name for " ++ pprint v) (bestTypeName v)
+         wtyp = bestType w
+         wname = fromMaybe (error $ "No name for " ++ pprint w ++ ", view of " ++ pprint v) (bestTypeName w)
+         ptname = mkName ("Path_" ++ nameBase tname)
+         pcname = mkName (nameBase n)
+         pvtname = mkName ("PV_" ++ nameBase tname)
+         pvcname = mkName ("PV_" ++ nameBase tname ++ "_" ++ nameBase wname)
+         pwname = mkName ("PV_" ++ nameBase wname)
+     p <- runQ $ newName "p"
+     q <- runQ $ newName "q"
+     runQ [| case pathsOf $(varE x) (undefined :: Proxy $(pure wtyp)) :: [$(conT ptname) $(conT wname)] of
+               $(listP [asP p (conP pcname [varP q])] :: PatQ) ->
+                   let [y] = toListOf (toLens $(varE p)) $(varE x) :: [$(pure wtyp)] in
+                   Node ($(conE pvcname) $(varE p) y) (forestMap $(shim pwname pvtname pvcname pcname) (pvNodes y :: Forest $(conT pwname)))
+               _ -> error "Expected a field match" |]
+
+doPVNodesOfView :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => TGVSimple -> Type -> m [ClauseQ]
+doPVNodesOfView v wtyp =
+    let tname = fromMaybe (error $ "No name for " ++ pprint v) (bestTypeName v) in
+    doPVNodesOf v wtyp (mkName ("Path_" ++ nameBase tname ++ "_View"))
+
+doPVNodesOfOrder :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => TGVSimple -> Type -> m [ClauseQ]
+doPVNodesOfOrder v wtyp =
+  do w <- expandType wtyp >>= typeVertex
+     let tname = fromMaybe (error $ "No name for " ++ pprint v) (bestTypeName v)
+         wtyp = bestType w
+         wname = fromMaybe (error $ "No name for " ++ pprint w ++ ", view of " ++ pprint v) (bestTypeName w)
+         ptname = mkName ("Path_" ++ nameBase tname)
+         pcname = 'Path_At
+         pvtname = mkName ("PV_" ++ nameBase tname)
+         pvcname = mkName ("PV_" ++ nameBase tname ++ "_" ++ nameBase wname)
+         pwname = mkName ("PV_" ++ nameBase wname)
+     p <- runQ $ newName "p"
+     q <- runQ $ newName "q"
+     k <- runQ $ newName "k"
+     runQ [d| _f x = (case pathsOf x (undefined :: Proxy $(pure wtyp)) :: [$(conT ptname) $(conT wname)] of
+                        $(listP [asP p (conP pcname [varP k, varP q])] :: PatQ) ->
+                            let [y] = toListOf (toLens $(varE p)) x :: [$(pure wtyp)] in
+                            [Node ($(conE pvcname) $(varE p) y) (forestMap $(shim pwname pvtname pvcname pcname) (pvNodes y :: Forest $(conT pwname)))]
+                        _ -> []) :: [Tree (PVType $(pure (view (etype . unE) v)))] |] >>= return . clauses
+
+doPVNodesOfMap :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => TGVSimple -> Type -> m [ClauseQ]
+doPVNodesOfMap v wtyp =
+  do w <- expandType wtyp >>= typeVertex
+     let tname = fromMaybe (error $ "No name for " ++ pprint v) (bestTypeName v)
+         wtyp = bestType w
+         wname = fromMaybe (error $ "No name for " ++ pprint w ++ ", view of " ++ pprint v) (bestTypeName w)
+         ptname = mkName ("Path_" ++ nameBase tname)
+         pcname = 'Path_Look
+         pvtname = mkName ("PV_" ++ nameBase tname)
+         pvcname = mkName ("PV_" ++ nameBase tname ++ "_" ++ nameBase wname)
+         pwname = mkName ("PV_" ++ nameBase wname)
+     p <- runQ $ newName "p"
+     q <- runQ $ newName "q"
+     k <- runQ $ newName "k"
+     runQ [d| _f x = (case pathsOf x (undefined :: Proxy $(pure wtyp)) :: [$(conT ptname) $(conT wname)] of
+                        $(listP [asP p (conP pcname [varP k, varP q])] :: PatQ) ->
+                            let [y] = toListOf (toLens $(varE p)) x :: [$(pure wtyp)] in
+                            [Node ($(conE pvcname) $(varE p) y) (forestMap $(shim pwname pvtname pvcname pcname) (pvNodes y :: Forest $(conT pwname)))]
+                        _ -> []) :: [Tree (PVType $(pure (view (etype . unE) v)))] |] >>= return . clauses
+
+doPVNodesOf :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => TGVSimple -> Type -> Name -> m [ClauseQ]
+doPVNodesOf v wtyp pcname =
+  do w <- expandType wtyp >>= typeVertex :: m TGVSimple
+     let tname = fromMaybe (error $ "No name for " ++ pprint v) (bestTypeName v)
+         wtyp = bestType w
+         wname = fromMaybe (error $ "No name for " ++ pprint w ++ ", view of " ++ pprint v) (bestTypeName w)
+         ptname = mkName ("Path_" ++ nameBase tname)
+         pvtname = mkName ("PV_" ++ nameBase tname)
+         pvcname = mkName ("PV_" ++ nameBase tname ++ "_" ++ nameBase wname)
+         pwname = mkName ("PV_" ++ nameBase wname)
+     -- sf <- pvNodeClauses w
+     p <- runQ $ newName "p"
+     q <- runQ $ newName "q"
+     runQ [d| _f x = (case pathsOf x (undefined :: Proxy $(conT wname)) :: [$(conT ptname) $(conT wname)] of
+                        $(listP [asP p (conP pcname [varP q])] :: PatQ) ->
+                            let [y] = toListOf (toLens $(varE p)) x :: [$(pure wtyp)] in
+                            [Node ($(conE pvcname) $(varE p) y) (forestMap $(shim pwname pvtname pvcname pcname) (pvNodes y :: Forest $(conT pwname)))]
+                        _ -> [])  :: [Tree (PVType $(pure (view (etype . unE) v)))] |] >>= return . clauses
+

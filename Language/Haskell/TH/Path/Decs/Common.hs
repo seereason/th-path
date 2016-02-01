@@ -39,7 +39,7 @@ import Data.Proxy
 import Data.Set as Set (delete, minView)
 import Data.Set.Extra as Set (insert, map, member, Set)
 import qualified Data.Set.Extra as Set (mapM_)
-import Data.Tree (Tree(Node))
+import Data.Tree (Tree(Node), Forest)
 import Language.Haskell.TH
 import Language.Haskell.TH.Context (ContextM, InstMap, reifyInstancesWithContext)
 import Language.Haskell.TH.Desugar (DsMonad)
@@ -55,6 +55,14 @@ import Language.Haskell.TH.TypeGraph.Prelude (pprint')
 import Language.Haskell.TH.TypeGraph.TypeGraph (pathKeys, allPathStarts, goalReachableSimple, reachableFromSimple, TypeGraph)
 import Language.Haskell.TH.TypeGraph.TypeInfo (fieldVertex, TypeInfo, typeVertex)
 import Language.Haskell.TH.TypeGraph.Vertex (bestName, etype, field, TGV, TGVSimple, syns, TypeGraphVertex(bestType), typeNames, vsimple)
+
+treeMap :: (a -> b) -> Tree a -> Tree b
+treeMap f (Node x ns) = Node (f x) (forestMap f ns)
+
+forestMap :: (a -> b) -> Forest a -> Forest b
+forestMap f = List.map (treeMap f)
+
+subforest = []
 
 -- Naming conventions
 

@@ -13003,128 +13003,142 @@ instance HasUnits Units
 instance IsPathNode (Order AbbrevPairID ((CIString, Markup)))
     where type PVType (Order AbbrevPairID
                              ((CIString, Markup))) = PV_AbbrevPairs
-          pvNodes x = map (\p -> let [y] = toListOf (toLens p) x
-                                  in Node (PV_AbbrevPairs_AbbrevPair p y) subforest) (pathsOf x (undefined :: Proxy ((CIString,
-                                                                                                                      Markup))))
+          pvNodes x = case pathsOf x (undefined :: Proxy AbbrevPair) :: [Path_AbbrevPairs AbbrevPair] of
+                          [p@(Path_At k
+                                      q)] -> let [y] = toListOf (toLens p) x :: [AbbrevPair]
+                                              in [Node (PV_AbbrevPairs_AbbrevPair p y) (forestMap (error "Cannot convert PV_AbbrevPair -> PV_AbbrevPairs using PV_AbbrevPairs_AbbrevPair and Path_At") (pvNodes y :: Forest PV_AbbrevPair))]
+                          _ -> [] :: [Tree (PVType (Order AbbrevPairID
+                                                          ((CIString, Markup))))]
 instance IsPathNode (Order AuthorID Author)
     where type PVType (Order AuthorID Author) = PV_Authors
-          pvNodes x = map (\p -> let [y] = toListOf (toLens p) x
-                                  in Node (PV_Authors_Author p y) subforest) (pathsOf x (undefined :: Proxy Author))
+          pvNodes x = case pathsOf x (undefined :: Proxy Author) :: [Path_Authors Author] of
+                          [p@(Path_At k q)] -> let [y] = toListOf (toLens p) x :: [Author]
+                                                in [Node (PV_Authors_Author p y) (forestMap (error "Cannot convert PV_Author -> PV_Authors using PV_Authors_Author and Path_At") (pvNodes y :: Forest PV_Author))]
+                          _ -> [] :: [Tree (PVType (Order AuthorID Author))]
 instance IsPathNode (Order MarkupID Markup)
     where type PVType (Order MarkupID Markup) = PV_Markups
-          pvNodes x = map (\p -> let [y] = toListOf (toLens p) x
-                                  in Node (PV_Markups_Markup p y) subforest) (pathsOf x (undefined :: Proxy Markup))
+          pvNodes x = case pathsOf x (undefined :: Proxy Markup) :: [Path_Markups Markup] of
+                          [p@(Path_At k q)] -> let [y] = toListOf (toLens p) x :: [Markup]
+                                                in [Node (PV_Markups_Markup p y) (forestMap (error "Cannot convert PV_Markup -> PV_Markups using PV_Markups_Markup and Path_At") (pvNodes y :: Forest PV_Markup))]
+                          _ -> [] :: [Tree (PVType (Order MarkupID Markup))]
 instance IsPathNode (Order MarkupPairID ((Markup, Markup)))
     where type PVType (Order MarkupPairID
                              ((Markup, Markup))) = PV_MarkupPairs
-          pvNodes x = map (\p -> let [y] = toListOf (toLens p) x
-                                  in Node (PV_MarkupPairs_MarkupPair p y) subforest) (pathsOf x (undefined :: Proxy ((Markup,
-                                                                                                                      Markup))))
+          pvNodes x = case pathsOf x (undefined :: Proxy MarkupPair) :: [Path_MarkupPairs MarkupPair] of
+                          [p@(Path_At k
+                                      q)] -> let [y] = toListOf (toLens p) x :: [MarkupPair]
+                                              in [Node (PV_MarkupPairs_MarkupPair p y) (forestMap (error "Cannot convert PV_MarkupPair -> PV_MarkupPairs using PV_MarkupPairs_MarkupPair and Path_At") (pvNodes y :: Forest PV_MarkupPair))]
+                          _ -> [] :: [Tree (PVType (Order MarkupPairID ((Markup, Markup))))]
 instance IsPathNode (Order ReportElemID ReportElem)
     where type PVType (Order ReportElemID ReportElem) = PV_ReportElems
-          pvNodes x = map (\p -> let [y] = toListOf (toLens p) x
-                                  in Node (PV_ReportElems_ReportElem p y) subforest) (pathsOf x (undefined :: Proxy ReportElem))
+          pvNodes x = case pathsOf x (undefined :: Proxy ReportElem) :: [Path_ReportElems ReportElem] of
+                          [p@(Path_At k
+                                      q)] -> let [y] = toListOf (toLens p) x :: [ReportElem]
+                                              in [Node (PV_ReportElems_ReportElem p y) (forestMap (error "Cannot convert PV_ReportElem -> PV_ReportElems using PV_ReportElems_ReportElem and Path_At") (pvNodes y :: Forest PV_ReportElem))]
+                          _ -> [] :: [Tree (PVType (Order ReportElemID ReportElem))]
 instance IsPathNode (Order ReportImageID ReportImage)
     where type PVType (Order ReportImageID
                              ReportImage) = PV_ReportImages
-          pvNodes x = map (\p -> let [y] = toListOf (toLens p) x
-                                  in Node (PV_ReportImages_ReportImage p y) subforest) (pathsOf x (undefined :: Proxy ReportImage))
+          pvNodes x = case pathsOf x (undefined :: Proxy ReportImage) :: [Path_ReportImages ReportImage] of
+                          [p@(Path_At k
+                                      q)] -> let [y] = toListOf (toLens p) x :: [ReportImage]
+                                              in [Node (PV_ReportImages_ReportImage p y) (forestMap (error "Cannot convert PV_ReportImage -> PV_ReportImages using PV_ReportImages_ReportImage and Path_At") (pvNodes y :: Forest PV_ReportImage))]
+                          _ -> [] :: [Tree (PVType (Order ReportImageID ReportImage))]
 instance IsPathNode ((Markup, Markup))
     where type PVType ((Markup, Markup)) = PV_MarkupPair
-          pvNodes x = [let p = head (pathsOf x (undefined :: Proxy Markup))
-                        in Node (PV_MarkupPair_Markup p (head (toListOf (toLens p) x))) subforest,
-                       let p = head (pathsOf x (undefined :: Proxy Markup))
-                        in Node (PV_MarkupPair_Markup p (head (toListOf (toLens p) x))) subforest]
+          pvNodes x = case pathsOf x (undefined :: Proxy Markup) :: [Path_MarkupPair Markup] of
+                          [p@(Path_Second q)] -> let [y] = toListOf (toLens p) x :: [Markup]
+                                                  in [Node (PV_MarkupPair_Markup p y) (forestMap (error "Cannot convert PV_Markup -> PV_MarkupPair using PV_MarkupPair_Markup and Path_Second") (pvNodes y :: Forest PV_Markup))]
+                          _ -> [] :: [Tree (PVType ((Markup, Markup)))]
 instance IsPathNode ((CIString, Markup))
     where type PVType ((CIString, Markup)) = PV_AbbrevPair
-          pvNodes x = [let p = head (pathsOf x (undefined :: Proxy CIString))
-                        in Node (PV_AbbrevPair_CIString p (head (toListOf (toLens p) x))) subforest,
-                       let p = head (pathsOf x (undefined :: Proxy Markup))
-                        in Node (PV_AbbrevPair_Markup p (head (toListOf (toLens p) x))) subforest]
+          pvNodes x = case pathsOf x (undefined :: Proxy Markup) :: [Path_AbbrevPair Markup] of
+                          [p@(Path_Second q)] -> let [y] = toListOf (toLens p) x :: [Markup]
+                                                  in [Node (PV_AbbrevPair_Markup p y) (forestMap (error "Cannot convert PV_Markup -> PV_AbbrevPair using PV_AbbrevPair_Markup and Path_Second") (pvNodes y :: Forest PV_Markup))]
+                          _ -> [] :: [Tree (PVType ((CIString, Markup)))]
 instance IsPathNode (Maybe ImageFile)
     where type PVType (Maybe ImageFile) = PV_MaybeImageFile
-          pvNodes x = case pathsOf (x :: MaybeImageFile) (undefined :: Proxy String) :: [Path_MaybeImageFile String] of
-                          [p] -> let [y] = toListOf (toLens p) x
-                                  in [Node (PV_MaybeImageFile_String p y) subforest]
-                          [] -> []
-                          _ -> error "More than one path returned for view" :: [Tree (PVType (Maybe ImageFile))]
+          pvNodes x = case pathsOf x (undefined :: Proxy String) :: [Path_MaybeImageFile String] of
+                          [p@(Path_MaybeImageFile_View q)] -> let [y] = toListOf (toLens p) x :: [String]
+                                                               in [Node (PV_MaybeImageFile_String p y) (forestMap (error "Cannot convert PV_String -> PV_MaybeImageFile using PV_MaybeImageFile_String and Path_MaybeImageFile_View") (pvNodes y :: Forest PV_String))]
+                          _ -> [] :: [Tree (PVType (Maybe ImageFile))]
 instance IsPathNode (Maybe ReportIntendedUse)
     where type PVType (Maybe ReportIntendedUse) = PV_MaybeReportIntendedUse
-          pvNodes x = case pathsOf (x :: MaybeReportIntendedUse) (undefined :: Proxy String) :: [Path_MaybeReportIntendedUse String] of
-                          [p] -> let [y] = toListOf (toLens p) x
-                                  in [Node (PV_MaybeReportIntendedUse_String p y) subforest]
-                          [] -> []
-                          _ -> error "More than one path returned for view" :: [Tree (PVType (Maybe ReportIntendedUse))]
+          pvNodes x = case pathsOf x (undefined :: Proxy String) :: [Path_MaybeReportIntendedUse String] of
+                          [p@(Path_MaybeReportIntendedUse_View q)] -> let [y] = toListOf (toLens p) x :: [String]
+                                                                       in [Node (PV_MaybeReportIntendedUse_String p y) (forestMap (error "Cannot convert PV_String -> PV_MaybeReportIntendedUse using PV_MaybeReportIntendedUse_String and Path_MaybeReportIntendedUse_View") (pvNodes y :: Forest PV_String))]
+                          _ -> [] :: [Tree (PVType (Maybe ReportIntendedUse))]
 instance IsPathNode (ReadOnly ([Char]))
     where type PVType (ReadOnly ([Char])) = PV_ReadOnlyFilePath
-          pvNodes x = case pathsOf (x :: ReadOnlyFilePath) (undefined :: Proxy String) :: [Path_ReadOnlyFilePath String] of
-                          [p] -> let [y] = toListOf (toLens p) x
-                                  in [Node (PV_ReadOnlyFilePath_String p y) subforest]
-                          [] -> []
-                          _ -> error "More than one path returned for view" :: [Tree (PVType (ReadOnly ([Char])))]
+          pvNodes x = case pathsOf x (undefined :: Proxy String) :: [Path_ReadOnlyFilePath String] of
+                          [p@(Path_ReadOnlyFilePath_View q)] -> let [y] = toListOf (toLens p) x :: [String]
+                                                                 in [Node (PV_ReadOnlyFilePath_String p y) (forestMap (error "Cannot convert PV_String -> PV_ReadOnlyFilePath using PV_ReadOnlyFilePath_String and Path_ReadOnlyFilePath_View") (pvNodes y :: Forest PV_String))]
+                          _ -> [] :: [Tree (PVType (ReadOnly ([Char])))]
 instance IsPathNode (SaneSize ImageSize)
     where type PVType (SaneSize ImageSize) = PV_SaneSizeImageSize
-          pvNodes x = case pathsOf (x :: SaneSizeImageSize) (undefined :: Proxy ImageSize) :: [Path_SaneSizeImageSize ImageSize] of
-                          [p] -> let [y] = toListOf (toLens p) x
-                                  in [Node (PV_SaneSizeImageSize_ImageSize p y) subforest]
-                          [] -> []
-                          _ -> error "More than one path returned for view" :: [Tree (PVType (SaneSize ImageSize))]
+          pvNodes x = case pathsOf x (undefined :: Proxy ImageSize) :: [Path_SaneSizeImageSize ImageSize] of
+                          [p@(Path_SaneSizeImageSize_View q)] -> let [y] = toListOf (toLens p) x :: [ImageSize]
+                                                                  in [Node (PV_SaneSizeImageSize_ImageSize p y) (forestMap (error "Cannot convert PV_ImageSize -> PV_SaneSizeImageSize using PV_SaneSizeImageSize_ImageSize and Path_SaneSizeImageSize_View") (pvNodes y :: Forest PV_ImageSize))]
+                          _ -> [] :: [Tree (PVType (SaneSize ImageSize))]
 instance IsPathNode ([Char])
     where type PVType ([Char]) = PV_String
-          pvNodes x = case pathsOf (x :: String) (undefined :: Proxy JSONText) :: [Path_String JSONText] of
-                          [p] -> let [y] = toListOf (toLens p) x
-                                  in [Node (PV_String_JSONText p y) subforest]
-                          [] -> []
-                          _ -> error "More than one path returned for view" :: [Tree (PVType ([Char]))]
+          pvNodes x = case pathsOf x (undefined :: Proxy JSONText) :: [Path_String JSONText] of
+                          [p@(Path_String_View q)] -> let [y] = toListOf (toLens p) x :: [JSONText]
+                                                       in [Node (PV_String_JSONText p y) (forestMap (error "Cannot convert PV_JSONText -> PV_String using PV_String_JSONText and Path_String_View") (pvNodes y :: Forest PV_JSONText))]
+                          _ -> [] :: [Tree (PVType ([Char]))]
 instance IsPathNode ([UserId])
     where type PVType ([UserId]) = PV_UserIds
-          pvNodes x = case pathsOf (x :: UserIds) (undefined :: Proxy Text) :: [Path_UserIds Text] of
-                          [p] -> let [y] = toListOf (toLens p) x
-                                  in [Node (PV_UserIds_Text p y) subforest]
-                          [] -> []
-                          _ -> error "More than one path returned for view" :: [Tree (PVType ([UserId]))]
+          pvNodes x = case pathsOf x (undefined :: Proxy Text) :: [Path_UserIds Text] of
+                          [p@(Path_UserIds_View q)] -> let [y] = toListOf (toLens p) x :: [Text]
+                                                        in [Node (PV_UserIds_Text p y) (forestMap (error "Cannot convert PV_Text -> PV_UserIds using PV_UserIds_Text and Path_UserIds_View") (pvNodes y :: Forest PV_Text))]
+                          _ -> [] :: [Tree (PVType ([UserId]))]
 instance IsPathNode Int64
     where type PVType Int64 = PV_Int64
           pvNodes _ = error "no pvNode clauses"
 instance IsPathNode Bool
     where type PVType Bool = PV_Bool
-          pvNodes x = case pathsOf (x :: Bool) (undefined :: Proxy String) :: [Path_Bool String] of
-                          [p] -> let [y] = toListOf (toLens p) x
-                                  in [Node (PV_Bool_String p y) subforest]
-                          [] -> []
-                          _ -> error "More than one path returned for view" :: [Tree (PVType Bool)]
+          pvNodes x = case pathsOf x (undefined :: Proxy String) :: [Path_Bool String] of
+                          [p@(Path_Bool_View q)] -> let [y] = toListOf (toLens p) x :: [String]
+                                                     in [Node (PV_Bool_String p y) (forestMap (error "Cannot convert PV_String -> PV_Bool using PV_Bool_String and Path_Bool_View") (pvNodes y :: Forest PV_String))]
+                          _ -> [] :: [Tree (PVType Bool)]
 instance IsPathNode Double
     where type PVType Double = PV_Double
-          pvNodes x = case pathsOf (x :: Double) (undefined :: Proxy String) :: [Path_Double String] of
-                          [p] -> let [y] = toListOf (toLens p) x
-                                  in [Node (PV_Double_String p y) subforest]
-                          [] -> []
-                          _ -> error "More than one path returned for view" :: [Tree (PVType Double)]
+          pvNodes x = case pathsOf x (undefined :: Proxy String) :: [Path_Double String] of
+                          [p@(Path_Double_View q)] -> let [y] = toListOf (toLens p) x :: [String]
+                                                       in [Node (PV_Double_String p y) (forestMap (error "Cannot convert PV_String -> PV_Double using PV_Double_String and Path_Double_View") (pvNodes y :: Forest PV_String))]
+                          _ -> [] :: [Tree (PVType Double)]
 instance IsPathNode Int
     where type PVType Int = PV_Int
           pvNodes _ = error "no pvNode clauses"
 instance IsPathNode Dimension
     where type PVType Dimension = PV_Dimension
-          pvNodes x = case pathsOf (x :: Dimension) (undefined :: Proxy JSONText) :: [Path_Dimension JSONText] of
-                          [p] -> let [y] = toListOf (toLens p) x
-                                  in [Node (PV_Dimension_JSONText p y) subforest]
-                          [] -> []
-                          _ -> error "More than one path returned for view" :: [Tree (PVType Dimension)]
+          pvNodes x = case pathsOf x (undefined :: Proxy JSONText) :: [Path_Dimension JSONText] of
+                          [p@(Path_Dimension_View q)] -> let [y] = toListOf (toLens p) x :: [JSONText]
+                                                          in [Node (PV_Dimension_JSONText p y) (forestMap (error "Cannot convert PV_JSONText -> PV_Dimension using PV_Dimension_JSONText and Path_Dimension_View") (pvNodes y :: Forest PV_JSONText))]
+                          _ -> [] :: [Tree (PVType Dimension)]
 instance IsPathNode ImageCrop
     where type PVType ImageCrop = PV_ImageCrop
           pvNodes _ = error "no pvNode clauses"
 instance IsPathNode ImageSize
     where type PVType ImageSize = PV_ImageSize
-          pvNodes x = [Node (PV_ImageSize_Dimension (Path_ImageSize_dim idPath) (dim x)) subforest,
-                       Node (PV_ImageSize_Double (Path_ImageSize_size idPath) (size x)) subforest,
-                       Node (PV_ImageSize_Units (Path_ImageSize_units idPath) (units x)) subforest]
+          pvNodes x = [case pathsOf x (undefined :: Proxy Dimension) :: [Path_ImageSize Dimension] of
+                           [p@(Path_ImageSize_dim q)] -> let [y] = toListOf (toLens p) x :: [Dimension]
+                                                          in Node (PV_ImageSize_Dimension p y) (forestMap (error "Cannot convert PV_Dimension -> PV_ImageSize using PV_ImageSize_Dimension and Path_ImageSize_dim") (pvNodes y :: Forest PV_Dimension))
+                           _ -> error "Expected a field match",
+                       case pathsOf x (undefined :: Proxy Double) :: [Path_ImageSize Double] of
+                           [p@(Path_ImageSize_size q)] -> let [y] = toListOf (toLens p) x :: [Double]
+                                                           in Node (PV_ImageSize_Double p y) (forestMap (error "Cannot convert PV_Double -> PV_ImageSize using PV_ImageSize_Double and Path_ImageSize_size") (pvNodes y :: Forest PV_Double))
+                           _ -> error "Expected a field match",
+                       case pathsOf x (undefined :: Proxy Units) :: [Path_ImageSize Units] of
+                           [p@(Path_ImageSize_units q)] -> let [y] = toListOf (toLens p) x :: [Units]
+                                                            in Node (PV_ImageSize_Units p y) (forestMap (error "Cannot convert PV_Units -> PV_ImageSize using PV_ImageSize_Units and Path_ImageSize_units") (pvNodes y :: Forest PV_Units))
+                           _ -> error "Expected a field match"]
 instance IsPathNode Units
     where type PVType Units = PV_Units
-          pvNodes x = case pathsOf (x :: Units) (undefined :: Proxy JSONText) :: [Path_Units JSONText] of
-                          [p] -> let [y] = toListOf (toLens p) x
-                                  in [Node (PV_Units_JSONText p y) subforest]
-                          [] -> []
-                          _ -> error "More than one path returned for view" :: [Tree (PVType Units)]
+          pvNodes x = case pathsOf x (undefined :: Proxy JSONText) :: [Path_Units JSONText] of
+                          [p@(Path_Units_View q)] -> let [y] = toListOf (toLens p) x :: [JSONText]
+                                                      in [Node (PV_Units_JSONText p y) (forestMap (error "Cannot convert PV_JSONText -> PV_Units using PV_Units_JSONText and Path_Units_View") (pvNodes y :: Forest PV_JSONText))]
+                          _ -> [] :: [Tree (PVType Units)]
 instance IsPathNode ImageFile
     where type PVType ImageFile = PV_ImageFile
           pvNodes _ = error "no pvNode clauses"
@@ -13136,158 +13150,364 @@ instance IsPathNode JSONText
           pvNodes _ = error "no pvNode clauses"
 instance IsPathNode Markup
     where type PVType Markup = PV_Markup
-          pvNodes (x@(Markdown {})) = [Node (PV_Markup_Text (Path_Markup_markdownText idPath) (markdownText x)) subforest]
-          pvNodes (x@(Html {})) = [Node (PV_Markup_Text (Path_Markup_htmlText idPath) (htmlText x)) subforest]
+          pvNodes (x@(Markdown {})) = [case pathsOf x (undefined :: Proxy Text) :: [Path_Markup Text] of
+                                           [p@(Path_Markup_markdownText q)] -> let [y] = toListOf (toLens p) x :: [Text]
+                                                                                in Node (PV_Markup_Text p y) (forestMap (error "Cannot convert PV_Text -> PV_Markup using PV_Markup_Text and Path_Markup_markdownText") (pvNodes y :: Forest PV_Text))
+                                           _ -> error "Expected a field match"]
+          pvNodes (x@(Html {})) = [case pathsOf x (undefined :: Proxy Text) :: [Path_Markup Text] of
+                                       [p@(Path_Markup_htmlText q)] -> let [y] = toListOf (toLens p) x :: [Text]
+                                                                        in Node (PV_Markup_Text p y) (forestMap (error "Cannot convert PV_Text -> PV_Markup using PV_Markup_Text and Path_Markup_htmlText") (pvNodes y :: Forest PV_Text))
+                                       _ -> error "Expected a field match"]
           pvNodes (x@(LaTeX {})) = [error "doField' Text.LaTeX.Base.Syntax.LaTeX"]
           pvNodes (x@(Pandoc {})) = [error "doField' Text.Pandoc.Definition.Pandoc"]
           pvNodes (x@(Markup {})) = [error "doField' [Appraisal.Markup.Markup]"]
 instance IsPathNode Permissions
     where type PVType Permissions = PV_Permissions
-          pvNodes x = [Node (PV_Permissions_UserId (Path_Permissions_owner idPath) (owner x)) subforest,
-                       Node (PV_Permissions_UserIds (Path_Permissions_writers idPath) (writers x)) subforest,
-                       Node (PV_Permissions_UserIds (Path_Permissions_readers idPath) (readers x)) subforest]
+          pvNodes x = [case pathsOf x (undefined :: Proxy UserId) :: [Path_Permissions UserId] of
+                           [p@(Path_Permissions_owner q)] -> let [y] = toListOf (toLens p) x :: [UserId]
+                                                              in Node (PV_Permissions_UserId p y) (forestMap (error "Cannot convert PV_UserId -> PV_Permissions using PV_Permissions_UserId and Path_Permissions_owner") (pvNodes y :: Forest PV_UserId))
+                           _ -> error "Expected a field match",
+                       case pathsOf x (undefined :: Proxy UserIds) :: [Path_Permissions UserIds] of
+                           [p@(Path_Permissions_writers q)] -> let [y] = toListOf (toLens p) x :: [UserIds]
+                                                                in Node (PV_Permissions_UserIds p y) (forestMap (error "Cannot convert PV_UserIds -> PV_Permissions using PV_Permissions_UserIds and Path_Permissions_writers") (pvNodes y :: Forest PV_UserIds))
+                           _ -> error "Expected a field match",
+                       case pathsOf x (undefined :: Proxy UserIds) :: [Path_Permissions UserIds] of
+                           [p@(Path_Permissions_readers q)] -> let [y] = toListOf (toLens p) x :: [UserIds]
+                                                                in Node (PV_Permissions_UserIds p y) (forestMap (error "Cannot convert PV_UserIds -> PV_Permissions using PV_Permissions_UserIds and Path_Permissions_readers") (pvNodes y :: Forest PV_UserIds))
+                           _ -> error "Expected a field match"]
 instance IsPathNode Author
     where type PVType Author = PV_Author
-          pvNodes x = [Node (PV_Author_Markup (Path_Author_authorName idPath) (authorName x)) subforest,
-                       Node (PV_Author_Markup (Path_Author_authorCredentials idPath) (authorCredentials x)) subforest]
+          pvNodes x = [case pathsOf x (undefined :: Proxy Markup) :: [Path_Author Markup] of
+                           [p@(Path_Author_authorName q)] -> let [y] = toListOf (toLens p) x :: [Markup]
+                                                              in Node (PV_Author_Markup p y) (forestMap (error "Cannot convert PV_Markup -> PV_Author using PV_Author_Markup and Path_Author_authorName") (pvNodes y :: Forest PV_Markup))
+                           _ -> error "Expected a field match",
+                       case pathsOf x (undefined :: Proxy Markup) :: [Path_Author Markup] of
+                           [p@(Path_Author_authorCredentials q)] -> let [y] = toListOf (toLens p) x :: [Markup]
+                                                                     in Node (PV_Author_Markup p y) (forestMap (error "Cannot convert PV_Markup -> PV_Author using PV_Author_Markup and Path_Author_authorCredentials") (pvNodes y :: Forest PV_Markup))
+                           _ -> error "Expected a field match"]
 instance IsPathNode Branding
     where type PVType Branding = PV_Branding
-          pvNodes x = case pathsOf (x :: Branding) (undefined :: Proxy Text) :: [Path_Branding Text] of
-                          [p] -> let [y] = toListOf (toLens p) x
-                                  in [Node (PV_Branding_Text p y) subforest]
-                          [] -> []
-                          _ -> error "More than one path returned for view" :: [Tree (PVType Branding)]
+          pvNodes x = case pathsOf x (undefined :: Proxy Text) :: [Path_Branding Text] of
+                          [p@(Path_Branding_View q)] -> let [y] = toListOf (toLens p) x :: [Text]
+                                                         in [Node (PV_Branding_Text p y) (forestMap (error "Cannot convert PV_Text -> PV_Branding using PV_Branding_Text and Path_Branding_View") (pvNodes y :: Forest PV_Text))]
+                          _ -> [] :: [Tree (PVType Branding)]
 instance IsPathNode Report
     where type PVType Report = PV_Report
-          pvNodes x = case pathsOf (x :: Report) (undefined :: Proxy ReportView) :: [Path_Report ReportView] of
-                          [p] -> let [y] = toListOf (toLens p) x
-                                  in [Node (PV_Report_ReportView p y) subforest]
-                          [] -> []
-                          _ -> error "More than one path returned for view" :: [Tree (PVType Report)]
+          pvNodes x = case pathsOf x (undefined :: Proxy ReportView) :: [Path_Report ReportView] of
+                          [p@(Path_Report_View q)] -> let [y] = toListOf (toLens p) x :: [ReportView]
+                                                       in [Node (PV_Report_ReportView p y) (forestMap (error "Cannot convert PV_ReportView -> PV_Report using PV_Report_ReportView and Path_Report_View") (pvNodes y :: Forest PV_ReportView))]
+                          _ -> [] :: [Tree (PVType Report)]
 instance IsPathNode ReportElem
     where type PVType ReportElem = PV_ReportElem
-          pvNodes (x@(ReportItem {})) = [Node (PV_ReportElem_Item (Path_ReportElem_elemItem idPath) (elemItem x)) subforest]
-          pvNodes (x@(ReportParagraph {})) = [Node (PV_ReportElem_Markup (Path_ReportElem_elemText idPath) (elemText x)) subforest]
+          pvNodes (x@(ReportItem {})) = [case pathsOf x (undefined :: Proxy Item) :: [Path_ReportElem Item] of
+                                             [p@(Path_ReportElem_elemItem q)] -> let [y] = toListOf (toLens p) x :: [Item]
+                                                                                  in Node (PV_ReportElem_Item p y) (forestMap (error "Cannot convert PV_Item -> PV_ReportElem using PV_ReportElem_Item and Path_ReportElem_elemItem") (pvNodes y :: Forest PV_Item))
+                                             _ -> error "Expected a field match"]
+          pvNodes (x@(ReportParagraph {})) = [case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportElem Markup] of
+                                                  [p@(Path_ReportElem_elemText q)] -> let [y] = toListOf (toLens p) x :: [Markup]
+                                                                                       in Node (PV_ReportElem_Markup p y) (forestMap (error "Cannot convert PV_Markup -> PV_ReportElem using PV_ReportElem_Markup and Path_ReportElem_elemText") (pvNodes y :: Forest PV_Markup))
+                                                  _ -> error "Expected a field match"]
           pvNodes (x@(ReportUndecided {})) = []
 instance IsPathNode ReportFlags
     where type PVType ReportFlags = PV_ReportFlags
-          pvNodes x = [Node (PV_ReportFlags_Bool (Path_ReportFlags_hideEmptyItemFields idPath) (hideEmptyItemFields x)) subforest]
+          pvNodes x = [case pathsOf x (undefined :: Proxy Bool) :: [Path_ReportFlags Bool] of
+                           [p@(Path_ReportFlags_hideEmptyItemFields q)] -> let [y] = toListOf (toLens p) x :: [Bool]
+                                                                            in Node (PV_ReportFlags_Bool p y) (forestMap (error "Cannot convert PV_Bool -> PV_ReportFlags using PV_ReportFlags_Bool and Path_ReportFlags_hideEmptyItemFields") (pvNodes y :: Forest PV_Bool))
+                           _ -> error "Expected a field match"]
 instance IsPathNode ReportIntendedUse
     where type PVType ReportIntendedUse = PV_ReportIntendedUse
-          pvNodes x = case pathsOf (x :: ReportIntendedUse) (undefined :: Proxy String) :: [Path_ReportIntendedUse String] of
-                          [p] -> let [y] = toListOf (toLens p) x
-                                  in [Node (PV_ReportIntendedUse_String p y) subforest]
-                          [] -> []
-                          _ -> error "More than one path returned for view" :: [Tree (PVType ReportIntendedUse)]
+          pvNodes x = case pathsOf x (undefined :: Proxy String) :: [Path_ReportIntendedUse String] of
+                          [p@(Path_ReportIntendedUse_View q)] -> let [y] = toListOf (toLens p) x :: [String]
+                                                                  in [Node (PV_ReportIntendedUse_String p y) (forestMap (error "Cannot convert PV_String -> PV_ReportIntendedUse using PV_ReportIntendedUse_String and Path_ReportIntendedUse_View") (pvNodes y :: Forest PV_String))]
+                          _ -> [] :: [Tree (PVType ReportIntendedUse)]
 instance IsPathNode ReportStandard
     where type PVType ReportStandard = PV_ReportStandard
-          pvNodes x = [Node (PV_ReportStandard_Int (Path_ReportStandard_unReportStandard idPath) (unReportStandard x)) subforest]
+          pvNodes x = [case pathsOf x (undefined :: Proxy Int) :: [Path_ReportStandard Int] of
+                           [p@(Path_ReportStandard_unReportStandard q)] -> let [y] = toListOf (toLens p) x :: [Int]
+                                                                            in Node (PV_ReportStandard_Int p y) (forestMap (error "Cannot convert PV_Int -> PV_ReportStandard using PV_ReportStandard_Int and Path_ReportStandard_unReportStandard") (pvNodes y :: Forest PV_Int))
+                           _ -> error "Expected a field match"]
 instance IsPathNode ReportStatus
     where type PVType ReportStatus = PV_ReportStatus
-          pvNodes x = case pathsOf (x :: ReportStatus) (undefined :: Proxy String) :: [Path_ReportStatus String] of
-                          [p] -> let [y] = toListOf (toLens p) x
-                                  in [Node (PV_ReportStatus_String p y) subforest]
-                          [] -> []
-                          _ -> error "More than one path returned for view" :: [Tree (PVType ReportStatus)]
+          pvNodes x = case pathsOf x (undefined :: Proxy String) :: [Path_ReportStatus String] of
+                          [p@(Path_ReportStatus_View q)] -> let [y] = toListOf (toLens p) x :: [String]
+                                                             in [Node (PV_ReportStatus_String p y) (forestMap (error "Cannot convert PV_String -> PV_ReportStatus using PV_ReportStatus_String and Path_ReportStatus_View") (pvNodes y :: Forest PV_String))]
+                          _ -> [] :: [Tree (PVType ReportStatus)]
 instance IsPathNode ReportValueApproachInfo
     where type PVType ReportValueApproachInfo = PV_ReportValueApproachInfo
-          pvNodes x = [Node (PV_ReportValueApproachInfo_Markup (Path_ReportValueApproachInfo_reportValueApproachName idPath) (reportValueApproachName x)) subforest,
-                       Node (PV_ReportValueApproachInfo_Markup (Path_ReportValueApproachInfo_reportValueApproachDescription idPath) (reportValueApproachDescription x)) subforest]
+          pvNodes x = [case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportValueApproachInfo Markup] of
+                           [p@(Path_ReportValueApproachInfo_reportValueApproachName q)] -> let [y] = toListOf (toLens p) x :: [Markup]
+                                                                                            in Node (PV_ReportValueApproachInfo_Markup p y) (forestMap (error "Cannot convert PV_Markup -> PV_ReportValueApproachInfo using PV_ReportValueApproachInfo_Markup and Path_ReportValueApproachInfo_reportValueApproachName") (pvNodes y :: Forest PV_Markup))
+                           _ -> error "Expected a field match",
+                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportValueApproachInfo Markup] of
+                           [p@(Path_ReportValueApproachInfo_reportValueApproachDescription q)] -> let [y] = toListOf (toLens p) x :: [Markup]
+                                                                                                   in Node (PV_ReportValueApproachInfo_Markup p y) (forestMap (error "Cannot convert PV_Markup -> PV_ReportValueApproachInfo using PV_ReportValueApproachInfo_Markup and Path_ReportValueApproachInfo_reportValueApproachDescription") (pvNodes y :: Forest PV_Markup))
+                           _ -> error "Expected a field match"]
 instance IsPathNode ReportValueTypeInfo
     where type PVType ReportValueTypeInfo = PV_ReportValueTypeInfo
-          pvNodes x = [Node (PV_ReportValueTypeInfo_Markup (Path_ReportValueTypeInfo_reportValueTypeName idPath) (reportValueTypeName x)) subforest,
-                       Node (PV_ReportValueTypeInfo_Markup (Path_ReportValueTypeInfo_reportValueTypeDescription idPath) (reportValueTypeDescription x)) subforest,
-                       Node (PV_ReportValueTypeInfo_Markup (Path_ReportValueTypeInfo_reportValueTypeDefinition idPath) (reportValueTypeDefinition x)) subforest]
+          pvNodes x = [case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportValueTypeInfo Markup] of
+                           [p@(Path_ReportValueTypeInfo_reportValueTypeName q)] -> let [y] = toListOf (toLens p) x :: [Markup]
+                                                                                    in Node (PV_ReportValueTypeInfo_Markup p y) (forestMap (error "Cannot convert PV_Markup -> PV_ReportValueTypeInfo using PV_ReportValueTypeInfo_Markup and Path_ReportValueTypeInfo_reportValueTypeName") (pvNodes y :: Forest PV_Markup))
+                           _ -> error "Expected a field match",
+                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportValueTypeInfo Markup] of
+                           [p@(Path_ReportValueTypeInfo_reportValueTypeDescription q)] -> let [y] = toListOf (toLens p) x :: [Markup]
+                                                                                           in Node (PV_ReportValueTypeInfo_Markup p y) (forestMap (error "Cannot convert PV_Markup -> PV_ReportValueTypeInfo using PV_ReportValueTypeInfo_Markup and Path_ReportValueTypeInfo_reportValueTypeDescription") (pvNodes y :: Forest PV_Markup))
+                           _ -> error "Expected a field match",
+                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportValueTypeInfo Markup] of
+                           [p@(Path_ReportValueTypeInfo_reportValueTypeDefinition q)] -> let [y] = toListOf (toLens p) x :: [Markup]
+                                                                                          in Node (PV_ReportValueTypeInfo_Markup p y) (forestMap (error "Cannot convert PV_Markup -> PV_ReportValueTypeInfo using PV_ReportValueTypeInfo_Markup and Path_ReportValueTypeInfo_reportValueTypeDefinition") (pvNodes y :: Forest PV_Markup))
+                           _ -> error "Expected a field match"]
 instance IsPathNode ReportImage
     where type PVType ReportImage = PV_ReportImage
-          pvNodes x = case pathsOf (x :: ReportImage) (undefined :: Proxy ReportImageView) :: [Path_ReportImage ReportImageView] of
-                          [p] -> let [y] = toListOf (toLens p) x
-                                  in [Node (PV_ReportImage_ReportImageView p y) subforest]
-                          [] -> []
-                          _ -> error "More than one path returned for view" :: [Tree (PVType ReportImage)]
+          pvNodes x = case pathsOf x (undefined :: Proxy ReportImageView) :: [Path_ReportImage ReportImageView] of
+                          [p@(Path_ReportImage_View q)] -> let [y] = toListOf (toLens p) x :: [ReportImageView]
+                                                            in [Node (PV_ReportImage_ReportImageView p y) (forestMap (error "Cannot convert PV_ReportImageView -> PV_ReportImage using PV_ReportImage_ReportImageView and Path_ReportImage_View") (pvNodes y :: Forest PV_ReportImageView))]
+                          _ -> [] :: [Tree (PVType ReportImage)]
 instance IsPathNode ReportImageView
     where type PVType ReportImageView = PV_ReportImageView
-          pvNodes x = [Node (PV_ReportImageView_SaneSizeImageSize (Path_ReportImageView__picSize idPath) (_picSize x)) subforest,
-                       Node (PV_ReportImageView_ImageCrop (Path_ReportImageView__picCrop idPath) (_picCrop x)) subforest,
-                       Node (PV_ReportImageView_Markup (Path_ReportImageView__picCaption idPath) (_picCaption x)) subforest,
+          pvNodes x = [case pathsOf x (undefined :: Proxy SaneSizeImageSize) :: [Path_ReportImageView SaneSizeImageSize] of
+                           [p@(Path_ReportImageView__picSize q)] -> let [y] = toListOf (toLens p) x :: [SaneSizeImageSize]
+                                                                     in Node (PV_ReportImageView_SaneSizeImageSize p y) (forestMap (error "Cannot convert PV_SaneSizeImageSize -> PV_ReportImageView using PV_ReportImageView_SaneSizeImageSize and Path_ReportImageView__picSize") (pvNodes y :: Forest PV_SaneSizeImageSize))
+                           _ -> error "Expected a field match",
+                       case pathsOf x (undefined :: Proxy ImageCrop) :: [Path_ReportImageView ImageCrop] of
+                           [p@(Path_ReportImageView__picCrop q)] -> let [y] = toListOf (toLens p) x :: [ImageCrop]
+                                                                     in Node (PV_ReportImageView_ImageCrop p y) (forestMap (error "Cannot convert PV_ImageCrop -> PV_ReportImageView using PV_ReportImageView_ImageCrop and Path_ReportImageView__picCrop") (pvNodes y :: Forest PV_ImageCrop))
+                           _ -> error "Expected a field match",
+                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportImageView Markup] of
+                           [p@(Path_ReportImageView__picCaption q)] -> let [y] = toListOf (toLens p) x :: [Markup]
+                                                                        in Node (PV_ReportImageView_Markup p y) (forestMap (error "Cannot convert PV_Markup -> PV_ReportImageView using PV_ReportImageView_Markup and Path_ReportImageView__picCaption") (pvNodes y :: Forest PV_Markup))
+                           _ -> error "Expected a field match",
                        error "doField Appraisal.ReportInstances._picOriginal",
-                       Node (PV_ReportImageView_MaybeImageFile (Path_ReportImageView__picEditedDeprecated idPath) (_picEditedDeprecated x)) subforest,
-                       Node (PV_ReportImageView_MaybeImageFile (Path_ReportImageView__picThumbDeprecated idPath) (_picThumbDeprecated x)) subforest,
-                       Node (PV_ReportImageView_MaybeImageFile (Path_ReportImageView__picPrinterDeprecated idPath) (_picPrinterDeprecated x)) subforest,
-                       Node (PV_ReportImageView_Bool (Path_ReportImageView__picMustEnlarge idPath) (_picMustEnlarge x)) subforest,
-                       Node (PV_ReportImageView_MaybeImageFile (Path_ReportImageView__picEnlargedDeprecated idPath) (_picEnlargedDeprecated x)) subforest]
+                       case pathsOf x (undefined :: Proxy MaybeImageFile) :: [Path_ReportImageView MaybeImageFile] of
+                           [p@(Path_ReportImageView__picEditedDeprecated q)] -> let [y] = toListOf (toLens p) x :: [MaybeImageFile]
+                                                                                 in Node (PV_ReportImageView_MaybeImageFile p y) (forestMap (error "Cannot convert PV_MaybeImageFile -> PV_ReportImageView using PV_ReportImageView_MaybeImageFile and Path_ReportImageView__picEditedDeprecated") (pvNodes y :: Forest PV_MaybeImageFile))
+                           _ -> error "Expected a field match",
+                       case pathsOf x (undefined :: Proxy MaybeImageFile) :: [Path_ReportImageView MaybeImageFile] of
+                           [p@(Path_ReportImageView__picThumbDeprecated q)] -> let [y] = toListOf (toLens p) x :: [MaybeImageFile]
+                                                                                in Node (PV_ReportImageView_MaybeImageFile p y) (forestMap (error "Cannot convert PV_MaybeImageFile -> PV_ReportImageView using PV_ReportImageView_MaybeImageFile and Path_ReportImageView__picThumbDeprecated") (pvNodes y :: Forest PV_MaybeImageFile))
+                           _ -> error "Expected a field match",
+                       case pathsOf x (undefined :: Proxy MaybeImageFile) :: [Path_ReportImageView MaybeImageFile] of
+                           [p@(Path_ReportImageView__picPrinterDeprecated q)] -> let [y] = toListOf (toLens p) x :: [MaybeImageFile]
+                                                                                  in Node (PV_ReportImageView_MaybeImageFile p y) (forestMap (error "Cannot convert PV_MaybeImageFile -> PV_ReportImageView using PV_ReportImageView_MaybeImageFile and Path_ReportImageView__picPrinterDeprecated") (pvNodes y :: Forest PV_MaybeImageFile))
+                           _ -> error "Expected a field match",
+                       case pathsOf x (undefined :: Proxy Bool) :: [Path_ReportImageView Bool] of
+                           [p@(Path_ReportImageView__picMustEnlarge q)] -> let [y] = toListOf (toLens p) x :: [Bool]
+                                                                            in Node (PV_ReportImageView_Bool p y) (forestMap (error "Cannot convert PV_Bool -> PV_ReportImageView using PV_ReportImageView_Bool and Path_ReportImageView__picMustEnlarge") (pvNodes y :: Forest PV_Bool))
+                           _ -> error "Expected a field match",
+                       case pathsOf x (undefined :: Proxy MaybeImageFile) :: [Path_ReportImageView MaybeImageFile] of
+                           [p@(Path_ReportImageView__picEnlargedDeprecated q)] -> let [y] = toListOf (toLens p) x :: [MaybeImageFile]
+                                                                                   in Node (PV_ReportImageView_MaybeImageFile p y) (forestMap (error "Cannot convert PV_MaybeImageFile -> PV_ReportImageView using PV_ReportImageView_MaybeImageFile and Path_ReportImageView__picEnlargedDeprecated") (pvNodes y :: Forest PV_MaybeImageFile))
+                           _ -> error "Expected a field match"]
 instance IsPathNode ReportView
     where type PVType ReportView = PV_ReportView
-          pvNodes x = [Node (PV_ReportView_ReadOnlyFilePath (Path_ReportView__reportFolder idPath) (_reportFolder x)) subforest,
-                       Node (PV_ReportView_Markup (Path_ReportView__reportName idPath) (_reportName x)) subforest,
-                       Node (PV_ReportView_Markup (Path_ReportView__reportDate idPath) (_reportDate x)) subforest,
-                       Node (PV_ReportView_Markup (Path_ReportView__reportContractDate idPath) (_reportContractDate x)) subforest,
-                       Node (PV_ReportView_Markup (Path_ReportView__reportInspectionDate idPath) (_reportInspectionDate x)) subforest,
-                       Node (PV_ReportView_Markup (Path_ReportView__reportEffectiveDate idPath) (_reportEffectiveDate x)) subforest,
-                       Node (PV_ReportView_Authors (Path_ReportView__reportAuthors idPath) (_reportAuthors x)) subforest,
-                       Node (PV_ReportView_Markup (Path_ReportView__reportPreparer idPath) (_reportPreparer x)) subforest,
-                       Node (PV_ReportView_Markup (Path_ReportView__reportPreparerEIN idPath) (_reportPreparerEIN x)) subforest,
-                       Node (PV_ReportView_Markup (Path_ReportView__reportPreparerAddress idPath) (_reportPreparerAddress x)) subforest,
-                       Node (PV_ReportView_Markup (Path_ReportView__reportPreparerEMail idPath) (_reportPreparerEMail x)) subforest,
-                       Node (PV_ReportView_Markup (Path_ReportView__reportPreparerWebsite idPath) (_reportPreparerWebsite x)) subforest,
-                       Node (PV_ReportView_AbbrevPairs (Path_ReportView__reportAbbrevs idPath) (_reportAbbrevs x)) subforest,
-                       Node (PV_ReportView_Markup (Path_ReportView__reportTitle idPath) (_reportTitle x)) subforest,
-                       Node (PV_ReportView_Markup (Path_ReportView__reportHeader idPath) (_reportHeader x)) subforest,
-                       Node (PV_ReportView_Markup (Path_ReportView__reportFooter idPath) (_reportFooter x)) subforest,
-                       Node (PV_ReportView_MaybeReportIntendedUse (Path_ReportView__reportIntendedUse idPath) (_reportIntendedUse x)) subforest,
-                       Node (PV_ReportView_ReportValueTypeInfo (Path_ReportView__reportValueTypeInfo idPath) (_reportValueTypeInfo x)) subforest,
-                       Node (PV_ReportView_ReportValueApproachInfo (Path_ReportView__reportValueApproachInfo idPath) (_reportValueApproachInfo x)) subforest,
-                       Node (PV_ReportView_Markup (Path_ReportView__reportClientName idPath) (_reportClientName x)) subforest,
-                       Node (PV_ReportView_Markup (Path_ReportView__reportClientAddress idPath) (_reportClientAddress x)) subforest,
-                       Node (PV_ReportView_Markup (Path_ReportView__reportClientGreeting idPath) (_reportClientGreeting x)) subforest,
-                       Node (PV_ReportView_Markup (Path_ReportView__reportItemsOwnerFull idPath) (_reportItemsOwnerFull x)) subforest,
-                       Node (PV_ReportView_Markup (Path_ReportView__reportItemsOwner idPath) (_reportItemsOwner x)) subforest,
-                       Node (PV_ReportView_Markup (Path_ReportView__reportBriefItems idPath) (_reportBriefItems x)) subforest,
-                       Node (PV_ReportView_Markup (Path_ReportView__reportInspectionLocation idPath) (_reportInspectionLocation x)) subforest,
-                       Node (PV_ReportView_ReportElems (Path_ReportView__reportBody idPath) (_reportBody x)) subforest,
-                       Node (PV_ReportView_MarkupPairs (Path_ReportView__reportGlossary idPath) (_reportGlossary x)) subforest,
-                       Node (PV_ReportView_MarkupPairs (Path_ReportView__reportSources idPath) (_reportSources x)) subforest,
-                       Node (PV_ReportView_Markup (Path_ReportView__reportLetterOfTransmittal idPath) (_reportLetterOfTransmittal x)) subforest,
-                       Node (PV_ReportView_Markup (Path_ReportView__reportScopeOfWork idPath) (_reportScopeOfWork x)) subforest,
-                       Node (PV_ReportView_Markups (Path_ReportView__reportCertification idPath) (_reportCertification x)) subforest,
-                       Node (PV_ReportView_Markups (Path_ReportView__reportLimitingConditions idPath) (_reportLimitingConditions x)) subforest,
-                       Node (PV_ReportView_Markup (Path_ReportView__reportPrivacyPolicy idPath) (_reportPrivacyPolicy x)) subforest,
-                       Node (PV_ReportView_Permissions (Path_ReportView__reportPerms idPath) (_reportPerms x)) subforest,
-                       Node (PV_ReportView_Integer (Path_ReportView__reportRevision idPath) (_reportRevision x)) subforest,
-                       Node (PV_ReportView_Int64 (Path_ReportView__reportCreated idPath) (_reportCreated x)) subforest,
-                       Node (PV_ReportView_Branding (Path_ReportView__reportBranding idPath) (_reportBranding x)) subforest,
-                       Node (PV_ReportView_ReportStatus (Path_ReportView__reportStatus idPath) (_reportStatus x)) subforest,
-                       Node (PV_ReportView_Bool (Path_ReportView__reportRedacted idPath) (_reportRedacted x)) subforest,
-                       Node (PV_ReportView_ReportFlags (Path_ReportView__reportFlags idPath) (_reportFlags x)) subforest,
-                       Node (PV_ReportView_UUID (Path_ReportView__reportUUID idPath) (_reportUUID x)) subforest,
-                       Node (PV_ReportView_Bool (Path_ReportView__reportOrderByItemName idPath) (_reportOrderByItemName x)) subforest,
-                       Node (PV_ReportView_Bool (Path_ReportView__reportDisplayItemName idPath) (_reportDisplayItemName x)) subforest,
-                       Node (PV_ReportView_ReportStandard (Path_ReportView__reportStandardsVersion idPath) (_reportStandardsVersion x)) subforest]
+          pvNodes x = [case pathsOf x (undefined :: Proxy ReadOnlyFilePath) :: [Path_ReportView ReadOnlyFilePath] of
+                           [p@(Path_ReportView__reportFolder q)] -> let [y] = toListOf (toLens p) x :: [ReadOnlyFilePath]
+                                                                     in Node (PV_ReportView_ReadOnlyFilePath p y) (forestMap (error "Cannot convert PV_ReadOnlyFilePath -> PV_ReportView using PV_ReportView_ReadOnlyFilePath and Path_ReportView__reportFolder") (pvNodes y :: Forest PV_ReadOnlyFilePath))
+                           _ -> error "Expected a field match",
+                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                           [p@(Path_ReportView__reportName q)] -> let [y] = toListOf (toLens p) x :: [Markup]
+                                                                   in Node (PV_ReportView_Markup p y) (forestMap (error "Cannot convert PV_Markup -> PV_ReportView using PV_ReportView_Markup and Path_ReportView__reportName") (pvNodes y :: Forest PV_Markup))
+                           _ -> error "Expected a field match",
+                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                           [p@(Path_ReportView__reportDate q)] -> let [y] = toListOf (toLens p) x :: [Markup]
+                                                                   in Node (PV_ReportView_Markup p y) (forestMap (error "Cannot convert PV_Markup -> PV_ReportView using PV_ReportView_Markup and Path_ReportView__reportDate") (pvNodes y :: Forest PV_Markup))
+                           _ -> error "Expected a field match",
+                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                           [p@(Path_ReportView__reportContractDate q)] -> let [y] = toListOf (toLens p) x :: [Markup]
+                                                                           in Node (PV_ReportView_Markup p y) (forestMap (error "Cannot convert PV_Markup -> PV_ReportView using PV_ReportView_Markup and Path_ReportView__reportContractDate") (pvNodes y :: Forest PV_Markup))
+                           _ -> error "Expected a field match",
+                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                           [p@(Path_ReportView__reportInspectionDate q)] -> let [y] = toListOf (toLens p) x :: [Markup]
+                                                                             in Node (PV_ReportView_Markup p y) (forestMap (error "Cannot convert PV_Markup -> PV_ReportView using PV_ReportView_Markup and Path_ReportView__reportInspectionDate") (pvNodes y :: Forest PV_Markup))
+                           _ -> error "Expected a field match",
+                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                           [p@(Path_ReportView__reportEffectiveDate q)] -> let [y] = toListOf (toLens p) x :: [Markup]
+                                                                            in Node (PV_ReportView_Markup p y) (forestMap (error "Cannot convert PV_Markup -> PV_ReportView using PV_ReportView_Markup and Path_ReportView__reportEffectiveDate") (pvNodes y :: Forest PV_Markup))
+                           _ -> error "Expected a field match",
+                       case pathsOf x (undefined :: Proxy Authors) :: [Path_ReportView Authors] of
+                           [p@(Path_ReportView__reportAuthors q)] -> let [y] = toListOf (toLens p) x :: [Authors]
+                                                                      in Node (PV_ReportView_Authors p y) (forestMap (error "Cannot convert PV_Authors -> PV_ReportView using PV_ReportView_Authors and Path_ReportView__reportAuthors") (pvNodes y :: Forest PV_Authors))
+                           _ -> error "Expected a field match",
+                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                           [p@(Path_ReportView__reportPreparer q)] -> let [y] = toListOf (toLens p) x :: [Markup]
+                                                                       in Node (PV_ReportView_Markup p y) (forestMap (error "Cannot convert PV_Markup -> PV_ReportView using PV_ReportView_Markup and Path_ReportView__reportPreparer") (pvNodes y :: Forest PV_Markup))
+                           _ -> error "Expected a field match",
+                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                           [p@(Path_ReportView__reportPreparerEIN q)] -> let [y] = toListOf (toLens p) x :: [Markup]
+                                                                          in Node (PV_ReportView_Markup p y) (forestMap (error "Cannot convert PV_Markup -> PV_ReportView using PV_ReportView_Markup and Path_ReportView__reportPreparerEIN") (pvNodes y :: Forest PV_Markup))
+                           _ -> error "Expected a field match",
+                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                           [p@(Path_ReportView__reportPreparerAddress q)] -> let [y] = toListOf (toLens p) x :: [Markup]
+                                                                              in Node (PV_ReportView_Markup p y) (forestMap (error "Cannot convert PV_Markup -> PV_ReportView using PV_ReportView_Markup and Path_ReportView__reportPreparerAddress") (pvNodes y :: Forest PV_Markup))
+                           _ -> error "Expected a field match",
+                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                           [p@(Path_ReportView__reportPreparerEMail q)] -> let [y] = toListOf (toLens p) x :: [Markup]
+                                                                            in Node (PV_ReportView_Markup p y) (forestMap (error "Cannot convert PV_Markup -> PV_ReportView using PV_ReportView_Markup and Path_ReportView__reportPreparerEMail") (pvNodes y :: Forest PV_Markup))
+                           _ -> error "Expected a field match",
+                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                           [p@(Path_ReportView__reportPreparerWebsite q)] -> let [y] = toListOf (toLens p) x :: [Markup]
+                                                                              in Node (PV_ReportView_Markup p y) (forestMap (error "Cannot convert PV_Markup -> PV_ReportView using PV_ReportView_Markup and Path_ReportView__reportPreparerWebsite") (pvNodes y :: Forest PV_Markup))
+                           _ -> error "Expected a field match",
+                       case pathsOf x (undefined :: Proxy AbbrevPairs) :: [Path_ReportView AbbrevPairs] of
+                           [p@(Path_ReportView__reportAbbrevs q)] -> let [y] = toListOf (toLens p) x :: [AbbrevPairs]
+                                                                      in Node (PV_ReportView_AbbrevPairs p y) (forestMap (error "Cannot convert PV_AbbrevPairs -> PV_ReportView using PV_ReportView_AbbrevPairs and Path_ReportView__reportAbbrevs") (pvNodes y :: Forest PV_AbbrevPairs))
+                           _ -> error "Expected a field match",
+                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                           [p@(Path_ReportView__reportTitle q)] -> let [y] = toListOf (toLens p) x :: [Markup]
+                                                                    in Node (PV_ReportView_Markup p y) (forestMap (error "Cannot convert PV_Markup -> PV_ReportView using PV_ReportView_Markup and Path_ReportView__reportTitle") (pvNodes y :: Forest PV_Markup))
+                           _ -> error "Expected a field match",
+                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                           [p@(Path_ReportView__reportHeader q)] -> let [y] = toListOf (toLens p) x :: [Markup]
+                                                                     in Node (PV_ReportView_Markup p y) (forestMap (error "Cannot convert PV_Markup -> PV_ReportView using PV_ReportView_Markup and Path_ReportView__reportHeader") (pvNodes y :: Forest PV_Markup))
+                           _ -> error "Expected a field match",
+                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                           [p@(Path_ReportView__reportFooter q)] -> let [y] = toListOf (toLens p) x :: [Markup]
+                                                                     in Node (PV_ReportView_Markup p y) (forestMap (error "Cannot convert PV_Markup -> PV_ReportView using PV_ReportView_Markup and Path_ReportView__reportFooter") (pvNodes y :: Forest PV_Markup))
+                           _ -> error "Expected a field match",
+                       case pathsOf x (undefined :: Proxy MaybeReportIntendedUse) :: [Path_ReportView MaybeReportIntendedUse] of
+                           [p@(Path_ReportView__reportIntendedUse q)] -> let [y] = toListOf (toLens p) x :: [MaybeReportIntendedUse]
+                                                                          in Node (PV_ReportView_MaybeReportIntendedUse p y) (forestMap (error "Cannot convert PV_MaybeReportIntendedUse -> PV_ReportView using PV_ReportView_MaybeReportIntendedUse and Path_ReportView__reportIntendedUse") (pvNodes y :: Forest PV_MaybeReportIntendedUse))
+                           _ -> error "Expected a field match",
+                       case pathsOf x (undefined :: Proxy ReportValueTypeInfo) :: [Path_ReportView ReportValueTypeInfo] of
+                           [p@(Path_ReportView__reportValueTypeInfo q)] -> let [y] = toListOf (toLens p) x :: [ReportValueTypeInfo]
+                                                                            in Node (PV_ReportView_ReportValueTypeInfo p y) (forestMap (error "Cannot convert PV_ReportValueTypeInfo -> PV_ReportView using PV_ReportView_ReportValueTypeInfo and Path_ReportView__reportValueTypeInfo") (pvNodes y :: Forest PV_ReportValueTypeInfo))
+                           _ -> error "Expected a field match",
+                       case pathsOf x (undefined :: Proxy ReportValueApproachInfo) :: [Path_ReportView ReportValueApproachInfo] of
+                           [p@(Path_ReportView__reportValueApproachInfo q)] -> let [y] = toListOf (toLens p) x :: [ReportValueApproachInfo]
+                                                                                in Node (PV_ReportView_ReportValueApproachInfo p y) (forestMap (error "Cannot convert PV_ReportValueApproachInfo -> PV_ReportView using PV_ReportView_ReportValueApproachInfo and Path_ReportView__reportValueApproachInfo") (pvNodes y :: Forest PV_ReportValueApproachInfo))
+                           _ -> error "Expected a field match",
+                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                           [p@(Path_ReportView__reportClientName q)] -> let [y] = toListOf (toLens p) x :: [Markup]
+                                                                         in Node (PV_ReportView_Markup p y) (forestMap (error "Cannot convert PV_Markup -> PV_ReportView using PV_ReportView_Markup and Path_ReportView__reportClientName") (pvNodes y :: Forest PV_Markup))
+                           _ -> error "Expected a field match",
+                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                           [p@(Path_ReportView__reportClientAddress q)] -> let [y] = toListOf (toLens p) x :: [Markup]
+                                                                            in Node (PV_ReportView_Markup p y) (forestMap (error "Cannot convert PV_Markup -> PV_ReportView using PV_ReportView_Markup and Path_ReportView__reportClientAddress") (pvNodes y :: Forest PV_Markup))
+                           _ -> error "Expected a field match",
+                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                           [p@(Path_ReportView__reportClientGreeting q)] -> let [y] = toListOf (toLens p) x :: [Markup]
+                                                                             in Node (PV_ReportView_Markup p y) (forestMap (error "Cannot convert PV_Markup -> PV_ReportView using PV_ReportView_Markup and Path_ReportView__reportClientGreeting") (pvNodes y :: Forest PV_Markup))
+                           _ -> error "Expected a field match",
+                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                           [p@(Path_ReportView__reportItemsOwnerFull q)] -> let [y] = toListOf (toLens p) x :: [Markup]
+                                                                             in Node (PV_ReportView_Markup p y) (forestMap (error "Cannot convert PV_Markup -> PV_ReportView using PV_ReportView_Markup and Path_ReportView__reportItemsOwnerFull") (pvNodes y :: Forest PV_Markup))
+                           _ -> error "Expected a field match",
+                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                           [p@(Path_ReportView__reportItemsOwner q)] -> let [y] = toListOf (toLens p) x :: [Markup]
+                                                                         in Node (PV_ReportView_Markup p y) (forestMap (error "Cannot convert PV_Markup -> PV_ReportView using PV_ReportView_Markup and Path_ReportView__reportItemsOwner") (pvNodes y :: Forest PV_Markup))
+                           _ -> error "Expected a field match",
+                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                           [p@(Path_ReportView__reportBriefItems q)] -> let [y] = toListOf (toLens p) x :: [Markup]
+                                                                         in Node (PV_ReportView_Markup p y) (forestMap (error "Cannot convert PV_Markup -> PV_ReportView using PV_ReportView_Markup and Path_ReportView__reportBriefItems") (pvNodes y :: Forest PV_Markup))
+                           _ -> error "Expected a field match",
+                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                           [p@(Path_ReportView__reportInspectionLocation q)] -> let [y] = toListOf (toLens p) x :: [Markup]
+                                                                                 in Node (PV_ReportView_Markup p y) (forestMap (error "Cannot convert PV_Markup -> PV_ReportView using PV_ReportView_Markup and Path_ReportView__reportInspectionLocation") (pvNodes y :: Forest PV_Markup))
+                           _ -> error "Expected a field match",
+                       case pathsOf x (undefined :: Proxy ReportElems) :: [Path_ReportView ReportElems] of
+                           [p@(Path_ReportView__reportBody q)] -> let [y] = toListOf (toLens p) x :: [ReportElems]
+                                                                   in Node (PV_ReportView_ReportElems p y) (forestMap (error "Cannot convert PV_ReportElems -> PV_ReportView using PV_ReportView_ReportElems and Path_ReportView__reportBody") (pvNodes y :: Forest PV_ReportElems))
+                           _ -> error "Expected a field match",
+                       case pathsOf x (undefined :: Proxy MarkupPairs) :: [Path_ReportView MarkupPairs] of
+                           [p@(Path_ReportView__reportGlossary q)] -> let [y] = toListOf (toLens p) x :: [MarkupPairs]
+                                                                       in Node (PV_ReportView_MarkupPairs p y) (forestMap (error "Cannot convert PV_MarkupPairs -> PV_ReportView using PV_ReportView_MarkupPairs and Path_ReportView__reportGlossary") (pvNodes y :: Forest PV_MarkupPairs))
+                           _ -> error "Expected a field match",
+                       case pathsOf x (undefined :: Proxy MarkupPairs) :: [Path_ReportView MarkupPairs] of
+                           [p@(Path_ReportView__reportSources q)] -> let [y] = toListOf (toLens p) x :: [MarkupPairs]
+                                                                      in Node (PV_ReportView_MarkupPairs p y) (forestMap (error "Cannot convert PV_MarkupPairs -> PV_ReportView using PV_ReportView_MarkupPairs and Path_ReportView__reportSources") (pvNodes y :: Forest PV_MarkupPairs))
+                           _ -> error "Expected a field match",
+                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                           [p@(Path_ReportView__reportLetterOfTransmittal q)] -> let [y] = toListOf (toLens p) x :: [Markup]
+                                                                                  in Node (PV_ReportView_Markup p y) (forestMap (error "Cannot convert PV_Markup -> PV_ReportView using PV_ReportView_Markup and Path_ReportView__reportLetterOfTransmittal") (pvNodes y :: Forest PV_Markup))
+                           _ -> error "Expected a field match",
+                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                           [p@(Path_ReportView__reportScopeOfWork q)] -> let [y] = toListOf (toLens p) x :: [Markup]
+                                                                          in Node (PV_ReportView_Markup p y) (forestMap (error "Cannot convert PV_Markup -> PV_ReportView using PV_ReportView_Markup and Path_ReportView__reportScopeOfWork") (pvNodes y :: Forest PV_Markup))
+                           _ -> error "Expected a field match",
+                       case pathsOf x (undefined :: Proxy Markups) :: [Path_ReportView Markups] of
+                           [p@(Path_ReportView__reportCertification q)] -> let [y] = toListOf (toLens p) x :: [Markups]
+                                                                            in Node (PV_ReportView_Markups p y) (forestMap (error "Cannot convert PV_Markups -> PV_ReportView using PV_ReportView_Markups and Path_ReportView__reportCertification") (pvNodes y :: Forest PV_Markups))
+                           _ -> error "Expected a field match",
+                       case pathsOf x (undefined :: Proxy Markups) :: [Path_ReportView Markups] of
+                           [p@(Path_ReportView__reportLimitingConditions q)] -> let [y] = toListOf (toLens p) x :: [Markups]
+                                                                                 in Node (PV_ReportView_Markups p y) (forestMap (error "Cannot convert PV_Markups -> PV_ReportView using PV_ReportView_Markups and Path_ReportView__reportLimitingConditions") (pvNodes y :: Forest PV_Markups))
+                           _ -> error "Expected a field match",
+                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                           [p@(Path_ReportView__reportPrivacyPolicy q)] -> let [y] = toListOf (toLens p) x :: [Markup]
+                                                                            in Node (PV_ReportView_Markup p y) (forestMap (error "Cannot convert PV_Markup -> PV_ReportView using PV_ReportView_Markup and Path_ReportView__reportPrivacyPolicy") (pvNodes y :: Forest PV_Markup))
+                           _ -> error "Expected a field match",
+                       case pathsOf x (undefined :: Proxy Permissions) :: [Path_ReportView Permissions] of
+                           [p@(Path_ReportView__reportPerms q)] -> let [y] = toListOf (toLens p) x :: [Permissions]
+                                                                    in Node (PV_ReportView_Permissions p y) (forestMap (error "Cannot convert PV_Permissions -> PV_ReportView using PV_ReportView_Permissions and Path_ReportView__reportPerms") (pvNodes y :: Forest PV_Permissions))
+                           _ -> error "Expected a field match",
+                       case pathsOf x (undefined :: Proxy Integer) :: [Path_ReportView Integer] of
+                           [p@(Path_ReportView__reportRevision q)] -> let [y] = toListOf (toLens p) x :: [Integer]
+                                                                       in Node (PV_ReportView_Integer p y) (forestMap (error "Cannot convert PV_Integer -> PV_ReportView using PV_ReportView_Integer and Path_ReportView__reportRevision") (pvNodes y :: Forest PV_Integer))
+                           _ -> error "Expected a field match",
+                       case pathsOf x (undefined :: Proxy Int64) :: [Path_ReportView Int64] of
+                           [p@(Path_ReportView__reportCreated q)] -> let [y] = toListOf (toLens p) x :: [Int64]
+                                                                      in Node (PV_ReportView_Int64 p y) (forestMap (error "Cannot convert PV_Int64 -> PV_ReportView using PV_ReportView_Int64 and Path_ReportView__reportCreated") (pvNodes y :: Forest PV_Int64))
+                           _ -> error "Expected a field match",
+                       case pathsOf x (undefined :: Proxy Branding) :: [Path_ReportView Branding] of
+                           [p@(Path_ReportView__reportBranding q)] -> let [y] = toListOf (toLens p) x :: [Branding]
+                                                                       in Node (PV_ReportView_Branding p y) (forestMap (error "Cannot convert PV_Branding -> PV_ReportView using PV_ReportView_Branding and Path_ReportView__reportBranding") (pvNodes y :: Forest PV_Branding))
+                           _ -> error "Expected a field match",
+                       case pathsOf x (undefined :: Proxy ReportStatus) :: [Path_ReportView ReportStatus] of
+                           [p@(Path_ReportView__reportStatus q)] -> let [y] = toListOf (toLens p) x :: [ReportStatus]
+                                                                     in Node (PV_ReportView_ReportStatus p y) (forestMap (error "Cannot convert PV_ReportStatus -> PV_ReportView using PV_ReportView_ReportStatus and Path_ReportView__reportStatus") (pvNodes y :: Forest PV_ReportStatus))
+                           _ -> error "Expected a field match",
+                       case pathsOf x (undefined :: Proxy Bool) :: [Path_ReportView Bool] of
+                           [p@(Path_ReportView__reportRedacted q)] -> let [y] = toListOf (toLens p) x :: [Bool]
+                                                                       in Node (PV_ReportView_Bool p y) (forestMap (error "Cannot convert PV_Bool -> PV_ReportView using PV_ReportView_Bool and Path_ReportView__reportRedacted") (pvNodes y :: Forest PV_Bool))
+                           _ -> error "Expected a field match",
+                       case pathsOf x (undefined :: Proxy ReportFlags) :: [Path_ReportView ReportFlags] of
+                           [p@(Path_ReportView__reportFlags q)] -> let [y] = toListOf (toLens p) x :: [ReportFlags]
+                                                                    in Node (PV_ReportView_ReportFlags p y) (forestMap (error "Cannot convert PV_ReportFlags -> PV_ReportView using PV_ReportView_ReportFlags and Path_ReportView__reportFlags") (pvNodes y :: Forest PV_ReportFlags))
+                           _ -> error "Expected a field match",
+                       case pathsOf x (undefined :: Proxy UUID) :: [Path_ReportView UUID] of
+                           [p@(Path_ReportView__reportUUID q)] -> let [y] = toListOf (toLens p) x :: [UUID]
+                                                                   in Node (PV_ReportView_UUID p y) (forestMap (error "Cannot convert PV_UUID -> PV_ReportView using PV_ReportView_UUID and Path_ReportView__reportUUID") (pvNodes y :: Forest PV_UUID))
+                           _ -> error "Expected a field match",
+                       case pathsOf x (undefined :: Proxy Bool) :: [Path_ReportView Bool] of
+                           [p@(Path_ReportView__reportOrderByItemName q)] -> let [y] = toListOf (toLens p) x :: [Bool]
+                                                                              in Node (PV_ReportView_Bool p y) (forestMap (error "Cannot convert PV_Bool -> PV_ReportView using PV_ReportView_Bool and Path_ReportView__reportOrderByItemName") (pvNodes y :: Forest PV_Bool))
+                           _ -> error "Expected a field match",
+                       case pathsOf x (undefined :: Proxy Bool) :: [Path_ReportView Bool] of
+                           [p@(Path_ReportView__reportDisplayItemName q)] -> let [y] = toListOf (toLens p) x :: [Bool]
+                                                                              in Node (PV_ReportView_Bool p y) (forestMap (error "Cannot convert PV_Bool -> PV_ReportView using PV_ReportView_Bool and Path_ReportView__reportDisplayItemName") (pvNodes y :: Forest PV_Bool))
+                           _ -> error "Expected a field match",
+                       case pathsOf x (undefined :: Proxy ReportStandard) :: [Path_ReportView ReportStandard] of
+                           [p@(Path_ReportView__reportStandardsVersion q)] -> let [y] = toListOf (toLens p) x :: [ReportStandard]
+                                                                               in Node (PV_ReportView_ReportStandard p y) (forestMap (error "Cannot convert PV_ReportStandard -> PV_ReportView using PV_ReportView_ReportStandard and Path_ReportView__reportStandardsVersion") (pvNodes y :: Forest PV_ReportStandard))
+                           _ -> error "Expected a field match"]
 instance IsPathNode Item
     where type PVType Item = PV_Item
-          pvNodes x = [Node (PV_Item_Text (Path_Item_itemName idPath) (itemName x)) subforest,
+          pvNodes x = [case pathsOf x (undefined :: Proxy Text) :: [Path_Item Text] of
+                           [p@(Path_Item_itemName q)] -> let [y] = toListOf (toLens p) x :: [Text]
+                                                          in Node (PV_Item_Text p y) (forestMap (error "Cannot convert PV_Text -> PV_Item using PV_Item_Text and Path_Item_itemName") (pvNodes y :: Forest PV_Text))
+                           _ -> error "Expected a field match",
                        error "doField Appraisal.ReportItem.fields",
-                       Node (PV_Item_ReportImages (Path_Item_images idPath) (images x)) subforest]
+                       case pathsOf x (undefined :: Proxy ReportImages) :: [Path_Item ReportImages] of
+                           [p@(Path_Item_images q)] -> let [y] = toListOf (toLens p) x :: [ReportImages]
+                                                        in Node (PV_Item_ReportImages p y) (forestMap (error "Cannot convert PV_ReportImages -> PV_Item using PV_Item_ReportImages and Path_Item_images") (pvNodes y :: Forest PV_ReportImages))
+                           _ -> error "Expected a field match"]
 instance IsPathNode ReportMap
     where type PVType ReportMap = PV_ReportMap
           pvNodes x = [error "doField Appraisal.ReportMap.unReportMap"]
 instance IsPathNode CIString
     where type PVType CIString = PV_CIString
-          pvNodes x = case pathsOf (x :: CIString) (undefined :: Proxy Text) :: [Path_CIString Text] of
-                          [p] -> let [y] = toListOf (toLens p) x
-                                  in [Node (PV_CIString_Text p y) subforest]
-                          [] -> []
-                          _ -> error "More than one path returned for view" :: [Tree (PVType CIString)]
+          pvNodes x = case pathsOf x (undefined :: Proxy Text) :: [Path_CIString Text] of
+                          [p@(Path_CIString_View q)] -> let [y] = toListOf (toLens p) x :: [Text]
+                                                         in [Node (PV_CIString_Text p y) (forestMap (error "Cannot convert PV_Text -> PV_CIString using PV_CIString_Text and Path_CIString_View") (pvNodes y :: Forest PV_Text))]
+                          _ -> [] :: [Tree (PVType CIString)]
 instance IsPathNode URI
     where type PVType URI = PV_URI
           pvNodes _ = error "no pvNode clauses"
 instance IsPathNode Text
     where type PVType Text = PV_Text
-          pvNodes x = case pathsOf (x :: Text) (undefined :: Proxy JSONText) :: [Path_Text JSONText] of
-                          [p] -> let [y] = toListOf (toLens p) x
-                                  in [Node (PV_Text_JSONText p y) subforest]
-                          [] -> []
-                          _ -> error "More than one path returned for view" :: [Tree (PVType Text)]
+          pvNodes x = case pathsOf x (undefined :: Proxy JSONText) :: [Path_Text JSONText] of
+                          [p@(Path_Text_View q)] -> let [y] = toListOf (toLens p) x :: [JSONText]
+                                                     in [Node (PV_Text_JSONText p y) (forestMap (error "Cannot convert PV_JSONText -> PV_Text using PV_Text_JSONText and Path_Text_View") (pvNodes y :: Forest PV_JSONText))]
+                          _ -> [] :: [Tree (PVType Text)]
 instance IsPathNode UserId
     where type PVType UserId = PV_UserId
           pvNodes _ = error "no pvNode clauses"
