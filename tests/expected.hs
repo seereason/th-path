@@ -13358,7 +13358,9 @@ instance IsPathNode ImageCrop
           pvNodes _ = []
 instance IsPathNode ImageSize
     where type PVType ImageSize = PV_ImageSize
-          pvNodes x = [case pathsOf x (undefined :: Proxy Dimension) :: [Path_ImageSize Dimension] of
+          pvNodes x = [case filter (\x -> case x of
+                                              Path_ImageSize_dim _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Dimension) :: [Path_ImageSize Dimension]) of
                            [p@(Path_ImageSize_dim q)] -> let [y] = toListOf (toLens p) x :: [Dimension]
                                                           in Node (PV_ImageSize_Dimension p y) (forestMap (\pv -> case pv of
                                                                                                                       PV_Dimension_Dimension p
@@ -13368,7 +13370,9 @@ instance IsPathNode ImageSize
                                                                                                                                             x -> PV_ImageSize_JSONText ((Path_ImageSize_dim :: Path_Dimension JSONText ->
                                                                                                                                                                                                Path_ImageSize JSONText) p) x) (pvNodes y :: Forest PV_Dimension))
                            p -> error ("Expected a " ++ ("Path_ImageSize_dim" ++ (", but got " ++ show p))),
-                       case pathsOf x (undefined :: Proxy Double) :: [Path_ImageSize Double] of
+                       case filter (\x -> case x of
+                                              Path_ImageSize_size _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Double) :: [Path_ImageSize Double]) of
                            [p@(Path_ImageSize_size q)] -> let [y] = toListOf (toLens p) x :: [Double]
                                                            in Node (PV_ImageSize_Double p y) (forestMap (\pv -> case pv of
                                                                                                                     PV_Double_String p
@@ -13381,7 +13385,9 @@ instance IsPathNode ImageSize
                                                                                                                                        x -> PV_ImageSize_JSONText ((Path_ImageSize_size :: Path_Double JSONText ->
                                                                                                                                                                                            Path_ImageSize JSONText) p) x) (pvNodes y :: Forest PV_Double))
                            p -> error ("Expected a " ++ ("Path_ImageSize_size" ++ (", but got " ++ show p))),
-                       case pathsOf x (undefined :: Proxy Units) :: [Path_ImageSize Units] of
+                       case filter (\x -> case x of
+                                              Path_ImageSize_units _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Units) :: [Path_ImageSize Units]) of
                            [p@(Path_ImageSize_units q)] -> let [y] = toListOf (toLens p) x :: [Units]
                                                             in Node (PV_ImageSize_Units p y) (forestMap (\pv -> case pv of
                                                                                                                     PV_Units_Units p
@@ -13411,7 +13417,9 @@ instance IsPathNode JSONText
           pvNodes _ = []
 instance IsPathNode Markup
     where type PVType Markup = PV_Markup
-          pvNodes (x@(Markdown {})) = [case pathsOf x (undefined :: Proxy Text) :: [Path_Markup Text] of
+          pvNodes (x@(Markdown {})) = [case filter (\x -> case x of
+                                                              Path_Markup_markdownText _ -> True
+                                                              _ -> False) (pathsOf x (undefined :: Proxy Text) :: [Path_Markup Text]) of
                                            [p@(Path_Markup_markdownText q)] -> let [y] = toListOf (toLens p) x :: [Text]
                                                                                 in Node (PV_Markup_Text p y) (forestMap (\pv -> case pv of
                                                                                                                                     PV_Text_JSONText p
@@ -13421,7 +13429,9 @@ instance IsPathNode Markup
                                                                                                                                                  x -> PV_Markup_Text ((Path_Markup_markdownText :: Path_Text Text ->
                                                                                                                                                                                                    Path_Markup Text) p) x) (pvNodes y :: Forest PV_Text))
                                            p -> error ("Expected a " ++ ("Path_Markup_markdownText" ++ (", but got " ++ show p)))]
-          pvNodes (x@(Html {})) = [case pathsOf x (undefined :: Proxy Text) :: [Path_Markup Text] of
+          pvNodes (x@(Html {})) = [case filter (\x -> case x of
+                                                          Path_Markup_htmlText _ -> True
+                                                          _ -> False) (pathsOf x (undefined :: Proxy Text) :: [Path_Markup Text]) of
                                        [p@(Path_Markup_htmlText q)] -> let [y] = toListOf (toLens p) x :: [Text]
                                                                         in Node (PV_Markup_Text p y) (forestMap (\pv -> case pv of
                                                                                                                             PV_Text_JSONText p
@@ -13436,14 +13446,18 @@ instance IsPathNode Markup
           pvNodes (x@(Markup {})) = [error "doField' [Appraisal.Markup.Markup]"]
 instance IsPathNode Permissions
     where type PVType Permissions = PV_Permissions
-          pvNodes x = [case pathsOf x (undefined :: Proxy UserId) :: [Path_Permissions UserId] of
+          pvNodes x = [case filter (\x -> case x of
+                                              Path_Permissions_owner _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy UserId) :: [Path_Permissions UserId]) of
                            [p@(Path_Permissions_owner q)] -> let [y] = toListOf (toLens p) x :: [UserId]
                                                               in Node (PV_Permissions_UserId p y) (forestMap (\pv -> case pv of
                                                                                                                          PV_UserId_UserId p
                                                                                                                                           x -> PV_Permissions_UserId ((Path_Permissions_owner :: Path_UserId UserId ->
                                                                                                                                                                                                  Path_Permissions UserId) p) x) (pvNodes y :: Forest PV_UserId))
                            p -> error ("Expected a " ++ ("Path_Permissions_owner" ++ (", but got " ++ show p))),
-                       case pathsOf x (undefined :: Proxy UserIds) :: [Path_Permissions UserIds] of
+                       case filter (\x -> case x of
+                                              Path_Permissions_writers _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy UserIds) :: [Path_Permissions UserIds]) of
                            [p@(Path_Permissions_writers q)] -> let [y] = toListOf (toLens p) x :: [UserIds]
                                                                 in Node (PV_Permissions_UserIds p y) (forestMap (\pv -> case pv of
                                                                                                                             PV_UserIds_JSONText p
@@ -13456,7 +13470,9 @@ instance IsPathNode Permissions
                                                                                                                                             x -> PV_Permissions_Text ((Path_Permissions_writers :: Path_UserIds Text ->
                                                                                                                                                                                                    Path_Permissions Text) p) x) (pvNodes y :: Forest PV_UserIds))
                            p -> error ("Expected a " ++ ("Path_Permissions_writers" ++ (", but got " ++ show p))),
-                       case pathsOf x (undefined :: Proxy UserIds) :: [Path_Permissions UserIds] of
+                       case filter (\x -> case x of
+                                              Path_Permissions_readers _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy UserIds) :: [Path_Permissions UserIds]) of
                            [p@(Path_Permissions_readers q)] -> let [y] = toListOf (toLens p) x :: [UserIds]
                                                                 in Node (PV_Permissions_UserIds p y) (forestMap (\pv -> case pv of
                                                                                                                             PV_UserIds_JSONText p
@@ -13471,7 +13487,9 @@ instance IsPathNode Permissions
                            p -> error ("Expected a " ++ ("Path_Permissions_readers" ++ (", but got " ++ show p)))]
 instance IsPathNode Author
     where type PVType Author = PV_Author
-          pvNodes x = [case pathsOf x (undefined :: Proxy Markup) :: [Path_Author Markup] of
+          pvNodes x = [case filter (\x -> case x of
+                                              Path_Author_authorName _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markup) :: [Path_Author Markup]) of
                            [p@(Path_Author_authorName q)] -> let [y] = toListOf (toLens p) x :: [Markup]
                                                               in Node (PV_Author_Markup p y) (forestMap (\pv -> case pv of
                                                                                                                     PV_Markup_JSONText p
@@ -13484,7 +13502,9 @@ instance IsPathNode Author
                                                                                                                                    x -> PV_Author_Text ((Path_Author_authorName :: Path_Markup Text ->
                                                                                                                                                                                    Path_Author Text) p) x) (pvNodes y :: Forest PV_Markup))
                            p -> error ("Expected a " ++ ("Path_Author_authorName" ++ (", but got " ++ show p))),
-                       case pathsOf x (undefined :: Proxy Markup) :: [Path_Author Markup] of
+                       case filter (\x -> case x of
+                                              Path_Author_authorCredentials _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markup) :: [Path_Author Markup]) of
                            [p@(Path_Author_authorCredentials q)] -> let [y] = toListOf (toLens p) x :: [Markup]
                                                                      in Node (PV_Author_Markup p y) (forestMap (\pv -> case pv of
                                                                                                                            PV_Markup_JSONText p
@@ -13669,7 +13689,9 @@ instance IsPathNode Report
                           _ -> [] :: [Tree (PVType Report)]
 instance IsPathNode ReportElem
     where type PVType ReportElem = PV_ReportElem
-          pvNodes (x@(ReportItem {})) = [case pathsOf x (undefined :: Proxy Item) :: [Path_ReportElem Item] of
+          pvNodes (x@(ReportItem {})) = [case filter (\x -> case x of
+                                                                Path_ReportElem_elemItem _ -> True
+                                                                _ -> False) (pathsOf x (undefined :: Proxy Item) :: [Path_ReportElem Item]) of
                                              [p@(Path_ReportElem_elemItem q)] -> let [y] = toListOf (toLens p) x :: [Item]
                                                                                   in Node (PV_ReportElem_Item p y) (forestMap (\pv -> case pv of
                                                                                                                                           PV_Item_String p
@@ -13729,7 +13751,9 @@ instance IsPathNode ReportElem
                                                                                                                                                        x -> PV_ReportElem_Text ((Path_ReportElem_elemItem :: Path_Item Text ->
                                                                                                                                                                                                              Path_ReportElem Text) p) x) (pvNodes y :: Forest PV_Item))
                                              p -> error ("Expected a " ++ ("Path_ReportElem_elemItem" ++ (", but got " ++ show p)))]
-          pvNodes (x@(ReportParagraph {})) = [case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportElem Markup] of
+          pvNodes (x@(ReportParagraph {})) = [case filter (\x -> case x of
+                                                                     Path_ReportElem_elemText _ -> True
+                                                                     _ -> False) (pathsOf x (undefined :: Proxy Markup) :: [Path_ReportElem Markup]) of
                                                   [p@(Path_ReportElem_elemText q)] -> let [y] = toListOf (toLens p) x :: [Markup]
                                                                                        in Node (PV_ReportElem_Markup p y) (forestMap (\pv -> case pv of
                                                                                                                                                  PV_Markup_JSONText p
@@ -13745,7 +13769,9 @@ instance IsPathNode ReportElem
           pvNodes (x@(ReportUndecided {})) = []
 instance IsPathNode ReportFlags
     where type PVType ReportFlags = PV_ReportFlags
-          pvNodes x = [case pathsOf x (undefined :: Proxy Bool) :: [Path_ReportFlags Bool] of
+          pvNodes x = [case filter (\x -> case x of
+                                              Path_ReportFlags_hideEmptyItemFields _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Bool) :: [Path_ReportFlags Bool]) of
                            [p@(Path_ReportFlags_hideEmptyItemFields q)] -> let [y] = toListOf (toLens p) x :: [Bool]
                                                                             in Node (PV_ReportFlags_Bool p y) (forestMap (\pv -> case pv of
                                                                                                                                      PV_Bool_String p
@@ -13772,7 +13798,9 @@ instance IsPathNode ReportIntendedUse
                           _ -> [] :: [Tree (PVType ReportIntendedUse)]
 instance IsPathNode ReportStandard
     where type PVType ReportStandard = PV_ReportStandard
-          pvNodes x = [case pathsOf x (undefined :: Proxy Int) :: [Path_ReportStandard Int] of
+          pvNodes x = [case filter (\x -> case x of
+                                              Path_ReportStandard_unReportStandard _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Int) :: [Path_ReportStandard Int]) of
                            [p@(Path_ReportStandard_unReportStandard q)] -> let [y] = toListOf (toLens p) x :: [Int]
                                                                             in Node (PV_ReportStandard_Int p y) (forestMap (\pv -> case pv of
                                                                                                                                        PV_Int_Int p
@@ -13793,7 +13821,9 @@ instance IsPathNode ReportStatus
                           _ -> [] :: [Tree (PVType ReportStatus)]
 instance IsPathNode ReportValueApproachInfo
     where type PVType ReportValueApproachInfo = PV_ReportValueApproachInfo
-          pvNodes x = [case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportValueApproachInfo Markup] of
+          pvNodes x = [case filter (\x -> case x of
+                                              Path_ReportValueApproachInfo_reportValueApproachName _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markup) :: [Path_ReportValueApproachInfo Markup]) of
                            [p@(Path_ReportValueApproachInfo_reportValueApproachName q)] -> let [y] = toListOf (toLens p) x :: [Markup]
                                                                                             in Node (PV_ReportValueApproachInfo_Markup p y) (forestMap (\pv -> case pv of
                                                                                                                                                                    PV_Markup_JSONText p
@@ -13806,7 +13836,9 @@ instance IsPathNode ReportValueApproachInfo
                                                                                                                                                                                   x -> PV_ReportValueApproachInfo_Text ((Path_ReportValueApproachInfo_reportValueApproachName :: Path_Markup Text ->
                                                                                                                                                                                                                                                                                  Path_ReportValueApproachInfo Text) p) x) (pvNodes y :: Forest PV_Markup))
                            p -> error ("Expected a " ++ ("Path_ReportValueApproachInfo_reportValueApproachName" ++ (", but got " ++ show p))),
-                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportValueApproachInfo Markup] of
+                       case filter (\x -> case x of
+                                              Path_ReportValueApproachInfo_reportValueApproachDescription _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markup) :: [Path_ReportValueApproachInfo Markup]) of
                            [p@(Path_ReportValueApproachInfo_reportValueApproachDescription q)] -> let [y] = toListOf (toLens p) x :: [Markup]
                                                                                                    in Node (PV_ReportValueApproachInfo_Markup p y) (forestMap (\pv -> case pv of
                                                                                                                                                                           PV_Markup_JSONText p
@@ -13821,7 +13853,9 @@ instance IsPathNode ReportValueApproachInfo
                            p -> error ("Expected a " ++ ("Path_ReportValueApproachInfo_reportValueApproachDescription" ++ (", but got " ++ show p)))]
 instance IsPathNode ReportValueTypeInfo
     where type PVType ReportValueTypeInfo = PV_ReportValueTypeInfo
-          pvNodes x = [case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportValueTypeInfo Markup] of
+          pvNodes x = [case filter (\x -> case x of
+                                              Path_ReportValueTypeInfo_reportValueTypeName _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markup) :: [Path_ReportValueTypeInfo Markup]) of
                            [p@(Path_ReportValueTypeInfo_reportValueTypeName q)] -> let [y] = toListOf (toLens p) x :: [Markup]
                                                                                     in Node (PV_ReportValueTypeInfo_Markup p y) (forestMap (\pv -> case pv of
                                                                                                                                                        PV_Markup_JSONText p
@@ -13834,7 +13868,9 @@ instance IsPathNode ReportValueTypeInfo
                                                                                                                                                                       x -> PV_ReportValueTypeInfo_Text ((Path_ReportValueTypeInfo_reportValueTypeName :: Path_Markup Text ->
                                                                                                                                                                                                                                                          Path_ReportValueTypeInfo Text) p) x) (pvNodes y :: Forest PV_Markup))
                            p -> error ("Expected a " ++ ("Path_ReportValueTypeInfo_reportValueTypeName" ++ (", but got " ++ show p))),
-                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportValueTypeInfo Markup] of
+                       case filter (\x -> case x of
+                                              Path_ReportValueTypeInfo_reportValueTypeDescription _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markup) :: [Path_ReportValueTypeInfo Markup]) of
                            [p@(Path_ReportValueTypeInfo_reportValueTypeDescription q)] -> let [y] = toListOf (toLens p) x :: [Markup]
                                                                                            in Node (PV_ReportValueTypeInfo_Markup p y) (forestMap (\pv -> case pv of
                                                                                                                                                               PV_Markup_JSONText p
@@ -13847,7 +13883,9 @@ instance IsPathNode ReportValueTypeInfo
                                                                                                                                                                              x -> PV_ReportValueTypeInfo_Text ((Path_ReportValueTypeInfo_reportValueTypeDescription :: Path_Markup Text ->
                                                                                                                                                                                                                                                                        Path_ReportValueTypeInfo Text) p) x) (pvNodes y :: Forest PV_Markup))
                            p -> error ("Expected a " ++ ("Path_ReportValueTypeInfo_reportValueTypeDescription" ++ (", but got " ++ show p))),
-                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportValueTypeInfo Markup] of
+                       case filter (\x -> case x of
+                                              Path_ReportValueTypeInfo_reportValueTypeDefinition _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markup) :: [Path_ReportValueTypeInfo Markup]) of
                            [p@(Path_ReportValueTypeInfo_reportValueTypeDefinition q)] -> let [y] = toListOf (toLens p) x :: [Markup]
                                                                                           in Node (PV_ReportValueTypeInfo_Markup p y) (forestMap (\pv -> case pv of
                                                                                                                                                              PV_Markup_JSONText p
@@ -13913,7 +13951,9 @@ instance IsPathNode ReportImage
                           _ -> [] :: [Tree (PVType ReportImage)]
 instance IsPathNode ReportImageView
     where type PVType ReportImageView = PV_ReportImageView
-          pvNodes x = [case pathsOf x (undefined :: Proxy SaneSizeImageSize) :: [Path_ReportImageView SaneSizeImageSize] of
+          pvNodes x = [case filter (\x -> case x of
+                                              Path_ReportImageView__picSize _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy SaneSizeImageSize) :: [Path_ReportImageView SaneSizeImageSize]) of
                            [p@(Path_ReportImageView__picSize q)] -> let [y] = toListOf (toLens p) x :: [SaneSizeImageSize]
                                                                      in Node (PV_ReportImageView_SaneSizeImageSize p y) (forestMap (\pv -> case pv of
                                                                                                                                                PV_SaneSizeImageSize_String p
@@ -13938,14 +13978,18 @@ instance IsPathNode ReportImageView
                                                                                                                                                                                       x -> PV_ReportImageView_SaneSizeImageSize ((Path_ReportImageView__picSize :: Path_SaneSizeImageSize (SaneSize ImageSize) ->
                                                                                                                                                                                                                                                                    Path_ReportImageView (SaneSize ImageSize)) p) x) (pvNodes y :: Forest PV_SaneSizeImageSize))
                            p -> error ("Expected a " ++ ("Path_ReportImageView__picSize" ++ (", but got " ++ show p))),
-                       case pathsOf x (undefined :: Proxy ImageCrop) :: [Path_ReportImageView ImageCrop] of
+                       case filter (\x -> case x of
+                                              Path_ReportImageView__picCrop _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy ImageCrop) :: [Path_ReportImageView ImageCrop]) of
                            [p@(Path_ReportImageView__picCrop q)] -> let [y] = toListOf (toLens p) x :: [ImageCrop]
                                                                      in Node (PV_ReportImageView_ImageCrop p y) (forestMap (\pv -> case pv of
                                                                                                                                        PV_ImageCrop_ImageCrop p
                                                                                                                                                               x -> PV_ReportImageView_ImageCrop ((Path_ReportImageView__picCrop :: Path_ImageCrop ImageCrop ->
                                                                                                                                                                                                                                    Path_ReportImageView ImageCrop) p) x) (pvNodes y :: Forest PV_ImageCrop))
                            p -> error ("Expected a " ++ ("Path_ReportImageView__picCrop" ++ (", but got " ++ show p))),
-                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportImageView Markup] of
+                       case filter (\x -> case x of
+                                              Path_ReportImageView__picCaption _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markup) :: [Path_ReportImageView Markup]) of
                            [p@(Path_ReportImageView__picCaption q)] -> let [y] = toListOf (toLens p) x :: [Markup]
                                                                         in Node (PV_ReportImageView_Markup p y) (forestMap (\pv -> case pv of
                                                                                                                                        PV_Markup_JSONText p
@@ -13959,7 +14003,9 @@ instance IsPathNode ReportImageView
                                                                                                                                                                                                                          Path_ReportImageView Text) p) x) (pvNodes y :: Forest PV_Markup))
                            p -> error ("Expected a " ++ ("Path_ReportImageView__picCaption" ++ (", but got " ++ show p))),
                        error "doField Appraisal.ReportInstances._picOriginal",
-                       case pathsOf x (undefined :: Proxy MaybeImageFile) :: [Path_ReportImageView MaybeImageFile] of
+                       case filter (\x -> case x of
+                                              Path_ReportImageView__picEditedDeprecated _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy MaybeImageFile) :: [Path_ReportImageView MaybeImageFile]) of
                            [p@(Path_ReportImageView__picEditedDeprecated q)] -> let [y] = toListOf (toLens p) x :: [MaybeImageFile]
                                                                                  in Node (PV_ReportImageView_MaybeImageFile p y) (forestMap (\pv -> case pv of
                                                                                                                                                         PV_MaybeImageFile_String p
@@ -13972,7 +14018,9 @@ instance IsPathNode ReportImageView
                                                                                                                                                                                          x -> PV_ReportImageView_MaybeImageFile ((Path_ReportImageView__picEditedDeprecated :: Path_MaybeImageFile (Maybe ImageFile) ->
                                                                                                                                                                                                                                                                                Path_ReportImageView (Maybe ImageFile)) p) x) (pvNodes y :: Forest PV_MaybeImageFile))
                            p -> error ("Expected a " ++ ("Path_ReportImageView__picEditedDeprecated" ++ (", but got " ++ show p))),
-                       case pathsOf x (undefined :: Proxy MaybeImageFile) :: [Path_ReportImageView MaybeImageFile] of
+                       case filter (\x -> case x of
+                                              Path_ReportImageView__picThumbDeprecated _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy MaybeImageFile) :: [Path_ReportImageView MaybeImageFile]) of
                            [p@(Path_ReportImageView__picThumbDeprecated q)] -> let [y] = toListOf (toLens p) x :: [MaybeImageFile]
                                                                                 in Node (PV_ReportImageView_MaybeImageFile p y) (forestMap (\pv -> case pv of
                                                                                                                                                        PV_MaybeImageFile_String p
@@ -13985,7 +14033,9 @@ instance IsPathNode ReportImageView
                                                                                                                                                                                         x -> PV_ReportImageView_MaybeImageFile ((Path_ReportImageView__picThumbDeprecated :: Path_MaybeImageFile (Maybe ImageFile) ->
                                                                                                                                                                                                                                                                              Path_ReportImageView (Maybe ImageFile)) p) x) (pvNodes y :: Forest PV_MaybeImageFile))
                            p -> error ("Expected a " ++ ("Path_ReportImageView__picThumbDeprecated" ++ (", but got " ++ show p))),
-                       case pathsOf x (undefined :: Proxy MaybeImageFile) :: [Path_ReportImageView MaybeImageFile] of
+                       case filter (\x -> case x of
+                                              Path_ReportImageView__picPrinterDeprecated _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy MaybeImageFile) :: [Path_ReportImageView MaybeImageFile]) of
                            [p@(Path_ReportImageView__picPrinterDeprecated q)] -> let [y] = toListOf (toLens p) x :: [MaybeImageFile]
                                                                                   in Node (PV_ReportImageView_MaybeImageFile p y) (forestMap (\pv -> case pv of
                                                                                                                                                          PV_MaybeImageFile_String p
@@ -13998,7 +14048,9 @@ instance IsPathNode ReportImageView
                                                                                                                                                                                           x -> PV_ReportImageView_MaybeImageFile ((Path_ReportImageView__picPrinterDeprecated :: Path_MaybeImageFile (Maybe ImageFile) ->
                                                                                                                                                                                                                                                                                  Path_ReportImageView (Maybe ImageFile)) p) x) (pvNodes y :: Forest PV_MaybeImageFile))
                            p -> error ("Expected a " ++ ("Path_ReportImageView__picPrinterDeprecated" ++ (", but got " ++ show p))),
-                       case pathsOf x (undefined :: Proxy Bool) :: [Path_ReportImageView Bool] of
+                       case filter (\x -> case x of
+                                              Path_ReportImageView__picMustEnlarge _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Bool) :: [Path_ReportImageView Bool]) of
                            [p@(Path_ReportImageView__picMustEnlarge q)] -> let [y] = toListOf (toLens p) x :: [Bool]
                                                                             in Node (PV_ReportImageView_Bool p y) (forestMap (\pv -> case pv of
                                                                                                                                          PV_Bool_String p
@@ -14011,7 +14063,9 @@ instance IsPathNode ReportImageView
                                                                                                                                                           x -> PV_ReportImageView_JSONText ((Path_ReportImageView__picMustEnlarge :: Path_Bool JSONText ->
                                                                                                                                                                                                                                      Path_ReportImageView JSONText) p) x) (pvNodes y :: Forest PV_Bool))
                            p -> error ("Expected a " ++ ("Path_ReportImageView__picMustEnlarge" ++ (", but got " ++ show p))),
-                       case pathsOf x (undefined :: Proxy MaybeImageFile) :: [Path_ReportImageView MaybeImageFile] of
+                       case filter (\x -> case x of
+                                              Path_ReportImageView__picEnlargedDeprecated _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy MaybeImageFile) :: [Path_ReportImageView MaybeImageFile]) of
                            [p@(Path_ReportImageView__picEnlargedDeprecated q)] -> let [y] = toListOf (toLens p) x :: [MaybeImageFile]
                                                                                    in Node (PV_ReportImageView_MaybeImageFile p y) (forestMap (\pv -> case pv of
                                                                                                                                                           PV_MaybeImageFile_String p
@@ -14026,7 +14080,9 @@ instance IsPathNode ReportImageView
                            p -> error ("Expected a " ++ ("Path_ReportImageView__picEnlargedDeprecated" ++ (", but got " ++ show p)))]
 instance IsPathNode ReportView
     where type PVType ReportView = PV_ReportView
-          pvNodes x = [case pathsOf x (undefined :: Proxy ReadOnlyFilePath) :: [Path_ReportView ReadOnlyFilePath] of
+          pvNodes x = [case filter (\x -> case x of
+                                              Path_ReportView__reportFolder _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy ReadOnlyFilePath) :: [Path_ReportView ReadOnlyFilePath]) of
                            [p@(Path_ReportView__reportFolder q)] -> let [y] = toListOf (toLens p) x :: [ReadOnlyFilePath]
                                                                      in Node (PV_ReportView_ReadOnlyFilePath p y) (forestMap (\pv -> case pv of
                                                                                                                                          PV_ReadOnlyFilePath_String p
@@ -14039,7 +14095,9 @@ instance IsPathNode ReportView
                                                                                                                                                                               x -> PV_ReportView_ReadOnlyFilePath ((Path_ReportView__reportFolder :: Path_ReadOnlyFilePath (ReadOnly ([Char])) ->
                                                                                                                                                                                                                                                      Path_ReportView (ReadOnly ([Char]))) p) x) (pvNodes y :: Forest PV_ReadOnlyFilePath))
                            p -> error ("Expected a " ++ ("Path_ReportView__reportFolder" ++ (", but got " ++ show p))),
-                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportName _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]) of
                            [p@(Path_ReportView__reportName q)] -> let [y] = toListOf (toLens p) x :: [Markup]
                                                                    in Node (PV_ReportView_Markup p y) (forestMap (\pv -> case pv of
                                                                                                                              PV_Markup_JSONText p
@@ -14052,7 +14110,9 @@ instance IsPathNode ReportView
                                                                                                                                             x -> PV_ReportView_Text ((Path_ReportView__reportName :: Path_Markup Text ->
                                                                                                                                                                                                      Path_ReportView Text) p) x) (pvNodes y :: Forest PV_Markup))
                            p -> error ("Expected a " ++ ("Path_ReportView__reportName" ++ (", but got " ++ show p))),
-                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportDate _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]) of
                            [p@(Path_ReportView__reportDate q)] -> let [y] = toListOf (toLens p) x :: [Markup]
                                                                    in Node (PV_ReportView_Markup p y) (forestMap (\pv -> case pv of
                                                                                                                              PV_Markup_JSONText p
@@ -14065,7 +14125,9 @@ instance IsPathNode ReportView
                                                                                                                                             x -> PV_ReportView_Text ((Path_ReportView__reportDate :: Path_Markup Text ->
                                                                                                                                                                                                      Path_ReportView Text) p) x) (pvNodes y :: Forest PV_Markup))
                            p -> error ("Expected a " ++ ("Path_ReportView__reportDate" ++ (", but got " ++ show p))),
-                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportContractDate _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]) of
                            [p@(Path_ReportView__reportContractDate q)] -> let [y] = toListOf (toLens p) x :: [Markup]
                                                                            in Node (PV_ReportView_Markup p y) (forestMap (\pv -> case pv of
                                                                                                                                      PV_Markup_JSONText p
@@ -14078,7 +14140,9 @@ instance IsPathNode ReportView
                                                                                                                                                     x -> PV_ReportView_Text ((Path_ReportView__reportContractDate :: Path_Markup Text ->
                                                                                                                                                                                                                      Path_ReportView Text) p) x) (pvNodes y :: Forest PV_Markup))
                            p -> error ("Expected a " ++ ("Path_ReportView__reportContractDate" ++ (", but got " ++ show p))),
-                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportInspectionDate _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]) of
                            [p@(Path_ReportView__reportInspectionDate q)] -> let [y] = toListOf (toLens p) x :: [Markup]
                                                                              in Node (PV_ReportView_Markup p y) (forestMap (\pv -> case pv of
                                                                                                                                        PV_Markup_JSONText p
@@ -14091,7 +14155,9 @@ instance IsPathNode ReportView
                                                                                                                                                       x -> PV_ReportView_Text ((Path_ReportView__reportInspectionDate :: Path_Markup Text ->
                                                                                                                                                                                                                          Path_ReportView Text) p) x) (pvNodes y :: Forest PV_Markup))
                            p -> error ("Expected a " ++ ("Path_ReportView__reportInspectionDate" ++ (", but got " ++ show p))),
-                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportEffectiveDate _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]) of
                            [p@(Path_ReportView__reportEffectiveDate q)] -> let [y] = toListOf (toLens p) x :: [Markup]
                                                                             in Node (PV_ReportView_Markup p y) (forestMap (\pv -> case pv of
                                                                                                                                       PV_Markup_JSONText p
@@ -14104,7 +14170,9 @@ instance IsPathNode ReportView
                                                                                                                                                      x -> PV_ReportView_Text ((Path_ReportView__reportEffectiveDate :: Path_Markup Text ->
                                                                                                                                                                                                                        Path_ReportView Text) p) x) (pvNodes y :: Forest PV_Markup))
                            p -> error ("Expected a " ++ ("Path_ReportView__reportEffectiveDate" ++ (", but got " ++ show p))),
-                       case pathsOf x (undefined :: Proxy Authors) :: [Path_ReportView Authors] of
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportAuthors _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Authors) :: [Path_ReportView Authors]) of
                            [p@(Path_ReportView__reportAuthors q)] -> let [y] = toListOf (toLens p) x :: [Authors]
                                                                       in Node (PV_ReportView_Authors p y) (forestMap (\pv -> case pv of
                                                                                                                                  PV_Authors_JSONText p
@@ -14125,7 +14193,9 @@ instance IsPathNode ReportView
                                                                                                                                                  x -> PV_ReportView_Text ((Path_ReportView__reportAuthors :: Path_Authors Text ->
                                                                                                                                                                                                              Path_ReportView Text) p) x) (pvNodes y :: Forest PV_Authors))
                            p -> error ("Expected a " ++ ("Path_ReportView__reportAuthors" ++ (", but got " ++ show p))),
-                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportPreparer _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]) of
                            [p@(Path_ReportView__reportPreparer q)] -> let [y] = toListOf (toLens p) x :: [Markup]
                                                                        in Node (PV_ReportView_Markup p y) (forestMap (\pv -> case pv of
                                                                                                                                  PV_Markup_JSONText p
@@ -14138,7 +14208,9 @@ instance IsPathNode ReportView
                                                                                                                                                 x -> PV_ReportView_Text ((Path_ReportView__reportPreparer :: Path_Markup Text ->
                                                                                                                                                                                                              Path_ReportView Text) p) x) (pvNodes y :: Forest PV_Markup))
                            p -> error ("Expected a " ++ ("Path_ReportView__reportPreparer" ++ (", but got " ++ show p))),
-                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportPreparerEIN _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]) of
                            [p@(Path_ReportView__reportPreparerEIN q)] -> let [y] = toListOf (toLens p) x :: [Markup]
                                                                           in Node (PV_ReportView_Markup p y) (forestMap (\pv -> case pv of
                                                                                                                                     PV_Markup_JSONText p
@@ -14151,7 +14223,9 @@ instance IsPathNode ReportView
                                                                                                                                                    x -> PV_ReportView_Text ((Path_ReportView__reportPreparerEIN :: Path_Markup Text ->
                                                                                                                                                                                                                    Path_ReportView Text) p) x) (pvNodes y :: Forest PV_Markup))
                            p -> error ("Expected a " ++ ("Path_ReportView__reportPreparerEIN" ++ (", but got " ++ show p))),
-                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportPreparerAddress _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]) of
                            [p@(Path_ReportView__reportPreparerAddress q)] -> let [y] = toListOf (toLens p) x :: [Markup]
                                                                               in Node (PV_ReportView_Markup p y) (forestMap (\pv -> case pv of
                                                                                                                                         PV_Markup_JSONText p
@@ -14164,7 +14238,9 @@ instance IsPathNode ReportView
                                                                                                                                                        x -> PV_ReportView_Text ((Path_ReportView__reportPreparerAddress :: Path_Markup Text ->
                                                                                                                                                                                                                            Path_ReportView Text) p) x) (pvNodes y :: Forest PV_Markup))
                            p -> error ("Expected a " ++ ("Path_ReportView__reportPreparerAddress" ++ (", but got " ++ show p))),
-                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportPreparerEMail _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]) of
                            [p@(Path_ReportView__reportPreparerEMail q)] -> let [y] = toListOf (toLens p) x :: [Markup]
                                                                             in Node (PV_ReportView_Markup p y) (forestMap (\pv -> case pv of
                                                                                                                                       PV_Markup_JSONText p
@@ -14177,7 +14253,9 @@ instance IsPathNode ReportView
                                                                                                                                                      x -> PV_ReportView_Text ((Path_ReportView__reportPreparerEMail :: Path_Markup Text ->
                                                                                                                                                                                                                        Path_ReportView Text) p) x) (pvNodes y :: Forest PV_Markup))
                            p -> error ("Expected a " ++ ("Path_ReportView__reportPreparerEMail" ++ (", but got " ++ show p))),
-                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportPreparerWebsite _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]) of
                            [p@(Path_ReportView__reportPreparerWebsite q)] -> let [y] = toListOf (toLens p) x :: [Markup]
                                                                               in Node (PV_ReportView_Markup p y) (forestMap (\pv -> case pv of
                                                                                                                                         PV_Markup_JSONText p
@@ -14190,7 +14268,9 @@ instance IsPathNode ReportView
                                                                                                                                                        x -> PV_ReportView_Text ((Path_ReportView__reportPreparerWebsite :: Path_Markup Text ->
                                                                                                                                                                                                                            Path_ReportView Text) p) x) (pvNodes y :: Forest PV_Markup))
                            p -> error ("Expected a " ++ ("Path_ReportView__reportPreparerWebsite" ++ (", but got " ++ show p))),
-                       case pathsOf x (undefined :: Proxy AbbrevPairs) :: [Path_ReportView AbbrevPairs] of
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportAbbrevs _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy AbbrevPairs) :: [Path_ReportView AbbrevPairs]) of
                            [p@(Path_ReportView__reportAbbrevs q)] -> let [y] = toListOf (toLens p) x :: [AbbrevPairs]
                                                                       in Node (PV_ReportView_AbbrevPairs p y) (forestMap (\pv -> case pv of
                                                                                                                                      PV_AbbrevPairs_JSONText p
@@ -14218,7 +14298,9 @@ instance IsPathNode ReportView
                                                                                                                                                          x -> PV_ReportView_Text ((Path_ReportView__reportAbbrevs :: Path_AbbrevPairs Text ->
                                                                                                                                                                                                                      Path_ReportView Text) p) x) (pvNodes y :: Forest PV_AbbrevPairs))
                            p -> error ("Expected a " ++ ("Path_ReportView__reportAbbrevs" ++ (", but got " ++ show p))),
-                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportTitle _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]) of
                            [p@(Path_ReportView__reportTitle q)] -> let [y] = toListOf (toLens p) x :: [Markup]
                                                                     in Node (PV_ReportView_Markup p y) (forestMap (\pv -> case pv of
                                                                                                                               PV_Markup_JSONText p
@@ -14231,7 +14313,9 @@ instance IsPathNode ReportView
                                                                                                                                              x -> PV_ReportView_Text ((Path_ReportView__reportTitle :: Path_Markup Text ->
                                                                                                                                                                                                        Path_ReportView Text) p) x) (pvNodes y :: Forest PV_Markup))
                            p -> error ("Expected a " ++ ("Path_ReportView__reportTitle" ++ (", but got " ++ show p))),
-                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportHeader _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]) of
                            [p@(Path_ReportView__reportHeader q)] -> let [y] = toListOf (toLens p) x :: [Markup]
                                                                      in Node (PV_ReportView_Markup p y) (forestMap (\pv -> case pv of
                                                                                                                                PV_Markup_JSONText p
@@ -14244,7 +14328,9 @@ instance IsPathNode ReportView
                                                                                                                                               x -> PV_ReportView_Text ((Path_ReportView__reportHeader :: Path_Markup Text ->
                                                                                                                                                                                                          Path_ReportView Text) p) x) (pvNodes y :: Forest PV_Markup))
                            p -> error ("Expected a " ++ ("Path_ReportView__reportHeader" ++ (", but got " ++ show p))),
-                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportFooter _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]) of
                            [p@(Path_ReportView__reportFooter q)] -> let [y] = toListOf (toLens p) x :: [Markup]
                                                                      in Node (PV_ReportView_Markup p y) (forestMap (\pv -> case pv of
                                                                                                                                PV_Markup_JSONText p
@@ -14257,7 +14343,9 @@ instance IsPathNode ReportView
                                                                                                                                               x -> PV_ReportView_Text ((Path_ReportView__reportFooter :: Path_Markup Text ->
                                                                                                                                                                                                          Path_ReportView Text) p) x) (pvNodes y :: Forest PV_Markup))
                            p -> error ("Expected a " ++ ("Path_ReportView__reportFooter" ++ (", but got " ++ show p))),
-                       case pathsOf x (undefined :: Proxy MaybeReportIntendedUse) :: [Path_ReportView MaybeReportIntendedUse] of
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportIntendedUse _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy MaybeReportIntendedUse) :: [Path_ReportView MaybeReportIntendedUse]) of
                            [p@(Path_ReportView__reportIntendedUse q)] -> let [y] = toListOf (toLens p) x :: [MaybeReportIntendedUse]
                                                                           in Node (PV_ReportView_MaybeReportIntendedUse p y) (forestMap (\pv -> case pv of
                                                                                                                                                     PV_MaybeReportIntendedUse_String p
@@ -14270,7 +14358,9 @@ instance IsPathNode ReportView
                                                                                                                                                                                                      x -> PV_ReportView_MaybeReportIntendedUse ((Path_ReportView__reportIntendedUse :: Path_MaybeReportIntendedUse (Maybe ReportIntendedUse) ->
                                                                                                                                                                                                                                                                                        Path_ReportView (Maybe ReportIntendedUse)) p) x) (pvNodes y :: Forest PV_MaybeReportIntendedUse))
                            p -> error ("Expected a " ++ ("Path_ReportView__reportIntendedUse" ++ (", but got " ++ show p))),
-                       case pathsOf x (undefined :: Proxy ReportValueTypeInfo) :: [Path_ReportView ReportValueTypeInfo] of
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportValueTypeInfo _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy ReportValueTypeInfo) :: [Path_ReportView ReportValueTypeInfo]) of
                            [p@(Path_ReportView__reportValueTypeInfo q)] -> let [y] = toListOf (toLens p) x :: [ReportValueTypeInfo]
                                                                             in Node (PV_ReportView_ReportValueTypeInfo p y) (forestMap (\pv -> case pv of
                                                                                                                                                    PV_ReportValueTypeInfo_JSONText p
@@ -14286,7 +14376,9 @@ instance IsPathNode ReportView
                                                                                                                                                                                x -> PV_ReportView_Text ((Path_ReportView__reportValueTypeInfo :: Path_ReportValueTypeInfo Text ->
                                                                                                                                                                                                                                                  Path_ReportView Text) p) x) (pvNodes y :: Forest PV_ReportValueTypeInfo))
                            p -> error ("Expected a " ++ ("Path_ReportView__reportValueTypeInfo" ++ (", but got " ++ show p))),
-                       case pathsOf x (undefined :: Proxy ReportValueApproachInfo) :: [Path_ReportView ReportValueApproachInfo] of
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportValueApproachInfo _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy ReportValueApproachInfo) :: [Path_ReportView ReportValueApproachInfo]) of
                            [p@(Path_ReportView__reportValueApproachInfo q)] -> let [y] = toListOf (toLens p) x :: [ReportValueApproachInfo]
                                                                                 in Node (PV_ReportView_ReportValueApproachInfo p y) (forestMap (\pv -> case pv of
                                                                                                                                                            PV_ReportValueApproachInfo_JSONText p
@@ -14302,7 +14394,9 @@ instance IsPathNode ReportView
                                                                                                                                                                                            x -> PV_ReportView_Text ((Path_ReportView__reportValueApproachInfo :: Path_ReportValueApproachInfo Text ->
                                                                                                                                                                                                                                                                  Path_ReportView Text) p) x) (pvNodes y :: Forest PV_ReportValueApproachInfo))
                            p -> error ("Expected a " ++ ("Path_ReportView__reportValueApproachInfo" ++ (", but got " ++ show p))),
-                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportClientName _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]) of
                            [p@(Path_ReportView__reportClientName q)] -> let [y] = toListOf (toLens p) x :: [Markup]
                                                                          in Node (PV_ReportView_Markup p y) (forestMap (\pv -> case pv of
                                                                                                                                    PV_Markup_JSONText p
@@ -14315,7 +14409,9 @@ instance IsPathNode ReportView
                                                                                                                                                   x -> PV_ReportView_Text ((Path_ReportView__reportClientName :: Path_Markup Text ->
                                                                                                                                                                                                                  Path_ReportView Text) p) x) (pvNodes y :: Forest PV_Markup))
                            p -> error ("Expected a " ++ ("Path_ReportView__reportClientName" ++ (", but got " ++ show p))),
-                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportClientAddress _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]) of
                            [p@(Path_ReportView__reportClientAddress q)] -> let [y] = toListOf (toLens p) x :: [Markup]
                                                                             in Node (PV_ReportView_Markup p y) (forestMap (\pv -> case pv of
                                                                                                                                       PV_Markup_JSONText p
@@ -14328,7 +14424,9 @@ instance IsPathNode ReportView
                                                                                                                                                      x -> PV_ReportView_Text ((Path_ReportView__reportClientAddress :: Path_Markup Text ->
                                                                                                                                                                                                                        Path_ReportView Text) p) x) (pvNodes y :: Forest PV_Markup))
                            p -> error ("Expected a " ++ ("Path_ReportView__reportClientAddress" ++ (", but got " ++ show p))),
-                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportClientGreeting _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]) of
                            [p@(Path_ReportView__reportClientGreeting q)] -> let [y] = toListOf (toLens p) x :: [Markup]
                                                                              in Node (PV_ReportView_Markup p y) (forestMap (\pv -> case pv of
                                                                                                                                        PV_Markup_JSONText p
@@ -14341,7 +14439,9 @@ instance IsPathNode ReportView
                                                                                                                                                       x -> PV_ReportView_Text ((Path_ReportView__reportClientGreeting :: Path_Markup Text ->
                                                                                                                                                                                                                          Path_ReportView Text) p) x) (pvNodes y :: Forest PV_Markup))
                            p -> error ("Expected a " ++ ("Path_ReportView__reportClientGreeting" ++ (", but got " ++ show p))),
-                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportItemsOwnerFull _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]) of
                            [p@(Path_ReportView__reportItemsOwnerFull q)] -> let [y] = toListOf (toLens p) x :: [Markup]
                                                                              in Node (PV_ReportView_Markup p y) (forestMap (\pv -> case pv of
                                                                                                                                        PV_Markup_JSONText p
@@ -14354,7 +14454,9 @@ instance IsPathNode ReportView
                                                                                                                                                       x -> PV_ReportView_Text ((Path_ReportView__reportItemsOwnerFull :: Path_Markup Text ->
                                                                                                                                                                                                                          Path_ReportView Text) p) x) (pvNodes y :: Forest PV_Markup))
                            p -> error ("Expected a " ++ ("Path_ReportView__reportItemsOwnerFull" ++ (", but got " ++ show p))),
-                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportItemsOwner _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]) of
                            [p@(Path_ReportView__reportItemsOwner q)] -> let [y] = toListOf (toLens p) x :: [Markup]
                                                                          in Node (PV_ReportView_Markup p y) (forestMap (\pv -> case pv of
                                                                                                                                    PV_Markup_JSONText p
@@ -14367,7 +14469,9 @@ instance IsPathNode ReportView
                                                                                                                                                   x -> PV_ReportView_Text ((Path_ReportView__reportItemsOwner :: Path_Markup Text ->
                                                                                                                                                                                                                  Path_ReportView Text) p) x) (pvNodes y :: Forest PV_Markup))
                            p -> error ("Expected a " ++ ("Path_ReportView__reportItemsOwner" ++ (", but got " ++ show p))),
-                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportBriefItems _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]) of
                            [p@(Path_ReportView__reportBriefItems q)] -> let [y] = toListOf (toLens p) x :: [Markup]
                                                                          in Node (PV_ReportView_Markup p y) (forestMap (\pv -> case pv of
                                                                                                                                    PV_Markup_JSONText p
@@ -14380,7 +14484,9 @@ instance IsPathNode ReportView
                                                                                                                                                   x -> PV_ReportView_Text ((Path_ReportView__reportBriefItems :: Path_Markup Text ->
                                                                                                                                                                                                                  Path_ReportView Text) p) x) (pvNodes y :: Forest PV_Markup))
                            p -> error ("Expected a " ++ ("Path_ReportView__reportBriefItems" ++ (", but got " ++ show p))),
-                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportInspectionLocation _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]) of
                            [p@(Path_ReportView__reportInspectionLocation q)] -> let [y] = toListOf (toLens p) x :: [Markup]
                                                                                  in Node (PV_ReportView_Markup p y) (forestMap (\pv -> case pv of
                                                                                                                                            PV_Markup_JSONText p
@@ -14393,7 +14499,9 @@ instance IsPathNode ReportView
                                                                                                                                                           x -> PV_ReportView_Text ((Path_ReportView__reportInspectionLocation :: Path_Markup Text ->
                                                                                                                                                                                                                                  Path_ReportView Text) p) x) (pvNodes y :: Forest PV_Markup))
                            p -> error ("Expected a " ++ ("Path_ReportView__reportInspectionLocation" ++ (", but got " ++ show p))),
-                       case pathsOf x (undefined :: Proxy ReportElems) :: [Path_ReportView ReportElems] of
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportBody _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy ReportElems) :: [Path_ReportView ReportElems]) of
                            [p@(Path_ReportView__reportBody q)] -> let [y] = toListOf (toLens p) x :: [ReportElems]
                                                                    in Node (PV_ReportView_ReportElems p y) (forestMap (\pv -> case pv of
                                                                                                                                   PV_ReportElems_String p
@@ -14461,7 +14569,9 @@ instance IsPathNode ReportView
                                                                                                                                                       x -> PV_ReportView_Text ((Path_ReportView__reportBody :: Path_ReportElems Text ->
                                                                                                                                                                                                                Path_ReportView Text) p) x) (pvNodes y :: Forest PV_ReportElems))
                            p -> error ("Expected a " ++ ("Path_ReportView__reportBody" ++ (", but got " ++ show p))),
-                       case pathsOf x (undefined :: Proxy MarkupPairs) :: [Path_ReportView MarkupPairs] of
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportGlossary _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy MarkupPairs) :: [Path_ReportView MarkupPairs]) of
                            [p@(Path_ReportView__reportGlossary q)] -> let [y] = toListOf (toLens p) x :: [MarkupPairs]
                                                                        in Node (PV_ReportView_MarkupPairs p y) (forestMap (\pv -> case pv of
                                                                                                                                       PV_MarkupPairs_JSONText p
@@ -14486,7 +14596,9 @@ instance IsPathNode ReportView
                                                                                                                                                           x -> PV_ReportView_Text ((Path_ReportView__reportGlossary :: Path_MarkupPairs Text ->
                                                                                                                                                                                                                        Path_ReportView Text) p) x) (pvNodes y :: Forest PV_MarkupPairs))
                            p -> error ("Expected a " ++ ("Path_ReportView__reportGlossary" ++ (", but got " ++ show p))),
-                       case pathsOf x (undefined :: Proxy MarkupPairs) :: [Path_ReportView MarkupPairs] of
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportSources _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy MarkupPairs) :: [Path_ReportView MarkupPairs]) of
                            [p@(Path_ReportView__reportSources q)] -> let [y] = toListOf (toLens p) x :: [MarkupPairs]
                                                                       in Node (PV_ReportView_MarkupPairs p y) (forestMap (\pv -> case pv of
                                                                                                                                      PV_MarkupPairs_JSONText p
@@ -14511,7 +14623,9 @@ instance IsPathNode ReportView
                                                                                                                                                          x -> PV_ReportView_Text ((Path_ReportView__reportSources :: Path_MarkupPairs Text ->
                                                                                                                                                                                                                      Path_ReportView Text) p) x) (pvNodes y :: Forest PV_MarkupPairs))
                            p -> error ("Expected a " ++ ("Path_ReportView__reportSources" ++ (", but got " ++ show p))),
-                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportLetterOfTransmittal _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]) of
                            [p@(Path_ReportView__reportLetterOfTransmittal q)] -> let [y] = toListOf (toLens p) x :: [Markup]
                                                                                   in Node (PV_ReportView_Markup p y) (forestMap (\pv -> case pv of
                                                                                                                                             PV_Markup_JSONText p
@@ -14524,7 +14638,9 @@ instance IsPathNode ReportView
                                                                                                                                                            x -> PV_ReportView_Text ((Path_ReportView__reportLetterOfTransmittal :: Path_Markup Text ->
                                                                                                                                                                                                                                    Path_ReportView Text) p) x) (pvNodes y :: Forest PV_Markup))
                            p -> error ("Expected a " ++ ("Path_ReportView__reportLetterOfTransmittal" ++ (", but got " ++ show p))),
-                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportScopeOfWork _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]) of
                            [p@(Path_ReportView__reportScopeOfWork q)] -> let [y] = toListOf (toLens p) x :: [Markup]
                                                                           in Node (PV_ReportView_Markup p y) (forestMap (\pv -> case pv of
                                                                                                                                     PV_Markup_JSONText p
@@ -14537,7 +14653,9 @@ instance IsPathNode ReportView
                                                                                                                                                    x -> PV_ReportView_Text ((Path_ReportView__reportScopeOfWork :: Path_Markup Text ->
                                                                                                                                                                                                                    Path_ReportView Text) p) x) (pvNodes y :: Forest PV_Markup))
                            p -> error ("Expected a " ++ ("Path_ReportView__reportScopeOfWork" ++ (", but got " ++ show p))),
-                       case pathsOf x (undefined :: Proxy Markups) :: [Path_ReportView Markups] of
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportCertification _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markups) :: [Path_ReportView Markups]) of
                            [p@(Path_ReportView__reportCertification q)] -> let [y] = toListOf (toLens p) x :: [Markups]
                                                                             in Node (PV_ReportView_Markups p y) (forestMap (\pv -> case pv of
                                                                                                                                        PV_Markups_JSONText p
@@ -14555,7 +14673,9 @@ instance IsPathNode ReportView
                                                                                                                                                        x -> PV_ReportView_Text ((Path_ReportView__reportCertification :: Path_Markups Text ->
                                                                                                                                                                                                                          Path_ReportView Text) p) x) (pvNodes y :: Forest PV_Markups))
                            p -> error ("Expected a " ++ ("Path_ReportView__reportCertification" ++ (", but got " ++ show p))),
-                       case pathsOf x (undefined :: Proxy Markups) :: [Path_ReportView Markups] of
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportLimitingConditions _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markups) :: [Path_ReportView Markups]) of
                            [p@(Path_ReportView__reportLimitingConditions q)] -> let [y] = toListOf (toLens p) x :: [Markups]
                                                                                  in Node (PV_ReportView_Markups p y) (forestMap (\pv -> case pv of
                                                                                                                                             PV_Markups_JSONText p
@@ -14573,7 +14693,9 @@ instance IsPathNode ReportView
                                                                                                                                                             x -> PV_ReportView_Text ((Path_ReportView__reportLimitingConditions :: Path_Markups Text ->
                                                                                                                                                                                                                                    Path_ReportView Text) p) x) (pvNodes y :: Forest PV_Markups))
                            p -> error ("Expected a " ++ ("Path_ReportView__reportLimitingConditions" ++ (", but got " ++ show p))),
-                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportPrivacyPolicy _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]) of
                            [p@(Path_ReportView__reportPrivacyPolicy q)] -> let [y] = toListOf (toLens p) x :: [Markup]
                                                                             in Node (PV_ReportView_Markup p y) (forestMap (\pv -> case pv of
                                                                                                                                       PV_Markup_JSONText p
@@ -14586,7 +14708,9 @@ instance IsPathNode ReportView
                                                                                                                                                      x -> PV_ReportView_Text ((Path_ReportView__reportPrivacyPolicy :: Path_Markup Text ->
                                                                                                                                                                                                                        Path_ReportView Text) p) x) (pvNodes y :: Forest PV_Markup))
                            p -> error ("Expected a " ++ ("Path_ReportView__reportPrivacyPolicy" ++ (", but got " ++ show p))),
-                       case pathsOf x (undefined :: Proxy Permissions) :: [Path_ReportView Permissions] of
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportPerms _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Permissions) :: [Path_ReportView Permissions]) of
                            [p@(Path_ReportView__reportPerms q)] -> let [y] = toListOf (toLens p) x :: [Permissions]
                                                                     in Node (PV_ReportView_Permissions p y) (forestMap (\pv -> case pv of
                                                                                                                                    PV_Permissions_JSONText p
@@ -14605,21 +14729,27 @@ instance IsPathNode ReportView
                                                                                                                                                          x -> PV_ReportView_UserId ((Path_ReportView__reportPerms :: Path_Permissions UserId ->
                                                                                                                                                                                                                      Path_ReportView UserId) p) x) (pvNodes y :: Forest PV_Permissions))
                            p -> error ("Expected a " ++ ("Path_ReportView__reportPerms" ++ (", but got " ++ show p))),
-                       case pathsOf x (undefined :: Proxy Integer) :: [Path_ReportView Integer] of
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportRevision _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Integer) :: [Path_ReportView Integer]) of
                            [p@(Path_ReportView__reportRevision q)] -> let [y] = toListOf (toLens p) x :: [Integer]
                                                                        in Node (PV_ReportView_Integer p y) (forestMap (\pv -> case pv of
                                                                                                                                   PV_Integer_Integer p
                                                                                                                                                      x -> PV_ReportView_Integer ((Path_ReportView__reportRevision :: Path_Integer Integer ->
                                                                                                                                                                                                                      Path_ReportView Integer) p) x) (pvNodes y :: Forest PV_Integer))
                            p -> error ("Expected a " ++ ("Path_ReportView__reportRevision" ++ (", but got " ++ show p))),
-                       case pathsOf x (undefined :: Proxy Int64) :: [Path_ReportView Int64] of
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportCreated _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Int64) :: [Path_ReportView Int64]) of
                            [p@(Path_ReportView__reportCreated q)] -> let [y] = toListOf (toLens p) x :: [Int64]
                                                                       in Node (PV_ReportView_Int64 p y) (forestMap (\pv -> case pv of
                                                                                                                                PV_Int64_Int64 p
                                                                                                                                               x -> PV_ReportView_Int64 ((Path_ReportView__reportCreated :: Path_Int64 Int64 ->
                                                                                                                                                                                                            Path_ReportView Int64) p) x) (pvNodes y :: Forest PV_Int64))
                            p -> error ("Expected a " ++ ("Path_ReportView__reportCreated" ++ (", but got " ++ show p))),
-                       case pathsOf x (undefined :: Proxy Branding) :: [Path_ReportView Branding] of
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportBranding _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Branding) :: [Path_ReportView Branding]) of
                            [p@(Path_ReportView__reportBranding q)] -> let [y] = toListOf (toLens p) x :: [Branding]
                                                                        in Node (PV_ReportView_Branding p y) (forestMap (\pv -> case pv of
                                                                                                                                    PV_Branding_JSONText p
@@ -14632,7 +14762,9 @@ instance IsPathNode ReportView
                                                                                                                                                     x -> PV_ReportView_Text ((Path_ReportView__reportBranding :: Path_Branding Text ->
                                                                                                                                                                                                                  Path_ReportView Text) p) x) (pvNodes y :: Forest PV_Branding))
                            p -> error ("Expected a " ++ ("Path_ReportView__reportBranding" ++ (", but got " ++ show p))),
-                       case pathsOf x (undefined :: Proxy ReportStatus) :: [Path_ReportView ReportStatus] of
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportStatus _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy ReportStatus) :: [Path_ReportView ReportStatus]) of
                            [p@(Path_ReportView__reportStatus q)] -> let [y] = toListOf (toLens p) x :: [ReportStatus]
                                                                      in Node (PV_ReportView_ReportStatus p y) (forestMap (\pv -> case pv of
                                                                                                                                      PV_ReportStatus_String p
@@ -14645,7 +14777,9 @@ instance IsPathNode ReportView
                                                                                                                                                                   x -> PV_ReportView_ReportStatus ((Path_ReportView__reportStatus :: Path_ReportStatus ReportStatus ->
                                                                                                                                                                                                                                      Path_ReportView ReportStatus) p) x) (pvNodes y :: Forest PV_ReportStatus))
                            p -> error ("Expected a " ++ ("Path_ReportView__reportStatus" ++ (", but got " ++ show p))),
-                       case pathsOf x (undefined :: Proxy Bool) :: [Path_ReportView Bool] of
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportRedacted _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Bool) :: [Path_ReportView Bool]) of
                            [p@(Path_ReportView__reportRedacted q)] -> let [y] = toListOf (toLens p) x :: [Bool]
                                                                        in Node (PV_ReportView_Bool p y) (forestMap (\pv -> case pv of
                                                                                                                                PV_Bool_String p
@@ -14658,7 +14792,9 @@ instance IsPathNode ReportView
                                                                                                                                                 x -> PV_ReportView_JSONText ((Path_ReportView__reportRedacted :: Path_Bool JSONText ->
                                                                                                                                                                                                                  Path_ReportView JSONText) p) x) (pvNodes y :: Forest PV_Bool))
                            p -> error ("Expected a " ++ ("Path_ReportView__reportRedacted" ++ (", but got " ++ show p))),
-                       case pathsOf x (undefined :: Proxy ReportFlags) :: [Path_ReportView ReportFlags] of
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportFlags _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy ReportFlags) :: [Path_ReportView ReportFlags]) of
                            [p@(Path_ReportView__reportFlags q)] -> let [y] = toListOf (toLens p) x :: [ReportFlags]
                                                                     in Node (PV_ReportView_ReportFlags p y) (forestMap (\pv -> case pv of
                                                                                                                                    PV_ReportFlags_String p
@@ -14674,14 +14810,18 @@ instance IsPathNode ReportView
                                                                                                                                                               x -> PV_ReportView_ReportFlags ((Path_ReportView__reportFlags :: Path_ReportFlags ReportFlags ->
                                                                                                                                                                                                                                Path_ReportView ReportFlags) p) x) (pvNodes y :: Forest PV_ReportFlags))
                            p -> error ("Expected a " ++ ("Path_ReportView__reportFlags" ++ (", but got " ++ show p))),
-                       case pathsOf x (undefined :: Proxy UUID) :: [Path_ReportView UUID] of
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportUUID _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy UUID) :: [Path_ReportView UUID]) of
                            [p@(Path_ReportView__reportUUID q)] -> let [y] = toListOf (toLens p) x :: [UUID]
                                                                    in Node (PV_ReportView_UUID p y) (forestMap (\pv -> case pv of
                                                                                                                            PV_UUID_UUID p
                                                                                                                                         x -> PV_ReportView_UUID ((Path_ReportView__reportUUID :: Path_UUID UUID ->
                                                                                                                                                                                                  Path_ReportView UUID) p) x) (pvNodes y :: Forest PV_UUID))
                            p -> error ("Expected a " ++ ("Path_ReportView__reportUUID" ++ (", but got " ++ show p))),
-                       case pathsOf x (undefined :: Proxy Bool) :: [Path_ReportView Bool] of
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportOrderByItemName _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Bool) :: [Path_ReportView Bool]) of
                            [p@(Path_ReportView__reportOrderByItemName q)] -> let [y] = toListOf (toLens p) x :: [Bool]
                                                                               in Node (PV_ReportView_Bool p y) (forestMap (\pv -> case pv of
                                                                                                                                       PV_Bool_String p
@@ -14694,7 +14834,9 @@ instance IsPathNode ReportView
                                                                                                                                                        x -> PV_ReportView_JSONText ((Path_ReportView__reportOrderByItemName :: Path_Bool JSONText ->
                                                                                                                                                                                                                                Path_ReportView JSONText) p) x) (pvNodes y :: Forest PV_Bool))
                            p -> error ("Expected a " ++ ("Path_ReportView__reportOrderByItemName" ++ (", but got " ++ show p))),
-                       case pathsOf x (undefined :: Proxy Bool) :: [Path_ReportView Bool] of
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportDisplayItemName _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Bool) :: [Path_ReportView Bool]) of
                            [p@(Path_ReportView__reportDisplayItemName q)] -> let [y] = toListOf (toLens p) x :: [Bool]
                                                                               in Node (PV_ReportView_Bool p y) (forestMap (\pv -> case pv of
                                                                                                                                       PV_Bool_String p
@@ -14707,7 +14849,9 @@ instance IsPathNode ReportView
                                                                                                                                                        x -> PV_ReportView_JSONText ((Path_ReportView__reportDisplayItemName :: Path_Bool JSONText ->
                                                                                                                                                                                                                                Path_ReportView JSONText) p) x) (pvNodes y :: Forest PV_Bool))
                            p -> error ("Expected a " ++ ("Path_ReportView__reportDisplayItemName" ++ (", but got " ++ show p))),
-                       case pathsOf x (undefined :: Proxy ReportStandard) :: [Path_ReportView ReportStandard] of
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportStandardsVersion _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy ReportStandard) :: [Path_ReportView ReportStandard]) of
                            [p@(Path_ReportView__reportStandardsVersion q)] -> let [y] = toListOf (toLens p) x :: [ReportStandard]
                                                                                in Node (PV_ReportView_ReportStandard p y) (forestMap (\pv -> case pv of
                                                                                                                                                  PV_ReportStandard_Int p
@@ -14719,7 +14863,9 @@ instance IsPathNode ReportView
                            p -> error ("Expected a " ++ ("Path_ReportView__reportStandardsVersion" ++ (", but got " ++ show p)))]
 instance IsPathNode Item
     where type PVType Item = PV_Item
-          pvNodes x = [case pathsOf x (undefined :: Proxy Text) :: [Path_Item Text] of
+          pvNodes x = [case filter (\x -> case x of
+                                              Path_Item_itemName _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Text) :: [Path_Item Text]) of
                            [p@(Path_Item_itemName q)] -> let [y] = toListOf (toLens p) x :: [Text]
                                                           in Node (PV_Item_Text p y) (forestMap (\pv -> case pv of
                                                                                                             PV_Text_JSONText p
@@ -14730,7 +14876,9 @@ instance IsPathNode Item
                                                                                                                                                                    Path_Item Text) p) x) (pvNodes y :: Forest PV_Text))
                            p -> error ("Expected a " ++ ("Path_Item_itemName" ++ (", but got " ++ show p))),
                        error "doField Appraisal.ReportItem.fields",
-                       case pathsOf x (undefined :: Proxy ReportImages) :: [Path_Item ReportImages] of
+                       case filter (\x -> case x of
+                                              Path_Item_images _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy ReportImages) :: [Path_Item ReportImages]) of
                            [p@(Path_Item_images q)] -> let [y] = toListOf (toLens p) x :: [ReportImages]
                                                         in Node (PV_Item_ReportImages p y) (forestMap (\pv -> case pv of
                                                                                                                   PV_ReportImages_String p

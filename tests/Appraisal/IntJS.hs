@@ -8,7 +8,7 @@ module Appraisal.IntJS
     , ToIntJS(intJS)
     , deriveOrderJS
 
-    , JSONText
+    , JSONText(..)
     , iso_JSONText
     , gjsonIso
     , gjsonLens
