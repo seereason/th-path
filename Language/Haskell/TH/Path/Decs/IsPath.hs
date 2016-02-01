@@ -108,68 +108,57 @@ pvNodeClauses v =
            | t3 == ConT ''Map ->
                doPVNodesOfMap v vtyp
        AppT (AppT (TupleT 2) ftyp) styp ->
-           do doPVNodesOf v ftyp 'Path_First
-              doPVNodesOf v styp 'Path_Second
+           do doPVNodeOf v ftyp 'Path_First
+              doPVNodeOf v styp 'Path_Second
        AppT t1 etyp
            | t1 == ConT ''Maybe ->
-               doPVNodesOf v etyp 'Path_Just
+               doPVNodeOf v etyp 'Path_Just
        AppT (AppT t3 ltyp) rtyp
            | t3 == ConT ''Either ->
-               do doPVNodesOf v ltyp 'Path_Left
-                  doPVNodesOf v rtyp 'Path_Right
+               do doPVNodeOf v ltyp 'Path_Left
+                  doPVNodeOf v rtyp 'Path_Right
        _ -> return []
     where
-      doSingleton :: Name -> TGVSimple -> Type -> m Exp
-      doSingleton x v etyp = do
-        e <- expandType etyp >>= typeVertex
-        runQ [|let p = (head (pathsOf $(varE x) (undefined :: Proxy $(pure etyp)))) in
-               Node ($(conE (pvName v e)) p (head (toListOf (toLens p) $(varE x)))) subforest |]
-
       doName :: Name -> m [ClauseQ]
       doName tname = qReify tname >>= doInfo
       doInfo :: Info -> m [ClauseQ]
       doInfo (TyConI dec) = doDec dec
       doInfo _ = return []
       doDec :: Dec -> m [ClauseQ]
-      doDec (NewtypeD cx tname binds con supers) = doCons tname [con]
-      doDec (DataD cx tname binds cons supers) = doCons tname cons
+      doDec (NewtypeD cx tname binds con supers) = runQ (newName "x") >>= doCons tname [con]
+      doDec (DataD cx tname binds cons supers) = runQ (newName "x") >>= doCons tname cons
       -- concat <$> mapM doCon cons
-      doCons :: Name -> [Con] -> m [ClauseQ]
-      doCons tname [] = error "No constructors"
-      doCons tname [ForallC _ _ con] = doCons tname [con]
-      doCons tname [RecC cname vsts] = do
-        x <- runQ $ newName "x"
+      doCons :: Name -> [Con] -> Name -> m [ClauseQ]
+      doCons tname [] x = error "No constructors"
+      doCons tname [ForallC _ _ con] x = doCons tname [con] x
+      doCons tname [RecC cname vsts] x = do
         flds <- mapM (doField tname x) vsts
         return [clause [varP x] (normalB (listE (List.map pure flds))) []]
-      doCons tname [NormalC cname sts] = do
-        x <- runQ $ newName "x"
+      doCons tname [NormalC cname sts] x = do
         flds <- mapM (doField' tname x) sts
         return [clause [varP x] (normalB (listE (List.map pure flds))) []]
-      doCons tname [InfixC lhs cname rhs] = do
-        x <- runQ $ newName "x"
+      doCons tname [InfixC lhs cname rhs] x = do
         flds <- mapM (doField' tname x) [lhs, rhs]
         return [clause [varP x] (normalB (listE (List.map pure flds))) []]
-      doCons tname cons = concat <$> mapM (doCon tname) cons
+      doCons tname cons x = concat <$> mapM (doCon tname x) cons
       -- If we have multiple constructors, only generate values for
       -- the one that matches
-      doCon :: Name -> Con -> m [ClauseQ]
-      doCon tname (ForallC _ _ con) = doCon tname con
+      doCon :: Name -> Name -> Con -> m [ClauseQ]
+      doCon tname x (ForallC _ _ con) = doCon tname x con
       -- doCon ''Markup _ con@(Markdown {}) = runQ [d|_f (Markdown {}) = doFields ''Markup con
       --                                              _f (Html {}) = doFields ''Markup con
       --                                              _f _ = [] |]
       -- doCon ''Markup _ (Html {htmlText :: Text}) = ...
-      doCon tname (RecC cname vsts) = doMatchingFields tname cname vsts
-      doCon tname (NormalC cname sts) = doMatchingFields' tname cname sts
-      doCon tname (InfixC lhs cname rhs) = doMatchingFields' tname cname [lhs, rhs]
+      doCon tname x (RecC cname vsts) = doMatchingFields tname x cname vsts
+      doCon tname x (NormalC cname sts) = doMatchingFields' tname x cname sts
+      doCon tname x (InfixC lhs cname rhs) = doMatchingFields' tname x cname [lhs, rhs]
 
-      doMatchingFields :: Name -> Name -> [(Name, Strict, Type)] -> m [ClauseQ]
-      doMatchingFields tname cname vsts = do
-        x <- runQ $ newName "x"
+      doMatchingFields :: Name -> Name -> Name -> [(Name, Strict, Type)] -> m [ClauseQ]
+      doMatchingFields tname x cname vsts = do
         flds <- mapM (doField tname x) vsts
         return [clause [asP x (recP cname [])] (normalB (listE (List.map pure flds))) []]
-      doMatchingFields' :: Name -> Name -> [(Strict, Type)] -> m [ClauseQ]
-      doMatchingFields' tname cname sts = do
-        x <- runQ $ newName "x"
+      doMatchingFields' :: Name -> Name -> Name -> [(Strict, Type)] -> m [ClauseQ]
+      doMatchingFields' tname x cname sts = do
         flds <- mapM (doField' tname x) sts
         return [clause [asP x (recP cname [])] (normalB (listE (List.map pure flds))) []]
 
@@ -262,16 +251,17 @@ doPVNodesOfField x v f n =
      p <- runQ $ newName "p"
      q <- runQ $ newName "q"
      pvlift <- shim w v pvcname (conE pcname)
-     runQ [| case filter $matchpath (pathsOf $(varE x) (undefined :: Proxy $(pure wtyp)) :: [$(conT ptname) $(conT wname)]) of
+     runQ [| case filter $matchpath (pathsOf $(varE x) (undefined :: Proxy $(pure wtyp))) :: [$(conT ptname) $(conT wname)] of
                $(listP [asP p (conP pcname [varP q])] :: PatQ) ->
                    let [y] = toListOf (toLens $(varE p)) $(varE x) :: [$(pure wtyp)] in
                    Node ($(conE pvcname) $(varE p) y) (forestMap $(pure pvlift) (pvNodes y :: Forest $(conT pwname)))
-               $(varP p) -> error ("Expected a " ++ $(litE (stringL (show pcname))) ++ ", but got " ++ show $(varE p)) |]
+               [] -> error $(litE (stringL ("No " ++ show pcname ++ " field found")))
+               ps -> error $ $(litE (stringL ("Multiple " ++ show pcname ++ " fields found: "))) ++ show ps |]
 
 doPVNodesOfView :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => TGVSimple -> Type -> m [ClauseQ]
 doPVNodesOfView v wtyp =
     let tname = fromMaybe (error $ "No name for " ++ pprint v) (bestTypeName v) in
-    doPVNodesOf v wtyp (mkName ("Path_" ++ nameBase tname ++ "_View"))
+    doPVNodeOf v wtyp (mkName ("Path_" ++ nameBase tname ++ "_View"))
 
 doPVNodesOfOrder :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => TGVSimple -> Type -> m [ClauseQ]
 doPVNodesOfOrder v wtyp =
@@ -288,11 +278,21 @@ doPVNodesOfOrder v wtyp =
      q <- runQ $ newName "q"
      k <- runQ $ newName "k"
      pvlift <- shim w v pvcname [|$(conE pcname) $(varE k)|]
-     runQ [d| _f x = (case pathsOf x (undefined :: Proxy $(pure wtyp)) :: [$(conT ptname) $(conT wname)] of
+     runQ [d| _f x = (let paths = pathsOf x (undefined :: Proxy $(pure wtyp)) :: [$(conT ptname) $(conT wname)] in
+                      List.map
+                          (\path ->
+                                 case path of
+                                   $(asP p (conP pcname [varP k, wildP]) :: PatQ) ->
+                                       let [y] = toListOf (toLens $(varE p)) x :: [$(pure wtyp)] in
+                                       Node ($(conE pvcname) $(varE p) y) (forestMap $(pure pvlift) (pvNodes y :: Forest $(conT pwname)))
+                                   _ -> error ("doPVNodesOfOrder: " ++ show path)) paths) :: [Tree (PVType $(pure (view (etype . unE) v)))] |] >>= return . clauses
+{-
+     runQ [d| _f x = (case filter $matchpath (pathsOf x (undefined :: Proxy $(pure wtyp))) :: [$(conT ptname) $(conT wname)] of
                         $(listP [asP p (conP pcname [varP k, varP q])] :: PatQ) ->
                             let [y] = toListOf (toLens $(varE p)) x :: [$(pure wtyp)] in
                             [Node ($(conE pvcname) $(varE p) y) (forestMap $(pure pvlift) (pvNodes y :: Forest $(conT pwname)))]
-                        _ -> []) :: [Tree (PVType $(pure (view (etype . unE) v)))] |] >>= return . clauses
+                        ps -> error ("doPVNodesOfOrder: " ++ show ps)) :: [Tree (PVType $(pure (view (etype . unE) v)))] |] >>= return . clauses
+-}
 
 doPVNodesOfMap :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => TGVSimple -> Type -> m [ClauseQ]
 doPVNodesOfMap v wtyp =
@@ -309,14 +309,24 @@ doPVNodesOfMap v wtyp =
      q <- runQ $ newName "q"
      k <- runQ $ newName "k"
      pvlift <- shim w v pvcname [|$(conE pcname) $(varE k)|]
+     runQ [d| _f x = (let paths = pathsOf x (undefined :: Proxy $(pure wtyp)) :: [$(conT ptname) $(conT wname)] in
+                      List.map
+                          (\path ->
+                                 case path of
+                                   $(asP p (conP pcname [varP k, wildP]) :: PatQ) ->
+                                       let [y] = toListOf (toLens $(varE p)) x :: [$(pure wtyp)] in
+                                       Node ($(conE pvcname) $(varE p) y) (forestMap $(pure pvlift) (pvNodes y :: Forest $(conT pwname)))
+                                   _ -> error ("doPVNodesOfMap: " ++ show path)) paths) :: [Tree (PVType $(pure (view (etype . unE) v)))] |] >>= return . clauses
+{-
      runQ [d| _f x = (case pathsOf x (undefined :: Proxy $(pure wtyp)) :: [$(conT ptname) $(conT wname)] of
                         $(listP [asP p (conP pcname [varP k, varP q])] :: PatQ) ->
                             let [y] = toListOf (toLens $(varE p)) x :: [$(pure wtyp)] in
                             [Node ($(conE pvcname) $(varE p) y) (forestMap $(pure pvlift) (pvNodes y :: Forest $(conT pwname)))]
                         _ -> []) :: [Tree (PVType $(pure (view (etype . unE) v)))] |] >>= return . clauses
+-}
 
-doPVNodesOf :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => TGVSimple -> Type -> Name -> m [ClauseQ]
-doPVNodesOf v wtyp pcname =
+doPVNodeOf :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => TGVSimple -> Type -> Name -> m [ClauseQ]
+doPVNodeOf v wtyp pcname =
   do w <- expandType wtyp >>= typeVertex :: m TGVSimple
      let tname = fromMaybe (error $ "No name for " ++ pprint v) (bestTypeName v)
          wtyp = bestType w
@@ -333,5 +343,5 @@ doPVNodesOf v wtyp pcname =
                         $(listP [asP p (conP pcname [varP q])] :: PatQ) ->
                             let [y] = toListOf (toLens $(varE p)) x :: [$(pure wtyp)] in
                             [Node ($(conE pvcname) $(varE p) y) (forestMap $(pure pvlift) (pvNodes y :: Forest $(conT pwname)))]
-                        _ -> [])  :: [Tree (PVType $(pure (view (etype . unE) v)))] |] >>= return . clauses
+                        [] -> [])  :: [Tree (PVType $(pure (view (etype . unE) v)))] |] >>= return . clauses
 
