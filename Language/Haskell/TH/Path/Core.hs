@@ -108,6 +108,18 @@ class IsPathNode s where
     pvNodes :: s -> Forest (PVType s)
     -- ^ Given a value, return the corresponding @PVType s@ list
 
+-- | Generate an instance of PVLift
+{-
+class PVLift s t where
+    pvLift :: Name -- PV_AbbrevPair
+           -> Name -- PV_AbbrevPairs
+           -> Name -- PV_AbbrevPairs_AbbrevPair
+           -> Name -- Path_At
+           -> ExpQ
+    pvLift t1 t2 pvname pcname =
+        [|error $(litE (stringL ("Cannot convert " ++ nameBase t1 ++ " -> " ++ nameBase t2 ++ " using " ++ nameBase pvname ++ " and " ++ nameBase pcname)))|]
+-}
+
 -- Primitive path types
 
 -- | A path type with constructors to extract either @fst@, @snd@, or

@@ -189,10 +189,51 @@ pvNodeClauses v =
         -- Anonymous fields are not supported.
         runQ [|error $(litE (stringL ("doField' " ++ pprint ftype)))|]
 
-shim :: Name -> Name -> Name -> Name -> ExpQ
-shim t1 t2 pvname pcname =
-    case (nameBase t1, nameBase t2) of
-        _ -> [|error $(litE (stringL ("Cannot convert " ++ nameBase t1 ++ " -> " ++ nameBase t2 ++ " using " ++ nameBase pvname ++ " and " ++ nameBase pcname)))|]
+-- | Build a value of type PV_AbbrevPair -> PV_AbbrevPairs
+shim :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => TGVSimple -> TGVSimple -> Name -> Name -> m Exp
+shim w v pvname pcname =
+    do p <- runQ $ newName "p"
+       x <- runQ $ newName "x"
+       let tname = fromMaybe (error $ "No name for " ++ pprint v) (bestTypeName v)
+           wname = fromMaybe (error $ "No name for " ++ pprint w) (bestTypeName w)
+       case (nameBase wname, nameBase tname) of
+{-
+         ("AbbrevPair", "AbbrevPairs") ->
+             runQ [| \pv -> $(caseE
+                         [|pv|]
+                         [match (conP (mkName "PV_AbbrevPair_JSONText")   [varP p, varP x]) (normalB [|$(conE (mkName "PV_AbbrevPairs_JSONText"))   ((undefined :: $(conT (mkName "Path_AbbrevPair")) $(conT (mkName "JSONText")) ->   $(conT (mkName "Path_AbbrevPairs")) $(conT (mkName "JSONText")))   $(varE p)) $(varE x)|]) [],
+                          match (conP (mkName "PV_AbbrevPair_Markup")     [varP p, varP x]) (normalB [|$(conE (mkName "PV_AbbrevPairs_Markup")) ((undefined :: $(conT (mkName "Path_AbbrevPair")) $(conT (mkName "Markup")) ->     $(conT (mkName "Path_AbbrevPairs")) $(conT (mkName "Markup")))     $(varE p)) $(varE x)|]) [],
+                          match (conP (mkName "PV_AbbrevPair_AbbrevPair") [varP p, varP x]) (normalB [|$(conE (mkName "PV_AbbrevPairs_AbbrevPair")) ((undefined :: $(conT (mkName "Path_AbbrevPair")) ($(conT (mkName "CIString")), $(conT (mkName "Markup"))) -> $(conT (mkName "Path_AbbrevPairs")) ($(conT (mkName "CIString")), $(conT (mkName "Markup")))) $(varE p)) $(varE x)|]) [],
+                          match (conP (mkName "PV_AbbrevPair_CIString")   [varP p, varP x]) (normalB [|$(conE (mkName "PV_AbbrevPairs_CIString"))    ((undefined :: $(conT (mkName "Path_AbbrevPair")) $(conT (mkName "CIString")) ->   $(conT (mkName "Path_AbbrevPairs")) $(conT (mkName "CIString")))   $(varE p)) $(varE x)|]) [],
+                          match (conP (mkName "PV_AbbrevPair_Text")       [varP p, varP x]) (normalB [|$(conE (mkName "PV_AbbrevPairs_Text"))       ((undefined :: $(conT (mkName "Path_AbbrevPair")) $(conT (mkName "Text")) ->       $(conT (mkName "Path_AbbrevPairs")) $(conT (mkName "Text")))       $(varE p)) $(varE x)|]) []]
+                        )|]
+         -- _ -> [|error $(litE (stringL (doPair ""))
+-}
+         _ -> doNode v w
+         -- _ -> [|error $(litE (stringL ("Cannot convert PV_" ++ nameBase wname ++ " -> PV_" ++ nameBase tname ++ " using " ++ nameBase pvname ++ " and " ++ nameBase pcname))) |]
+    where
+      doNode :: TGVSimple -> TGVSimple -> m Exp
+      doNode v w = do
+        p <- runQ $ newName "p"
+        x <- runQ $ newName "x"
+        gs <- pathKeys w
+        let matches = concat $ List.map (doPair p x v w) (Foldable.toList gs)
+        runQ [| \pv -> $(caseE [|pv|] matches) |]
+      doPair :: Name -> Name -> TGVSimple -> TGVSimple -> TGVSimple -> [MatchQ]
+      doPair p x v w g = do
+        case (bestName v, bestName w, bestName g) of
+          (Just vn, Just wn, Just gn) ->
+              [match (conP (mkName ("PV_" ++ nameBase wn ++ "_" ++ nameBase gn)) [varP p, varP x])
+                     (normalB [|$(conE (mkName ("PV_" ++ nameBase vn ++ "_" ++ nameBase gn)))
+                                 ((undefined :: $(conT (mkName ("Path_" ++ nameBase wn))) $(pure (view (etype . unE) g)) ->
+                                                $(conT (mkName ("Path_" ++ nameBase vn))) $(pure (view (etype . unE) g)))   $(varE p)) $(varE x)|])
+                     []]
+          _ -> []
+{-
+          let Just (vp, _) = bestPathTypeName v in
+          case (bestName v, bestName w) of
+            (Just vn, wn) ->
+-}
 
 doPVNodesOfField :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => Name -> TGVSimple -> TGV -> Name -> m Exp
 doPVNodesOfField x v f n =
@@ -208,10 +249,11 @@ doPVNodesOfField x v f n =
          pwname = mkName ("PV_" ++ nameBase wname)
      p <- runQ $ newName "p"
      q <- runQ $ newName "q"
+     pvlift <- shim w v pvcname pcname
      runQ [| case pathsOf $(varE x) (undefined :: Proxy $(pure wtyp)) :: [$(conT ptname) $(conT wname)] of
                $(listP [asP p (conP pcname [varP q])] :: PatQ) ->
                    let [y] = toListOf (toLens $(varE p)) $(varE x) :: [$(pure wtyp)] in
-                   Node ($(conE pvcname) $(varE p) y) (forestMap $(shim pwname pvtname pvcname pcname) (pvNodes y :: Forest $(conT pwname)))
+                   Node ($(conE pvcname) $(varE p) y) (forestMap $(pure pvlift) (pvNodes y :: Forest $(conT pwname)))
                _ -> error "Expected a field match" |]
 
 doPVNodesOfView :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => TGVSimple -> Type -> m [ClauseQ]
@@ -233,10 +275,11 @@ doPVNodesOfOrder v wtyp =
      p <- runQ $ newName "p"
      q <- runQ $ newName "q"
      k <- runQ $ newName "k"
+     pvlift <- shim w v pvcname pcname
      runQ [d| _f x = (case pathsOf x (undefined :: Proxy $(pure wtyp)) :: [$(conT ptname) $(conT wname)] of
                         $(listP [asP p (conP pcname [varP k, varP q])] :: PatQ) ->
                             let [y] = toListOf (toLens $(varE p)) x :: [$(pure wtyp)] in
-                            [Node ($(conE pvcname) $(varE p) y) (forestMap $(shim pwname pvtname pvcname pcname) (pvNodes y :: Forest $(conT pwname)))]
+                            [Node ($(conE pvcname) $(varE p) y) (forestMap $(pure pvlift) (pvNodes y :: Forest $(conT pwname)))]
                         _ -> []) :: [Tree (PVType $(pure (view (etype . unE) v)))] |] >>= return . clauses
 
 doPVNodesOfMap :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => TGVSimple -> Type -> m [ClauseQ]
@@ -253,10 +296,11 @@ doPVNodesOfMap v wtyp =
      p <- runQ $ newName "p"
      q <- runQ $ newName "q"
      k <- runQ $ newName "k"
+     pvlift <- shim w v pvcname pcname
      runQ [d| _f x = (case pathsOf x (undefined :: Proxy $(pure wtyp)) :: [$(conT ptname) $(conT wname)] of
                         $(listP [asP p (conP pcname [varP k, varP q])] :: PatQ) ->
                             let [y] = toListOf (toLens $(varE p)) x :: [$(pure wtyp)] in
-                            [Node ($(conE pvcname) $(varE p) y) (forestMap $(shim pwname pvtname pvcname pcname) (pvNodes y :: Forest $(conT pwname)))]
+                            [Node ($(conE pvcname) $(varE p) y) (forestMap $(pure pvlift) (pvNodes y :: Forest $(conT pwname)))]
                         _ -> []) :: [Tree (PVType $(pure (view (etype . unE) v)))] |] >>= return . clauses
 
 doPVNodesOf :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => TGVSimple -> Type -> Name -> m [ClauseQ]
@@ -272,9 +316,10 @@ doPVNodesOf v wtyp pcname =
      -- sf <- pvNodeClauses w
      p <- runQ $ newName "p"
      q <- runQ $ newName "q"
+     pvlift <- shim w v pvcname pcname
      runQ [d| _f x = (case pathsOf x (undefined :: Proxy $(conT wname)) :: [$(conT ptname) $(conT wname)] of
                         $(listP [asP p (conP pcname [varP q])] :: PatQ) ->
                             let [y] = toListOf (toLens $(varE p)) x :: [$(pure wtyp)] in
-                            [Node ($(conE pvcname) $(varE p) y) (forestMap $(shim pwname pvtname pvcname pcname) (pvNodes y :: Forest $(conT pwname)))]
+                            [Node ($(conE pvcname) $(varE p) y) (forestMap $(pure pvlift) (pvNodes y :: Forest $(conT pwname)))]
                         _ -> [])  :: [Tree (PVType $(pure (view (etype . unE) v)))] |] >>= return . clauses
 
