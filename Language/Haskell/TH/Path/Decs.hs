@@ -32,8 +32,8 @@ import Language.Haskell.TH.Context (ContextM, reifyInstancesWithContext)
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Core (IsPathType(idPath))
-import Language.Haskell.TH.Path.Decs.Common (bestNames, bestPathTypeName, makePathLens,
-                                             pathConNameOfField, pathTypeNameFromTypeName)
+import Language.Haskell.TH.Path.Decs.Common (asConQ, asName, asTypeQ, bestNames, bestPathTypeName, makePathCon, makePathLens,
+                                             ModelType(ModelType), pathConNameOfField, PathType, pathTypeNameFromTypeName)
 import Language.Haskell.TH.Path.Decs.IsPath (doIsPathNode)
 import Language.Haskell.TH.Path.Decs.PathsOf (pathInstanceDecs)
 import Language.Haskell.TH.Path.Decs.PathType (pathType)
@@ -72,15 +72,16 @@ doNode v = do
     where
       doNames = mapM_ (\tname -> runQ (reify tname) >>= doInfo) (typeNames v)
 
-      doSimplePath :: (Name, Name, Set Name) -> m ()
+      doSimplePath :: (ModelType, PathType, Set PathType) -> m ()
       doSimplePath (_tname, pname, syns') = do
         a <- runQ $ newName "a"
-        runQ (dataD (return []) pname [PlainTV a] [normalC pname []] supers) >>= tell . (: [])
+        runQ (dataD (return []) (asName pname) [PlainTV a] [normalC (asName pname) []] supers) >>= tell . (: [])
         doIsPathType pname
         doIsPathNode v
         -- Create path type synonyms for all the regular type synonyms: [d|type $psyn a = $(conT pname) a|]
         mapM_ (\psyn -> runQ (do a <- newName "a"
-                                 tySynD psyn [PlainTV a] (appT (conT pname) (varT a))) >>= tell . (: [])) (Foldable.toList syns')
+                                 tySynD (asName psyn) [PlainTV a]
+                                        (appT (asTypeQ pname) (varT a))) >>= tell . (: [])) (Foldable.toList syns')
 
       -- viewPath [t|Text|] = data Path_Branding a = Path_Branding (Path_Text a)
       viewPath :: Type -> m ()
@@ -93,11 +94,11 @@ doNode v = do
         -- A view type may have a type variable, which
         -- we need to replace with the goal type a.
         let ptype' = substitute (VarT a) ptype
-        runQ (sequence (dataD (return []) pname [PlainTV a]
-                              [ normalC (mkName (nameBase pname ++ "_View")) [strictType notStrict (pure ptype')]
-                              , normalC (mkName (nameBase pname)) []
+        runQ (sequence (dataD (return []) (asName pname) [PlainTV a]
+                              [ normalC (asName (makePathCon pname "View")) [strictType notStrict (pure ptype')]
+                              , normalC (asName pname) []
                               ] supers
-                         : List.map (\psyn -> tySynD psyn [PlainTV a] (appT (conT pname) (varT a))) (Foldable.toList syns'))) >>= tell
+                         : List.map (\psyn -> tySynD (asName psyn) [PlainTV a] (appT (asTypeQ pname) (varT a))) (Foldable.toList syns'))) >>= tell
         doIsPathType pname
         doIsPathNode v
 
@@ -120,7 +121,7 @@ doNode v = do
              ptype <- pathType (varT a) key'
              mapM_ (\pname ->
                         do doIsPathNode v
-                           runQ (tySynD pname [PlainTV a] (return ptype)) >>= tell . (: [])) (pathTypeNames' v)
+                           runQ (tySynD (asName pname) [PlainTV a] (return ptype)) >>= tell . (: [])) (pathTypeNames' v)
       doDec (NewtypeD _ tname _ con _) = doDataD tname [con]
       doDec (DataD _ tname _ cons _) = doDataD tname cons
       doDec (FamilyD _flavour _name _tvbs _mkind) = return ()
@@ -134,7 +135,7 @@ doNode v = do
       makeDecs :: Name -> [[Con]] -> m ()
       makeDecs a pconss =
           case filter (/= []) pconss of
-            [pcons] -> mapM_ (\pname -> do runQ (dataD (cxt []) pname [PlainTV a] (List.map return (pcons ++ [NormalC pname []])) supers) >>= tell . (: [])
+            [pcons] -> mapM_ (\pname -> do runQ (dataD (cxt []) (asName pname) [PlainTV a] (List.map return (pcons ++ [NormalC (asName pname) []])) supers) >>= tell . (: [])
                                            doIsPathType pname
                                            doIsPathNode v
                              ) (pathTypeNames' v)
@@ -160,7 +161,7 @@ doNode v = do
           do key' <- expandType ftype >>= fieldVertex (tname, cname, Right fname')
              let Just pcname = pathConNameOfField key'
              ptype <- case ftype of
-                        ConT ftname -> runQ $ appT (conT (pathTypeNameFromTypeName ftname)) (varT a)
+                        ConT ftname -> runQ $ appT (asTypeQ (pathTypeNameFromTypeName (ModelType ftname))) (varT a)
                         -- It would be nice to use pathTypeCall (varT a) key' here, but
                         -- it can't infer the superclasses for (PathType Foo a) - Ord,
                         -- Read, Data, etc.
@@ -170,16 +171,16 @@ doNode v = do
                -- Given the list of clauses for a field's path type, create new
                -- constructor for the field in the parent record and alter the
                -- clauses to match expressions wrapped in this new constructor.
-               _ -> (: []) <$> runQ (normalC pcname [strictType notStrict (return ptype)])
+               _ -> (: []) <$> runQ (normalC (asName pcname) [strictType notStrict (return ptype)])
 
       supers :: [Name]
       supers = [''Eq, ''Ord, ''Read, ''Show, ''Typeable, ''Data]
 
       -- Given a vertex in the type graph, return the names of the
       -- corresponding path type and its synonyms.
-      pathTypeNames' :: TypeGraphVertex v => v -> Set Name
-      pathTypeNames' = Set.map pathTypeNameFromTypeName . typeNames
+      pathTypeNames' :: TypeGraphVertex v => v -> Set PathType
+      pathTypeNames' = Set.map pathTypeNameFromTypeName . Set.map ModelType . typeNames
 
-doIsPathType :: forall m. (ContextM m, MonadWriter [Dec] m) => Name -> m ()
+doIsPathType :: forall m. (ContextM m, MonadWriter [Dec] m) => PathType -> m ()
 doIsPathType pname =
-  runQ [d|instance IsPathType ($(conT pname) a) where idPath = $(conE (mkName (nameBase pname)))|] >>= tell
+  runQ [d|instance IsPathType ($(asTypeQ pname) a) where idPath = $(asConQ pname)|] >>= tell

@@ -25,7 +25,7 @@ import Data.Set.Extra as Set (Set)
 import Language.Haskell.TH
 import Language.Haskell.TH.Context (ContextM)
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.Path.Decs.Common (bestPathTypeName)
+import Language.Haskell.TH.Path.Decs.Common (asTypeQ, bestPathTypeName)
 import Language.Haskell.TH.TypeGraph.Expand (unE)
 import Language.Haskell.TH.TypeGraph.TypeGraph (pathKeys, TypeGraph)
 import Language.Haskell.TH.TypeGraph.TypeInfo (TypeInfo)
@@ -50,6 +50,6 @@ doPVType vs = do
           case (bestName v, bestName g) of
             (Just vn, Just gn) ->
                 [normalC (mkName ("PV_" ++ nameBase vn ++ "_" ++ nameBase gn))
-                         [(,) <$> notStrict <*> [t|$(conT vp) $(pure (view (etype . unE) g))|],
+                         [(,) <$> notStrict <*> [t|$(asTypeQ vp) $(pure (view (etype . unE) g))|],
                           (,) <$> notStrict <*> pure (view (etype . unE) g)]]
             _ -> []

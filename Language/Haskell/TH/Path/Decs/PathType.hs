@@ -27,7 +27,7 @@ import Language.Haskell.TH
 import Language.Haskell.TH.Context (ContextM, reifyInstancesWithContext)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Core (Path_List, Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
-import Language.Haskell.TH.Path.Decs.Common (bestPathTypeName, pathTypeNameFromTypeName)
+import Language.Haskell.TH.Path.Decs.Common (asTypeQ, bestPathTypeName, ModelType(ModelType), pathTypeNameFromTypeName)
 import Language.Haskell.TH.Path.Graph (SelfPath, SinkType)
 import Language.Haskell.TH.Path.Order (Order, Path_OMap(..))
 import Language.Haskell.TH.Path.View (viewInstanceType)
@@ -48,12 +48,12 @@ pathType gtyp key = do
   viewType <- viewInstanceType (view etype key)
   case view (etype . unE) key of
     _ | selfPath -> return $ view (etype . unE) key
-      | simplePath -> let Just (pname, _syns) = bestPathTypeName key in runQ [t|$(conT pname) $gtyp|]
+      | simplePath -> let Just (pname, _syns) = bestPathTypeName key in runQ [t|$(asTypeQ pname) $gtyp|]
       | isJust viewType ->
           let Just (pname, _syns) = bestPathTypeName key in
-          runQ [t|$(conT pname) $gtyp|]
+          runQ [t|$(asTypeQ pname) $gtyp|]
     ConT tname ->
-        runQ $ [t|$(conT (pathTypeNameFromTypeName tname)) $gtyp|]
+        runQ $ [t|$(asTypeQ (pathTypeNameFromTypeName (ModelType tname))) $gtyp|]
     AppT (AppT mtyp ityp) etyp
         | mtyp == ConT ''Order ->
             do ipath <- vert ityp >>= pathType gtyp

@@ -30,7 +30,7 @@ import Language.Haskell.TH
 import Language.Haskell.TH.Context (ContextM, reifyInstancesWithContext)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Core (IsPathType(idPath), IsPath(..), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
-import Language.Haskell.TH.Path.Decs.Common (bestTypeName, clauses)
+import Language.Haskell.TH.Path.Decs.Common (asConQ, bestTypeName, clauses, makePathCon, makePathType)
 import Language.Haskell.TH.Path.Decs.PathType (pathType)
 import Language.Haskell.TH.Path.Decs.ToLens (toLensClauses)
 import Language.Haskell.TH.Path.Graph (SelfPath, SinkType)
@@ -90,13 +90,13 @@ pathsOfClauses key gkey =
              do let Just vtyp = viewType
                 vIsPath <- testIsPath vtyp gkey
                 let Just tname = bestTypeName key
-                let pcname = mkName ("Path_" ++ nameBase tname ++ "_View")
+                let pcname = makePathCon (makePathType tname) "View"
                 runQ [d| _f x a =
                            $(case vIsPath of
                                True -> [| -- Get the value as transformed by the view lens
-                                          let p = $(conE pcname) idPath :: PathType $(pure (view (etype . unE) key)) $(pure vtyp)
+                                          let p = $(asConQ pcname) idPath :: PathType $(pure (view (etype . unE) key)) $(pure vtyp)
                                               [x'] = toListOf (toLens p) x :: [$(pure vtyp)] in
-                                          List.map $(conE pcname) (pathsOf x' a {- :: [PathType $(pure vtyp) $(pure (view (etype . unE) gkey))] -}) |]
+                                          List.map $(asConQ pcname) (pathsOf x' a {- :: [PathType $(pure vtyp) $(pure (view (etype . unE) gkey))] -}) |]
                                False -> [| [] |]) |] >>= tell . clauses
        ConT tname ->
            doName tname

@@ -29,33 +29,27 @@ import Language.Haskell.TH
 import Language.Haskell.TH.Context (ContextM, reifyInstancesWithContext)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Core (IsPathNode(PVType, pvNodes), IsPath(..), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
-import Language.Haskell.TH.Path.Decs.Common (bestTypeName, clauses, pathConNameOfField, forestMap)
+import Language.Haskell.TH.Path.Decs.Common (asConQ, asName, asType, asTypeQ, bestTypeName, clauses, makePathCon, makePathType, makePathValueCon, makePathValueType, PathCon, pathConNameOfField, forestMap, PathCon(PathCon))
 import Language.Haskell.TH.Path.Graph (SelfPath, SinkType)
 import Language.Haskell.TH.Path.Order (Order, Path_OMap(..))
 import Language.Haskell.TH.Path.View (viewInstanceType)
 import Language.Haskell.TH.Syntax as TH (Quasi(qReify))
-import Language.Haskell.TH.TypeGraph.Expand (E(E), unE, expandType)
+import Language.Haskell.TH.TypeGraph.Expand (expandType)
 import Language.Haskell.TH.TypeGraph.TypeGraph (pathKeys, TypeGraph)
 import Language.Haskell.TH.TypeGraph.TypeInfo (fieldVertex, TypeInfo, typeVertex)
-import Language.Haskell.TH.TypeGraph.Vertex (bestName, etype, TGV, TGVSimple, TypeGraphVertex(bestType), vsimple)
+import Language.Haskell.TH.TypeGraph.Vertex (bestName, etype, TGV, TGVSimple, TypeGraphVertex(bestType))
 
 doIsPathNode :: forall m. (MonadWriter [Dec] m, ContextM m, MonadReaders TypeInfo m, MonadReaders TypeGraph m) =>
                 TGVSimple -> m ()
 doIsPathNode v =
-    let typ = view (etype . unE) v in
+    let typ = asType v in
     case bestTypeName v of
       Just tname -> do
-        (pnc :: [ClauseQ]) <- {-evalStateT-} (pvNodeClauses v) {-mempty-}
-        -- (ptc :: [ClauseQ]) <- {-evalStateT-} (pvTreeClauses v) {-mempty-}
+        (pnc :: [ClauseQ]) <- pvNodeClauses v
         runQ (instanceD (cxt []) (appT (conT ''IsPathNode) (pure typ))
-                [tySynInstD ''PVType (tySynEqn [pure typ] (conT (mkName ("PV_" ++ nameBase tname)))),
-{-
-                 funD 'pvTree (case ptc of
-                                 [] -> [clause [wildP] (normalB [|error "no pvTree clauses"|]) []]
-                                 _ -> ptc),
--}
+                [tySynInstD ''PVType (tySynEqn [pure typ] (asTypeQ (makePathValueType tname))),
                  funD 'pvNodes (case pnc of
-                                 [] -> [clause [wildP] (normalB [| [] {- error $(litE (stringL ("no pvNode clauses for " ++ pprint v)))-} |]) []]
+                                 [] -> [clause [wildP] (normalB [| [] |]) []]
                                  _ -> pnc)]) >>= tell . (: [])
       Nothing -> return ()
 
@@ -70,10 +64,10 @@ doIsPathNode v =
 pvNodeClauses :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) =>
                  TGVSimple -> {-StateT (Set Name)-} m [ClauseQ]
 pvNodeClauses v =
-  do selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [let (E typ) = view etype v in typ]
-     simplePath <- (not . null) <$> reifyInstancesWithContext ''SinkType [let (E typ) = view etype v in typ]
+  do selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [asType v]
+     simplePath <- (not . null) <$> reifyInstancesWithContext ''SinkType [asType v]
      viewType <- viewInstanceType (view etype v)
-     case view (etype . unE) v of
+     case asType v of
        _ | selfPath -> return []
          | simplePath -> return []
          | isJust viewType ->
@@ -87,13 +81,13 @@ pvNodeClauses v =
            | t3 == ConT ''Map ->
                doPVNodesOfMap v vtyp
        AppT (AppT (TupleT 2) ftyp) styp ->
-           mappend <$> doPVNodeOf v ftyp 'Path_First <*> doPVNodeOf v styp 'Path_Second
+           mappend <$> doPVNodeOf v ftyp (PathCon 'Path_First) <*> doPVNodeOf v styp (PathCon 'Path_Second)
        AppT t1 etyp
            | t1 == ConT ''Maybe ->
-               doPVNodeOf v etyp 'Path_Just
+               doPVNodeOf v etyp (PathCon 'Path_Just)
        AppT (AppT t3 ltyp) rtyp
            | t3 == ConT ''Either ->
-               mappend <$> doPVNodeOf v ltyp 'Path_Left <*> doPVNodeOf v rtyp 'Path_Right
+               mappend <$> doPVNodeOf v ltyp (PathCon 'Path_Left) <*> doPVNodeOf v rtyp (PathCon 'Path_Right)
        _ -> return []
     where
       doName :: Name -> m [ClauseQ]
@@ -179,37 +173,36 @@ shim w v pcname =
       shim2 g = do
         case (bestName v, bestName w) of
           (Just vn, Just wn) ->
-              runQ [|$pcname :: $(conT (mkName ("Path_" ++ nameBase wn))) $(pure (view (etype . unE) g)) ->
-                                $(conT (mkName ("Path_" ++ nameBase vn))) $(pure (view (etype . unE) g))|]
+              runQ [|$pcname :: $(conT (mkName ("Path_" ++ nameBase wn))) $(asTypeQ g) ->
+                                $(conT (mkName ("Path_" ++ nameBase vn))) $(asTypeQ g)|]
           _ -> runQ [|error "shim"|]
 
-doPVNodesOfField :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => Name -> TGVSimple -> TGV -> Name -> m Exp
-doPVNodesOfField x v f n =
-  do let wtyp = view (vsimple . etype . unE) f
+doPVNodesOfField :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => Name -> TGVSimple -> TGV -> PathCon -> m Exp
+doPVNodesOfField x v f pcname =
+  do let wtyp = asType f
      w <- expandType wtyp >>= typeVertex
      let tname = fromMaybe (error $ "No name for " ++ pprint v) (bestTypeName v)
          wtyp' = bestType w
          wname = fromMaybe (error $ "No name for " ++ pprint w ++ ", view of " ++ pprint v) (bestTypeName w)
-         ptname = mkName ("Path_" ++ nameBase tname)
-         pcname = mkName (nameBase n)
-         pvcname = mkName ("PV_" ++ nameBase tname ++ "_" ++ nameBase wname)
-         pwname = mkName ("PV_" ++ nameBase wname)
+         ptname = makePathType tname
+         pvcname = makePathValueCon tname wname
+         pwname = makePathValueType wname
          matchpath = [|\p -> case p of
-                               $(conP pcname [wildP]) -> True
+                               $(conP (asName pcname) [wildP]) -> True
                                _ -> False|]
      p <- runQ $ newName "p"
-     pvlift <- shim w v (conE pcname)
-     runQ [| case filter $matchpath (pathsOf $(varE x) (undefined :: Proxy $(pure wtyp'))) :: [$(conT ptname) $(conT wname)] of
-               $(listP [asP p (conP pcname [wildP])] :: PatQ) ->
+     pvlift <- shim w v (asConQ pcname)
+     runQ [| case filter $matchpath (pathsOf $(varE x) (undefined :: Proxy $(pure wtyp'))) :: [$(asTypeQ ptname) $(asTypeQ wname)] of
+               $(listP [asP p (conP (asName pcname) [wildP])] :: PatQ) ->
                    let [y] = toListOf (toLens $(varE p)) $(varE x) :: [$(pure wtyp')] in
-                   Node ($(conE pvcname) $(varE p) y) (forestMap $(pure pvlift) (pvNodes y :: Forest $(conT pwname)))
-               [] -> error $(litE (stringL ("No " ++ show pcname ++ " field found")))
-               ps -> error $ $(litE (stringL ("Multiple " ++ show pcname ++ " fields found: "))) ++ show ps |]
+                   Node ($(asConQ pvcname) $(varE p) y) (forestMap $(pure pvlift) (pvNodes y :: Forest $(asTypeQ pwname)))
+               [] -> error $(litE (stringL ("No " ++ show (asName pcname) ++ " field found")))
+               ps -> error $ $(litE (stringL ("Multiple " ++ show (asName pcname) ++ " fields found: "))) ++ show ps |]
 
 doPVNodesOfView :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => TGVSimple -> Type -> m [ClauseQ]
 doPVNodesOfView v wtyp =
     let tname = fromMaybe (error $ "No name for " ++ pprint v) (bestTypeName v) in
-    doPVNodeOf v wtyp (mkName ("Path_" ++ nameBase tname ++ "_View"))
+    doPVNodeOf v wtyp (makePathCon (makePathType tname) "View")
 
 doPVNodesOfOrder :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => TGVSimple -> Type -> m [ClauseQ]
 doPVNodesOfOrder v wtyp =
@@ -217,21 +210,21 @@ doPVNodesOfOrder v wtyp =
      let tname = fromMaybe (error $ "No name for " ++ pprint v) (bestTypeName v)
          wtyp' = bestType w
          wname = fromMaybe (error $ "No name for " ++ pprint w ++ ", view of " ++ pprint v) (bestTypeName w)
-         ptname = mkName ("Path_" ++ nameBase tname)
-         pcname = 'Path_At
-         pvcname = mkName ("PV_" ++ nameBase tname ++ "_" ++ nameBase wname)
-         pwname = mkName ("PV_" ++ nameBase wname)
+         ptname = makePathType tname
+         pcname = PathCon 'Path_At
+         pvcname = makePathValueCon tname wname
+         pwname = makePathValueType wname
      p <- runQ $ newName "p"
      k <- runQ $ newName "k"
-     pvlift <- shim w v [|$(conE pcname) $(varE k)|]
-     runQ [d| _f x = (let paths = pathsOf x (undefined :: Proxy $(pure wtyp')) :: [$(conT ptname) $(conT wname)] in
+     pvlift <- shim w v [|$(asConQ pcname) $(varE k)|]
+     runQ [d| _f x = (let paths = pathsOf x (undefined :: Proxy $(pure wtyp')) :: [$(asTypeQ ptname) $(asTypeQ wname)] in
                       List.map
                           (\path ->
                                  case path of
-                                   $(asP p (conP pcname [varP k, wildP]) :: PatQ) ->
+                                   $(asP p (conP (asName pcname) [varP k, wildP]) :: PatQ) ->
                                        let [y] = toListOf (toLens $(varE p)) x :: [$(pure wtyp')] in
-                                       Node ($(conE pvcname) $(varE p) y) (forestMap $(pure pvlift) (pvNodes y :: Forest $(conT pwname)))
-                                   _ -> error ("doPVNodesOfOrder: " ++ show path)) paths) :: [Tree (PVType $(pure (view (etype . unE) v)))] |] >>= return . clauses
+                                       Node ($(asConQ pvcname) $(varE p) y) (forestMap $(pure pvlift) (pvNodes y :: Forest $(asTypeQ pwname)))
+                                   _ -> error ("doPVNodesOfOrder: " ++ show path)) paths) :: [Tree (PVType $(asTypeQ v))] |] >>= return . clauses
 
 doPVNodesOfMap :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => TGVSimple -> Type -> m [ClauseQ]
 doPVNodesOfMap v wtyp =
@@ -239,41 +232,41 @@ doPVNodesOfMap v wtyp =
      let tname = fromMaybe (error $ "No name for " ++ pprint v) (bestTypeName v)
          wtyp' = bestType w
          wname = fromMaybe (error $ "No name for " ++ pprint w ++ ", view of " ++ pprint v) (bestTypeName w)
-         ptname = mkName ("Path_" ++ nameBase tname)
-         pcname = 'Path_Look
-         pvcname = mkName ("PV_" ++ nameBase tname ++ "_" ++ nameBase wname)
-         pwname = mkName ("PV_" ++ nameBase wname)
+         ptname = makePathType tname
+         pcname = PathCon 'Path_Look
+         pvcname = makePathValueCon tname wname
+         pwname = makePathValueType wname
      p <- runQ $ newName "p"
      k <- runQ $ newName "k"
-     pvlift <- shim w v [|$(conE pcname) $(varE k)|]
-     runQ [d| _f x = (let paths = pathsOf x (undefined :: Proxy $(pure wtyp')) :: [$(conT ptname) $(conT wname)] in
+     pvlift <- shim w v [|$(asConQ pcname) $(varE k)|]
+     runQ [d| _f x = (let paths = pathsOf x (undefined :: Proxy $(pure wtyp')) :: [$(asTypeQ ptname) $(asTypeQ wname)] in
                       List.map
                           (\path ->
                                  case path of
-                                   $(asP p (conP pcname [varP k, wildP]) :: PatQ) ->
+                                   $(asP p (conP (asName pcname) [varP k, wildP]) :: PatQ) ->
                                        let [y] = toListOf (toLens $(varE p)) x :: [$(pure wtyp')] in
-                                       Node ($(conE pvcname) $(varE p) y) (forestMap $(pure pvlift) (pvNodes y :: Forest $(conT pwname)))
-                                   _ -> error ("doPVNodesOfMap: " ++ show path)) paths) :: [Tree (PVType $(pure (view (etype . unE) v)))] |] >>= return . clauses
+                                       Node ($(asConQ pvcname) $(varE p) y) (forestMap $(pure pvlift) (pvNodes y :: Forest $(asTypeQ pwname)))
+                                   _ -> error ("doPVNodesOfMap: " ++ show path)) paths) :: [Tree (PVType $(asTypeQ  v))] |] >>= return . clauses
 
-doPVNodeOf :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => TGVSimple -> Type -> Name -> m [ClauseQ]
+doPVNodeOf :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => TGVSimple -> Type -> PathCon -> m [ClauseQ]
 doPVNodeOf v wtyp pcname =
   do w <- expandType wtyp >>= typeVertex :: m TGVSimple
      let tname = fromMaybe (error $ "No name for " ++ pprint v) (bestTypeName v)
          wtyp' = bestType w
          wname = fromMaybe (error $ "No name for " ++ pprint w ++ ", view of " ++ pprint v) (bestTypeName w)
-         ptname = mkName ("Path_" ++ nameBase tname)
-         pvcname = mkName ("PV_" ++ nameBase tname ++ "_" ++ nameBase wname)
-         pwname = mkName ("PV_" ++ nameBase wname)
+         ptname = makePathType tname
+         pvcname = makePathValueCon tname wname
+         pwname = makePathValueType wname
          -- We need to filter these because of types like Either String String
          matchpath = [|\p -> case p of
-                               $(conP pcname [wildP]) -> True
+                               $(conP (asName pcname) [wildP]) -> True
                                _ -> False|]
      -- sf <- pvNodeClauses w
      p <- runQ $ newName "p"
-     pvlift <- shim w v (conE pcname)
-     runQ [d| _f x = (case filter $matchpath (pathsOf x (undefined :: Proxy $(conT wname))) :: [$(conT ptname) $(conT wname)] of
-                        $(listP [asP p (conP pcname [wildP])] :: PatQ) ->
+     pvlift <- shim w v (asConQ pcname)
+     runQ [d| _f x = (case filter $matchpath (pathsOf x (undefined :: Proxy $(asTypeQ wname))) :: [$(asTypeQ ptname) $(asTypeQ wname)] of
+                        $(listP [asP p (conP (asName pcname) [wildP])] :: PatQ) ->
                             let [y] = toListOf (toLens $(varE p)) x :: [$(pure wtyp')] in
-                            [Node ($(conE pvcname) $(varE p) y) (forestMap $(pure pvlift) (pvNodes y :: Forest $(conT pwname)))]
-                        [] -> [])  :: [Tree (PVType $(pure (view (etype . unE) v)))] |] >>= return . clauses
+                            [Node ($(asConQ pvcname) $(varE p) y) (forestMap $(pure pvlift) (pvNodes y :: Forest $(asTypeQ pwname)))]
+                        [] -> [])  :: [Tree (PVType $(asTypeQ  v))] |] >>= return . clauses
 

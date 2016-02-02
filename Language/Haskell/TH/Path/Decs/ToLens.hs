@@ -34,7 +34,7 @@ import Language.Haskell.TH.Context (ContextM, InstMap, reifyInstancesWithContext
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Core (mat, IsPath(..), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
-import Language.Haskell.TH.Path.Decs.Common (fieldLensNameOld, pathConNameOfField)
+import Language.Haskell.TH.Path.Decs.Common (asName, fieldLensNameOld, pathConNameOfField)
 import Language.Haskell.TH.Path.Decs.PathType (pathType)
 import Language.Haskell.TH.Path.Graph (SelfPath, SinkType)
 import Language.Haskell.TH.Path.Order (lens_omat, Order, Path_OMap(..))
@@ -171,12 +171,12 @@ doName tname gkey =
                              let Just pcname = pathConNameOfField fkey
                              ptype' <- pathType (pure (bestType gkey)) (view vsimple fkey)
                              -- This is the new constructor for this field
-                             con <- runQ $ normalC pcname [strictType notStrict (return ptype')]
+                             con <- runQ $ normalC (asName pcname) [strictType notStrict (return ptype')]
                              -- These are the field's clauses.  Each pattern gets wrapped with the field path constructor,
                              -- and each field lens gets composed with the lens produced for the field's type.
                              let goal = view (vsimple . etype) fkey == view etype gkey
                              clauses' <- List.mapM (Monad.lift .
-                                                    mapClause (\ pat -> conP pcname [pat])
+                                                    mapClause (\ pat -> conP (asName pcname) [pat])
                                                               (\ lns -> if goal
                                                                         then varE (fieldLensNameOld tname fn)
                                                                         else [|$(varE (fieldLensNameOld tname fn)) . $lns|])) clauses
