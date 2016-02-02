@@ -1,8 +1,6 @@
 -- | Return the declarations that implement the IsPath instances, the
 -- toLens methods, the PathType types, and the universal path type.
 
-{-# OPTIONS -Wall -fno-warn-unused-imports #-}
-{-# LANGUAGE CPP #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
@@ -19,43 +17,25 @@
 module Language.Haskell.TH.Path.Decs.PathType where
 
 import Control.Lens hiding (cons, Strict)
-import Control.Monad (when)
-import Control.Monad as List ( mapM )
 import Control.Monad.Reader (runReaderT)
 import Control.Monad.Readers (askPoly, MonadReaders)
-import Control.Monad.State (evalStateT, get, modify, StateT)
-import Control.Monad.States (MonadStates(getPoly, putPoly), modifyPoly)
-import Control.Monad.Trans as Monad (lift)
-import Control.Monad.Writer (MonadWriter, execWriterT, tell, WriterT)
-import Data.Bool (bool)
-import Data.Char (toLower)
-import Data.Data (Data, Typeable)
-import Data.Foldable as Foldable (mapM_)
 import Data.Foldable as Foldable
-import Data.List as List (concatMap, intercalate, isPrefixOf, map)
-import Data.Map as Map (Map, toList)
-import Data.Maybe (fromJust, fromMaybe, isJust)
-import Data.Proxy
-import Data.Set as Set (delete, minView)
-import Data.Set.Extra as Set (insert, map, member, Set)
-import qualified Data.Set.Extra as Set (mapM_)
-import Data.Tree (Tree(Node))
+import Data.List as List (intercalate, map)
+import Data.Map as Map (Map)
+import Data.Maybe (isJust)
 import Language.Haskell.TH
-import Language.Haskell.TH.Context (ContextM, InstMap, reifyInstancesWithContext)
-import Language.Haskell.TH.Desugar (DsMonad)
+import Language.Haskell.TH.Context (ContextM, reifyInstancesWithContext)
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.Path.Core (mat, IsPathType(idPath), IsPathNode(PVType), IsPath(..), Path_List, Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
+import Language.Haskell.TH.Path.Core (Path_List, Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
 import Language.Haskell.TH.Path.Decs.Common (bestPathTypeName, pathTypeNameFromTypeName)
 import Language.Haskell.TH.Path.Graph (SelfPath, SinkType)
-import Language.Haskell.TH.Path.Order (lens_omat, Order, Path_OMap(..), toPairs)
-import Language.Haskell.TH.Path.View (viewInstanceType, viewLens)
-import Language.Haskell.TH.Syntax as TH (Quasi(qReify), VarStrictType)
-import Language.Haskell.TH.TypeGraph.Expand (E(E), unE, ExpandMap, expandType)
-import Language.Haskell.TH.TypeGraph.Lens (lensNamePairs)
+import Language.Haskell.TH.Path.Order (Order, Path_OMap(..))
+import Language.Haskell.TH.Path.View (viewInstanceType)
+import Language.Haskell.TH.TypeGraph.Expand (E(E), unE)
 import Language.Haskell.TH.TypeGraph.Prelude (pprint')
-import Language.Haskell.TH.TypeGraph.TypeGraph (pathKeys, allPathStarts, goalReachableSimple, reachableFromSimple, TypeGraph)
-import Language.Haskell.TH.TypeGraph.TypeInfo (fieldVertex, TypeInfo, typeVertex)
-import Language.Haskell.TH.TypeGraph.Vertex (bestName, etype, field, TGV, TGVSimple, syns, TypeGraphVertex(bestType), typeNames, vsimple)
+import Language.Haskell.TH.TypeGraph.TypeGraph (reachableFromSimple, TypeGraph)
+import Language.Haskell.TH.TypeGraph.TypeInfo (TypeInfo, typeVertex)
+import Language.Haskell.TH.TypeGraph.Vertex (etype, TGVSimple)
 
 -- | Given a type, compute the corresponding path type.
 pathType :: (MonadReaders TypeGraph m, MonadReaders TypeInfo m, ContextM m) =>

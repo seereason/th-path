@@ -1,6 +1,5 @@
 -- | The reader monad for the type graph info, and some monadic functions.
 
-{-# LANGUAGE CPP #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
@@ -13,7 +12,6 @@
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TupleSections #-}
-{-# OPTIONS_GHC -Wall -fno-warn-orphans #-}
 module Language.Haskell.TH.Path.Graph
     ( runContextT
     , runTypeGraphT
@@ -23,12 +21,7 @@ module Language.Haskell.TH.Path.Graph
     , SelfPath
     ) where
 
-#if __GLASGOW_HASKELL__ < 709
 import Control.Applicative
-import Data.Monoid (mempty)
-#else
-import Control.Applicative
-#endif
 import Control.Lens -- (makeLenses, over, view)
 import Control.Monad (filterM)
 import Control.Monad.Reader (ReaderT, runReaderT)
@@ -36,7 +29,6 @@ import Control.Monad.Readers (askPoly, MonadReaders)
 import Control.Monad.State (execStateT, evalStateT, get, put, StateT)
 import Control.Monad.States (getPoly, modifyPoly, MonadStates, putPoly)
 import Control.Monad.Trans (lift)
-import Control.Monad.Writer (WriterT)
 import Data.Foldable.Compat
 import Data.Graph as Graph (reachable)
 import Data.List as List (filter)
@@ -49,6 +41,7 @@ import Language.Haskell.TH.Context (ContextM, InstMap, reifyInstancesWithContext
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.KindInference (inferKind)
+import Language.Haskell.TH.Path.Instances ()
 import Language.Haskell.TH.Path.Order (Order)
 import Language.Haskell.TH.Path.View (viewInstanceType, viewTypes)
 import Language.Haskell.TH.TypeGraph.Edges ({-cut, cutEdgesM,-} cutEdges, cutM, dissolveM, GraphEdges, isolate, linkM, simpleEdges, typeGraphEdges)
@@ -59,15 +52,6 @@ import Language.Haskell.TH.TypeGraph.TypeGraph (graphFromMap, makeTypeGraph, Typ
 import Language.Haskell.TH.TypeGraph.TypeInfo (makeTypeInfo, startTypes, TypeInfo, typeVertex, typeVertex')
 import Language.Haskell.TH.TypeGraph.Vertex (etype, TGV(TGV, _vsimple), vsimple, TGVSimple(TGVSimple, _etype))
 import Prelude hiding (any, concat, concatMap, elem, exp, foldr, mapM_, null, or)
-
-#if 0
-import Data.Map as Map (fromList, lookup, toList)
-import Data.Set as Set (difference, toList)
-import Debug.Trace (trace)
-import Language.Haskell.TH.TypeGraph.Prelude (pprint')
-import Language.Haskell.TH.TypeGraph.Graph (typeInfo)
-import Language.Haskell.TH.TypeGraph.Info (synonyms)
-#endif
 
 data S = S { _expanded :: ExpandMap
            , _instMap :: InstMap
@@ -88,10 +72,6 @@ instance Monad m => MonadStates String (StateT S m) where
     putPoly s = prefix .= s
 
 instance DsMonad m => ContextM (StateT S m)
-
-instance ContextM m => ContextM (ReaderT t m)
-
-instance (Monoid w, ContextM m) => ContextM (WriterT w m)
 
 runContextT :: Monad m => StateT S m a -> m a
 runContextT action = evalStateT action (S mempty mempty "")

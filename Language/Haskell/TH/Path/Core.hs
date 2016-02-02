@@ -1,4 +1,3 @@
-{-# LANGUAGE CPP #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
@@ -12,7 +11,6 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeFamilies #-}
-{-# OPTIONS_GHC -Wall -fno-warn-orphans -fno-warn-missing-signatures #-}
 module Language.Haskell.TH.Path.Core
     ( -- * Type classes and associated types
       IsPath(toLens, pathsOf, PathType)
@@ -61,7 +59,7 @@ import Data.Proxy
 import Data.SafeCopy (base, deriveSafeCopy)
 import Data.Set as Set ({-difference,-} fromList, Set)
 import Data.Text as Text (Text, pack, unpack, unwords, words)
-import Data.Tree (Tree(Node), Forest)
+import Data.Tree (Forest)
 import Data.UserId (UserId(..))
 import Debug.Trace (trace)
 import Language.Haskell.TH

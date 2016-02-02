@@ -1,8 +1,6 @@
 -- | Return the declarations that implement the IsPath instances, the
 -- toLens methods, the PathType types, and the universal path type.
 
-{-# OPTIONS -Wall -fno-warn-unused-imports #-}
-{-# LANGUAGE CPP #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
@@ -21,42 +19,31 @@ module Language.Haskell.TH.Path.Decs.ToLens where
 import Control.Lens hiding (cons, Strict)
 import Control.Monad (when)
 import Control.Monad as List ( mapM )
-import Control.Monad.Reader (runReaderT)
-import Control.Monad.Readers (askPoly, MonadReaders)
-import Control.Monad.State (evalStateT, get, modify, StateT)
-import Control.Monad.States (MonadStates(getPoly, putPoly), modifyPoly)
+import Control.Monad.Readers (MonadReaders)
+import Control.Monad.State (StateT)
+import Control.Monad.States (MonadStates(getPoly), modifyPoly)
 import Control.Monad.Trans as Monad (lift)
-import Control.Monad.Writer (MonadWriter, execWriterT, tell, WriterT)
+import Control.Monad.Writer (MonadWriter, tell)
 import Data.Bool (bool)
-import Data.Char (toLower)
-import Data.Data (Data, Typeable)
-import Data.Foldable as Foldable (mapM_)
-import Data.Foldable as Foldable
-import Data.List as List (concatMap, intercalate, isPrefixOf, map)
-import Data.Map as Map (Map, toList)
-import Data.Maybe (fromJust, fromMaybe, isJust)
-import Data.Proxy
-import Data.Set as Set (delete, minView)
-import Data.Set.Extra as Set (insert, map, member, Set)
-import qualified Data.Set.Extra as Set (mapM_)
-import Data.Tree (Tree(Node))
+import Data.List as List (map)
+import Data.Map as Map (Map)
+import Data.Maybe (fromJust, isJust)
+import Data.Set.Extra as Set (insert, member, Set)
 import Language.Haskell.TH
 import Language.Haskell.TH.Context (ContextM, InstMap, reifyInstancesWithContext)
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.Path.Core (mat, IsPathType(idPath), IsPathNode(PVType), IsPath(..), Path_List, Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
-import Language.Haskell.TH.Path.Decs.Common (bestPathTypeName, fieldLensNameOld, pathConNameOfField)
+import Language.Haskell.TH.Path.Core (mat, IsPath(..), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
+import Language.Haskell.TH.Path.Decs.Common (fieldLensNameOld, pathConNameOfField)
 import Language.Haskell.TH.Path.Decs.PathType (pathType)
 import Language.Haskell.TH.Path.Graph (SelfPath, SinkType)
-import Language.Haskell.TH.Path.Order (lens_omat, Order, Path_OMap(..), toPairs)
+import Language.Haskell.TH.Path.Order (lens_omat, Order, Path_OMap(..))
 import Language.Haskell.TH.Path.View (viewInstanceType, viewLens)
-import Language.Haskell.TH.Syntax as TH (Quasi(qReify), VarStrictType)
+import Language.Haskell.TH.Syntax as TH (VarStrictType)
 import Language.Haskell.TH.TypeGraph.Expand (E(E), unE, ExpandMap, expandType)
-import Language.Haskell.TH.TypeGraph.Lens (lensNamePairs)
-import Language.Haskell.TH.TypeGraph.Prelude (pprint')
-import Language.Haskell.TH.TypeGraph.TypeGraph (pathKeys, allPathStarts, goalReachableSimple, reachableFromSimple, TypeGraph)
+import Language.Haskell.TH.TypeGraph.TypeGraph (goalReachableSimple, TypeGraph)
 import Language.Haskell.TH.TypeGraph.TypeInfo (fieldVertex, TypeInfo, typeVertex)
-import Language.Haskell.TH.TypeGraph.Vertex (bestName, etype, field, TGV, TGVSimple, syns, TypeGraphVertex(bestType), typeNames, vsimple)
+import Language.Haskell.TH.TypeGraph.Vertex (etype, TGVSimple, TypeGraphVertex(bestType), vsimple)
 
 toLensClauses :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [ClauseQ] m) =>
                        TGVSimple -- ^ the type whose clauses we are generating
@@ -95,7 +82,7 @@ toLensClauses key gkey =
            getPoly >>= \s -> if Set.member tname s
                              then return ()
                              else modifyPoly (Set.insert tname) >>
-                                  doName tname gkey ptyp
+                                  doName tname gkey
        AppT (AppT mtyp _ityp) vtyp
            | mtyp == ConT ''Order ->
                do k <- runQ (newName "k")
@@ -132,8 +119,8 @@ doClause gkey typ pfunc lns = do
   when ok $ tell [clause [pfunc pat] (normalB lns') []]
 
 doName :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [ClauseQ] m) =>
-                   Name -> TGVSimple -> Type -> StateT (Set Name) m ()
-doName tname gkey ptyp =
+          Name -> TGVSimple -> StateT (Set Name) m ()
+doName tname gkey =
     -- If encounter a named type and the stack is empty we
     -- need to build the clauses for its declaration.
     do nameInfo <- runQ $ reify tname
@@ -157,8 +144,6 @@ doName tname gkey ptyp =
 
             doCons :: [Con] -> StateT (Set Name) m ()
             doCons cons = ((concatMap snd . concat) <$> List.mapM doCon cons) >>= tell
-                -- clauses <- (concatMap snd . concat) <$> mapM doCon cons
-                -- tell $ clauses ++ [newName "u" >>= \u -> clause [varP u] (normalB [|error $ "Goal " ++ $(lift (pprint' gkey)) ++ " unexpected for " ++ $(lift (show tname)) ++ ": " ++ show $(varE u)|]) []]
 
             -- For each constructor of the original type, we create a list of pairs, a
             -- path type constructor and the clause which recognizes it.

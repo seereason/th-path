@@ -1,8 +1,6 @@
 -- | Return the declarations that implement the IsPath instances, the
 -- toLens methods, the PathType types, and the universal path type.
 
-{-# OPTIONS -Wall -fno-warn-unused-imports #-}
-{-# LANGUAGE CPP #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
@@ -21,50 +19,33 @@ module Language.Haskell.TH.Path.Decs
     ) where
 
 import Control.Lens hiding (cons, Strict)
-import Control.Monad (when)
-import Control.Monad as List ( mapM )
-import Control.Monad.Reader (runReaderT)
-import Control.Monad.Readers (askPoly, MonadReaders)
-import Control.Monad.State (evalStateT, get, modify, StateT)
-import Control.Monad.States (MonadStates(getPoly, putPoly), modifyPoly)
-import Control.Monad.Trans as Monad (lift)
-import Control.Monad.Writer (MonadWriter, execWriterT, tell, WriterT)
-import Data.Bool (bool)
-import Data.Char (toLower)
+import Control.Monad.Readers (MonadReaders)
+import Control.Monad.Writer (MonadWriter, execWriterT, tell)
 import Data.Data (Data, Typeable)
-import Data.Foldable as Foldable (mapM_)
 import Data.Foldable as Foldable
-import Data.List as List (concatMap, intercalate, isPrefixOf, map)
-import Data.Map as Map (Map, toList)
-import Data.Maybe (fromJust, fromMaybe, isJust)
-import Data.Proxy
-import Data.Set as Set (delete, minView)
-import Data.Set.Extra as Set (insert, map, member, Set)
+import Data.List as List (map)
+import Data.Maybe (fromJust, isJust)
+import Data.Set.Extra as Set (map, Set)
 import qualified Data.Set.Extra as Set (mapM_)
-import Data.Tree (Tree(Node))
 import Language.Haskell.TH
-import Language.Haskell.TH.Context (ContextM, InstMap, reifyInstancesWithContext)
+import Language.Haskell.TH.Context (ContextM, reifyInstancesWithContext)
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.Path.Core (mat, IsPathType(idPath), IsPathNode(PVType), IsPath(..), Path_List, Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
-import Language.Haskell.TH.Path.Decs.Common (bestNames, bestTypeName, bestPathTypeName,
-                                             clauses, fieldLensNamePair, fieldLensNameOld, makePathLens,
-                                             pathConNameOfField, pathTypeNameFromTypeName, pvName, uncap)
+import Language.Haskell.TH.Path.Core (IsPathType(idPath))
+import Language.Haskell.TH.Path.Decs.Common (bestNames, bestPathTypeName, makePathLens,
+                                             pathConNameOfField, pathTypeNameFromTypeName)
 import Language.Haskell.TH.Path.Decs.IsPath (doIsPathNode)
 import Language.Haskell.TH.Path.Decs.PathsOf (pathInstanceDecs)
 import Language.Haskell.TH.Path.Decs.PathType (pathType)
 import Language.Haskell.TH.Path.Decs.PVType (doPVType)
-import Language.Haskell.TH.Path.Decs.ToLens (toLensClauses)
 import Language.Haskell.TH.Path.Graph (SelfPath, SinkType)
-import Language.Haskell.TH.Path.Order (lens_omat, Order, Path_OMap(..), toPairs)
-import Language.Haskell.TH.Path.View (viewInstanceType, viewLens)
-import Language.Haskell.TH.Syntax as TH (Quasi(qReify), VarStrictType)
-import Language.Haskell.TH.TypeGraph.Expand (E(E), unE, ExpandMap, expandType)
-import Language.Haskell.TH.TypeGraph.Lens (lensNamePairs)
+import Language.Haskell.TH.Path.View (viewInstanceType)
+import Language.Haskell.TH.Syntax as TH (VarStrictType)
+import Language.Haskell.TH.TypeGraph.Expand (E(E), expandType)
 import Language.Haskell.TH.TypeGraph.Prelude (pprint')
-import Language.Haskell.TH.TypeGraph.TypeGraph (pathKeys, allPathStarts, goalReachableSimple, reachableFromSimple, TypeGraph)
+import Language.Haskell.TH.TypeGraph.TypeGraph (pathKeys, allPathStarts, TypeGraph)
 import Language.Haskell.TH.TypeGraph.TypeInfo (fieldVertex, TypeInfo, typeVertex)
-import Language.Haskell.TH.TypeGraph.Vertex (bestName, etype, field, TGV, TGVSimple, syns, TypeGraphVertex(bestType), typeNames, vsimple)
+import Language.Haskell.TH.TypeGraph.Vertex (etype, TGVSimple, TypeGraphVertex, typeNames, vsimple)
 
 pathDecs :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => m [Dec]
 pathDecs = execWriterT $ allPathStarts >>= \ps -> Foldable.mapM_ doNode ps >> doPVType ps
@@ -95,15 +76,16 @@ doNode v = do
       doSimplePath (_tname, pname, syns') = do
         a <- runQ $ newName "a"
         runQ (dataD (return []) pname [PlainTV a] [normalC pname []] supers) >>= tell . (: [])
-        doIsPathType pname a
+        doIsPathType pname
         doIsPathNode v
-        mapM_ (\psyn -> runQ (newName "a" >>= \a -> tySynD psyn [PlainTV a] (appT (conT pname) (varT a))) >>= tell . (: [])) (Foldable.toList syns')
+        -- Create path type synonyms for all the regular type synonyms: [d|type $psyn a = $(conT pname) a|]
+        mapM_ (\psyn -> runQ (do a <- newName "a"
+                                 tySynD psyn [PlainTV a] (appT (conT pname) (varT a))) >>= tell . (: [])) (Foldable.toList syns')
 
       -- viewPath [t|Text|] = data Path_Branding a = Path_Branding (Path_Text a)
       viewPath :: Type -> m ()
       viewPath styp = do
-        let Just tname = bestTypeName v
-            Just (pname, syns') = bestPathTypeName v
+        let Just (pname, syns') = bestPathTypeName v
             -- gname = mkName ("Goal_" ++ nameBase pname)
         skey <- expandType styp >>= typeVertex
         a <- runQ $ newName "a"
@@ -116,7 +98,7 @@ doNode v = do
                               , normalC (mkName (nameBase pname)) []
                               ] supers
                          : List.map (\psyn -> tySynD psyn [PlainTV a] (appT (conT pname) (varT a))) (Foldable.toList syns'))) >>= tell
-        doIsPathType pname a
+        doIsPathType pname
         doIsPathNode v
 
       substitute :: Type -> Type -> Type
@@ -137,8 +119,7 @@ doNode v = do
              key' <- expandType typ' >>= typeVertex
              ptype <- pathType (varT a) key'
              mapM_ (\pname ->
-                        do -- doIsPathType pname a
-                           doIsPathNode v
+                        do doIsPathNode v
                            runQ (tySynD pname [PlainTV a] (return ptype)) >>= tell . (: [])) (pathTypeNames' v)
       doDec (NewtypeD _ tname _ con _) = doDataD tname [con]
       doDec (DataD _ tname _ cons _) = doDataD tname cons
@@ -153,9 +134,8 @@ doNode v = do
       makeDecs :: Name -> [[Con]] -> m ()
       makeDecs a pconss =
           case filter (/= []) pconss of
-            [pcons] -> mapM_ (\pname -> do let Just tname = bestName v
-                                           runQ (dataD (cxt []) pname [PlainTV a] (List.map return (pcons ++ [NormalC pname []])) supers) >>= tell . (: [])
-                                           doIsPathType pname a
+            [pcons] -> mapM_ (\pname -> do runQ (dataD (cxt []) pname [PlainTV a] (List.map return (pcons ++ [NormalC pname []])) supers) >>= tell . (: [])
+                                           doIsPathType pname
                                            doIsPathNode v
                              ) (pathTypeNames' v)
             [] | length pconss > 1 -> return () -- enum
@@ -184,7 +164,7 @@ doNode v = do
                         -- It would be nice to use pathTypeCall (varT a) key' here, but
                         -- it can't infer the superclasses for (PathType Foo a) - Ord,
                         -- Read, Data, etc.
-                        _ -> pathType (varT a) (view vsimple key') -- runQ (appT (appT (conT ''PathType) (pure (view (vsimple . etype . unE) key'))) (varT a))
+                        _ -> pathType (varT a) (view vsimple key')
              case ptype of
                TupleT 0 -> return []
                -- Given the list of clauses for a field's path type, create new
@@ -200,4 +180,6 @@ doNode v = do
       pathTypeNames' :: TypeGraphVertex v => v -> Set Name
       pathTypeNames' = Set.map pathTypeNameFromTypeName . typeNames
 
-doIsPathType pname a = runQ [d|instance IsPathType ($(conT pname) a) where idPath = $(conE (mkName (nameBase pname)))|] >>= tell
+doIsPathType :: forall m. (ContextM m, MonadWriter [Dec] m) => Name -> m ()
+doIsPathType pname =
+  runQ [d|instance IsPathType ($(conT pname) a) where idPath = $(conE (mkName (nameBase pname)))|] >>= tell

@@ -1,4 +1,3 @@
-{-# LANGUAGE CPP #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
@@ -11,14 +10,13 @@ module Language.Haskell.TH.Path.View
     ) where
 
 import Control.Lens (Lens')
-import Control.Exception (try)
 import Control.Monad.State (execState, get, modify, put, StateT)
 import Control.Monad.States (MonadStates)
 import Data.Generics (everywhere, mkT)
-import Data.Logic.ATP.FOL (subst)
-import Data.Logic.ATP.Quantified (IsQuantified(..))
+-- import Data.Logic.ATP.FOL (subst)
+-- import Data.Logic.ATP.Quantified (IsQuantified(..))
 -- import Data.Logic.ATP.TH -- barely working Unify instance for Types
-import Data.Logic.ATP.Unif (unify)
+-- import Data.Logic.ATP.Unif (unify)
 import Data.Map as Map (insert, lookup, Map)
 import Data.Maybe (fromMaybe)
 import Data.Set as Set (fromList, Set)
@@ -79,8 +77,8 @@ expandBindings :: Map Pred Pred -> Pred -> Pred
 expandBindings mp x@(VarT _) = fromMaybe x (Map.lookup x mp)
 expandBindings _ x = x
 
-expandBinding :: Pred -> Pred -> Pred -> Pred
-expandBinding v a x = if x == v then a else x
+-- expandBinding :: Pred -> Pred -> Pred -> Pred
+-- expandBinding v a x = if x == v then a else x
 
 -- | Retrieve every View instance known to the Q monad and return the
 -- union of all of their a and b types.
