@@ -89,7 +89,7 @@ fromPairs prs =
           , next = succ (foldl1 max ks) }
 
 instance (Ord k, Show k, Show v) => Show (Order k v) where
-    show o = "fromPairs (" ++ show (map (\k -> (k, elems o ! k)) (order o)) ++ ")"
+    show o = "(fromPairs (" ++ show (map (\k -> (k, elems o ! k)) (order o)) ++ "))"
 
 -- | Put a new element at the end of the Order, returning a pair
 -- containing the new Order and the new key.

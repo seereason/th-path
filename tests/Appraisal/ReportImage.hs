@@ -8,6 +8,8 @@ module Appraisal.ReportImage
     , enlargedSize
     , ReportImages
     , ReportImageID(..)
+    , EUI
+    , MEUI
     ) where
 
 import Appraisal.Image (ImageSize(..), ImageCrop(..), Dimension(..), Units(..))
@@ -26,13 +28,16 @@ import Text.PrettyPrint.HughesPJClass (Pretty(pPrint), text)
 
 type MaybeImageFile = Maybe ImageFile
 
+type MEUI = Maybe EUI
+type EUI = Either URI ImageFile
+
 -- Unchanged, this migration is just to flag unexpected values in the database
 data ReportImage
     = Pic
       { picSize :: ImageSize
       , picCrop :: ImageCrop
       , picCaption :: Markup
-      , picOriginal :: Maybe (Either URI ImageFile) -- ^ Original image
+      , picOriginal :: MEUI -- ^ Original image
       , picEditedDeprecated :: MaybeImageFile -- ^ Cropped version of image
       , picThumbDeprecated :: MaybeImageFile -- ^ Image sized for thumbnail
       , picPrinterDeprecated :: MaybeImageFile -- ^ Image sized for printing

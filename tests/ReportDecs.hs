@@ -22,7 +22,7 @@ import Appraisal.Report
 import Appraisal.ReportImage
 import Appraisal.ReportInstances
 import Appraisal.ReportItem
-import Appraisal.ReportMap (ReportID(..), ReportMap(..))
+import Appraisal.ReportMap (ReportID(..), ReportMap(..), MRR)
 import Appraisal.Utils.CIString (CIString(..))
 import Appraisal.Utils.Debug (trace'')
 import Control.Lens (iso, _Just, _1, _2, _Left, _Right, Lens', lens, prism', toListOf, Traversal', view)
@@ -100,6 +100,12 @@ data PV_Double
     | PV_Double_Double (Path_Double Double) Double
     | PV_Double_JSONText (Path_Double JSONText) JSONText
     deriving (Eq, Show)
+data PV_EUI
+    = PV_EUI_ImageFile (Path_EUI ImageFile) ImageFile
+    | PV_EUI_EUI (Path_EUI (Either URI ImageFile))
+                 (Either URI ImageFile)
+    | PV_EUI_URI (Path_EUI URI) URI
+    deriving (Eq, Show)
 data PV_ImageCrop
     = PV_ImageCrop_ImageCrop (Path_ImageCrop ImageCrop) ImageCrop
     deriving (Eq, Show)
@@ -132,6 +138,10 @@ data PV_Item
     | PV_Item_ImageFile (Path_Item ImageFile) ImageFile
     | PV_Item_JSONText (Path_Item JSONText) JSONText
     | PV_Item_Markup (Path_Item Markup) Markup
+    | PV_Item_EUI (Path_Item (Either URI ImageFile))
+                  (Either URI ImageFile)
+    | PV_Item_MEUI (Path_Item (Maybe (Either URI ImageFile)))
+                   (Maybe (Either URI ImageFile))
     | PV_Item_MaybeImageFile (Path_Item (Maybe ImageFile))
                              (Maybe ImageFile)
     | PV_Item_ReportImage (Path_Item ReportImage) ReportImage
@@ -143,11 +153,98 @@ data PV_Item
     | PV_Item_SaneSizeImageSize (Path_Item (SaneSize ImageSize))
                                 (SaneSize ImageSize)
     | PV_Item_Item (Path_Item Item) Item
+    | PV_Item_MIM (Path_Item (Map ItemFieldName Markup))
+                  (Map ItemFieldName Markup)
     | PV_Item_URI (Path_Item URI) URI
     | PV_Item_Text (Path_Item Text) Text
     deriving (Eq, Show)
 data PV_JSONText
     = PV_JSONText_JSONText (Path_JSONText JSONText) JSONText
+    deriving (Eq, Show)
+data PV_MEUI
+    = PV_MEUI_ImageFile (Path_MEUI ImageFile) ImageFile
+    | PV_MEUI_EUI (Path_MEUI (Either URI ImageFile))
+                  (Either URI ImageFile)
+    | PV_MEUI_MEUI (Path_MEUI (Maybe (Either URI ImageFile)))
+                   (Maybe (Either URI ImageFile))
+    | PV_MEUI_URI (Path_MEUI URI) URI
+    deriving (Eq, Show)
+data PV_MIM
+    = PV_MIM_JSONText (Path_MIM JSONText) JSONText
+    | PV_MIM_Markup (Path_MIM Markup) Markup
+    | PV_MIM_MIM (Path_MIM (Map ItemFieldName Markup))
+                 (Map ItemFieldName Markup)
+    | PV_MIM_Text (Path_MIM Text) Text
+    deriving (Eq, Show)
+data PV_MRR
+    = PV_MRR_String (Path_MRR ([Char])) ([Char])
+    | PV_MRR_Int64 (Path_MRR Int64) Int64
+    | PV_MRR_Int (Path_MRR Int) Int
+    | PV_MRR_Bool (Path_MRR Bool) Bool
+    | PV_MRR_Double (Path_MRR Double) Double
+    | PV_MRR_Dimension (Path_MRR Dimension) Dimension
+    | PV_MRR_ImageCrop (Path_MRR ImageCrop) ImageCrop
+    | PV_MRR_ImageSize (Path_MRR ImageSize) ImageSize
+    | PV_MRR_Units (Path_MRR Units) Units
+    | PV_MRR_ImageFile (Path_MRR ImageFile) ImageFile
+    | PV_MRR_Integer (Path_MRR Integer) Integer
+    | PV_MRR_JSONText (Path_MRR JSONText) JSONText
+    | PV_MRR_Markup (Path_MRR Markup) Markup
+    | PV_MRR_Permissions (Path_MRR Permissions) Permissions
+    | PV_MRR_UserIds (Path_MRR ([UserId])) ([UserId])
+    | PV_MRR_AbbrevPair (Path_MRR ((CIString, Markup)))
+                        ((CIString, Markup))
+    | PV_MRR_AbbrevPairs (Path_MRR (Order AbbrevPairID
+                                          ((CIString, Markup))))
+                         (Order AbbrevPairID ((CIString, Markup)))
+    | PV_MRR_Author (Path_MRR Author) Author
+    | PV_MRR_Authors (Path_MRR (Order AuthorID Author))
+                     (Order AuthorID Author)
+    | PV_MRR_Branding (Path_MRR Branding) Branding
+    | PV_MRR_MarkupPair (Path_MRR ((Markup, Markup)))
+                        ((Markup, Markup))
+    | PV_MRR_MarkupPairs (Path_MRR (Order MarkupPairID
+                                          ((Markup, Markup))))
+                         (Order MarkupPairID ((Markup, Markup)))
+    | PV_MRR_Markups (Path_MRR (Order MarkupID Markup))
+                     (Order MarkupID Markup)
+    | PV_MRR_MaybeReportIntendedUse (Path_MRR (Maybe ReportIntendedUse))
+                                    (Maybe ReportIntendedUse)
+    | PV_MRR_Report (Path_MRR Report) Report
+    | PV_MRR_ReportElem (Path_MRR ReportElem) ReportElem
+    | PV_MRR_ReportElems (Path_MRR (Order ReportElemID ReportElem))
+                         (Order ReportElemID ReportElem)
+    | PV_MRR_ReportFlags (Path_MRR ReportFlags) ReportFlags
+    | PV_MRR_ReportStandard (Path_MRR ReportStandard) ReportStandard
+    | PV_MRR_ReportStatus (Path_MRR ReportStatus) ReportStatus
+    | PV_MRR_ReportValueApproachInfo (Path_MRR ReportValueApproachInfo)
+                                     ReportValueApproachInfo
+    | PV_MRR_ReportValueTypeInfo (Path_MRR ReportValueTypeInfo)
+                                 ReportValueTypeInfo
+    | PV_MRR_EUI (Path_MRR (Either URI ImageFile))
+                 (Either URI ImageFile)
+    | PV_MRR_MEUI (Path_MRR (Maybe (Either URI ImageFile)))
+                  (Maybe (Either URI ImageFile))
+    | PV_MRR_MaybeImageFile (Path_MRR (Maybe ImageFile))
+                            (Maybe ImageFile)
+    | PV_MRR_ReportImage (Path_MRR ReportImage) ReportImage
+    | PV_MRR_ReportImages (Path_MRR (Order ReportImageID ReportImage))
+                          (Order ReportImageID ReportImage)
+    | PV_MRR_ReadOnlyFilePath (Path_MRR (ReadOnly ([Char])))
+                              (ReadOnly ([Char]))
+    | PV_MRR_ReportImageView (Path_MRR ReportImageView) ReportImageView
+    | PV_MRR_ReportView (Path_MRR ReportView) ReportView
+    | PV_MRR_SaneSizeImageSize (Path_MRR (SaneSize ImageSize))
+                               (SaneSize ImageSize)
+    | PV_MRR_Item (Path_MRR Item) Item
+    | PV_MRR_MIM (Path_MRR (Map ItemFieldName Markup))
+                 (Map ItemFieldName Markup)
+    | PV_MRR_MRR (Path_MRR (Map ReportID Report)) (Map ReportID Report)
+    | PV_MRR_CIString (Path_MRR CIString) CIString
+    | PV_MRR_URI (Path_MRR URI) URI
+    | PV_MRR_Text (Path_MRR Text) Text
+    | PV_MRR_UserId (Path_MRR UserId) UserId
+    | PV_MRR_UUID (Path_MRR UUID) UUID
     deriving (Eq, Show)
 data PV_Markup
     = PV_Markup_JSONText (Path_Markup JSONText) JSONText
@@ -256,6 +353,10 @@ data PV_Report
                                         ReportValueApproachInfo
     | PV_Report_ReportValueTypeInfo (Path_Report ReportValueTypeInfo)
                                     ReportValueTypeInfo
+    | PV_Report_EUI (Path_Report (Either URI ImageFile))
+                    (Either URI ImageFile)
+    | PV_Report_MEUI (Path_Report (Maybe (Either URI ImageFile)))
+                     (Maybe (Either URI ImageFile))
     | PV_Report_MaybeImageFile (Path_Report (Maybe ImageFile))
                                (Maybe ImageFile)
     | PV_Report_ReportImage (Path_Report ReportImage) ReportImage
@@ -270,6 +371,8 @@ data PV_Report
     | PV_Report_SaneSizeImageSize (Path_Report (SaneSize ImageSize))
                                   (SaneSize ImageSize)
     | PV_Report_Item (Path_Report Item) Item
+    | PV_Report_MIM (Path_Report (Map ItemFieldName Markup))
+                    (Map ItemFieldName Markup)
     | PV_Report_CIString (Path_Report CIString) CIString
     | PV_Report_URI (Path_Report URI) URI
     | PV_Report_Text (Path_Report Text) Text
@@ -288,6 +391,11 @@ data PV_ReportElem
     | PV_ReportElem_JSONText (Path_ReportElem JSONText) JSONText
     | PV_ReportElem_Markup (Path_ReportElem Markup) Markup
     | PV_ReportElem_ReportElem (Path_ReportElem ReportElem) ReportElem
+    | PV_ReportElem_EUI (Path_ReportElem (Either URI ImageFile))
+                        (Either URI ImageFile)
+    | PV_ReportElem_MEUI (Path_ReportElem (Maybe (Either URI
+                                                         ImageFile)))
+                         (Maybe (Either URI ImageFile))
     | PV_ReportElem_MaybeImageFile (Path_ReportElem (Maybe ImageFile))
                                    (Maybe ImageFile)
     | PV_ReportElem_ReportImage (Path_ReportElem ReportImage)
@@ -300,6 +408,8 @@ data PV_ReportElem
     | PV_ReportElem_SaneSizeImageSize (Path_ReportElem (SaneSize ImageSize))
                                       (SaneSize ImageSize)
     | PV_ReportElem_Item (Path_ReportElem Item) Item
+    | PV_ReportElem_MIM (Path_ReportElem (Map ItemFieldName Markup))
+                        (Map ItemFieldName Markup)
     | PV_ReportElem_URI (Path_ReportElem URI) URI
     | PV_ReportElem_Text (Path_ReportElem Text) Text
     deriving (Eq, Show)
@@ -319,6 +429,11 @@ data PV_ReportElems
     | PV_ReportElems_ReportElems (Path_ReportElems (Order ReportElemID
                                                           ReportElem))
                                  (Order ReportElemID ReportElem)
+    | PV_ReportElems_EUI (Path_ReportElems (Either URI ImageFile))
+                         (Either URI ImageFile)
+    | PV_ReportElems_MEUI (Path_ReportElems (Maybe (Either URI
+                                                           ImageFile)))
+                          (Maybe (Either URI ImageFile))
     | PV_ReportElems_MaybeImageFile (Path_ReportElems (Maybe ImageFile))
                                     (Maybe ImageFile)
     | PV_ReportElems_ReportImage (Path_ReportElems ReportImage)
@@ -331,6 +446,8 @@ data PV_ReportElems
     | PV_ReportElems_SaneSizeImageSize (Path_ReportElems (SaneSize ImageSize))
                                        (SaneSize ImageSize)
     | PV_ReportElems_Item (Path_ReportElems Item) Item
+    | PV_ReportElems_MIM (Path_ReportElems (Map ItemFieldName Markup))
+                         (Map ItemFieldName Markup)
     | PV_ReportElems_URI (Path_ReportElems URI) URI
     | PV_ReportElems_Text (Path_ReportElems Text) Text
     deriving (Eq, Show)
@@ -352,6 +469,11 @@ data PV_ReportImage
     | PV_ReportImage_ImageFile (Path_ReportImage ImageFile) ImageFile
     | PV_ReportImage_JSONText (Path_ReportImage JSONText) JSONText
     | PV_ReportImage_Markup (Path_ReportImage Markup) Markup
+    | PV_ReportImage_EUI (Path_ReportImage (Either URI ImageFile))
+                         (Either URI ImageFile)
+    | PV_ReportImage_MEUI (Path_ReportImage (Maybe (Either URI
+                                                           ImageFile)))
+                          (Maybe (Either URI ImageFile))
     | PV_ReportImage_MaybeImageFile (Path_ReportImage (Maybe ImageFile))
                                     (Maybe ImageFile)
     | PV_ReportImage_ReportImage (Path_ReportImage ReportImage)
@@ -380,6 +502,12 @@ data PV_ReportImageView
     | PV_ReportImageView_JSONText (Path_ReportImageView JSONText)
                                   JSONText
     | PV_ReportImageView_Markup (Path_ReportImageView Markup) Markup
+    | PV_ReportImageView_EUI (Path_ReportImageView (Either URI
+                                                           ImageFile))
+                             (Either URI ImageFile)
+    | PV_ReportImageView_MEUI (Path_ReportImageView (Maybe (Either URI
+                                                                   ImageFile)))
+                              (Maybe (Either URI ImageFile))
     | PV_ReportImageView_MaybeImageFile (Path_ReportImageView (Maybe ImageFile))
                                         (Maybe ImageFile)
     | PV_ReportImageView_ReportImageView (Path_ReportImageView ReportImageView)
@@ -400,6 +528,11 @@ data PV_ReportImages
     | PV_ReportImages_ImageFile (Path_ReportImages ImageFile) ImageFile
     | PV_ReportImages_JSONText (Path_ReportImages JSONText) JSONText
     | PV_ReportImages_Markup (Path_ReportImages Markup) Markup
+    | PV_ReportImages_EUI (Path_ReportImages (Either URI ImageFile))
+                          (Either URI ImageFile)
+    | PV_ReportImages_MEUI (Path_ReportImages (Maybe (Either URI
+                                                             ImageFile)))
+                           (Maybe (Either URI ImageFile))
     | PV_ReportImages_MaybeImageFile (Path_ReportImages (Maybe ImageFile))
                                      (Maybe ImageFile)
     | PV_ReportImages_ReportImage (Path_ReportImages ReportImage)
@@ -470,6 +603,10 @@ data PV_ReportMap
                                            ReportValueApproachInfo
     | PV_ReportMap_ReportValueTypeInfo (Path_ReportMap ReportValueTypeInfo)
                                        ReportValueTypeInfo
+    | PV_ReportMap_EUI (Path_ReportMap (Either URI ImageFile))
+                       (Either URI ImageFile)
+    | PV_ReportMap_MEUI (Path_ReportMap (Maybe (Either URI ImageFile)))
+                        (Maybe (Either URI ImageFile))
     | PV_ReportMap_MaybeImageFile (Path_ReportMap (Maybe ImageFile))
                                   (Maybe ImageFile)
     | PV_ReportMap_ReportImage (Path_ReportMap ReportImage) ReportImage
@@ -484,6 +621,10 @@ data PV_ReportMap
     | PV_ReportMap_SaneSizeImageSize (Path_ReportMap (SaneSize ImageSize))
                                      (SaneSize ImageSize)
     | PV_ReportMap_Item (Path_ReportMap Item) Item
+    | PV_ReportMap_MIM (Path_ReportMap (Map ItemFieldName Markup))
+                       (Map ItemFieldName Markup)
+    | PV_ReportMap_MRR (Path_ReportMap (Map ReportID Report))
+                       (Map ReportID Report)
     | PV_ReportMap_ReportMap (Path_ReportMap ReportMap) ReportMap
     | PV_ReportMap_CIString (Path_ReportMap CIString) CIString
     | PV_ReportMap_URI (Path_ReportMap URI) URI
@@ -570,6 +711,11 @@ data PV_ReportView
                                             ReportValueApproachInfo
     | PV_ReportView_ReportValueTypeInfo (Path_ReportView ReportValueTypeInfo)
                                         ReportValueTypeInfo
+    | PV_ReportView_EUI (Path_ReportView (Either URI ImageFile))
+                        (Either URI ImageFile)
+    | PV_ReportView_MEUI (Path_ReportView (Maybe (Either URI
+                                                         ImageFile)))
+                         (Maybe (Either URI ImageFile))
     | PV_ReportView_MaybeImageFile (Path_ReportView (Maybe ImageFile))
                                    (Maybe ImageFile)
     | PV_ReportView_ReportImage (Path_ReportView ReportImage)
@@ -585,6 +731,8 @@ data PV_ReportView
     | PV_ReportView_SaneSizeImageSize (Path_ReportView (SaneSize ImageSize))
                                       (SaneSize ImageSize)
     | PV_ReportView_Item (Path_ReportView Item) Item
+    | PV_ReportView_MIM (Path_ReportView (Map ItemFieldName Markup))
+                        (Map ItemFieldName Markup)
     | PV_ReportView_CIString (Path_ReportView CIString) CIString
     | PV_ReportView_URI (Path_ReportView URI) URI
     | PV_ReportView_Text (Path_ReportView Text) Text
@@ -673,7 +821,7 @@ data Path_Integer a
     deriving (Eq, Ord, Read, Show, Typeable, Data)
 data Path_Item a
     = Path_Item_itemName (Path_Text a)
-    | Path_Item_fields (Path_Map ItemFieldName (Path_Markup a))
+    | Path_Item_fields (Path_MIM a)
     | Path_Item_images (Path_ReportImages a)
     | Path_Item
     deriving (Eq, Ord, Read, Show, Typeable, Data)
@@ -735,8 +883,7 @@ data Path_ReportIntendedUse a
     | Path_ReportIntendedUse
     deriving (Eq, Ord, Read, Show, Typeable, Data)
 data Path_ReportMap a
-    = Path_ReportMap_unReportMap (Path_Map ReportID (Path_Report a))
-    | Path_ReportMap
+    = Path_ReportMap_unReportMap (Path_MRR a) | Path_ReportMap
     deriving (Eq, Ord, Read, Show, Typeable, Data)
 data Path_ReportStandard a
     = Path_ReportStandard_unReportStandard (Path_Int a)
@@ -835,8 +982,13 @@ type Path_AbbrevPairs a = Path_OMap AbbrevPairID
                                     (Path_Pair (Path_CIString a) (Path_Markup a))
 type Path_Authors a = Path_OMap AuthorID (Path_Author a)
 type Path_Checksum a = Path_String a
+type Path_EUI a = Path_Either (Path_URI a) (Path_ImageFile a)
 type Path_EpochMilli a = Path_Int64 a
 type Path_FilePath a = Path_String a
+type Path_MEUI a = Path_Maybe (Path_Either (Path_URI a)
+                                           (Path_ImageFile a))
+type Path_MIM a = Path_Map ItemFieldName (Path_Markup a)
+type Path_MRR a = Path_Map ReportID (Path_Report a)
 type Path_MarkupPair a = Path_Pair (Path_Markup a) (Path_Markup a)
 type Path_MarkupPairs a = Path_OMap MarkupPairID
                                     (Path_Pair (Path_Markup a) (Path_Markup a))
@@ -880,7 +1032,7 @@ class HasImageSize c
           {-# INLINE lens_ImageSize_units #-}
 class HasItem c
     where lens_item :: Lens' c Item
-          lens_Item_fields :: forall . Lens' c (Map ItemFieldName Markup)
+          lens_Item_fields :: forall . Lens' c MIM
           lens_Item_fields = (.) lens_item lens_Item_fields
           {-# INLINE lens_Item_fields #-}
           lens_Item_images :: forall . Lens' c ReportImages
@@ -1081,8 +1233,7 @@ class HasReportImage c
           lens_ReportImage_picMustEnlarge :: forall . Lens' c Bool
           lens_ReportImage_picMustEnlarge = (.) lens_reportImage lens_ReportImage_picMustEnlarge
           {-# INLINE lens_ReportImage_picMustEnlarge #-}
-          lens_ReportImage_picOriginal :: forall . Lens' c
-                                                         (Maybe (Either URI ImageFile))
+          lens_ReportImage_picOriginal :: forall . Lens' c MEUI
           lens_ReportImage_picOriginal = (.) lens_reportImage lens_ReportImage_picOriginal
           {-# INLINE lens_ReportImage_picOriginal #-}
           lens_ReportImage_picPrinterDeprecated :: forall . Lens' c
@@ -1134,8 +1285,7 @@ class HasReportIntendedUse c
     where lens_reportIntendedUse :: Lens' c ReportIntendedUse
 class HasReportMap c
     where lens_reportMap :: Lens' c ReportMap
-          lens_ReportMap_unReportMap :: forall . Lens' c
-                                                       (Map ReportID Report)
+          lens_ReportMap_unReportMap :: forall . Lens' c MRR
           lens_ReportMap_unReportMap = (.) lens_reportMap lens_ReportMap_unReportMap
           {-# INLINE lens_ReportMap_unReportMap #-}
 class HasReportStandard c
@@ -1318,393 +1468,6 @@ class HasText c
     where lens_text :: Lens' c Text
 class HasUnits c
     where lens_units :: Lens' c Units
-instance IsPath (Either URI ImageFile) (Either URI ImageFile)
-    where type PathType (Either URI ImageFile)
-                        (Either URI ImageFile) = Path_Either (Path_URI (Either URI
-                                                                               ImageFile))
-                                                             (Path_ImageFile (Either URI ImageFile))
-          toLens _ = iso id id
-          pathsOf _ _ = [idPath]
-instance IsPath (Either URI ImageFile) ImageFile
-    where type PathType (Either URI ImageFile)
-                        ImageFile = Path_Either (Path_URI ImageFile)
-                                                (Path_ImageFile ImageFile)
-          toLens (Path_Right _) = _Right
-          pathsOf (Left x) a = []
-          pathsOf (Right x) a = map Path_Right (pathsOf (x :: ImageFile) a)
-instance IsPath (Either URI ImageFile) URI
-    where type PathType (Either URI ImageFile)
-                        URI = Path_Either (Path_URI URI) (Path_ImageFile URI)
-          toLens (Path_Left _) = _Left
-          pathsOf (Left x) a = map Path_Left (pathsOf (x :: URI) a)
-          pathsOf (Right x) a = []
-instance IsPath (Map ItemFieldName Markup)
-                (Map ItemFieldName Markup)
-    where type PathType (Map ItemFieldName Markup)
-                        (Map ItemFieldName Markup) = Path_Map ItemFieldName
-                                                              (Path_Markup (Map ItemFieldName
-                                                                                Markup))
-          toLens _ = iso id id
-          pathsOf _ _ = [idPath]
-instance IsPath (Map ItemFieldName Markup) JSONText
-    where type PathType (Map ItemFieldName Markup)
-                        JSONText = Path_Map ItemFieldName (Path_Markup JSONText)
-          toLens (Path_Look k v) = mat k . toLens v
-          pathsOf mp a = concatMap (\(k,
-                                      v) -> map (Path_Look k) (pathsOf (v :: Markup) a)) (toList mp)
-instance IsPath (Map ItemFieldName Markup) Markup
-    where type PathType (Map ItemFieldName Markup)
-                        Markup = Path_Map ItemFieldName (Path_Markup Markup)
-          toLens (Path_Look k _) = mat k
-          pathsOf mp a = concatMap (\(k,
-                                      v) -> map (Path_Look k) (pathsOf (v :: Markup) a)) (toList mp)
-instance IsPath (Map ItemFieldName Markup) Text
-    where type PathType (Map ItemFieldName Markup)
-                        Text = Path_Map ItemFieldName (Path_Markup Text)
-          toLens (Path_Look k v) = mat k . toLens v
-          pathsOf mp a = concatMap (\(k,
-                                      v) -> map (Path_Look k) (pathsOf (v :: Markup) a)) (toList mp)
-instance IsPath (Map ReportID Report) (Either URI ImageFile)
-    where type PathType (Map ReportID Report)
-                        (Either URI ImageFile) = Path_Map ReportID
-                                                          (Path_Report (Either URI ImageFile))
-          toLens (Path_Look k v) = mat k . toLens v
-          pathsOf mp a = concatMap (\(k,
-                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
-instance IsPath (Map ReportID Report) (Map ItemFieldName Markup)
-    where type PathType (Map ReportID Report)
-                        (Map ItemFieldName Markup) = Path_Map ReportID
-                                                              (Path_Report (Map ItemFieldName
-                                                                                Markup))
-          toLens (Path_Look k v) = mat k . toLens v
-          pathsOf mp a = concatMap (\(k,
-                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
-instance IsPath (Map ReportID Report) (Map ReportID Report)
-    where type PathType (Map ReportID Report)
-                        (Map ReportID Report) = Path_Map ReportID
-                                                         (Path_Report (Map ReportID Report))
-          toLens _ = iso id id
-          pathsOf _ _ = [idPath]
-instance IsPath (Map ReportID Report)
-                (Maybe (Either URI ImageFile))
-    where type PathType (Map ReportID Report)
-                        (Maybe (Either URI ImageFile)) = Path_Map ReportID
-                                                                  (Path_Report (Maybe (Either URI
-                                                                                              ImageFile)))
-          toLens (Path_Look k v) = mat k . toLens v
-          pathsOf mp a = concatMap (\(k,
-                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
-instance IsPath (Map ReportID Report) String
-    where type PathType (Map ReportID Report)
-                        String = Path_Map ReportID (Path_Report String)
-          toLens (Path_Look k v) = mat k . toLens v
-          pathsOf mp a = concatMap (\(k,
-                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
-instance IsPath (Map ReportID Report) Int64
-    where type PathType (Map ReportID Report) Int64 = Path_Map ReportID
-                                                               (Path_Report Int64)
-          toLens (Path_Look k v) = mat k . toLens v
-          pathsOf mp a = concatMap (\(k,
-                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
-instance IsPath (Map ReportID Report) Bool
-    where type PathType (Map ReportID Report) Bool = Path_Map ReportID
-                                                              (Path_Report Bool)
-          toLens (Path_Look k v) = mat k . toLens v
-          pathsOf mp a = concatMap (\(k,
-                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
-instance IsPath (Map ReportID Report) Double
-    where type PathType (Map ReportID Report)
-                        Double = Path_Map ReportID (Path_Report Double)
-          toLens (Path_Look k v) = mat k . toLens v
-          pathsOf mp a = concatMap (\(k,
-                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
-instance IsPath (Map ReportID Report) Int
-    where type PathType (Map ReportID Report) Int = Path_Map ReportID
-                                                             (Path_Report Int)
-          toLens (Path_Look k v) = mat k . toLens v
-          pathsOf mp a = concatMap (\(k,
-                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
-instance IsPath (Map ReportID Report) Dimension
-    where type PathType (Map ReportID Report)
-                        Dimension = Path_Map ReportID (Path_Report Dimension)
-          toLens (Path_Look k v) = mat k . toLens v
-          pathsOf mp a = concatMap (\(k,
-                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
-instance IsPath (Map ReportID Report) ImageCrop
-    where type PathType (Map ReportID Report)
-                        ImageCrop = Path_Map ReportID (Path_Report ImageCrop)
-          toLens (Path_Look k v) = mat k . toLens v
-          pathsOf mp a = concatMap (\(k,
-                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
-instance IsPath (Map ReportID Report) ImageSize
-    where type PathType (Map ReportID Report)
-                        ImageSize = Path_Map ReportID (Path_Report ImageSize)
-          toLens (Path_Look k v) = mat k . toLens v
-          pathsOf mp a = concatMap (\(k,
-                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
-instance IsPath (Map ReportID Report) Units
-    where type PathType (Map ReportID Report) Units = Path_Map ReportID
-                                                               (Path_Report Units)
-          toLens (Path_Look k v) = mat k . toLens v
-          pathsOf mp a = concatMap (\(k,
-                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
-instance IsPath (Map ReportID Report) ImageFile
-    where type PathType (Map ReportID Report)
-                        ImageFile = Path_Map ReportID (Path_Report ImageFile)
-          toLens (Path_Look k v) = mat k . toLens v
-          pathsOf mp a = concatMap (\(k,
-                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
-instance IsPath (Map ReportID Report) Integer
-    where type PathType (Map ReportID Report)
-                        Integer = Path_Map ReportID (Path_Report Integer)
-          toLens (Path_Look k v) = mat k . toLens v
-          pathsOf mp a = concatMap (\(k,
-                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
-instance IsPath (Map ReportID Report) JSONText
-    where type PathType (Map ReportID Report)
-                        JSONText = Path_Map ReportID (Path_Report JSONText)
-          toLens (Path_Look k v) = mat k . toLens v
-          pathsOf mp a = concatMap (\(k,
-                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
-instance IsPath (Map ReportID Report) Markup
-    where type PathType (Map ReportID Report)
-                        Markup = Path_Map ReportID (Path_Report Markup)
-          toLens (Path_Look k v) = mat k . toLens v
-          pathsOf mp a = concatMap (\(k,
-                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
-instance IsPath (Map ReportID Report) Permissions
-    where type PathType (Map ReportID Report)
-                        Permissions = Path_Map ReportID (Path_Report Permissions)
-          toLens (Path_Look k v) = mat k . toLens v
-          pathsOf mp a = concatMap (\(k,
-                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
-instance IsPath (Map ReportID Report) UserIds
-    where type PathType (Map ReportID Report)
-                        UserIds = Path_Map ReportID (Path_Report UserIds)
-          toLens (Path_Look k v) = mat k . toLens v
-          pathsOf mp a = concatMap (\(k,
-                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
-instance IsPath (Map ReportID Report) AbbrevPair
-    where type PathType (Map ReportID Report)
-                        AbbrevPair = Path_Map ReportID (Path_Report AbbrevPair)
-          toLens (Path_Look k v) = mat k . toLens v
-          pathsOf mp a = concatMap (\(k,
-                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
-instance IsPath (Map ReportID Report) AbbrevPairs
-    where type PathType (Map ReportID Report)
-                        AbbrevPairs = Path_Map ReportID (Path_Report AbbrevPairs)
-          toLens (Path_Look k v) = mat k . toLens v
-          pathsOf mp a = concatMap (\(k,
-                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
-instance IsPath (Map ReportID Report) Author
-    where type PathType (Map ReportID Report)
-                        Author = Path_Map ReportID (Path_Report Author)
-          toLens (Path_Look k v) = mat k . toLens v
-          pathsOf mp a = concatMap (\(k,
-                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
-instance IsPath (Map ReportID Report) Authors
-    where type PathType (Map ReportID Report)
-                        Authors = Path_Map ReportID (Path_Report Authors)
-          toLens (Path_Look k v) = mat k . toLens v
-          pathsOf mp a = concatMap (\(k,
-                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
-instance IsPath (Map ReportID Report) Branding
-    where type PathType (Map ReportID Report)
-                        Branding = Path_Map ReportID (Path_Report Branding)
-          toLens (Path_Look k v) = mat k . toLens v
-          pathsOf mp a = concatMap (\(k,
-                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
-instance IsPath (Map ReportID Report) MarkupPair
-    where type PathType (Map ReportID Report)
-                        MarkupPair = Path_Map ReportID (Path_Report MarkupPair)
-          toLens (Path_Look k v) = mat k . toLens v
-          pathsOf mp a = concatMap (\(k,
-                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
-instance IsPath (Map ReportID Report) MarkupPairs
-    where type PathType (Map ReportID Report)
-                        MarkupPairs = Path_Map ReportID (Path_Report MarkupPairs)
-          toLens (Path_Look k v) = mat k . toLens v
-          pathsOf mp a = concatMap (\(k,
-                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
-instance IsPath (Map ReportID Report) Markups
-    where type PathType (Map ReportID Report)
-                        Markups = Path_Map ReportID (Path_Report Markups)
-          toLens (Path_Look k v) = mat k . toLens v
-          pathsOf mp a = concatMap (\(k,
-                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
-instance IsPath (Map ReportID Report) MaybeReportIntendedUse
-    where type PathType (Map ReportID Report)
-                        MaybeReportIntendedUse = Path_Map ReportID
-                                                          (Path_Report MaybeReportIntendedUse)
-          toLens (Path_Look k v) = mat k . toLens v
-          pathsOf mp a = concatMap (\(k,
-                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
-instance IsPath (Map ReportID Report) Report
-    where type PathType (Map ReportID Report)
-                        Report = Path_Map ReportID (Path_Report Report)
-          toLens (Path_Look k _) = mat k
-          pathsOf mp a = concatMap (\(k,
-                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
-instance IsPath (Map ReportID Report) ReportElem
-    where type PathType (Map ReportID Report)
-                        ReportElem = Path_Map ReportID (Path_Report ReportElem)
-          toLens (Path_Look k v) = mat k . toLens v
-          pathsOf mp a = concatMap (\(k,
-                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
-instance IsPath (Map ReportID Report) ReportElems
-    where type PathType (Map ReportID Report)
-                        ReportElems = Path_Map ReportID (Path_Report ReportElems)
-          toLens (Path_Look k v) = mat k . toLens v
-          pathsOf mp a = concatMap (\(k,
-                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
-instance IsPath (Map ReportID Report) ReportFlags
-    where type PathType (Map ReportID Report)
-                        ReportFlags = Path_Map ReportID (Path_Report ReportFlags)
-          toLens (Path_Look k v) = mat k . toLens v
-          pathsOf mp a = concatMap (\(k,
-                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
-instance IsPath (Map ReportID Report) ReportStandard
-    where type PathType (Map ReportID Report)
-                        ReportStandard = Path_Map ReportID (Path_Report ReportStandard)
-          toLens (Path_Look k v) = mat k . toLens v
-          pathsOf mp a = concatMap (\(k,
-                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
-instance IsPath (Map ReportID Report) ReportStatus
-    where type PathType (Map ReportID Report)
-                        ReportStatus = Path_Map ReportID (Path_Report ReportStatus)
-          toLens (Path_Look k v) = mat k . toLens v
-          pathsOf mp a = concatMap (\(k,
-                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
-instance IsPath (Map ReportID Report) ReportValueApproachInfo
-    where type PathType (Map ReportID Report)
-                        ReportValueApproachInfo = Path_Map ReportID
-                                                           (Path_Report ReportValueApproachInfo)
-          toLens (Path_Look k v) = mat k . toLens v
-          pathsOf mp a = concatMap (\(k,
-                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
-instance IsPath (Map ReportID Report) ReportValueTypeInfo
-    where type PathType (Map ReportID Report)
-                        ReportValueTypeInfo = Path_Map ReportID
-                                                       (Path_Report ReportValueTypeInfo)
-          toLens (Path_Look k v) = mat k . toLens v
-          pathsOf mp a = concatMap (\(k,
-                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
-instance IsPath (Map ReportID Report) MaybeImageFile
-    where type PathType (Map ReportID Report)
-                        MaybeImageFile = Path_Map ReportID (Path_Report MaybeImageFile)
-          toLens (Path_Look k v) = mat k . toLens v
-          pathsOf mp a = concatMap (\(k,
-                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
-instance IsPath (Map ReportID Report) ReportImage
-    where type PathType (Map ReportID Report)
-                        ReportImage = Path_Map ReportID (Path_Report ReportImage)
-          toLens (Path_Look k v) = mat k . toLens v
-          pathsOf mp a = concatMap (\(k,
-                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
-instance IsPath (Map ReportID Report) ReportImages
-    where type PathType (Map ReportID Report)
-                        ReportImages = Path_Map ReportID (Path_Report ReportImages)
-          toLens (Path_Look k v) = mat k . toLens v
-          pathsOf mp a = concatMap (\(k,
-                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
-instance IsPath (Map ReportID Report) ReadOnlyFilePath
-    where type PathType (Map ReportID Report)
-                        ReadOnlyFilePath = Path_Map ReportID (Path_Report ReadOnlyFilePath)
-          toLens (Path_Look k v) = mat k . toLens v
-          pathsOf mp a = concatMap (\(k,
-                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
-instance IsPath (Map ReportID Report) ReportImageView
-    where type PathType (Map ReportID Report)
-                        ReportImageView = Path_Map ReportID (Path_Report ReportImageView)
-          toLens (Path_Look k v) = mat k . toLens v
-          pathsOf mp a = concatMap (\(k,
-                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
-instance IsPath (Map ReportID Report) ReportView
-    where type PathType (Map ReportID Report)
-                        ReportView = Path_Map ReportID (Path_Report ReportView)
-          toLens (Path_Look k v) = mat k . toLens v
-          pathsOf mp a = concatMap (\(k,
-                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
-instance IsPath (Map ReportID Report) SaneSizeImageSize
-    where type PathType (Map ReportID Report)
-                        SaneSizeImageSize = Path_Map ReportID
-                                                     (Path_Report SaneSizeImageSize)
-          toLens (Path_Look k v) = mat k . toLens v
-          pathsOf mp a = concatMap (\(k,
-                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
-instance IsPath (Map ReportID Report) Item
-    where type PathType (Map ReportID Report) Item = Path_Map ReportID
-                                                              (Path_Report Item)
-          toLens (Path_Look k v) = mat k . toLens v
-          pathsOf mp a = concatMap (\(k,
-                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
-instance IsPath (Map ReportID Report) CIString
-    where type PathType (Map ReportID Report)
-                        CIString = Path_Map ReportID (Path_Report CIString)
-          toLens (Path_Look k v) = mat k . toLens v
-          pathsOf mp a = concatMap (\(k,
-                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
-instance IsPath (Map ReportID Report) URI
-    where type PathType (Map ReportID Report) URI = Path_Map ReportID
-                                                             (Path_Report URI)
-          toLens (Path_Look k v) = mat k . toLens v
-          pathsOf mp a = concatMap (\(k,
-                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
-instance IsPath (Map ReportID Report) Text
-    where type PathType (Map ReportID Report) Text = Path_Map ReportID
-                                                              (Path_Report Text)
-          toLens (Path_Look k v) = mat k . toLens v
-          pathsOf mp a = concatMap (\(k,
-                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
-instance IsPath (Map ReportID Report) UserId
-    where type PathType (Map ReportID Report)
-                        UserId = Path_Map ReportID (Path_Report UserId)
-          toLens (Path_Look k v) = mat k . toLens v
-          pathsOf mp a = concatMap (\(k,
-                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
-instance IsPath (Map ReportID Report) UUID
-    where type PathType (Map ReportID Report) UUID = Path_Map ReportID
-                                                              (Path_Report UUID)
-          toLens (Path_Look k v) = mat k . toLens v
-          pathsOf mp a = concatMap (\(k,
-                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
-instance IsPath (Maybe (Either URI ImageFile))
-                (Either URI ImageFile)
-    where type PathType (Maybe (Either URI ImageFile))
-                        (Either URI
-                                ImageFile) = Path_Maybe (Path_Either (Path_URI (Either URI
-                                                                                       ImageFile))
-                                                                     (Path_ImageFile (Either URI
-                                                                                             ImageFile)))
-          toLens (Path_Just _) = _Just
-          pathsOf (Just x) a = map Path_Just (pathsOf (x :: Either URI
-                                                                   ImageFile) a)
-          pathsOf (Nothing) a = []
-instance IsPath (Maybe (Either URI ImageFile))
-                (Maybe (Either URI ImageFile))
-    where type PathType (Maybe (Either URI ImageFile))
-                        (Maybe (Either URI
-                                       ImageFile)) = Path_Maybe (Path_Either (Path_URI (Maybe (Either URI
-                                                                                                      ImageFile)))
-                                                                             (Path_ImageFile (Maybe (Either URI
-                                                                                                            ImageFile))))
-          toLens _ = iso id id
-          pathsOf _ _ = [idPath]
-instance IsPath (Maybe (Either URI ImageFile)) ImageFile
-    where type PathType (Maybe (Either URI ImageFile))
-                        ImageFile = Path_Maybe (Path_Either (Path_URI ImageFile)
-                                                            (Path_ImageFile ImageFile))
-          toLens (Path_Just v) = _Just . toLens v
-          pathsOf (Just x) a = map Path_Just (pathsOf (x :: Either URI
-                                                                   ImageFile) a)
-          pathsOf (Nothing) a = []
-instance IsPath (Maybe (Either URI ImageFile)) URI
-    where type PathType (Maybe (Either URI ImageFile))
-                        URI = Path_Maybe (Path_Either (Path_URI URI) (Path_ImageFile URI))
-          toLens (Path_Just v) = _Just . toLens v
-          pathsOf (Just x) a = map Path_Just (pathsOf (x :: Either URI
-                                                                   ImageFile) a)
-          pathsOf (Nothing) a = []
 instance IsPath String String
     where type PathType String String = Path_String String
           toLens _ = iso id id
@@ -2183,34 +1946,6 @@ instance IsPath MaybeReportIntendedUse MaybeReportIntendedUse
                         MaybeReportIntendedUse = Path_MaybeReportIntendedUse MaybeReportIntendedUse
           toLens _ = iso id id
           pathsOf _ _ = [idPath]
-instance IsPath Report (Either URI ImageFile)
-    where type PathType Report
-                        (Either URI ImageFile) = Path_Report (Either URI ImageFile)
-          toLens (Path_Report_View v) = (viewLens :: Lens' Report
-                                                           ReportView) . toLens v
-          pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
-                                                                     ReportView;
-                             [x'] = toListOf (toLens p) x :: [ReportView]}
-                         in map Path_Report_View (pathsOf x' a)
-instance IsPath Report (Map ItemFieldName Markup)
-    where type PathType Report
-                        (Map ItemFieldName Markup) = Path_Report (Map ItemFieldName Markup)
-          toLens (Path_Report_View v) = (viewLens :: Lens' Report
-                                                           ReportView) . toLens v
-          pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
-                                                                     ReportView;
-                             [x'] = toListOf (toLens p) x :: [ReportView]}
-                         in map Path_Report_View (pathsOf x' a)
-instance IsPath Report (Maybe (Either URI ImageFile))
-    where type PathType Report
-                        (Maybe (Either URI ImageFile)) = Path_Report (Maybe (Either URI
-                                                                                    ImageFile))
-          toLens (Path_Report_View v) = (viewLens :: Lens' Report
-                                                           ReportView) . toLens v
-          pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
-                                                                     ReportView;
-                             [x'] = toListOf (toLens p) x :: [ReportView]}
-                         in map Path_Report_View (pathsOf x' a)
 instance IsPath Report String
     where type PathType Report String = Path_Report String
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
@@ -2467,6 +2202,22 @@ instance IsPath Report ReportValueTypeInfo
                                                                      ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
                          in map Path_Report_View (pathsOf x' a)
+instance IsPath Report EUI
+    where type PathType Report EUI = Path_Report EUI
+          toLens (Path_Report_View v) = (viewLens :: Lens' Report
+                                                           ReportView) . toLens v
+          pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
+                                                                     ReportView;
+                             [x'] = toListOf (toLens p) x :: [ReportView]}
+                         in map Path_Report_View (pathsOf x' a)
+instance IsPath Report MEUI
+    where type PathType Report MEUI = Path_Report MEUI
+          toLens (Path_Report_View v) = (viewLens :: Lens' Report
+                                                           ReportView) . toLens v
+          pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
+                                                                     ReportView;
+                             [x'] = toListOf (toLens p) x :: [ReportView]}
+                         in map Path_Report_View (pathsOf x' a)
 instance IsPath Report MaybeImageFile
     where type PathType Report
                         MaybeImageFile = Path_Report MaybeImageFile
@@ -2534,6 +2285,14 @@ instance IsPath Report Item
                                                                      ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
                          in map Path_Report_View (pathsOf x' a)
+instance IsPath Report MIM
+    where type PathType Report MIM = Path_Report MIM
+          toLens (Path_Report_View v) = (viewLens :: Lens' Report
+                                                           ReportView) . toLens v
+          pathsOf x a = let {p = Path_Report_View idPath :: PathType Report
+                                                                     ReportView;
+                             [x'] = toListOf (toLens p) x :: [ReportView]}
+                         in map Path_Report_View (pathsOf x' a)
 instance IsPath Report CIString
     where type PathType Report CIString = Path_Report CIString
           toLens (Path_Report_View v) = (viewLens :: Lens' Report
@@ -2574,29 +2333,6 @@ instance IsPath Report UUID
                                                                      ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
                          in map Path_Report_View (pathsOf x' a)
-instance IsPath ReportElem (Either URI ImageFile)
-    where type PathType ReportElem
-                        (Either URI ImageFile) = Path_ReportElem (Either URI ImageFile)
-          toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
-          pathsOf (ReportItem a1) a = concat [map Path_ReportElem_elemItem (pathsOf (a1 :: Item) a)]
-          pathsOf (ReportParagraph a1) a = concat [[]]
-          pathsOf (ReportUndecided) a = concat []
-instance IsPath ReportElem (Map ItemFieldName Markup)
-    where type PathType ReportElem
-                        (Map ItemFieldName Markup) = Path_ReportElem (Map ItemFieldName
-                                                                          Markup)
-          toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
-          pathsOf (ReportItem a1) a = concat [map Path_ReportElem_elemItem (pathsOf (a1 :: Item) a)]
-          pathsOf (ReportParagraph a1) a = concat [[]]
-          pathsOf (ReportUndecided) a = concat []
-instance IsPath ReportElem (Maybe (Either URI ImageFile))
-    where type PathType ReportElem
-                        (Maybe (Either URI ImageFile)) = Path_ReportElem (Maybe (Either URI
-                                                                                        ImageFile))
-          toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
-          pathsOf (ReportItem a1) a = concat [map Path_ReportElem_elemItem (pathsOf (a1 :: Item) a)]
-          pathsOf (ReportParagraph a1) a = concat [[]]
-          pathsOf (ReportUndecided) a = concat []
 instance IsPath ReportElem String
     where type PathType ReportElem String = Path_ReportElem String
           toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
@@ -2668,6 +2404,18 @@ instance IsPath ReportElem ReportElem
                         ReportElem = Path_ReportElem ReportElem
           toLens _ = iso id id
           pathsOf _ _ = [idPath]
+instance IsPath ReportElem EUI
+    where type PathType ReportElem EUI = Path_ReportElem EUI
+          toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
+          pathsOf (ReportItem a1) a = concat [map Path_ReportElem_elemItem (pathsOf (a1 :: Item) a)]
+          pathsOf (ReportParagraph a1) a = concat [[]]
+          pathsOf (ReportUndecided) a = concat []
+instance IsPath ReportElem MEUI
+    where type PathType ReportElem MEUI = Path_ReportElem MEUI
+          toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
+          pathsOf (ReportItem a1) a = concat [map Path_ReportElem_elemItem (pathsOf (a1 :: Item) a)]
+          pathsOf (ReportParagraph a1) a = concat [[]]
+          pathsOf (ReportUndecided) a = concat []
 instance IsPath ReportElem MaybeImageFile
     where type PathType ReportElem
                         MaybeImageFile = Path_ReportElem MaybeImageFile
@@ -2709,6 +2457,12 @@ instance IsPath ReportElem Item
           pathsOf (ReportItem a1) a = concat [map Path_ReportElem_elemItem (pathsOf (a1 :: Item) a)]
           pathsOf (ReportParagraph a1) a = concat [[]]
           pathsOf (ReportUndecided) a = concat []
+instance IsPath ReportElem MIM
+    where type PathType ReportElem MIM = Path_ReportElem MIM
+          toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
+          pathsOf (ReportItem a1) a = concat [map Path_ReportElem_elemItem (pathsOf (a1 :: Item) a)]
+          pathsOf (ReportParagraph a1) a = concat [[]]
+          pathsOf (ReportUndecided) a = concat []
 instance IsPath ReportElem URI
     where type PathType ReportElem URI = Path_ReportElem URI
           toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
@@ -2722,29 +2476,6 @@ instance IsPath ReportElem Text
           pathsOf (ReportItem a1) a = concat [map Path_ReportElem_elemItem (pathsOf (a1 :: Item) a)]
           pathsOf (ReportParagraph a1) a = concat [map Path_ReportElem_elemText (pathsOf (a1 :: Markup) a)]
           pathsOf (ReportUndecided) a = concat []
-instance IsPath ReportElems (Either URI ImageFile)
-    where type PathType ReportElems
-                        (Either URI ImageFile) = Path_OMap ReportElemID
-                                                           (Path_ReportElem (Either URI ImageFile))
-          toLens (Path_At k v) = lens_omat k . toLens v
-          pathsOf o a = concatMap (\(k,
-                                     v) -> map (Path_At k) (pathsOf (v :: ReportElem) a)) (toPairs o)
-instance IsPath ReportElems (Map ItemFieldName Markup)
-    where type PathType ReportElems
-                        (Map ItemFieldName Markup) = Path_OMap ReportElemID
-                                                               (Path_ReportElem (Map ItemFieldName
-                                                                                     Markup))
-          toLens (Path_At k v) = lens_omat k . toLens v
-          pathsOf o a = concatMap (\(k,
-                                     v) -> map (Path_At k) (pathsOf (v :: ReportElem) a)) (toPairs o)
-instance IsPath ReportElems (Maybe (Either URI ImageFile))
-    where type PathType ReportElems
-                        (Maybe (Either URI ImageFile)) = Path_OMap ReportElemID
-                                                                   (Path_ReportElem (Maybe (Either URI
-                                                                                                   ImageFile)))
-          toLens (Path_At k v) = lens_omat k . toLens v
-          pathsOf o a = concatMap (\(k,
-                                     v) -> map (Path_At k) (pathsOf (v :: ReportElem) a)) (toPairs o)
 instance IsPath ReportElems String
     where type PathType ReportElems String = Path_OMap ReportElemID
                                                        (Path_ReportElem String)
@@ -2816,6 +2547,18 @@ instance IsPath ReportElems ReportElems
                         ReportElems = Path_OMap ReportElemID (Path_ReportElem ReportElems)
           toLens _ = iso id id
           pathsOf _ _ = [idPath]
+instance IsPath ReportElems EUI
+    where type PathType ReportElems EUI = Path_OMap ReportElemID
+                                                    (Path_ReportElem EUI)
+          toLens (Path_At k v) = lens_omat k . toLens v
+          pathsOf o a = concatMap (\(k,
+                                     v) -> map (Path_At k) (pathsOf (v :: ReportElem) a)) (toPairs o)
+instance IsPath ReportElems MEUI
+    where type PathType ReportElems MEUI = Path_OMap ReportElemID
+                                                     (Path_ReportElem MEUI)
+          toLens (Path_At k v) = lens_omat k . toLens v
+          pathsOf o a = concatMap (\(k,
+                                     v) -> map (Path_At k) (pathsOf (v :: ReportElem) a)) (toPairs o)
 instance IsPath ReportElems MaybeImageFile
     where type PathType ReportElems
                         MaybeImageFile = Path_OMap ReportElemID
@@ -2853,6 +2596,12 @@ instance IsPath ReportElems SaneSizeImageSize
 instance IsPath ReportElems Item
     where type PathType ReportElems Item = Path_OMap ReportElemID
                                                      (Path_ReportElem Item)
+          toLens (Path_At k v) = lens_omat k . toLens v
+          pathsOf o a = concatMap (\(k,
+                                     v) -> map (Path_At k) (pathsOf (v :: ReportElem) a)) (toPairs o)
+instance IsPath ReportElems MIM
+    where type PathType ReportElems MIM = Path_OMap ReportElemID
+                                                    (Path_ReportElem MIM)
           toLens (Path_At k v) = lens_omat k . toLens v
           pathsOf o a = concatMap (\(k,
                                      v) -> map (Path_At k) (pathsOf (v :: ReportElem) a)) (toPairs o)
@@ -3007,6 +2756,52 @@ instance IsPath ReportValueTypeInfo Text
                                        a3) a = concat [map Path_ReportValueTypeInfo_reportValueTypeName (pathsOf (a1 :: Markup) a),
                                                        map Path_ReportValueTypeInfo_reportValueTypeDescription (pathsOf (a2 :: Markup) a),
                                                        map Path_ReportValueTypeInfo_reportValueTypeDefinition (pathsOf (a3 :: Markup) a)]
+instance IsPath EUI ImageFile
+    where type PathType EUI
+                        ImageFile = Path_Either (Path_URI ImageFile)
+                                                (Path_ImageFile ImageFile)
+          toLens (Path_Right _) = _Right
+          pathsOf (Left x) a = []
+          pathsOf (Right x) a = map Path_Right (pathsOf (x :: ImageFile) a)
+instance IsPath EUI EUI
+    where type PathType EUI EUI = Path_Either (Path_URI EUI)
+                                              (Path_ImageFile EUI)
+          toLens _ = iso id id
+          pathsOf _ _ = [idPath]
+instance IsPath EUI URI
+    where type PathType EUI URI = Path_Either (Path_URI URI)
+                                              (Path_ImageFile URI)
+          toLens (Path_Left _) = _Left
+          pathsOf (Left x) a = map Path_Left (pathsOf (x :: URI) a)
+          pathsOf (Right x) a = []
+instance IsPath MEUI ImageFile
+    where type PathType MEUI
+                        ImageFile = Path_Maybe (Path_Either (Path_URI ImageFile)
+                                                            (Path_ImageFile ImageFile))
+          toLens (Path_Just v) = _Just . toLens v
+          pathsOf (Just x) a = map Path_Just (pathsOf (x :: Either URI
+                                                                   ImageFile) a)
+          pathsOf (Nothing) a = []
+instance IsPath MEUI EUI
+    where type PathType MEUI
+                        EUI = Path_Maybe (Path_Either (Path_URI EUI) (Path_ImageFile EUI))
+          toLens (Path_Just _) = _Just
+          pathsOf (Just x) a = map Path_Just (pathsOf (x :: Either URI
+                                                                   ImageFile) a)
+          pathsOf (Nothing) a = []
+instance IsPath MEUI MEUI
+    where type PathType MEUI
+                        MEUI = Path_Maybe (Path_Either (Path_URI MEUI)
+                                                       (Path_ImageFile MEUI))
+          toLens _ = iso id id
+          pathsOf _ _ = [idPath]
+instance IsPath MEUI URI
+    where type PathType MEUI
+                        URI = Path_Maybe (Path_Either (Path_URI URI) (Path_ImageFile URI))
+          toLens (Path_Just v) = _Just . toLens v
+          pathsOf (Just x) a = map Path_Just (pathsOf (x :: Either URI
+                                                                   ImageFile) a)
+          pathsOf (Nothing) a = []
 instance IsPath MaybeImageFile String
     where type PathType MaybeImageFile
                         String = Path_MaybeImageFile String
@@ -3030,25 +2825,6 @@ instance IsPath MaybeImageFile MaybeImageFile
                         MaybeImageFile = Path_MaybeImageFile MaybeImageFile
           toLens _ = iso id id
           pathsOf _ _ = [idPath]
-instance IsPath ReportImage (Either URI ImageFile)
-    where type PathType ReportImage
-                        (Either URI ImageFile) = Path_ReportImage (Either URI ImageFile)
-          toLens (Path_ReportImage_View v) = (viewLens :: Lens' ReportImage
-                                                                ReportImageView) . toLens v
-          pathsOf x a = let {p = Path_ReportImage_View idPath :: PathType ReportImage
-                                                                          ReportImageView;
-                             [x'] = toListOf (toLens p) x :: [ReportImageView]}
-                         in map Path_ReportImage_View (pathsOf x' a)
-instance IsPath ReportImage (Maybe (Either URI ImageFile))
-    where type PathType ReportImage
-                        (Maybe (Either URI
-                                       ImageFile)) = Path_ReportImage (Maybe (Either URI ImageFile))
-          toLens (Path_ReportImage_View v) = (viewLens :: Lens' ReportImage
-                                                                ReportImageView) . toLens v
-          pathsOf x a = let {p = Path_ReportImage_View idPath :: PathType ReportImage
-                                                                          ReportImageView;
-                             [x'] = toListOf (toLens p) x :: [ReportImageView]}
-                         in map Path_ReportImage_View (pathsOf x' a)
 instance IsPath ReportImage String
     where type PathType ReportImage String = Path_ReportImage String
           toLens (Path_ReportImage_View v) = (viewLens :: Lens' ReportImage
@@ -3134,6 +2910,22 @@ instance IsPath ReportImage Markup
                                                                           ReportImageView;
                              [x'] = toListOf (toLens p) x :: [ReportImageView]}
                          in map Path_ReportImage_View (pathsOf x' a)
+instance IsPath ReportImage EUI
+    where type PathType ReportImage EUI = Path_ReportImage EUI
+          toLens (Path_ReportImage_View v) = (viewLens :: Lens' ReportImage
+                                                                ReportImageView) . toLens v
+          pathsOf x a = let {p = Path_ReportImage_View idPath :: PathType ReportImage
+                                                                          ReportImageView;
+                             [x'] = toListOf (toLens p) x :: [ReportImageView]}
+                         in map Path_ReportImage_View (pathsOf x' a)
+instance IsPath ReportImage MEUI
+    where type PathType ReportImage MEUI = Path_ReportImage MEUI
+          toLens (Path_ReportImage_View v) = (viewLens :: Lens' ReportImage
+                                                                ReportImageView) . toLens v
+          pathsOf x a = let {p = Path_ReportImage_View idPath :: PathType ReportImage
+                                                                          ReportImageView;
+                             [x'] = toListOf (toLens p) x :: [ReportImageView]}
+                         in map Path_ReportImage_View (pathsOf x' a)
 instance IsPath ReportImage MaybeImageFile
     where type PathType ReportImage
                         MaybeImageFile = Path_ReportImage MaybeImageFile
@@ -3182,21 +2974,6 @@ instance IsPath ReportImage Text
                                                                           ReportImageView;
                              [x'] = toListOf (toLens p) x :: [ReportImageView]}
                          in map Path_ReportImage_View (pathsOf x' a)
-instance IsPath ReportImages (Either URI ImageFile)
-    where type PathType ReportImages
-                        (Either URI ImageFile) = Path_OMap ReportImageID
-                                                           (Path_ReportImage (Either URI ImageFile))
-          toLens (Path_At k v) = lens_omat k . toLens v
-          pathsOf o a = concatMap (\(k,
-                                     v) -> map (Path_At k) (pathsOf (v :: ReportImage) a)) (toPairs o)
-instance IsPath ReportImages (Maybe (Either URI ImageFile))
-    where type PathType ReportImages
-                        (Maybe (Either URI ImageFile)) = Path_OMap ReportImageID
-                                                                   (Path_ReportImage (Maybe (Either URI
-                                                                                                    ImageFile)))
-          toLens (Path_At k v) = lens_omat k . toLens v
-          pathsOf o a = concatMap (\(k,
-                                     v) -> map (Path_At k) (pathsOf (v :: ReportImage) a)) (toPairs o)
 instance IsPath ReportImages String
     where type PathType ReportImages String = Path_OMap ReportImageID
                                                         (Path_ReportImage String)
@@ -3254,6 +3031,18 @@ instance IsPath ReportImages JSONText
 instance IsPath ReportImages Markup
     where type PathType ReportImages Markup = Path_OMap ReportImageID
                                                         (Path_ReportImage Markup)
+          toLens (Path_At k v) = lens_omat k . toLens v
+          pathsOf o a = concatMap (\(k,
+                                     v) -> map (Path_At k) (pathsOf (v :: ReportImage) a)) (toPairs o)
+instance IsPath ReportImages EUI
+    where type PathType ReportImages EUI = Path_OMap ReportImageID
+                                                     (Path_ReportImage EUI)
+          toLens (Path_At k v) = lens_omat k . toLens v
+          pathsOf o a = concatMap (\(k,
+                                     v) -> map (Path_At k) (pathsOf (v :: ReportImage) a)) (toPairs o)
+instance IsPath ReportImages MEUI
+    where type PathType ReportImages MEUI = Path_OMap ReportImageID
+                                                      (Path_ReportImage MEUI)
           toLens (Path_At k v) = lens_omat k . toLens v
           pathsOf o a = concatMap (\(k,
                                      v) -> map (Path_At k) (pathsOf (v :: ReportImage) a)) (toPairs o)
@@ -3326,53 +3115,6 @@ instance IsPath ReadOnlyFilePath ReadOnlyFilePath
                         ReadOnlyFilePath = Path_ReadOnlyFilePath ReadOnlyFilePath
           toLens _ = iso id id
           pathsOf _ _ = [idPath]
-instance IsPath ReportImageView (Either URI ImageFile)
-    where type PathType ReportImageView
-                        (Either URI ImageFile) = Path_ReportImageView (Either URI
-                                                                              ImageFile)
-          toLens (Path_ReportImageView__picOriginal _x) = lens_ReportImageView__picOriginal . toLens _x
-          pathsOf (ReportImageView a1
-                                   a2
-                                   a3
-                                   a4
-                                   a5
-                                   a6
-                                   a7
-                                   a8
-                                   a9) a = concat [[],
-                                                   [],
-                                                   [],
-                                                   map Path_ReportImageView__picOriginal (pathsOf (a4 :: Maybe (Either URI
-                                                                                                                       ImageFile)) a),
-                                                   [],
-                                                   [],
-                                                   [],
-                                                   [],
-                                                   []]
-instance IsPath ReportImageView (Maybe (Either URI ImageFile))
-    where type PathType ReportImageView
-                        (Maybe (Either URI
-                                       ImageFile)) = Path_ReportImageView (Maybe (Either URI
-                                                                                         ImageFile))
-          toLens (Path_ReportImageView__picOriginal _x) = lens_ReportImageView__picOriginal
-          pathsOf (ReportImageView a1
-                                   a2
-                                   a3
-                                   a4
-                                   a5
-                                   a6
-                                   a7
-                                   a8
-                                   a9) a = concat [[],
-                                                   [],
-                                                   [],
-                                                   map Path_ReportImageView__picOriginal (pathsOf (a4 :: Maybe (Either URI
-                                                                                                                       ImageFile)) a),
-                                                   [],
-                                                   [],
-                                                   [],
-                                                   [],
-                                                   []]
 instance IsPath ReportImageView String
     where type PathType ReportImageView
                         String = Path_ReportImageView String
@@ -3595,6 +3337,49 @@ instance IsPath ReportImageView Markup
                                                    [],
                                                    [],
                                                    []]
+instance IsPath ReportImageView EUI
+    where type PathType ReportImageView EUI = Path_ReportImageView EUI
+          toLens (Path_ReportImageView__picOriginal _x) = lens_ReportImageView__picOriginal . toLens _x
+          pathsOf (ReportImageView a1
+                                   a2
+                                   a3
+                                   a4
+                                   a5
+                                   a6
+                                   a7
+                                   a8
+                                   a9) a = concat [[],
+                                                   [],
+                                                   [],
+                                                   map Path_ReportImageView__picOriginal (pathsOf (a4 :: Maybe (Either URI
+                                                                                                                       ImageFile)) a),
+                                                   [],
+                                                   [],
+                                                   [],
+                                                   [],
+                                                   []]
+instance IsPath ReportImageView MEUI
+    where type PathType ReportImageView
+                        MEUI = Path_ReportImageView MEUI
+          toLens (Path_ReportImageView__picOriginal _x) = lens_ReportImageView__picOriginal
+          pathsOf (ReportImageView a1
+                                   a2
+                                   a3
+                                   a4
+                                   a5
+                                   a6
+                                   a7
+                                   a8
+                                   a9) a = concat [[],
+                                                   [],
+                                                   [],
+                                                   map Path_ReportImageView__picOriginal (pathsOf (a4 :: Maybe (Either URI
+                                                                                                                       ImageFile)) a),
+                                                   [],
+                                                   [],
+                                                   [],
+                                                   [],
+                                                   []]
 instance IsPath ReportImageView MaybeImageFile
     where type PathType ReportImageView
                         MaybeImageFile = Path_ReportImageView MaybeImageFile
@@ -3687,287 +3472,6 @@ instance IsPath ReportImageView Text
                                                    [],
                                                    [],
                                                    []]
-instance IsPath ReportView (Either URI ImageFile)
-    where type PathType ReportView
-                        (Either URI ImageFile) = Path_ReportView (Either URI ImageFile)
-          toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
-          pathsOf (ReportView a1
-                              a2
-                              a3
-                              a4
-                              a5
-                              a6
-                              a7
-                              a8
-                              a9
-                              a10
-                              a11
-                              a12
-                              a13
-                              a14
-                              a15
-                              a16
-                              a17
-                              a18
-                              a19
-                              a20
-                              a21
-                              a22
-                              a23
-                              a24
-                              a25
-                              a26
-                              a27
-                              a28
-                              a29
-                              a30
-                              a31
-                              a32
-                              a33
-                              a34
-                              a35
-                              a36
-                              a37
-                              a38
-                              a39
-                              a40
-                              a41
-                              a42
-                              a43
-                              a44
-                              a45) a = concat [[],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               map Path_ReportView__reportBody (pathsOf (a27 :: ReportElems) a),
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               []]
-instance IsPath ReportView (Map ItemFieldName Markup)
-    where type PathType ReportView
-                        (Map ItemFieldName Markup) = Path_ReportView (Map ItemFieldName
-                                                                          Markup)
-          toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
-          pathsOf (ReportView a1
-                              a2
-                              a3
-                              a4
-                              a5
-                              a6
-                              a7
-                              a8
-                              a9
-                              a10
-                              a11
-                              a12
-                              a13
-                              a14
-                              a15
-                              a16
-                              a17
-                              a18
-                              a19
-                              a20
-                              a21
-                              a22
-                              a23
-                              a24
-                              a25
-                              a26
-                              a27
-                              a28
-                              a29
-                              a30
-                              a31
-                              a32
-                              a33
-                              a34
-                              a35
-                              a36
-                              a37
-                              a38
-                              a39
-                              a40
-                              a41
-                              a42
-                              a43
-                              a44
-                              a45) a = concat [[],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               map Path_ReportView__reportBody (pathsOf (a27 :: ReportElems) a),
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               []]
-instance IsPath ReportView (Maybe (Either URI ImageFile))
-    where type PathType ReportView
-                        (Maybe (Either URI ImageFile)) = Path_ReportView (Maybe (Either URI
-                                                                                        ImageFile))
-          toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
-          pathsOf (ReportView a1
-                              a2
-                              a3
-                              a4
-                              a5
-                              a6
-                              a7
-                              a8
-                              a9
-                              a10
-                              a11
-                              a12
-                              a13
-                              a14
-                              a15
-                              a16
-                              a17
-                              a18
-                              a19
-                              a20
-                              a21
-                              a22
-                              a23
-                              a24
-                              a25
-                              a26
-                              a27
-                              a28
-                              a29
-                              a30
-                              a31
-                              a32
-                              a33
-                              a34
-                              a35
-                              a36
-                              a37
-                              a38
-                              a39
-                              a40
-                              a41
-                              a42
-                              a43
-                              a44
-                              a45) a = concat [[],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               map Path_ReportView__reportBody (pathsOf (a27 :: ReportElems) a),
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               [],
-                                               []]
 instance IsPath ReportView String
     where type PathType ReportView String = Path_ReportView String
           toLens (Path_ReportView__reportFolder _x) = lens_ReportView__reportFolder . toLens _x
@@ -6922,6 +6426,190 @@ instance IsPath ReportView ReportValueTypeInfo
                                                [],
                                                [],
                                                []]
+instance IsPath ReportView EUI
+    where type PathType ReportView EUI = Path_ReportView EUI
+          toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
+          pathsOf (ReportView a1
+                              a2
+                              a3
+                              a4
+                              a5
+                              a6
+                              a7
+                              a8
+                              a9
+                              a10
+                              a11
+                              a12
+                              a13
+                              a14
+                              a15
+                              a16
+                              a17
+                              a18
+                              a19
+                              a20
+                              a21
+                              a22
+                              a23
+                              a24
+                              a25
+                              a26
+                              a27
+                              a28
+                              a29
+                              a30
+                              a31
+                              a32
+                              a33
+                              a34
+                              a35
+                              a36
+                              a37
+                              a38
+                              a39
+                              a40
+                              a41
+                              a42
+                              a43
+                              a44
+                              a45) a = concat [[],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               map Path_ReportView__reportBody (pathsOf (a27 :: ReportElems) a),
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               []]
+instance IsPath ReportView MEUI
+    where type PathType ReportView MEUI = Path_ReportView MEUI
+          toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
+          pathsOf (ReportView a1
+                              a2
+                              a3
+                              a4
+                              a5
+                              a6
+                              a7
+                              a8
+                              a9
+                              a10
+                              a11
+                              a12
+                              a13
+                              a14
+                              a15
+                              a16
+                              a17
+                              a18
+                              a19
+                              a20
+                              a21
+                              a22
+                              a23
+                              a24
+                              a25
+                              a26
+                              a27
+                              a28
+                              a29
+                              a30
+                              a31
+                              a32
+                              a33
+                              a34
+                              a35
+                              a36
+                              a37
+                              a38
+                              a39
+                              a40
+                              a41
+                              a42
+                              a43
+                              a44
+                              a45) a = concat [[],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               map Path_ReportView__reportBody (pathsOf (a27 :: ReportElems) a),
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               []]
 instance IsPath ReportView MaybeImageFile
     where type PathType ReportView
                         MaybeImageFile = Path_ReportView MaybeImageFile
@@ -7577,6 +7265,98 @@ instance IsPath ReportView Item
                                                [],
                                                [],
                                                []]
+instance IsPath ReportView MIM
+    where type PathType ReportView MIM = Path_ReportView MIM
+          toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
+          pathsOf (ReportView a1
+                              a2
+                              a3
+                              a4
+                              a5
+                              a6
+                              a7
+                              a8
+                              a9
+                              a10
+                              a11
+                              a12
+                              a13
+                              a14
+                              a15
+                              a16
+                              a17
+                              a18
+                              a19
+                              a20
+                              a21
+                              a22
+                              a23
+                              a24
+                              a25
+                              a26
+                              a27
+                              a28
+                              a29
+                              a30
+                              a31
+                              a32
+                              a33
+                              a34
+                              a35
+                              a36
+                              a37
+                              a38
+                              a39
+                              a40
+                              a41
+                              a42
+                              a43
+                              a44
+                              a45) a = concat [[],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               map Path_ReportView__reportBody (pathsOf (a27 :: ReportElems) a),
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               [],
+                                               []]
 instance IsPath ReportView CIString
     where type PathType ReportView CIString = Path_ReportView CIString
           toLens (Path_ReportView__reportAbbrevs _x) = lens_ReportView__reportAbbrevs . toLens _x
@@ -8129,29 +7909,6 @@ instance IsPath SaneSizeImageSize SaneSizeImageSize
                         SaneSizeImageSize = Path_SaneSizeImageSize SaneSizeImageSize
           toLens _ = iso id id
           pathsOf _ _ = [idPath]
-instance IsPath Item (Either URI ImageFile)
-    where type PathType Item
-                        (Either URI ImageFile) = Path_Item (Either URI ImageFile)
-          toLens (Path_Item_images _x) = lens_Item_images . toLens _x
-          pathsOf (Item a1 a2 a3) a = concat [[],
-                                              [],
-                                              map Path_Item_images (pathsOf (a3 :: ReportImages) a)]
-instance IsPath Item (Map ItemFieldName Markup)
-    where type PathType Item
-                        (Map ItemFieldName Markup) = Path_Item (Map ItemFieldName Markup)
-          toLens (Path_Item_fields _x) = lens_Item_fields
-          pathsOf (Item a1 a2 a3) a = concat [[],
-                                              map Path_Item_fields (pathsOf (a2 :: Map ItemFieldName
-                                                                                       Markup) a),
-                                              []]
-instance IsPath Item (Maybe (Either URI ImageFile))
-    where type PathType Item
-                        (Maybe (Either URI ImageFile)) = Path_Item (Maybe (Either URI
-                                                                                  ImageFile))
-          toLens (Path_Item_images _x) = lens_Item_images . toLens _x
-          pathsOf (Item a1 a2 a3) a = concat [[],
-                                              [],
-                                              map Path_Item_images (pathsOf (a3 :: ReportImages) a)]
 instance IsPath Item String
     where type PathType Item String = Path_Item String
           toLens (Path_Item_images _x) = lens_Item_images . toLens _x
@@ -8208,16 +7965,26 @@ instance IsPath Item JSONText
           pathsOf (Item a1
                         a2
                         a3) a = concat [map Path_Item_itemName (pathsOf (a1 :: Text) a),
-                                        map Path_Item_fields (pathsOf (a2 :: Map ItemFieldName
-                                                                                 Markup) a),
+                                        map Path_Item_fields (pathsOf (a2 :: MIM) a),
                                         map Path_Item_images (pathsOf (a3 :: ReportImages) a)]
 instance IsPath Item Markup
     where type PathType Item Markup = Path_Item Markup
           toLens (Path_Item_fields _x) = lens_Item_fields . toLens _x
           toLens (Path_Item_images _x) = lens_Item_images . toLens _x
           pathsOf (Item a1 a2 a3) a = concat [[],
-                                              map Path_Item_fields (pathsOf (a2 :: Map ItemFieldName
-                                                                                       Markup) a),
+                                              map Path_Item_fields (pathsOf (a2 :: MIM) a),
+                                              map Path_Item_images (pathsOf (a3 :: ReportImages) a)]
+instance IsPath Item EUI
+    where type PathType Item EUI = Path_Item EUI
+          toLens (Path_Item_images _x) = lens_Item_images . toLens _x
+          pathsOf (Item a1 a2 a3) a = concat [[],
+                                              [],
+                                              map Path_Item_images (pathsOf (a3 :: ReportImages) a)]
+instance IsPath Item MEUI
+    where type PathType Item MEUI = Path_Item MEUI
+          toLens (Path_Item_images _x) = lens_Item_images . toLens _x
+          pathsOf (Item a1 a2 a3) a = concat [[],
+                                              [],
                                               map Path_Item_images (pathsOf (a3 :: ReportImages) a)]
 instance IsPath Item MaybeImageFile
     where type PathType Item MaybeImageFile = Path_Item MaybeImageFile
@@ -8255,6 +8022,12 @@ instance IsPath Item Item
     where type PathType Item Item = Path_Item Item
           toLens _ = iso id id
           pathsOf _ _ = [idPath]
+instance IsPath Item MIM
+    where type PathType Item MIM = Path_Item MIM
+          toLens (Path_Item_fields _x) = lens_Item_fields
+          pathsOf (Item a1 a2 a3) a = concat [[],
+                                              map Path_Item_fields (pathsOf (a2 :: MIM) a),
+                                              []]
 instance IsPath Item URI
     where type PathType Item URI = Path_Item URI
           toLens (Path_Item_images _x) = lens_Item_images . toLens _x
@@ -8269,255 +8042,510 @@ instance IsPath Item Text
           pathsOf (Item a1
                         a2
                         a3) a = concat [map Path_Item_itemName (pathsOf (a1 :: Text) a),
-                                        map Path_Item_fields (pathsOf (a2 :: Map ItemFieldName
-                                                                                 Markup) a),
+                                        map Path_Item_fields (pathsOf (a2 :: MIM) a),
                                         map Path_Item_images (pathsOf (a3 :: ReportImages) a)]
-instance IsPath ReportMap (Either URI ImageFile)
-    where type PathType ReportMap
-                        (Either URI ImageFile) = Path_ReportMap (Either URI ImageFile)
-          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
-                                                                                                Report) a)]
-instance IsPath ReportMap (Map ItemFieldName Markup)
-    where type PathType ReportMap
-                        (Map ItemFieldName Markup) = Path_ReportMap (Map ItemFieldName
-                                                                         Markup)
-          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
-                                                                                                Report) a)]
-instance IsPath ReportMap (Map ReportID Report)
-    where type PathType ReportMap
-                        (Map ReportID Report) = Path_ReportMap (Map ReportID Report)
-          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap
-          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
-                                                                                                Report) a)]
-instance IsPath ReportMap (Maybe (Either URI ImageFile))
-    where type PathType ReportMap
-                        (Maybe (Either URI ImageFile)) = Path_ReportMap (Maybe (Either URI
-                                                                                       ImageFile))
-          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
-                                                                                                Report) a)]
+instance IsPath MIM JSONText
+    where type PathType MIM JSONText = Path_Map ItemFieldName
+                                                (Path_Markup JSONText)
+          toLens (Path_Look k v) = mat k . toLens v
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Markup) a)) (toList mp)
+instance IsPath MIM Markup
+    where type PathType MIM Markup = Path_Map ItemFieldName
+                                              (Path_Markup Markup)
+          toLens (Path_Look k _) = mat k
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Markup) a)) (toList mp)
+instance IsPath MIM MIM
+    where type PathType MIM MIM = Path_Map ItemFieldName
+                                           (Path_Markup MIM)
+          toLens _ = iso id id
+          pathsOf _ _ = [idPath]
+instance IsPath MIM Text
+    where type PathType MIM Text = Path_Map ItemFieldName
+                                            (Path_Markup Text)
+          toLens (Path_Look k v) = mat k . toLens v
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Markup) a)) (toList mp)
+instance IsPath MRR String
+    where type PathType MRR String = Path_Map ReportID
+                                              (Path_Report String)
+          toLens (Path_Look k v) = mat k . toLens v
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
+instance IsPath MRR Int64
+    where type PathType MRR Int64 = Path_Map ReportID
+                                             (Path_Report Int64)
+          toLens (Path_Look k v) = mat k . toLens v
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
+instance IsPath MRR Bool
+    where type PathType MRR Bool = Path_Map ReportID (Path_Report Bool)
+          toLens (Path_Look k v) = mat k . toLens v
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
+instance IsPath MRR Double
+    where type PathType MRR Double = Path_Map ReportID
+                                              (Path_Report Double)
+          toLens (Path_Look k v) = mat k . toLens v
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
+instance IsPath MRR Int
+    where type PathType MRR Int = Path_Map ReportID (Path_Report Int)
+          toLens (Path_Look k v) = mat k . toLens v
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
+instance IsPath MRR Dimension
+    where type PathType MRR Dimension = Path_Map ReportID
+                                                 (Path_Report Dimension)
+          toLens (Path_Look k v) = mat k . toLens v
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
+instance IsPath MRR ImageCrop
+    where type PathType MRR ImageCrop = Path_Map ReportID
+                                                 (Path_Report ImageCrop)
+          toLens (Path_Look k v) = mat k . toLens v
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
+instance IsPath MRR ImageSize
+    where type PathType MRR ImageSize = Path_Map ReportID
+                                                 (Path_Report ImageSize)
+          toLens (Path_Look k v) = mat k . toLens v
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
+instance IsPath MRR Units
+    where type PathType MRR Units = Path_Map ReportID
+                                             (Path_Report Units)
+          toLens (Path_Look k v) = mat k . toLens v
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
+instance IsPath MRR ImageFile
+    where type PathType MRR ImageFile = Path_Map ReportID
+                                                 (Path_Report ImageFile)
+          toLens (Path_Look k v) = mat k . toLens v
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
+instance IsPath MRR Integer
+    where type PathType MRR Integer = Path_Map ReportID
+                                               (Path_Report Integer)
+          toLens (Path_Look k v) = mat k . toLens v
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
+instance IsPath MRR JSONText
+    where type PathType MRR JSONText = Path_Map ReportID
+                                                (Path_Report JSONText)
+          toLens (Path_Look k v) = mat k . toLens v
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
+instance IsPath MRR Markup
+    where type PathType MRR Markup = Path_Map ReportID
+                                              (Path_Report Markup)
+          toLens (Path_Look k v) = mat k . toLens v
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
+instance IsPath MRR Permissions
+    where type PathType MRR Permissions = Path_Map ReportID
+                                                   (Path_Report Permissions)
+          toLens (Path_Look k v) = mat k . toLens v
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
+instance IsPath MRR UserIds
+    where type PathType MRR UserIds = Path_Map ReportID
+                                               (Path_Report UserIds)
+          toLens (Path_Look k v) = mat k . toLens v
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
+instance IsPath MRR AbbrevPair
+    where type PathType MRR AbbrevPair = Path_Map ReportID
+                                                  (Path_Report AbbrevPair)
+          toLens (Path_Look k v) = mat k . toLens v
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
+instance IsPath MRR AbbrevPairs
+    where type PathType MRR AbbrevPairs = Path_Map ReportID
+                                                   (Path_Report AbbrevPairs)
+          toLens (Path_Look k v) = mat k . toLens v
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
+instance IsPath MRR Author
+    where type PathType MRR Author = Path_Map ReportID
+                                              (Path_Report Author)
+          toLens (Path_Look k v) = mat k . toLens v
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
+instance IsPath MRR Authors
+    where type PathType MRR Authors = Path_Map ReportID
+                                               (Path_Report Authors)
+          toLens (Path_Look k v) = mat k . toLens v
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
+instance IsPath MRR Branding
+    where type PathType MRR Branding = Path_Map ReportID
+                                                (Path_Report Branding)
+          toLens (Path_Look k v) = mat k . toLens v
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
+instance IsPath MRR MarkupPair
+    where type PathType MRR MarkupPair = Path_Map ReportID
+                                                  (Path_Report MarkupPair)
+          toLens (Path_Look k v) = mat k . toLens v
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
+instance IsPath MRR MarkupPairs
+    where type PathType MRR MarkupPairs = Path_Map ReportID
+                                                   (Path_Report MarkupPairs)
+          toLens (Path_Look k v) = mat k . toLens v
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
+instance IsPath MRR Markups
+    where type PathType MRR Markups = Path_Map ReportID
+                                               (Path_Report Markups)
+          toLens (Path_Look k v) = mat k . toLens v
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
+instance IsPath MRR MaybeReportIntendedUse
+    where type PathType MRR MaybeReportIntendedUse = Path_Map ReportID
+                                                              (Path_Report MaybeReportIntendedUse)
+          toLens (Path_Look k v) = mat k . toLens v
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
+instance IsPath MRR Report
+    where type PathType MRR Report = Path_Map ReportID
+                                              (Path_Report Report)
+          toLens (Path_Look k _) = mat k
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
+instance IsPath MRR ReportElem
+    where type PathType MRR ReportElem = Path_Map ReportID
+                                                  (Path_Report ReportElem)
+          toLens (Path_Look k v) = mat k . toLens v
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
+instance IsPath MRR ReportElems
+    where type PathType MRR ReportElems = Path_Map ReportID
+                                                   (Path_Report ReportElems)
+          toLens (Path_Look k v) = mat k . toLens v
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
+instance IsPath MRR ReportFlags
+    where type PathType MRR ReportFlags = Path_Map ReportID
+                                                   (Path_Report ReportFlags)
+          toLens (Path_Look k v) = mat k . toLens v
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
+instance IsPath MRR ReportStandard
+    where type PathType MRR ReportStandard = Path_Map ReportID
+                                                      (Path_Report ReportStandard)
+          toLens (Path_Look k v) = mat k . toLens v
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
+instance IsPath MRR ReportStatus
+    where type PathType MRR ReportStatus = Path_Map ReportID
+                                                    (Path_Report ReportStatus)
+          toLens (Path_Look k v) = mat k . toLens v
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
+instance IsPath MRR ReportValueApproachInfo
+    where type PathType MRR ReportValueApproachInfo = Path_Map ReportID
+                                                               (Path_Report ReportValueApproachInfo)
+          toLens (Path_Look k v) = mat k . toLens v
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
+instance IsPath MRR ReportValueTypeInfo
+    where type PathType MRR ReportValueTypeInfo = Path_Map ReportID
+                                                           (Path_Report ReportValueTypeInfo)
+          toLens (Path_Look k v) = mat k . toLens v
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
+instance IsPath MRR EUI
+    where type PathType MRR EUI = Path_Map ReportID (Path_Report EUI)
+          toLens (Path_Look k v) = mat k . toLens v
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
+instance IsPath MRR MEUI
+    where type PathType MRR MEUI = Path_Map ReportID (Path_Report MEUI)
+          toLens (Path_Look k v) = mat k . toLens v
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
+instance IsPath MRR MaybeImageFile
+    where type PathType MRR MaybeImageFile = Path_Map ReportID
+                                                      (Path_Report MaybeImageFile)
+          toLens (Path_Look k v) = mat k . toLens v
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
+instance IsPath MRR ReportImage
+    where type PathType MRR ReportImage = Path_Map ReportID
+                                                   (Path_Report ReportImage)
+          toLens (Path_Look k v) = mat k . toLens v
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
+instance IsPath MRR ReportImages
+    where type PathType MRR ReportImages = Path_Map ReportID
+                                                    (Path_Report ReportImages)
+          toLens (Path_Look k v) = mat k . toLens v
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
+instance IsPath MRR ReadOnlyFilePath
+    where type PathType MRR ReadOnlyFilePath = Path_Map ReportID
+                                                        (Path_Report ReadOnlyFilePath)
+          toLens (Path_Look k v) = mat k . toLens v
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
+instance IsPath MRR ReportImageView
+    where type PathType MRR ReportImageView = Path_Map ReportID
+                                                       (Path_Report ReportImageView)
+          toLens (Path_Look k v) = mat k . toLens v
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
+instance IsPath MRR ReportView
+    where type PathType MRR ReportView = Path_Map ReportID
+                                                  (Path_Report ReportView)
+          toLens (Path_Look k v) = mat k . toLens v
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
+instance IsPath MRR SaneSizeImageSize
+    where type PathType MRR SaneSizeImageSize = Path_Map ReportID
+                                                         (Path_Report SaneSizeImageSize)
+          toLens (Path_Look k v) = mat k . toLens v
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
+instance IsPath MRR Item
+    where type PathType MRR Item = Path_Map ReportID (Path_Report Item)
+          toLens (Path_Look k v) = mat k . toLens v
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
+instance IsPath MRR MIM
+    where type PathType MRR MIM = Path_Map ReportID (Path_Report MIM)
+          toLens (Path_Look k v) = mat k . toLens v
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
+instance IsPath MRR MRR
+    where type PathType MRR MRR = Path_Map ReportID (Path_Report MRR)
+          toLens _ = iso id id
+          pathsOf _ _ = [idPath]
+instance IsPath MRR CIString
+    where type PathType MRR CIString = Path_Map ReportID
+                                                (Path_Report CIString)
+          toLens (Path_Look k v) = mat k . toLens v
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
+instance IsPath MRR URI
+    where type PathType MRR URI = Path_Map ReportID (Path_Report URI)
+          toLens (Path_Look k v) = mat k . toLens v
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
+instance IsPath MRR Text
+    where type PathType MRR Text = Path_Map ReportID (Path_Report Text)
+          toLens (Path_Look k v) = mat k . toLens v
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
+instance IsPath MRR UserId
+    where type PathType MRR UserId = Path_Map ReportID
+                                              (Path_Report UserId)
+          toLens (Path_Look k v) = mat k . toLens v
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
+instance IsPath MRR UUID
+    where type PathType MRR UUID = Path_Map ReportID (Path_Report UUID)
+          toLens (Path_Look k v) = mat k . toLens v
+          pathsOf mp a = concatMap (\(k,
+                                      v) -> map (Path_Look k) (pathsOf (v :: Report) a)) (toList mp)
 instance IsPath ReportMap String
     where type PathType ReportMap String = Path_ReportMap String
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
-                                                                                                Report) a)]
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: MRR) a)]
 instance IsPath ReportMap Int64
     where type PathType ReportMap Int64 = Path_ReportMap Int64
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
-                                                                                                Report) a)]
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: MRR) a)]
 instance IsPath ReportMap Bool
     where type PathType ReportMap Bool = Path_ReportMap Bool
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
-                                                                                                Report) a)]
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: MRR) a)]
 instance IsPath ReportMap Double
     where type PathType ReportMap Double = Path_ReportMap Double
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
-                                                                                                Report) a)]
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: MRR) a)]
 instance IsPath ReportMap Int
     where type PathType ReportMap Int = Path_ReportMap Int
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
-                                                                                                Report) a)]
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: MRR) a)]
 instance IsPath ReportMap Dimension
     where type PathType ReportMap Dimension = Path_ReportMap Dimension
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
-                                                                                                Report) a)]
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: MRR) a)]
 instance IsPath ReportMap ImageCrop
     where type PathType ReportMap ImageCrop = Path_ReportMap ImageCrop
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
-                                                                                                Report) a)]
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: MRR) a)]
 instance IsPath ReportMap ImageSize
     where type PathType ReportMap ImageSize = Path_ReportMap ImageSize
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
-                                                                                                Report) a)]
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: MRR) a)]
 instance IsPath ReportMap Units
     where type PathType ReportMap Units = Path_ReportMap Units
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
-                                                                                                Report) a)]
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: MRR) a)]
 instance IsPath ReportMap ImageFile
     where type PathType ReportMap ImageFile = Path_ReportMap ImageFile
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
-                                                                                                Report) a)]
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: MRR) a)]
 instance IsPath ReportMap Integer
     where type PathType ReportMap Integer = Path_ReportMap Integer
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
-                                                                                                Report) a)]
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: MRR) a)]
 instance IsPath ReportMap JSONText
     where type PathType ReportMap JSONText = Path_ReportMap JSONText
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
-                                                                                                Report) a)]
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: MRR) a)]
 instance IsPath ReportMap Markup
     where type PathType ReportMap Markup = Path_ReportMap Markup
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
-                                                                                                Report) a)]
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: MRR) a)]
 instance IsPath ReportMap Permissions
     where type PathType ReportMap
                         Permissions = Path_ReportMap Permissions
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
-                                                                                                Report) a)]
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: MRR) a)]
 instance IsPath ReportMap UserIds
     where type PathType ReportMap UserIds = Path_ReportMap UserIds
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
-                                                                                                Report) a)]
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: MRR) a)]
 instance IsPath ReportMap AbbrevPair
     where type PathType ReportMap
                         AbbrevPair = Path_ReportMap AbbrevPair
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
-                                                                                                Report) a)]
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: MRR) a)]
 instance IsPath ReportMap AbbrevPairs
     where type PathType ReportMap
                         AbbrevPairs = Path_ReportMap AbbrevPairs
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
-                                                                                                Report) a)]
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: MRR) a)]
 instance IsPath ReportMap Author
     where type PathType ReportMap Author = Path_ReportMap Author
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
-                                                                                                Report) a)]
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: MRR) a)]
 instance IsPath ReportMap Authors
     where type PathType ReportMap Authors = Path_ReportMap Authors
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
-                                                                                                Report) a)]
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: MRR) a)]
 instance IsPath ReportMap Branding
     where type PathType ReportMap Branding = Path_ReportMap Branding
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
-                                                                                                Report) a)]
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: MRR) a)]
 instance IsPath ReportMap MarkupPair
     where type PathType ReportMap
                         MarkupPair = Path_ReportMap MarkupPair
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
-                                                                                                Report) a)]
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: MRR) a)]
 instance IsPath ReportMap MarkupPairs
     where type PathType ReportMap
                         MarkupPairs = Path_ReportMap MarkupPairs
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
-                                                                                                Report) a)]
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: MRR) a)]
 instance IsPath ReportMap Markups
     where type PathType ReportMap Markups = Path_ReportMap Markups
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
-                                                                                                Report) a)]
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: MRR) a)]
 instance IsPath ReportMap MaybeReportIntendedUse
     where type PathType ReportMap
                         MaybeReportIntendedUse = Path_ReportMap MaybeReportIntendedUse
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
-                                                                                                Report) a)]
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: MRR) a)]
 instance IsPath ReportMap Report
     where type PathType ReportMap Report = Path_ReportMap Report
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
-                                                                                                Report) a)]
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: MRR) a)]
 instance IsPath ReportMap ReportElem
     where type PathType ReportMap
                         ReportElem = Path_ReportMap ReportElem
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
-                                                                                                Report) a)]
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: MRR) a)]
 instance IsPath ReportMap ReportElems
     where type PathType ReportMap
                         ReportElems = Path_ReportMap ReportElems
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
-                                                                                                Report) a)]
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: MRR) a)]
 instance IsPath ReportMap ReportFlags
     where type PathType ReportMap
                         ReportFlags = Path_ReportMap ReportFlags
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
-                                                                                                Report) a)]
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: MRR) a)]
 instance IsPath ReportMap ReportStandard
     where type PathType ReportMap
                         ReportStandard = Path_ReportMap ReportStandard
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
-                                                                                                Report) a)]
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: MRR) a)]
 instance IsPath ReportMap ReportStatus
     where type PathType ReportMap
                         ReportStatus = Path_ReportMap ReportStatus
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
-                                                                                                Report) a)]
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: MRR) a)]
 instance IsPath ReportMap ReportValueApproachInfo
     where type PathType ReportMap
                         ReportValueApproachInfo = Path_ReportMap ReportValueApproachInfo
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
-                                                                                                Report) a)]
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: MRR) a)]
 instance IsPath ReportMap ReportValueTypeInfo
     where type PathType ReportMap
                         ReportValueTypeInfo = Path_ReportMap ReportValueTypeInfo
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
-                                                                                                Report) a)]
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: MRR) a)]
+instance IsPath ReportMap EUI
+    where type PathType ReportMap EUI = Path_ReportMap EUI
+          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: MRR) a)]
+instance IsPath ReportMap MEUI
+    where type PathType ReportMap MEUI = Path_ReportMap MEUI
+          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: MRR) a)]
 instance IsPath ReportMap MaybeImageFile
     where type PathType ReportMap
                         MaybeImageFile = Path_ReportMap MaybeImageFile
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
-                                                                                                Report) a)]
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: MRR) a)]
 instance IsPath ReportMap ReportImage
     where type PathType ReportMap
                         ReportImage = Path_ReportMap ReportImage
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
-                                                                                                Report) a)]
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: MRR) a)]
 instance IsPath ReportMap ReportImages
     where type PathType ReportMap
                         ReportImages = Path_ReportMap ReportImages
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
-                                                                                                Report) a)]
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: MRR) a)]
 instance IsPath ReportMap ReadOnlyFilePath
     where type PathType ReportMap
                         ReadOnlyFilePath = Path_ReportMap ReadOnlyFilePath
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
-                                                                                                Report) a)]
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: MRR) a)]
 instance IsPath ReportMap ReportImageView
     where type PathType ReportMap
                         ReportImageView = Path_ReportMap ReportImageView
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
-                                                                                                Report) a)]
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: MRR) a)]
 instance IsPath ReportMap ReportView
     where type PathType ReportMap
                         ReportView = Path_ReportMap ReportView
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
-                                                                                                Report) a)]
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: MRR) a)]
 instance IsPath ReportMap SaneSizeImageSize
     where type PathType ReportMap
                         SaneSizeImageSize = Path_ReportMap SaneSizeImageSize
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
-                                                                                                Report) a)]
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: MRR) a)]
 instance IsPath ReportMap Item
     where type PathType ReportMap Item = Path_ReportMap Item
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
-                                                                                                Report) a)]
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: MRR) a)]
+instance IsPath ReportMap MIM
+    where type PathType ReportMap MIM = Path_ReportMap MIM
+          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: MRR) a)]
+instance IsPath ReportMap MRR
+    where type PathType ReportMap MRR = Path_ReportMap MRR
+          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: MRR) a)]
 instance IsPath ReportMap ReportMap
     where type PathType ReportMap ReportMap = Path_ReportMap ReportMap
           toLens _ = iso id id
@@ -8525,28 +8553,23 @@ instance IsPath ReportMap ReportMap
 instance IsPath ReportMap CIString
     where type PathType ReportMap CIString = Path_ReportMap CIString
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
-                                                                                                Report) a)]
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: MRR) a)]
 instance IsPath ReportMap URI
     where type PathType ReportMap URI = Path_ReportMap URI
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
-                                                                                                Report) a)]
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: MRR) a)]
 instance IsPath ReportMap Text
     where type PathType ReportMap Text = Path_ReportMap Text
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
-                                                                                                Report) a)]
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: MRR) a)]
 instance IsPath ReportMap UserId
     where type PathType ReportMap UserId = Path_ReportMap UserId
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
-                                                                                                Report) a)]
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: MRR) a)]
 instance IsPath ReportMap UUID
     where type PathType ReportMap UUID = Path_ReportMap UUID
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: Map ReportID
-                                                                                                Report) a)]
+          pathsOf (ReportMap a1) a = concat [map Path_ReportMap_unReportMap (pathsOf (a1 :: MRR) a)]
 instance IsPath CIString JSONText
     where type PathType CIString JSONText = Path_CIString JSONText
           toLens (Path_CIString_View v) = (viewLens :: Lens' CIString
@@ -13045,209 +13068,455 @@ instance HasText Text
     where lens_text = id
 instance HasUnits Units
     where lens_units = id
+instance IsPathNode (Either URI ImageFile)
+    where type PVType (Either URI ImageFile) = PV_EUI
+          pvNodes x = case pathsOf x (undefined :: Proxy ImageFile) :: [Path_EUI ImageFile] of
+                          [p@(Path_Right q)] -> let [y] = toListOf (toLens p) x :: [ImageFile]
+                                                 in [Node (PV_EUI_ImageFile p y) (forestMap (\pv -> case pv of
+                                                                                                        PV_ImageFile_ImageFile p
+                                                                                                                               x -> PV_EUI_ImageFile ((Path_Right :: Path_ImageFile ImageFile ->
+                                                                                                                                                                     Path_EUI ImageFile) p) x) (pvNodes y :: Forest PV_ImageFile))]
+                          [] -> [] :: [Tree (PVType (Either URI ImageFile))]
+instance IsPathNode (Map ItemFieldName Markup)
+    where type PVType (Map ItemFieldName Markup) = PV_MIM
+          pvNodes x = let paths = pathsOf x (undefined :: Proxy Markup) :: [Path_MIM Markup]
+                       in map (\path -> case path of
+                                            p@(Path_Look k
+                                                         _) -> let [y] = toListOf (toLens p) x :: [Markup]
+                                                                in Node (PV_MIM_Markup p y) (forestMap (\pv -> case pv of
+                                                                                                                   PV_Markup_JSONText p
+                                                                                                                                      x -> PV_MIM_JSONText ((Path_Look k :: Path_Markup JSONText ->
+                                                                                                                                                                            Path_MIM JSONText) p) x
+                                                                                                                   PV_Markup_Markup p
+                                                                                                                                    x -> PV_MIM_Markup ((Path_Look k :: Path_Markup Markup ->
+                                                                                                                                                                        Path_MIM Markup) p) x
+                                                                                                                   PV_Markup_Text p
+                                                                                                                                  x -> PV_MIM_Text ((Path_Look k :: Path_Markup Text ->
+                                                                                                                                                                    Path_MIM Text) p) x) (pvNodes y :: Forest PV_Markup))
+                                            _ -> error ("doPVNodesOfMap: " ++ show path)) paths :: [Tree (PVType (Map ItemFieldName
+                                                                                                                      Markup))]
+instance IsPathNode (Map ReportID Report)
+    where type PVType (Map ReportID Report) = PV_MRR
+          pvNodes x = let paths = pathsOf x (undefined :: Proxy Report) :: [Path_MRR Report]
+                       in map (\path -> case path of
+                                            p@(Path_Look k
+                                                         _) -> let [y] = toListOf (toLens p) x :: [Report]
+                                                                in Node (PV_MRR_Report p y) (forestMap (\pv -> case pv of
+                                                                                                                   PV_Report_String p
+                                                                                                                                    x -> PV_MRR_String ((Path_Look k :: Path_Report ([Char]) ->
+                                                                                                                                                                        Path_MRR ([Char])) p) x
+                                                                                                                   PV_Report_Int64 p
+                                                                                                                                   x -> PV_MRR_Int64 ((Path_Look k :: Path_Report Int64 ->
+                                                                                                                                                                      Path_MRR Int64) p) x
+                                                                                                                   PV_Report_Int p
+                                                                                                                                 x -> PV_MRR_Int ((Path_Look k :: Path_Report Int ->
+                                                                                                                                                                  Path_MRR Int) p) x
+                                                                                                                   PV_Report_Bool p
+                                                                                                                                  x -> PV_MRR_Bool ((Path_Look k :: Path_Report Bool ->
+                                                                                                                                                                    Path_MRR Bool) p) x
+                                                                                                                   PV_Report_Double p
+                                                                                                                                    x -> PV_MRR_Double ((Path_Look k :: Path_Report Double ->
+                                                                                                                                                                        Path_MRR Double) p) x
+                                                                                                                   PV_Report_Dimension p
+                                                                                                                                       x -> PV_MRR_Dimension ((Path_Look k :: Path_Report Dimension ->
+                                                                                                                                                                              Path_MRR Dimension) p) x
+                                                                                                                   PV_Report_ImageCrop p
+                                                                                                                                       x -> PV_MRR_ImageCrop ((Path_Look k :: Path_Report ImageCrop ->
+                                                                                                                                                                              Path_MRR ImageCrop) p) x
+                                                                                                                   PV_Report_ImageSize p
+                                                                                                                                       x -> PV_MRR_ImageSize ((Path_Look k :: Path_Report ImageSize ->
+                                                                                                                                                                              Path_MRR ImageSize) p) x
+                                                                                                                   PV_Report_Units p
+                                                                                                                                   x -> PV_MRR_Units ((Path_Look k :: Path_Report Units ->
+                                                                                                                                                                      Path_MRR Units) p) x
+                                                                                                                   PV_Report_ImageFile p
+                                                                                                                                       x -> PV_MRR_ImageFile ((Path_Look k :: Path_Report ImageFile ->
+                                                                                                                                                                              Path_MRR ImageFile) p) x
+                                                                                                                   PV_Report_Integer p
+                                                                                                                                     x -> PV_MRR_Integer ((Path_Look k :: Path_Report Integer ->
+                                                                                                                                                                          Path_MRR Integer) p) x
+                                                                                                                   PV_Report_JSONText p
+                                                                                                                                      x -> PV_MRR_JSONText ((Path_Look k :: Path_Report JSONText ->
+                                                                                                                                                                            Path_MRR JSONText) p) x
+                                                                                                                   PV_Report_Markup p
+                                                                                                                                    x -> PV_MRR_Markup ((Path_Look k :: Path_Report Markup ->
+                                                                                                                                                                        Path_MRR Markup) p) x
+                                                                                                                   PV_Report_Permissions p
+                                                                                                                                         x -> PV_MRR_Permissions ((Path_Look k :: Path_Report Permissions ->
+                                                                                                                                                                                  Path_MRR Permissions) p) x
+                                                                                                                   PV_Report_UserIds p
+                                                                                                                                     x -> PV_MRR_UserIds ((Path_Look k :: Path_Report ([UserId]) ->
+                                                                                                                                                                          Path_MRR ([UserId])) p) x
+                                                                                                                   PV_Report_AbbrevPair p
+                                                                                                                                        x -> PV_MRR_AbbrevPair ((Path_Look k :: Path_Report ((CIString,
+                                                                                                                                                                                              Markup)) ->
+                                                                                                                                                                                Path_MRR ((CIString,
+                                                                                                                                                                                           Markup))) p) x
+                                                                                                                   PV_Report_AbbrevPairs p
+                                                                                                                                         x -> PV_MRR_AbbrevPairs ((Path_Look k :: Path_Report (Order AbbrevPairID
+                                                                                                                                                                                                     ((CIString,
+                                                                                                                                                                                                       Markup))) ->
+                                                                                                                                                                                  Path_MRR (Order AbbrevPairID
+                                                                                                                                                                                                  ((CIString,
+                                                                                                                                                                                                    Markup)))) p) x
+                                                                                                                   PV_Report_Author p
+                                                                                                                                    x -> PV_MRR_Author ((Path_Look k :: Path_Report Author ->
+                                                                                                                                                                        Path_MRR Author) p) x
+                                                                                                                   PV_Report_Authors p
+                                                                                                                                     x -> PV_MRR_Authors ((Path_Look k :: Path_Report (Order AuthorID
+                                                                                                                                                                                             Author) ->
+                                                                                                                                                                          Path_MRR (Order AuthorID
+                                                                                                                                                                                          Author)) p) x
+                                                                                                                   PV_Report_Branding p
+                                                                                                                                      x -> PV_MRR_Branding ((Path_Look k :: Path_Report Branding ->
+                                                                                                                                                                            Path_MRR Branding) p) x
+                                                                                                                   PV_Report_MarkupPair p
+                                                                                                                                        x -> PV_MRR_MarkupPair ((Path_Look k :: Path_Report ((Markup,
+                                                                                                                                                                                              Markup)) ->
+                                                                                                                                                                                Path_MRR ((Markup,
+                                                                                                                                                                                           Markup))) p) x
+                                                                                                                   PV_Report_MarkupPairs p
+                                                                                                                                         x -> PV_MRR_MarkupPairs ((Path_Look k :: Path_Report (Order MarkupPairID
+                                                                                                                                                                                                     ((Markup,
+                                                                                                                                                                                                       Markup))) ->
+                                                                                                                                                                                  Path_MRR (Order MarkupPairID
+                                                                                                                                                                                                  ((Markup,
+                                                                                                                                                                                                    Markup)))) p) x
+                                                                                                                   PV_Report_Markups p
+                                                                                                                                     x -> PV_MRR_Markups ((Path_Look k :: Path_Report (Order MarkupID
+                                                                                                                                                                                             Markup) ->
+                                                                                                                                                                          Path_MRR (Order MarkupID
+                                                                                                                                                                                          Markup)) p) x
+                                                                                                                   PV_Report_MaybeReportIntendedUse p
+                                                                                                                                                    x -> PV_MRR_MaybeReportIntendedUse ((Path_Look k :: Path_Report (Maybe ReportIntendedUse) ->
+                                                                                                                                                                                                        Path_MRR (Maybe ReportIntendedUse)) p) x
+                                                                                                                   PV_Report_Report p
+                                                                                                                                    x -> PV_MRR_Report ((Path_Look k :: Path_Report Report ->
+                                                                                                                                                                        Path_MRR Report) p) x
+                                                                                                                   PV_Report_ReportElem p
+                                                                                                                                        x -> PV_MRR_ReportElem ((Path_Look k :: Path_Report ReportElem ->
+                                                                                                                                                                                Path_MRR ReportElem) p) x
+                                                                                                                   PV_Report_ReportElems p
+                                                                                                                                         x -> PV_MRR_ReportElems ((Path_Look k :: Path_Report (Order ReportElemID
+                                                                                                                                                                                                     ReportElem) ->
+                                                                                                                                                                                  Path_MRR (Order ReportElemID
+                                                                                                                                                                                                  ReportElem)) p) x
+                                                                                                                   PV_Report_ReportFlags p
+                                                                                                                                         x -> PV_MRR_ReportFlags ((Path_Look k :: Path_Report ReportFlags ->
+                                                                                                                                                                                  Path_MRR ReportFlags) p) x
+                                                                                                                   PV_Report_ReportStandard p
+                                                                                                                                            x -> PV_MRR_ReportStandard ((Path_Look k :: Path_Report ReportStandard ->
+                                                                                                                                                                                        Path_MRR ReportStandard) p) x
+                                                                                                                   PV_Report_ReportStatus p
+                                                                                                                                          x -> PV_MRR_ReportStatus ((Path_Look k :: Path_Report ReportStatus ->
+                                                                                                                                                                                    Path_MRR ReportStatus) p) x
+                                                                                                                   PV_Report_ReportValueApproachInfo p
+                                                                                                                                                     x -> PV_MRR_ReportValueApproachInfo ((Path_Look k :: Path_Report ReportValueApproachInfo ->
+                                                                                                                                                                                                          Path_MRR ReportValueApproachInfo) p) x
+                                                                                                                   PV_Report_ReportValueTypeInfo p
+                                                                                                                                                 x -> PV_MRR_ReportValueTypeInfo ((Path_Look k :: Path_Report ReportValueTypeInfo ->
+                                                                                                                                                                                                  Path_MRR ReportValueTypeInfo) p) x
+                                                                                                                   PV_Report_EUI p
+                                                                                                                                 x -> PV_MRR_EUI ((Path_Look k :: Path_Report (Either URI
+                                                                                                                                                                                      ImageFile) ->
+                                                                                                                                                                  Path_MRR (Either URI
+                                                                                                                                                                                   ImageFile)) p) x
+                                                                                                                   PV_Report_MEUI p
+                                                                                                                                  x -> PV_MRR_MEUI ((Path_Look k :: Path_Report (Maybe (Either URI
+                                                                                                                                                                                               ImageFile)) ->
+                                                                                                                                                                    Path_MRR (Maybe (Either URI
+                                                                                                                                                                                            ImageFile))) p) x
+                                                                                                                   PV_Report_MaybeImageFile p
+                                                                                                                                            x -> PV_MRR_MaybeImageFile ((Path_Look k :: Path_Report (Maybe ImageFile) ->
+                                                                                                                                                                                        Path_MRR (Maybe ImageFile)) p) x
+                                                                                                                   PV_Report_ReportImage p
+                                                                                                                                         x -> PV_MRR_ReportImage ((Path_Look k :: Path_Report ReportImage ->
+                                                                                                                                                                                  Path_MRR ReportImage) p) x
+                                                                                                                   PV_Report_ReportImages p
+                                                                                                                                          x -> PV_MRR_ReportImages ((Path_Look k :: Path_Report (Order ReportImageID
+                                                                                                                                                                                                       ReportImage) ->
+                                                                                                                                                                                    Path_MRR (Order ReportImageID
+                                                                                                                                                                                                    ReportImage)) p) x
+                                                                                                                   PV_Report_ReadOnlyFilePath p
+                                                                                                                                              x -> PV_MRR_ReadOnlyFilePath ((Path_Look k :: Path_Report (ReadOnly ([Char])) ->
+                                                                                                                                                                                            Path_MRR (ReadOnly ([Char]))) p) x
+                                                                                                                   PV_Report_ReportImageView p
+                                                                                                                                             x -> PV_MRR_ReportImageView ((Path_Look k :: Path_Report ReportImageView ->
+                                                                                                                                                                                          Path_MRR ReportImageView) p) x
+                                                                                                                   PV_Report_ReportView p
+                                                                                                                                        x -> PV_MRR_ReportView ((Path_Look k :: Path_Report ReportView ->
+                                                                                                                                                                                Path_MRR ReportView) p) x
+                                                                                                                   PV_Report_SaneSizeImageSize p
+                                                                                                                                               x -> PV_MRR_SaneSizeImageSize ((Path_Look k :: Path_Report (SaneSize ImageSize) ->
+                                                                                                                                                                                              Path_MRR (SaneSize ImageSize)) p) x
+                                                                                                                   PV_Report_Item p
+                                                                                                                                  x -> PV_MRR_Item ((Path_Look k :: Path_Report Item ->
+                                                                                                                                                                    Path_MRR Item) p) x
+                                                                                                                   PV_Report_MIM p
+                                                                                                                                 x -> PV_MRR_MIM ((Path_Look k :: Path_Report (Map ItemFieldName
+                                                                                                                                                                                   Markup) ->
+                                                                                                                                                                  Path_MRR (Map ItemFieldName
+                                                                                                                                                                                Markup)) p) x
+                                                                                                                   PV_Report_CIString p
+                                                                                                                                      x -> PV_MRR_CIString ((Path_Look k :: Path_Report CIString ->
+                                                                                                                                                                            Path_MRR CIString) p) x
+                                                                                                                   PV_Report_URI p
+                                                                                                                                 x -> PV_MRR_URI ((Path_Look k :: Path_Report URI ->
+                                                                                                                                                                  Path_MRR URI) p) x
+                                                                                                                   PV_Report_Text p
+                                                                                                                                  x -> PV_MRR_Text ((Path_Look k :: Path_Report Text ->
+                                                                                                                                                                    Path_MRR Text) p) x
+                                                                                                                   PV_Report_UserId p
+                                                                                                                                    x -> PV_MRR_UserId ((Path_Look k :: Path_Report UserId ->
+                                                                                                                                                                        Path_MRR UserId) p) x
+                                                                                                                   PV_Report_UUID p
+                                                                                                                                  x -> PV_MRR_UUID ((Path_Look k :: Path_Report UUID ->
+                                                                                                                                                                    Path_MRR UUID) p) x) (pvNodes y :: Forest PV_Report))
+                                            _ -> error ("doPVNodesOfMap: " ++ show path)) paths :: [Tree (PVType (Map ReportID
+                                                                                                                      Report))]
 instance IsPathNode (Order AbbrevPairID ((CIString, Markup)))
     where type PVType (Order AbbrevPairID
                              ((CIString, Markup))) = PV_AbbrevPairs
-          pvNodes x = case pathsOf x (undefined :: Proxy AbbrevPair) :: [Path_AbbrevPairs AbbrevPair] of
-                          [p@(Path_At k
-                                      q)] -> let [y] = toListOf (toLens p) x :: [AbbrevPair]
-                                              in [Node (PV_AbbrevPairs_AbbrevPair p y) (forestMap (\pv -> case pv of
-                                                                                                              PV_AbbrevPair_JSONText p
-                                                                                                                                     x -> PV_AbbrevPairs_JSONText ((Path_At k :: Path_AbbrevPair JSONText ->
-                                                                                                                                                                                 Path_AbbrevPairs JSONText) p) x
-                                                                                                              PV_AbbrevPair_Markup p
-                                                                                                                                   x -> PV_AbbrevPairs_Markup ((Path_At k :: Path_AbbrevPair Markup ->
-                                                                                                                                                                             Path_AbbrevPairs Markup) p) x
-                                                                                                              PV_AbbrevPair_AbbrevPair p
-                                                                                                                                       x -> PV_AbbrevPairs_AbbrevPair ((Path_At k :: Path_AbbrevPair ((CIString,
-                                                                                                                                                                                                       Markup)) ->
-                                                                                                                                                                                     Path_AbbrevPairs ((CIString,
-                                                                                                                                                                                                        Markup))) p) x
-                                                                                                              PV_AbbrevPair_CIString p
-                                                                                                                                     x -> PV_AbbrevPairs_CIString ((Path_At k :: Path_AbbrevPair CIString ->
-                                                                                                                                                                                 Path_AbbrevPairs CIString) p) x
-                                                                                                              PV_AbbrevPair_Text p
-                                                                                                                                 x -> PV_AbbrevPairs_Text ((Path_At k :: Path_AbbrevPair Text ->
-                                                                                                                                                                         Path_AbbrevPairs Text) p) x) (pvNodes y :: Forest PV_AbbrevPair))]
-                          _ -> [] :: [Tree (PVType (Order AbbrevPairID
-                                                          ((CIString, Markup))))]
+          pvNodes x = let paths = pathsOf x (undefined :: Proxy AbbrevPair) :: [Path_AbbrevPairs AbbrevPair]
+                       in map (\path -> case path of
+                                            p@(Path_At k
+                                                       _) -> let [y] = toListOf (toLens p) x :: [AbbrevPair]
+                                                              in Node (PV_AbbrevPairs_AbbrevPair p y) (forestMap (\pv -> case pv of
+                                                                                                                             PV_AbbrevPair_JSONText p
+                                                                                                                                                    x -> PV_AbbrevPairs_JSONText ((Path_At k :: Path_AbbrevPair JSONText ->
+                                                                                                                                                                                                Path_AbbrevPairs JSONText) p) x
+                                                                                                                             PV_AbbrevPair_Markup p
+                                                                                                                                                  x -> PV_AbbrevPairs_Markup ((Path_At k :: Path_AbbrevPair Markup ->
+                                                                                                                                                                                            Path_AbbrevPairs Markup) p) x
+                                                                                                                             PV_AbbrevPair_AbbrevPair p
+                                                                                                                                                      x -> PV_AbbrevPairs_AbbrevPair ((Path_At k :: Path_AbbrevPair ((CIString,
+                                                                                                                                                                                                                      Markup)) ->
+                                                                                                                                                                                                    Path_AbbrevPairs ((CIString,
+                                                                                                                                                                                                                       Markup))) p) x
+                                                                                                                             PV_AbbrevPair_CIString p
+                                                                                                                                                    x -> PV_AbbrevPairs_CIString ((Path_At k :: Path_AbbrevPair CIString ->
+                                                                                                                                                                                                Path_AbbrevPairs CIString) p) x
+                                                                                                                             PV_AbbrevPair_Text p
+                                                                                                                                                x -> PV_AbbrevPairs_Text ((Path_At k :: Path_AbbrevPair Text ->
+                                                                                                                                                                                        Path_AbbrevPairs Text) p) x) (pvNodes y :: Forest PV_AbbrevPair))
+                                            _ -> error ("doPVNodesOfOrder: " ++ show path)) paths :: [Tree (PVType (Order AbbrevPairID
+                                                                                                                          ((CIString,
+                                                                                                                            Markup))))]
 instance IsPathNode (Order AuthorID Author)
     where type PVType (Order AuthorID Author) = PV_Authors
-          pvNodes x = case pathsOf x (undefined :: Proxy Author) :: [Path_Authors Author] of
-                          [p@(Path_At k q)] -> let [y] = toListOf (toLens p) x :: [Author]
-                                                in [Node (PV_Authors_Author p y) (forestMap (\pv -> case pv of
-                                                                                                        PV_Author_JSONText p
-                                                                                                                           x -> PV_Authors_JSONText ((Path_At k :: Path_Author JSONText ->
-                                                                                                                                                                   Path_Authors JSONText) p) x
-                                                                                                        PV_Author_Markup p
-                                                                                                                         x -> PV_Authors_Markup ((Path_At k :: Path_Author Markup ->
-                                                                                                                                                               Path_Authors Markup) p) x
-                                                                                                        PV_Author_Author p
-                                                                                                                         x -> PV_Authors_Author ((Path_At k :: Path_Author Author ->
-                                                                                                                                                               Path_Authors Author) p) x
-                                                                                                        PV_Author_Text p
-                                                                                                                       x -> PV_Authors_Text ((Path_At k :: Path_Author Text ->
-                                                                                                                                                           Path_Authors Text) p) x) (pvNodes y :: Forest PV_Author))]
-                          _ -> [] :: [Tree (PVType (Order AuthorID Author))]
+          pvNodes x = let paths = pathsOf x (undefined :: Proxy Author) :: [Path_Authors Author]
+                       in map (\path -> case path of
+                                            p@(Path_At k
+                                                       _) -> let [y] = toListOf (toLens p) x :: [Author]
+                                                              in Node (PV_Authors_Author p y) (forestMap (\pv -> case pv of
+                                                                                                                     PV_Author_JSONText p
+                                                                                                                                        x -> PV_Authors_JSONText ((Path_At k :: Path_Author JSONText ->
+                                                                                                                                                                                Path_Authors JSONText) p) x
+                                                                                                                     PV_Author_Markup p
+                                                                                                                                      x -> PV_Authors_Markup ((Path_At k :: Path_Author Markup ->
+                                                                                                                                                                            Path_Authors Markup) p) x
+                                                                                                                     PV_Author_Author p
+                                                                                                                                      x -> PV_Authors_Author ((Path_At k :: Path_Author Author ->
+                                                                                                                                                                            Path_Authors Author) p) x
+                                                                                                                     PV_Author_Text p
+                                                                                                                                    x -> PV_Authors_Text ((Path_At k :: Path_Author Text ->
+                                                                                                                                                                        Path_Authors Text) p) x) (pvNodes y :: Forest PV_Author))
+                                            _ -> error ("doPVNodesOfOrder: " ++ show path)) paths :: [Tree (PVType (Order AuthorID
+                                                                                                                          Author))]
 instance IsPathNode (Order MarkupID Markup)
     where type PVType (Order MarkupID Markup) = PV_Markups
-          pvNodes x = case pathsOf x (undefined :: Proxy Markup) :: [Path_Markups Markup] of
-                          [p@(Path_At k q)] -> let [y] = toListOf (toLens p) x :: [Markup]
-                                                in [Node (PV_Markups_Markup p y) (forestMap (\pv -> case pv of
-                                                                                                        PV_Markup_JSONText p
-                                                                                                                           x -> PV_Markups_JSONText ((Path_At k :: Path_Markup JSONText ->
-                                                                                                                                                                   Path_Markups JSONText) p) x
-                                                                                                        PV_Markup_Markup p
-                                                                                                                         x -> PV_Markups_Markup ((Path_At k :: Path_Markup Markup ->
-                                                                                                                                                               Path_Markups Markup) p) x
-                                                                                                        PV_Markup_Text p
-                                                                                                                       x -> PV_Markups_Text ((Path_At k :: Path_Markup Text ->
-                                                                                                                                                           Path_Markups Text) p) x) (pvNodes y :: Forest PV_Markup))]
-                          _ -> [] :: [Tree (PVType (Order MarkupID Markup))]
+          pvNodes x = let paths = pathsOf x (undefined :: Proxy Markup) :: [Path_Markups Markup]
+                       in map (\path -> case path of
+                                            p@(Path_At k
+                                                       _) -> let [y] = toListOf (toLens p) x :: [Markup]
+                                                              in Node (PV_Markups_Markup p y) (forestMap (\pv -> case pv of
+                                                                                                                     PV_Markup_JSONText p
+                                                                                                                                        x -> PV_Markups_JSONText ((Path_At k :: Path_Markup JSONText ->
+                                                                                                                                                                                Path_Markups JSONText) p) x
+                                                                                                                     PV_Markup_Markup p
+                                                                                                                                      x -> PV_Markups_Markup ((Path_At k :: Path_Markup Markup ->
+                                                                                                                                                                            Path_Markups Markup) p) x
+                                                                                                                     PV_Markup_Text p
+                                                                                                                                    x -> PV_Markups_Text ((Path_At k :: Path_Markup Text ->
+                                                                                                                                                                        Path_Markups Text) p) x) (pvNodes y :: Forest PV_Markup))
+                                            _ -> error ("doPVNodesOfOrder: " ++ show path)) paths :: [Tree (PVType (Order MarkupID
+                                                                                                                          Markup))]
 instance IsPathNode (Order MarkupPairID ((Markup, Markup)))
     where type PVType (Order MarkupPairID
                              ((Markup, Markup))) = PV_MarkupPairs
-          pvNodes x = case pathsOf x (undefined :: Proxy MarkupPair) :: [Path_MarkupPairs MarkupPair] of
-                          [p@(Path_At k
-                                      q)] -> let [y] = toListOf (toLens p) x :: [MarkupPair]
-                                              in [Node (PV_MarkupPairs_MarkupPair p y) (forestMap (\pv -> case pv of
-                                                                                                              PV_MarkupPair_JSONText p
-                                                                                                                                     x -> PV_MarkupPairs_JSONText ((Path_At k :: Path_MarkupPair JSONText ->
-                                                                                                                                                                                 Path_MarkupPairs JSONText) p) x
-                                                                                                              PV_MarkupPair_Markup p
-                                                                                                                                   x -> PV_MarkupPairs_Markup ((Path_At k :: Path_MarkupPair Markup ->
-                                                                                                                                                                             Path_MarkupPairs Markup) p) x
-                                                                                                              PV_MarkupPair_MarkupPair p
-                                                                                                                                       x -> PV_MarkupPairs_MarkupPair ((Path_At k :: Path_MarkupPair ((Markup,
-                                                                                                                                                                                                       Markup)) ->
-                                                                                                                                                                                     Path_MarkupPairs ((Markup,
-                                                                                                                                                                                                        Markup))) p) x
-                                                                                                              PV_MarkupPair_Text p
-                                                                                                                                 x -> PV_MarkupPairs_Text ((Path_At k :: Path_MarkupPair Text ->
-                                                                                                                                                                         Path_MarkupPairs Text) p) x) (pvNodes y :: Forest PV_MarkupPair))]
-                          _ -> [] :: [Tree (PVType (Order MarkupPairID ((Markup, Markup))))]
+          pvNodes x = let paths = pathsOf x (undefined :: Proxy MarkupPair) :: [Path_MarkupPairs MarkupPair]
+                       in map (\path -> case path of
+                                            p@(Path_At k
+                                                       _) -> let [y] = toListOf (toLens p) x :: [MarkupPair]
+                                                              in Node (PV_MarkupPairs_MarkupPair p y) (forestMap (\pv -> case pv of
+                                                                                                                             PV_MarkupPair_JSONText p
+                                                                                                                                                    x -> PV_MarkupPairs_JSONText ((Path_At k :: Path_MarkupPair JSONText ->
+                                                                                                                                                                                                Path_MarkupPairs JSONText) p) x
+                                                                                                                             PV_MarkupPair_Markup p
+                                                                                                                                                  x -> PV_MarkupPairs_Markup ((Path_At k :: Path_MarkupPair Markup ->
+                                                                                                                                                                                            Path_MarkupPairs Markup) p) x
+                                                                                                                             PV_MarkupPair_MarkupPair p
+                                                                                                                                                      x -> PV_MarkupPairs_MarkupPair ((Path_At k :: Path_MarkupPair ((Markup,
+                                                                                                                                                                                                                      Markup)) ->
+                                                                                                                                                                                                    Path_MarkupPairs ((Markup,
+                                                                                                                                                                                                                       Markup))) p) x
+                                                                                                                             PV_MarkupPair_Text p
+                                                                                                                                                x -> PV_MarkupPairs_Text ((Path_At k :: Path_MarkupPair Text ->
+                                                                                                                                                                                        Path_MarkupPairs Text) p) x) (pvNodes y :: Forest PV_MarkupPair))
+                                            _ -> error ("doPVNodesOfOrder: " ++ show path)) paths :: [Tree (PVType (Order MarkupPairID
+                                                                                                                          ((Markup,
+                                                                                                                            Markup))))]
 instance IsPathNode (Order ReportElemID ReportElem)
     where type PVType (Order ReportElemID ReportElem) = PV_ReportElems
-          pvNodes x = case pathsOf x (undefined :: Proxy ReportElem) :: [Path_ReportElems ReportElem] of
-                          [p@(Path_At k
-                                      q)] -> let [y] = toListOf (toLens p) x :: [ReportElem]
-                                              in [Node (PV_ReportElems_ReportElem p y) (forestMap (\pv -> case pv of
-                                                                                                              PV_ReportElem_String p
-                                                                                                                                   x -> PV_ReportElems_String ((Path_At k :: Path_ReportElem ([Char]) ->
-                                                                                                                                                                             Path_ReportElems ([Char])) p) x
-                                                                                                              PV_ReportElem_Bool p
-                                                                                                                                 x -> PV_ReportElems_Bool ((Path_At k :: Path_ReportElem Bool ->
-                                                                                                                                                                         Path_ReportElems Bool) p) x
-                                                                                                              PV_ReportElem_Double p
-                                                                                                                                   x -> PV_ReportElems_Double ((Path_At k :: Path_ReportElem Double ->
-                                                                                                                                                                             Path_ReportElems Double) p) x
-                                                                                                              PV_ReportElem_Dimension p
-                                                                                                                                      x -> PV_ReportElems_Dimension ((Path_At k :: Path_ReportElem Dimension ->
-                                                                                                                                                                                   Path_ReportElems Dimension) p) x
-                                                                                                              PV_ReportElem_ImageCrop p
-                                                                                                                                      x -> PV_ReportElems_ImageCrop ((Path_At k :: Path_ReportElem ImageCrop ->
-                                                                                                                                                                                   Path_ReportElems ImageCrop) p) x
-                                                                                                              PV_ReportElem_ImageSize p
-                                                                                                                                      x -> PV_ReportElems_ImageSize ((Path_At k :: Path_ReportElem ImageSize ->
-                                                                                                                                                                                   Path_ReportElems ImageSize) p) x
-                                                                                                              PV_ReportElem_Units p
-                                                                                                                                  x -> PV_ReportElems_Units ((Path_At k :: Path_ReportElem Units ->
-                                                                                                                                                                           Path_ReportElems Units) p) x
-                                                                                                              PV_ReportElem_ImageFile p
-                                                                                                                                      x -> PV_ReportElems_ImageFile ((Path_At k :: Path_ReportElem ImageFile ->
-                                                                                                                                                                                   Path_ReportElems ImageFile) p) x
-                                                                                                              PV_ReportElem_JSONText p
-                                                                                                                                     x -> PV_ReportElems_JSONText ((Path_At k :: Path_ReportElem JSONText ->
-                                                                                                                                                                                 Path_ReportElems JSONText) p) x
-                                                                                                              PV_ReportElem_Markup p
-                                                                                                                                   x -> PV_ReportElems_Markup ((Path_At k :: Path_ReportElem Markup ->
-                                                                                                                                                                             Path_ReportElems Markup) p) x
-                                                                                                              PV_ReportElem_ReportElem p
-                                                                                                                                       x -> PV_ReportElems_ReportElem ((Path_At k :: Path_ReportElem ReportElem ->
-                                                                                                                                                                                     Path_ReportElems ReportElem) p) x
-                                                                                                              PV_ReportElem_MaybeImageFile p
-                                                                                                                                           x -> PV_ReportElems_MaybeImageFile ((Path_At k :: Path_ReportElem (Maybe ImageFile) ->
-                                                                                                                                                                                             Path_ReportElems (Maybe ImageFile)) p) x
-                                                                                                              PV_ReportElem_ReportImage p
-                                                                                                                                        x -> PV_ReportElems_ReportImage ((Path_At k :: Path_ReportElem ReportImage ->
-                                                                                                                                                                                       Path_ReportElems ReportImage) p) x
-                                                                                                              PV_ReportElem_ReportImages p
-                                                                                                                                         x -> PV_ReportElems_ReportImages ((Path_At k :: Path_ReportElem (Order ReportImageID
-                                                                                                                                                                                                                ReportImage) ->
-                                                                                                                                                                                         Path_ReportElems (Order ReportImageID
-                                                                                                                                                                                                                 ReportImage)) p) x
-                                                                                                              PV_ReportElem_ReportImageView p
-                                                                                                                                            x -> PV_ReportElems_ReportImageView ((Path_At k :: Path_ReportElem ReportImageView ->
-                                                                                                                                                                                               Path_ReportElems ReportImageView) p) x
-                                                                                                              PV_ReportElem_SaneSizeImageSize p
-                                                                                                                                              x -> PV_ReportElems_SaneSizeImageSize ((Path_At k :: Path_ReportElem (SaneSize ImageSize) ->
-                                                                                                                                                                                                   Path_ReportElems (SaneSize ImageSize)) p) x
-                                                                                                              PV_ReportElem_Item p
-                                                                                                                                 x -> PV_ReportElems_Item ((Path_At k :: Path_ReportElem Item ->
-                                                                                                                                                                         Path_ReportElems Item) p) x
-                                                                                                              PV_ReportElem_URI p
-                                                                                                                                x -> PV_ReportElems_URI ((Path_At k :: Path_ReportElem URI ->
-                                                                                                                                                                       Path_ReportElems URI) p) x
-                                                                                                              PV_ReportElem_Text p
-                                                                                                                                 x -> PV_ReportElems_Text ((Path_At k :: Path_ReportElem Text ->
-                                                                                                                                                                         Path_ReportElems Text) p) x) (pvNodes y :: Forest PV_ReportElem))]
-                          _ -> [] :: [Tree (PVType (Order ReportElemID ReportElem))]
+          pvNodes x = let paths = pathsOf x (undefined :: Proxy ReportElem) :: [Path_ReportElems ReportElem]
+                       in map (\path -> case path of
+                                            p@(Path_At k
+                                                       _) -> let [y] = toListOf (toLens p) x :: [ReportElem]
+                                                              in Node (PV_ReportElems_ReportElem p y) (forestMap (\pv -> case pv of
+                                                                                                                             PV_ReportElem_String p
+                                                                                                                                                  x -> PV_ReportElems_String ((Path_At k :: Path_ReportElem ([Char]) ->
+                                                                                                                                                                                            Path_ReportElems ([Char])) p) x
+                                                                                                                             PV_ReportElem_Bool p
+                                                                                                                                                x -> PV_ReportElems_Bool ((Path_At k :: Path_ReportElem Bool ->
+                                                                                                                                                                                        Path_ReportElems Bool) p) x
+                                                                                                                             PV_ReportElem_Double p
+                                                                                                                                                  x -> PV_ReportElems_Double ((Path_At k :: Path_ReportElem Double ->
+                                                                                                                                                                                            Path_ReportElems Double) p) x
+                                                                                                                             PV_ReportElem_Dimension p
+                                                                                                                                                     x -> PV_ReportElems_Dimension ((Path_At k :: Path_ReportElem Dimension ->
+                                                                                                                                                                                                  Path_ReportElems Dimension) p) x
+                                                                                                                             PV_ReportElem_ImageCrop p
+                                                                                                                                                     x -> PV_ReportElems_ImageCrop ((Path_At k :: Path_ReportElem ImageCrop ->
+                                                                                                                                                                                                  Path_ReportElems ImageCrop) p) x
+                                                                                                                             PV_ReportElem_ImageSize p
+                                                                                                                                                     x -> PV_ReportElems_ImageSize ((Path_At k :: Path_ReportElem ImageSize ->
+                                                                                                                                                                                                  Path_ReportElems ImageSize) p) x
+                                                                                                                             PV_ReportElem_Units p
+                                                                                                                                                 x -> PV_ReportElems_Units ((Path_At k :: Path_ReportElem Units ->
+                                                                                                                                                                                          Path_ReportElems Units) p) x
+                                                                                                                             PV_ReportElem_ImageFile p
+                                                                                                                                                     x -> PV_ReportElems_ImageFile ((Path_At k :: Path_ReportElem ImageFile ->
+                                                                                                                                                                                                  Path_ReportElems ImageFile) p) x
+                                                                                                                             PV_ReportElem_JSONText p
+                                                                                                                                                    x -> PV_ReportElems_JSONText ((Path_At k :: Path_ReportElem JSONText ->
+                                                                                                                                                                                                Path_ReportElems JSONText) p) x
+                                                                                                                             PV_ReportElem_Markup p
+                                                                                                                                                  x -> PV_ReportElems_Markup ((Path_At k :: Path_ReportElem Markup ->
+                                                                                                                                                                                            Path_ReportElems Markup) p) x
+                                                                                                                             PV_ReportElem_ReportElem p
+                                                                                                                                                      x -> PV_ReportElems_ReportElem ((Path_At k :: Path_ReportElem ReportElem ->
+                                                                                                                                                                                                    Path_ReportElems ReportElem) p) x
+                                                                                                                             PV_ReportElem_EUI p
+                                                                                                                                               x -> PV_ReportElems_EUI ((Path_At k :: Path_ReportElem (Either URI
+                                                                                                                                                                                                              ImageFile) ->
+                                                                                                                                                                                      Path_ReportElems (Either URI
+                                                                                                                                                                                                               ImageFile)) p) x
+                                                                                                                             PV_ReportElem_MEUI p
+                                                                                                                                                x -> PV_ReportElems_MEUI ((Path_At k :: Path_ReportElem (Maybe (Either URI
+                                                                                                                                                                                                                       ImageFile)) ->
+                                                                                                                                                                                        Path_ReportElems (Maybe (Either URI
+                                                                                                                                                                                                                        ImageFile))) p) x
+                                                                                                                             PV_ReportElem_MaybeImageFile p
+                                                                                                                                                          x -> PV_ReportElems_MaybeImageFile ((Path_At k :: Path_ReportElem (Maybe ImageFile) ->
+                                                                                                                                                                                                            Path_ReportElems (Maybe ImageFile)) p) x
+                                                                                                                             PV_ReportElem_ReportImage p
+                                                                                                                                                       x -> PV_ReportElems_ReportImage ((Path_At k :: Path_ReportElem ReportImage ->
+                                                                                                                                                                                                      Path_ReportElems ReportImage) p) x
+                                                                                                                             PV_ReportElem_ReportImages p
+                                                                                                                                                        x -> PV_ReportElems_ReportImages ((Path_At k :: Path_ReportElem (Order ReportImageID
+                                                                                                                                                                                                                               ReportImage) ->
+                                                                                                                                                                                                        Path_ReportElems (Order ReportImageID
+                                                                                                                                                                                                                                ReportImage)) p) x
+                                                                                                                             PV_ReportElem_ReportImageView p
+                                                                                                                                                           x -> PV_ReportElems_ReportImageView ((Path_At k :: Path_ReportElem ReportImageView ->
+                                                                                                                                                                                                              Path_ReportElems ReportImageView) p) x
+                                                                                                                             PV_ReportElem_SaneSizeImageSize p
+                                                                                                                                                             x -> PV_ReportElems_SaneSizeImageSize ((Path_At k :: Path_ReportElem (SaneSize ImageSize) ->
+                                                                                                                                                                                                                  Path_ReportElems (SaneSize ImageSize)) p) x
+                                                                                                                             PV_ReportElem_Item p
+                                                                                                                                                x -> PV_ReportElems_Item ((Path_At k :: Path_ReportElem Item ->
+                                                                                                                                                                                        Path_ReportElems Item) p) x
+                                                                                                                             PV_ReportElem_MIM p
+                                                                                                                                               x -> PV_ReportElems_MIM ((Path_At k :: Path_ReportElem (Map ItemFieldName
+                                                                                                                                                                                                           Markup) ->
+                                                                                                                                                                                      Path_ReportElems (Map ItemFieldName
+                                                                                                                                                                                                            Markup)) p) x
+                                                                                                                             PV_ReportElem_URI p
+                                                                                                                                               x -> PV_ReportElems_URI ((Path_At k :: Path_ReportElem URI ->
+                                                                                                                                                                                      Path_ReportElems URI) p) x
+                                                                                                                             PV_ReportElem_Text p
+                                                                                                                                                x -> PV_ReportElems_Text ((Path_At k :: Path_ReportElem Text ->
+                                                                                                                                                                                        Path_ReportElems Text) p) x) (pvNodes y :: Forest PV_ReportElem))
+                                            _ -> error ("doPVNodesOfOrder: " ++ show path)) paths :: [Tree (PVType (Order ReportElemID
+                                                                                                                          ReportElem))]
 instance IsPathNode (Order ReportImageID ReportImage)
     where type PVType (Order ReportImageID
                              ReportImage) = PV_ReportImages
-          pvNodes x = case pathsOf x (undefined :: Proxy ReportImage) :: [Path_ReportImages ReportImage] of
-                          [p@(Path_At k
-                                      q)] -> let [y] = toListOf (toLens p) x :: [ReportImage]
-                                              in [Node (PV_ReportImages_ReportImage p y) (forestMap (\pv -> case pv of
-                                                                                                                PV_ReportImage_String p
-                                                                                                                                      x -> PV_ReportImages_String ((Path_At k :: Path_ReportImage ([Char]) ->
-                                                                                                                                                                                 Path_ReportImages ([Char])) p) x
-                                                                                                                PV_ReportImage_Bool p
-                                                                                                                                    x -> PV_ReportImages_Bool ((Path_At k :: Path_ReportImage Bool ->
-                                                                                                                                                                             Path_ReportImages Bool) p) x
-                                                                                                                PV_ReportImage_Double p
-                                                                                                                                      x -> PV_ReportImages_Double ((Path_At k :: Path_ReportImage Double ->
-                                                                                                                                                                                 Path_ReportImages Double) p) x
-                                                                                                                PV_ReportImage_Dimension p
-                                                                                                                                         x -> PV_ReportImages_Dimension ((Path_At k :: Path_ReportImage Dimension ->
-                                                                                                                                                                                       Path_ReportImages Dimension) p) x
-                                                                                                                PV_ReportImage_ImageCrop p
-                                                                                                                                         x -> PV_ReportImages_ImageCrop ((Path_At k :: Path_ReportImage ImageCrop ->
-                                                                                                                                                                                       Path_ReportImages ImageCrop) p) x
-                                                                                                                PV_ReportImage_ImageSize p
-                                                                                                                                         x -> PV_ReportImages_ImageSize ((Path_At k :: Path_ReportImage ImageSize ->
-                                                                                                                                                                                       Path_ReportImages ImageSize) p) x
-                                                                                                                PV_ReportImage_Units p
-                                                                                                                                     x -> PV_ReportImages_Units ((Path_At k :: Path_ReportImage Units ->
-                                                                                                                                                                               Path_ReportImages Units) p) x
-                                                                                                                PV_ReportImage_ImageFile p
-                                                                                                                                         x -> PV_ReportImages_ImageFile ((Path_At k :: Path_ReportImage ImageFile ->
-                                                                                                                                                                                       Path_ReportImages ImageFile) p) x
-                                                                                                                PV_ReportImage_JSONText p
-                                                                                                                                        x -> PV_ReportImages_JSONText ((Path_At k :: Path_ReportImage JSONText ->
-                                                                                                                                                                                     Path_ReportImages JSONText) p) x
-                                                                                                                PV_ReportImage_Markup p
-                                                                                                                                      x -> PV_ReportImages_Markup ((Path_At k :: Path_ReportImage Markup ->
-                                                                                                                                                                                 Path_ReportImages Markup) p) x
-                                                                                                                PV_ReportImage_MaybeImageFile p
-                                                                                                                                              x -> PV_ReportImages_MaybeImageFile ((Path_At k :: Path_ReportImage (Maybe ImageFile) ->
-                                                                                                                                                                                                 Path_ReportImages (Maybe ImageFile)) p) x
-                                                                                                                PV_ReportImage_ReportImage p
-                                                                                                                                           x -> PV_ReportImages_ReportImage ((Path_At k :: Path_ReportImage ReportImage ->
-                                                                                                                                                                                           Path_ReportImages ReportImage) p) x
-                                                                                                                PV_ReportImage_ReportImageView p
-                                                                                                                                               x -> PV_ReportImages_ReportImageView ((Path_At k :: Path_ReportImage ReportImageView ->
-                                                                                                                                                                                                   Path_ReportImages ReportImageView) p) x
-                                                                                                                PV_ReportImage_SaneSizeImageSize p
-                                                                                                                                                 x -> PV_ReportImages_SaneSizeImageSize ((Path_At k :: Path_ReportImage (SaneSize ImageSize) ->
-                                                                                                                                                                                                       Path_ReportImages (SaneSize ImageSize)) p) x
-                                                                                                                PV_ReportImage_URI p
-                                                                                                                                   x -> PV_ReportImages_URI ((Path_At k :: Path_ReportImage URI ->
-                                                                                                                                                                           Path_ReportImages URI) p) x
-                                                                                                                PV_ReportImage_Text p
-                                                                                                                                    x -> PV_ReportImages_Text ((Path_At k :: Path_ReportImage Text ->
-                                                                                                                                                                             Path_ReportImages Text) p) x) (pvNodes y :: Forest PV_ReportImage))]
-                          _ -> [] :: [Tree (PVType (Order ReportImageID ReportImage))]
+          pvNodes x = let paths = pathsOf x (undefined :: Proxy ReportImage) :: [Path_ReportImages ReportImage]
+                       in map (\path -> case path of
+                                            p@(Path_At k
+                                                       _) -> let [y] = toListOf (toLens p) x :: [ReportImage]
+                                                              in Node (PV_ReportImages_ReportImage p y) (forestMap (\pv -> case pv of
+                                                                                                                               PV_ReportImage_String p
+                                                                                                                                                     x -> PV_ReportImages_String ((Path_At k :: Path_ReportImage ([Char]) ->
+                                                                                                                                                                                                Path_ReportImages ([Char])) p) x
+                                                                                                                               PV_ReportImage_Bool p
+                                                                                                                                                   x -> PV_ReportImages_Bool ((Path_At k :: Path_ReportImage Bool ->
+                                                                                                                                                                                            Path_ReportImages Bool) p) x
+                                                                                                                               PV_ReportImage_Double p
+                                                                                                                                                     x -> PV_ReportImages_Double ((Path_At k :: Path_ReportImage Double ->
+                                                                                                                                                                                                Path_ReportImages Double) p) x
+                                                                                                                               PV_ReportImage_Dimension p
+                                                                                                                                                        x -> PV_ReportImages_Dimension ((Path_At k :: Path_ReportImage Dimension ->
+                                                                                                                                                                                                      Path_ReportImages Dimension) p) x
+                                                                                                                               PV_ReportImage_ImageCrop p
+                                                                                                                                                        x -> PV_ReportImages_ImageCrop ((Path_At k :: Path_ReportImage ImageCrop ->
+                                                                                                                                                                                                      Path_ReportImages ImageCrop) p) x
+                                                                                                                               PV_ReportImage_ImageSize p
+                                                                                                                                                        x -> PV_ReportImages_ImageSize ((Path_At k :: Path_ReportImage ImageSize ->
+                                                                                                                                                                                                      Path_ReportImages ImageSize) p) x
+                                                                                                                               PV_ReportImage_Units p
+                                                                                                                                                    x -> PV_ReportImages_Units ((Path_At k :: Path_ReportImage Units ->
+                                                                                                                                                                                              Path_ReportImages Units) p) x
+                                                                                                                               PV_ReportImage_ImageFile p
+                                                                                                                                                        x -> PV_ReportImages_ImageFile ((Path_At k :: Path_ReportImage ImageFile ->
+                                                                                                                                                                                                      Path_ReportImages ImageFile) p) x
+                                                                                                                               PV_ReportImage_JSONText p
+                                                                                                                                                       x -> PV_ReportImages_JSONText ((Path_At k :: Path_ReportImage JSONText ->
+                                                                                                                                                                                                    Path_ReportImages JSONText) p) x
+                                                                                                                               PV_ReportImage_Markup p
+                                                                                                                                                     x -> PV_ReportImages_Markup ((Path_At k :: Path_ReportImage Markup ->
+                                                                                                                                                                                                Path_ReportImages Markup) p) x
+                                                                                                                               PV_ReportImage_EUI p
+                                                                                                                                                  x -> PV_ReportImages_EUI ((Path_At k :: Path_ReportImage (Either URI
+                                                                                                                                                                                                                   ImageFile) ->
+                                                                                                                                                                                          Path_ReportImages (Either URI
+                                                                                                                                                                                                                    ImageFile)) p) x
+                                                                                                                               PV_ReportImage_MEUI p
+                                                                                                                                                   x -> PV_ReportImages_MEUI ((Path_At k :: Path_ReportImage (Maybe (Either URI
+                                                                                                                                                                                                                            ImageFile)) ->
+                                                                                                                                                                                            Path_ReportImages (Maybe (Either URI
+                                                                                                                                                                                                                             ImageFile))) p) x
+                                                                                                                               PV_ReportImage_MaybeImageFile p
+                                                                                                                                                             x -> PV_ReportImages_MaybeImageFile ((Path_At k :: Path_ReportImage (Maybe ImageFile) ->
+                                                                                                                                                                                                                Path_ReportImages (Maybe ImageFile)) p) x
+                                                                                                                               PV_ReportImage_ReportImage p
+                                                                                                                                                          x -> PV_ReportImages_ReportImage ((Path_At k :: Path_ReportImage ReportImage ->
+                                                                                                                                                                                                          Path_ReportImages ReportImage) p) x
+                                                                                                                               PV_ReportImage_ReportImageView p
+                                                                                                                                                              x -> PV_ReportImages_ReportImageView ((Path_At k :: Path_ReportImage ReportImageView ->
+                                                                                                                                                                                                                  Path_ReportImages ReportImageView) p) x
+                                                                                                                               PV_ReportImage_SaneSizeImageSize p
+                                                                                                                                                                x -> PV_ReportImages_SaneSizeImageSize ((Path_At k :: Path_ReportImage (SaneSize ImageSize) ->
+                                                                                                                                                                                                                      Path_ReportImages (SaneSize ImageSize)) p) x
+                                                                                                                               PV_ReportImage_URI p
+                                                                                                                                                  x -> PV_ReportImages_URI ((Path_At k :: Path_ReportImage URI ->
+                                                                                                                                                                                          Path_ReportImages URI) p) x
+                                                                                                                               PV_ReportImage_Text p
+                                                                                                                                                   x -> PV_ReportImages_Text ((Path_At k :: Path_ReportImage Text ->
+                                                                                                                                                                                            Path_ReportImages Text) p) x) (pvNodes y :: Forest PV_ReportImage))
+                                            _ -> error ("doPVNodesOfOrder: " ++ show path)) paths :: [Tree (PVType (Order ReportImageID
+                                                                                                                          ReportImage))]
 instance IsPathNode ((Markup, Markup))
     where type PVType ((Markup, Markup)) = PV_MarkupPair
           pvNodes x = case pathsOf x (undefined :: Proxy Markup) :: [Path_MarkupPair Markup] of
@@ -13262,7 +13531,7 @@ instance IsPathNode ((Markup, Markup))
                                                                                                              PV_Markup_Text p
                                                                                                                             x -> PV_MarkupPair_Text ((Path_Second :: Path_Markup Text ->
                                                                                                                                                                      Path_MarkupPair Text) p) x) (pvNodes y :: Forest PV_Markup))]
-                          _ -> [] :: [Tree (PVType ((Markup, Markup)))]
+                          [] -> [] :: [Tree (PVType ((Markup, Markup)))]
 instance IsPathNode ((CIString, Markup))
     where type PVType ((CIString, Markup)) = PV_AbbrevPair
           pvNodes x = case pathsOf x (undefined :: Proxy Markup) :: [Path_AbbrevPair Markup] of
@@ -13277,7 +13546,24 @@ instance IsPathNode ((CIString, Markup))
                                                                                                              PV_Markup_Text p
                                                                                                                             x -> PV_AbbrevPair_Text ((Path_Second :: Path_Markup Text ->
                                                                                                                                                                      Path_AbbrevPair Text) p) x) (pvNodes y :: Forest PV_Markup))]
-                          _ -> [] :: [Tree (PVType ((CIString, Markup)))]
+                          [] -> [] :: [Tree (PVType ((CIString, Markup)))]
+instance IsPathNode (Maybe (Either URI ImageFile))
+    where type PVType (Maybe (Either URI ImageFile)) = PV_MEUI
+          pvNodes x = case pathsOf x (undefined :: Proxy EUI) :: [Path_MEUI EUI] of
+                          [p@(Path_Just q)] -> let [y] = toListOf (toLens p) x :: [EUI]
+                                                in [Node (PV_MEUI_EUI p y) (forestMap (\pv -> case pv of
+                                                                                                  PV_EUI_ImageFile p
+                                                                                                                   x -> PV_MEUI_ImageFile ((Path_Just :: Path_EUI ImageFile ->
+                                                                                                                                                         Path_MEUI ImageFile) p) x
+                                                                                                  PV_EUI_EUI p
+                                                                                                             x -> PV_MEUI_EUI ((Path_Just :: Path_EUI (Either URI
+                                                                                                                                                              ImageFile) ->
+                                                                                                                                             Path_MEUI (Either URI
+                                                                                                                                                               ImageFile)) p) x
+                                                                                                  PV_EUI_URI p
+                                                                                                             x -> PV_MEUI_URI ((Path_Just :: Path_EUI URI ->
+                                                                                                                                             Path_MEUI URI) p) x) (pvNodes y :: Forest PV_EUI))]
+                          [] -> [] :: [Tree (PVType (Maybe (Either URI ImageFile)))]
 instance IsPathNode (Maybe ImageFile)
     where type PVType (Maybe ImageFile) = PV_MaybeImageFile
           pvNodes x = case pathsOf x (undefined :: Proxy String) :: [Path_MaybeImageFile String] of
@@ -13289,7 +13575,7 @@ instance IsPathNode (Maybe ImageFile)
                                                                                                                               PV_String_JSONText p
                                                                                                                                                  x -> PV_MaybeImageFile_JSONText ((Path_MaybeImageFile_View :: Path_String JSONText ->
                                                                                                                                                                                                                Path_MaybeImageFile JSONText) p) x) (pvNodes y :: Forest PV_String))]
-                          _ -> [] :: [Tree (PVType (Maybe ImageFile))]
+                          [] -> [] :: [Tree (PVType (Maybe ImageFile))]
 instance IsPathNode (Maybe ReportIntendedUse)
     where type PVType (Maybe ReportIntendedUse) = PV_MaybeReportIntendedUse
           pvNodes x = case pathsOf x (undefined :: Proxy String) :: [Path_MaybeReportIntendedUse String] of
@@ -13301,7 +13587,7 @@ instance IsPathNode (Maybe ReportIntendedUse)
                                                                                                                                               PV_String_JSONText p
                                                                                                                                                                  x -> PV_MaybeReportIntendedUse_JSONText ((Path_MaybeReportIntendedUse_View :: Path_String JSONText ->
                                                                                                                                                                                                                                                Path_MaybeReportIntendedUse JSONText) p) x) (pvNodes y :: Forest PV_String))]
-                          _ -> [] :: [Tree (PVType (Maybe ReportIntendedUse))]
+                          [] -> [] :: [Tree (PVType (Maybe ReportIntendedUse))]
 instance IsPathNode (ReadOnly ([Char]))
     where type PVType (ReadOnly ([Char])) = PV_ReadOnlyFilePath
           pvNodes x = case pathsOf x (undefined :: Proxy String) :: [Path_ReadOnlyFilePath String] of
@@ -13313,7 +13599,7 @@ instance IsPathNode (ReadOnly ([Char]))
                                                                                                                                   PV_String_JSONText p
                                                                                                                                                      x -> PV_ReadOnlyFilePath_JSONText ((Path_ReadOnlyFilePath_View :: Path_String JSONText ->
                                                                                                                                                                                                                        Path_ReadOnlyFilePath JSONText) p) x) (pvNodes y :: Forest PV_String))]
-                          _ -> [] :: [Tree (PVType (ReadOnly ([Char])))]
+                          [] -> [] :: [Tree (PVType (ReadOnly ([Char])))]
 instance IsPathNode (SaneSize ImageSize)
     where type PVType (SaneSize ImageSize) = PV_SaneSizeImageSize
           pvNodes x = case pathsOf x (undefined :: Proxy ImageSize) :: [Path_SaneSizeImageSize ImageSize] of
@@ -13337,7 +13623,7 @@ instance IsPathNode (SaneSize ImageSize)
                                                                                                                                        PV_ImageSize_JSONText p
                                                                                                                                                              x -> PV_SaneSizeImageSize_JSONText ((Path_SaneSizeImageSize_View :: Path_ImageSize JSONText ->
                                                                                                                                                                                                                                  Path_SaneSizeImageSize JSONText) p) x) (pvNodes y :: Forest PV_ImageSize))]
-                          _ -> [] :: [Tree (PVType (SaneSize ImageSize))]
+                          [] -> [] :: [Tree (PVType (SaneSize ImageSize))]
 instance IsPathNode ([Char])
     where type PVType ([Char]) = PV_String
           pvNodes x = case pathsOf x (undefined :: Proxy JSONText) :: [Path_String JSONText] of
@@ -13346,7 +13632,7 @@ instance IsPathNode ([Char])
                                                                                                                 PV_JSONText_JSONText p
                                                                                                                                      x -> PV_String_JSONText ((Path_String_View :: Path_JSONText JSONText ->
                                                                                                                                                                                    Path_String JSONText) p) x) (pvNodes y :: Forest PV_JSONText))]
-                          _ -> [] :: [Tree (PVType ([Char]))]
+                          [] -> [] :: [Tree (PVType ([Char]))]
 instance IsPathNode ([UserId])
     where type PVType ([UserId]) = PV_UserIds
           pvNodes x = case pathsOf x (undefined :: Proxy Text) :: [Path_UserIds Text] of
@@ -13358,7 +13644,7 @@ instance IsPathNode ([UserId])
                                                                                                               PV_Text_Text p
                                                                                                                            x -> PV_UserIds_Text ((Path_UserIds_View :: Path_Text Text ->
                                                                                                                                                                        Path_UserIds Text) p) x) (pvNodes y :: Forest PV_Text))]
-                          _ -> [] :: [Tree (PVType ([UserId]))]
+                          [] -> [] :: [Tree (PVType ([UserId]))]
 instance IsPathNode Int64
     where type PVType Int64 = PV_Int64
           pvNodes _ = []
@@ -13373,7 +13659,7 @@ instance IsPathNode Bool
                                                                                                           PV_String_JSONText p
                                                                                                                              x -> PV_Bool_JSONText ((Path_Bool_View :: Path_String JSONText ->
                                                                                                                                                                        Path_Bool JSONText) p) x) (pvNodes y :: Forest PV_String))]
-                          _ -> [] :: [Tree (PVType Bool)]
+                          [] -> [] :: [Tree (PVType Bool)]
 instance IsPathNode Double
     where type PVType Double = PV_Double
           pvNodes x = case pathsOf x (undefined :: Proxy String) :: [Path_Double String] of
@@ -13385,7 +13671,7 @@ instance IsPathNode Double
                                                                                                               PV_String_JSONText p
                                                                                                                                  x -> PV_Double_JSONText ((Path_Double_View :: Path_String JSONText ->
                                                                                                                                                                                Path_Double JSONText) p) x) (pvNodes y :: Forest PV_String))]
-                          _ -> [] :: [Tree (PVType Double)]
+                          [] -> [] :: [Tree (PVType Double)]
 instance IsPathNode Int
     where type PVType Int = PV_Int
           pvNodes _ = []
@@ -13397,13 +13683,15 @@ instance IsPathNode Dimension
                                                                                                                       PV_JSONText_JSONText p
                                                                                                                                            x -> PV_Dimension_JSONText ((Path_Dimension_View :: Path_JSONText JSONText ->
                                                                                                                                                                                                Path_Dimension JSONText) p) x) (pvNodes y :: Forest PV_JSONText))]
-                          _ -> [] :: [Tree (PVType Dimension)]
+                          [] -> [] :: [Tree (PVType Dimension)]
 instance IsPathNode ImageCrop
     where type PVType ImageCrop = PV_ImageCrop
           pvNodes _ = []
 instance IsPathNode ImageSize
     where type PVType ImageSize = PV_ImageSize
-          pvNodes x = [case pathsOf x (undefined :: Proxy Dimension) :: [Path_ImageSize Dimension] of
+          pvNodes x = [case filter (\x -> case x of
+                                              Path_ImageSize_dim _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Dimension)) :: [Path_ImageSize Dimension] of
                            [p@(Path_ImageSize_dim q)] -> let [y] = toListOf (toLens p) x :: [Dimension]
                                                           in Node (PV_ImageSize_Dimension p y) (forestMap (\pv -> case pv of
                                                                                                                       PV_Dimension_Dimension p
@@ -13412,8 +13700,11 @@ instance IsPathNode ImageSize
                                                                                                                       PV_Dimension_JSONText p
                                                                                                                                             x -> PV_ImageSize_JSONText ((Path_ImageSize_dim :: Path_Dimension JSONText ->
                                                                                                                                                                                                Path_ImageSize JSONText) p) x) (pvNodes y :: Forest PV_Dimension))
-                           _ -> error "Expected a field match",
-                       case pathsOf x (undefined :: Proxy Double) :: [Path_ImageSize Double] of
+                           [] -> error "No Path_ImageSize_dim field found"
+                           ps -> error $ ("Multiple Path_ImageSize_dim fields found: " ++ show ps),
+                       case filter (\x -> case x of
+                                              Path_ImageSize_size _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Double)) :: [Path_ImageSize Double] of
                            [p@(Path_ImageSize_size q)] -> let [y] = toListOf (toLens p) x :: [Double]
                                                            in Node (PV_ImageSize_Double p y) (forestMap (\pv -> case pv of
                                                                                                                     PV_Double_String p
@@ -13425,8 +13716,11 @@ instance IsPathNode ImageSize
                                                                                                                     PV_Double_JSONText p
                                                                                                                                        x -> PV_ImageSize_JSONText ((Path_ImageSize_size :: Path_Double JSONText ->
                                                                                                                                                                                            Path_ImageSize JSONText) p) x) (pvNodes y :: Forest PV_Double))
-                           _ -> error "Expected a field match",
-                       case pathsOf x (undefined :: Proxy Units) :: [Path_ImageSize Units] of
+                           [] -> error "No Path_ImageSize_size field found"
+                           ps -> error $ ("Multiple Path_ImageSize_size fields found: " ++ show ps),
+                       case filter (\x -> case x of
+                                              Path_ImageSize_units _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Units)) :: [Path_ImageSize Units] of
                            [p@(Path_ImageSize_units q)] -> let [y] = toListOf (toLens p) x :: [Units]
                                                             in Node (PV_ImageSize_Units p y) (forestMap (\pv -> case pv of
                                                                                                                     PV_Units_Units p
@@ -13435,7 +13729,8 @@ instance IsPathNode ImageSize
                                                                                                                     PV_Units_JSONText p
                                                                                                                                       x -> PV_ImageSize_JSONText ((Path_ImageSize_units :: Path_Units JSONText ->
                                                                                                                                                                                            Path_ImageSize JSONText) p) x) (pvNodes y :: Forest PV_Units))
-                           _ -> error "Expected a field match"]
+                           [] -> error "No Path_ImageSize_units field found"
+                           ps -> error $ ("Multiple Path_ImageSize_units fields found: " ++ show ps)]
 instance IsPathNode Units
     where type PVType Units = PV_Units
           pvNodes x = case pathsOf x (undefined :: Proxy JSONText) :: [Path_Units JSONText] of
@@ -13444,7 +13739,7 @@ instance IsPathNode Units
                                                                                                               PV_JSONText_JSONText p
                                                                                                                                    x -> PV_Units_JSONText ((Path_Units_View :: Path_JSONText JSONText ->
                                                                                                                                                                                Path_Units JSONText) p) x) (pvNodes y :: Forest PV_JSONText))]
-                          _ -> [] :: [Tree (PVType Units)]
+                          [] -> [] :: [Tree (PVType Units)]
 instance IsPathNode ImageFile
     where type PVType ImageFile = PV_ImageFile
           pvNodes _ = []
@@ -13456,7 +13751,9 @@ instance IsPathNode JSONText
           pvNodes _ = []
 instance IsPathNode Markup
     where type PVType Markup = PV_Markup
-          pvNodes (x@(Markdown {})) = [case pathsOf x (undefined :: Proxy Text) :: [Path_Markup Text] of
+          pvNodes (x@(Markdown {})) = [case filter (\x -> case x of
+                                                              Path_Markup_markdownText _ -> True
+                                                              _ -> False) (pathsOf x (undefined :: Proxy Text)) :: [Path_Markup Text] of
                                            [p@(Path_Markup_markdownText q)] -> let [y] = toListOf (toLens p) x :: [Text]
                                                                                 in Node (PV_Markup_Text p y) (forestMap (\pv -> case pv of
                                                                                                                                     PV_Text_JSONText p
@@ -13465,8 +13762,11 @@ instance IsPathNode Markup
                                                                                                                                     PV_Text_Text p
                                                                                                                                                  x -> PV_Markup_Text ((Path_Markup_markdownText :: Path_Text Text ->
                                                                                                                                                                                                    Path_Markup Text) p) x) (pvNodes y :: Forest PV_Text))
-                                           _ -> error "Expected a field match"]
-          pvNodes (x@(Html {})) = [case pathsOf x (undefined :: Proxy Text) :: [Path_Markup Text] of
+                                           [] -> error "No Path_Markup_markdownText field found"
+                                           ps -> error $ ("Multiple Path_Markup_markdownText fields found: " ++ show ps)]
+          pvNodes (x@(Html {})) = [case filter (\x -> case x of
+                                                          Path_Markup_htmlText _ -> True
+                                                          _ -> False) (pathsOf x (undefined :: Proxy Text)) :: [Path_Markup Text] of
                                        [p@(Path_Markup_htmlText q)] -> let [y] = toListOf (toLens p) x :: [Text]
                                                                         in Node (PV_Markup_Text p y) (forestMap (\pv -> case pv of
                                                                                                                             PV_Text_JSONText p
@@ -13475,20 +13775,26 @@ instance IsPathNode Markup
                                                                                                                             PV_Text_Text p
                                                                                                                                          x -> PV_Markup_Text ((Path_Markup_htmlText :: Path_Text Text ->
                                                                                                                                                                                        Path_Markup Text) p) x) (pvNodes y :: Forest PV_Text))
-                                       _ -> error "Expected a field match"]
+                                       [] -> error "No Path_Markup_htmlText field found"
+                                       ps -> error $ ("Multiple Path_Markup_htmlText fields found: " ++ show ps)]
           pvNodes (x@(LaTeX {})) = [error "doField' Text.LaTeX.Base.Syntax.LaTeX"]
           pvNodes (x@(Pandoc {})) = [error "doField' Text.Pandoc.Definition.Pandoc"]
           pvNodes (x@(Markup {})) = [error "doField' [Appraisal.Markup.Markup]"]
 instance IsPathNode Permissions
     where type PVType Permissions = PV_Permissions
-          pvNodes x = [case pathsOf x (undefined :: Proxy UserId) :: [Path_Permissions UserId] of
+          pvNodes x = [case filter (\x -> case x of
+                                              Path_Permissions_owner _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy UserId)) :: [Path_Permissions UserId] of
                            [p@(Path_Permissions_owner q)] -> let [y] = toListOf (toLens p) x :: [UserId]
                                                               in Node (PV_Permissions_UserId p y) (forestMap (\pv -> case pv of
                                                                                                                          PV_UserId_UserId p
                                                                                                                                           x -> PV_Permissions_UserId ((Path_Permissions_owner :: Path_UserId UserId ->
                                                                                                                                                                                                  Path_Permissions UserId) p) x) (pvNodes y :: Forest PV_UserId))
-                           _ -> error "Expected a field match",
-                       case pathsOf x (undefined :: Proxy UserIds) :: [Path_Permissions UserIds] of
+                           [] -> error "No Path_Permissions_owner field found"
+                           ps -> error $ ("Multiple Path_Permissions_owner fields found: " ++ show ps),
+                       case filter (\x -> case x of
+                                              Path_Permissions_writers _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy UserIds)) :: [Path_Permissions UserIds] of
                            [p@(Path_Permissions_writers q)] -> let [y] = toListOf (toLens p) x :: [UserIds]
                                                                 in Node (PV_Permissions_UserIds p y) (forestMap (\pv -> case pv of
                                                                                                                             PV_UserIds_JSONText p
@@ -13500,8 +13806,11 @@ instance IsPathNode Permissions
                                                                                                                             PV_UserIds_Text p
                                                                                                                                             x -> PV_Permissions_Text ((Path_Permissions_writers :: Path_UserIds Text ->
                                                                                                                                                                                                    Path_Permissions Text) p) x) (pvNodes y :: Forest PV_UserIds))
-                           _ -> error "Expected a field match",
-                       case pathsOf x (undefined :: Proxy UserIds) :: [Path_Permissions UserIds] of
+                           [] -> error "No Path_Permissions_writers field found"
+                           ps -> error $ ("Multiple Path_Permissions_writers fields found: " ++ show ps),
+                       case filter (\x -> case x of
+                                              Path_Permissions_readers _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy UserIds)) :: [Path_Permissions UserIds] of
                            [p@(Path_Permissions_readers q)] -> let [y] = toListOf (toLens p) x :: [UserIds]
                                                                 in Node (PV_Permissions_UserIds p y) (forestMap (\pv -> case pv of
                                                                                                                             PV_UserIds_JSONText p
@@ -13513,10 +13822,13 @@ instance IsPathNode Permissions
                                                                                                                             PV_UserIds_Text p
                                                                                                                                             x -> PV_Permissions_Text ((Path_Permissions_readers :: Path_UserIds Text ->
                                                                                                                                                                                                    Path_Permissions Text) p) x) (pvNodes y :: Forest PV_UserIds))
-                           _ -> error "Expected a field match"]
+                           [] -> error "No Path_Permissions_readers field found"
+                           ps -> error $ ("Multiple Path_Permissions_readers fields found: " ++ show ps)]
 instance IsPathNode Author
     where type PVType Author = PV_Author
-          pvNodes x = [case pathsOf x (undefined :: Proxy Markup) :: [Path_Author Markup] of
+          pvNodes x = [case filter (\x -> case x of
+                                              Path_Author_authorName _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markup)) :: [Path_Author Markup] of
                            [p@(Path_Author_authorName q)] -> let [y] = toListOf (toLens p) x :: [Markup]
                                                               in Node (PV_Author_Markup p y) (forestMap (\pv -> case pv of
                                                                                                                     PV_Markup_JSONText p
@@ -13528,8 +13840,11 @@ instance IsPathNode Author
                                                                                                                     PV_Markup_Text p
                                                                                                                                    x -> PV_Author_Text ((Path_Author_authorName :: Path_Markup Text ->
                                                                                                                                                                                    Path_Author Text) p) x) (pvNodes y :: Forest PV_Markup))
-                           _ -> error "Expected a field match",
-                       case pathsOf x (undefined :: Proxy Markup) :: [Path_Author Markup] of
+                           [] -> error "No Path_Author_authorName field found"
+                           ps -> error $ ("Multiple Path_Author_authorName fields found: " ++ show ps),
+                       case filter (\x -> case x of
+                                              Path_Author_authorCredentials _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markup)) :: [Path_Author Markup] of
                            [p@(Path_Author_authorCredentials q)] -> let [y] = toListOf (toLens p) x :: [Markup]
                                                                      in Node (PV_Author_Markup p y) (forestMap (\pv -> case pv of
                                                                                                                            PV_Markup_JSONText p
@@ -13541,7 +13856,8 @@ instance IsPathNode Author
                                                                                                                            PV_Markup_Text p
                                                                                                                                           x -> PV_Author_Text ((Path_Author_authorCredentials :: Path_Markup Text ->
                                                                                                                                                                                                  Path_Author Text) p) x) (pvNodes y :: Forest PV_Markup))
-                           _ -> error "Expected a field match"]
+                           [] -> error "No Path_Author_authorCredentials field found"
+                           ps -> error $ ("Multiple Path_Author_authorCredentials fields found: " ++ show ps)]
 instance IsPathNode Branding
     where type PVType Branding = PV_Branding
           pvNodes x = case pathsOf x (undefined :: Proxy Text) :: [Path_Branding Text] of
@@ -13553,7 +13869,7 @@ instance IsPathNode Branding
                                                                                                                 PV_Text_Text p
                                                                                                                              x -> PV_Branding_Text ((Path_Branding_View :: Path_Text Text ->
                                                                                                                                                                            Path_Branding Text) p) x) (pvNodes y :: Forest PV_Text))]
-                          _ -> [] :: [Tree (PVType Branding)]
+                          [] -> [] :: [Tree (PVType Branding)]
 instance IsPathNode Report
     where type PVType Report = PV_Report
           pvNodes x = case pathsOf x (undefined :: Proxy ReportView) :: [Path_Report ReportView] of
@@ -13670,6 +13986,16 @@ instance IsPathNode Report
                                                                                                                   PV_ReportView_ReportValueTypeInfo p
                                                                                                                                                     x -> PV_Report_ReportValueTypeInfo ((Path_Report_View :: Path_ReportView ReportValueTypeInfo ->
                                                                                                                                                                                                              Path_Report ReportValueTypeInfo) p) x
+                                                                                                                  PV_ReportView_EUI p
+                                                                                                                                    x -> PV_Report_EUI ((Path_Report_View :: Path_ReportView (Either URI
+                                                                                                                                                                                                     ImageFile) ->
+                                                                                                                                                                             Path_Report (Either URI
+                                                                                                                                                                                                 ImageFile)) p) x
+                                                                                                                  PV_ReportView_MEUI p
+                                                                                                                                     x -> PV_Report_MEUI ((Path_Report_View :: Path_ReportView (Maybe (Either URI
+                                                                                                                                                                                                              ImageFile)) ->
+                                                                                                                                                                               Path_Report (Maybe (Either URI
+                                                                                                                                                                                                          ImageFile))) p) x
                                                                                                                   PV_ReportView_MaybeImageFile p
                                                                                                                                                x -> PV_Report_MaybeImageFile ((Path_Report_View :: Path_ReportView (Maybe ImageFile) ->
                                                                                                                                                                                                    Path_Report (Maybe ImageFile)) p) x
@@ -13696,6 +14022,11 @@ instance IsPathNode Report
                                                                                                                   PV_ReportView_Item p
                                                                                                                                      x -> PV_Report_Item ((Path_Report_View :: Path_ReportView Item ->
                                                                                                                                                                                Path_Report Item) p) x
+                                                                                                                  PV_ReportView_MIM p
+                                                                                                                                    x -> PV_Report_MIM ((Path_Report_View :: Path_ReportView (Map ItemFieldName
+                                                                                                                                                                                                  Markup) ->
+                                                                                                                                                                             Path_Report (Map ItemFieldName
+                                                                                                                                                                                              Markup)) p) x
                                                                                                                   PV_ReportView_CIString p
                                                                                                                                          x -> PV_Report_CIString ((Path_Report_View :: Path_ReportView CIString ->
                                                                                                                                                                                        Path_Report CIString) p) x
@@ -13711,10 +14042,12 @@ instance IsPathNode Report
                                                                                                                   PV_ReportView_UUID p
                                                                                                                                      x -> PV_Report_UUID ((Path_Report_View :: Path_ReportView UUID ->
                                                                                                                                                                                Path_Report UUID) p) x) (pvNodes y :: Forest PV_ReportView))]
-                          _ -> [] :: [Tree (PVType Report)]
+                          [] -> [] :: [Tree (PVType Report)]
 instance IsPathNode ReportElem
     where type PVType ReportElem = PV_ReportElem
-          pvNodes (x@(ReportItem {})) = [case pathsOf x (undefined :: Proxy Item) :: [Path_ReportElem Item] of
+          pvNodes (x@(ReportItem {})) = [case filter (\x -> case x of
+                                                                Path_ReportElem_elemItem _ -> True
+                                                                _ -> False) (pathsOf x (undefined :: Proxy Item)) :: [Path_ReportElem Item] of
                                              [p@(Path_ReportElem_elemItem q)] -> let [y] = toListOf (toLens p) x :: [Item]
                                                                                   in Node (PV_ReportElem_Item p y) (forestMap (\pv -> case pv of
                                                                                                                                           PV_Item_String p
@@ -13747,6 +14080,16 @@ instance IsPathNode ReportElem
                                                                                                                                           PV_Item_Markup p
                                                                                                                                                          x -> PV_ReportElem_Markup ((Path_ReportElem_elemItem :: Path_Item Markup ->
                                                                                                                                                                                                                  Path_ReportElem Markup) p) x
+                                                                                                                                          PV_Item_EUI p
+                                                                                                                                                      x -> PV_ReportElem_EUI ((Path_ReportElem_elemItem :: Path_Item (Either URI
+                                                                                                                                                                                                                             ImageFile) ->
+                                                                                                                                                                                                           Path_ReportElem (Either URI
+                                                                                                                                                                                                                                   ImageFile)) p) x
+                                                                                                                                          PV_Item_MEUI p
+                                                                                                                                                       x -> PV_ReportElem_MEUI ((Path_ReportElem_elemItem :: Path_Item (Maybe (Either URI
+                                                                                                                                                                                                                                      ImageFile)) ->
+                                                                                                                                                                                                             Path_ReportElem (Maybe (Either URI
+                                                                                                                                                                                                                                            ImageFile))) p) x
                                                                                                                                           PV_Item_MaybeImageFile p
                                                                                                                                                                  x -> PV_ReportElem_MaybeImageFile ((Path_ReportElem_elemItem :: Path_Item (Maybe ImageFile) ->
                                                                                                                                                                                                                                  Path_ReportElem (Maybe ImageFile)) p) x
@@ -13767,14 +14110,22 @@ instance IsPathNode ReportElem
                                                                                                                                           PV_Item_Item p
                                                                                                                                                        x -> PV_ReportElem_Item ((Path_ReportElem_elemItem :: Path_Item Item ->
                                                                                                                                                                                                              Path_ReportElem Item) p) x
+                                                                                                                                          PV_Item_MIM p
+                                                                                                                                                      x -> PV_ReportElem_MIM ((Path_ReportElem_elemItem :: Path_Item (Map ItemFieldName
+                                                                                                                                                                                                                          Markup) ->
+                                                                                                                                                                                                           Path_ReportElem (Map ItemFieldName
+                                                                                                                                                                                                                                Markup)) p) x
                                                                                                                                           PV_Item_URI p
                                                                                                                                                       x -> PV_ReportElem_URI ((Path_ReportElem_elemItem :: Path_Item URI ->
                                                                                                                                                                                                            Path_ReportElem URI) p) x
                                                                                                                                           PV_Item_Text p
                                                                                                                                                        x -> PV_ReportElem_Text ((Path_ReportElem_elemItem :: Path_Item Text ->
                                                                                                                                                                                                              Path_ReportElem Text) p) x) (pvNodes y :: Forest PV_Item))
-                                             _ -> error "Expected a field match"]
-          pvNodes (x@(ReportParagraph {})) = [case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportElem Markup] of
+                                             [] -> error "No Path_ReportElem_elemItem field found"
+                                             ps -> error $ ("Multiple Path_ReportElem_elemItem fields found: " ++ show ps)]
+          pvNodes (x@(ReportParagraph {})) = [case filter (\x -> case x of
+                                                                     Path_ReportElem_elemText _ -> True
+                                                                     _ -> False) (pathsOf x (undefined :: Proxy Markup)) :: [Path_ReportElem Markup] of
                                                   [p@(Path_ReportElem_elemText q)] -> let [y] = toListOf (toLens p) x :: [Markup]
                                                                                        in Node (PV_ReportElem_Markup p y) (forestMap (\pv -> case pv of
                                                                                                                                                  PV_Markup_JSONText p
@@ -13786,11 +14137,14 @@ instance IsPathNode ReportElem
                                                                                                                                                  PV_Markup_Text p
                                                                                                                                                                 x -> PV_ReportElem_Text ((Path_ReportElem_elemText :: Path_Markup Text ->
                                                                                                                                                                                                                       Path_ReportElem Text) p) x) (pvNodes y :: Forest PV_Markup))
-                                                  _ -> error "Expected a field match"]
+                                                  [] -> error "No Path_ReportElem_elemText field found"
+                                                  ps -> error $ ("Multiple Path_ReportElem_elemText fields found: " ++ show ps)]
           pvNodes (x@(ReportUndecided {})) = []
 instance IsPathNode ReportFlags
     where type PVType ReportFlags = PV_ReportFlags
-          pvNodes x = [case pathsOf x (undefined :: Proxy Bool) :: [Path_ReportFlags Bool] of
+          pvNodes x = [case filter (\x -> case x of
+                                              Path_ReportFlags_hideEmptyItemFields _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Bool)) :: [Path_ReportFlags Bool] of
                            [p@(Path_ReportFlags_hideEmptyItemFields q)] -> let [y] = toListOf (toLens p) x :: [Bool]
                                                                             in Node (PV_ReportFlags_Bool p y) (forestMap (\pv -> case pv of
                                                                                                                                      PV_Bool_String p
@@ -13802,7 +14156,8 @@ instance IsPathNode ReportFlags
                                                                                                                                      PV_Bool_JSONText p
                                                                                                                                                       x -> PV_ReportFlags_JSONText ((Path_ReportFlags_hideEmptyItemFields :: Path_Bool JSONText ->
                                                                                                                                                                                                                              Path_ReportFlags JSONText) p) x) (pvNodes y :: Forest PV_Bool))
-                           _ -> error "Expected a field match"]
+                           [] -> error "No Path_ReportFlags_hideEmptyItemFields field found"
+                           ps -> error $ ("Multiple Path_ReportFlags_hideEmptyItemFields fields found: " ++ show ps)]
 instance IsPathNode ReportIntendedUse
     where type PVType ReportIntendedUse = PV_ReportIntendedUse
           pvNodes x = case pathsOf x (undefined :: Proxy String) :: [Path_ReportIntendedUse String] of
@@ -13814,16 +14169,19 @@ instance IsPathNode ReportIntendedUse
                                                                                                                                     PV_String_JSONText p
                                                                                                                                                        x -> PV_ReportIntendedUse_JSONText ((Path_ReportIntendedUse_View :: Path_String JSONText ->
                                                                                                                                                                                                                            Path_ReportIntendedUse JSONText) p) x) (pvNodes y :: Forest PV_String))]
-                          _ -> [] :: [Tree (PVType ReportIntendedUse)]
+                          [] -> [] :: [Tree (PVType ReportIntendedUse)]
 instance IsPathNode ReportStandard
     where type PVType ReportStandard = PV_ReportStandard
-          pvNodes x = [case pathsOf x (undefined :: Proxy Int) :: [Path_ReportStandard Int] of
+          pvNodes x = [case filter (\x -> case x of
+                                              Path_ReportStandard_unReportStandard _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Int)) :: [Path_ReportStandard Int] of
                            [p@(Path_ReportStandard_unReportStandard q)] -> let [y] = toListOf (toLens p) x :: [Int]
                                                                             in Node (PV_ReportStandard_Int p y) (forestMap (\pv -> case pv of
                                                                                                                                        PV_Int_Int p
                                                                                                                                                   x -> PV_ReportStandard_Int ((Path_ReportStandard_unReportStandard :: Path_Int Int ->
                                                                                                                                                                                                                        Path_ReportStandard Int) p) x) (pvNodes y :: Forest PV_Int))
-                           _ -> error "Expected a field match"]
+                           [] -> error "No Path_ReportStandard_unReportStandard field found"
+                           ps -> error $ ("Multiple Path_ReportStandard_unReportStandard fields found: " ++ show ps)]
 instance IsPathNode ReportStatus
     where type PVType ReportStatus = PV_ReportStatus
           pvNodes x = case pathsOf x (undefined :: Proxy String) :: [Path_ReportStatus String] of
@@ -13835,10 +14193,12 @@ instance IsPathNode ReportStatus
                                                                                                                           PV_String_JSONText p
                                                                                                                                              x -> PV_ReportStatus_JSONText ((Path_ReportStatus_View :: Path_String JSONText ->
                                                                                                                                                                                                        Path_ReportStatus JSONText) p) x) (pvNodes y :: Forest PV_String))]
-                          _ -> [] :: [Tree (PVType ReportStatus)]
+                          [] -> [] :: [Tree (PVType ReportStatus)]
 instance IsPathNode ReportValueApproachInfo
     where type PVType ReportValueApproachInfo = PV_ReportValueApproachInfo
-          pvNodes x = [case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportValueApproachInfo Markup] of
+          pvNodes x = [case filter (\x -> case x of
+                                              Path_ReportValueApproachInfo_reportValueApproachName _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markup)) :: [Path_ReportValueApproachInfo Markup] of
                            [p@(Path_ReportValueApproachInfo_reportValueApproachName q)] -> let [y] = toListOf (toLens p) x :: [Markup]
                                                                                             in Node (PV_ReportValueApproachInfo_Markup p y) (forestMap (\pv -> case pv of
                                                                                                                                                                    PV_Markup_JSONText p
@@ -13850,8 +14210,11 @@ instance IsPathNode ReportValueApproachInfo
                                                                                                                                                                    PV_Markup_Text p
                                                                                                                                                                                   x -> PV_ReportValueApproachInfo_Text ((Path_ReportValueApproachInfo_reportValueApproachName :: Path_Markup Text ->
                                                                                                                                                                                                                                                                                  Path_ReportValueApproachInfo Text) p) x) (pvNodes y :: Forest PV_Markup))
-                           _ -> error "Expected a field match",
-                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportValueApproachInfo Markup] of
+                           [] -> error "No Path_ReportValueApproachInfo_reportValueApproachName field found"
+                           ps -> error $ ("Multiple Path_ReportValueApproachInfo_reportValueApproachName fields found: " ++ show ps),
+                       case filter (\x -> case x of
+                                              Path_ReportValueApproachInfo_reportValueApproachDescription _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markup)) :: [Path_ReportValueApproachInfo Markup] of
                            [p@(Path_ReportValueApproachInfo_reportValueApproachDescription q)] -> let [y] = toListOf (toLens p) x :: [Markup]
                                                                                                    in Node (PV_ReportValueApproachInfo_Markup p y) (forestMap (\pv -> case pv of
                                                                                                                                                                           PV_Markup_JSONText p
@@ -13863,10 +14226,13 @@ instance IsPathNode ReportValueApproachInfo
                                                                                                                                                                           PV_Markup_Text p
                                                                                                                                                                                          x -> PV_ReportValueApproachInfo_Text ((Path_ReportValueApproachInfo_reportValueApproachDescription :: Path_Markup Text ->
                                                                                                                                                                                                                                                                                                Path_ReportValueApproachInfo Text) p) x) (pvNodes y :: Forest PV_Markup))
-                           _ -> error "Expected a field match"]
+                           [] -> error "No Path_ReportValueApproachInfo_reportValueApproachDescription field found"
+                           ps -> error $ ("Multiple Path_ReportValueApproachInfo_reportValueApproachDescription fields found: " ++ show ps)]
 instance IsPathNode ReportValueTypeInfo
     where type PVType ReportValueTypeInfo = PV_ReportValueTypeInfo
-          pvNodes x = [case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportValueTypeInfo Markup] of
+          pvNodes x = [case filter (\x -> case x of
+                                              Path_ReportValueTypeInfo_reportValueTypeName _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markup)) :: [Path_ReportValueTypeInfo Markup] of
                            [p@(Path_ReportValueTypeInfo_reportValueTypeName q)] -> let [y] = toListOf (toLens p) x :: [Markup]
                                                                                     in Node (PV_ReportValueTypeInfo_Markup p y) (forestMap (\pv -> case pv of
                                                                                                                                                        PV_Markup_JSONText p
@@ -13878,8 +14244,11 @@ instance IsPathNode ReportValueTypeInfo
                                                                                                                                                        PV_Markup_Text p
                                                                                                                                                                       x -> PV_ReportValueTypeInfo_Text ((Path_ReportValueTypeInfo_reportValueTypeName :: Path_Markup Text ->
                                                                                                                                                                                                                                                          Path_ReportValueTypeInfo Text) p) x) (pvNodes y :: Forest PV_Markup))
-                           _ -> error "Expected a field match",
-                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportValueTypeInfo Markup] of
+                           [] -> error "No Path_ReportValueTypeInfo_reportValueTypeName field found"
+                           ps -> error $ ("Multiple Path_ReportValueTypeInfo_reportValueTypeName fields found: " ++ show ps),
+                       case filter (\x -> case x of
+                                              Path_ReportValueTypeInfo_reportValueTypeDescription _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markup)) :: [Path_ReportValueTypeInfo Markup] of
                            [p@(Path_ReportValueTypeInfo_reportValueTypeDescription q)] -> let [y] = toListOf (toLens p) x :: [Markup]
                                                                                            in Node (PV_ReportValueTypeInfo_Markup p y) (forestMap (\pv -> case pv of
                                                                                                                                                               PV_Markup_JSONText p
@@ -13891,8 +14260,11 @@ instance IsPathNode ReportValueTypeInfo
                                                                                                                                                               PV_Markup_Text p
                                                                                                                                                                              x -> PV_ReportValueTypeInfo_Text ((Path_ReportValueTypeInfo_reportValueTypeDescription :: Path_Markup Text ->
                                                                                                                                                                                                                                                                        Path_ReportValueTypeInfo Text) p) x) (pvNodes y :: Forest PV_Markup))
-                           _ -> error "Expected a field match",
-                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportValueTypeInfo Markup] of
+                           [] -> error "No Path_ReportValueTypeInfo_reportValueTypeDescription field found"
+                           ps -> error $ ("Multiple Path_ReportValueTypeInfo_reportValueTypeDescription fields found: " ++ show ps),
+                       case filter (\x -> case x of
+                                              Path_ReportValueTypeInfo_reportValueTypeDefinition _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markup)) :: [Path_ReportValueTypeInfo Markup] of
                            [p@(Path_ReportValueTypeInfo_reportValueTypeDefinition q)] -> let [y] = toListOf (toLens p) x :: [Markup]
                                                                                           in Node (PV_ReportValueTypeInfo_Markup p y) (forestMap (\pv -> case pv of
                                                                                                                                                              PV_Markup_JSONText p
@@ -13904,7 +14276,8 @@ instance IsPathNode ReportValueTypeInfo
                                                                                                                                                              PV_Markup_Text p
                                                                                                                                                                             x -> PV_ReportValueTypeInfo_Text ((Path_ReportValueTypeInfo_reportValueTypeDefinition :: Path_Markup Text ->
                                                                                                                                                                                                                                                                      Path_ReportValueTypeInfo Text) p) x) (pvNodes y :: Forest PV_Markup))
-                           _ -> error "Expected a field match"]
+                           [] -> error "No Path_ReportValueTypeInfo_reportValueTypeDefinition field found"
+                           ps -> error $ ("Multiple Path_ReportValueTypeInfo_reportValueTypeDefinition fields found: " ++ show ps)]
 instance IsPathNode ReportImage
     where type PVType ReportImage = PV_ReportImage
           pvNodes x = case pathsOf x (undefined :: Proxy ReportImageView) :: [Path_ReportImage ReportImageView] of
@@ -13940,6 +14313,16 @@ instance IsPathNode ReportImage
                                                                                                                                  PV_ReportImageView_Markup p
                                                                                                                                                            x -> PV_ReportImage_Markup ((Path_ReportImage_View :: Path_ReportImageView Markup ->
                                                                                                                                                                                                                  Path_ReportImage Markup) p) x
+                                                                                                                                 PV_ReportImageView_EUI p
+                                                                                                                                                        x -> PV_ReportImage_EUI ((Path_ReportImage_View :: Path_ReportImageView (Either URI
+                                                                                                                                                                                                                                        ImageFile) ->
+                                                                                                                                                                                                           Path_ReportImage (Either URI
+                                                                                                                                                                                                                                    ImageFile)) p) x
+                                                                                                                                 PV_ReportImageView_MEUI p
+                                                                                                                                                         x -> PV_ReportImage_MEUI ((Path_ReportImage_View :: Path_ReportImageView (Maybe (Either URI
+                                                                                                                                                                                                                                                 ImageFile)) ->
+                                                                                                                                                                                                             Path_ReportImage (Maybe (Either URI
+                                                                                                                                                                                                                                             ImageFile))) p) x
                                                                                                                                  PV_ReportImageView_MaybeImageFile p
                                                                                                                                                                    x -> PV_ReportImage_MaybeImageFile ((Path_ReportImage_View :: Path_ReportImageView (Maybe ImageFile) ->
                                                                                                                                                                                                                                  Path_ReportImage (Maybe ImageFile)) p) x
@@ -13955,10 +14338,12 @@ instance IsPathNode ReportImage
                                                                                                                                  PV_ReportImageView_Text p
                                                                                                                                                          x -> PV_ReportImage_Text ((Path_ReportImage_View :: Path_ReportImageView Text ->
                                                                                                                                                                                                              Path_ReportImage Text) p) x) (pvNodes y :: Forest PV_ReportImageView))]
-                          _ -> [] :: [Tree (PVType ReportImage)]
+                          [] -> [] :: [Tree (PVType ReportImage)]
 instance IsPathNode ReportImageView
     where type PVType ReportImageView = PV_ReportImageView
-          pvNodes x = [case pathsOf x (undefined :: Proxy SaneSizeImageSize) :: [Path_ReportImageView SaneSizeImageSize] of
+          pvNodes x = [case filter (\x -> case x of
+                                              Path_ReportImageView__picSize _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy SaneSizeImageSize)) :: [Path_ReportImageView SaneSizeImageSize] of
                            [p@(Path_ReportImageView__picSize q)] -> let [y] = toListOf (toLens p) x :: [SaneSizeImageSize]
                                                                      in Node (PV_ReportImageView_SaneSizeImageSize p y) (forestMap (\pv -> case pv of
                                                                                                                                                PV_SaneSizeImageSize_String p
@@ -13982,15 +14367,21 @@ instance IsPathNode ReportImageView
                                                                                                                                                PV_SaneSizeImageSize_SaneSizeImageSize p
                                                                                                                                                                                       x -> PV_ReportImageView_SaneSizeImageSize ((Path_ReportImageView__picSize :: Path_SaneSizeImageSize (SaneSize ImageSize) ->
                                                                                                                                                                                                                                                                    Path_ReportImageView (SaneSize ImageSize)) p) x) (pvNodes y :: Forest PV_SaneSizeImageSize))
-                           _ -> error "Expected a field match",
-                       case pathsOf x (undefined :: Proxy ImageCrop) :: [Path_ReportImageView ImageCrop] of
+                           [] -> error "No Path_ReportImageView__picSize field found"
+                           ps -> error $ ("Multiple Path_ReportImageView__picSize fields found: " ++ show ps),
+                       case filter (\x -> case x of
+                                              Path_ReportImageView__picCrop _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy ImageCrop)) :: [Path_ReportImageView ImageCrop] of
                            [p@(Path_ReportImageView__picCrop q)] -> let [y] = toListOf (toLens p) x :: [ImageCrop]
                                                                      in Node (PV_ReportImageView_ImageCrop p y) (forestMap (\pv -> case pv of
                                                                                                                                        PV_ImageCrop_ImageCrop p
                                                                                                                                                               x -> PV_ReportImageView_ImageCrop ((Path_ReportImageView__picCrop :: Path_ImageCrop ImageCrop ->
                                                                                                                                                                                                                                    Path_ReportImageView ImageCrop) p) x) (pvNodes y :: Forest PV_ImageCrop))
-                           _ -> error "Expected a field match",
-                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportImageView Markup] of
+                           [] -> error "No Path_ReportImageView__picCrop field found"
+                           ps -> error $ ("Multiple Path_ReportImageView__picCrop fields found: " ++ show ps),
+                       case filter (\x -> case x of
+                                              Path_ReportImageView__picCaption _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markup)) :: [Path_ReportImageView Markup] of
                            [p@(Path_ReportImageView__picCaption q)] -> let [y] = toListOf (toLens p) x :: [Markup]
                                                                         in Node (PV_ReportImageView_Markup p y) (forestMap (\pv -> case pv of
                                                                                                                                        PV_Markup_JSONText p
@@ -14002,9 +14393,34 @@ instance IsPathNode ReportImageView
                                                                                                                                        PV_Markup_Text p
                                                                                                                                                       x -> PV_ReportImageView_Text ((Path_ReportImageView__picCaption :: Path_Markup Text ->
                                                                                                                                                                                                                          Path_ReportImageView Text) p) x) (pvNodes y :: Forest PV_Markup))
-                           _ -> error "Expected a field match",
-                       error "doField Appraisal.ReportInstances._picOriginal",
-                       case pathsOf x (undefined :: Proxy MaybeImageFile) :: [Path_ReportImageView MaybeImageFile] of
+                           [] -> error "No Path_ReportImageView__picCaption field found"
+                           ps -> error $ ("Multiple Path_ReportImageView__picCaption fields found: " ++ show ps),
+                       case filter (\x -> case x of
+                                              Path_ReportImageView__picOriginal _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy MEUI)) :: [Path_ReportImageView MEUI] of
+                           [p@(Path_ReportImageView__picOriginal q)] -> let [y] = toListOf (toLens p) x :: [MEUI]
+                                                                         in Node (PV_ReportImageView_MEUI p y) (forestMap (\pv -> case pv of
+                                                                                                                                      PV_MEUI_ImageFile p
+                                                                                                                                                        x -> PV_ReportImageView_ImageFile ((Path_ReportImageView__picOriginal :: Path_MEUI ImageFile ->
+                                                                                                                                                                                                                                 Path_ReportImageView ImageFile) p) x
+                                                                                                                                      PV_MEUI_EUI p
+                                                                                                                                                  x -> PV_ReportImageView_EUI ((Path_ReportImageView__picOriginal :: Path_MEUI (Either URI
+                                                                                                                                                                                                                                       ImageFile) ->
+                                                                                                                                                                                                                     Path_ReportImageView (Either URI
+                                                                                                                                                                                                                                                  ImageFile)) p) x
+                                                                                                                                      PV_MEUI_MEUI p
+                                                                                                                                                   x -> PV_ReportImageView_MEUI ((Path_ReportImageView__picOriginal :: Path_MEUI (Maybe (Either URI
+                                                                                                                                                                                                                                                ImageFile)) ->
+                                                                                                                                                                                                                       Path_ReportImageView (Maybe (Either URI
+                                                                                                                                                                                                                                                           ImageFile))) p) x
+                                                                                                                                      PV_MEUI_URI p
+                                                                                                                                                  x -> PV_ReportImageView_URI ((Path_ReportImageView__picOriginal :: Path_MEUI URI ->
+                                                                                                                                                                                                                     Path_ReportImageView URI) p) x) (pvNodes y :: Forest PV_MEUI))
+                           [] -> error "No Path_ReportImageView__picOriginal field found"
+                           ps -> error $ ("Multiple Path_ReportImageView__picOriginal fields found: " ++ show ps),
+                       case filter (\x -> case x of
+                                              Path_ReportImageView__picEditedDeprecated _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy MaybeImageFile)) :: [Path_ReportImageView MaybeImageFile] of
                            [p@(Path_ReportImageView__picEditedDeprecated q)] -> let [y] = toListOf (toLens p) x :: [MaybeImageFile]
                                                                                  in Node (PV_ReportImageView_MaybeImageFile p y) (forestMap (\pv -> case pv of
                                                                                                                                                         PV_MaybeImageFile_String p
@@ -14016,8 +14432,11 @@ instance IsPathNode ReportImageView
                                                                                                                                                         PV_MaybeImageFile_MaybeImageFile p
                                                                                                                                                                                          x -> PV_ReportImageView_MaybeImageFile ((Path_ReportImageView__picEditedDeprecated :: Path_MaybeImageFile (Maybe ImageFile) ->
                                                                                                                                                                                                                                                                                Path_ReportImageView (Maybe ImageFile)) p) x) (pvNodes y :: Forest PV_MaybeImageFile))
-                           _ -> error "Expected a field match",
-                       case pathsOf x (undefined :: Proxy MaybeImageFile) :: [Path_ReportImageView MaybeImageFile] of
+                           [] -> error "No Path_ReportImageView__picEditedDeprecated field found"
+                           ps -> error $ ("Multiple Path_ReportImageView__picEditedDeprecated fields found: " ++ show ps),
+                       case filter (\x -> case x of
+                                              Path_ReportImageView__picThumbDeprecated _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy MaybeImageFile)) :: [Path_ReportImageView MaybeImageFile] of
                            [p@(Path_ReportImageView__picThumbDeprecated q)] -> let [y] = toListOf (toLens p) x :: [MaybeImageFile]
                                                                                 in Node (PV_ReportImageView_MaybeImageFile p y) (forestMap (\pv -> case pv of
                                                                                                                                                        PV_MaybeImageFile_String p
@@ -14029,8 +14448,11 @@ instance IsPathNode ReportImageView
                                                                                                                                                        PV_MaybeImageFile_MaybeImageFile p
                                                                                                                                                                                         x -> PV_ReportImageView_MaybeImageFile ((Path_ReportImageView__picThumbDeprecated :: Path_MaybeImageFile (Maybe ImageFile) ->
                                                                                                                                                                                                                                                                              Path_ReportImageView (Maybe ImageFile)) p) x) (pvNodes y :: Forest PV_MaybeImageFile))
-                           _ -> error "Expected a field match",
-                       case pathsOf x (undefined :: Proxy MaybeImageFile) :: [Path_ReportImageView MaybeImageFile] of
+                           [] -> error "No Path_ReportImageView__picThumbDeprecated field found"
+                           ps -> error $ ("Multiple Path_ReportImageView__picThumbDeprecated fields found: " ++ show ps),
+                       case filter (\x -> case x of
+                                              Path_ReportImageView__picPrinterDeprecated _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy MaybeImageFile)) :: [Path_ReportImageView MaybeImageFile] of
                            [p@(Path_ReportImageView__picPrinterDeprecated q)] -> let [y] = toListOf (toLens p) x :: [MaybeImageFile]
                                                                                   in Node (PV_ReportImageView_MaybeImageFile p y) (forestMap (\pv -> case pv of
                                                                                                                                                          PV_MaybeImageFile_String p
@@ -14042,8 +14464,11 @@ instance IsPathNode ReportImageView
                                                                                                                                                          PV_MaybeImageFile_MaybeImageFile p
                                                                                                                                                                                           x -> PV_ReportImageView_MaybeImageFile ((Path_ReportImageView__picPrinterDeprecated :: Path_MaybeImageFile (Maybe ImageFile) ->
                                                                                                                                                                                                                                                                                  Path_ReportImageView (Maybe ImageFile)) p) x) (pvNodes y :: Forest PV_MaybeImageFile))
-                           _ -> error "Expected a field match",
-                       case pathsOf x (undefined :: Proxy Bool) :: [Path_ReportImageView Bool] of
+                           [] -> error "No Path_ReportImageView__picPrinterDeprecated field found"
+                           ps -> error $ ("Multiple Path_ReportImageView__picPrinterDeprecated fields found: " ++ show ps),
+                       case filter (\x -> case x of
+                                              Path_ReportImageView__picMustEnlarge _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Bool)) :: [Path_ReportImageView Bool] of
                            [p@(Path_ReportImageView__picMustEnlarge q)] -> let [y] = toListOf (toLens p) x :: [Bool]
                                                                             in Node (PV_ReportImageView_Bool p y) (forestMap (\pv -> case pv of
                                                                                                                                          PV_Bool_String p
@@ -14055,8 +14480,11 @@ instance IsPathNode ReportImageView
                                                                                                                                          PV_Bool_JSONText p
                                                                                                                                                           x -> PV_ReportImageView_JSONText ((Path_ReportImageView__picMustEnlarge :: Path_Bool JSONText ->
                                                                                                                                                                                                                                      Path_ReportImageView JSONText) p) x) (pvNodes y :: Forest PV_Bool))
-                           _ -> error "Expected a field match",
-                       case pathsOf x (undefined :: Proxy MaybeImageFile) :: [Path_ReportImageView MaybeImageFile] of
+                           [] -> error "No Path_ReportImageView__picMustEnlarge field found"
+                           ps -> error $ ("Multiple Path_ReportImageView__picMustEnlarge fields found: " ++ show ps),
+                       case filter (\x -> case x of
+                                              Path_ReportImageView__picEnlargedDeprecated _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy MaybeImageFile)) :: [Path_ReportImageView MaybeImageFile] of
                            [p@(Path_ReportImageView__picEnlargedDeprecated q)] -> let [y] = toListOf (toLens p) x :: [MaybeImageFile]
                                                                                    in Node (PV_ReportImageView_MaybeImageFile p y) (forestMap (\pv -> case pv of
                                                                                                                                                           PV_MaybeImageFile_String p
@@ -14068,10 +14496,13 @@ instance IsPathNode ReportImageView
                                                                                                                                                           PV_MaybeImageFile_MaybeImageFile p
                                                                                                                                                                                            x -> PV_ReportImageView_MaybeImageFile ((Path_ReportImageView__picEnlargedDeprecated :: Path_MaybeImageFile (Maybe ImageFile) ->
                                                                                                                                                                                                                                                                                    Path_ReportImageView (Maybe ImageFile)) p) x) (pvNodes y :: Forest PV_MaybeImageFile))
-                           _ -> error "Expected a field match"]
+                           [] -> error "No Path_ReportImageView__picEnlargedDeprecated field found"
+                           ps -> error $ ("Multiple Path_ReportImageView__picEnlargedDeprecated fields found: " ++ show ps)]
 instance IsPathNode ReportView
     where type PVType ReportView = PV_ReportView
-          pvNodes x = [case pathsOf x (undefined :: Proxy ReadOnlyFilePath) :: [Path_ReportView ReadOnlyFilePath] of
+          pvNodes x = [case filter (\x -> case x of
+                                              Path_ReportView__reportFolder _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy ReadOnlyFilePath)) :: [Path_ReportView ReadOnlyFilePath] of
                            [p@(Path_ReportView__reportFolder q)] -> let [y] = toListOf (toLens p) x :: [ReadOnlyFilePath]
                                                                      in Node (PV_ReportView_ReadOnlyFilePath p y) (forestMap (\pv -> case pv of
                                                                                                                                          PV_ReadOnlyFilePath_String p
@@ -14083,8 +14514,11 @@ instance IsPathNode ReportView
                                                                                                                                          PV_ReadOnlyFilePath_ReadOnlyFilePath p
                                                                                                                                                                               x -> PV_ReportView_ReadOnlyFilePath ((Path_ReportView__reportFolder :: Path_ReadOnlyFilePath (ReadOnly ([Char])) ->
                                                                                                                                                                                                                                                      Path_ReportView (ReadOnly ([Char]))) p) x) (pvNodes y :: Forest PV_ReadOnlyFilePath))
-                           _ -> error "Expected a field match",
-                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                           [] -> error "No Path_ReportView__reportFolder field found"
+                           ps -> error $ ("Multiple Path_ReportView__reportFolder fields found: " ++ show ps),
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportName _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markup)) :: [Path_ReportView Markup] of
                            [p@(Path_ReportView__reportName q)] -> let [y] = toListOf (toLens p) x :: [Markup]
                                                                    in Node (PV_ReportView_Markup p y) (forestMap (\pv -> case pv of
                                                                                                                              PV_Markup_JSONText p
@@ -14096,8 +14530,11 @@ instance IsPathNode ReportView
                                                                                                                              PV_Markup_Text p
                                                                                                                                             x -> PV_ReportView_Text ((Path_ReportView__reportName :: Path_Markup Text ->
                                                                                                                                                                                                      Path_ReportView Text) p) x) (pvNodes y :: Forest PV_Markup))
-                           _ -> error "Expected a field match",
-                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                           [] -> error "No Path_ReportView__reportName field found"
+                           ps -> error $ ("Multiple Path_ReportView__reportName fields found: " ++ show ps),
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportDate _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markup)) :: [Path_ReportView Markup] of
                            [p@(Path_ReportView__reportDate q)] -> let [y] = toListOf (toLens p) x :: [Markup]
                                                                    in Node (PV_ReportView_Markup p y) (forestMap (\pv -> case pv of
                                                                                                                              PV_Markup_JSONText p
@@ -14109,8 +14546,11 @@ instance IsPathNode ReportView
                                                                                                                              PV_Markup_Text p
                                                                                                                                             x -> PV_ReportView_Text ((Path_ReportView__reportDate :: Path_Markup Text ->
                                                                                                                                                                                                      Path_ReportView Text) p) x) (pvNodes y :: Forest PV_Markup))
-                           _ -> error "Expected a field match",
-                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                           [] -> error "No Path_ReportView__reportDate field found"
+                           ps -> error $ ("Multiple Path_ReportView__reportDate fields found: " ++ show ps),
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportContractDate _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markup)) :: [Path_ReportView Markup] of
                            [p@(Path_ReportView__reportContractDate q)] -> let [y] = toListOf (toLens p) x :: [Markup]
                                                                            in Node (PV_ReportView_Markup p y) (forestMap (\pv -> case pv of
                                                                                                                                      PV_Markup_JSONText p
@@ -14122,8 +14562,11 @@ instance IsPathNode ReportView
                                                                                                                                      PV_Markup_Text p
                                                                                                                                                     x -> PV_ReportView_Text ((Path_ReportView__reportContractDate :: Path_Markup Text ->
                                                                                                                                                                                                                      Path_ReportView Text) p) x) (pvNodes y :: Forest PV_Markup))
-                           _ -> error "Expected a field match",
-                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                           [] -> error "No Path_ReportView__reportContractDate field found"
+                           ps -> error $ ("Multiple Path_ReportView__reportContractDate fields found: " ++ show ps),
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportInspectionDate _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markup)) :: [Path_ReportView Markup] of
                            [p@(Path_ReportView__reportInspectionDate q)] -> let [y] = toListOf (toLens p) x :: [Markup]
                                                                              in Node (PV_ReportView_Markup p y) (forestMap (\pv -> case pv of
                                                                                                                                        PV_Markup_JSONText p
@@ -14135,8 +14578,11 @@ instance IsPathNode ReportView
                                                                                                                                        PV_Markup_Text p
                                                                                                                                                       x -> PV_ReportView_Text ((Path_ReportView__reportInspectionDate :: Path_Markup Text ->
                                                                                                                                                                                                                          Path_ReportView Text) p) x) (pvNodes y :: Forest PV_Markup))
-                           _ -> error "Expected a field match",
-                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                           [] -> error "No Path_ReportView__reportInspectionDate field found"
+                           ps -> error $ ("Multiple Path_ReportView__reportInspectionDate fields found: " ++ show ps),
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportEffectiveDate _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markup)) :: [Path_ReportView Markup] of
                            [p@(Path_ReportView__reportEffectiveDate q)] -> let [y] = toListOf (toLens p) x :: [Markup]
                                                                             in Node (PV_ReportView_Markup p y) (forestMap (\pv -> case pv of
                                                                                                                                       PV_Markup_JSONText p
@@ -14148,8 +14594,11 @@ instance IsPathNode ReportView
                                                                                                                                       PV_Markup_Text p
                                                                                                                                                      x -> PV_ReportView_Text ((Path_ReportView__reportEffectiveDate :: Path_Markup Text ->
                                                                                                                                                                                                                        Path_ReportView Text) p) x) (pvNodes y :: Forest PV_Markup))
-                           _ -> error "Expected a field match",
-                       case pathsOf x (undefined :: Proxy Authors) :: [Path_ReportView Authors] of
+                           [] -> error "No Path_ReportView__reportEffectiveDate field found"
+                           ps -> error $ ("Multiple Path_ReportView__reportEffectiveDate fields found: " ++ show ps),
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportAuthors _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Authors)) :: [Path_ReportView Authors] of
                            [p@(Path_ReportView__reportAuthors q)] -> let [y] = toListOf (toLens p) x :: [Authors]
                                                                       in Node (PV_ReportView_Authors p y) (forestMap (\pv -> case pv of
                                                                                                                                  PV_Authors_JSONText p
@@ -14169,8 +14618,11 @@ instance IsPathNode ReportView
                                                                                                                                  PV_Authors_Text p
                                                                                                                                                  x -> PV_ReportView_Text ((Path_ReportView__reportAuthors :: Path_Authors Text ->
                                                                                                                                                                                                              Path_ReportView Text) p) x) (pvNodes y :: Forest PV_Authors))
-                           _ -> error "Expected a field match",
-                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                           [] -> error "No Path_ReportView__reportAuthors field found"
+                           ps -> error $ ("Multiple Path_ReportView__reportAuthors fields found: " ++ show ps),
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportPreparer _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markup)) :: [Path_ReportView Markup] of
                            [p@(Path_ReportView__reportPreparer q)] -> let [y] = toListOf (toLens p) x :: [Markup]
                                                                        in Node (PV_ReportView_Markup p y) (forestMap (\pv -> case pv of
                                                                                                                                  PV_Markup_JSONText p
@@ -14182,8 +14634,11 @@ instance IsPathNode ReportView
                                                                                                                                  PV_Markup_Text p
                                                                                                                                                 x -> PV_ReportView_Text ((Path_ReportView__reportPreparer :: Path_Markup Text ->
                                                                                                                                                                                                              Path_ReportView Text) p) x) (pvNodes y :: Forest PV_Markup))
-                           _ -> error "Expected a field match",
-                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                           [] -> error "No Path_ReportView__reportPreparer field found"
+                           ps -> error $ ("Multiple Path_ReportView__reportPreparer fields found: " ++ show ps),
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportPreparerEIN _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markup)) :: [Path_ReportView Markup] of
                            [p@(Path_ReportView__reportPreparerEIN q)] -> let [y] = toListOf (toLens p) x :: [Markup]
                                                                           in Node (PV_ReportView_Markup p y) (forestMap (\pv -> case pv of
                                                                                                                                     PV_Markup_JSONText p
@@ -14195,8 +14650,11 @@ instance IsPathNode ReportView
                                                                                                                                     PV_Markup_Text p
                                                                                                                                                    x -> PV_ReportView_Text ((Path_ReportView__reportPreparerEIN :: Path_Markup Text ->
                                                                                                                                                                                                                    Path_ReportView Text) p) x) (pvNodes y :: Forest PV_Markup))
-                           _ -> error "Expected a field match",
-                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                           [] -> error "No Path_ReportView__reportPreparerEIN field found"
+                           ps -> error $ ("Multiple Path_ReportView__reportPreparerEIN fields found: " ++ show ps),
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportPreparerAddress _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markup)) :: [Path_ReportView Markup] of
                            [p@(Path_ReportView__reportPreparerAddress q)] -> let [y] = toListOf (toLens p) x :: [Markup]
                                                                               in Node (PV_ReportView_Markup p y) (forestMap (\pv -> case pv of
                                                                                                                                         PV_Markup_JSONText p
@@ -14208,8 +14666,11 @@ instance IsPathNode ReportView
                                                                                                                                         PV_Markup_Text p
                                                                                                                                                        x -> PV_ReportView_Text ((Path_ReportView__reportPreparerAddress :: Path_Markup Text ->
                                                                                                                                                                                                                            Path_ReportView Text) p) x) (pvNodes y :: Forest PV_Markup))
-                           _ -> error "Expected a field match",
-                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                           [] -> error "No Path_ReportView__reportPreparerAddress field found"
+                           ps -> error $ ("Multiple Path_ReportView__reportPreparerAddress fields found: " ++ show ps),
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportPreparerEMail _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markup)) :: [Path_ReportView Markup] of
                            [p@(Path_ReportView__reportPreparerEMail q)] -> let [y] = toListOf (toLens p) x :: [Markup]
                                                                             in Node (PV_ReportView_Markup p y) (forestMap (\pv -> case pv of
                                                                                                                                       PV_Markup_JSONText p
@@ -14221,8 +14682,11 @@ instance IsPathNode ReportView
                                                                                                                                       PV_Markup_Text p
                                                                                                                                                      x -> PV_ReportView_Text ((Path_ReportView__reportPreparerEMail :: Path_Markup Text ->
                                                                                                                                                                                                                        Path_ReportView Text) p) x) (pvNodes y :: Forest PV_Markup))
-                           _ -> error "Expected a field match",
-                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                           [] -> error "No Path_ReportView__reportPreparerEMail field found"
+                           ps -> error $ ("Multiple Path_ReportView__reportPreparerEMail fields found: " ++ show ps),
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportPreparerWebsite _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markup)) :: [Path_ReportView Markup] of
                            [p@(Path_ReportView__reportPreparerWebsite q)] -> let [y] = toListOf (toLens p) x :: [Markup]
                                                                               in Node (PV_ReportView_Markup p y) (forestMap (\pv -> case pv of
                                                                                                                                         PV_Markup_JSONText p
@@ -14234,8 +14698,11 @@ instance IsPathNode ReportView
                                                                                                                                         PV_Markup_Text p
                                                                                                                                                        x -> PV_ReportView_Text ((Path_ReportView__reportPreparerWebsite :: Path_Markup Text ->
                                                                                                                                                                                                                            Path_ReportView Text) p) x) (pvNodes y :: Forest PV_Markup))
-                           _ -> error "Expected a field match",
-                       case pathsOf x (undefined :: Proxy AbbrevPairs) :: [Path_ReportView AbbrevPairs] of
+                           [] -> error "No Path_ReportView__reportPreparerWebsite field found"
+                           ps -> error $ ("Multiple Path_ReportView__reportPreparerWebsite fields found: " ++ show ps),
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportAbbrevs _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy AbbrevPairs)) :: [Path_ReportView AbbrevPairs] of
                            [p@(Path_ReportView__reportAbbrevs q)] -> let [y] = toListOf (toLens p) x :: [AbbrevPairs]
                                                                       in Node (PV_ReportView_AbbrevPairs p y) (forestMap (\pv -> case pv of
                                                                                                                                      PV_AbbrevPairs_JSONText p
@@ -14262,8 +14729,11 @@ instance IsPathNode ReportView
                                                                                                                                      PV_AbbrevPairs_Text p
                                                                                                                                                          x -> PV_ReportView_Text ((Path_ReportView__reportAbbrevs :: Path_AbbrevPairs Text ->
                                                                                                                                                                                                                      Path_ReportView Text) p) x) (pvNodes y :: Forest PV_AbbrevPairs))
-                           _ -> error "Expected a field match",
-                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                           [] -> error "No Path_ReportView__reportAbbrevs field found"
+                           ps -> error $ ("Multiple Path_ReportView__reportAbbrevs fields found: " ++ show ps),
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportTitle _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markup)) :: [Path_ReportView Markup] of
                            [p@(Path_ReportView__reportTitle q)] -> let [y] = toListOf (toLens p) x :: [Markup]
                                                                     in Node (PV_ReportView_Markup p y) (forestMap (\pv -> case pv of
                                                                                                                               PV_Markup_JSONText p
@@ -14275,8 +14745,11 @@ instance IsPathNode ReportView
                                                                                                                               PV_Markup_Text p
                                                                                                                                              x -> PV_ReportView_Text ((Path_ReportView__reportTitle :: Path_Markup Text ->
                                                                                                                                                                                                        Path_ReportView Text) p) x) (pvNodes y :: Forest PV_Markup))
-                           _ -> error "Expected a field match",
-                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                           [] -> error "No Path_ReportView__reportTitle field found"
+                           ps -> error $ ("Multiple Path_ReportView__reportTitle fields found: " ++ show ps),
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportHeader _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markup)) :: [Path_ReportView Markup] of
                            [p@(Path_ReportView__reportHeader q)] -> let [y] = toListOf (toLens p) x :: [Markup]
                                                                      in Node (PV_ReportView_Markup p y) (forestMap (\pv -> case pv of
                                                                                                                                PV_Markup_JSONText p
@@ -14288,8 +14761,11 @@ instance IsPathNode ReportView
                                                                                                                                PV_Markup_Text p
                                                                                                                                               x -> PV_ReportView_Text ((Path_ReportView__reportHeader :: Path_Markup Text ->
                                                                                                                                                                                                          Path_ReportView Text) p) x) (pvNodes y :: Forest PV_Markup))
-                           _ -> error "Expected a field match",
-                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                           [] -> error "No Path_ReportView__reportHeader field found"
+                           ps -> error $ ("Multiple Path_ReportView__reportHeader fields found: " ++ show ps),
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportFooter _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markup)) :: [Path_ReportView Markup] of
                            [p@(Path_ReportView__reportFooter q)] -> let [y] = toListOf (toLens p) x :: [Markup]
                                                                      in Node (PV_ReportView_Markup p y) (forestMap (\pv -> case pv of
                                                                                                                                PV_Markup_JSONText p
@@ -14301,8 +14777,11 @@ instance IsPathNode ReportView
                                                                                                                                PV_Markup_Text p
                                                                                                                                               x -> PV_ReportView_Text ((Path_ReportView__reportFooter :: Path_Markup Text ->
                                                                                                                                                                                                          Path_ReportView Text) p) x) (pvNodes y :: Forest PV_Markup))
-                           _ -> error "Expected a field match",
-                       case pathsOf x (undefined :: Proxy MaybeReportIntendedUse) :: [Path_ReportView MaybeReportIntendedUse] of
+                           [] -> error "No Path_ReportView__reportFooter field found"
+                           ps -> error $ ("Multiple Path_ReportView__reportFooter fields found: " ++ show ps),
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportIntendedUse _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy MaybeReportIntendedUse)) :: [Path_ReportView MaybeReportIntendedUse] of
                            [p@(Path_ReportView__reportIntendedUse q)] -> let [y] = toListOf (toLens p) x :: [MaybeReportIntendedUse]
                                                                           in Node (PV_ReportView_MaybeReportIntendedUse p y) (forestMap (\pv -> case pv of
                                                                                                                                                     PV_MaybeReportIntendedUse_String p
@@ -14314,8 +14793,11 @@ instance IsPathNode ReportView
                                                                                                                                                     PV_MaybeReportIntendedUse_MaybeReportIntendedUse p
                                                                                                                                                                                                      x -> PV_ReportView_MaybeReportIntendedUse ((Path_ReportView__reportIntendedUse :: Path_MaybeReportIntendedUse (Maybe ReportIntendedUse) ->
                                                                                                                                                                                                                                                                                        Path_ReportView (Maybe ReportIntendedUse)) p) x) (pvNodes y :: Forest PV_MaybeReportIntendedUse))
-                           _ -> error "Expected a field match",
-                       case pathsOf x (undefined :: Proxy ReportValueTypeInfo) :: [Path_ReportView ReportValueTypeInfo] of
+                           [] -> error "No Path_ReportView__reportIntendedUse field found"
+                           ps -> error $ ("Multiple Path_ReportView__reportIntendedUse fields found: " ++ show ps),
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportValueTypeInfo _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy ReportValueTypeInfo)) :: [Path_ReportView ReportValueTypeInfo] of
                            [p@(Path_ReportView__reportValueTypeInfo q)] -> let [y] = toListOf (toLens p) x :: [ReportValueTypeInfo]
                                                                             in Node (PV_ReportView_ReportValueTypeInfo p y) (forestMap (\pv -> case pv of
                                                                                                                                                    PV_ReportValueTypeInfo_JSONText p
@@ -14330,8 +14812,11 @@ instance IsPathNode ReportView
                                                                                                                                                    PV_ReportValueTypeInfo_Text p
                                                                                                                                                                                x -> PV_ReportView_Text ((Path_ReportView__reportValueTypeInfo :: Path_ReportValueTypeInfo Text ->
                                                                                                                                                                                                                                                  Path_ReportView Text) p) x) (pvNodes y :: Forest PV_ReportValueTypeInfo))
-                           _ -> error "Expected a field match",
-                       case pathsOf x (undefined :: Proxy ReportValueApproachInfo) :: [Path_ReportView ReportValueApproachInfo] of
+                           [] -> error "No Path_ReportView__reportValueTypeInfo field found"
+                           ps -> error $ ("Multiple Path_ReportView__reportValueTypeInfo fields found: " ++ show ps),
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportValueApproachInfo _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy ReportValueApproachInfo)) :: [Path_ReportView ReportValueApproachInfo] of
                            [p@(Path_ReportView__reportValueApproachInfo q)] -> let [y] = toListOf (toLens p) x :: [ReportValueApproachInfo]
                                                                                 in Node (PV_ReportView_ReportValueApproachInfo p y) (forestMap (\pv -> case pv of
                                                                                                                                                            PV_ReportValueApproachInfo_JSONText p
@@ -14346,8 +14831,11 @@ instance IsPathNode ReportView
                                                                                                                                                            PV_ReportValueApproachInfo_Text p
                                                                                                                                                                                            x -> PV_ReportView_Text ((Path_ReportView__reportValueApproachInfo :: Path_ReportValueApproachInfo Text ->
                                                                                                                                                                                                                                                                  Path_ReportView Text) p) x) (pvNodes y :: Forest PV_ReportValueApproachInfo))
-                           _ -> error "Expected a field match",
-                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                           [] -> error "No Path_ReportView__reportValueApproachInfo field found"
+                           ps -> error $ ("Multiple Path_ReportView__reportValueApproachInfo fields found: " ++ show ps),
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportClientName _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markup)) :: [Path_ReportView Markup] of
                            [p@(Path_ReportView__reportClientName q)] -> let [y] = toListOf (toLens p) x :: [Markup]
                                                                          in Node (PV_ReportView_Markup p y) (forestMap (\pv -> case pv of
                                                                                                                                    PV_Markup_JSONText p
@@ -14359,8 +14847,11 @@ instance IsPathNode ReportView
                                                                                                                                    PV_Markup_Text p
                                                                                                                                                   x -> PV_ReportView_Text ((Path_ReportView__reportClientName :: Path_Markup Text ->
                                                                                                                                                                                                                  Path_ReportView Text) p) x) (pvNodes y :: Forest PV_Markup))
-                           _ -> error "Expected a field match",
-                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                           [] -> error "No Path_ReportView__reportClientName field found"
+                           ps -> error $ ("Multiple Path_ReportView__reportClientName fields found: " ++ show ps),
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportClientAddress _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markup)) :: [Path_ReportView Markup] of
                            [p@(Path_ReportView__reportClientAddress q)] -> let [y] = toListOf (toLens p) x :: [Markup]
                                                                             in Node (PV_ReportView_Markup p y) (forestMap (\pv -> case pv of
                                                                                                                                       PV_Markup_JSONText p
@@ -14372,8 +14863,11 @@ instance IsPathNode ReportView
                                                                                                                                       PV_Markup_Text p
                                                                                                                                                      x -> PV_ReportView_Text ((Path_ReportView__reportClientAddress :: Path_Markup Text ->
                                                                                                                                                                                                                        Path_ReportView Text) p) x) (pvNodes y :: Forest PV_Markup))
-                           _ -> error "Expected a field match",
-                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                           [] -> error "No Path_ReportView__reportClientAddress field found"
+                           ps -> error $ ("Multiple Path_ReportView__reportClientAddress fields found: " ++ show ps),
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportClientGreeting _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markup)) :: [Path_ReportView Markup] of
                            [p@(Path_ReportView__reportClientGreeting q)] -> let [y] = toListOf (toLens p) x :: [Markup]
                                                                              in Node (PV_ReportView_Markup p y) (forestMap (\pv -> case pv of
                                                                                                                                        PV_Markup_JSONText p
@@ -14385,8 +14879,11 @@ instance IsPathNode ReportView
                                                                                                                                        PV_Markup_Text p
                                                                                                                                                       x -> PV_ReportView_Text ((Path_ReportView__reportClientGreeting :: Path_Markup Text ->
                                                                                                                                                                                                                          Path_ReportView Text) p) x) (pvNodes y :: Forest PV_Markup))
-                           _ -> error "Expected a field match",
-                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                           [] -> error "No Path_ReportView__reportClientGreeting field found"
+                           ps -> error $ ("Multiple Path_ReportView__reportClientGreeting fields found: " ++ show ps),
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportItemsOwnerFull _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markup)) :: [Path_ReportView Markup] of
                            [p@(Path_ReportView__reportItemsOwnerFull q)] -> let [y] = toListOf (toLens p) x :: [Markup]
                                                                              in Node (PV_ReportView_Markup p y) (forestMap (\pv -> case pv of
                                                                                                                                        PV_Markup_JSONText p
@@ -14398,8 +14895,11 @@ instance IsPathNode ReportView
                                                                                                                                        PV_Markup_Text p
                                                                                                                                                       x -> PV_ReportView_Text ((Path_ReportView__reportItemsOwnerFull :: Path_Markup Text ->
                                                                                                                                                                                                                          Path_ReportView Text) p) x) (pvNodes y :: Forest PV_Markup))
-                           _ -> error "Expected a field match",
-                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                           [] -> error "No Path_ReportView__reportItemsOwnerFull field found"
+                           ps -> error $ ("Multiple Path_ReportView__reportItemsOwnerFull fields found: " ++ show ps),
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportItemsOwner _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markup)) :: [Path_ReportView Markup] of
                            [p@(Path_ReportView__reportItemsOwner q)] -> let [y] = toListOf (toLens p) x :: [Markup]
                                                                          in Node (PV_ReportView_Markup p y) (forestMap (\pv -> case pv of
                                                                                                                                    PV_Markup_JSONText p
@@ -14411,8 +14911,11 @@ instance IsPathNode ReportView
                                                                                                                                    PV_Markup_Text p
                                                                                                                                                   x -> PV_ReportView_Text ((Path_ReportView__reportItemsOwner :: Path_Markup Text ->
                                                                                                                                                                                                                  Path_ReportView Text) p) x) (pvNodes y :: Forest PV_Markup))
-                           _ -> error "Expected a field match",
-                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                           [] -> error "No Path_ReportView__reportItemsOwner field found"
+                           ps -> error $ ("Multiple Path_ReportView__reportItemsOwner fields found: " ++ show ps),
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportBriefItems _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markup)) :: [Path_ReportView Markup] of
                            [p@(Path_ReportView__reportBriefItems q)] -> let [y] = toListOf (toLens p) x :: [Markup]
                                                                          in Node (PV_ReportView_Markup p y) (forestMap (\pv -> case pv of
                                                                                                                                    PV_Markup_JSONText p
@@ -14424,8 +14927,11 @@ instance IsPathNode ReportView
                                                                                                                                    PV_Markup_Text p
                                                                                                                                                   x -> PV_ReportView_Text ((Path_ReportView__reportBriefItems :: Path_Markup Text ->
                                                                                                                                                                                                                  Path_ReportView Text) p) x) (pvNodes y :: Forest PV_Markup))
-                           _ -> error "Expected a field match",
-                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                           [] -> error "No Path_ReportView__reportBriefItems field found"
+                           ps -> error $ ("Multiple Path_ReportView__reportBriefItems fields found: " ++ show ps),
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportInspectionLocation _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markup)) :: [Path_ReportView Markup] of
                            [p@(Path_ReportView__reportInspectionLocation q)] -> let [y] = toListOf (toLens p) x :: [Markup]
                                                                                  in Node (PV_ReportView_Markup p y) (forestMap (\pv -> case pv of
                                                                                                                                            PV_Markup_JSONText p
@@ -14437,8 +14943,11 @@ instance IsPathNode ReportView
                                                                                                                                            PV_Markup_Text p
                                                                                                                                                           x -> PV_ReportView_Text ((Path_ReportView__reportInspectionLocation :: Path_Markup Text ->
                                                                                                                                                                                                                                  Path_ReportView Text) p) x) (pvNodes y :: Forest PV_Markup))
-                           _ -> error "Expected a field match",
-                       case pathsOf x (undefined :: Proxy ReportElems) :: [Path_ReportView ReportElems] of
+                           [] -> error "No Path_ReportView__reportInspectionLocation field found"
+                           ps -> error $ ("Multiple Path_ReportView__reportInspectionLocation fields found: " ++ show ps),
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportBody _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy ReportElems)) :: [Path_ReportView ReportElems] of
                            [p@(Path_ReportView__reportBody q)] -> let [y] = toListOf (toLens p) x :: [ReportElems]
                                                                    in Node (PV_ReportView_ReportElems p y) (forestMap (\pv -> case pv of
                                                                                                                                   PV_ReportElems_String p
@@ -14479,6 +14988,16 @@ instance IsPathNode ReportView
                                                                                                                                                                                                                                                      ReportElem) ->
                                                                                                                                                                                                                              Path_ReportView (Order ReportElemID
                                                                                                                                                                                                                                                     ReportElem)) p) x
+                                                                                                                                  PV_ReportElems_EUI p
+                                                                                                                                                     x -> PV_ReportView_EUI ((Path_ReportView__reportBody :: Path_ReportElems (Either URI
+                                                                                                                                                                                                                                      ImageFile) ->
+                                                                                                                                                                                                             Path_ReportView (Either URI
+                                                                                                                                                                                                                                     ImageFile)) p) x
+                                                                                                                                  PV_ReportElems_MEUI p
+                                                                                                                                                      x -> PV_ReportView_MEUI ((Path_ReportView__reportBody :: Path_ReportElems (Maybe (Either URI
+                                                                                                                                                                                                                                               ImageFile)) ->
+                                                                                                                                                                                                               Path_ReportView (Maybe (Either URI
+                                                                                                                                                                                                                                              ImageFile))) p) x
                                                                                                                                   PV_ReportElems_MaybeImageFile p
                                                                                                                                                                 x -> PV_ReportView_MaybeImageFile ((Path_ReportView__reportBody :: Path_ReportElems (Maybe ImageFile) ->
                                                                                                                                                                                                                                    Path_ReportView (Maybe ImageFile)) p) x
@@ -14499,14 +15018,22 @@ instance IsPathNode ReportView
                                                                                                                                   PV_ReportElems_Item p
                                                                                                                                                       x -> PV_ReportView_Item ((Path_ReportView__reportBody :: Path_ReportElems Item ->
                                                                                                                                                                                                                Path_ReportView Item) p) x
+                                                                                                                                  PV_ReportElems_MIM p
+                                                                                                                                                     x -> PV_ReportView_MIM ((Path_ReportView__reportBody :: Path_ReportElems (Map ItemFieldName
+                                                                                                                                                                                                                                   Markup) ->
+                                                                                                                                                                                                             Path_ReportView (Map ItemFieldName
+                                                                                                                                                                                                                                  Markup)) p) x
                                                                                                                                   PV_ReportElems_URI p
                                                                                                                                                      x -> PV_ReportView_URI ((Path_ReportView__reportBody :: Path_ReportElems URI ->
                                                                                                                                                                                                              Path_ReportView URI) p) x
                                                                                                                                   PV_ReportElems_Text p
                                                                                                                                                       x -> PV_ReportView_Text ((Path_ReportView__reportBody :: Path_ReportElems Text ->
                                                                                                                                                                                                                Path_ReportView Text) p) x) (pvNodes y :: Forest PV_ReportElems))
-                           _ -> error "Expected a field match",
-                       case pathsOf x (undefined :: Proxy MarkupPairs) :: [Path_ReportView MarkupPairs] of
+                           [] -> error "No Path_ReportView__reportBody field found"
+                           ps -> error $ ("Multiple Path_ReportView__reportBody fields found: " ++ show ps),
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportGlossary _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy MarkupPairs)) :: [Path_ReportView MarkupPairs] of
                            [p@(Path_ReportView__reportGlossary q)] -> let [y] = toListOf (toLens p) x :: [MarkupPairs]
                                                                        in Node (PV_ReportView_MarkupPairs p y) (forestMap (\pv -> case pv of
                                                                                                                                       PV_MarkupPairs_JSONText p
@@ -14530,8 +15057,11 @@ instance IsPathNode ReportView
                                                                                                                                       PV_MarkupPairs_Text p
                                                                                                                                                           x -> PV_ReportView_Text ((Path_ReportView__reportGlossary :: Path_MarkupPairs Text ->
                                                                                                                                                                                                                        Path_ReportView Text) p) x) (pvNodes y :: Forest PV_MarkupPairs))
-                           _ -> error "Expected a field match",
-                       case pathsOf x (undefined :: Proxy MarkupPairs) :: [Path_ReportView MarkupPairs] of
+                           [] -> error "No Path_ReportView__reportGlossary field found"
+                           ps -> error $ ("Multiple Path_ReportView__reportGlossary fields found: " ++ show ps),
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportSources _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy MarkupPairs)) :: [Path_ReportView MarkupPairs] of
                            [p@(Path_ReportView__reportSources q)] -> let [y] = toListOf (toLens p) x :: [MarkupPairs]
                                                                       in Node (PV_ReportView_MarkupPairs p y) (forestMap (\pv -> case pv of
                                                                                                                                      PV_MarkupPairs_JSONText p
@@ -14555,8 +15085,11 @@ instance IsPathNode ReportView
                                                                                                                                      PV_MarkupPairs_Text p
                                                                                                                                                          x -> PV_ReportView_Text ((Path_ReportView__reportSources :: Path_MarkupPairs Text ->
                                                                                                                                                                                                                      Path_ReportView Text) p) x) (pvNodes y :: Forest PV_MarkupPairs))
-                           _ -> error "Expected a field match",
-                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                           [] -> error "No Path_ReportView__reportSources field found"
+                           ps -> error $ ("Multiple Path_ReportView__reportSources fields found: " ++ show ps),
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportLetterOfTransmittal _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markup)) :: [Path_ReportView Markup] of
                            [p@(Path_ReportView__reportLetterOfTransmittal q)] -> let [y] = toListOf (toLens p) x :: [Markup]
                                                                                   in Node (PV_ReportView_Markup p y) (forestMap (\pv -> case pv of
                                                                                                                                             PV_Markup_JSONText p
@@ -14568,8 +15101,11 @@ instance IsPathNode ReportView
                                                                                                                                             PV_Markup_Text p
                                                                                                                                                            x -> PV_ReportView_Text ((Path_ReportView__reportLetterOfTransmittal :: Path_Markup Text ->
                                                                                                                                                                                                                                    Path_ReportView Text) p) x) (pvNodes y :: Forest PV_Markup))
-                           _ -> error "Expected a field match",
-                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                           [] -> error "No Path_ReportView__reportLetterOfTransmittal field found"
+                           ps -> error $ ("Multiple Path_ReportView__reportLetterOfTransmittal fields found: " ++ show ps),
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportScopeOfWork _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markup)) :: [Path_ReportView Markup] of
                            [p@(Path_ReportView__reportScopeOfWork q)] -> let [y] = toListOf (toLens p) x :: [Markup]
                                                                           in Node (PV_ReportView_Markup p y) (forestMap (\pv -> case pv of
                                                                                                                                     PV_Markup_JSONText p
@@ -14581,8 +15117,11 @@ instance IsPathNode ReportView
                                                                                                                                     PV_Markup_Text p
                                                                                                                                                    x -> PV_ReportView_Text ((Path_ReportView__reportScopeOfWork :: Path_Markup Text ->
                                                                                                                                                                                                                    Path_ReportView Text) p) x) (pvNodes y :: Forest PV_Markup))
-                           _ -> error "Expected a field match",
-                       case pathsOf x (undefined :: Proxy Markups) :: [Path_ReportView Markups] of
+                           [] -> error "No Path_ReportView__reportScopeOfWork field found"
+                           ps -> error $ ("Multiple Path_ReportView__reportScopeOfWork fields found: " ++ show ps),
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportCertification _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markups)) :: [Path_ReportView Markups] of
                            [p@(Path_ReportView__reportCertification q)] -> let [y] = toListOf (toLens p) x :: [Markups]
                                                                             in Node (PV_ReportView_Markups p y) (forestMap (\pv -> case pv of
                                                                                                                                        PV_Markups_JSONText p
@@ -14599,8 +15138,11 @@ instance IsPathNode ReportView
                                                                                                                                        PV_Markups_Text p
                                                                                                                                                        x -> PV_ReportView_Text ((Path_ReportView__reportCertification :: Path_Markups Text ->
                                                                                                                                                                                                                          Path_ReportView Text) p) x) (pvNodes y :: Forest PV_Markups))
-                           _ -> error "Expected a field match",
-                       case pathsOf x (undefined :: Proxy Markups) :: [Path_ReportView Markups] of
+                           [] -> error "No Path_ReportView__reportCertification field found"
+                           ps -> error $ ("Multiple Path_ReportView__reportCertification fields found: " ++ show ps),
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportLimitingConditions _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markups)) :: [Path_ReportView Markups] of
                            [p@(Path_ReportView__reportLimitingConditions q)] -> let [y] = toListOf (toLens p) x :: [Markups]
                                                                                  in Node (PV_ReportView_Markups p y) (forestMap (\pv -> case pv of
                                                                                                                                             PV_Markups_JSONText p
@@ -14617,8 +15159,11 @@ instance IsPathNode ReportView
                                                                                                                                             PV_Markups_Text p
                                                                                                                                                             x -> PV_ReportView_Text ((Path_ReportView__reportLimitingConditions :: Path_Markups Text ->
                                                                                                                                                                                                                                    Path_ReportView Text) p) x) (pvNodes y :: Forest PV_Markups))
-                           _ -> error "Expected a field match",
-                       case pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup] of
+                           [] -> error "No Path_ReportView__reportLimitingConditions field found"
+                           ps -> error $ ("Multiple Path_ReportView__reportLimitingConditions fields found: " ++ show ps),
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportPrivacyPolicy _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Markup)) :: [Path_ReportView Markup] of
                            [p@(Path_ReportView__reportPrivacyPolicy q)] -> let [y] = toListOf (toLens p) x :: [Markup]
                                                                             in Node (PV_ReportView_Markup p y) (forestMap (\pv -> case pv of
                                                                                                                                       PV_Markup_JSONText p
@@ -14630,8 +15175,11 @@ instance IsPathNode ReportView
                                                                                                                                       PV_Markup_Text p
                                                                                                                                                      x -> PV_ReportView_Text ((Path_ReportView__reportPrivacyPolicy :: Path_Markup Text ->
                                                                                                                                                                                                                        Path_ReportView Text) p) x) (pvNodes y :: Forest PV_Markup))
-                           _ -> error "Expected a field match",
-                       case pathsOf x (undefined :: Proxy Permissions) :: [Path_ReportView Permissions] of
+                           [] -> error "No Path_ReportView__reportPrivacyPolicy field found"
+                           ps -> error $ ("Multiple Path_ReportView__reportPrivacyPolicy fields found: " ++ show ps),
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportPerms _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Permissions)) :: [Path_ReportView Permissions] of
                            [p@(Path_ReportView__reportPerms q)] -> let [y] = toListOf (toLens p) x :: [Permissions]
                                                                     in Node (PV_ReportView_Permissions p y) (forestMap (\pv -> case pv of
                                                                                                                                    PV_Permissions_JSONText p
@@ -14649,22 +15197,31 @@ instance IsPathNode ReportView
                                                                                                                                    PV_Permissions_UserId p
                                                                                                                                                          x -> PV_ReportView_UserId ((Path_ReportView__reportPerms :: Path_Permissions UserId ->
                                                                                                                                                                                                                      Path_ReportView UserId) p) x) (pvNodes y :: Forest PV_Permissions))
-                           _ -> error "Expected a field match",
-                       case pathsOf x (undefined :: Proxy Integer) :: [Path_ReportView Integer] of
+                           [] -> error "No Path_ReportView__reportPerms field found"
+                           ps -> error $ ("Multiple Path_ReportView__reportPerms fields found: " ++ show ps),
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportRevision _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Integer)) :: [Path_ReportView Integer] of
                            [p@(Path_ReportView__reportRevision q)] -> let [y] = toListOf (toLens p) x :: [Integer]
                                                                        in Node (PV_ReportView_Integer p y) (forestMap (\pv -> case pv of
                                                                                                                                   PV_Integer_Integer p
                                                                                                                                                      x -> PV_ReportView_Integer ((Path_ReportView__reportRevision :: Path_Integer Integer ->
                                                                                                                                                                                                                      Path_ReportView Integer) p) x) (pvNodes y :: Forest PV_Integer))
-                           _ -> error "Expected a field match",
-                       case pathsOf x (undefined :: Proxy Int64) :: [Path_ReportView Int64] of
+                           [] -> error "No Path_ReportView__reportRevision field found"
+                           ps -> error $ ("Multiple Path_ReportView__reportRevision fields found: " ++ show ps),
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportCreated _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Int64)) :: [Path_ReportView Int64] of
                            [p@(Path_ReportView__reportCreated q)] -> let [y] = toListOf (toLens p) x :: [Int64]
                                                                       in Node (PV_ReportView_Int64 p y) (forestMap (\pv -> case pv of
                                                                                                                                PV_Int64_Int64 p
                                                                                                                                               x -> PV_ReportView_Int64 ((Path_ReportView__reportCreated :: Path_Int64 Int64 ->
                                                                                                                                                                                                            Path_ReportView Int64) p) x) (pvNodes y :: Forest PV_Int64))
-                           _ -> error "Expected a field match",
-                       case pathsOf x (undefined :: Proxy Branding) :: [Path_ReportView Branding] of
+                           [] -> error "No Path_ReportView__reportCreated field found"
+                           ps -> error $ ("Multiple Path_ReportView__reportCreated fields found: " ++ show ps),
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportBranding _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Branding)) :: [Path_ReportView Branding] of
                            [p@(Path_ReportView__reportBranding q)] -> let [y] = toListOf (toLens p) x :: [Branding]
                                                                        in Node (PV_ReportView_Branding p y) (forestMap (\pv -> case pv of
                                                                                                                                    PV_Branding_JSONText p
@@ -14676,8 +15233,11 @@ instance IsPathNode ReportView
                                                                                                                                    PV_Branding_Text p
                                                                                                                                                     x -> PV_ReportView_Text ((Path_ReportView__reportBranding :: Path_Branding Text ->
                                                                                                                                                                                                                  Path_ReportView Text) p) x) (pvNodes y :: Forest PV_Branding))
-                           _ -> error "Expected a field match",
-                       case pathsOf x (undefined :: Proxy ReportStatus) :: [Path_ReportView ReportStatus] of
+                           [] -> error "No Path_ReportView__reportBranding field found"
+                           ps -> error $ ("Multiple Path_ReportView__reportBranding fields found: " ++ show ps),
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportStatus _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy ReportStatus)) :: [Path_ReportView ReportStatus] of
                            [p@(Path_ReportView__reportStatus q)] -> let [y] = toListOf (toLens p) x :: [ReportStatus]
                                                                      in Node (PV_ReportView_ReportStatus p y) (forestMap (\pv -> case pv of
                                                                                                                                      PV_ReportStatus_String p
@@ -14689,8 +15249,11 @@ instance IsPathNode ReportView
                                                                                                                                      PV_ReportStatus_ReportStatus p
                                                                                                                                                                   x -> PV_ReportView_ReportStatus ((Path_ReportView__reportStatus :: Path_ReportStatus ReportStatus ->
                                                                                                                                                                                                                                      Path_ReportView ReportStatus) p) x) (pvNodes y :: Forest PV_ReportStatus))
-                           _ -> error "Expected a field match",
-                       case pathsOf x (undefined :: Proxy Bool) :: [Path_ReportView Bool] of
+                           [] -> error "No Path_ReportView__reportStatus field found"
+                           ps -> error $ ("Multiple Path_ReportView__reportStatus fields found: " ++ show ps),
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportRedacted _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Bool)) :: [Path_ReportView Bool] of
                            [p@(Path_ReportView__reportRedacted q)] -> let [y] = toListOf (toLens p) x :: [Bool]
                                                                        in Node (PV_ReportView_Bool p y) (forestMap (\pv -> case pv of
                                                                                                                                PV_Bool_String p
@@ -14702,8 +15265,11 @@ instance IsPathNode ReportView
                                                                                                                                PV_Bool_JSONText p
                                                                                                                                                 x -> PV_ReportView_JSONText ((Path_ReportView__reportRedacted :: Path_Bool JSONText ->
                                                                                                                                                                                                                  Path_ReportView JSONText) p) x) (pvNodes y :: Forest PV_Bool))
-                           _ -> error "Expected a field match",
-                       case pathsOf x (undefined :: Proxy ReportFlags) :: [Path_ReportView ReportFlags] of
+                           [] -> error "No Path_ReportView__reportRedacted field found"
+                           ps -> error $ ("Multiple Path_ReportView__reportRedacted fields found: " ++ show ps),
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportFlags _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy ReportFlags)) :: [Path_ReportView ReportFlags] of
                            [p@(Path_ReportView__reportFlags q)] -> let [y] = toListOf (toLens p) x :: [ReportFlags]
                                                                     in Node (PV_ReportView_ReportFlags p y) (forestMap (\pv -> case pv of
                                                                                                                                    PV_ReportFlags_String p
@@ -14718,15 +15284,21 @@ instance IsPathNode ReportView
                                                                                                                                    PV_ReportFlags_ReportFlags p
                                                                                                                                                               x -> PV_ReportView_ReportFlags ((Path_ReportView__reportFlags :: Path_ReportFlags ReportFlags ->
                                                                                                                                                                                                                                Path_ReportView ReportFlags) p) x) (pvNodes y :: Forest PV_ReportFlags))
-                           _ -> error "Expected a field match",
-                       case pathsOf x (undefined :: Proxy UUID) :: [Path_ReportView UUID] of
+                           [] -> error "No Path_ReportView__reportFlags field found"
+                           ps -> error $ ("Multiple Path_ReportView__reportFlags fields found: " ++ show ps),
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportUUID _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy UUID)) :: [Path_ReportView UUID] of
                            [p@(Path_ReportView__reportUUID q)] -> let [y] = toListOf (toLens p) x :: [UUID]
                                                                    in Node (PV_ReportView_UUID p y) (forestMap (\pv -> case pv of
                                                                                                                            PV_UUID_UUID p
                                                                                                                                         x -> PV_ReportView_UUID ((Path_ReportView__reportUUID :: Path_UUID UUID ->
                                                                                                                                                                                                  Path_ReportView UUID) p) x) (pvNodes y :: Forest PV_UUID))
-                           _ -> error "Expected a field match",
-                       case pathsOf x (undefined :: Proxy Bool) :: [Path_ReportView Bool] of
+                           [] -> error "No Path_ReportView__reportUUID field found"
+                           ps -> error $ ("Multiple Path_ReportView__reportUUID fields found: " ++ show ps),
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportOrderByItemName _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Bool)) :: [Path_ReportView Bool] of
                            [p@(Path_ReportView__reportOrderByItemName q)] -> let [y] = toListOf (toLens p) x :: [Bool]
                                                                               in Node (PV_ReportView_Bool p y) (forestMap (\pv -> case pv of
                                                                                                                                       PV_Bool_String p
@@ -14738,8 +15310,11 @@ instance IsPathNode ReportView
                                                                                                                                       PV_Bool_JSONText p
                                                                                                                                                        x -> PV_ReportView_JSONText ((Path_ReportView__reportOrderByItemName :: Path_Bool JSONText ->
                                                                                                                                                                                                                                Path_ReportView JSONText) p) x) (pvNodes y :: Forest PV_Bool))
-                           _ -> error "Expected a field match",
-                       case pathsOf x (undefined :: Proxy Bool) :: [Path_ReportView Bool] of
+                           [] -> error "No Path_ReportView__reportOrderByItemName field found"
+                           ps -> error $ ("Multiple Path_ReportView__reportOrderByItemName fields found: " ++ show ps),
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportDisplayItemName _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Bool)) :: [Path_ReportView Bool] of
                            [p@(Path_ReportView__reportDisplayItemName q)] -> let [y] = toListOf (toLens p) x :: [Bool]
                                                                               in Node (PV_ReportView_Bool p y) (forestMap (\pv -> case pv of
                                                                                                                                       PV_Bool_String p
@@ -14751,8 +15326,11 @@ instance IsPathNode ReportView
                                                                                                                                       PV_Bool_JSONText p
                                                                                                                                                        x -> PV_ReportView_JSONText ((Path_ReportView__reportDisplayItemName :: Path_Bool JSONText ->
                                                                                                                                                                                                                                Path_ReportView JSONText) p) x) (pvNodes y :: Forest PV_Bool))
-                           _ -> error "Expected a field match",
-                       case pathsOf x (undefined :: Proxy ReportStandard) :: [Path_ReportView ReportStandard] of
+                           [] -> error "No Path_ReportView__reportDisplayItemName field found"
+                           ps -> error $ ("Multiple Path_ReportView__reportDisplayItemName fields found: " ++ show ps),
+                       case filter (\x -> case x of
+                                              Path_ReportView__reportStandardsVersion _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy ReportStandard)) :: [Path_ReportView ReportStandard] of
                            [p@(Path_ReportView__reportStandardsVersion q)] -> let [y] = toListOf (toLens p) x :: [ReportStandard]
                                                                                in Node (PV_ReportView_ReportStandard p y) (forestMap (\pv -> case pv of
                                                                                                                                                  PV_ReportStandard_Int p
@@ -14761,10 +15339,13 @@ instance IsPathNode ReportView
                                                                                                                                                  PV_ReportStandard_ReportStandard p
                                                                                                                                                                                   x -> PV_ReportView_ReportStandard ((Path_ReportView__reportStandardsVersion :: Path_ReportStandard ReportStandard ->
                                                                                                                                                                                                                                                                  Path_ReportView ReportStandard) p) x) (pvNodes y :: Forest PV_ReportStandard))
-                           _ -> error "Expected a field match"]
+                           [] -> error "No Path_ReportView__reportStandardsVersion field found"
+                           ps -> error $ ("Multiple Path_ReportView__reportStandardsVersion fields found: " ++ show ps)]
 instance IsPathNode Item
     where type PVType Item = PV_Item
-          pvNodes x = [case pathsOf x (undefined :: Proxy Text) :: [Path_Item Text] of
+          pvNodes x = [case filter (\x -> case x of
+                                              Path_Item_itemName _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy Text)) :: [Path_Item Text] of
                            [p@(Path_Item_itemName q)] -> let [y] = toListOf (toLens p) x :: [Text]
                                                           in Node (PV_Item_Text p y) (forestMap (\pv -> case pv of
                                                                                                             PV_Text_JSONText p
@@ -14773,9 +15354,32 @@ instance IsPathNode Item
                                                                                                             PV_Text_Text p
                                                                                                                          x -> PV_Item_Text ((Path_Item_itemName :: Path_Text Text ->
                                                                                                                                                                    Path_Item Text) p) x) (pvNodes y :: Forest PV_Text))
-                           _ -> error "Expected a field match",
-                       error "doField Appraisal.ReportItem.fields",
-                       case pathsOf x (undefined :: Proxy ReportImages) :: [Path_Item ReportImages] of
+                           [] -> error "No Path_Item_itemName field found"
+                           ps -> error $ ("Multiple Path_Item_itemName fields found: " ++ show ps),
+                       case filter (\x -> case x of
+                                              Path_Item_fields _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy MIM)) :: [Path_Item MIM] of
+                           [p@(Path_Item_fields q)] -> let [y] = toListOf (toLens p) x :: [MIM]
+                                                        in Node (PV_Item_MIM p y) (forestMap (\pv -> case pv of
+                                                                                                         PV_MIM_JSONText p
+                                                                                                                         x -> PV_Item_JSONText ((Path_Item_fields :: Path_MIM JSONText ->
+                                                                                                                                                                     Path_Item JSONText) p) x
+                                                                                                         PV_MIM_Markup p
+                                                                                                                       x -> PV_Item_Markup ((Path_Item_fields :: Path_MIM Markup ->
+                                                                                                                                                                 Path_Item Markup) p) x
+                                                                                                         PV_MIM_MIM p
+                                                                                                                    x -> PV_Item_MIM ((Path_Item_fields :: Path_MIM (Map ItemFieldName
+                                                                                                                                                                         Markup) ->
+                                                                                                                                                           Path_Item (Map ItemFieldName
+                                                                                                                                                                          Markup)) p) x
+                                                                                                         PV_MIM_Text p
+                                                                                                                     x -> PV_Item_Text ((Path_Item_fields :: Path_MIM Text ->
+                                                                                                                                                             Path_Item Text) p) x) (pvNodes y :: Forest PV_MIM))
+                           [] -> error "No Path_Item_fields field found"
+                           ps -> error $ ("Multiple Path_Item_fields fields found: " ++ show ps),
+                       case filter (\x -> case x of
+                                              Path_Item_images _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy ReportImages)) :: [Path_Item ReportImages] of
                            [p@(Path_Item_images q)] -> let [y] = toListOf (toLens p) x :: [ReportImages]
                                                         in Node (PV_Item_ReportImages p y) (forestMap (\pv -> case pv of
                                                                                                                   PV_ReportImages_String p
@@ -14808,6 +15412,16 @@ instance IsPathNode Item
                                                                                                                   PV_ReportImages_Markup p
                                                                                                                                          x -> PV_Item_Markup ((Path_Item_images :: Path_ReportImages Markup ->
                                                                                                                                                                                    Path_Item Markup) p) x
+                                                                                                                  PV_ReportImages_EUI p
+                                                                                                                                      x -> PV_Item_EUI ((Path_Item_images :: Path_ReportImages (Either URI
+                                                                                                                                                                                                       ImageFile) ->
+                                                                                                                                                                             Path_Item (Either URI
+                                                                                                                                                                                               ImageFile)) p) x
+                                                                                                                  PV_ReportImages_MEUI p
+                                                                                                                                       x -> PV_Item_MEUI ((Path_Item_images :: Path_ReportImages (Maybe (Either URI
+                                                                                                                                                                                                                ImageFile)) ->
+                                                                                                                                                                               Path_Item (Maybe (Either URI
+                                                                                                                                                                                                        ImageFile))) p) x
                                                                                                                   PV_ReportImages_MaybeImageFile p
                                                                                                                                                  x -> PV_Item_MaybeImageFile ((Path_Item_images :: Path_ReportImages (Maybe ImageFile) ->
                                                                                                                                                                                                    Path_Item (Maybe ImageFile)) p) x
@@ -14831,10 +15445,192 @@ instance IsPathNode Item
                                                                                                                   PV_ReportImages_Text p
                                                                                                                                        x -> PV_Item_Text ((Path_Item_images :: Path_ReportImages Text ->
                                                                                                                                                                                Path_Item Text) p) x) (pvNodes y :: Forest PV_ReportImages))
-                           _ -> error "Expected a field match"]
+                           [] -> error "No Path_Item_images field found"
+                           ps -> error $ ("Multiple Path_Item_images fields found: " ++ show ps)]
 instance IsPathNode ReportMap
     where type PVType ReportMap = PV_ReportMap
-          pvNodes x = [error "doField Appraisal.ReportMap.unReportMap"]
+          pvNodes x = [case filter (\x -> case x of
+                                              Path_ReportMap_unReportMap _ -> True
+                                              _ -> False) (pathsOf x (undefined :: Proxy MRR)) :: [Path_ReportMap MRR] of
+                           [p@(Path_ReportMap_unReportMap q)] -> let [y] = toListOf (toLens p) x :: [MRR]
+                                                                  in Node (PV_ReportMap_MRR p y) (forestMap (\pv -> case pv of
+                                                                                                                        PV_MRR_String p
+                                                                                                                                      x -> PV_ReportMap_String ((Path_ReportMap_unReportMap :: Path_MRR ([Char]) ->
+                                                                                                                                                                                               Path_ReportMap ([Char])) p) x
+                                                                                                                        PV_MRR_Int64 p
+                                                                                                                                     x -> PV_ReportMap_Int64 ((Path_ReportMap_unReportMap :: Path_MRR Int64 ->
+                                                                                                                                                                                             Path_ReportMap Int64) p) x
+                                                                                                                        PV_MRR_Int p
+                                                                                                                                   x -> PV_ReportMap_Int ((Path_ReportMap_unReportMap :: Path_MRR Int ->
+                                                                                                                                                                                         Path_ReportMap Int) p) x
+                                                                                                                        PV_MRR_Bool p
+                                                                                                                                    x -> PV_ReportMap_Bool ((Path_ReportMap_unReportMap :: Path_MRR Bool ->
+                                                                                                                                                                                           Path_ReportMap Bool) p) x
+                                                                                                                        PV_MRR_Double p
+                                                                                                                                      x -> PV_ReportMap_Double ((Path_ReportMap_unReportMap :: Path_MRR Double ->
+                                                                                                                                                                                               Path_ReportMap Double) p) x
+                                                                                                                        PV_MRR_Dimension p
+                                                                                                                                         x -> PV_ReportMap_Dimension ((Path_ReportMap_unReportMap :: Path_MRR Dimension ->
+                                                                                                                                                                                                     Path_ReportMap Dimension) p) x
+                                                                                                                        PV_MRR_ImageCrop p
+                                                                                                                                         x -> PV_ReportMap_ImageCrop ((Path_ReportMap_unReportMap :: Path_MRR ImageCrop ->
+                                                                                                                                                                                                     Path_ReportMap ImageCrop) p) x
+                                                                                                                        PV_MRR_ImageSize p
+                                                                                                                                         x -> PV_ReportMap_ImageSize ((Path_ReportMap_unReportMap :: Path_MRR ImageSize ->
+                                                                                                                                                                                                     Path_ReportMap ImageSize) p) x
+                                                                                                                        PV_MRR_Units p
+                                                                                                                                     x -> PV_ReportMap_Units ((Path_ReportMap_unReportMap :: Path_MRR Units ->
+                                                                                                                                                                                             Path_ReportMap Units) p) x
+                                                                                                                        PV_MRR_ImageFile p
+                                                                                                                                         x -> PV_ReportMap_ImageFile ((Path_ReportMap_unReportMap :: Path_MRR ImageFile ->
+                                                                                                                                                                                                     Path_ReportMap ImageFile) p) x
+                                                                                                                        PV_MRR_Integer p
+                                                                                                                                       x -> PV_ReportMap_Integer ((Path_ReportMap_unReportMap :: Path_MRR Integer ->
+                                                                                                                                                                                                 Path_ReportMap Integer) p) x
+                                                                                                                        PV_MRR_JSONText p
+                                                                                                                                        x -> PV_ReportMap_JSONText ((Path_ReportMap_unReportMap :: Path_MRR JSONText ->
+                                                                                                                                                                                                   Path_ReportMap JSONText) p) x
+                                                                                                                        PV_MRR_Markup p
+                                                                                                                                      x -> PV_ReportMap_Markup ((Path_ReportMap_unReportMap :: Path_MRR Markup ->
+                                                                                                                                                                                               Path_ReportMap Markup) p) x
+                                                                                                                        PV_MRR_Permissions p
+                                                                                                                                           x -> PV_ReportMap_Permissions ((Path_ReportMap_unReportMap :: Path_MRR Permissions ->
+                                                                                                                                                                                                         Path_ReportMap Permissions) p) x
+                                                                                                                        PV_MRR_UserIds p
+                                                                                                                                       x -> PV_ReportMap_UserIds ((Path_ReportMap_unReportMap :: Path_MRR ([UserId]) ->
+                                                                                                                                                                                                 Path_ReportMap ([UserId])) p) x
+                                                                                                                        PV_MRR_AbbrevPair p
+                                                                                                                                          x -> PV_ReportMap_AbbrevPair ((Path_ReportMap_unReportMap :: Path_MRR ((CIString,
+                                                                                                                                                                                                                  Markup)) ->
+                                                                                                                                                                                                       Path_ReportMap ((CIString,
+                                                                                                                                                                                                                        Markup))) p) x
+                                                                                                                        PV_MRR_AbbrevPairs p
+                                                                                                                                           x -> PV_ReportMap_AbbrevPairs ((Path_ReportMap_unReportMap :: Path_MRR (Order AbbrevPairID
+                                                                                                                                                                                                                         ((CIString,
+                                                                                                                                                                                                                           Markup))) ->
+                                                                                                                                                                                                         Path_ReportMap (Order AbbrevPairID
+                                                                                                                                                                                                                               ((CIString,
+                                                                                                                                                                                                                                 Markup)))) p) x
+                                                                                                                        PV_MRR_Author p
+                                                                                                                                      x -> PV_ReportMap_Author ((Path_ReportMap_unReportMap :: Path_MRR Author ->
+                                                                                                                                                                                               Path_ReportMap Author) p) x
+                                                                                                                        PV_MRR_Authors p
+                                                                                                                                       x -> PV_ReportMap_Authors ((Path_ReportMap_unReportMap :: Path_MRR (Order AuthorID
+                                                                                                                                                                                                                 Author) ->
+                                                                                                                                                                                                 Path_ReportMap (Order AuthorID
+                                                                                                                                                                                                                       Author)) p) x
+                                                                                                                        PV_MRR_Branding p
+                                                                                                                                        x -> PV_ReportMap_Branding ((Path_ReportMap_unReportMap :: Path_MRR Branding ->
+                                                                                                                                                                                                   Path_ReportMap Branding) p) x
+                                                                                                                        PV_MRR_MarkupPair p
+                                                                                                                                          x -> PV_ReportMap_MarkupPair ((Path_ReportMap_unReportMap :: Path_MRR ((Markup,
+                                                                                                                                                                                                                  Markup)) ->
+                                                                                                                                                                                                       Path_ReportMap ((Markup,
+                                                                                                                                                                                                                        Markup))) p) x
+                                                                                                                        PV_MRR_MarkupPairs p
+                                                                                                                                           x -> PV_ReportMap_MarkupPairs ((Path_ReportMap_unReportMap :: Path_MRR (Order MarkupPairID
+                                                                                                                                                                                                                         ((Markup,
+                                                                                                                                                                                                                           Markup))) ->
+                                                                                                                                                                                                         Path_ReportMap (Order MarkupPairID
+                                                                                                                                                                                                                               ((Markup,
+                                                                                                                                                                                                                                 Markup)))) p) x
+                                                                                                                        PV_MRR_Markups p
+                                                                                                                                       x -> PV_ReportMap_Markups ((Path_ReportMap_unReportMap :: Path_MRR (Order MarkupID
+                                                                                                                                                                                                                 Markup) ->
+                                                                                                                                                                                                 Path_ReportMap (Order MarkupID
+                                                                                                                                                                                                                       Markup)) p) x
+                                                                                                                        PV_MRR_MaybeReportIntendedUse p
+                                                                                                                                                      x -> PV_ReportMap_MaybeReportIntendedUse ((Path_ReportMap_unReportMap :: Path_MRR (Maybe ReportIntendedUse) ->
+                                                                                                                                                                                                                               Path_ReportMap (Maybe ReportIntendedUse)) p) x
+                                                                                                                        PV_MRR_Report p
+                                                                                                                                      x -> PV_ReportMap_Report ((Path_ReportMap_unReportMap :: Path_MRR Report ->
+                                                                                                                                                                                               Path_ReportMap Report) p) x
+                                                                                                                        PV_MRR_ReportElem p
+                                                                                                                                          x -> PV_ReportMap_ReportElem ((Path_ReportMap_unReportMap :: Path_MRR ReportElem ->
+                                                                                                                                                                                                       Path_ReportMap ReportElem) p) x
+                                                                                                                        PV_MRR_ReportElems p
+                                                                                                                                           x -> PV_ReportMap_ReportElems ((Path_ReportMap_unReportMap :: Path_MRR (Order ReportElemID
+                                                                                                                                                                                                                         ReportElem) ->
+                                                                                                                                                                                                         Path_ReportMap (Order ReportElemID
+                                                                                                                                                                                                                               ReportElem)) p) x
+                                                                                                                        PV_MRR_ReportFlags p
+                                                                                                                                           x -> PV_ReportMap_ReportFlags ((Path_ReportMap_unReportMap :: Path_MRR ReportFlags ->
+                                                                                                                                                                                                         Path_ReportMap ReportFlags) p) x
+                                                                                                                        PV_MRR_ReportStandard p
+                                                                                                                                              x -> PV_ReportMap_ReportStandard ((Path_ReportMap_unReportMap :: Path_MRR ReportStandard ->
+                                                                                                                                                                                                               Path_ReportMap ReportStandard) p) x
+                                                                                                                        PV_MRR_ReportStatus p
+                                                                                                                                            x -> PV_ReportMap_ReportStatus ((Path_ReportMap_unReportMap :: Path_MRR ReportStatus ->
+                                                                                                                                                                                                           Path_ReportMap ReportStatus) p) x
+                                                                                                                        PV_MRR_ReportValueApproachInfo p
+                                                                                                                                                       x -> PV_ReportMap_ReportValueApproachInfo ((Path_ReportMap_unReportMap :: Path_MRR ReportValueApproachInfo ->
+                                                                                                                                                                                                                                 Path_ReportMap ReportValueApproachInfo) p) x
+                                                                                                                        PV_MRR_ReportValueTypeInfo p
+                                                                                                                                                   x -> PV_ReportMap_ReportValueTypeInfo ((Path_ReportMap_unReportMap :: Path_MRR ReportValueTypeInfo ->
+                                                                                                                                                                                                                         Path_ReportMap ReportValueTypeInfo) p) x
+                                                                                                                        PV_MRR_EUI p
+                                                                                                                                   x -> PV_ReportMap_EUI ((Path_ReportMap_unReportMap :: Path_MRR (Either URI
+                                                                                                                                                                                                          ImageFile) ->
+                                                                                                                                                                                         Path_ReportMap (Either URI
+                                                                                                                                                                                                                ImageFile)) p) x
+                                                                                                                        PV_MRR_MEUI p
+                                                                                                                                    x -> PV_ReportMap_MEUI ((Path_ReportMap_unReportMap :: Path_MRR (Maybe (Either URI
+                                                                                                                                                                                                                   ImageFile)) ->
+                                                                                                                                                                                           Path_ReportMap (Maybe (Either URI
+                                                                                                                                                                                                                         ImageFile))) p) x
+                                                                                                                        PV_MRR_MaybeImageFile p
+                                                                                                                                              x -> PV_ReportMap_MaybeImageFile ((Path_ReportMap_unReportMap :: Path_MRR (Maybe ImageFile) ->
+                                                                                                                                                                                                               Path_ReportMap (Maybe ImageFile)) p) x
+                                                                                                                        PV_MRR_ReportImage p
+                                                                                                                                           x -> PV_ReportMap_ReportImage ((Path_ReportMap_unReportMap :: Path_MRR ReportImage ->
+                                                                                                                                                                                                         Path_ReportMap ReportImage) p) x
+                                                                                                                        PV_MRR_ReportImages p
+                                                                                                                                            x -> PV_ReportMap_ReportImages ((Path_ReportMap_unReportMap :: Path_MRR (Order ReportImageID
+                                                                                                                                                                                                                           ReportImage) ->
+                                                                                                                                                                                                           Path_ReportMap (Order ReportImageID
+                                                                                                                                                                                                                                 ReportImage)) p) x
+                                                                                                                        PV_MRR_ReadOnlyFilePath p
+                                                                                                                                                x -> PV_ReportMap_ReadOnlyFilePath ((Path_ReportMap_unReportMap :: Path_MRR (ReadOnly ([Char])) ->
+                                                                                                                                                                                                                   Path_ReportMap (ReadOnly ([Char]))) p) x
+                                                                                                                        PV_MRR_ReportImageView p
+                                                                                                                                               x -> PV_ReportMap_ReportImageView ((Path_ReportMap_unReportMap :: Path_MRR ReportImageView ->
+                                                                                                                                                                                                                 Path_ReportMap ReportImageView) p) x
+                                                                                                                        PV_MRR_ReportView p
+                                                                                                                                          x -> PV_ReportMap_ReportView ((Path_ReportMap_unReportMap :: Path_MRR ReportView ->
+                                                                                                                                                                                                       Path_ReportMap ReportView) p) x
+                                                                                                                        PV_MRR_SaneSizeImageSize p
+                                                                                                                                                 x -> PV_ReportMap_SaneSizeImageSize ((Path_ReportMap_unReportMap :: Path_MRR (SaneSize ImageSize) ->
+                                                                                                                                                                                                                     Path_ReportMap (SaneSize ImageSize)) p) x
+                                                                                                                        PV_MRR_Item p
+                                                                                                                                    x -> PV_ReportMap_Item ((Path_ReportMap_unReportMap :: Path_MRR Item ->
+                                                                                                                                                                                           Path_ReportMap Item) p) x
+                                                                                                                        PV_MRR_MIM p
+                                                                                                                                   x -> PV_ReportMap_MIM ((Path_ReportMap_unReportMap :: Path_MRR (Map ItemFieldName
+                                                                                                                                                                                                       Markup) ->
+                                                                                                                                                                                         Path_ReportMap (Map ItemFieldName
+                                                                                                                                                                                                             Markup)) p) x
+                                                                                                                        PV_MRR_MRR p
+                                                                                                                                   x -> PV_ReportMap_MRR ((Path_ReportMap_unReportMap :: Path_MRR (Map ReportID
+                                                                                                                                                                                                       Report) ->
+                                                                                                                                                                                         Path_ReportMap (Map ReportID
+                                                                                                                                                                                                             Report)) p) x
+                                                                                                                        PV_MRR_CIString p
+                                                                                                                                        x -> PV_ReportMap_CIString ((Path_ReportMap_unReportMap :: Path_MRR CIString ->
+                                                                                                                                                                                                   Path_ReportMap CIString) p) x
+                                                                                                                        PV_MRR_URI p
+                                                                                                                                   x -> PV_ReportMap_URI ((Path_ReportMap_unReportMap :: Path_MRR URI ->
+                                                                                                                                                                                         Path_ReportMap URI) p) x
+                                                                                                                        PV_MRR_Text p
+                                                                                                                                    x -> PV_ReportMap_Text ((Path_ReportMap_unReportMap :: Path_MRR Text ->
+                                                                                                                                                                                           Path_ReportMap Text) p) x
+                                                                                                                        PV_MRR_UserId p
+                                                                                                                                      x -> PV_ReportMap_UserId ((Path_ReportMap_unReportMap :: Path_MRR UserId ->
+                                                                                                                                                                                               Path_ReportMap UserId) p) x
+                                                                                                                        PV_MRR_UUID p
+                                                                                                                                    x -> PV_ReportMap_UUID ((Path_ReportMap_unReportMap :: Path_MRR UUID ->
+                                                                                                                                                                                           Path_ReportMap UUID) p) x) (pvNodes y :: Forest PV_MRR))
+                           [] -> error "No Path_ReportMap_unReportMap field found"
+                           ps -> error $ ("Multiple Path_ReportMap_unReportMap fields found: " ++ show ps)]
 instance IsPathNode CIString
     where type PVType CIString = PV_CIString
           pvNodes x = case pathsOf x (undefined :: Proxy Text) :: [Path_CIString Text] of
@@ -14846,7 +15642,7 @@ instance IsPathNode CIString
                                                                                                                 PV_Text_Text p
                                                                                                                              x -> PV_CIString_Text ((Path_CIString_View :: Path_Text Text ->
                                                                                                                                                                            Path_CIString Text) p) x) (pvNodes y :: Forest PV_Text))]
-                          _ -> [] :: [Tree (PVType CIString)]
+                          [] -> [] :: [Tree (PVType CIString)]
 instance IsPathNode URI
     where type PVType URI = PV_URI
           pvNodes _ = []
@@ -14858,7 +15654,7 @@ instance IsPathNode Text
                                                                                                             PV_JSONText_JSONText p
                                                                                                                                  x -> PV_Text_JSONText ((Path_Text_View :: Path_JSONText JSONText ->
                                                                                                                                                                            Path_Text JSONText) p) x) (pvNodes y :: Forest PV_JSONText))]
-                          _ -> [] :: [Tree (PVType Text)]
+                          [] -> [] :: [Tree (PVType Text)]
 instance IsPathNode UserId
     where type PVType UserId = PV_UserId
           pvNodes _ = []

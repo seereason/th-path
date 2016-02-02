@@ -115,11 +115,11 @@ lastView [] = Nothing
 lastView xs = Just (init xs, last xs)
 
 instance Show Markup where
-    show (Markdown x) = "rawMarkdown " <> show x
-    show (Html x) = "rawHtml " <> show x
-    show (LaTeX x) = "rawLaTeX " <> show x
-    show (Pandoc x) = "rawPandoc " <> show x
-    show (Markup xs) = "rawMarkup " <> show xs
+    show (Markdown x) = "(rawMarkdown " <> show x <> ")"
+    show (Html x) = "(rawHtml " <> show x <> ")"
+    show (LaTeX x) = "(rawLaTeX " <> show x <> ")"
+    show (Pandoc x) = "(rawPandoc " <> show x <> ")"
+    show (Markup xs) = "(rawMarkup " <> show xs <> ")"
 
 instance Monoid Markup where
     mempty = Markdown mempty

@@ -14,7 +14,7 @@ module Appraisal.ReportTH where
 --import Appraisal.Markup (Markup(..))
 --import Appraisal.Permissions
 --import Appraisal.Report
---import Appraisal.ReportImage
+import Appraisal.ReportImage (MEUI)
 import Appraisal.ReportInstances (startTypes)
 --import Appraisal.ReportItem
 --import Appraisal.ReportMap (ReportMap(ReportMap), ReportID)

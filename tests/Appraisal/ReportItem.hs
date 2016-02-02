@@ -12,6 +12,7 @@ module Appraisal.ReportItem
     , nullItem
     -- , changeItem
     -- , changeItem'
+    , MIM
     ) where
 
 import Appraisal.Currency(Priceable(..), parseCashValue)
@@ -50,9 +51,11 @@ data ItemFieldName
 
 instance SelfPath ItemFieldName
 
+type MIM = Map ItemFieldName Markup
+
 data Item
     = Item { itemName :: T.Text
-           , fields :: Map ItemFieldName Markup
+           , fields :: MIM
            , images :: ReportImages -- Use a typedef here so that paths like Path_Report ReportImages are generated
            } deriving (Show, Read, Eq, Ord, Data, Typeable)
 

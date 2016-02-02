@@ -108,15 +108,13 @@ pvNodeClauses v =
            | t3 == ConT ''Map ->
                doPVNodesOfMap v vtyp
        AppT (AppT (TupleT 2) ftyp) styp ->
-           do doPVNodeOf v ftyp 'Path_First
-              doPVNodeOf v styp 'Path_Second
+           mappend <$> doPVNodeOf v ftyp 'Path_First <*> doPVNodeOf v styp 'Path_Second
        AppT t1 etyp
            | t1 == ConT ''Maybe ->
                doPVNodeOf v etyp 'Path_Just
        AppT (AppT t3 ltyp) rtyp
            | t3 == ConT ''Either ->
-               do doPVNodeOf v ltyp 'Path_Left
-                  doPVNodeOf v rtyp 'Path_Right
+               mappend <$> doPVNodeOf v ltyp 'Path_Left <*> doPVNodeOf v rtyp 'Path_Right
        _ -> return []
     where
       doName :: Name -> m [ClauseQ]
@@ -167,11 +165,16 @@ pvNodeClauses v =
         f <- expandType ftype >>= typeVertex
         f' <- expandType ftype >>= fieldVertex (tname, undefined, Right fname)
         let p = pathConNameOfField f'
+        case p of
+          Just n -> doPVNodesOfField x v f' n
+          _ -> runQ [|error $(litE (stringL ("doField " ++ show p)))|]
+{-
         case (bestName f, p) of
           (Nothing, _) -> runQ [|error $(litE (stringL ("doField " ++ pprint fname)))|]
           (Just _, Just n) -> doPVNodesOfField x v f' n
           -- (Just _, Just n) -> runQ [| Node ($(conE (pvName v f)) ($(conE n) idPath) ($(varE fname) $(varE x))) subforest |]
           -- runQ [|conE (mkName $(litE (stringL ("Path_" ++ nameBase tname ++ "_" ++ nameBase fname)))) idPath|]
+-}
       doField' :: Name -> Name -> (Strict, Type) -> m Exp
       doField' tname x (_, ftype) = do
         f <- expandType ftype >>= typeVertex
@@ -181,24 +184,13 @@ pvNodeClauses v =
 -- | Build a value of type PV_AbbrevPair -> PV_AbbrevPairs
 shim :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => TGVSimple -> TGVSimple -> Name -> ExpQ -> m Exp
 shim w v pvname pcname =
-    do p <- runQ $ newName "p"
-       x <- runQ $ newName "x"
-       let tname = fromMaybe (error $ "No name for " ++ pprint v) (bestTypeName v)
-           wname = fromMaybe (error $ "No name for " ++ pprint w) (bestTypeName w)
-       case (nameBase wname, nameBase tname) of
-{-
-         ("AbbrevPair", "AbbrevPairs") ->
-             runQ [| \pv -> $(caseE
-                         [|pv|]
-                         [match (conP (mkName "PV_AbbrevPair_JSONText")   [varP p, varP x]) (normalB [|$(conE (mkName "PV_AbbrevPairs_JSONText"))   ((undefined :: $(conT (mkName "Path_AbbrevPair")) $(conT (mkName "JSONText")) ->   $(conT (mkName "Path_AbbrevPairs")) $(conT (mkName "JSONText")))   $(varE p)) $(varE x)|]) [],
-                          match (conP (mkName "PV_AbbrevPair_Markup")     [varP p, varP x]) (normalB [|$(conE (mkName "PV_AbbrevPairs_Markup")) ((undefined :: $(conT (mkName "Path_AbbrevPair")) $(conT (mkName "Markup")) ->     $(conT (mkName "Path_AbbrevPairs")) $(conT (mkName "Markup")))     $(varE p)) $(varE x)|]) [],
-                          match (conP (mkName "PV_AbbrevPair_AbbrevPair") [varP p, varP x]) (normalB [|$(conE (mkName "PV_AbbrevPairs_AbbrevPair")) ((undefined :: $(conT (mkName "Path_AbbrevPair")) ($(conT (mkName "CIString")), $(conT (mkName "Markup"))) -> $(conT (mkName "Path_AbbrevPairs")) ($(conT (mkName "CIString")), $(conT (mkName "Markup")))) $(varE p)) $(varE x)|]) [],
-                          match (conP (mkName "PV_AbbrevPair_CIString")   [varP p, varP x]) (normalB [|$(conE (mkName "PV_AbbrevPairs_CIString"))    ((undefined :: $(conT (mkName "Path_AbbrevPair")) $(conT (mkName "CIString")) ->   $(conT (mkName "Path_AbbrevPairs")) $(conT (mkName "CIString")))   $(varE p)) $(varE x)|]) [],
-                          match (conP (mkName "PV_AbbrevPair_Text")       [varP p, varP x]) (normalB [|$(conE (mkName "PV_AbbrevPairs_Text"))       ((undefined :: $(conT (mkName "Path_AbbrevPair")) $(conT (mkName "Text")) ->       $(conT (mkName "Path_AbbrevPairs")) $(conT (mkName "Text")))       $(varE p)) $(varE x)|]) []]
-                        )|]
-         -- _ -> [|error $(litE (stringL (doPair ""))
--}
-         _ -> doNode v w
+    do -- p <- runQ $ newName "p"
+       -- x <- runQ $ newName "x"
+       -- let tname = fromMaybe (error $ "No name for " ++ pprint v) (bestTypeName v)
+       --     wname = fromMaybe (error $ "No name for " ++ pprint w) (bestTypeName w)
+       -- case (nameBase wname, nameBase tname) of
+       --   _ ->
+       doNode v w
          -- _ -> [|error $(litE (stringL ("Cannot convert PV_" ++ nameBase wname ++ " -> PV_" ++ nameBase tname ++ " using " ++ nameBase pvname ++ " and " ++ nameBase pcname))) |]
     where
       doNode :: TGVSimple -> TGVSimple -> m Exp
@@ -335,11 +327,15 @@ doPVNodeOf v wtyp pcname =
          pvtname = mkName ("PV_" ++ nameBase tname)
          pvcname = mkName ("PV_" ++ nameBase tname ++ "_" ++ nameBase wname)
          pwname = mkName ("PV_" ++ nameBase wname)
+         -- We need to filter these because of types like Either String String
+         matchpath = [|\x -> case x of
+                               $(conP pcname [wildP]) -> True
+                               _ -> False|]
      -- sf <- pvNodeClauses w
      p <- runQ $ newName "p"
      q <- runQ $ newName "q"
      pvlift <- shim w v pvcname (conE pcname)
-     runQ [d| _f x = (case pathsOf x (undefined :: Proxy $(conT wname)) :: [$(conT ptname) $(conT wname)] of
+     runQ [d| _f x = (case filter $matchpath (pathsOf x (undefined :: Proxy $(conT wname))) :: [$(conT ptname) $(conT wname)] of
                         $(listP [asP p (conP pcname [varP q])] :: PatQ) ->
                             let [y] = toListOf (toLens $(varE p)) x :: [$(pure wtyp)] in
                             [Node ($(conE pvcname) $(varE p) y) (forestMap $(pure pvlift) (pvNodes y :: Forest $(conT pwname)))]

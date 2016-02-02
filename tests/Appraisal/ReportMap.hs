@@ -12,6 +12,7 @@ module Appraisal.ReportMap
     , reportMapSize
     , lens_ReportMap_ReportMap
     , lookupReport
+    , MRR
     ) where
 
 import Appraisal.Report (Report(reportUUID))
@@ -21,8 +22,10 @@ import Data.Data (Data, Typeable)
 import qualified Data.Map as M (fromList, lookup, Map, size)
 import Language.Haskell.TH.Path.Graph (SelfPath)
 
+type MRR = M.Map ReportID Report
+
 newtype ReportID = ReportID { unReportID :: UUID } deriving (Eq, Ord, Read, Show, Typeable, Data)
-newtype ReportMap = ReportMap { unReportMap :: M.Map ReportID Report } deriving (Eq, Ord, Read, Show, Typeable, Data)
+newtype ReportMap = ReportMap { unReportMap :: MRR } deriving (Eq, Ord, Read, Show, Typeable, Data)
 
 instance SelfPath ReportID
 
