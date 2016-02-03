@@ -196,759 +196,6 @@ data Path_UserId a
 data Path_UserIds a
     = Path_UserIds_View (Path_Text a) | Path_UserIds
     deriving (Eq, Ord, Read, Show, Typeable, Data)
-data Peek_AbbrevPair
-    = Peek_AbbrevPair_JSONText (Path_AbbrevPair JSONText) JSONText
-    | Peek_AbbrevPair_Markup (Path_AbbrevPair Markup) Markup
-    | Peek_AbbrevPair_AbbrevPair (Path_AbbrevPair ((CIString, Markup)))
-                                 ((CIString, Markup))
-    | Peek_AbbrevPair_CIString (Path_AbbrevPair CIString) CIString
-    | Peek_AbbrevPair_Text (Path_AbbrevPair Text) Text
-    deriving (Eq, Show)
-data Peek_AbbrevPairs
-    = Peek_AbbrevPairs_JSONText (Path_AbbrevPairs JSONText) JSONText
-    | Peek_AbbrevPairs_Markup (Path_AbbrevPairs Markup) Markup
-    | Peek_AbbrevPairs_AbbrevPair (Path_AbbrevPairs ((CIString,
-                                                      Markup)))
-                                  ((CIString, Markup))
-    | Peek_AbbrevPairs_AbbrevPairs (Path_AbbrevPairs (Order AbbrevPairID
-                                                            ((CIString, Markup))))
-                                   (Order AbbrevPairID ((CIString, Markup)))
-    | Peek_AbbrevPairs_CIString (Path_AbbrevPairs CIString) CIString
-    | Peek_AbbrevPairs_Text (Path_AbbrevPairs Text) Text
-    deriving (Eq, Show)
-data Peek_Author
-    = Peek_Author_JSONText (Path_Author JSONText) JSONText
-    | Peek_Author_Markup (Path_Author Markup) Markup
-    | Peek_Author_Author (Path_Author Author) Author
-    | Peek_Author_Text (Path_Author Text) Text
-    deriving (Eq, Show)
-data Peek_Authors
-    = Peek_Authors_JSONText (Path_Authors JSONText) JSONText
-    | Peek_Authors_Markup (Path_Authors Markup) Markup
-    | Peek_Authors_Author (Path_Authors Author) Author
-    | Peek_Authors_Authors (Path_Authors (Order AuthorID Author))
-                           (Order AuthorID Author)
-    | Peek_Authors_Text (Path_Authors Text) Text
-    deriving (Eq, Show)
-data Peek_Bool
-    = Peek_Bool_String (Path_Bool ([Char])) ([Char])
-    | Peek_Bool_Bool (Path_Bool Bool) Bool
-    | Peek_Bool_JSONText (Path_Bool JSONText) JSONText
-    deriving (Eq, Show)
-data Peek_Branding
-    = Peek_Branding_JSONText (Path_Branding JSONText) JSONText
-    | Peek_Branding_Branding (Path_Branding Branding) Branding
-    | Peek_Branding_Text (Path_Branding Text) Text
-    deriving (Eq, Show)
-data Peek_CIString
-    = Peek_CIString_JSONText (Path_CIString JSONText) JSONText
-    | Peek_CIString_CIString (Path_CIString CIString) CIString
-    | Peek_CIString_Text (Path_CIString Text) Text
-    deriving (Eq, Show)
-data Peek_Dimension
-    = Peek_Dimension_Dimension (Path_Dimension Dimension) Dimension
-    | Peek_Dimension_JSONText (Path_Dimension JSONText) JSONText
-    deriving (Eq, Show)
-data Peek_Double
-    = Peek_Double_String (Path_Double ([Char])) ([Char])
-    | Peek_Double_Double (Path_Double Double) Double
-    | Peek_Double_JSONText (Path_Double JSONText) JSONText
-    deriving (Eq, Show)
-data Peek_EUI
-    = Peek_EUI_ImageFile (Path_EUI ImageFile) ImageFile
-    | Peek_EUI_EUI (Path_EUI (Either URI ImageFile))
-                   (Either URI ImageFile)
-    | Peek_EUI_URI (Path_EUI URI) URI
-    deriving (Eq, Show)
-data Peek_ImageCrop
-    = Peek_ImageCrop_ImageCrop (Path_ImageCrop ImageCrop) ImageCrop
-    deriving (Eq, Show)
-data Peek_ImageFile
-    = Peek_ImageFile_ImageFile (Path_ImageFile ImageFile) ImageFile
-    deriving (Eq, Show)
-data Peek_ImageSize
-    = Peek_ImageSize_String (Path_ImageSize ([Char])) ([Char])
-    | Peek_ImageSize_Double (Path_ImageSize Double) Double
-    | Peek_ImageSize_Dimension (Path_ImageSize Dimension) Dimension
-    | Peek_ImageSize_ImageSize (Path_ImageSize ImageSize) ImageSize
-    | Peek_ImageSize_Units (Path_ImageSize Units) Units
-    | Peek_ImageSize_JSONText (Path_ImageSize JSONText) JSONText
-    deriving (Eq, Show)
-data Peek_Int = Peek_Int_Int (Path_Int Int) Int deriving (Eq, Show)
-data Peek_Int64
-    = Peek_Int64_Int64 (Path_Int64 Int64) Int64
-    deriving (Eq, Show)
-data Peek_Integer
-    = Peek_Integer_Integer (Path_Integer Integer) Integer
-    deriving (Eq, Show)
-data Peek_Item
-    = Peek_Item_String (Path_Item ([Char])) ([Char])
-    | Peek_Item_Bool (Path_Item Bool) Bool
-    | Peek_Item_Double (Path_Item Double) Double
-    | Peek_Item_Dimension (Path_Item Dimension) Dimension
-    | Peek_Item_ImageCrop (Path_Item ImageCrop) ImageCrop
-    | Peek_Item_ImageSize (Path_Item ImageSize) ImageSize
-    | Peek_Item_Units (Path_Item Units) Units
-    | Peek_Item_ImageFile (Path_Item ImageFile) ImageFile
-    | Peek_Item_JSONText (Path_Item JSONText) JSONText
-    | Peek_Item_Markup (Path_Item Markup) Markup
-    | Peek_Item_EUI (Path_Item (Either URI ImageFile))
-                    (Either URI ImageFile)
-    | Peek_Item_MEUI (Path_Item (Maybe (Either URI ImageFile)))
-                     (Maybe (Either URI ImageFile))
-    | Peek_Item_MaybeImageFile (Path_Item (Maybe ImageFile))
-                               (Maybe ImageFile)
-    | Peek_Item_ReportImage (Path_Item ReportImage) ReportImage
-    | Peek_Item_ReportImages (Path_Item (Order ReportImageID
-                                               ReportImage))
-                             (Order ReportImageID ReportImage)
-    | Peek_Item_ReportImageView (Path_Item ReportImageView)
-                                ReportImageView
-    | Peek_Item_SaneSizeImageSize (Path_Item (SaneSize ImageSize))
-                                  (SaneSize ImageSize)
-    | Peek_Item_Item (Path_Item Item) Item
-    | Peek_Item_MIM (Path_Item (Map ItemFieldName Markup))
-                    (Map ItemFieldName Markup)
-    | Peek_Item_URI (Path_Item URI) URI
-    | Peek_Item_Text (Path_Item Text) Text
-    deriving (Eq, Show)
-data Peek_JSONText
-    = Peek_JSONText_JSONText (Path_JSONText JSONText) JSONText
-    deriving (Eq, Show)
-data Peek_MEUI
-    = Peek_MEUI_ImageFile (Path_MEUI ImageFile) ImageFile
-    | Peek_MEUI_EUI (Path_MEUI (Either URI ImageFile))
-                    (Either URI ImageFile)
-    | Peek_MEUI_MEUI (Path_MEUI (Maybe (Either URI ImageFile)))
-                     (Maybe (Either URI ImageFile))
-    | Peek_MEUI_URI (Path_MEUI URI) URI
-    deriving (Eq, Show)
-data Peek_MIM
-    = Peek_MIM_JSONText (Path_MIM JSONText) JSONText
-    | Peek_MIM_Markup (Path_MIM Markup) Markup
-    | Peek_MIM_MIM (Path_MIM (Map ItemFieldName Markup))
-                   (Map ItemFieldName Markup)
-    | Peek_MIM_Text (Path_MIM Text) Text
-    deriving (Eq, Show)
-data Peek_MRR
-    = Peek_MRR_String (Path_MRR ([Char])) ([Char])
-    | Peek_MRR_Int64 (Path_MRR Int64) Int64
-    | Peek_MRR_Int (Path_MRR Int) Int
-    | Peek_MRR_Bool (Path_MRR Bool) Bool
-    | Peek_MRR_Double (Path_MRR Double) Double
-    | Peek_MRR_Dimension (Path_MRR Dimension) Dimension
-    | Peek_MRR_ImageCrop (Path_MRR ImageCrop) ImageCrop
-    | Peek_MRR_ImageSize (Path_MRR ImageSize) ImageSize
-    | Peek_MRR_Units (Path_MRR Units) Units
-    | Peek_MRR_ImageFile (Path_MRR ImageFile) ImageFile
-    | Peek_MRR_Integer (Path_MRR Integer) Integer
-    | Peek_MRR_JSONText (Path_MRR JSONText) JSONText
-    | Peek_MRR_Markup (Path_MRR Markup) Markup
-    | Peek_MRR_Permissions (Path_MRR Permissions) Permissions
-    | Peek_MRR_UserIds (Path_MRR ([UserId])) ([UserId])
-    | Peek_MRR_AbbrevPair (Path_MRR ((CIString, Markup)))
-                          ((CIString, Markup))
-    | Peek_MRR_AbbrevPairs (Path_MRR (Order AbbrevPairID
-                                            ((CIString, Markup))))
-                           (Order AbbrevPairID ((CIString, Markup)))
-    | Peek_MRR_Author (Path_MRR Author) Author
-    | Peek_MRR_Authors (Path_MRR (Order AuthorID Author))
-                       (Order AuthorID Author)
-    | Peek_MRR_Branding (Path_MRR Branding) Branding
-    | Peek_MRR_MarkupPair (Path_MRR ((Markup, Markup)))
-                          ((Markup, Markup))
-    | Peek_MRR_MarkupPairs (Path_MRR (Order MarkupPairID
-                                            ((Markup, Markup))))
-                           (Order MarkupPairID ((Markup, Markup)))
-    | Peek_MRR_Markups (Path_MRR (Order MarkupID Markup))
-                       (Order MarkupID Markup)
-    | Peek_MRR_MaybeReportIntendedUse (Path_MRR (Maybe ReportIntendedUse))
-                                      (Maybe ReportIntendedUse)
-    | Peek_MRR_Report (Path_MRR Report) Report
-    | Peek_MRR_ReportElem (Path_MRR ReportElem) ReportElem
-    | Peek_MRR_ReportElems (Path_MRR (Order ReportElemID ReportElem))
-                           (Order ReportElemID ReportElem)
-    | Peek_MRR_ReportFlags (Path_MRR ReportFlags) ReportFlags
-    | Peek_MRR_ReportStandard (Path_MRR ReportStandard) ReportStandard
-    | Peek_MRR_ReportStatus (Path_MRR ReportStatus) ReportStatus
-    | Peek_MRR_ReportValueApproachInfo (Path_MRR ReportValueApproachInfo)
-                                       ReportValueApproachInfo
-    | Peek_MRR_ReportValueTypeInfo (Path_MRR ReportValueTypeInfo)
-                                   ReportValueTypeInfo
-    | Peek_MRR_EUI (Path_MRR (Either URI ImageFile))
-                   (Either URI ImageFile)
-    | Peek_MRR_MEUI (Path_MRR (Maybe (Either URI ImageFile)))
-                    (Maybe (Either URI ImageFile))
-    | Peek_MRR_MaybeImageFile (Path_MRR (Maybe ImageFile))
-                              (Maybe ImageFile)
-    | Peek_MRR_ReportImage (Path_MRR ReportImage) ReportImage
-    | Peek_MRR_ReportImages (Path_MRR (Order ReportImageID
-                                             ReportImage))
-                            (Order ReportImageID ReportImage)
-    | Peek_MRR_ReadOnlyFilePath (Path_MRR (ReadOnly ([Char])))
-                                (ReadOnly ([Char]))
-    | Peek_MRR_ReportImageView (Path_MRR ReportImageView)
-                               ReportImageView
-    | Peek_MRR_ReportView (Path_MRR ReportView) ReportView
-    | Peek_MRR_SaneSizeImageSize (Path_MRR (SaneSize ImageSize))
-                                 (SaneSize ImageSize)
-    | Peek_MRR_Item (Path_MRR Item) Item
-    | Peek_MRR_MIM (Path_MRR (Map ItemFieldName Markup))
-                   (Map ItemFieldName Markup)
-    | Peek_MRR_MRR (Path_MRR (Map ReportID Report))
-                   (Map ReportID Report)
-    | Peek_MRR_CIString (Path_MRR CIString) CIString
-    | Peek_MRR_URI (Path_MRR URI) URI
-    | Peek_MRR_Text (Path_MRR Text) Text
-    | Peek_MRR_UserId (Path_MRR UserId) UserId
-    | Peek_MRR_UUID (Path_MRR UUID) UUID
-    deriving (Eq, Show)
-data Peek_Markup
-    = Peek_Markup_JSONText (Path_Markup JSONText) JSONText
-    | Peek_Markup_Markup (Path_Markup Markup) Markup
-    | Peek_Markup_Text (Path_Markup Text) Text
-    deriving (Eq, Show)
-data Peek_MarkupPair
-    = Peek_MarkupPair_JSONText (Path_MarkupPair JSONText) JSONText
-    | Peek_MarkupPair_Markup (Path_MarkupPair Markup) Markup
-    | Peek_MarkupPair_MarkupPair (Path_MarkupPair ((Markup, Markup)))
-                                 ((Markup, Markup))
-    | Peek_MarkupPair_Text (Path_MarkupPair Text) Text
-    deriving (Eq, Show)
-data Peek_MarkupPairs
-    = Peek_MarkupPairs_JSONText (Path_MarkupPairs JSONText) JSONText
-    | Peek_MarkupPairs_Markup (Path_MarkupPairs Markup) Markup
-    | Peek_MarkupPairs_MarkupPair (Path_MarkupPairs ((Markup, Markup)))
-                                  ((Markup, Markup))
-    | Peek_MarkupPairs_MarkupPairs (Path_MarkupPairs (Order MarkupPairID
-                                                            ((Markup, Markup))))
-                                   (Order MarkupPairID ((Markup, Markup)))
-    | Peek_MarkupPairs_Text (Path_MarkupPairs Text) Text
-    deriving (Eq, Show)
-data Peek_Markups
-    = Peek_Markups_JSONText (Path_Markups JSONText) JSONText
-    | Peek_Markups_Markup (Path_Markups Markup) Markup
-    | Peek_Markups_Markups (Path_Markups (Order MarkupID Markup))
-                           (Order MarkupID Markup)
-    | Peek_Markups_Text (Path_Markups Text) Text
-    deriving (Eq, Show)
-data Peek_MaybeImageFile
-    = Peek_MaybeImageFile_String (Path_MaybeImageFile ([Char]))
-                                 ([Char])
-    | Peek_MaybeImageFile_JSONText (Path_MaybeImageFile JSONText)
-                                   JSONText
-    | Peek_MaybeImageFile_MaybeImageFile (Path_MaybeImageFile (Maybe ImageFile))
-                                         (Maybe ImageFile)
-    deriving (Eq, Show)
-data Peek_MaybeReportIntendedUse
-    = Peek_MaybeReportIntendedUse_String (Path_MaybeReportIntendedUse ([Char]))
-                                         ([Char])
-    | Peek_MaybeReportIntendedUse_JSONText (Path_MaybeReportIntendedUse JSONText)
-                                           JSONText
-    | Peek_MaybeReportIntendedUse_MaybeReportIntendedUse (Path_MaybeReportIntendedUse (Maybe ReportIntendedUse))
-                                                         (Maybe ReportIntendedUse)
-    deriving (Eq, Show)
-data Peek_Permissions
-    = Peek_Permissions_JSONText (Path_Permissions JSONText) JSONText
-    | Peek_Permissions_Permissions (Path_Permissions Permissions)
-                                   Permissions
-    | Peek_Permissions_UserIds (Path_Permissions ([UserId])) ([UserId])
-    | Peek_Permissions_Text (Path_Permissions Text) Text
-    | Peek_Permissions_UserId (Path_Permissions UserId) UserId
-    deriving (Eq, Show)
-data Peek_ReadOnlyFilePath
-    = Peek_ReadOnlyFilePath_String (Path_ReadOnlyFilePath ([Char]))
-                                   ([Char])
-    | Peek_ReadOnlyFilePath_JSONText (Path_ReadOnlyFilePath JSONText)
-                                     JSONText
-    | Peek_ReadOnlyFilePath_ReadOnlyFilePath (Path_ReadOnlyFilePath (ReadOnly ([Char])))
-                                             (ReadOnly ([Char]))
-    deriving (Eq, Show)
-data Peek_Report
-    = Peek_Report_String (Path_Report ([Char])) ([Char])
-    | Peek_Report_Int64 (Path_Report Int64) Int64
-    | Peek_Report_Int (Path_Report Int) Int
-    | Peek_Report_Bool (Path_Report Bool) Bool
-    | Peek_Report_Double (Path_Report Double) Double
-    | Peek_Report_Dimension (Path_Report Dimension) Dimension
-    | Peek_Report_ImageCrop (Path_Report ImageCrop) ImageCrop
-    | Peek_Report_ImageSize (Path_Report ImageSize) ImageSize
-    | Peek_Report_Units (Path_Report Units) Units
-    | Peek_Report_ImageFile (Path_Report ImageFile) ImageFile
-    | Peek_Report_Integer (Path_Report Integer) Integer
-    | Peek_Report_JSONText (Path_Report JSONText) JSONText
-    | Peek_Report_Markup (Path_Report Markup) Markup
-    | Peek_Report_Permissions (Path_Report Permissions) Permissions
-    | Peek_Report_UserIds (Path_Report ([UserId])) ([UserId])
-    | Peek_Report_AbbrevPair (Path_Report ((CIString, Markup)))
-                             ((CIString, Markup))
-    | Peek_Report_AbbrevPairs (Path_Report (Order AbbrevPairID
-                                                  ((CIString, Markup))))
-                              (Order AbbrevPairID ((CIString, Markup)))
-    | Peek_Report_Author (Path_Report Author) Author
-    | Peek_Report_Authors (Path_Report (Order AuthorID Author))
-                          (Order AuthorID Author)
-    | Peek_Report_Branding (Path_Report Branding) Branding
-    | Peek_Report_MarkupPair (Path_Report ((Markup, Markup)))
-                             ((Markup, Markup))
-    | Peek_Report_MarkupPairs (Path_Report (Order MarkupPairID
-                                                  ((Markup, Markup))))
-                              (Order MarkupPairID ((Markup, Markup)))
-    | Peek_Report_Markups (Path_Report (Order MarkupID Markup))
-                          (Order MarkupID Markup)
-    | Peek_Report_MaybeReportIntendedUse (Path_Report (Maybe ReportIntendedUse))
-                                         (Maybe ReportIntendedUse)
-    | Peek_Report_Report (Path_Report Report) Report
-    | Peek_Report_ReportElem (Path_Report ReportElem) ReportElem
-    | Peek_Report_ReportElems (Path_Report (Order ReportElemID
-                                                  ReportElem))
-                              (Order ReportElemID ReportElem)
-    | Peek_Report_ReportFlags (Path_Report ReportFlags) ReportFlags
-    | Peek_Report_ReportStandard (Path_Report ReportStandard)
-                                 ReportStandard
-    | Peek_Report_ReportStatus (Path_Report ReportStatus) ReportStatus
-    | Peek_Report_ReportValueApproachInfo (Path_Report ReportValueApproachInfo)
-                                          ReportValueApproachInfo
-    | Peek_Report_ReportValueTypeInfo (Path_Report ReportValueTypeInfo)
-                                      ReportValueTypeInfo
-    | Peek_Report_EUI (Path_Report (Either URI ImageFile))
-                      (Either URI ImageFile)
-    | Peek_Report_MEUI (Path_Report (Maybe (Either URI ImageFile)))
-                       (Maybe (Either URI ImageFile))
-    | Peek_Report_MaybeImageFile (Path_Report (Maybe ImageFile))
-                                 (Maybe ImageFile)
-    | Peek_Report_ReportImage (Path_Report ReportImage) ReportImage
-    | Peek_Report_ReportImages (Path_Report (Order ReportImageID
-                                                   ReportImage))
-                               (Order ReportImageID ReportImage)
-    | Peek_Report_ReadOnlyFilePath (Path_Report (ReadOnly ([Char])))
-                                   (ReadOnly ([Char]))
-    | Peek_Report_ReportImageView (Path_Report ReportImageView)
-                                  ReportImageView
-    | Peek_Report_ReportView (Path_Report ReportView) ReportView
-    | Peek_Report_SaneSizeImageSize (Path_Report (SaneSize ImageSize))
-                                    (SaneSize ImageSize)
-    | Peek_Report_Item (Path_Report Item) Item
-    | Peek_Report_MIM (Path_Report (Map ItemFieldName Markup))
-                      (Map ItemFieldName Markup)
-    | Peek_Report_CIString (Path_Report CIString) CIString
-    | Peek_Report_URI (Path_Report URI) URI
-    | Peek_Report_Text (Path_Report Text) Text
-    | Peek_Report_UserId (Path_Report UserId) UserId
-    | Peek_Report_UUID (Path_Report UUID) UUID
-    deriving (Eq, Show)
-data Peek_ReportElem
-    = Peek_ReportElem_String (Path_ReportElem ([Char])) ([Char])
-    | Peek_ReportElem_Bool (Path_ReportElem Bool) Bool
-    | Peek_ReportElem_Double (Path_ReportElem Double) Double
-    | Peek_ReportElem_Dimension (Path_ReportElem Dimension) Dimension
-    | Peek_ReportElem_ImageCrop (Path_ReportElem ImageCrop) ImageCrop
-    | Peek_ReportElem_ImageSize (Path_ReportElem ImageSize) ImageSize
-    | Peek_ReportElem_Units (Path_ReportElem Units) Units
-    | Peek_ReportElem_ImageFile (Path_ReportElem ImageFile) ImageFile
-    | Peek_ReportElem_JSONText (Path_ReportElem JSONText) JSONText
-    | Peek_ReportElem_Markup (Path_ReportElem Markup) Markup
-    | Peek_ReportElem_ReportElem (Path_ReportElem ReportElem)
-                                 ReportElem
-    | Peek_ReportElem_EUI (Path_ReportElem (Either URI ImageFile))
-                          (Either URI ImageFile)
-    | Peek_ReportElem_MEUI (Path_ReportElem (Maybe (Either URI
-                                                           ImageFile)))
-                           (Maybe (Either URI ImageFile))
-    | Peek_ReportElem_MaybeImageFile (Path_ReportElem (Maybe ImageFile))
-                                     (Maybe ImageFile)
-    | Peek_ReportElem_ReportImage (Path_ReportElem ReportImage)
-                                  ReportImage
-    | Peek_ReportElem_ReportImages (Path_ReportElem (Order ReportImageID
-                                                           ReportImage))
-                                   (Order ReportImageID ReportImage)
-    | Peek_ReportElem_ReportImageView (Path_ReportElem ReportImageView)
-                                      ReportImageView
-    | Peek_ReportElem_SaneSizeImageSize (Path_ReportElem (SaneSize ImageSize))
-                                        (SaneSize ImageSize)
-    | Peek_ReportElem_Item (Path_ReportElem Item) Item
-    | Peek_ReportElem_MIM (Path_ReportElem (Map ItemFieldName Markup))
-                          (Map ItemFieldName Markup)
-    | Peek_ReportElem_URI (Path_ReportElem URI) URI
-    | Peek_ReportElem_Text (Path_ReportElem Text) Text
-    deriving (Eq, Show)
-data Peek_ReportElems
-    = Peek_ReportElems_String (Path_ReportElems ([Char])) ([Char])
-    | Peek_ReportElems_Bool (Path_ReportElems Bool) Bool
-    | Peek_ReportElems_Double (Path_ReportElems Double) Double
-    | Peek_ReportElems_Dimension (Path_ReportElems Dimension) Dimension
-    | Peek_ReportElems_ImageCrop (Path_ReportElems ImageCrop) ImageCrop
-    | Peek_ReportElems_ImageSize (Path_ReportElems ImageSize) ImageSize
-    | Peek_ReportElems_Units (Path_ReportElems Units) Units
-    | Peek_ReportElems_ImageFile (Path_ReportElems ImageFile) ImageFile
-    | Peek_ReportElems_JSONText (Path_ReportElems JSONText) JSONText
-    | Peek_ReportElems_Markup (Path_ReportElems Markup) Markup
-    | Peek_ReportElems_ReportElem (Path_ReportElems ReportElem)
-                                  ReportElem
-    | Peek_ReportElems_ReportElems (Path_ReportElems (Order ReportElemID
-                                                            ReportElem))
-                                   (Order ReportElemID ReportElem)
-    | Peek_ReportElems_EUI (Path_ReportElems (Either URI ImageFile))
-                           (Either URI ImageFile)
-    | Peek_ReportElems_MEUI (Path_ReportElems (Maybe (Either URI
-                                                             ImageFile)))
-                            (Maybe (Either URI ImageFile))
-    | Peek_ReportElems_MaybeImageFile (Path_ReportElems (Maybe ImageFile))
-                                      (Maybe ImageFile)
-    | Peek_ReportElems_ReportImage (Path_ReportElems ReportImage)
-                                   ReportImage
-    | Peek_ReportElems_ReportImages (Path_ReportElems (Order ReportImageID
-                                                             ReportImage))
-                                    (Order ReportImageID ReportImage)
-    | Peek_ReportElems_ReportImageView (Path_ReportElems ReportImageView)
-                                       ReportImageView
-    | Peek_ReportElems_SaneSizeImageSize (Path_ReportElems (SaneSize ImageSize))
-                                         (SaneSize ImageSize)
-    | Peek_ReportElems_Item (Path_ReportElems Item) Item
-    | Peek_ReportElems_MIM (Path_ReportElems (Map ItemFieldName
-                                                  Markup))
-                           (Map ItemFieldName Markup)
-    | Peek_ReportElems_URI (Path_ReportElems URI) URI
-    | Peek_ReportElems_Text (Path_ReportElems Text) Text
-    deriving (Eq, Show)
-data Peek_ReportFlags
-    = Peek_ReportFlags_String (Path_ReportFlags ([Char])) ([Char])
-    | Peek_ReportFlags_Bool (Path_ReportFlags Bool) Bool
-    | Peek_ReportFlags_JSONText (Path_ReportFlags JSONText) JSONText
-    | Peek_ReportFlags_ReportFlags (Path_ReportFlags ReportFlags)
-                                   ReportFlags
-    deriving (Eq, Show)
-data Peek_ReportImage
-    = Peek_ReportImage_String (Path_ReportImage ([Char])) ([Char])
-    | Peek_ReportImage_Bool (Path_ReportImage Bool) Bool
-    | Peek_ReportImage_Double (Path_ReportImage Double) Double
-    | Peek_ReportImage_Dimension (Path_ReportImage Dimension) Dimension
-    | Peek_ReportImage_ImageCrop (Path_ReportImage ImageCrop) ImageCrop
-    | Peek_ReportImage_ImageSize (Path_ReportImage ImageSize) ImageSize
-    | Peek_ReportImage_Units (Path_ReportImage Units) Units
-    | Peek_ReportImage_ImageFile (Path_ReportImage ImageFile) ImageFile
-    | Peek_ReportImage_JSONText (Path_ReportImage JSONText) JSONText
-    | Peek_ReportImage_Markup (Path_ReportImage Markup) Markup
-    | Peek_ReportImage_EUI (Path_ReportImage (Either URI ImageFile))
-                           (Either URI ImageFile)
-    | Peek_ReportImage_MEUI (Path_ReportImage (Maybe (Either URI
-                                                             ImageFile)))
-                            (Maybe (Either URI ImageFile))
-    | Peek_ReportImage_MaybeImageFile (Path_ReportImage (Maybe ImageFile))
-                                      (Maybe ImageFile)
-    | Peek_ReportImage_ReportImage (Path_ReportImage ReportImage)
-                                   ReportImage
-    | Peek_ReportImage_ReportImageView (Path_ReportImage ReportImageView)
-                                       ReportImageView
-    | Peek_ReportImage_SaneSizeImageSize (Path_ReportImage (SaneSize ImageSize))
-                                         (SaneSize ImageSize)
-    | Peek_ReportImage_URI (Path_ReportImage URI) URI
-    | Peek_ReportImage_Text (Path_ReportImage Text) Text
-    deriving (Eq, Show)
-data Peek_ReportImageView
-    = Peek_ReportImageView_String (Path_ReportImageView ([Char]))
-                                  ([Char])
-    | Peek_ReportImageView_Bool (Path_ReportImageView Bool) Bool
-    | Peek_ReportImageView_Double (Path_ReportImageView Double) Double
-    | Peek_ReportImageView_Dimension (Path_ReportImageView Dimension)
-                                     Dimension
-    | Peek_ReportImageView_ImageCrop (Path_ReportImageView ImageCrop)
-                                     ImageCrop
-    | Peek_ReportImageView_ImageSize (Path_ReportImageView ImageSize)
-                                     ImageSize
-    | Peek_ReportImageView_Units (Path_ReportImageView Units) Units
-    | Peek_ReportImageView_ImageFile (Path_ReportImageView ImageFile)
-                                     ImageFile
-    | Peek_ReportImageView_JSONText (Path_ReportImageView JSONText)
-                                    JSONText
-    | Peek_ReportImageView_Markup (Path_ReportImageView Markup) Markup
-    | Peek_ReportImageView_EUI (Path_ReportImageView (Either URI
-                                                             ImageFile))
-                               (Either URI ImageFile)
-    | Peek_ReportImageView_MEUI (Path_ReportImageView (Maybe (Either URI
-                                                                     ImageFile)))
-                                (Maybe (Either URI ImageFile))
-    | Peek_ReportImageView_MaybeImageFile (Path_ReportImageView (Maybe ImageFile))
-                                          (Maybe ImageFile)
-    | Peek_ReportImageView_ReportImageView (Path_ReportImageView ReportImageView)
-                                           ReportImageView
-    | Peek_ReportImageView_SaneSizeImageSize (Path_ReportImageView (SaneSize ImageSize))
-                                             (SaneSize ImageSize)
-    | Peek_ReportImageView_URI (Path_ReportImageView URI) URI
-    | Peek_ReportImageView_Text (Path_ReportImageView Text) Text
-    deriving (Eq, Show)
-data Peek_ReportImages
-    = Peek_ReportImages_String (Path_ReportImages ([Char])) ([Char])
-    | Peek_ReportImages_Bool (Path_ReportImages Bool) Bool
-    | Peek_ReportImages_Double (Path_ReportImages Double) Double
-    | Peek_ReportImages_Dimension (Path_ReportImages Dimension)
-                                  Dimension
-    | Peek_ReportImages_ImageCrop (Path_ReportImages ImageCrop)
-                                  ImageCrop
-    | Peek_ReportImages_ImageSize (Path_ReportImages ImageSize)
-                                  ImageSize
-    | Peek_ReportImages_Units (Path_ReportImages Units) Units
-    | Peek_ReportImages_ImageFile (Path_ReportImages ImageFile)
-                                  ImageFile
-    | Peek_ReportImages_JSONText (Path_ReportImages JSONText) JSONText
-    | Peek_ReportImages_Markup (Path_ReportImages Markup) Markup
-    | Peek_ReportImages_EUI (Path_ReportImages (Either URI ImageFile))
-                            (Either URI ImageFile)
-    | Peek_ReportImages_MEUI (Path_ReportImages (Maybe (Either URI
-                                                               ImageFile)))
-                             (Maybe (Either URI ImageFile))
-    | Peek_ReportImages_MaybeImageFile (Path_ReportImages (Maybe ImageFile))
-                                       (Maybe ImageFile)
-    | Peek_ReportImages_ReportImage (Path_ReportImages ReportImage)
-                                    ReportImage
-    | Peek_ReportImages_ReportImages (Path_ReportImages (Order ReportImageID
-                                                               ReportImage))
-                                     (Order ReportImageID ReportImage)
-    | Peek_ReportImages_ReportImageView (Path_ReportImages ReportImageView)
-                                        ReportImageView
-    | Peek_ReportImages_SaneSizeImageSize (Path_ReportImages (SaneSize ImageSize))
-                                          (SaneSize ImageSize)
-    | Peek_ReportImages_URI (Path_ReportImages URI) URI
-    | Peek_ReportImages_Text (Path_ReportImages Text) Text
-    deriving (Eq, Show)
-data Peek_ReportIntendedUse
-    = Peek_ReportIntendedUse_String (Path_ReportIntendedUse ([Char]))
-                                    ([Char])
-    | Peek_ReportIntendedUse_JSONText (Path_ReportIntendedUse JSONText)
-                                      JSONText
-    | Peek_ReportIntendedUse_ReportIntendedUse (Path_ReportIntendedUse ReportIntendedUse)
-                                               ReportIntendedUse
-    deriving (Eq, Show)
-data Peek_ReportMap
-    = Peek_ReportMap_String (Path_ReportMap ([Char])) ([Char])
-    | Peek_ReportMap_Int64 (Path_ReportMap Int64) Int64
-    | Peek_ReportMap_Int (Path_ReportMap Int) Int
-    | Peek_ReportMap_Bool (Path_ReportMap Bool) Bool
-    | Peek_ReportMap_Double (Path_ReportMap Double) Double
-    | Peek_ReportMap_Dimension (Path_ReportMap Dimension) Dimension
-    | Peek_ReportMap_ImageCrop (Path_ReportMap ImageCrop) ImageCrop
-    | Peek_ReportMap_ImageSize (Path_ReportMap ImageSize) ImageSize
-    | Peek_ReportMap_Units (Path_ReportMap Units) Units
-    | Peek_ReportMap_ImageFile (Path_ReportMap ImageFile) ImageFile
-    | Peek_ReportMap_Integer (Path_ReportMap Integer) Integer
-    | Peek_ReportMap_JSONText (Path_ReportMap JSONText) JSONText
-    | Peek_ReportMap_Markup (Path_ReportMap Markup) Markup
-    | Peek_ReportMap_Permissions (Path_ReportMap Permissions)
-                                 Permissions
-    | Peek_ReportMap_UserIds (Path_ReportMap ([UserId])) ([UserId])
-    | Peek_ReportMap_AbbrevPair (Path_ReportMap ((CIString, Markup)))
-                                ((CIString, Markup))
-    | Peek_ReportMap_AbbrevPairs (Path_ReportMap (Order AbbrevPairID
-                                                        ((CIString, Markup))))
-                                 (Order AbbrevPairID ((CIString, Markup)))
-    | Peek_ReportMap_Author (Path_ReportMap Author) Author
-    | Peek_ReportMap_Authors (Path_ReportMap (Order AuthorID Author))
-                             (Order AuthorID Author)
-    | Peek_ReportMap_Branding (Path_ReportMap Branding) Branding
-    | Peek_ReportMap_MarkupPair (Path_ReportMap ((Markup, Markup)))
-                                ((Markup, Markup))
-    | Peek_ReportMap_MarkupPairs (Path_ReportMap (Order MarkupPairID
-                                                        ((Markup, Markup))))
-                                 (Order MarkupPairID ((Markup, Markup)))
-    | Peek_ReportMap_Markups (Path_ReportMap (Order MarkupID Markup))
-                             (Order MarkupID Markup)
-    | Peek_ReportMap_MaybeReportIntendedUse (Path_ReportMap (Maybe ReportIntendedUse))
-                                            (Maybe ReportIntendedUse)
-    | Peek_ReportMap_Report (Path_ReportMap Report) Report
-    | Peek_ReportMap_ReportElem (Path_ReportMap ReportElem) ReportElem
-    | Peek_ReportMap_ReportElems (Path_ReportMap (Order ReportElemID
-                                                        ReportElem))
-                                 (Order ReportElemID ReportElem)
-    | Peek_ReportMap_ReportFlags (Path_ReportMap ReportFlags)
-                                 ReportFlags
-    | Peek_ReportMap_ReportStandard (Path_ReportMap ReportStandard)
-                                    ReportStandard
-    | Peek_ReportMap_ReportStatus (Path_ReportMap ReportStatus)
-                                  ReportStatus
-    | Peek_ReportMap_ReportValueApproachInfo (Path_ReportMap ReportValueApproachInfo)
-                                             ReportValueApproachInfo
-    | Peek_ReportMap_ReportValueTypeInfo (Path_ReportMap ReportValueTypeInfo)
-                                         ReportValueTypeInfo
-    | Peek_ReportMap_EUI (Path_ReportMap (Either URI ImageFile))
-                         (Either URI ImageFile)
-    | Peek_ReportMap_MEUI (Path_ReportMap (Maybe (Either URI
-                                                         ImageFile)))
-                          (Maybe (Either URI ImageFile))
-    | Peek_ReportMap_MaybeImageFile (Path_ReportMap (Maybe ImageFile))
-                                    (Maybe ImageFile)
-    | Peek_ReportMap_ReportImage (Path_ReportMap ReportImage)
-                                 ReportImage
-    | Peek_ReportMap_ReportImages (Path_ReportMap (Order ReportImageID
-                                                         ReportImage))
-                                  (Order ReportImageID ReportImage)
-    | Peek_ReportMap_ReadOnlyFilePath (Path_ReportMap (ReadOnly ([Char])))
-                                      (ReadOnly ([Char]))
-    | Peek_ReportMap_ReportImageView (Path_ReportMap ReportImageView)
-                                     ReportImageView
-    | Peek_ReportMap_ReportView (Path_ReportMap ReportView) ReportView
-    | Peek_ReportMap_SaneSizeImageSize (Path_ReportMap (SaneSize ImageSize))
-                                       (SaneSize ImageSize)
-    | Peek_ReportMap_Item (Path_ReportMap Item) Item
-    | Peek_ReportMap_MIM (Path_ReportMap (Map ItemFieldName Markup))
-                         (Map ItemFieldName Markup)
-    | Peek_ReportMap_MRR (Path_ReportMap (Map ReportID Report))
-                         (Map ReportID Report)
-    | Peek_ReportMap_ReportMap (Path_ReportMap ReportMap) ReportMap
-    | Peek_ReportMap_CIString (Path_ReportMap CIString) CIString
-    | Peek_ReportMap_URI (Path_ReportMap URI) URI
-    | Peek_ReportMap_Text (Path_ReportMap Text) Text
-    | Peek_ReportMap_UserId (Path_ReportMap UserId) UserId
-    | Peek_ReportMap_UUID (Path_ReportMap UUID) UUID
-    deriving (Eq, Show)
-data Peek_ReportStandard
-    = Peek_ReportStandard_Int (Path_ReportStandard Int) Int
-    | Peek_ReportStandard_ReportStandard (Path_ReportStandard ReportStandard)
-                                         ReportStandard
-    deriving (Eq, Show)
-data Peek_ReportStatus
-    = Peek_ReportStatus_String (Path_ReportStatus ([Char])) ([Char])
-    | Peek_ReportStatus_JSONText (Path_ReportStatus JSONText) JSONText
-    | Peek_ReportStatus_ReportStatus (Path_ReportStatus ReportStatus)
-                                     ReportStatus
-    deriving (Eq, Show)
-data Peek_ReportValueApproachInfo
-    = Peek_ReportValueApproachInfo_JSONText (Path_ReportValueApproachInfo JSONText)
-                                            JSONText
-    | Peek_ReportValueApproachInfo_Markup (Path_ReportValueApproachInfo Markup)
-                                          Markup
-    | Peek_ReportValueApproachInfo_ReportValueApproachInfo (Path_ReportValueApproachInfo ReportValueApproachInfo)
-                                                           ReportValueApproachInfo
-    | Peek_ReportValueApproachInfo_Text (Path_ReportValueApproachInfo Text)
-                                        Text
-    deriving (Eq, Show)
-data Peek_ReportValueTypeInfo
-    = Peek_ReportValueTypeInfo_JSONText (Path_ReportValueTypeInfo JSONText)
-                                        JSONText
-    | Peek_ReportValueTypeInfo_Markup (Path_ReportValueTypeInfo Markup)
-                                      Markup
-    | Peek_ReportValueTypeInfo_ReportValueTypeInfo (Path_ReportValueTypeInfo ReportValueTypeInfo)
-                                                   ReportValueTypeInfo
-    | Peek_ReportValueTypeInfo_Text (Path_ReportValueTypeInfo Text)
-                                    Text
-    deriving (Eq, Show)
-data Peek_ReportView
-    = Peek_ReportView_String (Path_ReportView ([Char])) ([Char])
-    | Peek_ReportView_Int64 (Path_ReportView Int64) Int64
-    | Peek_ReportView_Int (Path_ReportView Int) Int
-    | Peek_ReportView_Bool (Path_ReportView Bool) Bool
-    | Peek_ReportView_Double (Path_ReportView Double) Double
-    | Peek_ReportView_Dimension (Path_ReportView Dimension) Dimension
-    | Peek_ReportView_ImageCrop (Path_ReportView ImageCrop) ImageCrop
-    | Peek_ReportView_ImageSize (Path_ReportView ImageSize) ImageSize
-    | Peek_ReportView_Units (Path_ReportView Units) Units
-    | Peek_ReportView_ImageFile (Path_ReportView ImageFile) ImageFile
-    | Peek_ReportView_Integer (Path_ReportView Integer) Integer
-    | Peek_ReportView_JSONText (Path_ReportView JSONText) JSONText
-    | Peek_ReportView_Markup (Path_ReportView Markup) Markup
-    | Peek_ReportView_Permissions (Path_ReportView Permissions)
-                                  Permissions
-    | Peek_ReportView_UserIds (Path_ReportView ([UserId])) ([UserId])
-    | Peek_ReportView_AbbrevPair (Path_ReportView ((CIString, Markup)))
-                                 ((CIString, Markup))
-    | Peek_ReportView_AbbrevPairs (Path_ReportView (Order AbbrevPairID
-                                                          ((CIString, Markup))))
-                                  (Order AbbrevPairID ((CIString, Markup)))
-    | Peek_ReportView_Author (Path_ReportView Author) Author
-    | Peek_ReportView_Authors (Path_ReportView (Order AuthorID Author))
-                              (Order AuthorID Author)
-    | Peek_ReportView_Branding (Path_ReportView Branding) Branding
-    | Peek_ReportView_MarkupPair (Path_ReportView ((Markup, Markup)))
-                                 ((Markup, Markup))
-    | Peek_ReportView_MarkupPairs (Path_ReportView (Order MarkupPairID
-                                                          ((Markup, Markup))))
-                                  (Order MarkupPairID ((Markup, Markup)))
-    | Peek_ReportView_Markups (Path_ReportView (Order MarkupID Markup))
-                              (Order MarkupID Markup)
-    | Peek_ReportView_MaybeReportIntendedUse (Path_ReportView (Maybe ReportIntendedUse))
-                                             (Maybe ReportIntendedUse)
-    | Peek_ReportView_ReportElem (Path_ReportView ReportElem)
-                                 ReportElem
-    | Peek_ReportView_ReportElems (Path_ReportView (Order ReportElemID
-                                                          ReportElem))
-                                  (Order ReportElemID ReportElem)
-    | Peek_ReportView_ReportFlags (Path_ReportView ReportFlags)
-                                  ReportFlags
-    | Peek_ReportView_ReportStandard (Path_ReportView ReportStandard)
-                                     ReportStandard
-    | Peek_ReportView_ReportStatus (Path_ReportView ReportStatus)
-                                   ReportStatus
-    | Peek_ReportView_ReportValueApproachInfo (Path_ReportView ReportValueApproachInfo)
-                                              ReportValueApproachInfo
-    | Peek_ReportView_ReportValueTypeInfo (Path_ReportView ReportValueTypeInfo)
-                                          ReportValueTypeInfo
-    | Peek_ReportView_EUI (Path_ReportView (Either URI ImageFile))
-                          (Either URI ImageFile)
-    | Peek_ReportView_MEUI (Path_ReportView (Maybe (Either URI
-                                                           ImageFile)))
-                           (Maybe (Either URI ImageFile))
-    | Peek_ReportView_MaybeImageFile (Path_ReportView (Maybe ImageFile))
-                                     (Maybe ImageFile)
-    | Peek_ReportView_ReportImage (Path_ReportView ReportImage)
-                                  ReportImage
-    | Peek_ReportView_ReportImages (Path_ReportView (Order ReportImageID
-                                                           ReportImage))
-                                   (Order ReportImageID ReportImage)
-    | Peek_ReportView_ReadOnlyFilePath (Path_ReportView (ReadOnly ([Char])))
-                                       (ReadOnly ([Char]))
-    | Peek_ReportView_ReportImageView (Path_ReportView ReportImageView)
-                                      ReportImageView
-    | Peek_ReportView_ReportView (Path_ReportView ReportView)
-                                 ReportView
-    | Peek_ReportView_SaneSizeImageSize (Path_ReportView (SaneSize ImageSize))
-                                        (SaneSize ImageSize)
-    | Peek_ReportView_Item (Path_ReportView Item) Item
-    | Peek_ReportView_MIM (Path_ReportView (Map ItemFieldName Markup))
-                          (Map ItemFieldName Markup)
-    | Peek_ReportView_CIString (Path_ReportView CIString) CIString
-    | Peek_ReportView_URI (Path_ReportView URI) URI
-    | Peek_ReportView_Text (Path_ReportView Text) Text
-    | Peek_ReportView_UserId (Path_ReportView UserId) UserId
-    | Peek_ReportView_UUID (Path_ReportView UUID) UUID
-    deriving (Eq, Show)
-data Peek_SaneSizeImageSize
-    = Peek_SaneSizeImageSize_String (Path_SaneSizeImageSize ([Char]))
-                                    ([Char])
-    | Peek_SaneSizeImageSize_Double (Path_SaneSizeImageSize Double)
-                                    Double
-    | Peek_SaneSizeImageSize_Dimension (Path_SaneSizeImageSize Dimension)
-                                       Dimension
-    | Peek_SaneSizeImageSize_ImageSize (Path_SaneSizeImageSize ImageSize)
-                                       ImageSize
-    | Peek_SaneSizeImageSize_Units (Path_SaneSizeImageSize Units) Units
-    | Peek_SaneSizeImageSize_JSONText (Path_SaneSizeImageSize JSONText)
-                                      JSONText
-    | Peek_SaneSizeImageSize_SaneSizeImageSize (Path_SaneSizeImageSize (SaneSize ImageSize))
-                                               (SaneSize ImageSize)
-    deriving (Eq, Show)
-data Peek_String
-    = Peek_String_String (Path_String ([Char])) ([Char])
-    | Peek_String_JSONText (Path_String JSONText) JSONText
-    deriving (Eq, Show)
-data Peek_Text
-    = Peek_Text_JSONText (Path_Text JSONText) JSONText
-    | Peek_Text_Text (Path_Text Text) Text
-    deriving (Eq, Show)
-data Peek_URI = Peek_URI_URI (Path_URI URI) URI deriving (Eq, Show)
-data Peek_UUID
-    = Peek_UUID_UUID (Path_UUID UUID) UUID
-    deriving (Eq, Show)
-data Peek_Units
-    = Peek_Units_Units (Path_Units Units) Units
-    | Peek_Units_JSONText (Path_Units JSONText) JSONText
-    deriving (Eq, Show)
-data Peek_UserId
-    = Peek_UserId_UserId (Path_UserId UserId) UserId
-    deriving (Eq, Show)
-data Peek_UserIds
-    = Peek_UserIds_JSONText (Path_UserIds JSONText) JSONText
-    | Peek_UserIds_UserIds (Path_UserIds ([UserId])) ([UserId])
-    | Peek_UserIds_Text (Path_UserIds Text) Text
-    deriving (Eq, Show)
 type Path_AbbrevPair a = Path_Pair (Path_CIString a)
                                    (Path_Markup a)
 type Path_AbbrevPairs a = Path_OMap AbbrevPairID
@@ -13042,7 +12289,12 @@ instance HasText Text
 instance HasUnits Units
     where lens_units = id
 instance IsPathNode (Either URI ImageFile)
-    where type Peek (Either URI ImageFile) = Peek_EUI
+    where data Peek (Either URI ImageFile)
+              = Peek_EUI_ImageFile (Path_EUI ImageFile) ImageFile
+              | Peek_EUI_EUI (Path_EUI (Either URI ImageFile))
+                             (Either URI ImageFile)
+              | Peek_EUI_URI (Path_EUI URI) URI
+              deriving (Eq, Show)
           peek x = case filter (\p -> case p of
                                           Path_Left _ -> True
                                           _ -> False) (pathsOf x (undefined :: Proxy URI)) :: [Path_EUI URI] of
@@ -13050,7 +12302,7 @@ instance IsPathNode (Either URI ImageFile)
                                              in [Node (Peek_EUI_URI p y) (forestMap (\v -> case v of
                                                                                                Peek_URI_URI q
                                                                                                             x -> Peek_EUI_URI ((Path_Left :: Path_URI URI ->
-                                                                                                                                             Path_EUI URI) q) x) (peek y :: Forest Peek_URI))]
+                                                                                                                                             Path_EUI URI) q) x) (peek y :: Forest (Peek URI)))]
                        [] -> [] :: Forest (Peek (Either URI ImageFile))
           peek x = case filter (\p -> case p of
                                           Path_Right _ -> True
@@ -13059,10 +12311,16 @@ instance IsPathNode (Either URI ImageFile)
                                               in [Node (Peek_EUI_ImageFile p y) (forestMap (\v -> case v of
                                                                                                       Peek_ImageFile_ImageFile q
                                                                                                                                x -> Peek_EUI_ImageFile ((Path_Right :: Path_ImageFile ImageFile ->
-                                                                                                                                                                       Path_EUI ImageFile) q) x) (peek y :: Forest Peek_ImageFile))]
+                                                                                                                                                                       Path_EUI ImageFile) q) x) (peek y :: Forest (Peek ImageFile)))]
                        [] -> [] :: Forest (Peek (Either URI ImageFile))
 instance IsPathNode (Map ItemFieldName Markup)
-    where type Peek (Map ItemFieldName Markup) = Peek_MIM
+    where data Peek (Map ItemFieldName Markup)
+              = Peek_MIM_JSONText (Path_MIM JSONText) JSONText
+              | Peek_MIM_Markup (Path_MIM Markup) Markup
+              | Peek_MIM_MIM (Path_MIM (Map ItemFieldName Markup))
+                             (Map ItemFieldName Markup)
+              | Peek_MIM_Text (Path_MIM Text) Text
+              deriving (Eq, Show)
           peek x = let paths = pathsOf x (undefined :: Proxy Markup) :: [Path_MIM Markup]
                     in map (\path -> case path of
                                          p@(Path_Look k
@@ -13076,11 +12334,83 @@ instance IsPathNode (Map ItemFieldName Markup)
                                                                                                                                                                           Path_MIM Markup) q) x
                                                                                                                  Peek_Markup_Text q
                                                                                                                                   x -> Peek_MIM_Text ((Path_Look k :: Path_Markup Text ->
-                                                                                                                                                                      Path_MIM Text) q) x) (peek y :: Forest Peek_Markup))
+                                                                                                                                                                      Path_MIM Text) q) x) (peek y :: Forest (Peek Markup)))
                                          _ -> error ("doPeekNodesOfMap: " ++ show path)) paths :: Forest (Peek (Map ItemFieldName
                                                                                                                     Markup))
 instance IsPathNode (Map ReportID Report)
-    where type Peek (Map ReportID Report) = Peek_MRR
+    where data Peek (Map ReportID Report)
+              = Peek_MRR_String (Path_MRR ([Char])) ([Char])
+              | Peek_MRR_Int64 (Path_MRR Int64) Int64
+              | Peek_MRR_Int (Path_MRR Int) Int
+              | Peek_MRR_Bool (Path_MRR Bool) Bool
+              | Peek_MRR_Double (Path_MRR Double) Double
+              | Peek_MRR_Dimension (Path_MRR Dimension) Dimension
+              | Peek_MRR_ImageCrop (Path_MRR ImageCrop) ImageCrop
+              | Peek_MRR_ImageSize (Path_MRR ImageSize) ImageSize
+              | Peek_MRR_Units (Path_MRR Units) Units
+              | Peek_MRR_ImageFile (Path_MRR ImageFile) ImageFile
+              | Peek_MRR_Integer (Path_MRR Integer) Integer
+              | Peek_MRR_JSONText (Path_MRR JSONText) JSONText
+              | Peek_MRR_Markup (Path_MRR Markup) Markup
+              | Peek_MRR_Permissions (Path_MRR Permissions) Permissions
+              | Peek_MRR_UserIds (Path_MRR ([UserId])) ([UserId])
+              | Peek_MRR_AbbrevPair (Path_MRR ((CIString, Markup)))
+                                    ((CIString, Markup))
+              | Peek_MRR_AbbrevPairs (Path_MRR (Order AbbrevPairID
+                                                      ((CIString, Markup))))
+                                     (Order AbbrevPairID ((CIString, Markup)))
+              | Peek_MRR_Author (Path_MRR Author) Author
+              | Peek_MRR_Authors (Path_MRR (Order AuthorID Author))
+                                 (Order AuthorID Author)
+              | Peek_MRR_Branding (Path_MRR Branding) Branding
+              | Peek_MRR_MarkupPair (Path_MRR ((Markup, Markup)))
+                                    ((Markup, Markup))
+              | Peek_MRR_MarkupPairs (Path_MRR (Order MarkupPairID
+                                                      ((Markup, Markup))))
+                                     (Order MarkupPairID ((Markup, Markup)))
+              | Peek_MRR_Markups (Path_MRR (Order MarkupID Markup))
+                                 (Order MarkupID Markup)
+              | Peek_MRR_MaybeReportIntendedUse (Path_MRR (Maybe ReportIntendedUse))
+                                                (Maybe ReportIntendedUse)
+              | Peek_MRR_Report (Path_MRR Report) Report
+              | Peek_MRR_ReportElem (Path_MRR ReportElem) ReportElem
+              | Peek_MRR_ReportElems (Path_MRR (Order ReportElemID ReportElem))
+                                     (Order ReportElemID ReportElem)
+              | Peek_MRR_ReportFlags (Path_MRR ReportFlags) ReportFlags
+              | Peek_MRR_ReportStandard (Path_MRR ReportStandard) ReportStandard
+              | Peek_MRR_ReportStatus (Path_MRR ReportStatus) ReportStatus
+              | Peek_MRR_ReportValueApproachInfo (Path_MRR ReportValueApproachInfo)
+                                                 ReportValueApproachInfo
+              | Peek_MRR_ReportValueTypeInfo (Path_MRR ReportValueTypeInfo)
+                                             ReportValueTypeInfo
+              | Peek_MRR_EUI (Path_MRR (Either URI ImageFile))
+                             (Either URI ImageFile)
+              | Peek_MRR_MEUI (Path_MRR (Maybe (Either URI ImageFile)))
+                              (Maybe (Either URI ImageFile))
+              | Peek_MRR_MaybeImageFile (Path_MRR (Maybe ImageFile))
+                                        (Maybe ImageFile)
+              | Peek_MRR_ReportImage (Path_MRR ReportImage) ReportImage
+              | Peek_MRR_ReportImages (Path_MRR (Order ReportImageID
+                                                       ReportImage))
+                                      (Order ReportImageID ReportImage)
+              | Peek_MRR_ReadOnlyFilePath (Path_MRR (ReadOnly ([Char])))
+                                          (ReadOnly ([Char]))
+              | Peek_MRR_ReportImageView (Path_MRR ReportImageView)
+                                         ReportImageView
+              | Peek_MRR_ReportView (Path_MRR ReportView) ReportView
+              | Peek_MRR_SaneSizeImageSize (Path_MRR (SaneSize ImageSize))
+                                           (SaneSize ImageSize)
+              | Peek_MRR_Item (Path_MRR Item) Item
+              | Peek_MRR_MIM (Path_MRR (Map ItemFieldName Markup))
+                             (Map ItemFieldName Markup)
+              | Peek_MRR_MRR (Path_MRR (Map ReportID Report))
+                             (Map ReportID Report)
+              | Peek_MRR_CIString (Path_MRR CIString) CIString
+              | Peek_MRR_URI (Path_MRR URI) URI
+              | Peek_MRR_Text (Path_MRR Text) Text
+              | Peek_MRR_UserId (Path_MRR UserId) UserId
+              | Peek_MRR_UUID (Path_MRR UUID) UUID
+              deriving (Eq, Show)
           peek x = let paths = pathsOf x (undefined :: Proxy Report) :: [Path_MRR Report]
                     in map (\path -> case path of
                                          p@(Path_Look k
@@ -13255,12 +12585,22 @@ instance IsPathNode (Map ReportID Report)
                                                                                                                                                                           Path_MRR UserId) q) x
                                                                                                                  Peek_Report_UUID q
                                                                                                                                   x -> Peek_MRR_UUID ((Path_Look k :: Path_Report UUID ->
-                                                                                                                                                                      Path_MRR UUID) q) x) (peek y :: Forest Peek_Report))
+                                                                                                                                                                      Path_MRR UUID) q) x) (peek y :: Forest (Peek Report)))
                                          _ -> error ("doPeekNodesOfMap: " ++ show path)) paths :: Forest (Peek (Map ReportID
                                                                                                                     Report))
 instance IsPathNode (Order AbbrevPairID ((CIString, Markup)))
-    where type Peek (Order AbbrevPairID
-                           ((CIString, Markup))) = Peek_AbbrevPairs
+    where data Peek (Order AbbrevPairID ((CIString, Markup)))
+              = Peek_AbbrevPairs_JSONText (Path_AbbrevPairs JSONText) JSONText
+              | Peek_AbbrevPairs_Markup (Path_AbbrevPairs Markup) Markup
+              | Peek_AbbrevPairs_AbbrevPair (Path_AbbrevPairs ((CIString,
+                                                                Markup)))
+                                            ((CIString, Markup))
+              | Peek_AbbrevPairs_AbbrevPairs (Path_AbbrevPairs (Order AbbrevPairID
+                                                                      ((CIString, Markup))))
+                                             (Order AbbrevPairID ((CIString, Markup)))
+              | Peek_AbbrevPairs_CIString (Path_AbbrevPairs CIString) CIString
+              | Peek_AbbrevPairs_Text (Path_AbbrevPairs Text) Text
+              deriving (Eq, Show)
           peek x = let paths = pathsOf x (undefined :: Proxy ((CIString,
                                                                Markup))) :: [Path_AbbrevPairs ((CIString,
                                                                                                 Markup))]
@@ -13285,12 +12625,20 @@ instance IsPathNode (Order AbbrevPairID ((CIString, Markup)))
                                                                                                                                                                                                   Path_AbbrevPairs CIString) q) x
                                                                                                                            Peek_AbbrevPair_Text q
                                                                                                                                                 x -> Peek_AbbrevPairs_Text ((Path_At k :: Path_AbbrevPair Text ->
-                                                                                                                                                                                          Path_AbbrevPairs Text) q) x) (peek y :: Forest Peek_AbbrevPair))
+                                                                                                                                                                                          Path_AbbrevPairs Text) q) x) (peek y :: Forest (Peek ((CIString,
+                                                                                                                                                                                                                                                 Markup)))))
                                          _ -> error ("doPeekNodesOfOrder: " ++ show path)) paths :: Forest (Peek (Order AbbrevPairID
                                                                                                                         ((CIString,
                                                                                                                           Markup))))
 instance IsPathNode (Order AuthorID Author)
-    where type Peek (Order AuthorID Author) = Peek_Authors
+    where data Peek (Order AuthorID Author)
+              = Peek_Authors_JSONText (Path_Authors JSONText) JSONText
+              | Peek_Authors_Markup (Path_Authors Markup) Markup
+              | Peek_Authors_Author (Path_Authors Author) Author
+              | Peek_Authors_Authors (Path_Authors (Order AuthorID Author))
+                                     (Order AuthorID Author)
+              | Peek_Authors_Text (Path_Authors Text) Text
+              deriving (Eq, Show)
           peek x = let paths = pathsOf x (undefined :: Proxy Author) :: [Path_Authors Author]
                     in map (\path -> case path of
                                          p@(Path_At k
@@ -13307,11 +12655,17 @@ instance IsPathNode (Order AuthorID Author)
                                                                                                                                                                               Path_Authors Author) q) x
                                                                                                                    Peek_Author_Text q
                                                                                                                                     x -> Peek_Authors_Text ((Path_At k :: Path_Author Text ->
-                                                                                                                                                                          Path_Authors Text) q) x) (peek y :: Forest Peek_Author))
+                                                                                                                                                                          Path_Authors Text) q) x) (peek y :: Forest (Peek Author)))
                                          _ -> error ("doPeekNodesOfOrder: " ++ show path)) paths :: Forest (Peek (Order AuthorID
                                                                                                                         Author))
 instance IsPathNode (Order MarkupID Markup)
-    where type Peek (Order MarkupID Markup) = Peek_Markups
+    where data Peek (Order MarkupID Markup)
+              = Peek_Markups_JSONText (Path_Markups JSONText) JSONText
+              | Peek_Markups_Markup (Path_Markups Markup) Markup
+              | Peek_Markups_Markups (Path_Markups (Order MarkupID Markup))
+                                     (Order MarkupID Markup)
+              | Peek_Markups_Text (Path_Markups Text) Text
+              deriving (Eq, Show)
           peek x = let paths = pathsOf x (undefined :: Proxy Markup) :: [Path_Markups Markup]
                     in map (\path -> case path of
                                          p@(Path_At k
@@ -13325,12 +12679,20 @@ instance IsPathNode (Order MarkupID Markup)
                                                                                                                                                                               Path_Markups Markup) q) x
                                                                                                                    Peek_Markup_Text q
                                                                                                                                     x -> Peek_Markups_Text ((Path_At k :: Path_Markup Text ->
-                                                                                                                                                                          Path_Markups Text) q) x) (peek y :: Forest Peek_Markup))
+                                                                                                                                                                          Path_Markups Text) q) x) (peek y :: Forest (Peek Markup)))
                                          _ -> error ("doPeekNodesOfOrder: " ++ show path)) paths :: Forest (Peek (Order MarkupID
                                                                                                                         Markup))
 instance IsPathNode (Order MarkupPairID ((Markup, Markup)))
-    where type Peek (Order MarkupPairID
-                           ((Markup, Markup))) = Peek_MarkupPairs
+    where data Peek (Order MarkupPairID ((Markup, Markup)))
+              = Peek_MarkupPairs_JSONText (Path_MarkupPairs JSONText) JSONText
+              | Peek_MarkupPairs_Markup (Path_MarkupPairs Markup) Markup
+              | Peek_MarkupPairs_MarkupPair (Path_MarkupPairs ((Markup, Markup)))
+                                            ((Markup, Markup))
+              | Peek_MarkupPairs_MarkupPairs (Path_MarkupPairs (Order MarkupPairID
+                                                                      ((Markup, Markup))))
+                                             (Order MarkupPairID ((Markup, Markup)))
+              | Peek_MarkupPairs_Text (Path_MarkupPairs Text) Text
+              deriving (Eq, Show)
           peek x = let paths = pathsOf x (undefined :: Proxy ((Markup,
                                                                Markup))) :: [Path_MarkupPairs ((Markup,
                                                                                                 Markup))]
@@ -13352,12 +12714,51 @@ instance IsPathNode (Order MarkupPairID ((Markup, Markup)))
                                                                                                                                                                                                                          Markup))) q) x
                                                                                                                            Peek_MarkupPair_Text q
                                                                                                                                                 x -> Peek_MarkupPairs_Text ((Path_At k :: Path_MarkupPair Text ->
-                                                                                                                                                                                          Path_MarkupPairs Text) q) x) (peek y :: Forest Peek_MarkupPair))
+                                                                                                                                                                                          Path_MarkupPairs Text) q) x) (peek y :: Forest (Peek ((Markup,
+                                                                                                                                                                                                                                                 Markup)))))
                                          _ -> error ("doPeekNodesOfOrder: " ++ show path)) paths :: Forest (Peek (Order MarkupPairID
                                                                                                                         ((Markup,
                                                                                                                           Markup))))
 instance IsPathNode (Order ReportElemID ReportElem)
-    where type Peek (Order ReportElemID ReportElem) = Peek_ReportElems
+    where data Peek (Order ReportElemID ReportElem)
+              = Peek_ReportElems_String (Path_ReportElems ([Char])) ([Char])
+              | Peek_ReportElems_Bool (Path_ReportElems Bool) Bool
+              | Peek_ReportElems_Double (Path_ReportElems Double) Double
+              | Peek_ReportElems_Dimension (Path_ReportElems Dimension) Dimension
+              | Peek_ReportElems_ImageCrop (Path_ReportElems ImageCrop) ImageCrop
+              | Peek_ReportElems_ImageSize (Path_ReportElems ImageSize) ImageSize
+              | Peek_ReportElems_Units (Path_ReportElems Units) Units
+              | Peek_ReportElems_ImageFile (Path_ReportElems ImageFile) ImageFile
+              | Peek_ReportElems_JSONText (Path_ReportElems JSONText) JSONText
+              | Peek_ReportElems_Markup (Path_ReportElems Markup) Markup
+              | Peek_ReportElems_ReportElem (Path_ReportElems ReportElem)
+                                            ReportElem
+              | Peek_ReportElems_ReportElems (Path_ReportElems (Order ReportElemID
+                                                                      ReportElem))
+                                             (Order ReportElemID ReportElem)
+              | Peek_ReportElems_EUI (Path_ReportElems (Either URI ImageFile))
+                                     (Either URI ImageFile)
+              | Peek_ReportElems_MEUI (Path_ReportElems (Maybe (Either URI
+                                                                       ImageFile)))
+                                      (Maybe (Either URI ImageFile))
+              | Peek_ReportElems_MaybeImageFile (Path_ReportElems (Maybe ImageFile))
+                                                (Maybe ImageFile)
+              | Peek_ReportElems_ReportImage (Path_ReportElems ReportImage)
+                                             ReportImage
+              | Peek_ReportElems_ReportImages (Path_ReportElems (Order ReportImageID
+                                                                       ReportImage))
+                                              (Order ReportImageID ReportImage)
+              | Peek_ReportElems_ReportImageView (Path_ReportElems ReportImageView)
+                                                 ReportImageView
+              | Peek_ReportElems_SaneSizeImageSize (Path_ReportElems (SaneSize ImageSize))
+                                                   (SaneSize ImageSize)
+              | Peek_ReportElems_Item (Path_ReportElems Item) Item
+              | Peek_ReportElems_MIM (Path_ReportElems (Map ItemFieldName
+                                                            Markup))
+                                     (Map ItemFieldName Markup)
+              | Peek_ReportElems_URI (Path_ReportElems URI) URI
+              | Peek_ReportElems_Text (Path_ReportElems Text) Text
+              deriving (Eq, Show)
           peek x = let paths = pathsOf x (undefined :: Proxy ReportElem) :: [Path_ReportElems ReportElem]
                     in map (\path -> case path of
                                          p@(Path_At k
@@ -13436,12 +12837,44 @@ instance IsPathNode (Order ReportElemID ReportElem)
                                                                                                                                                                                         Path_ReportElems URI) q) x
                                                                                                                            Peek_ReportElem_Text q
                                                                                                                                                 x -> Peek_ReportElems_Text ((Path_At k :: Path_ReportElem Text ->
-                                                                                                                                                                                          Path_ReportElems Text) q) x) (peek y :: Forest Peek_ReportElem))
+                                                                                                                                                                                          Path_ReportElems Text) q) x) (peek y :: Forest (Peek ReportElem)))
                                          _ -> error ("doPeekNodesOfOrder: " ++ show path)) paths :: Forest (Peek (Order ReportElemID
                                                                                                                         ReportElem))
 instance IsPathNode (Order ReportImageID ReportImage)
-    where type Peek (Order ReportImageID
-                           ReportImage) = Peek_ReportImages
+    where data Peek (Order ReportImageID ReportImage)
+              = Peek_ReportImages_String (Path_ReportImages ([Char])) ([Char])
+              | Peek_ReportImages_Bool (Path_ReportImages Bool) Bool
+              | Peek_ReportImages_Double (Path_ReportImages Double) Double
+              | Peek_ReportImages_Dimension (Path_ReportImages Dimension)
+                                            Dimension
+              | Peek_ReportImages_ImageCrop (Path_ReportImages ImageCrop)
+                                            ImageCrop
+              | Peek_ReportImages_ImageSize (Path_ReportImages ImageSize)
+                                            ImageSize
+              | Peek_ReportImages_Units (Path_ReportImages Units) Units
+              | Peek_ReportImages_ImageFile (Path_ReportImages ImageFile)
+                                            ImageFile
+              | Peek_ReportImages_JSONText (Path_ReportImages JSONText) JSONText
+              | Peek_ReportImages_Markup (Path_ReportImages Markup) Markup
+              | Peek_ReportImages_EUI (Path_ReportImages (Either URI ImageFile))
+                                      (Either URI ImageFile)
+              | Peek_ReportImages_MEUI (Path_ReportImages (Maybe (Either URI
+                                                                         ImageFile)))
+                                       (Maybe (Either URI ImageFile))
+              | Peek_ReportImages_MaybeImageFile (Path_ReportImages (Maybe ImageFile))
+                                                 (Maybe ImageFile)
+              | Peek_ReportImages_ReportImage (Path_ReportImages ReportImage)
+                                              ReportImage
+              | Peek_ReportImages_ReportImages (Path_ReportImages (Order ReportImageID
+                                                                         ReportImage))
+                                               (Order ReportImageID ReportImage)
+              | Peek_ReportImages_ReportImageView (Path_ReportImages ReportImageView)
+                                                  ReportImageView
+              | Peek_ReportImages_SaneSizeImageSize (Path_ReportImages (SaneSize ImageSize))
+                                                    (SaneSize ImageSize)
+              | Peek_ReportImages_URI (Path_ReportImages URI) URI
+              | Peek_ReportImages_Text (Path_ReportImages Text) Text
+              deriving (Eq, Show)
           peek x = let paths = pathsOf x (undefined :: Proxy ReportImage) :: [Path_ReportImages ReportImage]
                     in map (\path -> case path of
                                          p@(Path_At k
@@ -13504,11 +12937,17 @@ instance IsPathNode (Order ReportImageID ReportImage)
                                                                                                                                                                                             Path_ReportImages URI) q) x
                                                                                                                              Peek_ReportImage_Text q
                                                                                                                                                    x -> Peek_ReportImages_Text ((Path_At k :: Path_ReportImage Text ->
-                                                                                                                                                                                              Path_ReportImages Text) q) x) (peek y :: Forest Peek_ReportImage))
+                                                                                                                                                                                              Path_ReportImages Text) q) x) (peek y :: Forest (Peek ReportImage)))
                                          _ -> error ("doPeekNodesOfOrder: " ++ show path)) paths :: Forest (Peek (Order ReportImageID
                                                                                                                         ReportImage))
 instance IsPathNode ((Markup, Markup))
-    where type Peek ((Markup, Markup)) = Peek_MarkupPair
+    where data Peek ((Markup, Markup))
+              = Peek_MarkupPair_JSONText (Path_MarkupPair JSONText) JSONText
+              | Peek_MarkupPair_Markup (Path_MarkupPair Markup) Markup
+              | Peek_MarkupPair_MarkupPair (Path_MarkupPair ((Markup, Markup)))
+                                           ((Markup, Markup))
+              | Peek_MarkupPair_Text (Path_MarkupPair Text) Text
+              deriving (Eq, Show)
           peek x = case filter (\p -> case p of
                                           Path_First _ -> True
                                           _ -> False) (pathsOf x (undefined :: Proxy Markup)) :: [Path_MarkupPair Markup] of
@@ -13522,7 +12961,7 @@ instance IsPathNode ((Markup, Markup))
                                                                                                                                                                          Path_MarkupPair Markup) q) x
                                                                                                           Peek_Markup_Text q
                                                                                                                            x -> Peek_MarkupPair_Text ((Path_First :: Path_Markup Text ->
-                                                                                                                                                                     Path_MarkupPair Text) q) x) (peek y :: Forest Peek_Markup))]
+                                                                                                                                                                     Path_MarkupPair Text) q) x) (peek y :: Forest (Peek Markup)))]
                        [] -> [] :: Forest (Peek ((Markup, Markup)))
           peek x = case filter (\p -> case p of
                                           Path_Second _ -> True
@@ -13537,10 +12976,17 @@ instance IsPathNode ((Markup, Markup))
                                                                                                                                                                            Path_MarkupPair Markup) q) x
                                                                                                            Peek_Markup_Text q
                                                                                                                             x -> Peek_MarkupPair_Text ((Path_Second :: Path_Markup Text ->
-                                                                                                                                                                       Path_MarkupPair Text) q) x) (peek y :: Forest Peek_Markup))]
+                                                                                                                                                                       Path_MarkupPair Text) q) x) (peek y :: Forest (Peek Markup)))]
                        [] -> [] :: Forest (Peek ((Markup, Markup)))
 instance IsPathNode ((CIString, Markup))
-    where type Peek ((CIString, Markup)) = Peek_AbbrevPair
+    where data Peek ((CIString, Markup))
+              = Peek_AbbrevPair_JSONText (Path_AbbrevPair JSONText) JSONText
+              | Peek_AbbrevPair_Markup (Path_AbbrevPair Markup) Markup
+              | Peek_AbbrevPair_AbbrevPair (Path_AbbrevPair ((CIString, Markup)))
+                                           ((CIString, Markup))
+              | Peek_AbbrevPair_CIString (Path_AbbrevPair CIString) CIString
+              | Peek_AbbrevPair_Text (Path_AbbrevPair Text) Text
+              deriving (Eq, Show)
           peek x = case filter (\p -> case p of
                                           Path_First _ -> True
                                           _ -> False) (pathsOf x (undefined :: Proxy CIString)) :: [Path_AbbrevPair CIString] of
@@ -13554,7 +13000,7 @@ instance IsPathNode ((CIString, Markup))
                                                                                                                                                                                  Path_AbbrevPair CIString) q) x
                                                                                                             Peek_CIString_Text q
                                                                                                                                x -> Peek_AbbrevPair_Text ((Path_First :: Path_CIString Text ->
-                                                                                                                                                                         Path_AbbrevPair Text) q) x) (peek y :: Forest Peek_CIString))]
+                                                                                                                                                                         Path_AbbrevPair Text) q) x) (peek y :: Forest (Peek CIString)))]
                        [] -> [] :: Forest (Peek ((CIString, Markup)))
           peek x = case filter (\p -> case p of
                                           Path_Second _ -> True
@@ -13569,10 +13015,17 @@ instance IsPathNode ((CIString, Markup))
                                                                                                                                                                            Path_AbbrevPair Markup) q) x
                                                                                                            Peek_Markup_Text q
                                                                                                                             x -> Peek_AbbrevPair_Text ((Path_Second :: Path_Markup Text ->
-                                                                                                                                                                       Path_AbbrevPair Text) q) x) (peek y :: Forest Peek_Markup))]
+                                                                                                                                                                       Path_AbbrevPair Text) q) x) (peek y :: Forest (Peek Markup)))]
                        [] -> [] :: Forest (Peek ((CIString, Markup)))
 instance IsPathNode (Maybe (Either URI ImageFile))
-    where type Peek (Maybe (Either URI ImageFile)) = Peek_MEUI
+    where data Peek (Maybe (Either URI ImageFile))
+              = Peek_MEUI_ImageFile (Path_MEUI ImageFile) ImageFile
+              | Peek_MEUI_EUI (Path_MEUI (Either URI ImageFile))
+                              (Either URI ImageFile)
+              | Peek_MEUI_MEUI (Path_MEUI (Maybe (Either URI ImageFile)))
+                               (Maybe (Either URI ImageFile))
+              | Peek_MEUI_URI (Path_MEUI URI) URI
+              deriving (Eq, Show)
           peek x = case filter (\p -> case p of
                                           Path_Just _ -> True
                                           _ -> False) (pathsOf x (undefined :: Proxy (Either URI
@@ -13591,10 +13044,18 @@ instance IsPathNode (Maybe (Either URI ImageFile))
                                                                                                                                                                  ImageFile)) q) x
                                                                                                 Peek_EUI_URI q
                                                                                                              x -> Peek_MEUI_URI ((Path_Just :: Path_EUI URI ->
-                                                                                                                                               Path_MEUI URI) q) x) (peek y :: Forest Peek_EUI))]
+                                                                                                                                               Path_MEUI URI) q) x) (peek y :: Forest (Peek (Either URI
+                                                                                                                                                                                                    ImageFile))))]
                        [] -> [] :: Forest (Peek (Maybe (Either URI ImageFile)))
 instance IsPathNode (Maybe ImageFile)
-    where type Peek (Maybe ImageFile) = Peek_MaybeImageFile
+    where data Peek (Maybe ImageFile)
+              = Peek_MaybeImageFile_String (Path_MaybeImageFile ([Char]))
+                                           ([Char])
+              | Peek_MaybeImageFile_JSONText (Path_MaybeImageFile JSONText)
+                                             JSONText
+              | Peek_MaybeImageFile_MaybeImageFile (Path_MaybeImageFile (Maybe ImageFile))
+                                                   (Maybe ImageFile)
+              deriving (Eq, Show)
           peek x = case filter (\p -> case p of
                                           Path_MaybeImageFile_View _ -> True
                                           _ -> False) (pathsOf x (undefined :: Proxy ([Char]))) :: [Path_MaybeImageFile ([Char])] of
@@ -13605,10 +13066,17 @@ instance IsPathNode (Maybe ImageFile)
                                                                                                                                                                                                              Path_MaybeImageFile ([Char])) q) x
                                                                                                                             Peek_String_JSONText q
                                                                                                                                                  x -> Peek_MaybeImageFile_JSONText ((Path_MaybeImageFile_View :: Path_String JSONText ->
-                                                                                                                                                                                                                 Path_MaybeImageFile JSONText) q) x) (peek y :: Forest Peek_String))]
+                                                                                                                                                                                                                 Path_MaybeImageFile JSONText) q) x) (peek y :: Forest (Peek ([Char]))))]
                        [] -> [] :: Forest (Peek (Maybe ImageFile))
 instance IsPathNode (Maybe ReportIntendedUse)
-    where type Peek (Maybe ReportIntendedUse) = Peek_MaybeReportIntendedUse
+    where data Peek (Maybe ReportIntendedUse)
+              = Peek_MaybeReportIntendedUse_String (Path_MaybeReportIntendedUse ([Char]))
+                                                   ([Char])
+              | Peek_MaybeReportIntendedUse_JSONText (Path_MaybeReportIntendedUse JSONText)
+                                                     JSONText
+              | Peek_MaybeReportIntendedUse_MaybeReportIntendedUse (Path_MaybeReportIntendedUse (Maybe ReportIntendedUse))
+                                                                   (Maybe ReportIntendedUse)
+              deriving (Eq, Show)
           peek x = case filter (\p -> case p of
                                           Path_MaybeReportIntendedUse_View _ -> True
                                           _ -> False) (pathsOf x (undefined :: Proxy ([Char]))) :: [Path_MaybeReportIntendedUse ([Char])] of
@@ -13619,10 +13087,17 @@ instance IsPathNode (Maybe ReportIntendedUse)
                                                                                                                                                                                                                                              Path_MaybeReportIntendedUse ([Char])) q) x
                                                                                                                                             Peek_String_JSONText q
                                                                                                                                                                  x -> Peek_MaybeReportIntendedUse_JSONText ((Path_MaybeReportIntendedUse_View :: Path_String JSONText ->
-                                                                                                                                                                                                                                                 Path_MaybeReportIntendedUse JSONText) q) x) (peek y :: Forest Peek_String))]
+                                                                                                                                                                                                                                                 Path_MaybeReportIntendedUse JSONText) q) x) (peek y :: Forest (Peek ([Char]))))]
                        [] -> [] :: Forest (Peek (Maybe ReportIntendedUse))
 instance IsPathNode (ReadOnly ([Char]))
-    where type Peek (ReadOnly ([Char])) = Peek_ReadOnlyFilePath
+    where data Peek (ReadOnly ([Char]))
+              = Peek_ReadOnlyFilePath_String (Path_ReadOnlyFilePath ([Char]))
+                                             ([Char])
+              | Peek_ReadOnlyFilePath_JSONText (Path_ReadOnlyFilePath JSONText)
+                                               JSONText
+              | Peek_ReadOnlyFilePath_ReadOnlyFilePath (Path_ReadOnlyFilePath (ReadOnly ([Char])))
+                                                       (ReadOnly ([Char]))
+              deriving (Eq, Show)
           peek x = case filter (\p -> case p of
                                           Path_ReadOnlyFilePath_View _ -> True
                                           _ -> False) (pathsOf x (undefined :: Proxy ([Char]))) :: [Path_ReadOnlyFilePath ([Char])] of
@@ -13633,10 +13108,24 @@ instance IsPathNode (ReadOnly ([Char]))
                                                                                                                                                                                                                      Path_ReadOnlyFilePath ([Char])) q) x
                                                                                                                                 Peek_String_JSONText q
                                                                                                                                                      x -> Peek_ReadOnlyFilePath_JSONText ((Path_ReadOnlyFilePath_View :: Path_String JSONText ->
-                                                                                                                                                                                                                         Path_ReadOnlyFilePath JSONText) q) x) (peek y :: Forest Peek_String))]
+                                                                                                                                                                                                                         Path_ReadOnlyFilePath JSONText) q) x) (peek y :: Forest (Peek ([Char]))))]
                        [] -> [] :: Forest (Peek (ReadOnly ([Char])))
 instance IsPathNode (SaneSize ImageSize)
-    where type Peek (SaneSize ImageSize) = Peek_SaneSizeImageSize
+    where data Peek (SaneSize ImageSize)
+              = Peek_SaneSizeImageSize_String (Path_SaneSizeImageSize ([Char]))
+                                              ([Char])
+              | Peek_SaneSizeImageSize_Double (Path_SaneSizeImageSize Double)
+                                              Double
+              | Peek_SaneSizeImageSize_Dimension (Path_SaneSizeImageSize Dimension)
+                                                 Dimension
+              | Peek_SaneSizeImageSize_ImageSize (Path_SaneSizeImageSize ImageSize)
+                                                 ImageSize
+              | Peek_SaneSizeImageSize_Units (Path_SaneSizeImageSize Units) Units
+              | Peek_SaneSizeImageSize_JSONText (Path_SaneSizeImageSize JSONText)
+                                                JSONText
+              | Peek_SaneSizeImageSize_SaneSizeImageSize (Path_SaneSizeImageSize (SaneSize ImageSize))
+                                                         (SaneSize ImageSize)
+              deriving (Eq, Show)
           peek x = case filter (\p -> case p of
                                           Path_SaneSizeImageSize_View _ -> True
                                           _ -> False) (pathsOf x (undefined :: Proxy ImageSize)) :: [Path_SaneSizeImageSize ImageSize] of
@@ -13659,10 +13148,13 @@ instance IsPathNode (SaneSize ImageSize)
                                                                                                                                                                                                                              Path_SaneSizeImageSize Units) q) x
                                                                                                                                      Peek_ImageSize_JSONText q
                                                                                                                                                              x -> Peek_SaneSizeImageSize_JSONText ((Path_SaneSizeImageSize_View :: Path_ImageSize JSONText ->
-                                                                                                                                                                                                                                   Path_SaneSizeImageSize JSONText) q) x) (peek y :: Forest Peek_ImageSize))]
+                                                                                                                                                                                                                                   Path_SaneSizeImageSize JSONText) q) x) (peek y :: Forest (Peek ImageSize)))]
                        [] -> [] :: Forest (Peek (SaneSize ImageSize))
 instance IsPathNode ([Char])
-    where type Peek ([Char]) = Peek_String
+    where data Peek ([Char])
+              = Peek_String_String (Path_String ([Char])) ([Char])
+              | Peek_String_JSONText (Path_String JSONText) JSONText
+              deriving (Eq, Show)
           peek x = case filter (\p -> case p of
                                           Path_String_View _ -> True
                                           _ -> False) (pathsOf x (undefined :: Proxy JSONText)) :: [Path_String JSONText] of
@@ -13670,10 +13162,14 @@ instance IsPathNode ([Char])
                                                     in [Node (Peek_String_JSONText p y) (forestMap (\v -> case v of
                                                                                                               Peek_JSONText_JSONText q
                                                                                                                                      x -> Peek_String_JSONText ((Path_String_View :: Path_JSONText JSONText ->
-                                                                                                                                                                                     Path_String JSONText) q) x) (peek y :: Forest Peek_JSONText))]
+                                                                                                                                                                                     Path_String JSONText) q) x) (peek y :: Forest (Peek JSONText)))]
                        [] -> [] :: Forest (Peek ([Char]))
 instance IsPathNode ([UserId])
-    where type Peek ([UserId]) = Peek_UserIds
+    where data Peek ([UserId])
+              = Peek_UserIds_JSONText (Path_UserIds JSONText) JSONText
+              | Peek_UserIds_UserIds (Path_UserIds ([UserId])) ([UserId])
+              | Peek_UserIds_Text (Path_UserIds Text) Text
+              deriving (Eq, Show)
           peek x = case filter (\p -> case p of
                                           Path_UserIds_View _ -> True
                                           _ -> False) (pathsOf x (undefined :: Proxy Text)) :: [Path_UserIds Text] of
@@ -13684,13 +13180,19 @@ instance IsPathNode ([UserId])
                                                                                                                                                                                  Path_UserIds JSONText) q) x
                                                                                                             Peek_Text_Text q
                                                                                                                            x -> Peek_UserIds_Text ((Path_UserIds_View :: Path_Text Text ->
-                                                                                                                                                                         Path_UserIds Text) q) x) (peek y :: Forest Peek_Text))]
+                                                                                                                                                                         Path_UserIds Text) q) x) (peek y :: Forest (Peek Text)))]
                        [] -> [] :: Forest (Peek ([UserId]))
 instance IsPathNode Int64
-    where type Peek Int64 = Peek_Int64
+    where data Peek Int64
+              = Peek_Int64_Int64 (Path_Int64 Int64) Int64
+              deriving (Eq, Show)
           peek _ = []
 instance IsPathNode Bool
-    where type Peek Bool = Peek_Bool
+    where data Peek Bool
+              = Peek_Bool_String (Path_Bool ([Char])) ([Char])
+              | Peek_Bool_Bool (Path_Bool Bool) Bool
+              | Peek_Bool_JSONText (Path_Bool JSONText) JSONText
+              deriving (Eq, Show)
           peek x = case filter (\p -> case p of
                                           Path_Bool_View _ -> True
                                           _ -> False) (pathsOf x (undefined :: Proxy ([Char]))) :: [Path_Bool ([Char])] of
@@ -13701,10 +13203,14 @@ instance IsPathNode Bool
                                                                                                                                                                      Path_Bool ([Char])) q) x
                                                                                                         Peek_String_JSONText q
                                                                                                                              x -> Peek_Bool_JSONText ((Path_Bool_View :: Path_String JSONText ->
-                                                                                                                                                                         Path_Bool JSONText) q) x) (peek y :: Forest Peek_String))]
+                                                                                                                                                                         Path_Bool JSONText) q) x) (peek y :: Forest (Peek ([Char]))))]
                        [] -> [] :: Forest (Peek Bool)
 instance IsPathNode Double
-    where type Peek Double = Peek_Double
+    where data Peek Double
+              = Peek_Double_String (Path_Double ([Char])) ([Char])
+              | Peek_Double_Double (Path_Double Double) Double
+              | Peek_Double_JSONText (Path_Double JSONText) JSONText
+              deriving (Eq, Show)
           peek x = case filter (\p -> case p of
                                           Path_Double_View _ -> True
                                           _ -> False) (pathsOf x (undefined :: Proxy ([Char]))) :: [Path_Double ([Char])] of
@@ -13715,13 +13221,18 @@ instance IsPathNode Double
                                                                                                                                                                              Path_Double ([Char])) q) x
                                                                                                             Peek_String_JSONText q
                                                                                                                                  x -> Peek_Double_JSONText ((Path_Double_View :: Path_String JSONText ->
-                                                                                                                                                                                 Path_Double JSONText) q) x) (peek y :: Forest Peek_String))]
+                                                                                                                                                                                 Path_Double JSONText) q) x) (peek y :: Forest (Peek ([Char]))))]
                        [] -> [] :: Forest (Peek Double)
 instance IsPathNode Int
-    where type Peek Int = Peek_Int
+    where data Peek Int
+              = Peek_Int_Int (Path_Int Int) Int
+              deriving (Eq, Show)
           peek _ = []
 instance IsPathNode Dimension
-    where type Peek Dimension = Peek_Dimension
+    where data Peek Dimension
+              = Peek_Dimension_Dimension (Path_Dimension Dimension) Dimension
+              | Peek_Dimension_JSONText (Path_Dimension JSONText) JSONText
+              deriving (Eq, Show)
           peek x = case filter (\p -> case p of
                                           Path_Dimension_View _ -> True
                                           _ -> False) (pathsOf x (undefined :: Proxy JSONText)) :: [Path_Dimension JSONText] of
@@ -13729,13 +13240,22 @@ instance IsPathNode Dimension
                                                        in [Node (Peek_Dimension_JSONText p y) (forestMap (\v -> case v of
                                                                                                                     Peek_JSONText_JSONText q
                                                                                                                                            x -> Peek_Dimension_JSONText ((Path_Dimension_View :: Path_JSONText JSONText ->
-                                                                                                                                                                                                 Path_Dimension JSONText) q) x) (peek y :: Forest Peek_JSONText))]
+                                                                                                                                                                                                 Path_Dimension JSONText) q) x) (peek y :: Forest (Peek JSONText)))]
                        [] -> [] :: Forest (Peek Dimension)
 instance IsPathNode ImageCrop
-    where type Peek ImageCrop = Peek_ImageCrop
+    where data Peek ImageCrop
+              = Peek_ImageCrop_ImageCrop (Path_ImageCrop ImageCrop) ImageCrop
+              deriving (Eq, Show)
           peek _ = []
 instance IsPathNode ImageSize
-    where type Peek ImageSize = Peek_ImageSize
+    where data Peek ImageSize
+              = Peek_ImageSize_String (Path_ImageSize ([Char])) ([Char])
+              | Peek_ImageSize_Double (Path_ImageSize Double) Double
+              | Peek_ImageSize_Dimension (Path_ImageSize Dimension) Dimension
+              | Peek_ImageSize_ImageSize (Path_ImageSize ImageSize) ImageSize
+              | Peek_ImageSize_Units (Path_ImageSize Units) Units
+              | Peek_ImageSize_JSONText (Path_ImageSize JSONText) JSONText
+              deriving (Eq, Show)
           peek x = [case filter (\p -> case p of
                                            Path_ImageSize_dim _ -> True
                                            _ -> False) (pathsOf x (undefined :: Proxy Dimension)) :: [Path_ImageSize Dimension] of
@@ -13746,7 +13266,7 @@ instance IsPathNode ImageSize
                                                                                                                                                                                                    Path_ImageSize Dimension) q) x
                                                                                                                     Peek_Dimension_JSONText q
                                                                                                                                             x -> Peek_ImageSize_JSONText ((Path_ImageSize_dim :: Path_Dimension JSONText ->
-                                                                                                                                                                                                 Path_ImageSize JSONText) q) x) (peek y :: Forest Peek_Dimension))
+                                                                                                                                                                                                 Path_ImageSize JSONText) q) x) (peek y :: Forest (Peek Dimension)))
                         [] -> error "No Path_ImageSize_dim field found"
                         ps -> error $ ("Multiple Path_ImageSize_dim fields found: " ++ show ps),
                     case filter (\p -> case p of
@@ -13762,7 +13282,7 @@ instance IsPathNode ImageSize
                                                                                                                                                                                          Path_ImageSize Double) q) x
                                                                                                                   Peek_Double_JSONText q
                                                                                                                                        x -> Peek_ImageSize_JSONText ((Path_ImageSize_size :: Path_Double JSONText ->
-                                                                                                                                                                                             Path_ImageSize JSONText) q) x) (peek y :: Forest Peek_Double))
+                                                                                                                                                                                             Path_ImageSize JSONText) q) x) (peek y :: Forest (Peek Double)))
                         [] -> error "No Path_ImageSize_size field found"
                         ps -> error $ ("Multiple Path_ImageSize_size fields found: " ++ show ps),
                     case filter (\p -> case p of
@@ -13775,11 +13295,14 @@ instance IsPathNode ImageSize
                                                                                                                                                                                        Path_ImageSize Units) q) x
                                                                                                                   Peek_Units_JSONText q
                                                                                                                                       x -> Peek_ImageSize_JSONText ((Path_ImageSize_units :: Path_Units JSONText ->
-                                                                                                                                                                                             Path_ImageSize JSONText) q) x) (peek y :: Forest Peek_Units))
+                                                                                                                                                                                             Path_ImageSize JSONText) q) x) (peek y :: Forest (Peek Units)))
                         [] -> error "No Path_ImageSize_units field found"
                         ps -> error $ ("Multiple Path_ImageSize_units fields found: " ++ show ps)]
 instance IsPathNode Units
-    where type Peek Units = Peek_Units
+    where data Peek Units
+              = Peek_Units_Units (Path_Units Units) Units
+              | Peek_Units_JSONText (Path_Units JSONText) JSONText
+              deriving (Eq, Show)
           peek x = case filter (\p -> case p of
                                           Path_Units_View _ -> True
                                           _ -> False) (pathsOf x (undefined :: Proxy JSONText)) :: [Path_Units JSONText] of
@@ -13787,19 +13310,29 @@ instance IsPathNode Units
                                                    in [Node (Peek_Units_JSONText p y) (forestMap (\v -> case v of
                                                                                                             Peek_JSONText_JSONText q
                                                                                                                                    x -> Peek_Units_JSONText ((Path_Units_View :: Path_JSONText JSONText ->
-                                                                                                                                                                                 Path_Units JSONText) q) x) (peek y :: Forest Peek_JSONText))]
+                                                                                                                                                                                 Path_Units JSONText) q) x) (peek y :: Forest (Peek JSONText)))]
                        [] -> [] :: Forest (Peek Units)
 instance IsPathNode ImageFile
-    where type Peek ImageFile = Peek_ImageFile
+    where data Peek ImageFile
+              = Peek_ImageFile_ImageFile (Path_ImageFile ImageFile) ImageFile
+              deriving (Eq, Show)
           peek _ = []
 instance IsPathNode Integer
-    where type Peek Integer = Peek_Integer
+    where data Peek Integer
+              = Peek_Integer_Integer (Path_Integer Integer) Integer
+              deriving (Eq, Show)
           peek _ = []
 instance IsPathNode JSONText
-    where type Peek JSONText = Peek_JSONText
+    where data Peek JSONText
+              = Peek_JSONText_JSONText (Path_JSONText JSONText) JSONText
+              deriving (Eq, Show)
           peek _ = []
 instance IsPathNode Markup
-    where type Peek Markup = Peek_Markup
+    where data Peek Markup
+              = Peek_Markup_JSONText (Path_Markup JSONText) JSONText
+              | Peek_Markup_Markup (Path_Markup Markup) Markup
+              | Peek_Markup_Text (Path_Markup Text) Text
+              deriving (Eq, Show)
           peek (x@(Markdown {})) = [case filter (\p -> case p of
                                                            Path_Markup_markdownText _ -> True
                                                            _ -> False) (pathsOf x (undefined :: Proxy Text)) :: [Path_Markup Text] of
@@ -13810,7 +13343,7 @@ instance IsPathNode Markup
                                                                                                                                                                                                              Path_Markup JSONText) q) x
                                                                                                                                   Peek_Text_Text q
                                                                                                                                                  x -> Peek_Markup_Text ((Path_Markup_markdownText :: Path_Text Text ->
-                                                                                                                                                                                                     Path_Markup Text) q) x) (peek y :: Forest Peek_Text))
+                                                                                                                                                                                                     Path_Markup Text) q) x) (peek y :: Forest (Peek Text)))
                                         [] -> error "No Path_Markup_markdownText field found"
                                         ps -> error $ ("Multiple Path_Markup_markdownText fields found: " ++ show ps)]
           peek (x@(Html {})) = [case filter (\p -> case p of
@@ -13823,14 +13356,21 @@ instance IsPathNode Markup
                                                                                                                                                                                                  Path_Markup JSONText) q) x
                                                                                                                           Peek_Text_Text q
                                                                                                                                          x -> Peek_Markup_Text ((Path_Markup_htmlText :: Path_Text Text ->
-                                                                                                                                                                                         Path_Markup Text) q) x) (peek y :: Forest Peek_Text))
+                                                                                                                                                                                         Path_Markup Text) q) x) (peek y :: Forest (Peek Text)))
                                     [] -> error "No Path_Markup_htmlText field found"
                                     ps -> error $ ("Multiple Path_Markup_htmlText fields found: " ++ show ps)]
           peek (x@(LaTeX {})) = [error "doField' Text.LaTeX.Base.Syntax.LaTeX"]
           peek (x@(Pandoc {})) = [error "doField' Text.Pandoc.Definition.Pandoc"]
           peek (x@(Markup {})) = [error "doField' [Appraisal.Markup.Markup]"]
 instance IsPathNode Permissions
-    where type Peek Permissions = Peek_Permissions
+    where data Peek Permissions
+              = Peek_Permissions_JSONText (Path_Permissions JSONText) JSONText
+              | Peek_Permissions_Permissions (Path_Permissions Permissions)
+                                             Permissions
+              | Peek_Permissions_UserIds (Path_Permissions ([UserId])) ([UserId])
+              | Peek_Permissions_Text (Path_Permissions Text) Text
+              | Peek_Permissions_UserId (Path_Permissions UserId) UserId
+              deriving (Eq, Show)
           peek x = [case filter (\p -> case p of
                                            Path_Permissions_owner _ -> True
                                            _ -> False) (pathsOf x (undefined :: Proxy UserId)) :: [Path_Permissions UserId] of
@@ -13838,7 +13378,7 @@ instance IsPathNode Permissions
                                                            in Node (Peek_Permissions_UserId p y) (forestMap (\v -> case v of
                                                                                                                        Peek_UserId_UserId q
                                                                                                                                           x -> Peek_Permissions_UserId ((Path_Permissions_owner :: Path_UserId UserId ->
-                                                                                                                                                                                                   Path_Permissions UserId) q) x) (peek y :: Forest Peek_UserId))
+                                                                                                                                                                                                   Path_Permissions UserId) q) x) (peek y :: Forest (Peek UserId)))
                         [] -> error "No Path_Permissions_owner field found"
                         ps -> error $ ("Multiple Path_Permissions_owner fields found: " ++ show ps),
                     case filter (\p -> case p of
@@ -13854,7 +13394,7 @@ instance IsPathNode Permissions
                                                                                                                                                                                                            Path_Permissions ([UserId])) q) x
                                                                                                                           Peek_UserIds_Text q
                                                                                                                                             x -> Peek_Permissions_Text ((Path_Permissions_writers :: Path_UserIds Text ->
-                                                                                                                                                                                                     Path_Permissions Text) q) x) (peek y :: Forest Peek_UserIds))
+                                                                                                                                                                                                     Path_Permissions Text) q) x) (peek y :: Forest (Peek ([UserId]))))
                         [] -> error "No Path_Permissions_writers field found"
                         ps -> error $ ("Multiple Path_Permissions_writers fields found: " ++ show ps),
                     case filter (\p -> case p of
@@ -13870,11 +13410,16 @@ instance IsPathNode Permissions
                                                                                                                                                                                                            Path_Permissions ([UserId])) q) x
                                                                                                                           Peek_UserIds_Text q
                                                                                                                                             x -> Peek_Permissions_Text ((Path_Permissions_readers :: Path_UserIds Text ->
-                                                                                                                                                                                                     Path_Permissions Text) q) x) (peek y :: Forest Peek_UserIds))
+                                                                                                                                                                                                     Path_Permissions Text) q) x) (peek y :: Forest (Peek ([UserId]))))
                         [] -> error "No Path_Permissions_readers field found"
                         ps -> error $ ("Multiple Path_Permissions_readers fields found: " ++ show ps)]
 instance IsPathNode Author
-    where type Peek Author = Peek_Author
+    where data Peek Author
+              = Peek_Author_JSONText (Path_Author JSONText) JSONText
+              | Peek_Author_Markup (Path_Author Markup) Markup
+              | Peek_Author_Author (Path_Author Author) Author
+              | Peek_Author_Text (Path_Author Text) Text
+              deriving (Eq, Show)
           peek x = [case filter (\p -> case p of
                                            Path_Author_authorName _ -> True
                                            _ -> False) (pathsOf x (undefined :: Proxy Markup)) :: [Path_Author Markup] of
@@ -13888,7 +13433,7 @@ instance IsPathNode Author
                                                                                                                                                                                          Path_Author Markup) q) x
                                                                                                                   Peek_Markup_Text q
                                                                                                                                    x -> Peek_Author_Text ((Path_Author_authorName :: Path_Markup Text ->
-                                                                                                                                                                                     Path_Author Text) q) x) (peek y :: Forest Peek_Markup))
+                                                                                                                                                                                     Path_Author Text) q) x) (peek y :: Forest (Peek Markup)))
                         [] -> error "No Path_Author_authorName field found"
                         ps -> error $ ("Multiple Path_Author_authorName fields found: " ++ show ps),
                     case filter (\p -> case p of
@@ -13904,11 +13449,15 @@ instance IsPathNode Author
                                                                                                                                                                                                        Path_Author Markup) q) x
                                                                                                                          Peek_Markup_Text q
                                                                                                                                           x -> Peek_Author_Text ((Path_Author_authorCredentials :: Path_Markup Text ->
-                                                                                                                                                                                                   Path_Author Text) q) x) (peek y :: Forest Peek_Markup))
+                                                                                                                                                                                                   Path_Author Text) q) x) (peek y :: Forest (Peek Markup)))
                         [] -> error "No Path_Author_authorCredentials field found"
                         ps -> error $ ("Multiple Path_Author_authorCredentials fields found: " ++ show ps)]
 instance IsPathNode Branding
-    where type Peek Branding = Peek_Branding
+    where data Peek Branding
+              = Peek_Branding_JSONText (Path_Branding JSONText) JSONText
+              | Peek_Branding_Branding (Path_Branding Branding) Branding
+              | Peek_Branding_Text (Path_Branding Text) Text
+              deriving (Eq, Show)
           peek x = case filter (\p -> case p of
                                           Path_Branding_View _ -> True
                                           _ -> False) (pathsOf x (undefined :: Proxy Text)) :: [Path_Branding Text] of
@@ -13919,10 +13468,82 @@ instance IsPathNode Branding
                                                                                                                                                                                      Path_Branding JSONText) q) x
                                                                                                               Peek_Text_Text q
                                                                                                                              x -> Peek_Branding_Text ((Path_Branding_View :: Path_Text Text ->
-                                                                                                                                                                             Path_Branding Text) q) x) (peek y :: Forest Peek_Text))]
+                                                                                                                                                                             Path_Branding Text) q) x) (peek y :: Forest (Peek Text)))]
                        [] -> [] :: Forest (Peek Branding)
 instance IsPathNode Report
-    where type Peek Report = Peek_Report
+    where data Peek Report
+              = Peek_Report_String (Path_Report ([Char])) ([Char])
+              | Peek_Report_Int64 (Path_Report Int64) Int64
+              | Peek_Report_Int (Path_Report Int) Int
+              | Peek_Report_Bool (Path_Report Bool) Bool
+              | Peek_Report_Double (Path_Report Double) Double
+              | Peek_Report_Dimension (Path_Report Dimension) Dimension
+              | Peek_Report_ImageCrop (Path_Report ImageCrop) ImageCrop
+              | Peek_Report_ImageSize (Path_Report ImageSize) ImageSize
+              | Peek_Report_Units (Path_Report Units) Units
+              | Peek_Report_ImageFile (Path_Report ImageFile) ImageFile
+              | Peek_Report_Integer (Path_Report Integer) Integer
+              | Peek_Report_JSONText (Path_Report JSONText) JSONText
+              | Peek_Report_Markup (Path_Report Markup) Markup
+              | Peek_Report_Permissions (Path_Report Permissions) Permissions
+              | Peek_Report_UserIds (Path_Report ([UserId])) ([UserId])
+              | Peek_Report_AbbrevPair (Path_Report ((CIString, Markup)))
+                                       ((CIString, Markup))
+              | Peek_Report_AbbrevPairs (Path_Report (Order AbbrevPairID
+                                                            ((CIString, Markup))))
+                                        (Order AbbrevPairID ((CIString, Markup)))
+              | Peek_Report_Author (Path_Report Author) Author
+              | Peek_Report_Authors (Path_Report (Order AuthorID Author))
+                                    (Order AuthorID Author)
+              | Peek_Report_Branding (Path_Report Branding) Branding
+              | Peek_Report_MarkupPair (Path_Report ((Markup, Markup)))
+                                       ((Markup, Markup))
+              | Peek_Report_MarkupPairs (Path_Report (Order MarkupPairID
+                                                            ((Markup, Markup))))
+                                        (Order MarkupPairID ((Markup, Markup)))
+              | Peek_Report_Markups (Path_Report (Order MarkupID Markup))
+                                    (Order MarkupID Markup)
+              | Peek_Report_MaybeReportIntendedUse (Path_Report (Maybe ReportIntendedUse))
+                                                   (Maybe ReportIntendedUse)
+              | Peek_Report_Report (Path_Report Report) Report
+              | Peek_Report_ReportElem (Path_Report ReportElem) ReportElem
+              | Peek_Report_ReportElems (Path_Report (Order ReportElemID
+                                                            ReportElem))
+                                        (Order ReportElemID ReportElem)
+              | Peek_Report_ReportFlags (Path_Report ReportFlags) ReportFlags
+              | Peek_Report_ReportStandard (Path_Report ReportStandard)
+                                           ReportStandard
+              | Peek_Report_ReportStatus (Path_Report ReportStatus) ReportStatus
+              | Peek_Report_ReportValueApproachInfo (Path_Report ReportValueApproachInfo)
+                                                    ReportValueApproachInfo
+              | Peek_Report_ReportValueTypeInfo (Path_Report ReportValueTypeInfo)
+                                                ReportValueTypeInfo
+              | Peek_Report_EUI (Path_Report (Either URI ImageFile))
+                                (Either URI ImageFile)
+              | Peek_Report_MEUI (Path_Report (Maybe (Either URI ImageFile)))
+                                 (Maybe (Either URI ImageFile))
+              | Peek_Report_MaybeImageFile (Path_Report (Maybe ImageFile))
+                                           (Maybe ImageFile)
+              | Peek_Report_ReportImage (Path_Report ReportImage) ReportImage
+              | Peek_Report_ReportImages (Path_Report (Order ReportImageID
+                                                             ReportImage))
+                                         (Order ReportImageID ReportImage)
+              | Peek_Report_ReadOnlyFilePath (Path_Report (ReadOnly ([Char])))
+                                             (ReadOnly ([Char]))
+              | Peek_Report_ReportImageView (Path_Report ReportImageView)
+                                            ReportImageView
+              | Peek_Report_ReportView (Path_Report ReportView) ReportView
+              | Peek_Report_SaneSizeImageSize (Path_Report (SaneSize ImageSize))
+                                              (SaneSize ImageSize)
+              | Peek_Report_Item (Path_Report Item) Item
+              | Peek_Report_MIM (Path_Report (Map ItemFieldName Markup))
+                                (Map ItemFieldName Markup)
+              | Peek_Report_CIString (Path_Report CIString) CIString
+              | Peek_Report_URI (Path_Report URI) URI
+              | Peek_Report_Text (Path_Report Text) Text
+              | Peek_Report_UserId (Path_Report UserId) UserId
+              | Peek_Report_UUID (Path_Report UUID) UUID
+              deriving (Eq, Show)
           peek x = case filter (\p -> case p of
                                           Path_Report_View _ -> True
                                           _ -> False) (pathsOf x (undefined :: Proxy ReportView)) :: [Path_Report ReportView] of
@@ -14094,10 +13715,44 @@ instance IsPathNode Report
                                                                                                                                                                                      Path_Report UserId) q) x
                                                                                                                 Peek_ReportView_UUID q
                                                                                                                                      x -> Peek_Report_UUID ((Path_Report_View :: Path_ReportView UUID ->
-                                                                                                                                                                                 Path_Report UUID) q) x) (peek y :: Forest Peek_ReportView))]
+                                                                                                                                                                                 Path_Report UUID) q) x) (peek y :: Forest (Peek ReportView)))]
                        [] -> [] :: Forest (Peek Report)
 instance IsPathNode ReportElem
-    where type Peek ReportElem = Peek_ReportElem
+    where data Peek ReportElem
+              = Peek_ReportElem_String (Path_ReportElem ([Char])) ([Char])
+              | Peek_ReportElem_Bool (Path_ReportElem Bool) Bool
+              | Peek_ReportElem_Double (Path_ReportElem Double) Double
+              | Peek_ReportElem_Dimension (Path_ReportElem Dimension) Dimension
+              | Peek_ReportElem_ImageCrop (Path_ReportElem ImageCrop) ImageCrop
+              | Peek_ReportElem_ImageSize (Path_ReportElem ImageSize) ImageSize
+              | Peek_ReportElem_Units (Path_ReportElem Units) Units
+              | Peek_ReportElem_ImageFile (Path_ReportElem ImageFile) ImageFile
+              | Peek_ReportElem_JSONText (Path_ReportElem JSONText) JSONText
+              | Peek_ReportElem_Markup (Path_ReportElem Markup) Markup
+              | Peek_ReportElem_ReportElem (Path_ReportElem ReportElem)
+                                           ReportElem
+              | Peek_ReportElem_EUI (Path_ReportElem (Either URI ImageFile))
+                                    (Either URI ImageFile)
+              | Peek_ReportElem_MEUI (Path_ReportElem (Maybe (Either URI
+                                                                     ImageFile)))
+                                     (Maybe (Either URI ImageFile))
+              | Peek_ReportElem_MaybeImageFile (Path_ReportElem (Maybe ImageFile))
+                                               (Maybe ImageFile)
+              | Peek_ReportElem_ReportImage (Path_ReportElem ReportImage)
+                                            ReportImage
+              | Peek_ReportElem_ReportImages (Path_ReportElem (Order ReportImageID
+                                                                     ReportImage))
+                                             (Order ReportImageID ReportImage)
+              | Peek_ReportElem_ReportImageView (Path_ReportElem ReportImageView)
+                                                ReportImageView
+              | Peek_ReportElem_SaneSizeImageSize (Path_ReportElem (SaneSize ImageSize))
+                                                  (SaneSize ImageSize)
+              | Peek_ReportElem_Item (Path_ReportElem Item) Item
+              | Peek_ReportElem_MIM (Path_ReportElem (Map ItemFieldName Markup))
+                                    (Map ItemFieldName Markup)
+              | Peek_ReportElem_URI (Path_ReportElem URI) URI
+              | Peek_ReportElem_Text (Path_ReportElem Text) Text
+              deriving (Eq, Show)
           peek (x@(ReportItem {})) = [case filter (\p -> case p of
                                                              Path_ReportElem_elemItem _ -> True
                                                              _ -> False) (pathsOf x (undefined :: Proxy Item)) :: [Path_ReportElem Item] of
@@ -14173,7 +13828,7 @@ instance IsPathNode ReportElem
                                                                                                                                                                                                              Path_ReportElem URI) q) x
                                                                                                                                         Peek_Item_Text q
                                                                                                                                                        x -> Peek_ReportElem_Text ((Path_ReportElem_elemItem :: Path_Item Text ->
-                                                                                                                                                                                                               Path_ReportElem Text) q) x) (peek y :: Forest Peek_Item))
+                                                                                                                                                                                                               Path_ReportElem Text) q) x) (peek y :: Forest (Peek Item)))
                                           [] -> error "No Path_ReportElem_elemItem field found"
                                           ps -> error $ ("Multiple Path_ReportElem_elemItem fields found: " ++ show ps)]
           peek (x@(ReportParagraph {})) = [case filter (\p -> case p of
@@ -14189,12 +13844,18 @@ instance IsPathNode ReportElem
                                                                                                                                                                                                                             Path_ReportElem Markup) q) x
                                                                                                                                                Peek_Markup_Text q
                                                                                                                                                                 x -> Peek_ReportElem_Text ((Path_ReportElem_elemText :: Path_Markup Text ->
-                                                                                                                                                                                                                        Path_ReportElem Text) q) x) (peek y :: Forest Peek_Markup))
+                                                                                                                                                                                                                        Path_ReportElem Text) q) x) (peek y :: Forest (Peek Markup)))
                                                [] -> error "No Path_ReportElem_elemText field found"
                                                ps -> error $ ("Multiple Path_ReportElem_elemText fields found: " ++ show ps)]
           peek (x@(ReportUndecided {})) = []
 instance IsPathNode ReportFlags
-    where type Peek ReportFlags = Peek_ReportFlags
+    where data Peek ReportFlags
+              = Peek_ReportFlags_String (Path_ReportFlags ([Char])) ([Char])
+              | Peek_ReportFlags_Bool (Path_ReportFlags Bool) Bool
+              | Peek_ReportFlags_JSONText (Path_ReportFlags JSONText) JSONText
+              | Peek_ReportFlags_ReportFlags (Path_ReportFlags ReportFlags)
+                                             ReportFlags
+              deriving (Eq, Show)
           peek x = [case filter (\p -> case p of
                                            Path_ReportFlags_hideEmptyItemFields _ -> True
                                            _ -> False) (pathsOf x (undefined :: Proxy Bool)) :: [Path_ReportFlags Bool] of
@@ -14208,11 +13869,18 @@ instance IsPathNode ReportFlags
                                                                                                                                                                                                                        Path_ReportFlags Bool) q) x
                                                                                                                                    Peek_Bool_JSONText q
                                                                                                                                                       x -> Peek_ReportFlags_JSONText ((Path_ReportFlags_hideEmptyItemFields :: Path_Bool JSONText ->
-                                                                                                                                                                                                                               Path_ReportFlags JSONText) q) x) (peek y :: Forest Peek_Bool))
+                                                                                                                                                                                                                               Path_ReportFlags JSONText) q) x) (peek y :: Forest (Peek Bool)))
                         [] -> error "No Path_ReportFlags_hideEmptyItemFields field found"
                         ps -> error $ ("Multiple Path_ReportFlags_hideEmptyItemFields fields found: " ++ show ps)]
 instance IsPathNode ReportIntendedUse
-    where type Peek ReportIntendedUse = Peek_ReportIntendedUse
+    where data Peek ReportIntendedUse
+              = Peek_ReportIntendedUse_String (Path_ReportIntendedUse ([Char]))
+                                              ([Char])
+              | Peek_ReportIntendedUse_JSONText (Path_ReportIntendedUse JSONText)
+                                                JSONText
+              | Peek_ReportIntendedUse_ReportIntendedUse (Path_ReportIntendedUse ReportIntendedUse)
+                                                         ReportIntendedUse
+              deriving (Eq, Show)
           peek x = case filter (\p -> case p of
                                           Path_ReportIntendedUse_View _ -> True
                                           _ -> False) (pathsOf x (undefined :: Proxy ([Char]))) :: [Path_ReportIntendedUse ([Char])] of
@@ -14223,10 +13891,14 @@ instance IsPathNode ReportIntendedUse
                                                                                                                                                                                                                          Path_ReportIntendedUse ([Char])) q) x
                                                                                                                                   Peek_String_JSONText q
                                                                                                                                                        x -> Peek_ReportIntendedUse_JSONText ((Path_ReportIntendedUse_View :: Path_String JSONText ->
-                                                                                                                                                                                                                             Path_ReportIntendedUse JSONText) q) x) (peek y :: Forest Peek_String))]
+                                                                                                                                                                                                                             Path_ReportIntendedUse JSONText) q) x) (peek y :: Forest (Peek ([Char]))))]
                        [] -> [] :: Forest (Peek ReportIntendedUse)
 instance IsPathNode ReportStandard
-    where type Peek ReportStandard = Peek_ReportStandard
+    where data Peek ReportStandard
+              = Peek_ReportStandard_Int (Path_ReportStandard Int) Int
+              | Peek_ReportStandard_ReportStandard (Path_ReportStandard ReportStandard)
+                                                   ReportStandard
+              deriving (Eq, Show)
           peek x = [case filter (\p -> case p of
                                            Path_ReportStandard_unReportStandard _ -> True
                                            _ -> False) (pathsOf x (undefined :: Proxy Int)) :: [Path_ReportStandard Int] of
@@ -14234,11 +13906,16 @@ instance IsPathNode ReportStandard
                                                                          in Node (Peek_ReportStandard_Int p y) (forestMap (\v -> case v of
                                                                                                                                      Peek_Int_Int q
                                                                                                                                                   x -> Peek_ReportStandard_Int ((Path_ReportStandard_unReportStandard :: Path_Int Int ->
-                                                                                                                                                                                                                         Path_ReportStandard Int) q) x) (peek y :: Forest Peek_Int))
+                                                                                                                                                                                                                         Path_ReportStandard Int) q) x) (peek y :: Forest (Peek Int)))
                         [] -> error "No Path_ReportStandard_unReportStandard field found"
                         ps -> error $ ("Multiple Path_ReportStandard_unReportStandard fields found: " ++ show ps)]
 instance IsPathNode ReportStatus
-    where type Peek ReportStatus = Peek_ReportStatus
+    where data Peek ReportStatus
+              = Peek_ReportStatus_String (Path_ReportStatus ([Char])) ([Char])
+              | Peek_ReportStatus_JSONText (Path_ReportStatus JSONText) JSONText
+              | Peek_ReportStatus_ReportStatus (Path_ReportStatus ReportStatus)
+                                               ReportStatus
+              deriving (Eq, Show)
           peek x = case filter (\p -> case p of
                                           Path_ReportStatus_View _ -> True
                                           _ -> False) (pathsOf x (undefined :: Proxy ([Char]))) :: [Path_ReportStatus ([Char])] of
@@ -14249,10 +13926,19 @@ instance IsPathNode ReportStatus
                                                                                                                                                                                                      Path_ReportStatus ([Char])) q) x
                                                                                                                         Peek_String_JSONText q
                                                                                                                                              x -> Peek_ReportStatus_JSONText ((Path_ReportStatus_View :: Path_String JSONText ->
-                                                                                                                                                                                                         Path_ReportStatus JSONText) q) x) (peek y :: Forest Peek_String))]
+                                                                                                                                                                                                         Path_ReportStatus JSONText) q) x) (peek y :: Forest (Peek ([Char]))))]
                        [] -> [] :: Forest (Peek ReportStatus)
 instance IsPathNode ReportValueApproachInfo
-    where type Peek ReportValueApproachInfo = Peek_ReportValueApproachInfo
+    where data Peek ReportValueApproachInfo
+              = Peek_ReportValueApproachInfo_JSONText (Path_ReportValueApproachInfo JSONText)
+                                                      JSONText
+              | Peek_ReportValueApproachInfo_Markup (Path_ReportValueApproachInfo Markup)
+                                                    Markup
+              | Peek_ReportValueApproachInfo_ReportValueApproachInfo (Path_ReportValueApproachInfo ReportValueApproachInfo)
+                                                                     ReportValueApproachInfo
+              | Peek_ReportValueApproachInfo_Text (Path_ReportValueApproachInfo Text)
+                                                  Text
+              deriving (Eq, Show)
           peek x = [case filter (\p -> case p of
                                            Path_ReportValueApproachInfo_reportValueApproachName _ -> True
                                            _ -> False) (pathsOf x (undefined :: Proxy Markup)) :: [Path_ReportValueApproachInfo Markup] of
@@ -14266,7 +13952,7 @@ instance IsPathNode ReportValueApproachInfo
                                                                                                                                                                                                                                                                                        Path_ReportValueApproachInfo Markup) q) x
                                                                                                                                                                  Peek_Markup_Text q
                                                                                                                                                                                   x -> Peek_ReportValueApproachInfo_Text ((Path_ReportValueApproachInfo_reportValueApproachName :: Path_Markup Text ->
-                                                                                                                                                                                                                                                                                   Path_ReportValueApproachInfo Text) q) x) (peek y :: Forest Peek_Markup))
+                                                                                                                                                                                                                                                                                   Path_ReportValueApproachInfo Text) q) x) (peek y :: Forest (Peek Markup)))
                         [] -> error "No Path_ReportValueApproachInfo_reportValueApproachName field found"
                         ps -> error $ ("Multiple Path_ReportValueApproachInfo_reportValueApproachName fields found: " ++ show ps),
                     case filter (\p -> case p of
@@ -14282,11 +13968,20 @@ instance IsPathNode ReportValueApproachInfo
                                                                                                                                                                                                                                                                                                      Path_ReportValueApproachInfo Markup) q) x
                                                                                                                                                                         Peek_Markup_Text q
                                                                                                                                                                                          x -> Peek_ReportValueApproachInfo_Text ((Path_ReportValueApproachInfo_reportValueApproachDescription :: Path_Markup Text ->
-                                                                                                                                                                                                                                                                                                 Path_ReportValueApproachInfo Text) q) x) (peek y :: Forest Peek_Markup))
+                                                                                                                                                                                                                                                                                                 Path_ReportValueApproachInfo Text) q) x) (peek y :: Forest (Peek Markup)))
                         [] -> error "No Path_ReportValueApproachInfo_reportValueApproachDescription field found"
                         ps -> error $ ("Multiple Path_ReportValueApproachInfo_reportValueApproachDescription fields found: " ++ show ps)]
 instance IsPathNode ReportValueTypeInfo
-    where type Peek ReportValueTypeInfo = Peek_ReportValueTypeInfo
+    where data Peek ReportValueTypeInfo
+              = Peek_ReportValueTypeInfo_JSONText (Path_ReportValueTypeInfo JSONText)
+                                                  JSONText
+              | Peek_ReportValueTypeInfo_Markup (Path_ReportValueTypeInfo Markup)
+                                                Markup
+              | Peek_ReportValueTypeInfo_ReportValueTypeInfo (Path_ReportValueTypeInfo ReportValueTypeInfo)
+                                                             ReportValueTypeInfo
+              | Peek_ReportValueTypeInfo_Text (Path_ReportValueTypeInfo Text)
+                                              Text
+              deriving (Eq, Show)
           peek x = [case filter (\p -> case p of
                                            Path_ReportValueTypeInfo_reportValueTypeName _ -> True
                                            _ -> False) (pathsOf x (undefined :: Proxy Markup)) :: [Path_ReportValueTypeInfo Markup] of
@@ -14300,7 +13995,7 @@ instance IsPathNode ReportValueTypeInfo
                                                                                                                                                                                                                                                                Path_ReportValueTypeInfo Markup) q) x
                                                                                                                                                      Peek_Markup_Text q
                                                                                                                                                                       x -> Peek_ReportValueTypeInfo_Text ((Path_ReportValueTypeInfo_reportValueTypeName :: Path_Markup Text ->
-                                                                                                                                                                                                                                                           Path_ReportValueTypeInfo Text) q) x) (peek y :: Forest Peek_Markup))
+                                                                                                                                                                                                                                                           Path_ReportValueTypeInfo Text) q) x) (peek y :: Forest (Peek Markup)))
                         [] -> error "No Path_ReportValueTypeInfo_reportValueTypeName field found"
                         ps -> error $ ("Multiple Path_ReportValueTypeInfo_reportValueTypeName fields found: " ++ show ps),
                     case filter (\p -> case p of
@@ -14316,7 +14011,7 @@ instance IsPathNode ReportValueTypeInfo
                                                                                                                                                                                                                                                                              Path_ReportValueTypeInfo Markup) q) x
                                                                                                                                                             Peek_Markup_Text q
                                                                                                                                                                              x -> Peek_ReportValueTypeInfo_Text ((Path_ReportValueTypeInfo_reportValueTypeDescription :: Path_Markup Text ->
-                                                                                                                                                                                                                                                                         Path_ReportValueTypeInfo Text) q) x) (peek y :: Forest Peek_Markup))
+                                                                                                                                                                                                                                                                         Path_ReportValueTypeInfo Text) q) x) (peek y :: Forest (Peek Markup)))
                         [] -> error "No Path_ReportValueTypeInfo_reportValueTypeDescription field found"
                         ps -> error $ ("Multiple Path_ReportValueTypeInfo_reportValueTypeDescription fields found: " ++ show ps),
                     case filter (\p -> case p of
@@ -14332,11 +14027,37 @@ instance IsPathNode ReportValueTypeInfo
                                                                                                                                                                                                                                                                            Path_ReportValueTypeInfo Markup) q) x
                                                                                                                                                            Peek_Markup_Text q
                                                                                                                                                                             x -> Peek_ReportValueTypeInfo_Text ((Path_ReportValueTypeInfo_reportValueTypeDefinition :: Path_Markup Text ->
-                                                                                                                                                                                                                                                                       Path_ReportValueTypeInfo Text) q) x) (peek y :: Forest Peek_Markup))
+                                                                                                                                                                                                                                                                       Path_ReportValueTypeInfo Text) q) x) (peek y :: Forest (Peek Markup)))
                         [] -> error "No Path_ReportValueTypeInfo_reportValueTypeDefinition field found"
                         ps -> error $ ("Multiple Path_ReportValueTypeInfo_reportValueTypeDefinition fields found: " ++ show ps)]
 instance IsPathNode ReportImage
-    where type Peek ReportImage = Peek_ReportImage
+    where data Peek ReportImage
+              = Peek_ReportImage_String (Path_ReportImage ([Char])) ([Char])
+              | Peek_ReportImage_Bool (Path_ReportImage Bool) Bool
+              | Peek_ReportImage_Double (Path_ReportImage Double) Double
+              | Peek_ReportImage_Dimension (Path_ReportImage Dimension) Dimension
+              | Peek_ReportImage_ImageCrop (Path_ReportImage ImageCrop) ImageCrop
+              | Peek_ReportImage_ImageSize (Path_ReportImage ImageSize) ImageSize
+              | Peek_ReportImage_Units (Path_ReportImage Units) Units
+              | Peek_ReportImage_ImageFile (Path_ReportImage ImageFile) ImageFile
+              | Peek_ReportImage_JSONText (Path_ReportImage JSONText) JSONText
+              | Peek_ReportImage_Markup (Path_ReportImage Markup) Markup
+              | Peek_ReportImage_EUI (Path_ReportImage (Either URI ImageFile))
+                                     (Either URI ImageFile)
+              | Peek_ReportImage_MEUI (Path_ReportImage (Maybe (Either URI
+                                                                       ImageFile)))
+                                      (Maybe (Either URI ImageFile))
+              | Peek_ReportImage_MaybeImageFile (Path_ReportImage (Maybe ImageFile))
+                                                (Maybe ImageFile)
+              | Peek_ReportImage_ReportImage (Path_ReportImage ReportImage)
+                                             ReportImage
+              | Peek_ReportImage_ReportImageView (Path_ReportImage ReportImageView)
+                                                 ReportImageView
+              | Peek_ReportImage_SaneSizeImageSize (Path_ReportImage (SaneSize ImageSize))
+                                                   (SaneSize ImageSize)
+              | Peek_ReportImage_URI (Path_ReportImage URI) URI
+              | Peek_ReportImage_Text (Path_ReportImage Text) Text
+              deriving (Eq, Show)
           peek x = case filter (\p -> case p of
                                           Path_ReportImage_View _ -> True
                                           _ -> False) (pathsOf x (undefined :: Proxy ReportImageView)) :: [Path_ReportImage ReportImageView] of
@@ -14396,10 +14117,41 @@ instance IsPathNode ReportImage
                                                                                                                                                                                                              Path_ReportImage URI) q) x
                                                                                                                                Peek_ReportImageView_Text q
                                                                                                                                                          x -> Peek_ReportImage_Text ((Path_ReportImage_View :: Path_ReportImageView Text ->
-                                                                                                                                                                                                               Path_ReportImage Text) q) x) (peek y :: Forest Peek_ReportImageView))]
+                                                                                                                                                                                                               Path_ReportImage Text) q) x) (peek y :: Forest (Peek ReportImageView)))]
                        [] -> [] :: Forest (Peek ReportImage)
 instance IsPathNode ReportImageView
-    where type Peek ReportImageView = Peek_ReportImageView
+    where data Peek ReportImageView
+              = Peek_ReportImageView_String (Path_ReportImageView ([Char]))
+                                            ([Char])
+              | Peek_ReportImageView_Bool (Path_ReportImageView Bool) Bool
+              | Peek_ReportImageView_Double (Path_ReportImageView Double) Double
+              | Peek_ReportImageView_Dimension (Path_ReportImageView Dimension)
+                                               Dimension
+              | Peek_ReportImageView_ImageCrop (Path_ReportImageView ImageCrop)
+                                               ImageCrop
+              | Peek_ReportImageView_ImageSize (Path_ReportImageView ImageSize)
+                                               ImageSize
+              | Peek_ReportImageView_Units (Path_ReportImageView Units) Units
+              | Peek_ReportImageView_ImageFile (Path_ReportImageView ImageFile)
+                                               ImageFile
+              | Peek_ReportImageView_JSONText (Path_ReportImageView JSONText)
+                                              JSONText
+              | Peek_ReportImageView_Markup (Path_ReportImageView Markup) Markup
+              | Peek_ReportImageView_EUI (Path_ReportImageView (Either URI
+                                                                       ImageFile))
+                                         (Either URI ImageFile)
+              | Peek_ReportImageView_MEUI (Path_ReportImageView (Maybe (Either URI
+                                                                               ImageFile)))
+                                          (Maybe (Either URI ImageFile))
+              | Peek_ReportImageView_MaybeImageFile (Path_ReportImageView (Maybe ImageFile))
+                                                    (Maybe ImageFile)
+              | Peek_ReportImageView_ReportImageView (Path_ReportImageView ReportImageView)
+                                                     ReportImageView
+              | Peek_ReportImageView_SaneSizeImageSize (Path_ReportImageView (SaneSize ImageSize))
+                                                       (SaneSize ImageSize)
+              | Peek_ReportImageView_URI (Path_ReportImageView URI) URI
+              | Peek_ReportImageView_Text (Path_ReportImageView Text) Text
+              deriving (Eq, Show)
           peek x = [case filter (\p -> case p of
                                            Path_ReportImageView__picSize _ -> True
                                            _ -> False) (pathsOf x (undefined :: Proxy (SaneSize ImageSize))) :: [Path_ReportImageView (SaneSize ImageSize)] of
@@ -14425,7 +14177,7 @@ instance IsPathNode ReportImageView
                                                                                                                                                                                                                                                    Path_ReportImageView JSONText) q) x
                                                                                                                                              Peek_SaneSizeImageSize_SaneSizeImageSize q
                                                                                                                                                                                       x -> Peek_ReportImageView_SaneSizeImageSize ((Path_ReportImageView__picSize :: Path_SaneSizeImageSize (SaneSize ImageSize) ->
-                                                                                                                                                                                                                                                                     Path_ReportImageView (SaneSize ImageSize)) q) x) (peek y :: Forest Peek_SaneSizeImageSize))
+                                                                                                                                                                                                                                                                     Path_ReportImageView (SaneSize ImageSize)) q) x) (peek y :: Forest (Peek (SaneSize ImageSize))))
                         [] -> error "No Path_ReportImageView__picSize field found"
                         ps -> error $ ("Multiple Path_ReportImageView__picSize fields found: " ++ show ps),
                     case filter (\p -> case p of
@@ -14435,7 +14187,7 @@ instance IsPathNode ReportImageView
                                                                   in Node (Peek_ReportImageView_ImageCrop p y) (forestMap (\v -> case v of
                                                                                                                                      Peek_ImageCrop_ImageCrop q
                                                                                                                                                               x -> Peek_ReportImageView_ImageCrop ((Path_ReportImageView__picCrop :: Path_ImageCrop ImageCrop ->
-                                                                                                                                                                                                                                     Path_ReportImageView ImageCrop) q) x) (peek y :: Forest Peek_ImageCrop))
+                                                                                                                                                                                                                                     Path_ReportImageView ImageCrop) q) x) (peek y :: Forest (Peek ImageCrop)))
                         [] -> error "No Path_ReportImageView__picCrop field found"
                         ps -> error $ ("Multiple Path_ReportImageView__picCrop fields found: " ++ show ps),
                     case filter (\p -> case p of
@@ -14451,7 +14203,7 @@ instance IsPathNode ReportImageView
                                                                                                                                                                                                                                Path_ReportImageView Markup) q) x
                                                                                                                                      Peek_Markup_Text q
                                                                                                                                                       x -> Peek_ReportImageView_Text ((Path_ReportImageView__picCaption :: Path_Markup Text ->
-                                                                                                                                                                                                                           Path_ReportImageView Text) q) x) (peek y :: Forest Peek_Markup))
+                                                                                                                                                                                                                           Path_ReportImageView Text) q) x) (peek y :: Forest (Peek Markup)))
                         [] -> error "No Path_ReportImageView__picCaption field found"
                         ps -> error $ ("Multiple Path_ReportImageView__picCaption fields found: " ++ show ps),
                     case filter (\p -> case p of
@@ -14477,7 +14229,8 @@ instance IsPathNode ReportImageView
                                                                                                                                                                                                                                                              ImageFile))) q) x
                                                                                                                                     Peek_MEUI_URI q
                                                                                                                                                   x -> Peek_ReportImageView_URI ((Path_ReportImageView__picOriginal :: Path_MEUI URI ->
-                                                                                                                                                                                                                       Path_ReportImageView URI) q) x) (peek y :: Forest Peek_MEUI))
+                                                                                                                                                                                                                       Path_ReportImageView URI) q) x) (peek y :: Forest (Peek (Maybe (Either URI
+                                                                                                                                                                                                                                                                                              ImageFile)))))
                         [] -> error "No Path_ReportImageView__picOriginal field found"
                         ps -> error $ ("Multiple Path_ReportImageView__picOriginal fields found: " ++ show ps),
                     case filter (\p -> case p of
@@ -14493,7 +14246,7 @@ instance IsPathNode ReportImageView
                                                                                                                                                                                                                                                                      Path_ReportImageView JSONText) q) x
                                                                                                                                                       Peek_MaybeImageFile_MaybeImageFile q
                                                                                                                                                                                          x -> Peek_ReportImageView_MaybeImageFile ((Path_ReportImageView__picEditedDeprecated :: Path_MaybeImageFile (Maybe ImageFile) ->
-                                                                                                                                                                                                                                                                                 Path_ReportImageView (Maybe ImageFile)) q) x) (peek y :: Forest Peek_MaybeImageFile))
+                                                                                                                                                                                                                                                                                 Path_ReportImageView (Maybe ImageFile)) q) x) (peek y :: Forest (Peek (Maybe ImageFile))))
                         [] -> error "No Path_ReportImageView__picEditedDeprecated field found"
                         ps -> error $ ("Multiple Path_ReportImageView__picEditedDeprecated fields found: " ++ show ps),
                     case filter (\p -> case p of
@@ -14509,7 +14262,7 @@ instance IsPathNode ReportImageView
                                                                                                                                                                                                                                                                    Path_ReportImageView JSONText) q) x
                                                                                                                                                      Peek_MaybeImageFile_MaybeImageFile q
                                                                                                                                                                                         x -> Peek_ReportImageView_MaybeImageFile ((Path_ReportImageView__picThumbDeprecated :: Path_MaybeImageFile (Maybe ImageFile) ->
-                                                                                                                                                                                                                                                                               Path_ReportImageView (Maybe ImageFile)) q) x) (peek y :: Forest Peek_MaybeImageFile))
+                                                                                                                                                                                                                                                                               Path_ReportImageView (Maybe ImageFile)) q) x) (peek y :: Forest (Peek (Maybe ImageFile))))
                         [] -> error "No Path_ReportImageView__picThumbDeprecated field found"
                         ps -> error $ ("Multiple Path_ReportImageView__picThumbDeprecated fields found: " ++ show ps),
                     case filter (\p -> case p of
@@ -14525,7 +14278,7 @@ instance IsPathNode ReportImageView
                                                                                                                                                                                                                                                                        Path_ReportImageView JSONText) q) x
                                                                                                                                                        Peek_MaybeImageFile_MaybeImageFile q
                                                                                                                                                                                           x -> Peek_ReportImageView_MaybeImageFile ((Path_ReportImageView__picPrinterDeprecated :: Path_MaybeImageFile (Maybe ImageFile) ->
-                                                                                                                                                                                                                                                                                   Path_ReportImageView (Maybe ImageFile)) q) x) (peek y :: Forest Peek_MaybeImageFile))
+                                                                                                                                                                                                                                                                                   Path_ReportImageView (Maybe ImageFile)) q) x) (peek y :: Forest (Peek (Maybe ImageFile))))
                         [] -> error "No Path_ReportImageView__picPrinterDeprecated field found"
                         ps -> error $ ("Multiple Path_ReportImageView__picPrinterDeprecated fields found: " ++ show ps),
                     case filter (\p -> case p of
@@ -14541,7 +14294,7 @@ instance IsPathNode ReportImageView
                                                                                                                                                                                                                                Path_ReportImageView Bool) q) x
                                                                                                                                        Peek_Bool_JSONText q
                                                                                                                                                           x -> Peek_ReportImageView_JSONText ((Path_ReportImageView__picMustEnlarge :: Path_Bool JSONText ->
-                                                                                                                                                                                                                                       Path_ReportImageView JSONText) q) x) (peek y :: Forest Peek_Bool))
+                                                                                                                                                                                                                                       Path_ReportImageView JSONText) q) x) (peek y :: Forest (Peek Bool)))
                         [] -> error "No Path_ReportImageView__picMustEnlarge field found"
                         ps -> error $ ("Multiple Path_ReportImageView__picMustEnlarge fields found: " ++ show ps),
                     case filter (\p -> case p of
@@ -14557,11 +14310,89 @@ instance IsPathNode ReportImageView
                                                                                                                                                                                                                                                                          Path_ReportImageView JSONText) q) x
                                                                                                                                                         Peek_MaybeImageFile_MaybeImageFile q
                                                                                                                                                                                            x -> Peek_ReportImageView_MaybeImageFile ((Path_ReportImageView__picEnlargedDeprecated :: Path_MaybeImageFile (Maybe ImageFile) ->
-                                                                                                                                                                                                                                                                                     Path_ReportImageView (Maybe ImageFile)) q) x) (peek y :: Forest Peek_MaybeImageFile))
+                                                                                                                                                                                                                                                                                     Path_ReportImageView (Maybe ImageFile)) q) x) (peek y :: Forest (Peek (Maybe ImageFile))))
                         [] -> error "No Path_ReportImageView__picEnlargedDeprecated field found"
                         ps -> error $ ("Multiple Path_ReportImageView__picEnlargedDeprecated fields found: " ++ show ps)]
 instance IsPathNode ReportView
-    where type Peek ReportView = Peek_ReportView
+    where data Peek ReportView
+              = Peek_ReportView_String (Path_ReportView ([Char])) ([Char])
+              | Peek_ReportView_Int64 (Path_ReportView Int64) Int64
+              | Peek_ReportView_Int (Path_ReportView Int) Int
+              | Peek_ReportView_Bool (Path_ReportView Bool) Bool
+              | Peek_ReportView_Double (Path_ReportView Double) Double
+              | Peek_ReportView_Dimension (Path_ReportView Dimension) Dimension
+              | Peek_ReportView_ImageCrop (Path_ReportView ImageCrop) ImageCrop
+              | Peek_ReportView_ImageSize (Path_ReportView ImageSize) ImageSize
+              | Peek_ReportView_Units (Path_ReportView Units) Units
+              | Peek_ReportView_ImageFile (Path_ReportView ImageFile) ImageFile
+              | Peek_ReportView_Integer (Path_ReportView Integer) Integer
+              | Peek_ReportView_JSONText (Path_ReportView JSONText) JSONText
+              | Peek_ReportView_Markup (Path_ReportView Markup) Markup
+              | Peek_ReportView_Permissions (Path_ReportView Permissions)
+                                            Permissions
+              | Peek_ReportView_UserIds (Path_ReportView ([UserId])) ([UserId])
+              | Peek_ReportView_AbbrevPair (Path_ReportView ((CIString, Markup)))
+                                           ((CIString, Markup))
+              | Peek_ReportView_AbbrevPairs (Path_ReportView (Order AbbrevPairID
+                                                                    ((CIString, Markup))))
+                                            (Order AbbrevPairID ((CIString, Markup)))
+              | Peek_ReportView_Author (Path_ReportView Author) Author
+              | Peek_ReportView_Authors (Path_ReportView (Order AuthorID Author))
+                                        (Order AuthorID Author)
+              | Peek_ReportView_Branding (Path_ReportView Branding) Branding
+              | Peek_ReportView_MarkupPair (Path_ReportView ((Markup, Markup)))
+                                           ((Markup, Markup))
+              | Peek_ReportView_MarkupPairs (Path_ReportView (Order MarkupPairID
+                                                                    ((Markup, Markup))))
+                                            (Order MarkupPairID ((Markup, Markup)))
+              | Peek_ReportView_Markups (Path_ReportView (Order MarkupID Markup))
+                                        (Order MarkupID Markup)
+              | Peek_ReportView_MaybeReportIntendedUse (Path_ReportView (Maybe ReportIntendedUse))
+                                                       (Maybe ReportIntendedUse)
+              | Peek_ReportView_ReportElem (Path_ReportView ReportElem)
+                                           ReportElem
+              | Peek_ReportView_ReportElems (Path_ReportView (Order ReportElemID
+                                                                    ReportElem))
+                                            (Order ReportElemID ReportElem)
+              | Peek_ReportView_ReportFlags (Path_ReportView ReportFlags)
+                                            ReportFlags
+              | Peek_ReportView_ReportStandard (Path_ReportView ReportStandard)
+                                               ReportStandard
+              | Peek_ReportView_ReportStatus (Path_ReportView ReportStatus)
+                                             ReportStatus
+              | Peek_ReportView_ReportValueApproachInfo (Path_ReportView ReportValueApproachInfo)
+                                                        ReportValueApproachInfo
+              | Peek_ReportView_ReportValueTypeInfo (Path_ReportView ReportValueTypeInfo)
+                                                    ReportValueTypeInfo
+              | Peek_ReportView_EUI (Path_ReportView (Either URI ImageFile))
+                                    (Either URI ImageFile)
+              | Peek_ReportView_MEUI (Path_ReportView (Maybe (Either URI
+                                                                     ImageFile)))
+                                     (Maybe (Either URI ImageFile))
+              | Peek_ReportView_MaybeImageFile (Path_ReportView (Maybe ImageFile))
+                                               (Maybe ImageFile)
+              | Peek_ReportView_ReportImage (Path_ReportView ReportImage)
+                                            ReportImage
+              | Peek_ReportView_ReportImages (Path_ReportView (Order ReportImageID
+                                                                     ReportImage))
+                                             (Order ReportImageID ReportImage)
+              | Peek_ReportView_ReadOnlyFilePath (Path_ReportView (ReadOnly ([Char])))
+                                                 (ReadOnly ([Char]))
+              | Peek_ReportView_ReportImageView (Path_ReportView ReportImageView)
+                                                ReportImageView
+              | Peek_ReportView_ReportView (Path_ReportView ReportView)
+                                           ReportView
+              | Peek_ReportView_SaneSizeImageSize (Path_ReportView (SaneSize ImageSize))
+                                                  (SaneSize ImageSize)
+              | Peek_ReportView_Item (Path_ReportView Item) Item
+              | Peek_ReportView_MIM (Path_ReportView (Map ItemFieldName Markup))
+                                    (Map ItemFieldName Markup)
+              | Peek_ReportView_CIString (Path_ReportView CIString) CIString
+              | Peek_ReportView_URI (Path_ReportView URI) URI
+              | Peek_ReportView_Text (Path_ReportView Text) Text
+              | Peek_ReportView_UserId (Path_ReportView UserId) UserId
+              | Peek_ReportView_UUID (Path_ReportView UUID) UUID
+              deriving (Eq, Show)
           peek x = [case filter (\p -> case p of
                                            Path_ReportView__reportFolder _ -> True
                                            _ -> False) (pathsOf x (undefined :: Proxy (ReadOnly ([Char])))) :: [Path_ReportView (ReadOnly ([Char]))] of
@@ -14575,7 +14406,7 @@ instance IsPathNode ReportView
                                                                                                                                                                                                                                        Path_ReportView JSONText) q) x
                                                                                                                                        Peek_ReadOnlyFilePath_ReadOnlyFilePath q
                                                                                                                                                                               x -> Peek_ReportView_ReadOnlyFilePath ((Path_ReportView__reportFolder :: Path_ReadOnlyFilePath (ReadOnly ([Char])) ->
-                                                                                                                                                                                                                                                       Path_ReportView (ReadOnly ([Char]))) q) x) (peek y :: Forest Peek_ReadOnlyFilePath))
+                                                                                                                                                                                                                                                       Path_ReportView (ReadOnly ([Char]))) q) x) (peek y :: Forest (Peek (ReadOnly ([Char])))))
                         [] -> error "No Path_ReportView__reportFolder field found"
                         ps -> error $ ("Multiple Path_ReportView__reportFolder fields found: " ++ show ps),
                     case filter (\p -> case p of
@@ -14591,7 +14422,7 @@ instance IsPathNode ReportView
                                                                                                                                                                                                            Path_ReportView Markup) q) x
                                                                                                                            Peek_Markup_Text q
                                                                                                                                             x -> Peek_ReportView_Text ((Path_ReportView__reportName :: Path_Markup Text ->
-                                                                                                                                                                                                       Path_ReportView Text) q) x) (peek y :: Forest Peek_Markup))
+                                                                                                                                                                                                       Path_ReportView Text) q) x) (peek y :: Forest (Peek Markup)))
                         [] -> error "No Path_ReportView__reportName field found"
                         ps -> error $ ("Multiple Path_ReportView__reportName fields found: " ++ show ps),
                     case filter (\p -> case p of
@@ -14607,7 +14438,7 @@ instance IsPathNode ReportView
                                                                                                                                                                                                            Path_ReportView Markup) q) x
                                                                                                                            Peek_Markup_Text q
                                                                                                                                             x -> Peek_ReportView_Text ((Path_ReportView__reportDate :: Path_Markup Text ->
-                                                                                                                                                                                                       Path_ReportView Text) q) x) (peek y :: Forest Peek_Markup))
+                                                                                                                                                                                                       Path_ReportView Text) q) x) (peek y :: Forest (Peek Markup)))
                         [] -> error "No Path_ReportView__reportDate field found"
                         ps -> error $ ("Multiple Path_ReportView__reportDate fields found: " ++ show ps),
                     case filter (\p -> case p of
@@ -14623,7 +14454,7 @@ instance IsPathNode ReportView
                                                                                                                                                                                                                            Path_ReportView Markup) q) x
                                                                                                                                    Peek_Markup_Text q
                                                                                                                                                     x -> Peek_ReportView_Text ((Path_ReportView__reportContractDate :: Path_Markup Text ->
-                                                                                                                                                                                                                       Path_ReportView Text) q) x) (peek y :: Forest Peek_Markup))
+                                                                                                                                                                                                                       Path_ReportView Text) q) x) (peek y :: Forest (Peek Markup)))
                         [] -> error "No Path_ReportView__reportContractDate field found"
                         ps -> error $ ("Multiple Path_ReportView__reportContractDate fields found: " ++ show ps),
                     case filter (\p -> case p of
@@ -14639,7 +14470,7 @@ instance IsPathNode ReportView
                                                                                                                                                                                                                                Path_ReportView Markup) q) x
                                                                                                                                      Peek_Markup_Text q
                                                                                                                                                       x -> Peek_ReportView_Text ((Path_ReportView__reportInspectionDate :: Path_Markup Text ->
-                                                                                                                                                                                                                           Path_ReportView Text) q) x) (peek y :: Forest Peek_Markup))
+                                                                                                                                                                                                                           Path_ReportView Text) q) x) (peek y :: Forest (Peek Markup)))
                         [] -> error "No Path_ReportView__reportInspectionDate field found"
                         ps -> error $ ("Multiple Path_ReportView__reportInspectionDate fields found: " ++ show ps),
                     case filter (\p -> case p of
@@ -14655,7 +14486,7 @@ instance IsPathNode ReportView
                                                                                                                                                                                                                              Path_ReportView Markup) q) x
                                                                                                                                     Peek_Markup_Text q
                                                                                                                                                      x -> Peek_ReportView_Text ((Path_ReportView__reportEffectiveDate :: Path_Markup Text ->
-                                                                                                                                                                                                                         Path_ReportView Text) q) x) (peek y :: Forest Peek_Markup))
+                                                                                                                                                                                                                         Path_ReportView Text) q) x) (peek y :: Forest (Peek Markup)))
                         [] -> error "No Path_ReportView__reportEffectiveDate field found"
                         ps -> error $ ("Multiple Path_ReportView__reportEffectiveDate fields found: " ++ show ps),
                     case filter (\p -> case p of
@@ -14682,7 +14513,8 @@ instance IsPathNode ReportView
                                                                                                                                                                                                                                             Author)) q) x
                                                                                                                                Peek_Authors_Text q
                                                                                                                                                  x -> Peek_ReportView_Text ((Path_ReportView__reportAuthors :: Path_Authors Text ->
-                                                                                                                                                                                                               Path_ReportView Text) q) x) (peek y :: Forest Peek_Authors))
+                                                                                                                                                                                                               Path_ReportView Text) q) x) (peek y :: Forest (Peek (Order AuthorID
+                                                                                                                                                                                                                                                                          Author))))
                         [] -> error "No Path_ReportView__reportAuthors field found"
                         ps -> error $ ("Multiple Path_ReportView__reportAuthors fields found: " ++ show ps),
                     case filter (\p -> case p of
@@ -14698,7 +14530,7 @@ instance IsPathNode ReportView
                                                                                                                                                                                                                    Path_ReportView Markup) q) x
                                                                                                                                Peek_Markup_Text q
                                                                                                                                                 x -> Peek_ReportView_Text ((Path_ReportView__reportPreparer :: Path_Markup Text ->
-                                                                                                                                                                                                               Path_ReportView Text) q) x) (peek y :: Forest Peek_Markup))
+                                                                                                                                                                                                               Path_ReportView Text) q) x) (peek y :: Forest (Peek Markup)))
                         [] -> error "No Path_ReportView__reportPreparer field found"
                         ps -> error $ ("Multiple Path_ReportView__reportPreparer fields found: " ++ show ps),
                     case filter (\p -> case p of
@@ -14714,7 +14546,7 @@ instance IsPathNode ReportView
                                                                                                                                                                                                                          Path_ReportView Markup) q) x
                                                                                                                                   Peek_Markup_Text q
                                                                                                                                                    x -> Peek_ReportView_Text ((Path_ReportView__reportPreparerEIN :: Path_Markup Text ->
-                                                                                                                                                                                                                     Path_ReportView Text) q) x) (peek y :: Forest Peek_Markup))
+                                                                                                                                                                                                                     Path_ReportView Text) q) x) (peek y :: Forest (Peek Markup)))
                         [] -> error "No Path_ReportView__reportPreparerEIN field found"
                         ps -> error $ ("Multiple Path_ReportView__reportPreparerEIN fields found: " ++ show ps),
                     case filter (\p -> case p of
@@ -14730,7 +14562,7 @@ instance IsPathNode ReportView
                                                                                                                                                                                                                                  Path_ReportView Markup) q) x
                                                                                                                                       Peek_Markup_Text q
                                                                                                                                                        x -> Peek_ReportView_Text ((Path_ReportView__reportPreparerAddress :: Path_Markup Text ->
-                                                                                                                                                                                                                             Path_ReportView Text) q) x) (peek y :: Forest Peek_Markup))
+                                                                                                                                                                                                                             Path_ReportView Text) q) x) (peek y :: Forest (Peek Markup)))
                         [] -> error "No Path_ReportView__reportPreparerAddress field found"
                         ps -> error $ ("Multiple Path_ReportView__reportPreparerAddress fields found: " ++ show ps),
                     case filter (\p -> case p of
@@ -14746,7 +14578,7 @@ instance IsPathNode ReportView
                                                                                                                                                                                                                              Path_ReportView Markup) q) x
                                                                                                                                     Peek_Markup_Text q
                                                                                                                                                      x -> Peek_ReportView_Text ((Path_ReportView__reportPreparerEMail :: Path_Markup Text ->
-                                                                                                                                                                                                                         Path_ReportView Text) q) x) (peek y :: Forest Peek_Markup))
+                                                                                                                                                                                                                         Path_ReportView Text) q) x) (peek y :: Forest (Peek Markup)))
                         [] -> error "No Path_ReportView__reportPreparerEMail field found"
                         ps -> error $ ("Multiple Path_ReportView__reportPreparerEMail fields found: " ++ show ps),
                     case filter (\p -> case p of
@@ -14762,7 +14594,7 @@ instance IsPathNode ReportView
                                                                                                                                                                                                                                  Path_ReportView Markup) q) x
                                                                                                                                       Peek_Markup_Text q
                                                                                                                                                        x -> Peek_ReportView_Text ((Path_ReportView__reportPreparerWebsite :: Path_Markup Text ->
-                                                                                                                                                                                                                             Path_ReportView Text) q) x) (peek y :: Forest Peek_Markup))
+                                                                                                                                                                                                                             Path_ReportView Text) q) x) (peek y :: Forest (Peek Markup)))
                         [] -> error "No Path_ReportView__reportPreparerWebsite field found"
                         ps -> error $ ("Multiple Path_ReportView__reportPreparerWebsite fields found: " ++ show ps),
                     case filter (\p -> case p of
@@ -14799,7 +14631,9 @@ instance IsPathNode ReportView
                                                                                                                                                                                                                                Path_ReportView CIString) q) x
                                                                                                                                    Peek_AbbrevPairs_Text q
                                                                                                                                                          x -> Peek_ReportView_Text ((Path_ReportView__reportAbbrevs :: Path_AbbrevPairs Text ->
-                                                                                                                                                                                                                       Path_ReportView Text) q) x) (peek y :: Forest Peek_AbbrevPairs))
+                                                                                                                                                                                                                       Path_ReportView Text) q) x) (peek y :: Forest (Peek (Order AbbrevPairID
+                                                                                                                                                                                                                                                                                  ((CIString,
+                                                                                                                                                                                                                                                                                    Markup))))))
                         [] -> error "No Path_ReportView__reportAbbrevs field found"
                         ps -> error $ ("Multiple Path_ReportView__reportAbbrevs fields found: " ++ show ps),
                     case filter (\p -> case p of
@@ -14815,7 +14649,7 @@ instance IsPathNode ReportView
                                                                                                                                                                                                              Path_ReportView Markup) q) x
                                                                                                                             Peek_Markup_Text q
                                                                                                                                              x -> Peek_ReportView_Text ((Path_ReportView__reportTitle :: Path_Markup Text ->
-                                                                                                                                                                                                         Path_ReportView Text) q) x) (peek y :: Forest Peek_Markup))
+                                                                                                                                                                                                         Path_ReportView Text) q) x) (peek y :: Forest (Peek Markup)))
                         [] -> error "No Path_ReportView__reportTitle field found"
                         ps -> error $ ("Multiple Path_ReportView__reportTitle fields found: " ++ show ps),
                     case filter (\p -> case p of
@@ -14831,7 +14665,7 @@ instance IsPathNode ReportView
                                                                                                                                                                                                                Path_ReportView Markup) q) x
                                                                                                                              Peek_Markup_Text q
                                                                                                                                               x -> Peek_ReportView_Text ((Path_ReportView__reportHeader :: Path_Markup Text ->
-                                                                                                                                                                                                           Path_ReportView Text) q) x) (peek y :: Forest Peek_Markup))
+                                                                                                                                                                                                           Path_ReportView Text) q) x) (peek y :: Forest (Peek Markup)))
                         [] -> error "No Path_ReportView__reportHeader field found"
                         ps -> error $ ("Multiple Path_ReportView__reportHeader fields found: " ++ show ps),
                     case filter (\p -> case p of
@@ -14847,7 +14681,7 @@ instance IsPathNode ReportView
                                                                                                                                                                                                                Path_ReportView Markup) q) x
                                                                                                                              Peek_Markup_Text q
                                                                                                                                               x -> Peek_ReportView_Text ((Path_ReportView__reportFooter :: Path_Markup Text ->
-                                                                                                                                                                                                           Path_ReportView Text) q) x) (peek y :: Forest Peek_Markup))
+                                                                                                                                                                                                           Path_ReportView Text) q) x) (peek y :: Forest (Peek Markup)))
                         [] -> error "No Path_ReportView__reportFooter field found"
                         ps -> error $ ("Multiple Path_ReportView__reportFooter fields found: " ++ show ps),
                     case filter (\p -> case p of
@@ -14863,7 +14697,7 @@ instance IsPathNode ReportView
                                                                                                                                                                                                                                                              Path_ReportView JSONText) q) x
                                                                                                                                                   Peek_MaybeReportIntendedUse_MaybeReportIntendedUse q
                                                                                                                                                                                                      x -> Peek_ReportView_MaybeReportIntendedUse ((Path_ReportView__reportIntendedUse :: Path_MaybeReportIntendedUse (Maybe ReportIntendedUse) ->
-                                                                                                                                                                                                                                                                                         Path_ReportView (Maybe ReportIntendedUse)) q) x) (peek y :: Forest Peek_MaybeReportIntendedUse))
+                                                                                                                                                                                                                                                                                         Path_ReportView (Maybe ReportIntendedUse)) q) x) (peek y :: Forest (Peek (Maybe ReportIntendedUse))))
                         [] -> error "No Path_ReportView__reportIntendedUse field found"
                         ps -> error $ ("Multiple Path_ReportView__reportIntendedUse fields found: " ++ show ps),
                     case filter (\p -> case p of
@@ -14882,7 +14716,7 @@ instance IsPathNode ReportView
                                                                                                                                                                                                                                                                                  Path_ReportView ReportValueTypeInfo) q) x
                                                                                                                                                  Peek_ReportValueTypeInfo_Text q
                                                                                                                                                                                x -> Peek_ReportView_Text ((Path_ReportView__reportValueTypeInfo :: Path_ReportValueTypeInfo Text ->
-                                                                                                                                                                                                                                                   Path_ReportView Text) q) x) (peek y :: Forest Peek_ReportValueTypeInfo))
+                                                                                                                                                                                                                                                   Path_ReportView Text) q) x) (peek y :: Forest (Peek ReportValueTypeInfo)))
                         [] -> error "No Path_ReportView__reportValueTypeInfo field found"
                         ps -> error $ ("Multiple Path_ReportView__reportValueTypeInfo fields found: " ++ show ps),
                     case filter (\p -> case p of
@@ -14901,7 +14735,7 @@ instance IsPathNode ReportView
                                                                                                                                                                                                                                                                                                          Path_ReportView ReportValueApproachInfo) q) x
                                                                                                                                                          Peek_ReportValueApproachInfo_Text q
                                                                                                                                                                                            x -> Peek_ReportView_Text ((Path_ReportView__reportValueApproachInfo :: Path_ReportValueApproachInfo Text ->
-                                                                                                                                                                                                                                                                   Path_ReportView Text) q) x) (peek y :: Forest Peek_ReportValueApproachInfo))
+                                                                                                                                                                                                                                                                   Path_ReportView Text) q) x) (peek y :: Forest (Peek ReportValueApproachInfo)))
                         [] -> error "No Path_ReportView__reportValueApproachInfo field found"
                         ps -> error $ ("Multiple Path_ReportView__reportValueApproachInfo fields found: " ++ show ps),
                     case filter (\p -> case p of
@@ -14917,7 +14751,7 @@ instance IsPathNode ReportView
                                                                                                                                                                                                                        Path_ReportView Markup) q) x
                                                                                                                                  Peek_Markup_Text q
                                                                                                                                                   x -> Peek_ReportView_Text ((Path_ReportView__reportClientName :: Path_Markup Text ->
-                                                                                                                                                                                                                   Path_ReportView Text) q) x) (peek y :: Forest Peek_Markup))
+                                                                                                                                                                                                                   Path_ReportView Text) q) x) (peek y :: Forest (Peek Markup)))
                         [] -> error "No Path_ReportView__reportClientName field found"
                         ps -> error $ ("Multiple Path_ReportView__reportClientName fields found: " ++ show ps),
                     case filter (\p -> case p of
@@ -14933,7 +14767,7 @@ instance IsPathNode ReportView
                                                                                                                                                                                                                              Path_ReportView Markup) q) x
                                                                                                                                     Peek_Markup_Text q
                                                                                                                                                      x -> Peek_ReportView_Text ((Path_ReportView__reportClientAddress :: Path_Markup Text ->
-                                                                                                                                                                                                                         Path_ReportView Text) q) x) (peek y :: Forest Peek_Markup))
+                                                                                                                                                                                                                         Path_ReportView Text) q) x) (peek y :: Forest (Peek Markup)))
                         [] -> error "No Path_ReportView__reportClientAddress field found"
                         ps -> error $ ("Multiple Path_ReportView__reportClientAddress fields found: " ++ show ps),
                     case filter (\p -> case p of
@@ -14949,7 +14783,7 @@ instance IsPathNode ReportView
                                                                                                                                                                                                                                Path_ReportView Markup) q) x
                                                                                                                                      Peek_Markup_Text q
                                                                                                                                                       x -> Peek_ReportView_Text ((Path_ReportView__reportClientGreeting :: Path_Markup Text ->
-                                                                                                                                                                                                                           Path_ReportView Text) q) x) (peek y :: Forest Peek_Markup))
+                                                                                                                                                                                                                           Path_ReportView Text) q) x) (peek y :: Forest (Peek Markup)))
                         [] -> error "No Path_ReportView__reportClientGreeting field found"
                         ps -> error $ ("Multiple Path_ReportView__reportClientGreeting fields found: " ++ show ps),
                     case filter (\p -> case p of
@@ -14965,7 +14799,7 @@ instance IsPathNode ReportView
                                                                                                                                                                                                                                Path_ReportView Markup) q) x
                                                                                                                                      Peek_Markup_Text q
                                                                                                                                                       x -> Peek_ReportView_Text ((Path_ReportView__reportItemsOwnerFull :: Path_Markup Text ->
-                                                                                                                                                                                                                           Path_ReportView Text) q) x) (peek y :: Forest Peek_Markup))
+                                                                                                                                                                                                                           Path_ReportView Text) q) x) (peek y :: Forest (Peek Markup)))
                         [] -> error "No Path_ReportView__reportItemsOwnerFull field found"
                         ps -> error $ ("Multiple Path_ReportView__reportItemsOwnerFull fields found: " ++ show ps),
                     case filter (\p -> case p of
@@ -14981,7 +14815,7 @@ instance IsPathNode ReportView
                                                                                                                                                                                                                        Path_ReportView Markup) q) x
                                                                                                                                  Peek_Markup_Text q
                                                                                                                                                   x -> Peek_ReportView_Text ((Path_ReportView__reportItemsOwner :: Path_Markup Text ->
-                                                                                                                                                                                                                   Path_ReportView Text) q) x) (peek y :: Forest Peek_Markup))
+                                                                                                                                                                                                                   Path_ReportView Text) q) x) (peek y :: Forest (Peek Markup)))
                         [] -> error "No Path_ReportView__reportItemsOwner field found"
                         ps -> error $ ("Multiple Path_ReportView__reportItemsOwner fields found: " ++ show ps),
                     case filter (\p -> case p of
@@ -14997,7 +14831,7 @@ instance IsPathNode ReportView
                                                                                                                                                                                                                        Path_ReportView Markup) q) x
                                                                                                                                  Peek_Markup_Text q
                                                                                                                                                   x -> Peek_ReportView_Text ((Path_ReportView__reportBriefItems :: Path_Markup Text ->
-                                                                                                                                                                                                                   Path_ReportView Text) q) x) (peek y :: Forest Peek_Markup))
+                                                                                                                                                                                                                   Path_ReportView Text) q) x) (peek y :: Forest (Peek Markup)))
                         [] -> error "No Path_ReportView__reportBriefItems field found"
                         ps -> error $ ("Multiple Path_ReportView__reportBriefItems fields found: " ++ show ps),
                     case filter (\p -> case p of
@@ -15013,7 +14847,7 @@ instance IsPathNode ReportView
                                                                                                                                                                                                                                        Path_ReportView Markup) q) x
                                                                                                                                          Peek_Markup_Text q
                                                                                                                                                           x -> Peek_ReportView_Text ((Path_ReportView__reportInspectionLocation :: Path_Markup Text ->
-                                                                                                                                                                                                                                   Path_ReportView Text) q) x) (peek y :: Forest Peek_Markup))
+                                                                                                                                                                                                                                   Path_ReportView Text) q) x) (peek y :: Forest (Peek Markup)))
                         [] -> error "No Path_ReportView__reportInspectionLocation field found"
                         ps -> error $ ("Multiple Path_ReportView__reportInspectionLocation fields found: " ++ show ps),
                     case filter (\p -> case p of
@@ -15102,7 +14936,8 @@ instance IsPathNode ReportView
                                                                                                                                                                                                                Path_ReportView URI) q) x
                                                                                                                                 Peek_ReportElems_Text q
                                                                                                                                                       x -> Peek_ReportView_Text ((Path_ReportView__reportBody :: Path_ReportElems Text ->
-                                                                                                                                                                                                                 Path_ReportView Text) q) x) (peek y :: Forest Peek_ReportElems))
+                                                                                                                                                                                                                 Path_ReportView Text) q) x) (peek y :: Forest (Peek (Order ReportElemID
+                                                                                                                                                                                                                                                                            ReportElem))))
                         [] -> error "No Path_ReportView__reportBody field found"
                         ps -> error $ ("Multiple Path_ReportView__reportBody fields found: " ++ show ps),
                     case filter (\p -> case p of
@@ -15136,7 +14971,9 @@ instance IsPathNode ReportView
                                                                                                                                                                                                                                                                 Markup)))) q) x
                                                                                                                                     Peek_MarkupPairs_Text q
                                                                                                                                                           x -> Peek_ReportView_Text ((Path_ReportView__reportGlossary :: Path_MarkupPairs Text ->
-                                                                                                                                                                                                                         Path_ReportView Text) q) x) (peek y :: Forest Peek_MarkupPairs))
+                                                                                                                                                                                                                         Path_ReportView Text) q) x) (peek y :: Forest (Peek (Order MarkupPairID
+                                                                                                                                                                                                                                                                                    ((Markup,
+                                                                                                                                                                                                                                                                                      Markup))))))
                         [] -> error "No Path_ReportView__reportGlossary field found"
                         ps -> error $ ("Multiple Path_ReportView__reportGlossary fields found: " ++ show ps),
                     case filter (\p -> case p of
@@ -15170,7 +15007,9 @@ instance IsPathNode ReportView
                                                                                                                                                                                                                                                               Markup)))) q) x
                                                                                                                                    Peek_MarkupPairs_Text q
                                                                                                                                                          x -> Peek_ReportView_Text ((Path_ReportView__reportSources :: Path_MarkupPairs Text ->
-                                                                                                                                                                                                                       Path_ReportView Text) q) x) (peek y :: Forest Peek_MarkupPairs))
+                                                                                                                                                                                                                       Path_ReportView Text) q) x) (peek y :: Forest (Peek (Order MarkupPairID
+                                                                                                                                                                                                                                                                                  ((Markup,
+                                                                                                                                                                                                                                                                                    Markup))))))
                         [] -> error "No Path_ReportView__reportSources field found"
                         ps -> error $ ("Multiple Path_ReportView__reportSources fields found: " ++ show ps),
                     case filter (\p -> case p of
@@ -15186,7 +15025,7 @@ instance IsPathNode ReportView
                                                                                                                                                                                                                                          Path_ReportView Markup) q) x
                                                                                                                                           Peek_Markup_Text q
                                                                                                                                                            x -> Peek_ReportView_Text ((Path_ReportView__reportLetterOfTransmittal :: Path_Markup Text ->
-                                                                                                                                                                                                                                     Path_ReportView Text) q) x) (peek y :: Forest Peek_Markup))
+                                                                                                                                                                                                                                     Path_ReportView Text) q) x) (peek y :: Forest (Peek Markup)))
                         [] -> error "No Path_ReportView__reportLetterOfTransmittal field found"
                         ps -> error $ ("Multiple Path_ReportView__reportLetterOfTransmittal fields found: " ++ show ps),
                     case filter (\p -> case p of
@@ -15202,7 +15041,7 @@ instance IsPathNode ReportView
                                                                                                                                                                                                                          Path_ReportView Markup) q) x
                                                                                                                                   Peek_Markup_Text q
                                                                                                                                                    x -> Peek_ReportView_Text ((Path_ReportView__reportScopeOfWork :: Path_Markup Text ->
-                                                                                                                                                                                                                     Path_ReportView Text) q) x) (peek y :: Forest Peek_Markup))
+                                                                                                                                                                                                                     Path_ReportView Text) q) x) (peek y :: Forest (Peek Markup)))
                         [] -> error "No Path_ReportView__reportScopeOfWork field found"
                         ps -> error $ ("Multiple Path_ReportView__reportScopeOfWork fields found: " ++ show ps),
                     case filter (\p -> case p of
@@ -15226,7 +15065,8 @@ instance IsPathNode ReportView
                                                                                                                                                                                                                                                         Markup)) q) x
                                                                                                                                      Peek_Markups_Text q
                                                                                                                                                        x -> Peek_ReportView_Text ((Path_ReportView__reportCertification :: Path_Markups Text ->
-                                                                                                                                                                                                                           Path_ReportView Text) q) x) (peek y :: Forest Peek_Markups))
+                                                                                                                                                                                                                           Path_ReportView Text) q) x) (peek y :: Forest (Peek (Order MarkupID
+                                                                                                                                                                                                                                                                                      Markup))))
                         [] -> error "No Path_ReportView__reportCertification field found"
                         ps -> error $ ("Multiple Path_ReportView__reportCertification fields found: " ++ show ps),
                     case filter (\p -> case p of
@@ -15250,7 +15090,8 @@ instance IsPathNode ReportView
                                                                                                                                                                                                                                                                   Markup)) q) x
                                                                                                                                           Peek_Markups_Text q
                                                                                                                                                             x -> Peek_ReportView_Text ((Path_ReportView__reportLimitingConditions :: Path_Markups Text ->
-                                                                                                                                                                                                                                     Path_ReportView Text) q) x) (peek y :: Forest Peek_Markups))
+                                                                                                                                                                                                                                     Path_ReportView Text) q) x) (peek y :: Forest (Peek (Order MarkupID
+                                                                                                                                                                                                                                                                                                Markup))))
                         [] -> error "No Path_ReportView__reportLimitingConditions field found"
                         ps -> error $ ("Multiple Path_ReportView__reportLimitingConditions fields found: " ++ show ps),
                     case filter (\p -> case p of
@@ -15266,7 +15107,7 @@ instance IsPathNode ReportView
                                                                                                                                                                                                                              Path_ReportView Markup) q) x
                                                                                                                                     Peek_Markup_Text q
                                                                                                                                                      x -> Peek_ReportView_Text ((Path_ReportView__reportPrivacyPolicy :: Path_Markup Text ->
-                                                                                                                                                                                                                         Path_ReportView Text) q) x) (peek y :: Forest Peek_Markup))
+                                                                                                                                                                                                                         Path_ReportView Text) q) x) (peek y :: Forest (Peek Markup)))
                         [] -> error "No Path_ReportView__reportPrivacyPolicy field found"
                         ps -> error $ ("Multiple Path_ReportView__reportPrivacyPolicy fields found: " ++ show ps),
                     case filter (\p -> case p of
@@ -15288,7 +15129,7 @@ instance IsPathNode ReportView
                                                                                                                                                                                                                    Path_ReportView Text) q) x
                                                                                                                                  Peek_Permissions_UserId q
                                                                                                                                                          x -> Peek_ReportView_UserId ((Path_ReportView__reportPerms :: Path_Permissions UserId ->
-                                                                                                                                                                                                                       Path_ReportView UserId) q) x) (peek y :: Forest Peek_Permissions))
+                                                                                                                                                                                                                       Path_ReportView UserId) q) x) (peek y :: Forest (Peek Permissions)))
                         [] -> error "No Path_ReportView__reportPerms field found"
                         ps -> error $ ("Multiple Path_ReportView__reportPerms fields found: " ++ show ps),
                     case filter (\p -> case p of
@@ -15298,7 +15139,7 @@ instance IsPathNode ReportView
                                                                     in Node (Peek_ReportView_Integer p y) (forestMap (\v -> case v of
                                                                                                                                 Peek_Integer_Integer q
                                                                                                                                                      x -> Peek_ReportView_Integer ((Path_ReportView__reportRevision :: Path_Integer Integer ->
-                                                                                                                                                                                                                       Path_ReportView Integer) q) x) (peek y :: Forest Peek_Integer))
+                                                                                                                                                                                                                       Path_ReportView Integer) q) x) (peek y :: Forest (Peek Integer)))
                         [] -> error "No Path_ReportView__reportRevision field found"
                         ps -> error $ ("Multiple Path_ReportView__reportRevision fields found: " ++ show ps),
                     case filter (\p -> case p of
@@ -15308,7 +15149,7 @@ instance IsPathNode ReportView
                                                                    in Node (Peek_ReportView_Int64 p y) (forestMap (\v -> case v of
                                                                                                                              Peek_Int64_Int64 q
                                                                                                                                               x -> Peek_ReportView_Int64 ((Path_ReportView__reportCreated :: Path_Int64 Int64 ->
-                                                                                                                                                                                                             Path_ReportView Int64) q) x) (peek y :: Forest Peek_Int64))
+                                                                                                                                                                                                             Path_ReportView Int64) q) x) (peek y :: Forest (Peek Int64)))
                         [] -> error "No Path_ReportView__reportCreated field found"
                         ps -> error $ ("Multiple Path_ReportView__reportCreated fields found: " ++ show ps),
                     case filter (\p -> case p of
@@ -15324,7 +15165,7 @@ instance IsPathNode ReportView
                                                                                                                                                                                                                            Path_ReportView Branding) q) x
                                                                                                                                  Peek_Branding_Text q
                                                                                                                                                     x -> Peek_ReportView_Text ((Path_ReportView__reportBranding :: Path_Branding Text ->
-                                                                                                                                                                                                                   Path_ReportView Text) q) x) (peek y :: Forest Peek_Branding))
+                                                                                                                                                                                                                   Path_ReportView Text) q) x) (peek y :: Forest (Peek Branding)))
                         [] -> error "No Path_ReportView__reportBranding field found"
                         ps -> error $ ("Multiple Path_ReportView__reportBranding fields found: " ++ show ps),
                     case filter (\p -> case p of
@@ -15340,7 +15181,7 @@ instance IsPathNode ReportView
                                                                                                                                                                                                                                Path_ReportView JSONText) q) x
                                                                                                                                    Peek_ReportStatus_ReportStatus q
                                                                                                                                                                   x -> Peek_ReportView_ReportStatus ((Path_ReportView__reportStatus :: Path_ReportStatus ReportStatus ->
-                                                                                                                                                                                                                                       Path_ReportView ReportStatus) q) x) (peek y :: Forest Peek_ReportStatus))
+                                                                                                                                                                                                                                       Path_ReportView ReportStatus) q) x) (peek y :: Forest (Peek ReportStatus)))
                         [] -> error "No Path_ReportView__reportStatus field found"
                         ps -> error $ ("Multiple Path_ReportView__reportStatus fields found: " ++ show ps),
                     case filter (\p -> case p of
@@ -15356,7 +15197,7 @@ instance IsPathNode ReportView
                                                                                                                                                                                                            Path_ReportView Bool) q) x
                                                                                                                              Peek_Bool_JSONText q
                                                                                                                                                 x -> Peek_ReportView_JSONText ((Path_ReportView__reportRedacted :: Path_Bool JSONText ->
-                                                                                                                                                                                                                   Path_ReportView JSONText) q) x) (peek y :: Forest Peek_Bool))
+                                                                                                                                                                                                                   Path_ReportView JSONText) q) x) (peek y :: Forest (Peek Bool)))
                         [] -> error "No Path_ReportView__reportRedacted field found"
                         ps -> error $ ("Multiple Path_ReportView__reportRedacted fields found: " ++ show ps),
                     case filter (\p -> case p of
@@ -15375,7 +15216,7 @@ instance IsPathNode ReportView
                                                                                                                                                                                                                            Path_ReportView JSONText) q) x
                                                                                                                                  Peek_ReportFlags_ReportFlags q
                                                                                                                                                               x -> Peek_ReportView_ReportFlags ((Path_ReportView__reportFlags :: Path_ReportFlags ReportFlags ->
-                                                                                                                                                                                                                                 Path_ReportView ReportFlags) q) x) (peek y :: Forest Peek_ReportFlags))
+                                                                                                                                                                                                                                 Path_ReportView ReportFlags) q) x) (peek y :: Forest (Peek ReportFlags)))
                         [] -> error "No Path_ReportView__reportFlags field found"
                         ps -> error $ ("Multiple Path_ReportView__reportFlags fields found: " ++ show ps),
                     case filter (\p -> case p of
@@ -15385,7 +15226,7 @@ instance IsPathNode ReportView
                                                                 in Node (Peek_ReportView_UUID p y) (forestMap (\v -> case v of
                                                                                                                          Peek_UUID_UUID q
                                                                                                                                         x -> Peek_ReportView_UUID ((Path_ReportView__reportUUID :: Path_UUID UUID ->
-                                                                                                                                                                                                   Path_ReportView UUID) q) x) (peek y :: Forest Peek_UUID))
+                                                                                                                                                                                                   Path_ReportView UUID) q) x) (peek y :: Forest (Peek UUID)))
                         [] -> error "No Path_ReportView__reportUUID field found"
                         ps -> error $ ("Multiple Path_ReportView__reportUUID fields found: " ++ show ps),
                     case filter (\p -> case p of
@@ -15401,7 +15242,7 @@ instance IsPathNode ReportView
                                                                                                                                                                                                                          Path_ReportView Bool) q) x
                                                                                                                                     Peek_Bool_JSONText q
                                                                                                                                                        x -> Peek_ReportView_JSONText ((Path_ReportView__reportOrderByItemName :: Path_Bool JSONText ->
-                                                                                                                                                                                                                                 Path_ReportView JSONText) q) x) (peek y :: Forest Peek_Bool))
+                                                                                                                                                                                                                                 Path_ReportView JSONText) q) x) (peek y :: Forest (Peek Bool)))
                         [] -> error "No Path_ReportView__reportOrderByItemName field found"
                         ps -> error $ ("Multiple Path_ReportView__reportOrderByItemName fields found: " ++ show ps),
                     case filter (\p -> case p of
@@ -15417,7 +15258,7 @@ instance IsPathNode ReportView
                                                                                                                                                                                                                          Path_ReportView Bool) q) x
                                                                                                                                     Peek_Bool_JSONText q
                                                                                                                                                        x -> Peek_ReportView_JSONText ((Path_ReportView__reportDisplayItemName :: Path_Bool JSONText ->
-                                                                                                                                                                                                                                 Path_ReportView JSONText) q) x) (peek y :: Forest Peek_Bool))
+                                                                                                                                                                                                                                 Path_ReportView JSONText) q) x) (peek y :: Forest (Peek Bool)))
                         [] -> error "No Path_ReportView__reportDisplayItemName field found"
                         ps -> error $ ("Multiple Path_ReportView__reportDisplayItemName fields found: " ++ show ps),
                     case filter (\p -> case p of
@@ -15430,11 +15271,41 @@ instance IsPathNode ReportView
                                                                                                                                                                                                                                              Path_ReportView Int) q) x
                                                                                                                                                Peek_ReportStandard_ReportStandard q
                                                                                                                                                                                   x -> Peek_ReportView_ReportStandard ((Path_ReportView__reportStandardsVersion :: Path_ReportStandard ReportStandard ->
-                                                                                                                                                                                                                                                                   Path_ReportView ReportStandard) q) x) (peek y :: Forest Peek_ReportStandard))
+                                                                                                                                                                                                                                                                   Path_ReportView ReportStandard) q) x) (peek y :: Forest (Peek ReportStandard)))
                         [] -> error "No Path_ReportView__reportStandardsVersion field found"
                         ps -> error $ ("Multiple Path_ReportView__reportStandardsVersion fields found: " ++ show ps)]
 instance IsPathNode Item
-    where type Peek Item = Peek_Item
+    where data Peek Item
+              = Peek_Item_String (Path_Item ([Char])) ([Char])
+              | Peek_Item_Bool (Path_Item Bool) Bool
+              | Peek_Item_Double (Path_Item Double) Double
+              | Peek_Item_Dimension (Path_Item Dimension) Dimension
+              | Peek_Item_ImageCrop (Path_Item ImageCrop) ImageCrop
+              | Peek_Item_ImageSize (Path_Item ImageSize) ImageSize
+              | Peek_Item_Units (Path_Item Units) Units
+              | Peek_Item_ImageFile (Path_Item ImageFile) ImageFile
+              | Peek_Item_JSONText (Path_Item JSONText) JSONText
+              | Peek_Item_Markup (Path_Item Markup) Markup
+              | Peek_Item_EUI (Path_Item (Either URI ImageFile))
+                              (Either URI ImageFile)
+              | Peek_Item_MEUI (Path_Item (Maybe (Either URI ImageFile)))
+                               (Maybe (Either URI ImageFile))
+              | Peek_Item_MaybeImageFile (Path_Item (Maybe ImageFile))
+                                         (Maybe ImageFile)
+              | Peek_Item_ReportImage (Path_Item ReportImage) ReportImage
+              | Peek_Item_ReportImages (Path_Item (Order ReportImageID
+                                                         ReportImage))
+                                       (Order ReportImageID ReportImage)
+              | Peek_Item_ReportImageView (Path_Item ReportImageView)
+                                          ReportImageView
+              | Peek_Item_SaneSizeImageSize (Path_Item (SaneSize ImageSize))
+                                            (SaneSize ImageSize)
+              | Peek_Item_Item (Path_Item Item) Item
+              | Peek_Item_MIM (Path_Item (Map ItemFieldName Markup))
+                              (Map ItemFieldName Markup)
+              | Peek_Item_URI (Path_Item URI) URI
+              | Peek_Item_Text (Path_Item Text) Text
+              deriving (Eq, Show)
           peek x = [case filter (\p -> case p of
                                            Path_Item_itemName _ -> True
                                            _ -> False) (pathsOf x (undefined :: Proxy Text)) :: [Path_Item Text] of
@@ -15445,7 +15316,7 @@ instance IsPathNode Item
                                                                                                                                                                              Path_Item JSONText) q) x
                                                                                                           Peek_Text_Text q
                                                                                                                          x -> Peek_Item_Text ((Path_Item_itemName :: Path_Text Text ->
-                                                                                                                                                                     Path_Item Text) q) x) (peek y :: Forest Peek_Text))
+                                                                                                                                                                     Path_Item Text) q) x) (peek y :: Forest (Peek Text)))
                         [] -> error "No Path_Item_itemName field found"
                         ps -> error $ ("Multiple Path_Item_itemName fields found: " ++ show ps),
                     case filter (\p -> case p of
@@ -15469,7 +15340,8 @@ instance IsPathNode Item
                                                                                                                                                                             Markup)) q) x
                                                                                                        Peek_MIM_Text q
                                                                                                                      x -> Peek_Item_Text ((Path_Item_fields :: Path_MIM Text ->
-                                                                                                                                                               Path_Item Text) q) x) (peek y :: Forest Peek_MIM))
+                                                                                                                                                               Path_Item Text) q) x) (peek y :: Forest (Peek (Map ItemFieldName
+                                                                                                                                                                                                                  Markup))))
                         [] -> error "No Path_Item_fields field found"
                         ps -> error $ ("Multiple Path_Item_fields fields found: " ++ show ps),
                     case filter (\p -> case p of
@@ -15542,11 +15414,92 @@ instance IsPathNode Item
                                                                                                                                                                                Path_Item URI) q) x
                                                                                                                 Peek_ReportImages_Text q
                                                                                                                                        x -> Peek_Item_Text ((Path_Item_images :: Path_ReportImages Text ->
-                                                                                                                                                                                 Path_Item Text) q) x) (peek y :: Forest Peek_ReportImages))
+                                                                                                                                                                                 Path_Item Text) q) x) (peek y :: Forest (Peek (Order ReportImageID
+                                                                                                                                                                                                                                      ReportImage))))
                         [] -> error "No Path_Item_images field found"
                         ps -> error $ ("Multiple Path_Item_images fields found: " ++ show ps)]
 instance IsPathNode ReportMap
-    where type Peek ReportMap = Peek_ReportMap
+    where data Peek ReportMap
+              = Peek_ReportMap_String (Path_ReportMap ([Char])) ([Char])
+              | Peek_ReportMap_Int64 (Path_ReportMap Int64) Int64
+              | Peek_ReportMap_Int (Path_ReportMap Int) Int
+              | Peek_ReportMap_Bool (Path_ReportMap Bool) Bool
+              | Peek_ReportMap_Double (Path_ReportMap Double) Double
+              | Peek_ReportMap_Dimension (Path_ReportMap Dimension) Dimension
+              | Peek_ReportMap_ImageCrop (Path_ReportMap ImageCrop) ImageCrop
+              | Peek_ReportMap_ImageSize (Path_ReportMap ImageSize) ImageSize
+              | Peek_ReportMap_Units (Path_ReportMap Units) Units
+              | Peek_ReportMap_ImageFile (Path_ReportMap ImageFile) ImageFile
+              | Peek_ReportMap_Integer (Path_ReportMap Integer) Integer
+              | Peek_ReportMap_JSONText (Path_ReportMap JSONText) JSONText
+              | Peek_ReportMap_Markup (Path_ReportMap Markup) Markup
+              | Peek_ReportMap_Permissions (Path_ReportMap Permissions)
+                                           Permissions
+              | Peek_ReportMap_UserIds (Path_ReportMap ([UserId])) ([UserId])
+              | Peek_ReportMap_AbbrevPair (Path_ReportMap ((CIString, Markup)))
+                                          ((CIString, Markup))
+              | Peek_ReportMap_AbbrevPairs (Path_ReportMap (Order AbbrevPairID
+                                                                  ((CIString, Markup))))
+                                           (Order AbbrevPairID ((CIString, Markup)))
+              | Peek_ReportMap_Author (Path_ReportMap Author) Author
+              | Peek_ReportMap_Authors (Path_ReportMap (Order AuthorID Author))
+                                       (Order AuthorID Author)
+              | Peek_ReportMap_Branding (Path_ReportMap Branding) Branding
+              | Peek_ReportMap_MarkupPair (Path_ReportMap ((Markup, Markup)))
+                                          ((Markup, Markup))
+              | Peek_ReportMap_MarkupPairs (Path_ReportMap (Order MarkupPairID
+                                                                  ((Markup, Markup))))
+                                           (Order MarkupPairID ((Markup, Markup)))
+              | Peek_ReportMap_Markups (Path_ReportMap (Order MarkupID Markup))
+                                       (Order MarkupID Markup)
+              | Peek_ReportMap_MaybeReportIntendedUse (Path_ReportMap (Maybe ReportIntendedUse))
+                                                      (Maybe ReportIntendedUse)
+              | Peek_ReportMap_Report (Path_ReportMap Report) Report
+              | Peek_ReportMap_ReportElem (Path_ReportMap ReportElem) ReportElem
+              | Peek_ReportMap_ReportElems (Path_ReportMap (Order ReportElemID
+                                                                  ReportElem))
+                                           (Order ReportElemID ReportElem)
+              | Peek_ReportMap_ReportFlags (Path_ReportMap ReportFlags)
+                                           ReportFlags
+              | Peek_ReportMap_ReportStandard (Path_ReportMap ReportStandard)
+                                              ReportStandard
+              | Peek_ReportMap_ReportStatus (Path_ReportMap ReportStatus)
+                                            ReportStatus
+              | Peek_ReportMap_ReportValueApproachInfo (Path_ReportMap ReportValueApproachInfo)
+                                                       ReportValueApproachInfo
+              | Peek_ReportMap_ReportValueTypeInfo (Path_ReportMap ReportValueTypeInfo)
+                                                   ReportValueTypeInfo
+              | Peek_ReportMap_EUI (Path_ReportMap (Either URI ImageFile))
+                                   (Either URI ImageFile)
+              | Peek_ReportMap_MEUI (Path_ReportMap (Maybe (Either URI
+                                                                   ImageFile)))
+                                    (Maybe (Either URI ImageFile))
+              | Peek_ReportMap_MaybeImageFile (Path_ReportMap (Maybe ImageFile))
+                                              (Maybe ImageFile)
+              | Peek_ReportMap_ReportImage (Path_ReportMap ReportImage)
+                                           ReportImage
+              | Peek_ReportMap_ReportImages (Path_ReportMap (Order ReportImageID
+                                                                   ReportImage))
+                                            (Order ReportImageID ReportImage)
+              | Peek_ReportMap_ReadOnlyFilePath (Path_ReportMap (ReadOnly ([Char])))
+                                                (ReadOnly ([Char]))
+              | Peek_ReportMap_ReportImageView (Path_ReportMap ReportImageView)
+                                               ReportImageView
+              | Peek_ReportMap_ReportView (Path_ReportMap ReportView) ReportView
+              | Peek_ReportMap_SaneSizeImageSize (Path_ReportMap (SaneSize ImageSize))
+                                                 (SaneSize ImageSize)
+              | Peek_ReportMap_Item (Path_ReportMap Item) Item
+              | Peek_ReportMap_MIM (Path_ReportMap (Map ItemFieldName Markup))
+                                   (Map ItemFieldName Markup)
+              | Peek_ReportMap_MRR (Path_ReportMap (Map ReportID Report))
+                                   (Map ReportID Report)
+              | Peek_ReportMap_ReportMap (Path_ReportMap ReportMap) ReportMap
+              | Peek_ReportMap_CIString (Path_ReportMap CIString) CIString
+              | Peek_ReportMap_URI (Path_ReportMap URI) URI
+              | Peek_ReportMap_Text (Path_ReportMap Text) Text
+              | Peek_ReportMap_UserId (Path_ReportMap UserId) UserId
+              | Peek_ReportMap_UUID (Path_ReportMap UUID) UUID
+              deriving (Eq, Show)
           peek x = [case filter (\p -> case p of
                                            Path_ReportMap_unReportMap _ -> True
                                            _ -> False) (pathsOf x (undefined :: Proxy (Map ReportID
@@ -15729,11 +15682,16 @@ instance IsPathNode ReportMap
                                                                                                                                                                                                  Path_ReportMap UserId) q) x
                                                                                                                       Peek_MRR_UUID q
                                                                                                                                     x -> Peek_ReportMap_UUID ((Path_ReportMap_unReportMap :: Path_MRR UUID ->
-                                                                                                                                                                                             Path_ReportMap UUID) q) x) (peek y :: Forest Peek_MRR))
+                                                                                                                                                                                             Path_ReportMap UUID) q) x) (peek y :: Forest (Peek (Map ReportID
+                                                                                                                                                                                                                                                     Report))))
                         [] -> error "No Path_ReportMap_unReportMap field found"
                         ps -> error $ ("Multiple Path_ReportMap_unReportMap fields found: " ++ show ps)]
 instance IsPathNode CIString
-    where type Peek CIString = Peek_CIString
+    where data Peek CIString
+              = Peek_CIString_JSONText (Path_CIString JSONText) JSONText
+              | Peek_CIString_CIString (Path_CIString CIString) CIString
+              | Peek_CIString_Text (Path_CIString Text) Text
+              deriving (Eq, Show)
           peek x = case filter (\p -> case p of
                                           Path_CIString_View _ -> True
                                           _ -> False) (pathsOf x (undefined :: Proxy Text)) :: [Path_CIString Text] of
@@ -15744,13 +15702,18 @@ instance IsPathNode CIString
                                                                                                                                                                                      Path_CIString JSONText) q) x
                                                                                                               Peek_Text_Text q
                                                                                                                              x -> Peek_CIString_Text ((Path_CIString_View :: Path_Text Text ->
-                                                                                                                                                                             Path_CIString Text) q) x) (peek y :: Forest Peek_Text))]
+                                                                                                                                                                             Path_CIString Text) q) x) (peek y :: Forest (Peek Text)))]
                        [] -> [] :: Forest (Peek CIString)
 instance IsPathNode URI
-    where type Peek URI = Peek_URI
+    where data Peek URI
+              = Peek_URI_URI (Path_URI URI) URI
+              deriving (Eq, Show)
           peek _ = []
 instance IsPathNode Text
-    where type Peek Text = Peek_Text
+    where data Peek Text
+              = Peek_Text_JSONText (Path_Text JSONText) JSONText
+              | Peek_Text_Text (Path_Text Text) Text
+              deriving (Eq, Show)
           peek x = case filter (\p -> case p of
                                           Path_Text_View _ -> True
                                           _ -> False) (pathsOf x (undefined :: Proxy JSONText)) :: [Path_Text JSONText] of
@@ -15758,13 +15721,17 @@ instance IsPathNode Text
                                                   in [Node (Peek_Text_JSONText p y) (forestMap (\v -> case v of
                                                                                                           Peek_JSONText_JSONText q
                                                                                                                                  x -> Peek_Text_JSONText ((Path_Text_View :: Path_JSONText JSONText ->
-                                                                                                                                                                             Path_Text JSONText) q) x) (peek y :: Forest Peek_JSONText))]
+                                                                                                                                                                             Path_Text JSONText) q) x) (peek y :: Forest (Peek JSONText)))]
                        [] -> [] :: Forest (Peek Text)
 instance IsPathNode UserId
-    where type Peek UserId = Peek_UserId
+    where data Peek UserId
+              = Peek_UserId_UserId (Path_UserId UserId) UserId
+              deriving (Eq, Show)
           peek _ = []
 instance IsPathNode UUID
-    where type Peek UUID = Peek_UUID
+    where data Peek UUID
+              = Peek_UUID_UUID (Path_UUID UUID) UUID
+              deriving (Eq, Show)
           peek _ = []
 instance IsPathType (Path_Author a)
     where idPath = Path_Author

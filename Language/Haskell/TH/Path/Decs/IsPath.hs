@@ -29,13 +29,14 @@ import Language.Haskell.TH
 import Language.Haskell.TH.Context (ContextM, reifyInstancesWithContext)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Core (IsPathNode(Peek, peek), IsPath(..), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
-import Language.Haskell.TH.Path.Decs.Common (asConQ, asName, asType, asTypeQ, bestTypeName, clauses, makePathCon, makePathType, makePeekCon, makePeekType,
+import Language.Haskell.TH.Path.Decs.Common (asConQ, asName, asType, asTypeQ, bestPathTypeName, bestTypeName, clauses,
+                                             makePathCon, makePathType, makePeekCon,
                                              ModelType(ModelType), PathCon, pathConNameOfField, forestMap, PathCon(PathCon))
 import Language.Haskell.TH.Path.Graph (SelfPath, SinkType)
 import Language.Haskell.TH.Path.Order (Order, Path_OMap(..))
 import Language.Haskell.TH.Path.View (viewInstanceType)
 import Language.Haskell.TH.Syntax as TH (Quasi(qReify))
-import Language.Haskell.TH.TypeGraph.Expand (expandType)
+import Language.Haskell.TH.TypeGraph.Expand (expandType, unE)
 import Language.Haskell.TH.TypeGraph.TypeGraph (pathKeys, TypeGraph)
 import Language.Haskell.TH.TypeGraph.TypeInfo (fieldVertex, TypeInfo, typeVertex)
 import Language.Haskell.TH.TypeGraph.Vertex (bestName, etype, TGV, TGVSimple, vsimple)
@@ -43,16 +44,28 @@ import Language.Haskell.TH.TypeGraph.Vertex (bestName, etype, TGV, TGVSimple, vs
 doIsPathNode :: forall m. (MonadWriter [Dec] m, ContextM m, MonadReaders TypeInfo m, MonadReaders TypeGraph m) =>
                 TGVSimple -> m ()
 doIsPathNode v =
-    let typ = asType v in
     case bestTypeName v of
-      Just tname -> do
+      Just _tname -> do
         (pnc :: [ClauseQ]) <- peekClauses v
-        runQ (instanceD (cxt []) (appT (conT ''IsPathNode) (pure typ))
-                [tySynInstD ''Peek (tySynEqn [pure typ] (asTypeQ (makePeekType tname))),
+        (cons :: [ConQ]) <- peekCons
+        runQ (instanceD (cxt []) (appT (conT ''IsPathNode) (asTypeQ v))
+                [dataInstD (cxt []) ''Peek [asTypeQ v] cons [''Eq, ''Show],
                  funD 'peek (case pnc of
                                [] -> [clause [wildP] (normalB [| [] |]) []]
                                _ -> pnc)]) >>= tell . (: [])
       Nothing -> return ()
+    where
+      peekCons :: m [ConQ]
+      peekCons = (concat . List.map (doPair v) . toList) <$> (pathKeys v)
+      doPair :: TGVSimple -> TGVSimple -> [ConQ]
+      doPair v g =
+          let Just (vp, _) = bestPathTypeName v in
+          case (bestName v, bestName g) of
+            (Just vn, Just gn) ->
+                [normalC (asName (makePeekCon (ModelType vn) (ModelType gn)))
+                         [(,) <$> notStrict <*> [t|$(asTypeQ vp) $(pure (view (etype . unE) g))|],
+                          (,) <$> notStrict <*> pure (view (etype . unE) g)]]
+            _ -> []
 
 peekClauses :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) =>
                TGVSimple -> m [ClauseQ]
@@ -168,7 +181,7 @@ doPeekNodesOfField x v f pcname =
      runQ [| case filter $matchpath (pathsOf $(varE x) (undefined :: Proxy $(pure (asType f)))) :: [$(asTypeQ (makePathType tname)) $(asTypeQ f)] of
                $(listP [asP p (conP (asName pcname) [wildP])] :: PatQ) ->
                    let [y] = toListOf (toLens $(varE p)) $(varE x) :: [$(pure (asType f))] in
-                   Node ($(asConQ (makePeekCon tname wname)) $(varE p) y) (forestMap $(pure peeklift) (peek y :: Forest $(asTypeQ (makePeekType wname))))
+                   Node ($(asConQ (makePeekCon tname wname)) $(varE p) y) (forestMap $(pure peeklift) (peek y :: Forest (Peek $(asTypeQ f))))
                [] -> error $(litE (stringL ("No " ++ show (asName pcname) ++ " field found")))
                ps -> error $ $(litE (stringL ("Multiple " ++ show (asName pcname) ++ " fields found: "))) ++ show ps |]
 
@@ -192,7 +205,7 @@ doPeekNodesOfOrder v wtyp =
                                  case path of
                                    $(asP p (conP (asName pcname) [varP k, wildP]) :: PatQ) ->
                                        let [y] = toListOf (toLens $(varE p)) x :: [$(pure wtyp)] in
-                                       Node ($(asConQ (makePeekCon tname wname)) $(varE p) y) (forestMap $(pure peeklift) (peek y :: Forest $(asTypeQ (makePeekType wname))))
+                                       Node ($(asConQ (makePeekCon tname wname)) $(varE p) y) (forestMap $(pure peeklift) (peek y :: Forest (Peek $(asTypeQ wtyp))))
                                    _ -> error ("doPeekNodesOfOrder: " ++ show path)) paths) :: Forest (Peek $(asTypeQ v)) |] >>= return . clauses
 
 doPeekNodesOfMap :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => TGVSimple -> Type -> m [ClauseQ]
@@ -210,7 +223,7 @@ doPeekNodesOfMap v wtyp =
                                  case path of
                                    $(asP p (conP (asName pcname) [varP k, wildP]) :: PatQ) ->
                                        let [y] = toListOf (toLens $(varE p)) x :: [$(pure wtyp)] in
-                                       Node ($(asConQ (makePeekCon tname wname)) $(varE p) y) (forestMap $(pure peeklift) (peek y :: Forest $(asTypeQ (makePeekType wname))))
+                                       Node ($(asConQ (makePeekCon tname wname)) $(varE p) y) (forestMap $(pure peeklift) (peek y :: Forest (Peek $(asTypeQ wtyp))))
                                    _ -> error ("doPeekNodesOfMap: " ++ show path)) paths) :: Forest (Peek $(asTypeQ  v)) |] >>= return . clauses
 
 doPeekNodeOf :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => TGVSimple -> Type -> PathCon -> m [ClauseQ]
@@ -227,6 +240,6 @@ doPeekNodeOf v wtyp pcname =
      runQ [d| _f x = (case filter $matchpath (pathsOf x (undefined :: Proxy $(asTypeQ wtyp))) :: [$(asTypeQ (makePathType tname)) $(asTypeQ wtyp)] of
                         $(listP [asP p (conP (asName pcname) [wildP])] :: PatQ) ->
                             let [y] = toListOf (toLens $(varE p)) x :: [$(pure wtyp)] in
-                            [Node ($(asConQ (makePeekCon tname wname)) $(varE p) y) (forestMap $(pure peeklift) (peek y :: Forest $(asTypeQ (makePeekType wname))))]
+                            [Node ($(asConQ (makePeekCon tname wname)) $(varE p) y) (forestMap $(pure peeklift) (peek y :: Forest (Peek $(asTypeQ wtyp))))]
                         [] -> [])  :: Forest (Peek $(asTypeQ  v)) |] >>= return . clauses
 

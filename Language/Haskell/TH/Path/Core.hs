@@ -101,7 +101,7 @@ class IsPathType p where
                 -- @toLens idPath == iso id id@.
 
 class IsPathNode s where
-    type Peek s
+    data Peek s
     peek :: s -> Forest (Peek s)
 
 -- Primitive path types
