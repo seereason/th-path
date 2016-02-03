@@ -37,7 +37,7 @@ import Language.Haskell.TH.Path.Decs.Common (asConQ, asName, asTypeQ, bestNames,
 import Language.Haskell.TH.Path.Decs.IsPath (doIsPathNode)
 import Language.Haskell.TH.Path.Decs.PathsOf (pathInstanceDecs)
 import Language.Haskell.TH.Path.Decs.PathType (pathType)
-import Language.Haskell.TH.Path.Decs.PVType (doPVType)
+import Language.Haskell.TH.Path.Decs.PeekType (doPeekType)
 import Language.Haskell.TH.Path.Graph (SelfPath, SinkType)
 import Language.Haskell.TH.Path.View (viewInstanceType)
 import Language.Haskell.TH.Syntax as TH (VarStrictType)
@@ -48,7 +48,7 @@ import Language.Haskell.TH.TypeGraph.TypeInfo (fieldVertex, TypeInfo, typeVertex
 import Language.Haskell.TH.TypeGraph.Vertex (etype, TGVSimple, TypeGraphVertex, typeNames, vsimple)
 
 pathDecs :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => m [Dec]
-pathDecs = execWriterT $ allPathStarts >>= \ps -> Foldable.mapM_ doNode ps >> doPVType ps
+pathDecs = execWriterT $ allPathStarts >>= \ps -> Foldable.mapM_ doNode ps >> doPeekType ps
 
 doNode :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) => TGVSimple -> m ()
 doNode v = do

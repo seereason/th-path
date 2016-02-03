@@ -15,7 +15,7 @@ module Language.Haskell.TH.Path.Core
     ( -- * Type classes and associated types
       IsPath(toLens, pathsOf, PathType)
     , IsPathType(idPath)
-    , IsPathNode(PVType, pvNodes)
+    , IsPathNode(PeekType, peekNodes)
 
     -- * Basic Path Types
     , Path_Pair(..)
@@ -101,21 +101,21 @@ class IsPathType p where
                 -- @toLens idPath == iso id id@.
 
 class IsPathNode s where
-    type PVType s
+    type PeekType s
     -- ^ The Path/Value type for s
-    pvNodes :: s -> Forest (PVType s)
-    -- ^ Given a value, return the corresponding @PVType s@ list
+    peekNodes :: s -> Forest (PeekType s)
+    -- ^ Given a value, return the corresponding @PeekType s@ list
 
--- | Generate an instance of PVLift
+-- | Generate an instance of PeekLift
 {-
-class PVLift s t where
-    pvLift :: Name -- PV_AbbrevPair
-           -> Name -- PV_AbbrevPairs
-           -> Name -- PV_AbbrevPairs_AbbrevPair
-           -> Name -- Path_At
-           -> ExpQ
-    pvLift t1 t2 pvname pcname =
-        [|error $(litE (stringL ("Cannot convert " ++ nameBase t1 ++ " -> " ++ nameBase t2 ++ " using " ++ nameBase pvname ++ " and " ++ nameBase pcname)))|]
+class PeekLift s t where
+    peekLift :: Name -- Peek_AbbrevPair
+             -> Name -- Peek_AbbrevPairs
+             -> Name -- Peek_AbbrevPairs_AbbrevPair
+             -> Name -- Path_At
+             -> ExpQ
+    peekLift t1 t2 peekname pcname =
+        [|error $(litE (stringL ("Cannot convert " ++ nameBase t1 ++ " -> " ++ nameBase t2 ++ " using " ++ nameBase peek name ++ " and " ++ nameBase pcname)))|]
 -}
 
 -- Primitive path types

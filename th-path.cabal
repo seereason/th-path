@@ -58,7 +58,7 @@ library
     Language.Haskell.TH.Path.Decs.IsPath
     Language.Haskell.TH.Path.Decs.PathsOf
     Language.Haskell.TH.Path.Decs.PathType
-    Language.Haskell.TH.Path.Decs.PVType
+    Language.Haskell.TH.Path.Decs.PeekType
     Language.Haskell.TH.Path.Decs.ToLens
     Language.Haskell.TH.Path.Graph
     Language.Haskell.TH.Path.Instances

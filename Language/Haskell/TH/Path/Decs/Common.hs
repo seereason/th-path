@@ -35,8 +35,8 @@ module Language.Haskell.TH.Path.Decs.Common
     , ModelType(ModelType)
     , PathType
     , makePathType
-    , makePathValueType
-    , makePathValueCon
+    , makePeekType
+    , makePeekCon
     , makePathCon
     ) where
 
@@ -109,32 +109,6 @@ instance ToPat (Name, Strict, Type) where
 class Clauses x where
     clauses :: x -> [ClauseQ]
 
-{-
-pvTreeClauses key gkey _ptyp
-    | view etype key == view etype gkey =
-        tell [clause [wildP] (normalB [|undefined|]) []]
-pvTreeClauses key gkey ptyp =
-    tell [clause [wildP] (normalB [|undefined|]) []]
-
-pvName :: TGVSimple -> TGVSimple -> Name
-pvName t v =
-    let Just tname = bestTypeName t
-        Just vname = bestTypeName v in
-    mkName ("PV_" ++ nameBase tname ++ "_" ++ nameBase vname)
-
--- | Change the s type of a PV value
-pvLift :: Name -> Name -> Exp -> Exp
-pvLift old new (AppE (AppE (ConE pv)
-                           (AppE (ConE p) a)) x)
-    | not (isPrefixOf pvPrefix (nameBase pv)) || pname /= nameBase p = error "pvLift"
-    | otherwise =
-        AppE (AppE (ConE (mkName ("PV_" ++ nameBase new ++ "_" ++ drop (length pvPrefix) (nameBase pv))))
-                   (AppE (ConE (mkName ("Path_" ++ nameBase new))) a)) x
-    where
-      pvPrefix = "PV_" ++ nameBase old ++ "_"
-      pname = ("Path_" ++ nameBase old)
--}
-
 -- | Make lenses for a type with the names described by fieldLensNamePair, which is a little
 -- different from the namer used in th-typegraph (for historical reasons I guess.)
 makePathLens :: Quasi m => Name -> m [Dec]
@@ -157,11 +131,12 @@ instance Clauses a => Clauses [a] where
 
 -- Conversions
 
+-- | Model as in Model-View-Controller.
 newtype ModelType = ModelType {unModelType :: Name} deriving (Eq, Ord, Show) -- e.g. AbbrevPair
 newtype PathType = PathType {unPathType :: Name} deriving (Eq, Ord, Show) -- e.g. Path_AbbrevPair
 newtype PathCon = PathCon {unPathCon :: Name} deriving (Eq, Ord, Show) -- e.g. Path_UserIds_View
-newtype PathValueType = PathValueType {unPathValueType :: Name} deriving (Eq, Ord, Show) -- e.g. PV_AbbrevPairs
-newtype PathValueCon = PathValueCon {unPathValueCon :: Name} deriving (Eq, Ord, Show) -- e.g. PV_AbbrevPairs_Markup
+newtype PeekType = PeekType {unPeekType :: Name} deriving (Eq, Ord, Show) -- e.g. Peek_AbbrevPairs
+newtype PeekCon = PeekCon {unPeekCon :: Name} deriving (Eq, Ord, Show) -- e.g. Peek_AbbrevPairs_Markup
 
 class HasTypeQ a where asTypeQ :: a -> TypeQ
 class HasType a where asType :: a -> Type
@@ -180,28 +155,30 @@ instance HasConQ PathType where asConQ = conE . unPathType
 instance HasName PathCon where asName = unPathCon
 instance HasCon PathCon where asCon = ConE . unPathCon
 instance HasConQ PathCon where asConQ = conE . unPathCon
-instance HasName PathValueType where asName = unPathValueType
-instance HasType PathValueType where asType = ConT . unPathValueType
-instance HasTypeQ PathValueType where asTypeQ = conT . unPathValueType
-instance HasName PathValueCon where asName = unPathValueCon
-instance HasCon PathValueCon where asCon = ConE . unPathValueCon
-instance HasConQ PathValueCon where asConQ = conE . unPathValueCon
+instance HasName PeekType where asName = unPeekType
+instance HasType PeekType where asType = ConT . unPeekType
+instance HasTypeQ PeekType where asTypeQ = conT . unPeekType
+instance HasName PeekCon where asName = unPeekCon
+instance HasCon PeekCon where asCon = ConE . unPeekCon
+instance HasConQ PeekCon where asConQ = conE . unPeekCon
 
 instance HasType TGVSimple where asType = asType . view etype
 instance HasType TGV where asType = asType . view vsimple
 instance HasType (E Type) where asType = view unE
+instance HasType Type where asType = id
 instance HasTypeQ TGVSimple where asTypeQ = pure . asType
 instance HasTypeQ TGV where asTypeQ = pure . asType
 instance HasTypeQ (E Type) where asTypeQ = pure . asType
+instance HasTypeQ Type where asTypeQ = pure
 
 makePathType :: ModelType -> PathType
 makePathType (ModelType a) = PathType (mkName ("Path_" ++ nameBase a))
 
-makePathValueType :: ModelType -> PathValueType
-makePathValueType (ModelType s) = PathValueType (mkName ("PV_" ++ nameBase s))
+makePeekType :: ModelType -> PeekType
+makePeekType (ModelType s) = PeekType (mkName ("Peek_" ++ nameBase s))
 
-makePathValueCon :: ModelType -> ModelType -> PathValueCon
-makePathValueCon (ModelType s) (ModelType g) = PathValueCon (mkName ("PV_" ++ nameBase s ++ "_" ++ nameBase g))
+makePeekCon :: ModelType -> ModelType -> PeekCon
+makePeekCon (ModelType s) (ModelType g) = PeekCon (mkName ("Peek_" ++ nameBase s ++ "_" ++ nameBase g))
 
 makePathCon :: PathType -> String -> PathCon
 makePathCon (PathType p) a = PathCon $ mkName $ nameBase p ++ "_" ++ a

@@ -30,7 +30,7 @@ import Language.Haskell.TH
 import Language.Haskell.TH.Context (ContextM, reifyInstancesWithContext)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Core (IsPathType(idPath), IsPath(..), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
-import Language.Haskell.TH.Path.Decs.Common (asConQ, bestTypeName, clauses, makePathCon, makePathType)
+import Language.Haskell.TH.Path.Decs.Common (asConQ, bestTypeName, clauses, makePathCon, makePathType, ModelType(ModelType))
 import Language.Haskell.TH.Path.Decs.PathType (pathType)
 import Language.Haskell.TH.Path.Decs.ToLens (toLensClauses)
 import Language.Haskell.TH.Path.Graph (SelfPath, SinkType)
@@ -200,9 +200,9 @@ pathsOfClauses key gkey =
         runQ [d| _f $(conP cname (List.map (varP . view _2) tns)) a =
                    concat $(listE (List.map (\(ftype, fparm, fpath, fname) ->
                                                  let Just tname = bestName key in
-                                                 let pcon = conE (mkName ("Path_" ++ nameBase tname ++ "_" ++ nameBase fname)) in
+                                                 let pcon = makePathCon (makePathType (ModelType tname)) (nameBase fname) in
                                                  case fpath of
-                                                   True -> [|List.map $pcon (pathsOf ($(varE fparm) :: $(pure ftype)) a)|]
+                                                   True -> [|List.map $(asConQ pcon) (pathsOf ($(varE fparm) :: $(pure ftype)) a)|]
                                                    False -> [| [] |]) tns)) |] >>= tell . clauses
 
 
