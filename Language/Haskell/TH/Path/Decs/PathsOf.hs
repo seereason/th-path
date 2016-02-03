@@ -57,7 +57,7 @@ pathInstanceDecs key gkey = do
   when (not (null tlc)) $
        (runQ $ sequence
              [instanceD (pure []) [t|IsPath $(pure (bestType key)) $(pure (bestType gkey))|]
-                [ tySynInstD ''PathType (tySynEqn [pure (bestType key), pure (bestType gkey)] (pure ptyp))
+                [ tySynInstD ''Path (tySynEqn [pure (bestType key), pure (bestType gkey)] (pure ptyp))
                 , funD 'toLens tlc
                 , funD 'pathsOf poc
                 ]]) >>= tell
@@ -94,9 +94,9 @@ pathsOfClauses key gkey =
                 runQ [d| _f x a =
                            $(case vIsPath of
                                True -> [| -- Get the value as transformed by the view lens
-                                          let p = $(asConQ pcname) idPath :: PathType $(pure (view (etype . unE) key)) $(pure vtyp)
+                                          let p = $(asConQ pcname) idPath :: Path $(pure (view (etype . unE) key)) $(pure vtyp)
                                               [x'] = toListOf (toLens p) x :: [$(pure vtyp)] in
-                                          List.map $(asConQ pcname) (pathsOf x' a {- :: [PathType $(pure vtyp) $(pure (view (etype . unE) gkey))] -}) |]
+                                          List.map $(asConQ pcname) (pathsOf x' a {- :: [Path $(pure vtyp) $(pure (view (etype . unE) gkey))] -}) |]
                                False -> [| [] |]) |] >>= tell . clauses
        ConT tname ->
            doName tname
@@ -107,7 +107,7 @@ pathsOfClauses key gkey =
                do vIsPath <- testIsPath vtyp gkey
                   runQ [d| _f o a =
                              $(case vIsPath of
-                                 True -> [| List.concatMap (\(k, v) -> List.map (Path_At k) (pathsOf (v :: $(pure vtyp)) a {-:: [PathType $(pure vtyp) (pure (view (etype . unE) gkey))]-})) (toPairs o) |]
+                                 True -> [| List.concatMap (\(k, v) -> List.map (Path_At k) (pathsOf (v :: $(pure vtyp)) a {-:: [Path $(pure vtyp) (pure (view (etype . unE) gkey))]-})) (toPairs o) |]
                                  False -> [| [] |]) |] >>= tell . clauses
        AppT ListT _etyp -> return ()
        AppT (AppT t3 _ktyp) vtyp
@@ -115,7 +115,7 @@ pathsOfClauses key gkey =
                do vIsPath <- testIsPath vtyp gkey
                   runQ [d| _f mp a =
                              $(case vIsPath of
-                                 True -> [| List.concatMap (\(k, v) -> List.map (Path_Look k) (pathsOf (v :: $(pure vtyp)) a {-:: [PathType $(pure vtyp) (pure (view (etype . unE) gkey))]-})) (Map.toList mp) |]
+                                 True -> [| List.concatMap (\(k, v) -> List.map (Path_Look k) (pathsOf (v :: $(pure vtyp)) a {-:: [Path $(pure vtyp) (pure (view (etype . unE) gkey))]-})) (Map.toList mp) |]
                                  False -> [| [] |]) |] >>= tell . clauses
        AppT (AppT (TupleT 2) ftyp) styp ->
            do fIsPath <- testIsPath ftyp gkey
@@ -123,18 +123,18 @@ pathsOfClauses key gkey =
               -- trace ("testIsPath " ++ pprint styp ++ " " ++ pprint gkey ++ " -> " ++ show sIsPath) (return ())
               runQ [d| _f (x, _) a =
                          $(case fIsPath of
-                             True -> [| List.map Path_First (pathsOf (x :: $(pure ftyp)) a {- :: [PathType $(pure ftyp) $(pure (view (etype . unE) gkey))] -}) |]
+                             True -> [| List.map Path_First (pathsOf (x :: $(pure ftyp)) a {- :: [Path $(pure ftyp) $(pure (view (etype . unE) gkey))] -}) |]
                              False -> [| [] |]) |] >>= tell . clauses
               runQ [d| _f (_, x) a =
                          $(case sIsPath of
-                             True -> [| List.map Path_Second (pathsOf (x :: $(pure styp)) a {- :: [PathType $(pure styp) $(pure (view (etype . unE) gkey))] -}) |]
+                             True -> [| List.map Path_Second (pathsOf (x :: $(pure styp)) a {- :: [Path $(pure styp) $(pure (view (etype . unE) gkey))] -}) |]
                              False -> [| [] |]) |] >>= tell . clauses
        AppT t1 etyp
            | t1 == ConT ''Maybe ->
                do eIsPath <- testIsPath etyp gkey
                   runQ [d| _f (Just x) a =
                              $(case eIsPath of
-                                 True -> [| List.map Path_Just (pathsOf (x :: $(pure etyp)) a {- :: [PathType $(pure etyp) $(pure (view (etype . unE) gkey))] -}) |]
+                                 True -> [| List.map Path_Just (pathsOf (x :: $(pure etyp)) a {- :: [Path $(pure etyp) $(pure (view (etype . unE) gkey))] -}) |]
                                  False -> [| [] |]) |] >>= tell . clauses
                   runQ [d| _f Nothing _ = [] |] >>= tell . clauses
        AppT (AppT t3 ltyp) rtyp
@@ -146,11 +146,11 @@ pathsOfClauses key gkey =
                   rIsPath <- testIsPath rtyp gkey
                   runQ [d| _f (Left x) a =
                              $(case lIsPath of
-                                 True -> [| List.map Path_Left (pathsOf (x :: $(pure ltyp)) a {- :: [PathType $(pure ltyp) $(pure (view (etype . unE) gkey))] -}) |]
+                                 True -> [| List.map Path_Left (pathsOf (x :: $(pure ltyp)) a {- :: [Path $(pure ltyp) $(pure (view (etype . unE) gkey))] -}) |]
                                  False -> [| [] |]) |] >>= tell . clauses
                   runQ [d| _f (Right x) a =
                              $(case rIsPath of
-                                 True -> [| List.map Path_Right (pathsOf (x :: $(pure rtyp)) a {- :: [PathType $(pure rtyp) $(pure (view (etype . unE) gkey))] -}) |]
+                                 True -> [| List.map Path_Right (pathsOf (x :: $(pure rtyp)) a {- :: [Path $(pure rtyp) $(pure (view (etype . unE) gkey))] -}) |]
                                  False -> [| [] |]) |] >>= tell . clauses
        _ -> tell [clause [wildP, wildP] (normalB [|error $ "pathsOfClauses - unexpected type: " ++ pprint key|]) []]
     where

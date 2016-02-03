@@ -1,5 +1,5 @@
 -- | Return the declarations that implement the IsPath instances, the
--- toLens methods, the PathType types, and the universal path type.
+-- toLens methods, the Path types, and the universal path type.
 
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE FlexibleContexts #-}

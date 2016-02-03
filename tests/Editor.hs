@@ -22,7 +22,7 @@ import Debug.Trace (trace)
 import Language.Haskell.TH
 import Language.Haskell.TH.Context (ContextM)
 import Language.Haskell.TH.Lift (lift)
-import Language.Haskell.TH.Path.Core (IsPath(toLens, pathsOf), IsPathType(idPath), PathType)
+import Language.Haskell.TH.Path.Core (IsPath(toLens, pathsOf, Path), IsPathType(idPath))
 import Language.Haskell.TH.Path.View (viewInstanceType)
 import Language.Haskell.TH.TypeGraph.Expand (expandType)
 import Language.Haskell.TH.TypeGraph.TypeGraph
@@ -126,7 +126,7 @@ editor tname value =
                  runQ [| $(pure root) {subForest = map (\path ->
                                                             let [x] = toListOf (toLens path) $value :: [$(pure ktype)] in
                                                             Node ($(conE leCon) path x) [])
-                                                       (pathsOf $value (undefined :: Proxy $(conT kname)) :: [PathType $(conT tname) $(conT kname)]) :: [Tree $(conT pvType)]} |]
+                                                       (pathsOf $value (undefined :: Proxy $(conT kname)) :: [Path $(conT tname) $(conT kname)]) :: [Tree $(conT pvType)]} |]
           _ -> runQ [| root :: Tree $(conT pvType) |]
 {-
         case ks of

@@ -13,7 +13,7 @@
 {-# LANGUAGE TypeFamilies #-}
 module Language.Haskell.TH.Path.Core
     ( -- * Type classes and associated types
-      IsPath(toLens, pathsOf, PathType)
+      IsPath(toLens, pathsOf, Path)
     , IsPathType(idPath)
     , IsPathNode(Peek, peek)
 
@@ -71,27 +71,22 @@ import Prelude hiding (exp)
 import Safe (readMay)
 import Web.Routes.TH (derivePathInfo)
 
--- | An instance @IsPath s a@ has at least one way to obtain an @a@
--- from an @s@.  The @PathType@ type function returns the corresponding
--- @IsPathType@ type, from which the identity path idPath 
--- | Instances of the 'Path' class are used to give a name to each of
+-- | Instances of the 'IsPath' class are used to give a name to each of
 -- the values of type @a@ which can be obtained from a value of type
--- @s@ using a lens.  Any value of the 'Path' instance can be passed
--- to the 'toLens' method to obtain the lens, and the 'PathType' type
--- function can be used to obtain the 'Path' instance given the @s@
--- and @a@ types of the desired lens.
-class IsPathType (PathType s a) => IsPath s a where
-    type PathType s a
+-- @s@ using a lens.  Any value of a 'Path' type can be passed
+-- to the 'toLens' method to obtain the lens
+class IsPathType (Path s a) => IsPath s a where
+    type Path s a
     -- ^ Each instance defines this type function which returns the
     -- path type.  Each value of this type represents a different way
     -- of obtaining the @a@ from the @s@.  For example, if @s@ is a
     -- record with two fields of type 'Int', the type @PathType s Int@
     -- would have distinct values for those two fields, and the lenses
     -- returned by 'toLens' would access those two fields.
-    toLens :: PathType s a -> Traversal' s a
-    -- ^ Function to turn a PathType into a lens to access (one of)
+    toLens :: Path s a -> Traversal' s a
+    -- ^ Function to turn a 'Path' into a lens to access (one of)
     -- the @a@ values.
-    pathsOf :: s -> Proxy a -> [PathType s a]
+    pathsOf :: s -> Proxy a -> [Path s a]
     -- ^ Build the paths corresponding to a particular s.  This
     -- function will freak out if called with types for which there is
     -- no instance @IsPath s a@.
@@ -273,12 +268,12 @@ lens_UserIds_Text = iso (encode') (decode')
 -- | Find all the names of the path types.
 pathTypeNames :: DsMonad m => m (Set Name)
 pathTypeNames = do
-  (FamilyI (FamilyD TypeFam _pathtype [_,_] (Just StarT)) tySynInsts) <- qReify ''PathType
+  (FamilyI (FamilyD TypeFam _pathtype [_,_] (Just StarT)) tySynInsts) <- qReify ''Path
   return . {-flip Set.difference primitivePathTypeNames .-} Set.fromList . List.map (\(TySynInstD _ (TySynEqn _ typ)) -> doTySyn typ) $ tySynInsts
     where
       doTySyn (AppT x _) = doTySyn x
       doTySyn (ConT pathTypeName) = pathTypeName
-      doTySyn x = error $ "Unexpected PathType: " ++ pprint' x ++ " (" ++ show x ++ ")"
+      doTySyn x = error $ "Unexpected type in pathTypeNames: " ++ pprint' x ++ " (" ++ show x ++ ")"
 
 -- primitivePathTypeNames :: Set Name
 -- primitivePathTypeNames = Set.fromList [''Path_Pair, ''Path_List, ''Path_Either, ''Path_Map, ''Path_OMap, ''Path_Maybe]
