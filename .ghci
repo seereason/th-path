@@ -1,7 +1,9 @@
 :set -itests
 :set -XTemplateHaskell
 :set -XTypeFamilies
-:load tests/Editor.hs tests/Report.hs
-:m +Appraisal.Report
-:m +Language.Haskell.TH.Path.Order
-:m +Language.Haskell.TH.Path.Core
+:m +Language.Haskell.TH
+:m +Language.Haskell.TH.Syntax
+-- :load tests/Editor.hs tests/Report.hs
+-- :m +Appraisal.Report
+-- :m +Language.Haskell.TH.Path.Order
+-- :m +Language.Haskell.TH.Path.Core
