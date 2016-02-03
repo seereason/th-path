@@ -23,7 +23,6 @@ module Language.Haskell.TH.Path.Decs.Common
     , clauses
     , fieldLensNameOld
     , fieldLensNamePair
-    , makePathLens
     , pathConNameOfField
     , pathTypeNameFromTypeName
     , HasTypeQ(asTypeQ)
@@ -41,8 +40,6 @@ module Language.Haskell.TH.Path.Decs.Common
     ) where
 
 import Control.Lens hiding (cons, Strict)
-import Control.Monad.Writer (execWriterT, tell)
-import Data.Char (toLower)
 import Data.List as List (map)
 import Data.Set as Set (delete, minView)
 import Data.Set.Extra as Set (map, Set)
@@ -50,9 +47,7 @@ import Data.Tree (Tree(Node), Forest)
 import Language.Haskell.TH
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Instances ()
-import Language.Haskell.TH.Syntax as TH (Quasi(qReify))
 import Language.Haskell.TH.TypeGraph.Expand (E, unE)
-import Language.Haskell.TH.TypeGraph.Lens (lensNamePairs)
 import Language.Haskell.TH.TypeGraph.Vertex (etype, field, TGV, TGVSimple, TypeGraphVertex(bestType), typeNames, vsimple)
 
 treeMap :: (a -> b) -> Tree a -> Tree b
@@ -92,10 +87,6 @@ fieldLensNameOld tname fname = mkName ("lens_" ++ nameBase tname ++ "_" ++ nameB
 fieldLensNamePair :: Name -> Name -> Name -> (String, String)
 fieldLensNamePair tname _cname fname = (nameBase fname, nameBase (fieldLensNameOld tname fname))
 
-uncap :: String -> String
-uncap (n : ame) = toLower n : ame
-uncap "" = ""
-
 class ToPat x where
     toPat :: x -> PatQ
 
@@ -108,19 +99,6 @@ instance ToPat (Name, Strict, Type) where
 -- | Extract the template haskell Clauses
 class Clauses x where
     clauses :: x -> [ClauseQ]
-
--- | Make lenses for a type with the names described by fieldLensNamePair, which is a little
--- different from the namer used in th-typegraph (for historical reasons I guess.)
-makePathLens :: Quasi m => Name -> m [Dec]
-makePathLens tname =
-    -- runQ (runIO (putStrLn ("makePathLens " ++ nameBase tname))) >>
-    qReify tname >>= execWriterT . doInfo
-    where
-      doInfo (TyConI dec) = doDec dec
-      doInfo _ = return ()
-      doDec (NewtypeD {}) = lensNamePairs fieldLensNamePair tname >>= \pairs -> runQ (makeClassyFor ("Has" ++ nameBase tname) ("lens_" ++ uncap (nameBase tname)) pairs tname) >>= tell
-      doDec (DataD {}) =    lensNamePairs fieldLensNamePair tname >>= \pairs -> runQ (makeClassyFor ("Has" ++ nameBase tname) ("lens_" ++ uncap (nameBase tname)) pairs tname) >>= tell
-      doDec _ = return ()
 
 instance Clauses Dec where
     clauses (FunD _ xs) = List.map pure xs

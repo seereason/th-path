@@ -21,6 +21,7 @@ module Language.Haskell.TH.Path.Decs
 import Control.Lens hiding (cons, Strict)
 import Control.Monad.Readers (MonadReaders)
 import Control.Monad.Writer (MonadWriter, execWriterT, tell)
+import Data.Char (toLower)
 import Data.Data (Data, Typeable)
 import Data.Foldable as Foldable
 import Data.List as List (map)
@@ -32,7 +33,7 @@ import Language.Haskell.TH.Context (ContextM, reifyInstancesWithContext)
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Core (IsPathType(idPath))
-import Language.Haskell.TH.Path.Decs.Common (asConQ, asName, asTypeQ, bestNames, bestPathTypeName, makePathCon, makePathLens,
+import Language.Haskell.TH.Path.Decs.Common (asConQ, asName, asTypeQ, bestNames, bestPathTypeName, fieldLensNamePair, makePathCon,
                                              ModelType(ModelType), pathConNameOfField, PathType, pathTypeNameFromTypeName)
 import Language.Haskell.TH.Path.Decs.IsPath (doIsPathNode)
 import Language.Haskell.TH.Path.Decs.PathsOf (pathInstanceDecs)
@@ -40,8 +41,9 @@ import Language.Haskell.TH.Path.Decs.PathType (pathType)
 -- import Language.Haskell.TH.Path.Decs.PeekType (doPeekType)
 import Language.Haskell.TH.Path.Graph (SelfPath, SinkType)
 import Language.Haskell.TH.Path.View (viewInstanceType)
-import Language.Haskell.TH.Syntax as TH (VarStrictType)
+import Language.Haskell.TH.Syntax as TH (Quasi(qReify), VarStrictType)
 import Language.Haskell.TH.TypeGraph.Expand (E(E), expandType)
+import Language.Haskell.TH.TypeGraph.Lens (lensNamePairs)
 import Language.Haskell.TH.TypeGraph.Prelude (pprint')
 import Language.Haskell.TH.TypeGraph.TypeGraph (pathKeys, allPathStarts, TypeGraph)
 import Language.Haskell.TH.TypeGraph.TypeInfo (fieldVertex, TypeInfo, typeVertex)
@@ -184,3 +186,20 @@ doNode v = do
 doIsPathType :: forall m. (ContextM m, MonadWriter [Dec] m) => PathType -> m ()
 doIsPathType pname =
   runQ [d|instance IsPathType ($(asTypeQ pname) a) where idPath = $(asConQ pname)|] >>= tell
+
+-- | Make lenses for a type with the names described by fieldLensNamePair, which is a little
+-- different from the namer used in th-typegraph (for historical reasons I guess.)
+makePathLens :: ContextM m => Name -> m [Dec]
+makePathLens tname =
+    -- runQ (runIO (putStrLn ("makePathLens " ++ nameBase tname))) >>
+    qReify tname >>= execWriterT . doInfo
+    where
+      doInfo (TyConI dec) = doDec dec
+      doInfo _ = return ()
+      doDec (NewtypeD {}) = lensNamePairs fieldLensNamePair tname >>= \pairs -> runQ (makeClassyFor ("Has" ++ nameBase tname) ("lens_" ++ uncap (nameBase tname)) pairs tname) >>= tell
+      doDec (DataD {}) =    lensNamePairs fieldLensNamePair tname >>= \pairs -> runQ (makeClassyFor ("Has" ++ nameBase tname) ("lens_" ++ uncap (nameBase tname)) pairs tname) >>= tell
+      doDec _ = return ()
+
+uncap :: String -> String
+uncap (n : ame) = toLower n : ame
+uncap "" = ""
