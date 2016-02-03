@@ -15,7 +15,7 @@ module Language.Haskell.TH.Path.Core
     ( -- * Type classes and associated types
       IsPath(toLens, pathsOf, PathType)
     , IsPathType(idPath)
-    , IsPathNode(PeekType, peekNodes)
+    , IsPathNode(Peek, peek)
 
     -- * Basic Path Types
     , Path_Pair(..)
@@ -101,22 +101,8 @@ class IsPathType p where
                 -- @toLens idPath == iso id id@.
 
 class IsPathNode s where
-    type PeekType s
-    -- ^ The Path/Value type for s
-    peekNodes :: s -> Forest (PeekType s)
-    -- ^ Given a value, return the corresponding @PeekType s@ list
-
--- | Generate an instance of PeekLift
-{-
-class PeekLift s t where
-    peekLift :: Name -- Peek_AbbrevPair
-             -> Name -- Peek_AbbrevPairs
-             -> Name -- Peek_AbbrevPairs_AbbrevPair
-             -> Name -- Path_At
-             -> ExpQ
-    peekLift t1 t2 peekname pcname =
-        [|error $(litE (stringL ("Cannot convert " ++ nameBase t1 ++ " -> " ++ nameBase t2 ++ " using " ++ nameBase peek name ++ " and " ++ nameBase pcname)))|]
--}
+    type Peek s
+    peek :: s -> Forest (Peek s)
 
 -- Primitive path types
 
