@@ -61,7 +61,8 @@ viewInstanceType (E typ) =
              _ -> error $ "Unexpected view instance(s): " ++ show vInsts
          _ -> return Nothing
     where
-      -- This is a dangerously weak imitation of unification
+      -- This is a dangerously weak imitation of unification.  We
+      -- ought to implement unify for Type in atp-haskell and use that.
       fakeunify :: Monad m => E Type -> E Type -> StateT (Maybe (Map Type Type)) m ()
       fakeunify (E (AppT a b)) (E (AppT c d)) = fakeunify (E a) (E c) >> fakeunify (E b) (E d)
       fakeunify (E (ConT a)) (E (ConT b)) | a == b = return ()

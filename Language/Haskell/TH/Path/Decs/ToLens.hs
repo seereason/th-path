@@ -34,7 +34,7 @@ import Language.Haskell.TH.Context (ContextM, InstMap, reifyInstancesWithContext
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Core (mat, IsPath(..), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
-import Language.Haskell.TH.Path.Decs.Common (asName, fieldLensNameOld, pathConNameOfField)
+import Language.Haskell.TH.Path.Decs.Common (asName, fieldLensNameOld, makeFieldCon)
 import Language.Haskell.TH.Path.Decs.PathType (pathType)
 import Language.Haskell.TH.Path.Graph (SelfPath, SinkType)
 import Language.Haskell.TH.Path.Order (lens_omat, Order, Path_OMap(..))
@@ -168,7 +168,7 @@ doName tname gkey =
                              -- expression for the lens that turns this field value into the
                              -- goal type.
                              clauses <- runQ (newName "_x") >>= \x -> return [clause [varP x] (normalB [|toLens $(varE x)|]) []]
-                             let Just pcname = pathConNameOfField fkey
+                             let Just pcname = makeFieldCon fkey
                              ptype' <- pathType (pure (bestType gkey)) (view vsimple fkey)
                              -- This is the new constructor for this field
                              con <- runQ $ normalC (asName pcname) [strictType notStrict (return ptype')]

@@ -12,7 +12,7 @@
 {-# OPTIONS_GHC -Wall -fno-warn-orphans #-}
 module ReportDecs where
 
-import Appraisal.File (URI)
+import Appraisal.File (File)
 import Appraisal.Image
 import Appraisal.ImageFile
 import Appraisal.IntJS
@@ -32,7 +32,7 @@ import Data.Map (Map, toList)
 import Data.Proxy
 import Data.Text (Text)
 import Data.Tree (Tree(Node), Forest)
-import Data.UserId (UserId)
+import Data.UserId (UserId(UserId))
 import Data.UUID (UUID)
 import Data.UUID.Orphans ()
 import Language.Haskell.TH.Path.Core (IsPath(Path, pathsOf, toLens), IsPathNode(Peek, peek), IsPathType(idPath),
@@ -41,7 +41,7 @@ import Language.Haskell.TH.Path.Core (IsPath(Path, pathsOf, toLens), IsPathNode(
 import Language.Haskell.TH.Path.Decs.Common (forestMap)
 import Language.Haskell.TH.Path.Order (lens_omat, Order, Path_OMap(Path_OMap, Path_At), toPairs)
 import Language.Haskell.TH.Path.View (View(viewLens))
-import Network.URI (nullURI)
+import Network.URI (nullURI, URI(URI), URIAuth(URIAuth))
 
 data Path_Author a
     = Path_Author_authorName (Path_Markup a)
@@ -284,6 +284,40 @@ class HasDimension c
     where lens_dimension :: Lens' c Dimension
 class HasDouble c
     where lens_double :: Lens' c Double
+class HasImageCrop c
+    where lens_imageCrop :: Lens' c ImageCrop
+          lens_ImageCrop_bottomCrop :: forall . Lens' c Int
+          lens_ImageCrop_bottomCrop = (.) lens_imageCrop lens_ImageCrop_bottomCrop
+          {-# INLINE lens_ImageCrop_bottomCrop #-}
+          lens_ImageCrop_leftCrop :: forall . Lens' c Int
+          lens_ImageCrop_leftCrop = (.) lens_imageCrop lens_ImageCrop_leftCrop
+          {-# INLINE lens_ImageCrop_leftCrop #-}
+          lens_ImageCrop_rightCrop :: forall . Lens' c Int
+          lens_ImageCrop_rightCrop = (.) lens_imageCrop lens_ImageCrop_rightCrop
+          {-# INLINE lens_ImageCrop_rightCrop #-}
+          lens_ImageCrop_rotation :: forall . Lens' c Int
+          lens_ImageCrop_rotation = (.) lens_imageCrop lens_ImageCrop_rotation
+          {-# INLINE lens_ImageCrop_rotation #-}
+          lens_ImageCrop_topCrop :: forall . Lens' c Int
+          lens_ImageCrop_topCrop = (.) lens_imageCrop lens_ImageCrop_topCrop
+          {-# INLINE lens_ImageCrop_topCrop #-}
+class HasImageFile c
+    where lens_imageFile :: Lens' c ImageFile
+          lens_ImageFile_imageFile :: forall . Lens' c File
+          lens_ImageFile_imageFile = (.) lens_imageFile lens_ImageFile_imageFile
+          {-# INLINE lens_ImageFile_imageFile #-}
+          lens_ImageFile_imageFileHeight :: forall . Lens' c Int
+          lens_ImageFile_imageFileHeight = (.) lens_imageFile lens_ImageFile_imageFileHeight
+          {-# INLINE lens_ImageFile_imageFileHeight #-}
+          lens_ImageFile_imageFileMaxVal :: forall . Lens' c Int
+          lens_ImageFile_imageFileMaxVal = (.) lens_imageFile lens_ImageFile_imageFileMaxVal
+          {-# INLINE lens_ImageFile_imageFileMaxVal #-}
+          lens_ImageFile_imageFileType :: forall . Lens' c ImageType
+          lens_ImageFile_imageFileType = (.) lens_imageFile lens_ImageFile_imageFileType
+          {-# INLINE lens_ImageFile_imageFileType #-}
+          lens_ImageFile_imageFileWidth :: forall . Lens' c Int
+          lens_ImageFile_imageFileWidth = (.) lens_imageFile lens_ImageFile_imageFileWidth
+          {-# INLINE lens_ImageFile_imageFileWidth #-}
 class HasImageSize c
     where lens_imageSize :: Lens' c ImageSize
           lens_ImageSize_dim :: forall . Lens' c Dimension
@@ -295,6 +329,12 @@ class HasImageSize c
           lens_ImageSize_units :: forall . Lens' c Units
           lens_ImageSize_units = (.) lens_imageSize lens_ImageSize_units
           {-# INLINE lens_ImageSize_units #-}
+class HasInt c
+    where lens_int :: Lens' c Int
+class HasInt64 c
+    where lens_int64 :: Lens' c Int64
+class HasInteger c
+    where lens_integer :: Lens' c Integer
 class HasItem c
     where lens_item :: Lens' c Item
           lens_Item_fields :: forall . Lens' c MIM
@@ -306,6 +346,11 @@ class HasItem c
           lens_Item_itemName :: forall . Lens' c Text
           lens_Item_itemName = (.) lens_item lens_Item_itemName
           {-# INLINE lens_Item_itemName #-}
+class HasJSONText c
+    where lens_jSONText :: Lens' c JSONText
+          lens_JSONText_unJSONText :: forall . Lens' c String
+          lens_JSONText_unJSONText = (.) lens_jSONText lens_JSONText_unJSONText
+          {-# INLINE lens_JSONText_unJSONText #-}
 class HasMarkup c
     where lens_markup :: Lens' c Markup
           lens_Markup_htmlText :: forall . Traversal' c Text
@@ -731,8 +776,32 @@ class HasReportView c
           {-# INLINE lens_ReportView__reportValueTypeInfo #-}
 class HasText c
     where lens_text :: Lens' c Text
+class HasURI c
+    where lens_uRI :: Lens' c URI
+          lens_URI_uriAuthority :: forall . Lens' c (Maybe URIAuth)
+          lens_URI_uriAuthority = (.) lens_uRI lens_URI_uriAuthority
+          {-# INLINE lens_URI_uriAuthority #-}
+          lens_URI_uriFragment :: forall . Lens' c String
+          lens_URI_uriFragment = (.) lens_uRI lens_URI_uriFragment
+          {-# INLINE lens_URI_uriFragment #-}
+          lens_URI_uriPath :: forall . Lens' c String
+          lens_URI_uriPath = (.) lens_uRI lens_URI_uriPath
+          {-# INLINE lens_URI_uriPath #-}
+          lens_URI_uriQuery :: forall . Lens' c String
+          lens_URI_uriQuery = (.) lens_uRI lens_URI_uriQuery
+          {-# INLINE lens_URI_uriQuery #-}
+          lens_URI_uriScheme :: forall . Lens' c String
+          lens_URI_uriScheme = (.) lens_uRI lens_URI_uriScheme
+          {-# INLINE lens_URI_uriScheme #-}
+class HasUUID c
+    where lens_uUID :: Lens' c UUID
 class HasUnits c
     where lens_units :: Lens' c Units
+class HasUserId c
+    where lens_userId :: Lens' c UserId
+          lens_UserId__unUserId :: forall . Lens' c Integer
+          lens_UserId__unUserId = (.) lens_userId lens_UserId__unUserId
+          {-# INLINE lens_UserId__unUserId #-}
 instance IsPath String String
     where type Path String String = Path_String String
           toLens _ = iso id id
@@ -7836,6 +7905,70 @@ instance HasDimension Dimension
     where lens_dimension = id
 instance HasDouble Double
     where lens_double = id
+instance HasImageCrop ImageCrop
+    where lens_imageCrop = id
+          lens_ImageCrop_bottomCrop f (ImageCrop x1
+                                                 x2
+                                                 x3
+                                                 x4
+                                                 x5) = fmap (\y1 -> ImageCrop x1 y1 x3 x4 x5) (f x2)
+          {-# INLINE lens_ImageCrop_bottomCrop #-}
+          lens_ImageCrop_leftCrop f (ImageCrop x1
+                                               x2
+                                               x3
+                                               x4
+                                               x5) = fmap (\y1 -> ImageCrop x1 x2 y1 x4 x5) (f x3)
+          {-# INLINE lens_ImageCrop_leftCrop #-}
+          lens_ImageCrop_rightCrop f (ImageCrop x1
+                                                x2
+                                                x3
+                                                x4
+                                                x5) = fmap (\y1 -> ImageCrop x1 x2 x3 y1 x5) (f x4)
+          {-# INLINE lens_ImageCrop_rightCrop #-}
+          lens_ImageCrop_rotation f (ImageCrop x1
+                                               x2
+                                               x3
+                                               x4
+                                               x5) = fmap (\y1 -> ImageCrop x1 x2 x3 x4 y1) (f x5)
+          {-# INLINE lens_ImageCrop_rotation #-}
+          lens_ImageCrop_topCrop f (ImageCrop x1
+                                              x2
+                                              x3
+                                              x4
+                                              x5) = fmap (\y1 -> ImageCrop y1 x2 x3 x4 x5) (f x1)
+          {-# INLINE lens_ImageCrop_topCrop #-}
+instance HasImageFile ImageFile
+    where lens_imageFile = id
+          lens_ImageFile_imageFile f (ImageFile x1
+                                                x2
+                                                x3
+                                                x4
+                                                x5) = fmap (\y1 -> ImageFile y1 x2 x3 x4 x5) (f x1)
+          {-# INLINE lens_ImageFile_imageFile #-}
+          lens_ImageFile_imageFileHeight f (ImageFile x1
+                                                      x2
+                                                      x3
+                                                      x4
+                                                      x5) = fmap (\y1 -> ImageFile x1 x2 x3 y1 x5) (f x4)
+          {-# INLINE lens_ImageFile_imageFileHeight #-}
+          lens_ImageFile_imageFileMaxVal f (ImageFile x1
+                                                      x2
+                                                      x3
+                                                      x4
+                                                      x5) = fmap (\y1 -> ImageFile x1 x2 x3 x4 y1) (f x5)
+          {-# INLINE lens_ImageFile_imageFileMaxVal #-}
+          lens_ImageFile_imageFileType f (ImageFile x1
+                                                    x2
+                                                    x3
+                                                    x4
+                                                    x5) = fmap (\y1 -> ImageFile x1 y1 x3 x4 x5) (f x2)
+          {-# INLINE lens_ImageFile_imageFileType #-}
+          lens_ImageFile_imageFileWidth f (ImageFile x1
+                                                     x2
+                                                     x3
+                                                     x4
+                                                     x5) = fmap (\y1 -> ImageFile x1 x2 y1 x4 x5) (f x3)
+          {-# INLINE lens_ImageFile_imageFileWidth #-}
 instance HasImageSize ImageSize
     where lens_imageSize = id
           lens_ImageSize_dim f (ImageSize x1
@@ -7850,6 +7983,12 @@ instance HasImageSize ImageSize
                                             x2
                                             x3) = fmap (\y1 -> ImageSize x1 x2 y1) (f x3)
           {-# INLINE lens_ImageSize_units #-}
+instance HasInt Int
+    where lens_int = id
+instance HasInt64 Int64
+    where lens_int64 = id
+instance HasInteger Integer
+    where lens_integer = id
 instance HasItem Item
     where lens_item = id
           lens_Item_fields f (Item x1
@@ -7864,6 +8003,10 @@ instance HasItem Item
                                      x2
                                      x3) = fmap (\y1 -> Item y1 x2 x3) (f x1)
           {-# INLINE lens_Item_itemName #-}
+instance HasJSONText JSONText
+    where lens_jSONText = id
+          lens_JSONText_unJSONText = iso (\(JSONText x) -> x) JSONText
+          {-# INLINE lens_JSONText_unJSONText #-}
 instance HasMarkup Markup
     where lens_markup = id
           lens_Markup_htmlText _ (Markdown x1) = pure (Markdown x1)
@@ -12270,8 +12413,46 @@ instance HasReportView ReportView
           {-# INLINE lens_ReportView__reportValueTypeInfo #-}
 instance HasText Text
     where lens_text = id
+instance HasURI URI
+    where lens_uRI = id
+          lens_URI_uriAuthority f (URI x1
+                                       x2
+                                       x3
+                                       x4
+                                       x5) = fmap (\y1 -> URI x1 y1 x3 x4 x5) (f x2)
+          {-# INLINE lens_URI_uriAuthority #-}
+          lens_URI_uriFragment f (URI x1
+                                      x2
+                                      x3
+                                      x4
+                                      x5) = fmap (\y1 -> URI x1 x2 x3 x4 y1) (f x5)
+          {-# INLINE lens_URI_uriFragment #-}
+          lens_URI_uriPath f (URI x1
+                                  x2
+                                  x3
+                                  x4
+                                  x5) = fmap (\y1 -> URI x1 x2 y1 x4 x5) (f x3)
+          {-# INLINE lens_URI_uriPath #-}
+          lens_URI_uriQuery f (URI x1
+                                   x2
+                                   x3
+                                   x4
+                                   x5) = fmap (\y1 -> URI x1 x2 x3 y1 x5) (f x4)
+          {-# INLINE lens_URI_uriQuery #-}
+          lens_URI_uriScheme f (URI x1
+                                    x2
+                                    x3
+                                    x4
+                                    x5) = fmap (\y1 -> URI y1 x2 x3 x4 x5) (f x1)
+          {-# INLINE lens_URI_uriScheme #-}
+instance HasUUID UUID
+    where lens_uUID = id
 instance HasUnits Units
     where lens_units = id
+instance HasUserId UserId
+    where lens_userId = id
+          lens_UserId__unUserId = iso (\(UserId x) -> x) UserId
+          {-# INLINE lens_UserId__unUserId #-}
 instance IsPathNode (Either URI ImageFile)
     where data Peek (Either URI ImageFile)
               = Peek_EUI_ImageFile (Path_EUI ImageFile) ImageFile

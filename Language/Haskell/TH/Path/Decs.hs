@@ -33,10 +33,10 @@ import Language.Haskell.TH.Context (ContextM, reifyInstancesWithContext)
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Core (IsPathType(idPath))
-import Language.Haskell.TH.Path.Decs.Common (asConQ, asName, asTypeQ, bestNames, bestPathTypeName, fieldLensNamePair, makePathCon,
-                                             ModelType(ModelType), pathConNameOfField, PathType, pathTypeNameFromTypeName)
-import Language.Haskell.TH.Path.Decs.IsPath (doIsPathNode)
-import Language.Haskell.TH.Path.Decs.PathsOf (pathInstanceDecs)
+import Language.Haskell.TH.Path.Decs.Common (asConQ, asName, asTypeQ, bestPathTypeName, fieldLensNamePair,
+                                             makeFieldCon, makePathCon, makePathType, ModelType(ModelType), PathType)
+import Language.Haskell.TH.Path.Decs.IsPath (isPathNodeDecs)
+import Language.Haskell.TH.Path.Decs.PathsOf (isPathDecs)
 import Language.Haskell.TH.Path.Decs.PathType (pathType)
 -- import Language.Haskell.TH.Path.Decs.PeekType (doPeekType)
 import Language.Haskell.TH.Path.Graph (SelfPath, SinkType)
@@ -50,66 +50,55 @@ import Language.Haskell.TH.TypeGraph.TypeInfo (fieldVertex, TypeInfo, typeVertex
 import Language.Haskell.TH.TypeGraph.Vertex (etype, TGVSimple, TypeGraphVertex, typeNames, vsimple)
 
 pathDecs :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => m [Dec]
-pathDecs = execWriterT $ allPathStarts >>= \ps -> Foldable.mapM_ doNode ps {->> doPeekType ps-}
+pathDecs = execWriterT $ allPathStarts >>= mapM_ doNode
 
 doNode :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) => TGVSimple -> m ()
 doNode v = do
-  -- generate the path type declarations
+  isPathNodeDecs v
+  -- generate the IsPath instance declarations
+  pathKeys v >>= Set.mapM_ (isPathDecs v)
+  -- generate the lenses
+  mapM makePathLens (toList (typeNames v)) >>= tell . concat
+  -- generate the data Path_* declarations
   selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [let (E typ) = view etype v in typ]
   simplePath <- (not . null) <$> reifyInstancesWithContext ''SinkType [let (E typ) = view etype v in typ]
   viewType <- viewInstanceType (view etype v)
+  let Just (pname, psyns) = bestPathTypeName v
+  a <- runQ $ newName "a"
+  -- e.g. type Path_EpochMilli a = Path_Int64 a
+  runQ (mapM (\psyn -> tySynD (asName psyn) [PlainTV a] (appT (asTypeQ pname) (varT a))) (toList psyns)) >>= tell
   case () of
     _ | selfPath -> return ()
-      | simplePath -> maybe (error $ "pathTypeDecs: simple path type has no name: " ++ pprint' v) doSimplePath (bestNames v)
-      | isJust viewType ->
-          do let b = fromJust viewType
-             viewPath b
-    _ -> doNames
-  -- generate the lens declarations
-  case simplePath of
-    False -> mapM makePathLens (Foldable.toList (typeNames v)) >>= {- t1 >>= -} tell . concat
-    _ -> return ()
-  -- generate the path instance declarations
-  pathKeys v >>= Set.mapM_ (pathInstanceDecs v)
+      | simplePath -> doSimplePath pname
+      | isJust viewType -> viewPath v (fromJust viewType)
+      | otherwise -> doNames v
+
+doSimplePath :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) =>
+                PathType -> m ()
+doSimplePath pname = do
+  a <- runQ $ newName "a"
+  -- e.g. data Path_Int a = Path_Int deriving (Eq, Ord, Read, Show, Typeable, Data)
+  runQ (dataD (pure []) (asName pname) [PlainTV a] [normalC (asName pname) []] supers) >>= tell . (: [])
+  runQ [d|instance IsPathType ($(asTypeQ pname) a) where idPath = $(asConQ pname)|] >>= tell
+
+viewPath :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) => TGVSimple -> Type -> m ()
+viewPath v styp = do
+  let Just (pname, _psyns) = bestPathTypeName v
+  skey <- expandType styp >>= typeVertex
+  a <- runQ $ newName "a"
+  ptype <- pathType (varT a) skey
+  -- data Path_MaybeImageFile a =
+  --           Path_MaybeImageFile_View (Path_String a) | Path_MaybeImageFile
+  --         deriving (Eq, Ord, Read, Show, Typeable, Data)
+  runQ (dataD (pure []) (asName pname) [PlainTV a]
+          [ normalC (asName (makePathCon pname "View")) [strictType notStrict (pure ptype)]
+          , normalC (asName pname) []
+          ] supers) >>= tell . (: [])
+  runQ [d|instance IsPathType ($(asTypeQ pname) a) where idPath = $(asConQ pname)|] >>= tell
+
+doNames :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) => TGVSimple -> m ()
+doNames v = mapM_ (\tname -> runQ (reify tname) >>= doInfo) (typeNames v)
     where
-      doNames = mapM_ (\tname -> runQ (reify tname) >>= doInfo) (typeNames v)
-
-      doSimplePath :: (ModelType, PathType, Set PathType) -> m ()
-      doSimplePath (_tname, pname, syns') = do
-        a <- runQ $ newName "a"
-        runQ (dataD (return []) (asName pname) [PlainTV a] [normalC (asName pname) []] supers) >>= tell . (: [])
-        doIsPathType pname
-        doIsPathNode v
-        -- Create path type synonyms for all the regular type synonyms: [d|type $psyn a = $(conT pname) a|]
-        mapM_ (\psyn -> runQ (do a <- newName "a"
-                                 tySynD (asName psyn) [PlainTV a]
-                                        (appT (asTypeQ pname) (varT a))) >>= tell . (: [])) (Foldable.toList syns')
-
-      -- viewPath [t|Text|] = data Path_Branding a = Path_Branding (Path_Text a)
-      viewPath :: Type -> m ()
-      viewPath styp = do
-        let Just (pname, syns') = bestPathTypeName v
-            -- gname = mkName ("Goal_" ++ nameBase pname)
-        skey <- expandType styp >>= typeVertex
-        a <- runQ $ newName "a"
-        ptype <- pathType (varT a) skey
-        -- A view type may have a type variable, which
-        -- we need to replace with the goal type a.
-        let ptype' = substitute (VarT a) ptype
-        runQ (sequence (dataD (return []) (asName pname) [PlainTV a]
-                              [ normalC (asName (makePathCon pname "View")) [strictType notStrict (pure ptype')]
-                              , normalC (asName pname) []
-                              ] supers
-                         : List.map (\psyn -> tySynD (asName psyn) [PlainTV a] (appT (asTypeQ pname) (varT a))) (Foldable.toList syns'))) >>= tell
-        doIsPathType pname
-        doIsPathNode v
-
-      substitute :: Type -> Type -> Type
-      substitute gtype (AppT x (VarT _)) = (AppT x gtype)
-      substitute gtype (AppT a b) = AppT (substitute gtype a) (substitute gtype b)
-      substitute gtype (VarT _) = gtype
-      substitute _ x = x
-
       doInfo (TyConI dec) =
           -- tell [d| z = $(litE (stringL ("doDec " ++ pprint' dec))) |] >>
           doDec dec
@@ -121,9 +110,7 @@ doNode v = do
           do a <- runQ $ newName "a"
              key' <- expandType typ' >>= typeVertex
              ptype <- pathType (varT a) key'
-             mapM_ (\pname ->
-                        do doIsPathNode v
-                           runQ (tySynD (asName pname) [PlainTV a] (return ptype)) >>= tell . (: [])) (pathTypeNames' v)
+             mapM (\pname -> runQ (tySynD (asName pname) [PlainTV a] (pure ptype))) (toList . Set.map makePathType . Set.map ModelType . typeNames $ v) >>= tell
       doDec (NewtypeD _ tname _ con _) = doDataD tname [con]
       doDec (DataD _ tname _ cons _) = doDataD tname cons
       doDec (FamilyD _flavour _name _tvbs _mkind) = return ()
@@ -132,22 +119,21 @@ doNode v = do
       doDataD :: Name -> [Con] -> m ()
       doDataD tname cons =
           do a <- runQ $ newName "a"
-             mapM (doCon a tname) cons >>= makeDecs a
+             mapM (doCon a tname) cons >>= makeDecs a . concat
 
-      makeDecs :: Name -> [[Con]] -> m ()
-      makeDecs a pconss =
-          case filter (/= []) pconss of
-            [pcons] -> mapM_ (\pname -> do runQ (dataD (cxt []) (asName pname) [PlainTV a] (List.map return (pcons ++ [NormalC (asName pname) []])) supers) >>= tell . (: [])
-                                           doIsPathType pname
-                                           doIsPathNode v
-                             ) (pathTypeNames' v)
-            [] | length pconss > 1 -> return () -- enum
-            [] -> return ()
-                  -- FIXME - if there are paths from several different
-                  -- constructors we want an extra path type to
-                  -- represent the values for each constructor.
-            pconss' ->
-                makeDecs a [concat pconss']
+      makeDecs :: Name -> [Con] -> m ()
+      makeDecs _a [] = return ()
+      makeDecs a pcons =
+                do mapM_ (\pname ->
+                              -- data Path_Permissions a =
+                              --      Path_Permissions_owner (Path_UserId a) |
+                              --      Path_Permissions_writers (Path_UserIds a) |
+                              --      Path_Permissions_readers (Path_UserIds a) |
+                              --      Path_Permissions
+                              --    deriving (Eq, Ord, Read, Show, Typeable, Data)
+                              do runQ (dataD (cxt []) (asName pname) [PlainTV a] (List.map return (pcons ++ [NormalC (asName pname) []])) supers) >>= tell . (: []))
+                         (Set.map makePathType . Set.map ModelType . typeNames $ v)
+                   mapM_ (\pname -> runQ [d|instance IsPathType ($(asTypeQ pname) a) where idPath = $(asConQ pname)|] >>= tell) (Set.map makePathType . Set.map ModelType . typeNames $ v)
 
       doCon :: (DsMonad m, MonadReaders TypeGraph m) => Name -> Name -> Con -> m [Con]
       doCon a tname (ForallC _ _ con) = doCon a tname con
@@ -161,9 +147,9 @@ doNode v = do
       doField :: (DsMonad m, MonadReaders TypeGraph m) => Name -> Name -> Name -> VarStrictType -> m [Con]
       doField a tname cname (fname', _, ftype) =
           do key' <- expandType ftype >>= fieldVertex (tname, cname, Right fname')
-             let Just pcname = pathConNameOfField key'
+             let Just pcname = makeFieldCon key'
              ptype <- case ftype of
-                        ConT ftname -> runQ $ appT (asTypeQ (pathTypeNameFromTypeName (ModelType ftname))) (varT a)
+                        ConT ftname -> runQ $ appT (asTypeQ (makePathType (ModelType ftname))) (varT a)
                         -- It would be nice to use pathTypeCall (varT a) key' here, but
                         -- it can't infer the superclasses for (PathType Foo a) - Ord,
                         -- Read, Data, etc.
@@ -175,17 +161,8 @@ doNode v = do
                -- clauses to match expressions wrapped in this new constructor.
                _ -> (: []) <$> runQ (normalC (asName pcname) [strictType notStrict (return ptype)])
 
-      supers :: [Name]
-      supers = [''Eq, ''Ord, ''Read, ''Show, ''Typeable, ''Data]
-
-      -- Given a vertex in the type graph, return the names of the
-      -- corresponding path type and its synonyms.
-      pathTypeNames' :: TypeGraphVertex v => v -> Set PathType
-      pathTypeNames' = Set.map pathTypeNameFromTypeName . Set.map ModelType . typeNames
-
-doIsPathType :: forall m. (ContextM m, MonadWriter [Dec] m) => PathType -> m ()
-doIsPathType pname =
-  runQ [d|instance IsPathType ($(asTypeQ pname) a) where idPath = $(asConQ pname)|] >>= tell
+supers :: [Name]
+supers = [''Eq, ''Ord, ''Read, ''Show, ''Typeable, ''Data]
 
 -- | Make lenses for a type with the names described by fieldLensNamePair, which is a little
 -- different from the namer used in th-typegraph (for historical reasons I guess.)

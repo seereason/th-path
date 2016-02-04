@@ -23,8 +23,6 @@ module Language.Haskell.TH.Path.Decs.Common
     , clauses
     , fieldLensNameOld
     , fieldLensNamePair
-    , pathConNameOfField
-    , pathTypeNameFromTypeName
     , HasTypeQ(asTypeQ)
     , HasType(asType)
     , HasName(asName)
@@ -37,6 +35,7 @@ module Language.Haskell.TH.Path.Decs.Common
     , makePeekType
     , makePeekCon
     , makePathCon
+    , makeFieldCon
     ) where
 
 import Control.Lens hiding (cons, Strict)
@@ -69,7 +68,7 @@ bestNames v =
 bestPathTypeName :: TypeGraphVertex v => v -> Maybe (PathType, Set PathType)
 bestPathTypeName v =
     case (bestType v, typeNames v) of
-      (ConT tname, names) -> Just (pathTypeNameFromTypeName (ModelType tname), Set.map (pathTypeNameFromTypeName . ModelType) (Set.delete tname names))
+      (ConT tname, names) -> Just (makePathType (ModelType tname), Set.map (makePathType . ModelType) (Set.delete tname names))
       (_t, s) | null s -> Nothing
       (_t, _s) -> error "bestPathTypeName - unexpected name"
 
@@ -161,9 +160,9 @@ makePeekCon (ModelType s) (ModelType g) = PeekCon (mkName ("Peek_" ++ nameBase s
 makePathCon :: PathType -> String -> PathCon
 makePathCon (PathType p) a = PathCon $ mkName $ nameBase p ++ "_" ++ a
 
-pathTypeNameFromTypeName :: ModelType -> PathType
-pathTypeNameFromTypeName = makePathType
+-- pathTypeNameFromTypeName :: ModelType -> PathType
+-- pathTypeNameFromTypeName = makePathType
 
 -- | Path type constructor for the field described by key in the parent type named tname.
-pathConNameOfField :: TGV -> Maybe PathCon
-pathConNameOfField key = maybe Nothing (\ (tname, _, Right fname') -> Just $ makePathCon (makePathType (ModelType tname)) (nameBase fname')) (key ^. field)
+makeFieldCon :: TGV -> Maybe PathCon
+makeFieldCon key = maybe Nothing (\ (tname, _, Right fname') -> Just $ makePathCon (makePathType (ModelType tname)) (nameBase fname')) (key ^. field)

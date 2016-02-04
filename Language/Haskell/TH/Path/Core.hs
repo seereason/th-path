@@ -71,6 +71,14 @@ import Prelude hiding (exp)
 import Safe (readMay)
 import Web.Routes.TH (derivePathInfo)
 
+-- | A superclass for 'IsPath' that lets us declare the 'idPath' method
+-- for primitive path types with type parameters (such as @Path_Map k
+-- a@.)  The methods of 'IsPath' can only be written for specific
+-- bindings of @k@ and @a@.
+class IsPathType p where
+    idPath :: p -- ^ The identity value for path type @p@.  Obeys the law
+                -- @toLens idPath == iso id id@.
+
 -- | Instances of the 'IsPath' class are used to give a name to each of
 -- the values of type @a@ which can be obtained from a value of type
 -- @s@ using a lens.  Any value of a 'Path' type can be passed
@@ -90,10 +98,6 @@ class IsPathType (Path s a) => IsPath s a where
     -- ^ Build the paths corresponding to a particular s.  This
     -- function will freak out if called with types for which there is
     -- no instance @IsPath s a@.
-
-class IsPathType p where
-    idPath :: p -- ^ The identity value for path type @p@.  Obeys the law
-                -- @toLens idPath == iso id id@.
 
 class IsPathNode s where
     data Peek s

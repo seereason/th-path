@@ -14,7 +14,7 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeSynonymInstances #-}
-module Language.Haskell.TH.Path.Decs.IsPath (doIsPathNode) where
+module Language.Haskell.TH.Path.Decs.IsPath (isPathNodeDecs) where
 
 import Control.Lens hiding (cons, Strict)
 import Control.Monad.Readers (MonadReaders)
@@ -30,8 +30,8 @@ import Language.Haskell.TH.Context (ContextM, reifyInstancesWithContext)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Core (IsPathNode(Peek, peek), IsPath(..), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
 import Language.Haskell.TH.Path.Decs.Common (asConQ, asName, asType, asTypeQ, bestPathTypeName, bestTypeName, clauses,
-                                             makePathCon, makePathType, makePeekCon,
-                                             ModelType(ModelType), PathCon, pathConNameOfField, forestMap, PathCon(PathCon))
+                                             makeFieldCon, makePathCon, makePathType, makePeekCon,
+                                             ModelType(ModelType), PathCon, forestMap, PathCon(PathCon))
 import Language.Haskell.TH.Path.Graph (SelfPath, SinkType)
 import Language.Haskell.TH.Path.Order (Order, Path_OMap(..))
 import Language.Haskell.TH.Path.View (viewInstanceType)
@@ -41,9 +41,9 @@ import Language.Haskell.TH.TypeGraph.TypeGraph (pathKeys, TypeGraph)
 import Language.Haskell.TH.TypeGraph.TypeInfo (fieldVertex, TypeInfo, typeVertex)
 import Language.Haskell.TH.TypeGraph.Vertex (bestName, etype, TGV, TGVSimple, vsimple)
 
-doIsPathNode :: forall m. (MonadWriter [Dec] m, ContextM m, MonadReaders TypeInfo m, MonadReaders TypeGraph m) =>
+isPathNodeDecs :: forall m. (MonadWriter [Dec] m, ContextM m, MonadReaders TypeInfo m, MonadReaders TypeGraph m) =>
                 TGVSimple -> m ()
-doIsPathNode v =
+isPathNodeDecs v =
     case bestTypeName v of
       Just _tname -> do
         (pnc :: [ClauseQ]) <- peekClauses v
@@ -139,10 +139,10 @@ peekClauses v =
       doField :: Name -> Name -> (Name, Strict, Type) -> m Exp
       doField tname x (fname, _, ftype) = do
         f <- expandType ftype >>= fieldVertex (tname, undefined, Right fname)
-        let Just p = pathConNameOfField f
+        let Just p = makeFieldCon f
         maybe (runQ [|error $(litE (stringL ("doField " ++ show (asName p))))|])
               (doPeekNodesOfField x v f)
-              (pathConNameOfField f)
+              (makeFieldCon f)
       -- Anonymous fields are not supported.
       doField' :: Name -> Name -> (Strict, Type) -> m Exp
       doField' _tname _x (_, ftype) =
