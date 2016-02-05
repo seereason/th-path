@@ -34,7 +34,7 @@ import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Core (IsPathType(idPath))
 import Language.Haskell.TH.Path.Decs.Common (asConQ, asName, asTypeQ, bestPathTypeName, fieldLensNamePair,
-                                             makeFieldCon, makePathCon, makePathType, ModelType(ModelType), PathType)
+                                             makeFieldCon, makePathCon, makePathType, ModelType(ModelType))
 import Language.Haskell.TH.Path.Decs.IsPath (peekDecs)
 import Language.Haskell.TH.Path.Decs.PathsOf (pathDecs)
 import Language.Haskell.TH.Path.Decs.PathType (pathType)
@@ -69,13 +69,14 @@ doNode v = do
   runQ (mapM (\psyn -> tySynD (asName psyn) [PlainTV a] (appT (asTypeQ pname) (varT a))) (toList psyns)) >>= tell
   case () of
     _ | selfPath -> return ()
-      | simplePath -> doSimplePath pname
+      | simplePath -> doSimplePath v
       | isJust viewType -> viewPath v (fromJust viewType)
       | otherwise -> doNames v
 
 doSimplePath :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) =>
-                PathType -> m ()
-doSimplePath pname = do
+                TGVSimple -> m ()
+doSimplePath v = do
+  let Just (pname, _psyns) = bestPathTypeName v
   a <- runQ $ newName "a"
   -- e.g. data Path_Int a = Path_Int deriving (Eq, Ord, Read, Show, Typeable, Data)
   runQ (dataD (pure []) (asName pname) [PlainTV a] [normalC (asName pname) []] supers) >>= tell . (: [])
@@ -95,6 +96,14 @@ viewPath v styp = do
           , normalC (asName pname) []
           ] supers) >>= tell . (: [])
   runQ [d|instance IsPathType ($(asTypeQ pname) a) where idPath = $(asConQ pname)|] >>= tell
+
+-- | Is this a type declaration with fields we understand?
+badCons :: [Con] -> Bool
+badCons (ForallC _ _ con : more) = badCons (con : more)
+badCons (RecC _ _ : _more) = False -- If we see *any* named fields we are ok
+badCons (NormalC _ _ : more) = badCons more
+badCons (InfixC _ _ _ : more) = badCons more
+badCons [] = True -- We didn't see any named fields, we are ok
 
 doNames :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) => TGVSimple -> m ()
 doNames v = mapM_ (\tname -> runQ (reify tname) >>= doInfo) (typeNames v)
@@ -117,6 +126,7 @@ doNames v = mapM_ (\tname -> runQ (reify tname) >>= doInfo) (typeNames v)
       doDec dec = error $ "doName - unexpected Dec: " ++ pprint dec ++ "\n  " ++ show dec
 
       doDataD :: Name -> [Con] -> m ()
+      doDataD _tname cons | badCons cons = doSimplePath v
       doDataD tname cons =
           do a <- runQ $ newName "a"
              mapM (doCon a tname) cons >>= makeDecs a . concat
