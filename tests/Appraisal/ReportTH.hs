@@ -38,7 +38,7 @@ import Language.Haskell.TH.Lift (lift)
 --import Language.Haskell.TH.PprLib (Doc, ptext, vcat)
 --import Language.Haskell.TH.Path.Core
 import Language.Haskell.TH.Path.Graph (runTypeGraphT)
-import Language.Haskell.TH.Path.Decs (pathDecs)
+import Language.Haskell.TH.Path.Decs (allDecs)
 --import Language.Haskell.TH.Path.Order (lens_omat)
 --import Language.Haskell.TH.Path.View (View(viewLens))
 import Language.Haskell.TH.Syntax (addDependentFile)
@@ -64,7 +64,7 @@ import Prelude hiding (readFile)
 decs :: [Dec]
 decs = $(do let dir s = runIO (getDirectoryContents s) >>= mapM_ (addDependentFile) . map (s </>) . filter (isSuffixOf ".hs")
             mapM_ dir ["Language/Haskell/TH/Path", "Language/Haskell/TH/Path/Decs"]
-            decs' <- startTypes >>= runTypeGraphT pathDecs -- >>= lift
+            decs' <- startTypes >>= runTypeGraphT allDecs -- >>= lift
             let code = (unlines . map (pprint . friendlyNames) . sort) decs'
             runIO $ writeFile "tests/actual.hs" code
             lift decs')

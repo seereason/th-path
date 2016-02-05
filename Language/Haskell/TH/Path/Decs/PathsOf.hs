@@ -14,7 +14,7 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeSynonymInstances #-}
-module Language.Haskell.TH.Path.Decs.PathsOf (isPathDecs) where
+module Language.Haskell.TH.Path.Decs.PathsOf (pathDecs) where
 
 import Control.Lens hiding (cons, Strict)
 import Control.Monad (when)
@@ -46,9 +46,9 @@ import Language.Haskell.TH.TypeGraph.Vertex (bestName, etype, TGVSimple, TypeGra
 -- corresponding Path instance.  Each clause matches some possible value
 -- of the path type, and returns a lens that extracts the value the
 -- path type value specifies.
-isPathDecs :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) =>
-                     TGVSimple -> TGVSimple -> m ()
-isPathDecs key gkey = do
+pathDecs :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) =>
+            TGVSimple -> TGVSimple -> m ()
+pathDecs key gkey = do
   ptyp <- pathType (pure (bestType gkey)) key
   tlc <- execWriterT $ evalStateT (toLensClauses key gkey) mempty
   poc <- execWriterT $ evalStateT (pathsOfClauses key gkey) mempty

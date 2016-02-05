@@ -14,7 +14,7 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeSynonymInstances #-}
-module Language.Haskell.TH.Path.Decs.IsPath (isPathNodeDecs) where
+module Language.Haskell.TH.Path.Decs.IsPath (peekDecs) where
 
 import Control.Lens hiding (cons, Strict)
 import Control.Monad.Readers (MonadReaders)
@@ -41,9 +41,9 @@ import Language.Haskell.TH.TypeGraph.TypeGraph (pathKeys, TypeGraph)
 import Language.Haskell.TH.TypeGraph.TypeInfo (fieldVertex, TypeInfo, typeVertex)
 import Language.Haskell.TH.TypeGraph.Vertex (bestName, etype, TGV, TGVSimple, vsimple)
 
-isPathNodeDecs :: forall m. (MonadWriter [Dec] m, ContextM m, MonadReaders TypeInfo m, MonadReaders TypeGraph m) =>
-                TGVSimple -> m ()
-isPathNodeDecs v =
+peekDecs :: forall m. (MonadWriter [Dec] m, ContextM m, MonadReaders TypeInfo m, MonadReaders TypeGraph m) =>
+            TGVSimple -> m ()
+peekDecs v =
     case bestTypeName v of
       Just _tname -> do
         (pnc :: [ClauseQ]) <- peekClauses v
@@ -56,9 +56,9 @@ isPathNodeDecs v =
       Nothing -> return ()
     where
       peekCons :: m [ConQ]
-      peekCons = (concat . List.map (doPair v) . toList) <$> (pathKeys v)
-      doPair :: TGVSimple -> TGVSimple -> [ConQ]
-      doPair v g =
+      peekCons = (concat . List.map doPair . toList) <$> (pathKeys v)
+      doPair :: TGVSimple -> [ConQ]
+      doPair g =
           let Just (vp, _) = bestPathTypeName v in
           case (bestName v, bestName g) of
             (Just vn, Just gn) ->
