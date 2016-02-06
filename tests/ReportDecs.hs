@@ -1017,14 +1017,13 @@ instance IsPath AbbrevPair JSONText
                                          (Path_Markup JSONText)
           toLens (Path_First v) = _1 . toLens v
           toLens (Path_Second v) = _2 . toLens v
-          pathsOf (x, _) a = map Path_First (pathsOf (x :: CIString) a)
-          pathsOf (_, x) a = map Path_Second (pathsOf (x :: Markup) a)
+          pathsOf x a = map Path_First (pathsOf (fst x :: CIString) a)
+          pathsOf x a = map Path_Second (pathsOf (snd x :: Markup) a)
 instance IsPath AbbrevPair Markup
     where type Path AbbrevPair
                     Markup = Path_Pair (Path_CIString Markup) (Path_Markup Markup)
           toLens (Path_Second _) = _2
-          pathsOf (x, _) a = []
-          pathsOf (_, x) a = map Path_Second (pathsOf (x :: Markup) a)
+          pathsOf x a = map Path_Second (pathsOf (snd x :: Markup) a)
 instance IsPath AbbrevPair AbbrevPair
     where type Path AbbrevPair
                     AbbrevPair = Path_Pair (Path_CIString AbbrevPair)
@@ -1036,15 +1035,14 @@ instance IsPath AbbrevPair CIString
                     CIString = Path_Pair (Path_CIString CIString)
                                          (Path_Markup CIString)
           toLens (Path_First _) = _1
-          pathsOf (x, _) a = map Path_First (pathsOf (x :: CIString) a)
-          pathsOf (_, x) a = []
+          pathsOf x a = map Path_First (pathsOf (fst x :: CIString) a)
 instance IsPath AbbrevPair Text
     where type Path AbbrevPair Text = Path_Pair (Path_CIString Text)
                                                 (Path_Markup Text)
           toLens (Path_First v) = _1 . toLens v
           toLens (Path_Second v) = _2 . toLens v
-          pathsOf (x, _) a = map Path_First (pathsOf (x :: CIString) a)
-          pathsOf (_, x) a = map Path_Second (pathsOf (x :: Markup) a)
+          pathsOf x a = map Path_First (pathsOf (fst x :: CIString) a)
+          pathsOf x a = map Path_Second (pathsOf (snd x :: Markup) a)
 instance IsPath AbbrevPairs JSONText
     where type Path AbbrevPairs JSONText = Path_OMap AbbrevPairID
                                                      (Path_Pair (Path_CIString JSONText)
@@ -1168,15 +1166,15 @@ instance IsPath MarkupPair JSONText
                     JSONText = Path_Pair (Path_Markup JSONText) (Path_Markup JSONText)
           toLens (Path_First v) = _1 . toLens v
           toLens (Path_Second v) = _2 . toLens v
-          pathsOf (x, _) a = map Path_First (pathsOf (x :: Markup) a)
-          pathsOf (_, x) a = map Path_Second (pathsOf (x :: Markup) a)
+          pathsOf x a = map Path_First (pathsOf (fst x :: Markup) a)
+          pathsOf x a = map Path_Second (pathsOf (snd x :: Markup) a)
 instance IsPath MarkupPair Markup
     where type Path MarkupPair Markup = Path_Pair (Path_Markup Markup)
                                                   (Path_Markup Markup)
           toLens (Path_First _) = _1
           toLens (Path_Second _) = _2
-          pathsOf (x, _) a = map Path_First (pathsOf (x :: Markup) a)
-          pathsOf (_, x) a = map Path_Second (pathsOf (x :: Markup) a)
+          pathsOf x a = map Path_First (pathsOf (fst x :: Markup) a)
+          pathsOf x a = map Path_Second (pathsOf (snd x :: Markup) a)
 instance IsPath MarkupPair MarkupPair
     where type Path MarkupPair
                     MarkupPair = Path_Pair (Path_Markup MarkupPair)
@@ -1188,8 +1186,8 @@ instance IsPath MarkupPair Text
                                                 (Path_Markup Text)
           toLens (Path_First v) = _1 . toLens v
           toLens (Path_Second v) = _2 . toLens v
-          pathsOf (x, _) a = map Path_First (pathsOf (x :: Markup) a)
-          pathsOf (_, x) a = map Path_Second (pathsOf (x :: Markup) a)
+          pathsOf x a = map Path_First (pathsOf (fst x :: Markup) a)
+          pathsOf x a = map Path_Second (pathsOf (snd x :: Markup) a)
 instance IsPath MarkupPairs JSONText
     where type Path MarkupPairs JSONText = Path_OMap MarkupPairID
                                                      (Path_Pair (Path_Markup JSONText)
@@ -2076,8 +2074,7 @@ instance IsPath EUI ImageFile
     where type Path EUI ImageFile = Path_Either (Path_URI ImageFile)
                                                 (Path_ImageFile ImageFile)
           toLens (Path_Right _) = _Right
-          pathsOf (Left x) a = []
-          pathsOf (Right x) a = map Path_Right (pathsOf (x :: ImageFile) a)
+          pathsOf x a = either (\_ -> []) (\y -> map Path_Right (pathsOf (y :: ImageFile) a)) x
 instance IsPath EUI EUI
     where type Path EUI EUI = Path_Either (Path_URI EUI)
                                           (Path_ImageFile EUI)
@@ -2087,23 +2084,20 @@ instance IsPath EUI URI
     where type Path EUI URI = Path_Either (Path_URI URI)
                                           (Path_ImageFile URI)
           toLens (Path_Left _) = _Left
-          pathsOf (Left x) a = map Path_Left (pathsOf (x :: URI) a)
-          pathsOf (Right x) a = []
+          pathsOf x a = either (\y -> map Path_Left (pathsOf (y :: URI) a)) (\_ -> []) x
 instance IsPath MEUI ImageFile
     where type Path MEUI
                     ImageFile = Path_Maybe (Path_Either (Path_URI ImageFile)
                                                         (Path_ImageFile ImageFile))
           toLens (Path_Just v) = _Just . toLens v
-          pathsOf (Just x) a = map Path_Just (pathsOf (x :: Either URI
-                                                                   ImageFile) a)
-          pathsOf (Nothing) _ = []
+          pathsOf x a = maybe [] (\y -> map Path_Just (pathsOf (y :: Either URI
+                                                                            ImageFile) a)) x
 instance IsPath MEUI EUI
     where type Path MEUI EUI = Path_Maybe (Path_Either (Path_URI EUI)
                                                        (Path_ImageFile EUI))
           toLens (Path_Just _) = _Just
-          pathsOf (Just x) a = map Path_Just (pathsOf (x :: Either URI
-                                                                   ImageFile) a)
-          pathsOf (Nothing) _ = []
+          pathsOf x a = maybe [] (\y -> map Path_Just (pathsOf (y :: Either URI
+                                                                            ImageFile) a)) x
 instance IsPath MEUI MEUI
     where type Path MEUI MEUI = Path_Maybe (Path_Either (Path_URI MEUI)
                                                         (Path_ImageFile MEUI))
@@ -2113,9 +2107,8 @@ instance IsPath MEUI URI
     where type Path MEUI URI = Path_Maybe (Path_Either (Path_URI URI)
                                                        (Path_ImageFile URI))
           toLens (Path_Just v) = _Just . toLens v
-          pathsOf (Just x) a = map Path_Just (pathsOf (x :: Either URI
-                                                                   ImageFile) a)
-          pathsOf (Nothing) _ = []
+          pathsOf x a = maybe [] (\y -> map Path_Just (pathsOf (y :: Either URI
+                                                                            ImageFile) a)) x
 instance IsPath MaybeImageFile String
     where type Path MaybeImageFile String = Path_MaybeImageFile String
           toLens (Path_MaybeImageFile_View _) = viewLens :: Lens' (Maybe ImageFile)

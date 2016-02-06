@@ -23,7 +23,7 @@ import Control.Monad.State (evalStateT, get, modify, StateT)
 import Control.Monad.Trans as Monad (lift)
 import Control.Monad.Writer (MonadWriter, execWriterT, tell)
 import Data.List as List (concatMap, map)
-import Data.Map as Map (Map, toList)
+import Data.Map as Map (lookup, Map, toList)
 import Data.Maybe (isJust)
 import Data.Set.Extra as Set (insert, member, Set)
 import Language.Haskell.TH
@@ -38,7 +38,7 @@ import Language.Haskell.TH.Path.Order (Order, Path_OMap(..), toPairs)
 import Language.Haskell.TH.Path.View (viewInstanceType)
 import Language.Haskell.TH.Syntax as TH (Quasi(qReify))
 import Language.Haskell.TH.TypeGraph.Expand (unE, expandType)
-import Language.Haskell.TH.TypeGraph.TypeGraph (TypeGraph)
+import Language.Haskell.TH.TypeGraph.TypeGraph (allPathKeys, TypeGraph)
 import Language.Haskell.TH.TypeGraph.TypeInfo (TypeInfo, typeVertex)
 import Language.Haskell.TH.TypeGraph.Vertex (bestName, etype, TGVSimple, TypeGraphVertex(bestType))
 
@@ -91,13 +91,11 @@ pathsOfClauses key gkey =
                 vIsPath <- testIsPath vtyp gkey
                 let Just tname = bestTypeName key
                 let pcname = makePathCon (makePathType tname) "View"
-                runQ [d| _f x a =
-                           $(case vIsPath of
-                               True -> [| -- Get the value as transformed by the view lens
-                                          let p = $(asConQ pcname) idPath :: Path $(pure (view (etype . unE) key)) $(pure vtyp)
-                                              [x'] = toListOf (toLens p) x :: [$(pure vtyp)] in
-                                          List.map $(asConQ pcname) (pathsOf x' a {- :: [Path $(pure vtyp) $(pure (view (etype . unE) gkey))] -}) |]
-                               False -> [| [] |]) |] >>= tell . clauses
+                -- Get the value as transformed by the view lens
+                when vIsPath (runQ [d| _f x a =
+                                         let p = $(asConQ pcname) idPath :: Path $(pure (view (etype . unE) key)) $(pure vtyp)
+                                             [x'] = toListOf (toLens p) x :: [$(pure vtyp)] in
+                                         List.map $(asConQ pcname) (pathsOf x' a {- :: [Path $(pure vtyp) $(pure (view (etype . unE) gkey))] -}) |] >>= tell . clauses)
        ConT tname ->
            doName tname
        AppT (AppT mtyp _ityp) vtyp
@@ -105,38 +103,22 @@ pathsOfClauses key gkey =
                -- Return a path for each element of an order, assuming
                -- there is a path from the element type to the goal.
                do vIsPath <- testIsPath vtyp gkey
-                  runQ [d| _f o a =
-                             $(case vIsPath of
-                                 True -> [| List.concatMap (\(k, v) -> List.map (Path_At k) (pathsOf (v :: $(pure vtyp)) a {-:: [Path $(pure vtyp) (pure (view (etype . unE) gkey))]-})) (toPairs o) |]
-                                 False -> [| [] |]) |] >>= tell . clauses
+                  when vIsPath (runQ [d| _f o a = List.concatMap (\(k, v) -> List.map (Path_At k) (pathsOf (v :: $(pure vtyp)) a {-:: [Path $(pure vtyp) (pure (view (etype . unE) gkey))]-})) (toPairs o) |] >>= tell . clauses)
        AppT ListT _etyp -> return ()
        AppT (AppT t3 _ktyp) vtyp
            | t3 == ConT ''Map ->
                do vIsPath <- testIsPath vtyp gkey
-                  runQ [d| _f mp a =
-                             $(case vIsPath of
-                                 True -> [| List.concatMap (\(k, v) -> List.map (Path_Look k) (pathsOf (v :: $(pure vtyp)) a {-:: [Path $(pure vtyp) (pure (view (etype . unE) gkey))]-})) (Map.toList mp) |]
-                                 False -> [| [] |]) |] >>= tell . clauses
+                  when vIsPath (runQ [d| _f mp a = List.concatMap (\(k, v) -> List.map (Path_Look k) (pathsOf (v :: $(pure vtyp)) a {-:: [Path $(pure vtyp) (pure (view (etype . unE) gkey))]-})) (Map.toList mp) |] >>= tell . clauses)
        AppT (AppT (TupleT 2) ftyp) styp ->
            do fIsPath <- testIsPath ftyp gkey
               sIsPath <- testIsPath styp gkey
               -- trace ("testIsPath " ++ pprint styp ++ " " ++ pprint gkey ++ " -> " ++ show sIsPath) (return ())
-              runQ [d| _f (x, _) a =
-                         $(case fIsPath of
-                             True -> [| List.map Path_First (pathsOf (x :: $(pure ftyp)) a {- :: [Path $(pure ftyp) $(pure (view (etype . unE) gkey))] -}) |]
-                             False -> [| [] |]) |] >>= tell . clauses
-              runQ [d| _f (_, x) a =
-                         $(case sIsPath of
-                             True -> [| List.map Path_Second (pathsOf (x :: $(pure styp)) a {- :: [Path $(pure styp) $(pure (view (etype . unE) gkey))] -}) |]
-                             False -> [| [] |]) |] >>= tell . clauses
+              when fIsPath (runQ [d| _f x a = List.map Path_First (pathsOf (fst x :: $(pure ftyp)) a {- :: [Path $(pure ftyp) $(pure (view (etype . unE) gkey))] -}) |] >>= tell . clauses)
+              when sIsPath (runQ [d| _f x a = List.map Path_Second (pathsOf (snd x :: $(pure styp)) a {- :: [Path $(pure styp) $(pure (view (etype . unE) gkey))] -}) |] >>= tell . clauses)
        AppT t1 etyp
            | t1 == ConT ''Maybe ->
                do eIsPath <- testIsPath etyp gkey
-                  runQ [d| _f (Just x) a =
-                             $(case eIsPath of
-                                 True -> [| List.map Path_Just (pathsOf (x :: $(pure etyp)) a {- :: [Path $(pure etyp) $(pure (view (etype . unE) gkey))] -}) |]
-                                 False -> [| [] |]) |] >>= tell . clauses
-                  runQ [d| _f Nothing _ = [] |] >>= tell . clauses
+                  when eIsPath (runQ [d| _f x a = maybe [] (\y -> List.map Path_Just (pathsOf (y :: $(pure etyp)) a {- :: [Path $(pure etyp) $(pure (view (etype . unE) gkey))] -})) x |] >>= tell . clauses)
        AppT (AppT t3 ltyp) rtyp
            | t3 == ConT ''Either ->
                do -- Are there paths from the left type to a?  This is
@@ -144,14 +126,8 @@ pathsOfClauses key gkey =
                   -- here is kind of a hack.
                   lIsPath <- testIsPath ltyp gkey
                   rIsPath <- testIsPath rtyp gkey
-                  runQ [d| _f (Left x) a =
-                             $(case lIsPath of
-                                 True -> [| List.map Path_Left (pathsOf (x :: $(pure ltyp)) a {- :: [Path $(pure ltyp) $(pure (view (etype . unE) gkey))] -}) |]
-                                 False -> [| [] |]) |] >>= tell . clauses
-                  runQ [d| _f (Right x) a =
-                             $(case rIsPath of
-                                 True -> [| List.map Path_Right (pathsOf (x :: $(pure rtyp)) a {- :: [Path $(pure rtyp) $(pure (view (etype . unE) gkey))] -}) |]
-                                 False -> [| [] |]) |] >>= tell . clauses
+                  when lIsPath (runQ [d| _f x a = either (\y -> List.map Path_Left (pathsOf (y :: $(pure ltyp)) a {- :: [Path $(pure ltyp) $(pure (view (etype . unE) gkey))] -})) (\_ -> []) x |] >>= tell . clauses)
+                  when rIsPath (runQ [d| _f x a = either (\_ -> []) (\y -> List.map Path_Right (pathsOf (y :: $(pure rtyp)) a {- :: [Path $(pure ltyp) $(pure (view (etype . unE) gkey))] -})) x |] >>= tell . clauses)
        _ -> tell [clause [wildP, wildP] (normalB [|error $ "pathsOfClauses - unexpected type: " ++ pprint key|]) []]
     where
       doName :: Name -> StateT (Set TGVSimple) m ()
@@ -205,8 +181,7 @@ pathsOfClauses key gkey =
                                                    True -> [|List.map $(asConQ pcon) (pathsOf ($(varE fparm) :: $(pure ftype)) a)|]
                                                    False -> [| [] |]) tns)) |] >>= tell . clauses
 
-
--- This is a bit crazy - we should just query the graph
 testIsPath :: (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => Type -> TGVSimple -> m Bool
 testIsPath typ gkey = do
-  expandType typ >>= typeVertex >>= \key -> execWriterT (evalStateT (toLensClauses key gkey) mempty) >>= return . not . null
+  key <- expandType typ >>= typeVertex
+  (maybe False (Set.member gkey) . Map.lookup key) <$> allPathKeys
