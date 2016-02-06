@@ -127,7 +127,10 @@ instance HasTypeQ ModelType where asTypeQ = conT . unModelType
 instance HasName PathType where asName = unPathType
 instance HasType PathType where asType = ConT . unPathType
 instance HasTypeQ PathType where asTypeQ = conT . unPathType
-instance HasCon PathType where asCon = ConE . unPathType -- There is always a self path constructor that has the same name as the type
+instance HasCon PathType where asCon = ConE . unPathType
+                               -- ^ There is always a self path constructor that has
+                               -- the same name as the type.  But there are others
+                               -- too, so this is not really safe.
 instance HasConQ PathType where asConQ = conE . unPathType
 instance HasName PathCon where asName = unPathCon
 instance HasCon PathCon where asCon = ConE . unPathCon

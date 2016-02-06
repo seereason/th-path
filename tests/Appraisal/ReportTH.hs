@@ -20,6 +20,7 @@ import Appraisal.ReportInstances (startTypes)
 --import Appraisal.ReportMap (ReportMap(ReportMap), ReportID)
 --import Appraisal.Utils.CIString (CIString(..))
 --import Control.Lens (Lens', Traversal', iso, _Just, _1, _2, _Left, _Right)
+import Control.Monad (filterM)
 --import Control.Monad.Writer (execWriterT)
 import Data.ByteString.UTF8 as UTF8 (toString)
 import Data.FileEmbed (embedFile)
@@ -60,12 +61,16 @@ import Prelude hiding (readFile)
 --import qualified System.IO as IO
 --import System.IO.Error (isDoesNotExistError)
 --import System.Posix.Files (getFdStatus, fileMode, setFdMode, unionFileModes, ownerReadMode, groupReadMode, otherReadMode)
+import System.Posix.Files (getSymbolicLinkStatus, isRegularFile)
 --import System.Posix.IO (handleToFd, closeFd)
 
 decs :: [Dec]
-decs = $(do addDependentFile "tests/ReportHead.hs"
+decs = $(do let regular path = runIO $ isRegularFile <$> getSymbolicLinkStatus path
+            addDependentFile "tests/ReportHead.hs"
             addDependentFile "tests/ReportDecs.hs"
-            let dir s = runIO (getDirectoryContents s) >>= mapM_ (addDependentFile) . map (s </>) . filter (isSuffixOf ".hs")
+            let dir s = runIO (getDirectoryContents s) >>=
+                        filterM regular . map (s </>) . filter (isSuffixOf ".hs") >>=
+                        mapM_ (addDependentFile)
             mapM_ dir ["Language/Haskell/TH/Path", "Language/Haskell/TH/Path/Decs"]
             decs' <- startTypes >>= runTypeGraphT allDecs -- >>= lift
             let code = (unlines . map (pprint . friendlyNames) . sort) decs'
