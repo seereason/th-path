@@ -143,7 +143,7 @@ data ReportIntendedUse
     = SalesAdvisory
     | EstatePlanning
     | EstateTax
-    | InsuranceCoverage
+    | Insurance
     | InsuranceClaim
     | CharitableDonation
     | EquitableDistribution
@@ -294,7 +294,7 @@ reportIntendedUseMarkup report =
       Just SalesAdvisory -> Just (rawMarkdown "Sales Advisory")
       Just EstatePlanning -> Just (rawMarkdown "Estate Tax Planning")
       Just EstateTax -> Just (rawMarkdown "Estate Tax")
-      Just InsuranceCoverage -> Just (rawMarkdown "Insurance Coverage")
+      Just Insurance -> Just (rawMarkdown "Insurance Coverage")
       Just InsuranceClaim -> Just (rawMarkdown "Insurance Claim")
       Just CharitableDonation -> Just (rawMarkdown "Charitable Donation for Income Tax")
       Just EquitableDistribution -> Just (rawMarkdown "Equitable Distribution")
