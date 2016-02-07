@@ -77,15 +77,17 @@ peekClauses v =
        _ | selfPath -> return []
          | simplePath -> return []
          | isJust viewType ->
-             doPeekNodesOfView v (fromJust viewType)
+             let wtyp = fromJust viewType in
+             let tname = fromMaybe (error $ "No name for " ++ pprint v) (bestTypeName v) in
+             doPeekNodeOf v wtyp (makePathCon (makePathType tname) "View")
        ConT tname -> doName tname
        AppT (AppT mtyp _ityp) vtyp
            | mtyp == ConT ''Order ->
-               doPeekNodesOfOrder v vtyp
+               doPeekNodesOfOrder v vtyp (PathCon 'Path_At)
        AppT ListT _etyp -> error "list" {- return [clause [wildP] (normalB [|error "list"|]) []]-}
        AppT (AppT t3 _ktyp) vtyp
            | t3 == ConT ''Map ->
-               doPeekNodesOfMap v vtyp
+               doPeekNodesOfMap v vtyp (PathCon 'Path_Look)
        AppT (AppT (TupleT 2) ftyp) styp ->
            mappend <$> doPeekNodeOf v ftyp (PathCon 'Path_First) <*> doPeekNodeOf v styp (PathCon 'Path_Second)
        AppT t1 etyp
@@ -148,27 +150,6 @@ peekClauses v =
       doField' _tname _x (_, ftype) =
           runQ [|error $(litE (stringL ("doField' " ++ pprint ftype)))|]
 
--- | Build a value of type such as Peek_AbbrevPair -> Peek_AbbrevPairs
-shim :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => TGVSimple -> TGVSimple -> ExpQ -> m Exp
-shim w v pcname =
-    do x <- runQ $ newName "x"
-       gs <- pathKeys w
-       matches <- concat <$> (mapM (doPair x) (Foldable.toList gs))
-       runQ [| \v -> $(caseE [|v|] (List.map pure matches)) |]
-    where
-      doPair :: Name -> TGVSimple -> m [Match]
-      doPair x g = do
-        case (bestName v, bestName w, bestName g) of
-          (Just vn, Just wn, Just gn) ->
-              do q <- runQ $ newName "q"
-                 sequence
-                   [runQ $ match (conP (asName (makePeekCon (ModelType wn) (ModelType gn))) [varP q, varP x])
-                             (normalB [|$(asConQ (makePeekCon (ModelType vn) (ModelType gn)))
-                                         (($pcname :: $(asTypeQ (makePathType (ModelType wn))) $(asTypeQ g) ->
-                                                     $(asTypeQ (makePathType (ModelType vn))) $(asTypeQ g)) $(varE q)) $(varE x)|])
-                             []]
-          _ -> pure []
-
 doPeekNodesOfField :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => Name -> TGVSimple -> TGV -> PathCon -> m Exp
 doPeekNodesOfField x v f pcname =
   do let tname = fromMaybe (error $ "No name for " ++ pprint v) (bestTypeName v)
@@ -185,17 +166,11 @@ doPeekNodesOfField x v f pcname =
                [] -> error $(litE (stringL ("No " ++ show (asName pcname) ++ " field found")))
                ps -> error $ $(litE (stringL ("Multiple " ++ show (asName pcname) ++ " fields found: "))) ++ show ps |]
 
-doPeekNodesOfView :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => TGVSimple -> Type -> m [ClauseQ]
-doPeekNodesOfView v wtyp =
-    let tname = fromMaybe (error $ "No name for " ++ pprint v) (bestTypeName v) in
-    doPeekNodeOf v wtyp (makePathCon (makePathType tname) "View")
-
-doPeekNodesOfOrder :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => TGVSimple -> Type -> m [ClauseQ]
-doPeekNodesOfOrder v wtyp =
+doPeekNodesOfOrder :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => TGVSimple -> Type -> PathCon -> m [ClauseQ]
+doPeekNodesOfOrder v wtyp pcname =
   do w <- expandType wtyp >>= typeVertex
      let tname = fromMaybe (error $ "No name for " ++ pprint v) (bestTypeName v)
          wname = fromMaybe (error $ "No name for " ++ pprint w ++ ", view of " ++ pprint v) (bestTypeName w)
-         pcname = PathCon 'Path_At
      p <- runQ $ newName "p"
      k <- runQ $ newName "k"
      peeklift <- shim w v [|$(asConQ pcname) $(varE k)|]
@@ -208,12 +183,11 @@ doPeekNodesOfOrder v wtyp =
                                        Node ($(asConQ (makePeekCon tname wname)) $(varE p) y) (forestMap $(pure peeklift) (peek y :: Forest (Peek $(asTypeQ wtyp))))
                                    _ -> error ("doPeekNodesOfOrder: " ++ show path)) paths) :: Forest (Peek $(asTypeQ v)) |] >>= return . clauses
 
-doPeekNodesOfMap :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => TGVSimple -> Type -> m [ClauseQ]
-doPeekNodesOfMap v wtyp =
+doPeekNodesOfMap :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => TGVSimple -> Type -> PathCon -> m [ClauseQ]
+doPeekNodesOfMap v wtyp pcname =
   do w <- expandType wtyp >>= typeVertex
      let tname = fromMaybe (error $ "No name for " ++ pprint v) (bestTypeName v)
          wname = fromMaybe (error $ "No name for " ++ pprint wtyp ++ ", view of " ++ pprint v) (bestTypeName w)
-         pcname = PathCon 'Path_Look
      p <- runQ $ newName "p"
      k <- runQ $ newName "k"
      peeklift <- shim w v [|$(asConQ pcname) $(varE k)|]
@@ -237,9 +211,32 @@ doPeekNodeOf v wtyp pcname =
                                _ -> False|]
      p <- runQ $ newName "p"
      peeklift <- shim w v (asConQ pcname)
-     runQ [d| _f x = (case filter $matchpath (pathsOf x (undefined :: Proxy $(asTypeQ wtyp))) :: [$(asTypeQ (makePathType tname)) $(asTypeQ wtyp)] of
-                        $(listP [asP p (conP (asName pcname) [wildP])] :: PatQ) ->
-                            let [y] = toListOf (toLens $(varE p)) x :: [$(pure wtyp)] in
-                            [Node ($(asConQ (makePeekCon tname wname)) $(varE p) y) (forestMap $(pure peeklift) (peek y :: Forest (Peek $(asTypeQ wtyp))))]
-                        [] -> [])  :: Forest (Peek $(asTypeQ  v)) |] >>= return . clauses
+     runQ [d| _f x = let paths = filter $matchpath (pathsOf x (undefined :: Proxy $(asTypeQ wtyp))) :: [$(asTypeQ (makePathType tname)) $(asTypeQ wtyp)] in
+                     List.map
+                         (\path ->
+                              case path of
+                                $(asP p (conP (asName pcname) [wildP])) ->
+                                    let [y] = toListOf (toLens $(varE p)) x :: [$(pure wtyp)] in
+                                    Node ($(asConQ (makePeekCon tname wname)) $(varE p) y) (forestMap $(pure peeklift) (peek y :: Forest (Peek $(asTypeQ wtyp))))
+                                _ -> error ("doPeekNodesOf: " ++ show path)) paths |] >>= return . clauses
 
+-- | Build a value of type such as Peek_AbbrevPair -> Peek_AbbrevPairs
+shim :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => TGVSimple -> TGVSimple -> ExpQ -> m Exp
+shim w v pcname =
+    do x <- runQ $ newName "x"
+       gs <- pathKeys w
+       matches <- concat <$> (mapM (doPair x) (Foldable.toList gs))
+       runQ [| \v -> $(caseE [|v|] (List.map pure matches)) |]
+    where
+      doPair :: Name -> TGVSimple -> m [Match]
+      doPair x g = do
+        case (bestName v, bestName w, bestName g) of
+          (Just vn, Just wn, Just gn) ->
+              do q <- runQ $ newName "q"
+                 sequence
+                   [runQ $ match (conP (asName (makePeekCon (ModelType wn) (ModelType gn))) [varP q, varP x])
+                             (normalB [|$(asConQ (makePeekCon (ModelType vn) (ModelType gn)))
+                                         (($pcname :: $(asTypeQ (makePathType (ModelType wn))) $(asTypeQ g) ->
+                                                     $(asTypeQ (makePathType (ModelType vn))) $(asTypeQ g)) $(varE q)) $(varE x)|])
+                             []]
+          _ -> pure []

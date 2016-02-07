@@ -8509,24 +8509,26 @@ instance IsPathNode (Either URI ImageFile)
                              (Either URI ImageFile)
               | Peek_EUI_URI (Path_EUI URI) URI
               deriving (Eq, Show)
-          peek x = case filter (\p -> case p of
-                                          Path_Left _ -> True
-                                          _ -> False) (pathsOf x (undefined :: Proxy URI)) :: [Path_EUI URI] of
-                       [p@(Path_Left _)] -> let [y] = toListOf (toLens p) x :: [URI]
-                                             in [Node (Peek_EUI_URI p y) (forestMap (\v -> case v of
-                                                                                               Peek_URI_URI q
-                                                                                                            x -> Peek_EUI_URI ((Path_Left :: Path_URI URI ->
-                                                                                                                                             Path_EUI URI) q) x) (peek y :: Forest (Peek URI)))]
-                       [] -> [] :: Forest (Peek (Either URI ImageFile))
-          peek x = case filter (\p -> case p of
-                                          Path_Right _ -> True
-                                          _ -> False) (pathsOf x (undefined :: Proxy ImageFile)) :: [Path_EUI ImageFile] of
-                       [p@(Path_Right _)] -> let [y] = toListOf (toLens p) x :: [ImageFile]
-                                              in [Node (Peek_EUI_ImageFile p y) (forestMap (\v -> case v of
-                                                                                                      Peek_ImageFile_ImageFile q
-                                                                                                                               x -> Peek_EUI_ImageFile ((Path_Right :: Path_ImageFile ImageFile ->
-                                                                                                                                                                       Path_EUI ImageFile) q) x) (peek y :: Forest (Peek ImageFile)))]
-                       [] -> [] :: Forest (Peek (Either URI ImageFile))
+          peek x = let paths = filter (\p -> case p of
+                                                 Path_Left _ -> True
+                                                 _ -> False) (pathsOf x (undefined :: Proxy URI)) :: [Path_EUI URI]
+                    in map (\path -> case path of
+                                         p@(Path_Left _) -> let [y] = toListOf (toLens p) x :: [URI]
+                                                             in Node (Peek_EUI_URI p y) (forestMap (\v -> case v of
+                                                                                                              Peek_URI_URI q
+                                                                                                                           x -> Peek_EUI_URI ((Path_Left :: Path_URI URI ->
+                                                                                                                                                            Path_EUI URI) q) x) (peek y :: Forest (Peek URI)))
+                                         _ -> error ("doPeekNodesOf: " ++ show path)) paths
+          peek x = let paths = filter (\p -> case p of
+                                                 Path_Right _ -> True
+                                                 _ -> False) (pathsOf x (undefined :: Proxy ImageFile)) :: [Path_EUI ImageFile]
+                    in map (\path -> case path of
+                                         p@(Path_Right _) -> let [y] = toListOf (toLens p) x :: [ImageFile]
+                                                              in Node (Peek_EUI_ImageFile p y) (forestMap (\v -> case v of
+                                                                                                                     Peek_ImageFile_ImageFile q
+                                                                                                                                              x -> Peek_EUI_ImageFile ((Path_Right :: Path_ImageFile ImageFile ->
+                                                                                                                                                                                      Path_EUI ImageFile) q) x) (peek y :: Forest (Peek ImageFile)))
+                                         _ -> error ("doPeekNodesOf: " ++ show path)) paths
 instance IsPathNode (Map ItemFieldName Markup)
     where data Peek (Map ItemFieldName Markup)
               = Peek_MIM_JSONText (Path_MIM JSONText) JSONText
@@ -9162,36 +9164,38 @@ instance IsPathNode ((Markup, Markup))
                                            ((Markup, Markup))
               | Peek_MarkupPair_Text (Path_MarkupPair Text) Text
               deriving (Eq, Show)
-          peek x = case filter (\p -> case p of
-                                          Path_First _ -> True
-                                          _ -> False) (pathsOf x (undefined :: Proxy Markup)) :: [Path_MarkupPair Markup] of
-                       [p@(Path_First _)] -> let [y] = toListOf (toLens p) x :: [Markup]
-                                              in [Node (Peek_MarkupPair_Markup p y) (forestMap (\v -> case v of
-                                                                                                          Peek_Markup_JSONText q
-                                                                                                                               x -> Peek_MarkupPair_JSONText ((Path_First :: Path_Markup JSONText ->
-                                                                                                                                                                             Path_MarkupPair JSONText) q) x
-                                                                                                          Peek_Markup_Markup q
-                                                                                                                             x -> Peek_MarkupPair_Markup ((Path_First :: Path_Markup Markup ->
-                                                                                                                                                                         Path_MarkupPair Markup) q) x
-                                                                                                          Peek_Markup_Text q
-                                                                                                                           x -> Peek_MarkupPair_Text ((Path_First :: Path_Markup Text ->
-                                                                                                                                                                     Path_MarkupPair Text) q) x) (peek y :: Forest (Peek Markup)))]
-                       [] -> [] :: Forest (Peek ((Markup, Markup)))
-          peek x = case filter (\p -> case p of
-                                          Path_Second _ -> True
-                                          _ -> False) (pathsOf x (undefined :: Proxy Markup)) :: [Path_MarkupPair Markup] of
-                       [p@(Path_Second _)] -> let [y] = toListOf (toLens p) x :: [Markup]
-                                               in [Node (Peek_MarkupPair_Markup p y) (forestMap (\v -> case v of
-                                                                                                           Peek_Markup_JSONText q
-                                                                                                                                x -> Peek_MarkupPair_JSONText ((Path_Second :: Path_Markup JSONText ->
-                                                                                                                                                                               Path_MarkupPair JSONText) q) x
-                                                                                                           Peek_Markup_Markup q
-                                                                                                                              x -> Peek_MarkupPair_Markup ((Path_Second :: Path_Markup Markup ->
-                                                                                                                                                                           Path_MarkupPair Markup) q) x
-                                                                                                           Peek_Markup_Text q
-                                                                                                                            x -> Peek_MarkupPair_Text ((Path_Second :: Path_Markup Text ->
-                                                                                                                                                                       Path_MarkupPair Text) q) x) (peek y :: Forest (Peek Markup)))]
-                       [] -> [] :: Forest (Peek ((Markup, Markup)))
+          peek x = let paths = filter (\p -> case p of
+                                                 Path_First _ -> True
+                                                 _ -> False) (pathsOf x (undefined :: Proxy Markup)) :: [Path_MarkupPair Markup]
+                    in map (\path -> case path of
+                                         p@(Path_First _) -> let [y] = toListOf (toLens p) x :: [Markup]
+                                                              in Node (Peek_MarkupPair_Markup p y) (forestMap (\v -> case v of
+                                                                                                                         Peek_Markup_JSONText q
+                                                                                                                                              x -> Peek_MarkupPair_JSONText ((Path_First :: Path_Markup JSONText ->
+                                                                                                                                                                                            Path_MarkupPair JSONText) q) x
+                                                                                                                         Peek_Markup_Markup q
+                                                                                                                                            x -> Peek_MarkupPair_Markup ((Path_First :: Path_Markup Markup ->
+                                                                                                                                                                                        Path_MarkupPair Markup) q) x
+                                                                                                                         Peek_Markup_Text q
+                                                                                                                                          x -> Peek_MarkupPair_Text ((Path_First :: Path_Markup Text ->
+                                                                                                                                                                                    Path_MarkupPair Text) q) x) (peek y :: Forest (Peek Markup)))
+                                         _ -> error ("doPeekNodesOf: " ++ show path)) paths
+          peek x = let paths = filter (\p -> case p of
+                                                 Path_Second _ -> True
+                                                 _ -> False) (pathsOf x (undefined :: Proxy Markup)) :: [Path_MarkupPair Markup]
+                    in map (\path -> case path of
+                                         p@(Path_Second _) -> let [y] = toListOf (toLens p) x :: [Markup]
+                                                               in Node (Peek_MarkupPair_Markup p y) (forestMap (\v -> case v of
+                                                                                                                          Peek_Markup_JSONText q
+                                                                                                                                               x -> Peek_MarkupPair_JSONText ((Path_Second :: Path_Markup JSONText ->
+                                                                                                                                                                                              Path_MarkupPair JSONText) q) x
+                                                                                                                          Peek_Markup_Markup q
+                                                                                                                                             x -> Peek_MarkupPair_Markup ((Path_Second :: Path_Markup Markup ->
+                                                                                                                                                                                          Path_MarkupPair Markup) q) x
+                                                                                                                          Peek_Markup_Text q
+                                                                                                                                           x -> Peek_MarkupPair_Text ((Path_Second :: Path_Markup Text ->
+                                                                                                                                                                                      Path_MarkupPair Text) q) x) (peek y :: Forest (Peek Markup)))
+                                         _ -> error ("doPeekNodesOf: " ++ show path)) paths
 instance IsPathNode ((CIString, Markup))
     where data Peek ((CIString, Markup))
               = Peek_AbbrevPair_JSONText (Path_AbbrevPair JSONText) JSONText
@@ -9201,36 +9205,38 @@ instance IsPathNode ((CIString, Markup))
               | Peek_AbbrevPair_CIString (Path_AbbrevPair CIString) CIString
               | Peek_AbbrevPair_Text (Path_AbbrevPair Text) Text
               deriving (Eq, Show)
-          peek x = case filter (\p -> case p of
-                                          Path_First _ -> True
-                                          _ -> False) (pathsOf x (undefined :: Proxy CIString)) :: [Path_AbbrevPair CIString] of
-                       [p@(Path_First _)] -> let [y] = toListOf (toLens p) x :: [CIString]
-                                              in [Node (Peek_AbbrevPair_CIString p y) (forestMap (\v -> case v of
-                                                                                                            Peek_CIString_JSONText q
-                                                                                                                                   x -> Peek_AbbrevPair_JSONText ((Path_First :: Path_CIString JSONText ->
-                                                                                                                                                                                 Path_AbbrevPair JSONText) q) x
-                                                                                                            Peek_CIString_CIString q
-                                                                                                                                   x -> Peek_AbbrevPair_CIString ((Path_First :: Path_CIString CIString ->
-                                                                                                                                                                                 Path_AbbrevPair CIString) q) x
-                                                                                                            Peek_CIString_Text q
-                                                                                                                               x -> Peek_AbbrevPair_Text ((Path_First :: Path_CIString Text ->
-                                                                                                                                                                         Path_AbbrevPair Text) q) x) (peek y :: Forest (Peek CIString)))]
-                       [] -> [] :: Forest (Peek ((CIString, Markup)))
-          peek x = case filter (\p -> case p of
-                                          Path_Second _ -> True
-                                          _ -> False) (pathsOf x (undefined :: Proxy Markup)) :: [Path_AbbrevPair Markup] of
-                       [p@(Path_Second _)] -> let [y] = toListOf (toLens p) x :: [Markup]
-                                               in [Node (Peek_AbbrevPair_Markup p y) (forestMap (\v -> case v of
-                                                                                                           Peek_Markup_JSONText q
-                                                                                                                                x -> Peek_AbbrevPair_JSONText ((Path_Second :: Path_Markup JSONText ->
-                                                                                                                                                                               Path_AbbrevPair JSONText) q) x
-                                                                                                           Peek_Markup_Markup q
-                                                                                                                              x -> Peek_AbbrevPair_Markup ((Path_Second :: Path_Markup Markup ->
-                                                                                                                                                                           Path_AbbrevPair Markup) q) x
-                                                                                                           Peek_Markup_Text q
-                                                                                                                            x -> Peek_AbbrevPair_Text ((Path_Second :: Path_Markup Text ->
-                                                                                                                                                                       Path_AbbrevPair Text) q) x) (peek y :: Forest (Peek Markup)))]
-                       [] -> [] :: Forest (Peek ((CIString, Markup)))
+          peek x = let paths = filter (\p -> case p of
+                                                 Path_First _ -> True
+                                                 _ -> False) (pathsOf x (undefined :: Proxy CIString)) :: [Path_AbbrevPair CIString]
+                    in map (\path -> case path of
+                                         p@(Path_First _) -> let [y] = toListOf (toLens p) x :: [CIString]
+                                                              in Node (Peek_AbbrevPair_CIString p y) (forestMap (\v -> case v of
+                                                                                                                           Peek_CIString_JSONText q
+                                                                                                                                                  x -> Peek_AbbrevPair_JSONText ((Path_First :: Path_CIString JSONText ->
+                                                                                                                                                                                                Path_AbbrevPair JSONText) q) x
+                                                                                                                           Peek_CIString_CIString q
+                                                                                                                                                  x -> Peek_AbbrevPair_CIString ((Path_First :: Path_CIString CIString ->
+                                                                                                                                                                                                Path_AbbrevPair CIString) q) x
+                                                                                                                           Peek_CIString_Text q
+                                                                                                                                              x -> Peek_AbbrevPair_Text ((Path_First :: Path_CIString Text ->
+                                                                                                                                                                                        Path_AbbrevPair Text) q) x) (peek y :: Forest (Peek CIString)))
+                                         _ -> error ("doPeekNodesOf: " ++ show path)) paths
+          peek x = let paths = filter (\p -> case p of
+                                                 Path_Second _ -> True
+                                                 _ -> False) (pathsOf x (undefined :: Proxy Markup)) :: [Path_AbbrevPair Markup]
+                    in map (\path -> case path of
+                                         p@(Path_Second _) -> let [y] = toListOf (toLens p) x :: [Markup]
+                                                               in Node (Peek_AbbrevPair_Markup p y) (forestMap (\v -> case v of
+                                                                                                                          Peek_Markup_JSONText q
+                                                                                                                                               x -> Peek_AbbrevPair_JSONText ((Path_Second :: Path_Markup JSONText ->
+                                                                                                                                                                                              Path_AbbrevPair JSONText) q) x
+                                                                                                                          Peek_Markup_Markup q
+                                                                                                                                             x -> Peek_AbbrevPair_Markup ((Path_Second :: Path_Markup Markup ->
+                                                                                                                                                                                          Path_AbbrevPair Markup) q) x
+                                                                                                                          Peek_Markup_Text q
+                                                                                                                                           x -> Peek_AbbrevPair_Text ((Path_Second :: Path_Markup Text ->
+                                                                                                                                                                                      Path_AbbrevPair Text) q) x) (peek y :: Forest (Peek Markup)))
+                                         _ -> error ("doPeekNodesOf: " ++ show path)) paths
 instance IsPathNode (Maybe (Either URI ImageFile))
     where data Peek (Maybe (Either URI ImageFile))
               = Peek_MEUI_ImageFile (Path_MEUI ImageFile) ImageFile
@@ -9240,27 +9246,28 @@ instance IsPathNode (Maybe (Either URI ImageFile))
                                (Maybe (Either URI ImageFile))
               | Peek_MEUI_URI (Path_MEUI URI) URI
               deriving (Eq, Show)
-          peek x = case filter (\p -> case p of
-                                          Path_Just _ -> True
-                                          _ -> False) (pathsOf x (undefined :: Proxy (Either URI
-                                                                                             ImageFile))) :: [Path_MEUI (Either URI
-                                                                                                                                ImageFile)] of
-                       [p@(Path_Just _)] -> let [y] = toListOf (toLens p) x :: [Either URI
-                                                                                       ImageFile]
-                                             in [Node (Peek_MEUI_EUI p y) (forestMap (\v -> case v of
-                                                                                                Peek_EUI_ImageFile q
-                                                                                                                   x -> Peek_MEUI_ImageFile ((Path_Just :: Path_EUI ImageFile ->
-                                                                                                                                                           Path_MEUI ImageFile) q) x
-                                                                                                Peek_EUI_EUI q
-                                                                                                             x -> Peek_MEUI_EUI ((Path_Just :: Path_EUI (Either URI
-                                                                                                                                                                ImageFile) ->
-                                                                                                                                               Path_MEUI (Either URI
-                                                                                                                                                                 ImageFile)) q) x
-                                                                                                Peek_EUI_URI q
-                                                                                                             x -> Peek_MEUI_URI ((Path_Just :: Path_EUI URI ->
-                                                                                                                                               Path_MEUI URI) q) x) (peek y :: Forest (Peek (Either URI
-                                                                                                                                                                                                    ImageFile))))]
-                       [] -> [] :: Forest (Peek (Maybe (Either URI ImageFile)))
+          peek x = let paths = filter (\p -> case p of
+                                                 Path_Just _ -> True
+                                                 _ -> False) (pathsOf x (undefined :: Proxy (Either URI
+                                                                                                    ImageFile))) :: [Path_MEUI (Either URI
+                                                                                                                                       ImageFile)]
+                    in map (\path -> case path of
+                                         p@(Path_Just _) -> let [y] = toListOf (toLens p) x :: [Either URI
+                                                                                                       ImageFile]
+                                                             in Node (Peek_MEUI_EUI p y) (forestMap (\v -> case v of
+                                                                                                               Peek_EUI_ImageFile q
+                                                                                                                                  x -> Peek_MEUI_ImageFile ((Path_Just :: Path_EUI ImageFile ->
+                                                                                                                                                                          Path_MEUI ImageFile) q) x
+                                                                                                               Peek_EUI_EUI q
+                                                                                                                            x -> Peek_MEUI_EUI ((Path_Just :: Path_EUI (Either URI
+                                                                                                                                                                               ImageFile) ->
+                                                                                                                                                              Path_MEUI (Either URI
+                                                                                                                                                                                ImageFile)) q) x
+                                                                                                               Peek_EUI_URI q
+                                                                                                                            x -> Peek_MEUI_URI ((Path_Just :: Path_EUI URI ->
+                                                                                                                                                              Path_MEUI URI) q) x) (peek y :: Forest (Peek (Either URI
+                                                                                                                                                                                                                   ImageFile))))
+                                         _ -> error ("doPeekNodesOf: " ++ show path)) paths
 instance IsPathNode (Maybe ImageFile)
     where data Peek (Maybe ImageFile)
               = Peek_MaybeImageFile_String (Path_MaybeImageFile ([Char]))
@@ -9270,18 +9277,19 @@ instance IsPathNode (Maybe ImageFile)
               | Peek_MaybeImageFile_MaybeImageFile (Path_MaybeImageFile (Maybe ImageFile))
                                                    (Maybe ImageFile)
               deriving (Eq, Show)
-          peek x = case filter (\p -> case p of
-                                          Path_MaybeImageFile_View _ -> True
-                                          _ -> False) (pathsOf x (undefined :: Proxy ([Char]))) :: [Path_MaybeImageFile ([Char])] of
-                       [p@(Path_MaybeImageFile_View _)] -> let [y] = toListOf (toLens p) x :: [[Char]]
-                                                            in [Node (Peek_MaybeImageFile_String p y) (forestMap (\v -> case v of
-                                                                                                                            Peek_String_String q
-                                                                                                                                               x -> Peek_MaybeImageFile_String ((Path_MaybeImageFile_View :: Path_String ([Char]) ->
-                                                                                                                                                                                                             Path_MaybeImageFile ([Char])) q) x
-                                                                                                                            Peek_String_JSONText q
-                                                                                                                                                 x -> Peek_MaybeImageFile_JSONText ((Path_MaybeImageFile_View :: Path_String JSONText ->
-                                                                                                                                                                                                                 Path_MaybeImageFile JSONText) q) x) (peek y :: Forest (Peek ([Char]))))]
-                       [] -> [] :: Forest (Peek (Maybe ImageFile))
+          peek x = let paths = filter (\p -> case p of
+                                                 Path_MaybeImageFile_View _ -> True
+                                                 _ -> False) (pathsOf x (undefined :: Proxy ([Char]))) :: [Path_MaybeImageFile ([Char])]
+                    in map (\path -> case path of
+                                         p@(Path_MaybeImageFile_View _) -> let [y] = toListOf (toLens p) x :: [[Char]]
+                                                                            in Node (Peek_MaybeImageFile_String p y) (forestMap (\v -> case v of
+                                                                                                                                           Peek_String_String q
+                                                                                                                                                              x -> Peek_MaybeImageFile_String ((Path_MaybeImageFile_View :: Path_String ([Char]) ->
+                                                                                                                                                                                                                            Path_MaybeImageFile ([Char])) q) x
+                                                                                                                                           Peek_String_JSONText q
+                                                                                                                                                                x -> Peek_MaybeImageFile_JSONText ((Path_MaybeImageFile_View :: Path_String JSONText ->
+                                                                                                                                                                                                                                Path_MaybeImageFile JSONText) q) x) (peek y :: Forest (Peek ([Char]))))
+                                         _ -> error ("doPeekNodesOf: " ++ show path)) paths
 instance IsPathNode (Maybe ReportIntendedUse)
     where data Peek (Maybe ReportIntendedUse)
               = Peek_MaybeReportIntendedUse_String (Path_MaybeReportIntendedUse ([Char]))
@@ -9291,18 +9299,19 @@ instance IsPathNode (Maybe ReportIntendedUse)
               | Peek_MaybeReportIntendedUse_MaybeReportIntendedUse (Path_MaybeReportIntendedUse (Maybe ReportIntendedUse))
                                                                    (Maybe ReportIntendedUse)
               deriving (Eq, Show)
-          peek x = case filter (\p -> case p of
-                                          Path_MaybeReportIntendedUse_View _ -> True
-                                          _ -> False) (pathsOf x (undefined :: Proxy ([Char]))) :: [Path_MaybeReportIntendedUse ([Char])] of
-                       [p@(Path_MaybeReportIntendedUse_View _)] -> let [y] = toListOf (toLens p) x :: [[Char]]
-                                                                    in [Node (Peek_MaybeReportIntendedUse_String p y) (forestMap (\v -> case v of
-                                                                                                                                            Peek_String_String q
-                                                                                                                                                               x -> Peek_MaybeReportIntendedUse_String ((Path_MaybeReportIntendedUse_View :: Path_String ([Char]) ->
-                                                                                                                                                                                                                                             Path_MaybeReportIntendedUse ([Char])) q) x
-                                                                                                                                            Peek_String_JSONText q
-                                                                                                                                                                 x -> Peek_MaybeReportIntendedUse_JSONText ((Path_MaybeReportIntendedUse_View :: Path_String JSONText ->
-                                                                                                                                                                                                                                                 Path_MaybeReportIntendedUse JSONText) q) x) (peek y :: Forest (Peek ([Char]))))]
-                       [] -> [] :: Forest (Peek (Maybe ReportIntendedUse))
+          peek x = let paths = filter (\p -> case p of
+                                                 Path_MaybeReportIntendedUse_View _ -> True
+                                                 _ -> False) (pathsOf x (undefined :: Proxy ([Char]))) :: [Path_MaybeReportIntendedUse ([Char])]
+                    in map (\path -> case path of
+                                         p@(Path_MaybeReportIntendedUse_View _) -> let [y] = toListOf (toLens p) x :: [[Char]]
+                                                                                    in Node (Peek_MaybeReportIntendedUse_String p y) (forestMap (\v -> case v of
+                                                                                                                                                           Peek_String_String q
+                                                                                                                                                                              x -> Peek_MaybeReportIntendedUse_String ((Path_MaybeReportIntendedUse_View :: Path_String ([Char]) ->
+                                                                                                                                                                                                                                                            Path_MaybeReportIntendedUse ([Char])) q) x
+                                                                                                                                                           Peek_String_JSONText q
+                                                                                                                                                                                x -> Peek_MaybeReportIntendedUse_JSONText ((Path_MaybeReportIntendedUse_View :: Path_String JSONText ->
+                                                                                                                                                                                                                                                                Path_MaybeReportIntendedUse JSONText) q) x) (peek y :: Forest (Peek ([Char]))))
+                                         _ -> error ("doPeekNodesOf: " ++ show path)) paths
 instance IsPathNode (ReadOnly ([Char]))
     where data Peek (ReadOnly ([Char]))
               = Peek_ReadOnlyFilePath_String (Path_ReadOnlyFilePath ([Char]))
@@ -9312,18 +9321,19 @@ instance IsPathNode (ReadOnly ([Char]))
               | Peek_ReadOnlyFilePath_ReadOnlyFilePath (Path_ReadOnlyFilePath (ReadOnly ([Char])))
                                                        (ReadOnly ([Char]))
               deriving (Eq, Show)
-          peek x = case filter (\p -> case p of
-                                          Path_ReadOnlyFilePath_View _ -> True
-                                          _ -> False) (pathsOf x (undefined :: Proxy ([Char]))) :: [Path_ReadOnlyFilePath ([Char])] of
-                       [p@(Path_ReadOnlyFilePath_View _)] -> let [y] = toListOf (toLens p) x :: [[Char]]
-                                                              in [Node (Peek_ReadOnlyFilePath_String p y) (forestMap (\v -> case v of
-                                                                                                                                Peek_String_String q
-                                                                                                                                                   x -> Peek_ReadOnlyFilePath_String ((Path_ReadOnlyFilePath_View :: Path_String ([Char]) ->
-                                                                                                                                                                                                                     Path_ReadOnlyFilePath ([Char])) q) x
-                                                                                                                                Peek_String_JSONText q
-                                                                                                                                                     x -> Peek_ReadOnlyFilePath_JSONText ((Path_ReadOnlyFilePath_View :: Path_String JSONText ->
-                                                                                                                                                                                                                         Path_ReadOnlyFilePath JSONText) q) x) (peek y :: Forest (Peek ([Char]))))]
-                       [] -> [] :: Forest (Peek (ReadOnly ([Char])))
+          peek x = let paths = filter (\p -> case p of
+                                                 Path_ReadOnlyFilePath_View _ -> True
+                                                 _ -> False) (pathsOf x (undefined :: Proxy ([Char]))) :: [Path_ReadOnlyFilePath ([Char])]
+                    in map (\path -> case path of
+                                         p@(Path_ReadOnlyFilePath_View _) -> let [y] = toListOf (toLens p) x :: [[Char]]
+                                                                              in Node (Peek_ReadOnlyFilePath_String p y) (forestMap (\v -> case v of
+                                                                                                                                               Peek_String_String q
+                                                                                                                                                                  x -> Peek_ReadOnlyFilePath_String ((Path_ReadOnlyFilePath_View :: Path_String ([Char]) ->
+                                                                                                                                                                                                                                    Path_ReadOnlyFilePath ([Char])) q) x
+                                                                                                                                               Peek_String_JSONText q
+                                                                                                                                                                    x -> Peek_ReadOnlyFilePath_JSONText ((Path_ReadOnlyFilePath_View :: Path_String JSONText ->
+                                                                                                                                                                                                                                        Path_ReadOnlyFilePath JSONText) q) x) (peek y :: Forest (Peek ([Char]))))
+                                         _ -> error ("doPeekNodesOf: " ++ show path)) paths
 instance IsPathNode (SaneSize ImageSize)
     where data Peek (SaneSize ImageSize)
               = Peek_SaneSizeImageSize_String (Path_SaneSizeImageSize ([Char]))
@@ -9340,62 +9350,65 @@ instance IsPathNode (SaneSize ImageSize)
               | Peek_SaneSizeImageSize_SaneSizeImageSize (Path_SaneSizeImageSize (SaneSize ImageSize))
                                                          (SaneSize ImageSize)
               deriving (Eq, Show)
-          peek x = case filter (\p -> case p of
-                                          Path_SaneSizeImageSize_View _ -> True
-                                          _ -> False) (pathsOf x (undefined :: Proxy ImageSize)) :: [Path_SaneSizeImageSize ImageSize] of
-                       [p@(Path_SaneSizeImageSize_View _)] -> let [y] = toListOf (toLens p) x :: [ImageSize]
-                                                               in [Node (Peek_SaneSizeImageSize_ImageSize p y) (forestMap (\v -> case v of
-                                                                                                                                     Peek_ImageSize_String q
-                                                                                                                                                           x -> Peek_SaneSizeImageSize_String ((Path_SaneSizeImageSize_View :: Path_ImageSize ([Char]) ->
-                                                                                                                                                                                                                               Path_SaneSizeImageSize ([Char])) q) x
-                                                                                                                                     Peek_ImageSize_Double q
-                                                                                                                                                           x -> Peek_SaneSizeImageSize_Double ((Path_SaneSizeImageSize_View :: Path_ImageSize Double ->
-                                                                                                                                                                                                                               Path_SaneSizeImageSize Double) q) x
-                                                                                                                                     Peek_ImageSize_Dimension q
-                                                                                                                                                              x -> Peek_SaneSizeImageSize_Dimension ((Path_SaneSizeImageSize_View :: Path_ImageSize Dimension ->
-                                                                                                                                                                                                                                     Path_SaneSizeImageSize Dimension) q) x
-                                                                                                                                     Peek_ImageSize_ImageSize q
-                                                                                                                                                              x -> Peek_SaneSizeImageSize_ImageSize ((Path_SaneSizeImageSize_View :: Path_ImageSize ImageSize ->
-                                                                                                                                                                                                                                     Path_SaneSizeImageSize ImageSize) q) x
-                                                                                                                                     Peek_ImageSize_Units q
-                                                                                                                                                          x -> Peek_SaneSizeImageSize_Units ((Path_SaneSizeImageSize_View :: Path_ImageSize Units ->
-                                                                                                                                                                                                                             Path_SaneSizeImageSize Units) q) x
-                                                                                                                                     Peek_ImageSize_JSONText q
-                                                                                                                                                             x -> Peek_SaneSizeImageSize_JSONText ((Path_SaneSizeImageSize_View :: Path_ImageSize JSONText ->
-                                                                                                                                                                                                                                   Path_SaneSizeImageSize JSONText) q) x) (peek y :: Forest (Peek ImageSize)))]
-                       [] -> [] :: Forest (Peek (SaneSize ImageSize))
+          peek x = let paths = filter (\p -> case p of
+                                                 Path_SaneSizeImageSize_View _ -> True
+                                                 _ -> False) (pathsOf x (undefined :: Proxy ImageSize)) :: [Path_SaneSizeImageSize ImageSize]
+                    in map (\path -> case path of
+                                         p@(Path_SaneSizeImageSize_View _) -> let [y] = toListOf (toLens p) x :: [ImageSize]
+                                                                               in Node (Peek_SaneSizeImageSize_ImageSize p y) (forestMap (\v -> case v of
+                                                                                                                                                    Peek_ImageSize_String q
+                                                                                                                                                                          x -> Peek_SaneSizeImageSize_String ((Path_SaneSizeImageSize_View :: Path_ImageSize ([Char]) ->
+                                                                                                                                                                                                                                              Path_SaneSizeImageSize ([Char])) q) x
+                                                                                                                                                    Peek_ImageSize_Double q
+                                                                                                                                                                          x -> Peek_SaneSizeImageSize_Double ((Path_SaneSizeImageSize_View :: Path_ImageSize Double ->
+                                                                                                                                                                                                                                              Path_SaneSizeImageSize Double) q) x
+                                                                                                                                                    Peek_ImageSize_Dimension q
+                                                                                                                                                                             x -> Peek_SaneSizeImageSize_Dimension ((Path_SaneSizeImageSize_View :: Path_ImageSize Dimension ->
+                                                                                                                                                                                                                                                    Path_SaneSizeImageSize Dimension) q) x
+                                                                                                                                                    Peek_ImageSize_ImageSize q
+                                                                                                                                                                             x -> Peek_SaneSizeImageSize_ImageSize ((Path_SaneSizeImageSize_View :: Path_ImageSize ImageSize ->
+                                                                                                                                                                                                                                                    Path_SaneSizeImageSize ImageSize) q) x
+                                                                                                                                                    Peek_ImageSize_Units q
+                                                                                                                                                                         x -> Peek_SaneSizeImageSize_Units ((Path_SaneSizeImageSize_View :: Path_ImageSize Units ->
+                                                                                                                                                                                                                                            Path_SaneSizeImageSize Units) q) x
+                                                                                                                                                    Peek_ImageSize_JSONText q
+                                                                                                                                                                            x -> Peek_SaneSizeImageSize_JSONText ((Path_SaneSizeImageSize_View :: Path_ImageSize JSONText ->
+                                                                                                                                                                                                                                                  Path_SaneSizeImageSize JSONText) q) x) (peek y :: Forest (Peek ImageSize)))
+                                         _ -> error ("doPeekNodesOf: " ++ show path)) paths
 instance IsPathNode ([Char])
     where data Peek ([Char])
               = Peek_String_String (Path_String ([Char])) ([Char])
               | Peek_String_JSONText (Path_String JSONText) JSONText
               deriving (Eq, Show)
-          peek x = case filter (\p -> case p of
-                                          Path_String_View _ -> True
-                                          _ -> False) (pathsOf x (undefined :: Proxy JSONText)) :: [Path_String JSONText] of
-                       [p@(Path_String_View _)] -> let [y] = toListOf (toLens p) x :: [JSONText]
-                                                    in [Node (Peek_String_JSONText p y) (forestMap (\v -> case v of
-                                                                                                              Peek_JSONText_JSONText q
-                                                                                                                                     x -> Peek_String_JSONText ((Path_String_View :: Path_JSONText JSONText ->
-                                                                                                                                                                                     Path_String JSONText) q) x) (peek y :: Forest (Peek JSONText)))]
-                       [] -> [] :: Forest (Peek ([Char]))
+          peek x = let paths = filter (\p -> case p of
+                                                 Path_String_View _ -> True
+                                                 _ -> False) (pathsOf x (undefined :: Proxy JSONText)) :: [Path_String JSONText]
+                    in map (\path -> case path of
+                                         p@(Path_String_View _) -> let [y] = toListOf (toLens p) x :: [JSONText]
+                                                                    in Node (Peek_String_JSONText p y) (forestMap (\v -> case v of
+                                                                                                                             Peek_JSONText_JSONText q
+                                                                                                                                                    x -> Peek_String_JSONText ((Path_String_View :: Path_JSONText JSONText ->
+                                                                                                                                                                                                    Path_String JSONText) q) x) (peek y :: Forest (Peek JSONText)))
+                                         _ -> error ("doPeekNodesOf: " ++ show path)) paths
 instance IsPathNode ([UserId])
     where data Peek ([UserId])
               = Peek_UserIds_JSONText (Path_UserIds JSONText) JSONText
               | Peek_UserIds_UserIds (Path_UserIds ([UserId])) ([UserId])
               | Peek_UserIds_Text (Path_UserIds Text) Text
               deriving (Eq, Show)
-          peek x = case filter (\p -> case p of
-                                          Path_UserIds_View _ -> True
-                                          _ -> False) (pathsOf x (undefined :: Proxy Text)) :: [Path_UserIds Text] of
-                       [p@(Path_UserIds_View _)] -> let [y] = toListOf (toLens p) x :: [Text]
-                                                     in [Node (Peek_UserIds_Text p y) (forestMap (\v -> case v of
-                                                                                                            Peek_Text_JSONText q
-                                                                                                                               x -> Peek_UserIds_JSONText ((Path_UserIds_View :: Path_Text JSONText ->
-                                                                                                                                                                                 Path_UserIds JSONText) q) x
-                                                                                                            Peek_Text_Text q
-                                                                                                                           x -> Peek_UserIds_Text ((Path_UserIds_View :: Path_Text Text ->
-                                                                                                                                                                         Path_UserIds Text) q) x) (peek y :: Forest (Peek Text)))]
-                       [] -> [] :: Forest (Peek ([UserId]))
+          peek x = let paths = filter (\p -> case p of
+                                                 Path_UserIds_View _ -> True
+                                                 _ -> False) (pathsOf x (undefined :: Proxy Text)) :: [Path_UserIds Text]
+                    in map (\path -> case path of
+                                         p@(Path_UserIds_View _) -> let [y] = toListOf (toLens p) x :: [Text]
+                                                                     in Node (Peek_UserIds_Text p y) (forestMap (\v -> case v of
+                                                                                                                           Peek_Text_JSONText q
+                                                                                                                                              x -> Peek_UserIds_JSONText ((Path_UserIds_View :: Path_Text JSONText ->
+                                                                                                                                                                                                Path_UserIds JSONText) q) x
+                                                                                                                           Peek_Text_Text q
+                                                                                                                                          x -> Peek_UserIds_Text ((Path_UserIds_View :: Path_Text Text ->
+                                                                                                                                                                                        Path_UserIds Text) q) x) (peek y :: Forest (Peek Text)))
+                                         _ -> error ("doPeekNodesOf: " ++ show path)) paths
 instance IsPathNode Int64
     where data Peek Int64
               = Peek_Int64_Int64 (Path_Int64 Int64) Int64
@@ -9407,36 +9420,38 @@ instance IsPathNode Bool
               | Peek_Bool_Bool (Path_Bool Bool) Bool
               | Peek_Bool_JSONText (Path_Bool JSONText) JSONText
               deriving (Eq, Show)
-          peek x = case filter (\p -> case p of
-                                          Path_Bool_View _ -> True
-                                          _ -> False) (pathsOf x (undefined :: Proxy ([Char]))) :: [Path_Bool ([Char])] of
-                       [p@(Path_Bool_View _)] -> let [y] = toListOf (toLens p) x :: [[Char]]
-                                                  in [Node (Peek_Bool_String p y) (forestMap (\v -> case v of
-                                                                                                        Peek_String_String q
-                                                                                                                           x -> Peek_Bool_String ((Path_Bool_View :: Path_String ([Char]) ->
-                                                                                                                                                                     Path_Bool ([Char])) q) x
-                                                                                                        Peek_String_JSONText q
-                                                                                                                             x -> Peek_Bool_JSONText ((Path_Bool_View :: Path_String JSONText ->
-                                                                                                                                                                         Path_Bool JSONText) q) x) (peek y :: Forest (Peek ([Char]))))]
-                       [] -> [] :: Forest (Peek Bool)
+          peek x = let paths = filter (\p -> case p of
+                                                 Path_Bool_View _ -> True
+                                                 _ -> False) (pathsOf x (undefined :: Proxy ([Char]))) :: [Path_Bool ([Char])]
+                    in map (\path -> case path of
+                                         p@(Path_Bool_View _) -> let [y] = toListOf (toLens p) x :: [[Char]]
+                                                                  in Node (Peek_Bool_String p y) (forestMap (\v -> case v of
+                                                                                                                       Peek_String_String q
+                                                                                                                                          x -> Peek_Bool_String ((Path_Bool_View :: Path_String ([Char]) ->
+                                                                                                                                                                                    Path_Bool ([Char])) q) x
+                                                                                                                       Peek_String_JSONText q
+                                                                                                                                            x -> Peek_Bool_JSONText ((Path_Bool_View :: Path_String JSONText ->
+                                                                                                                                                                                        Path_Bool JSONText) q) x) (peek y :: Forest (Peek ([Char]))))
+                                         _ -> error ("doPeekNodesOf: " ++ show path)) paths
 instance IsPathNode Double
     where data Peek Double
               = Peek_Double_String (Path_Double ([Char])) ([Char])
               | Peek_Double_Double (Path_Double Double) Double
               | Peek_Double_JSONText (Path_Double JSONText) JSONText
               deriving (Eq, Show)
-          peek x = case filter (\p -> case p of
-                                          Path_Double_View _ -> True
-                                          _ -> False) (pathsOf x (undefined :: Proxy ([Char]))) :: [Path_Double ([Char])] of
-                       [p@(Path_Double_View _)] -> let [y] = toListOf (toLens p) x :: [[Char]]
-                                                    in [Node (Peek_Double_String p y) (forestMap (\v -> case v of
-                                                                                                            Peek_String_String q
-                                                                                                                               x -> Peek_Double_String ((Path_Double_View :: Path_String ([Char]) ->
-                                                                                                                                                                             Path_Double ([Char])) q) x
-                                                                                                            Peek_String_JSONText q
-                                                                                                                                 x -> Peek_Double_JSONText ((Path_Double_View :: Path_String JSONText ->
-                                                                                                                                                                                 Path_Double JSONText) q) x) (peek y :: Forest (Peek ([Char]))))]
-                       [] -> [] :: Forest (Peek Double)
+          peek x = let paths = filter (\p -> case p of
+                                                 Path_Double_View _ -> True
+                                                 _ -> False) (pathsOf x (undefined :: Proxy ([Char]))) :: [Path_Double ([Char])]
+                    in map (\path -> case path of
+                                         p@(Path_Double_View _) -> let [y] = toListOf (toLens p) x :: [[Char]]
+                                                                    in Node (Peek_Double_String p y) (forestMap (\v -> case v of
+                                                                                                                           Peek_String_String q
+                                                                                                                                              x -> Peek_Double_String ((Path_Double_View :: Path_String ([Char]) ->
+                                                                                                                                                                                            Path_Double ([Char])) q) x
+                                                                                                                           Peek_String_JSONText q
+                                                                                                                                                x -> Peek_Double_JSONText ((Path_Double_View :: Path_String JSONText ->
+                                                                                                                                                                                                Path_Double JSONText) q) x) (peek y :: Forest (Peek ([Char]))))
+                                         _ -> error ("doPeekNodesOf: " ++ show path)) paths
 instance IsPathNode Int
     where data Peek Int
               = Peek_Int_Int (Path_Int Int) Int
@@ -9447,15 +9462,16 @@ instance IsPathNode Dimension
               = Peek_Dimension_Dimension (Path_Dimension Dimension) Dimension
               | Peek_Dimension_JSONText (Path_Dimension JSONText) JSONText
               deriving (Eq, Show)
-          peek x = case filter (\p -> case p of
-                                          Path_Dimension_View _ -> True
-                                          _ -> False) (pathsOf x (undefined :: Proxy JSONText)) :: [Path_Dimension JSONText] of
-                       [p@(Path_Dimension_View _)] -> let [y] = toListOf (toLens p) x :: [JSONText]
-                                                       in [Node (Peek_Dimension_JSONText p y) (forestMap (\v -> case v of
-                                                                                                                    Peek_JSONText_JSONText q
-                                                                                                                                           x -> Peek_Dimension_JSONText ((Path_Dimension_View :: Path_JSONText JSONText ->
-                                                                                                                                                                                                 Path_Dimension JSONText) q) x) (peek y :: Forest (Peek JSONText)))]
-                       [] -> [] :: Forest (Peek Dimension)
+          peek x = let paths = filter (\p -> case p of
+                                                 Path_Dimension_View _ -> True
+                                                 _ -> False) (pathsOf x (undefined :: Proxy JSONText)) :: [Path_Dimension JSONText]
+                    in map (\path -> case path of
+                                         p@(Path_Dimension_View _) -> let [y] = toListOf (toLens p) x :: [JSONText]
+                                                                       in Node (Peek_Dimension_JSONText p y) (forestMap (\v -> case v of
+                                                                                                                                   Peek_JSONText_JSONText q
+                                                                                                                                                          x -> Peek_Dimension_JSONText ((Path_Dimension_View :: Path_JSONText JSONText ->
+                                                                                                                                                                                                                Path_Dimension JSONText) q) x) (peek y :: Forest (Peek JSONText)))
+                                         _ -> error ("doPeekNodesOf: " ++ show path)) paths
 instance IsPathNode ImageCrop
     where data Peek ImageCrop
               = Peek_ImageCrop_ImageCrop (Path_ImageCrop ImageCrop) ImageCrop
@@ -9517,15 +9533,16 @@ instance IsPathNode Units
               = Peek_Units_Units (Path_Units Units) Units
               | Peek_Units_JSONText (Path_Units JSONText) JSONText
               deriving (Eq, Show)
-          peek x = case filter (\p -> case p of
-                                          Path_Units_View _ -> True
-                                          _ -> False) (pathsOf x (undefined :: Proxy JSONText)) :: [Path_Units JSONText] of
-                       [p@(Path_Units_View _)] -> let [y] = toListOf (toLens p) x :: [JSONText]
-                                                   in [Node (Peek_Units_JSONText p y) (forestMap (\v -> case v of
-                                                                                                            Peek_JSONText_JSONText q
-                                                                                                                                   x -> Peek_Units_JSONText ((Path_Units_View :: Path_JSONText JSONText ->
-                                                                                                                                                                                 Path_Units JSONText) q) x) (peek y :: Forest (Peek JSONText)))]
-                       [] -> [] :: Forest (Peek Units)
+          peek x = let paths = filter (\p -> case p of
+                                                 Path_Units_View _ -> True
+                                                 _ -> False) (pathsOf x (undefined :: Proxy JSONText)) :: [Path_Units JSONText]
+                    in map (\path -> case path of
+                                         p@(Path_Units_View _) -> let [y] = toListOf (toLens p) x :: [JSONText]
+                                                                   in Node (Peek_Units_JSONText p y) (forestMap (\v -> case v of
+                                                                                                                           Peek_JSONText_JSONText q
+                                                                                                                                                  x -> Peek_Units_JSONText ((Path_Units_View :: Path_JSONText JSONText ->
+                                                                                                                                                                                                Path_Units JSONText) q) x) (peek y :: Forest (Peek JSONText)))
+                                         _ -> error ("doPeekNodesOf: " ++ show path)) paths
 instance IsPathNode ImageFile
     where data Peek ImageFile
               = Peek_ImageFile_ImageFile (Path_ImageFile ImageFile) ImageFile
@@ -9672,18 +9689,19 @@ instance IsPathNode Branding
               | Peek_Branding_Branding (Path_Branding Branding) Branding
               | Peek_Branding_Text (Path_Branding Text) Text
               deriving (Eq, Show)
-          peek x = case filter (\p -> case p of
-                                          Path_Branding_View _ -> True
-                                          _ -> False) (pathsOf x (undefined :: Proxy Text)) :: [Path_Branding Text] of
-                       [p@(Path_Branding_View _)] -> let [y] = toListOf (toLens p) x :: [Text]
-                                                      in [Node (Peek_Branding_Text p y) (forestMap (\v -> case v of
-                                                                                                              Peek_Text_JSONText q
-                                                                                                                                 x -> Peek_Branding_JSONText ((Path_Branding_View :: Path_Text JSONText ->
-                                                                                                                                                                                     Path_Branding JSONText) q) x
-                                                                                                              Peek_Text_Text q
-                                                                                                                             x -> Peek_Branding_Text ((Path_Branding_View :: Path_Text Text ->
-                                                                                                                                                                             Path_Branding Text) q) x) (peek y :: Forest (Peek Text)))]
-                       [] -> [] :: Forest (Peek Branding)
+          peek x = let paths = filter (\p -> case p of
+                                                 Path_Branding_View _ -> True
+                                                 _ -> False) (pathsOf x (undefined :: Proxy Text)) :: [Path_Branding Text]
+                    in map (\path -> case path of
+                                         p@(Path_Branding_View _) -> let [y] = toListOf (toLens p) x :: [Text]
+                                                                      in Node (Peek_Branding_Text p y) (forestMap (\v -> case v of
+                                                                                                                             Peek_Text_JSONText q
+                                                                                                                                                x -> Peek_Branding_JSONText ((Path_Branding_View :: Path_Text JSONText ->
+                                                                                                                                                                                                    Path_Branding JSONText) q) x
+                                                                                                                             Peek_Text_Text q
+                                                                                                                                            x -> Peek_Branding_Text ((Path_Branding_View :: Path_Text Text ->
+                                                                                                                                                                                            Path_Branding Text) q) x) (peek y :: Forest (Peek Text)))
+                                         _ -> error ("doPeekNodesOf: " ++ show path)) paths
 instance IsPathNode Report
     where data Peek Report
               = Peek_Report_String (Path_Report ([Char])) ([Char])
@@ -9758,179 +9776,180 @@ instance IsPathNode Report
               | Peek_Report_UserId (Path_Report UserId) UserId
               | Peek_Report_UUID (Path_Report UUID) UUID
               deriving (Eq, Show)
-          peek x = case filter (\p -> case p of
-                                          Path_Report_View _ -> True
-                                          _ -> False) (pathsOf x (undefined :: Proxy ReportView)) :: [Path_Report ReportView] of
-                       [p@(Path_Report_View _)] -> let [y] = toListOf (toLens p) x :: [ReportView]
-                                                    in [Node (Peek_Report_ReportView p y) (forestMap (\v -> case v of
-                                                                                                                Peek_ReportView_String q
-                                                                                                                                       x -> Peek_Report_String ((Path_Report_View :: Path_ReportView ([Char]) ->
-                                                                                                                                                                                     Path_Report ([Char])) q) x
-                                                                                                                Peek_ReportView_Int64 q
-                                                                                                                                      x -> Peek_Report_Int64 ((Path_Report_View :: Path_ReportView Int64 ->
-                                                                                                                                                                                   Path_Report Int64) q) x
-                                                                                                                Peek_ReportView_Int q
-                                                                                                                                    x -> Peek_Report_Int ((Path_Report_View :: Path_ReportView Int ->
-                                                                                                                                                                               Path_Report Int) q) x
-                                                                                                                Peek_ReportView_Bool q
-                                                                                                                                     x -> Peek_Report_Bool ((Path_Report_View :: Path_ReportView Bool ->
-                                                                                                                                                                                 Path_Report Bool) q) x
-                                                                                                                Peek_ReportView_Double q
-                                                                                                                                       x -> Peek_Report_Double ((Path_Report_View :: Path_ReportView Double ->
-                                                                                                                                                                                     Path_Report Double) q) x
-                                                                                                                Peek_ReportView_Dimension q
-                                                                                                                                          x -> Peek_Report_Dimension ((Path_Report_View :: Path_ReportView Dimension ->
-                                                                                                                                                                                           Path_Report Dimension) q) x
-                                                                                                                Peek_ReportView_ImageCrop q
-                                                                                                                                          x -> Peek_Report_ImageCrop ((Path_Report_View :: Path_ReportView ImageCrop ->
-                                                                                                                                                                                           Path_Report ImageCrop) q) x
-                                                                                                                Peek_ReportView_ImageSize q
-                                                                                                                                          x -> Peek_Report_ImageSize ((Path_Report_View :: Path_ReportView ImageSize ->
-                                                                                                                                                                                           Path_Report ImageSize) q) x
-                                                                                                                Peek_ReportView_Units q
-                                                                                                                                      x -> Peek_Report_Units ((Path_Report_View :: Path_ReportView Units ->
-                                                                                                                                                                                   Path_Report Units) q) x
-                                                                                                                Peek_ReportView_ImageFile q
-                                                                                                                                          x -> Peek_Report_ImageFile ((Path_Report_View :: Path_ReportView ImageFile ->
-                                                                                                                                                                                           Path_Report ImageFile) q) x
-                                                                                                                Peek_ReportView_Integer q
-                                                                                                                                        x -> Peek_Report_Integer ((Path_Report_View :: Path_ReportView Integer ->
-                                                                                                                                                                                       Path_Report Integer) q) x
-                                                                                                                Peek_ReportView_JSONText q
-                                                                                                                                         x -> Peek_Report_JSONText ((Path_Report_View :: Path_ReportView JSONText ->
-                                                                                                                                                                                         Path_Report JSONText) q) x
-                                                                                                                Peek_ReportView_Markup q
-                                                                                                                                       x -> Peek_Report_Markup ((Path_Report_View :: Path_ReportView Markup ->
-                                                                                                                                                                                     Path_Report Markup) q) x
-                                                                                                                Peek_ReportView_Permissions q
-                                                                                                                                            x -> Peek_Report_Permissions ((Path_Report_View :: Path_ReportView Permissions ->
-                                                                                                                                                                                               Path_Report Permissions) q) x
-                                                                                                                Peek_ReportView_UserIds q
-                                                                                                                                        x -> Peek_Report_UserIds ((Path_Report_View :: Path_ReportView ([UserId]) ->
-                                                                                                                                                                                       Path_Report ([UserId])) q) x
-                                                                                                                Peek_ReportView_AbbrevPair q
-                                                                                                                                           x -> Peek_Report_AbbrevPair ((Path_Report_View :: Path_ReportView ((CIString,
-                                                                                                                                                                                                               Markup)) ->
-                                                                                                                                                                                             Path_Report ((CIString,
-                                                                                                                                                                                                           Markup))) q) x
-                                                                                                                Peek_ReportView_AbbrevPairs q
-                                                                                                                                            x -> Peek_Report_AbbrevPairs ((Path_Report_View :: Path_ReportView (Order AbbrevPairID
-                                                                                                                                                                                                                      ((CIString,
-                                                                                                                                                                                                                        Markup))) ->
-                                                                                                                                                                                               Path_Report (Order AbbrevPairID
-                                                                                                                                                                                                                  ((CIString,
-                                                                                                                                                                                                                    Markup)))) q) x
-                                                                                                                Peek_ReportView_Author q
-                                                                                                                                       x -> Peek_Report_Author ((Path_Report_View :: Path_ReportView Author ->
-                                                                                                                                                                                     Path_Report Author) q) x
-                                                                                                                Peek_ReportView_Authors q
-                                                                                                                                        x -> Peek_Report_Authors ((Path_Report_View :: Path_ReportView (Order AuthorID
-                                                                                                                                                                                                              Author) ->
-                                                                                                                                                                                       Path_Report (Order AuthorID
-                                                                                                                                                                                                          Author)) q) x
-                                                                                                                Peek_ReportView_Branding q
-                                                                                                                                         x -> Peek_Report_Branding ((Path_Report_View :: Path_ReportView Branding ->
-                                                                                                                                                                                         Path_Report Branding) q) x
-                                                                                                                Peek_ReportView_MarkupPair q
-                                                                                                                                           x -> Peek_Report_MarkupPair ((Path_Report_View :: Path_ReportView ((Markup,
-                                                                                                                                                                                                               Markup)) ->
-                                                                                                                                                                                             Path_Report ((Markup,
-                                                                                                                                                                                                           Markup))) q) x
-                                                                                                                Peek_ReportView_MarkupPairs q
-                                                                                                                                            x -> Peek_Report_MarkupPairs ((Path_Report_View :: Path_ReportView (Order MarkupPairID
-                                                                                                                                                                                                                      ((Markup,
-                                                                                                                                                                                                                        Markup))) ->
-                                                                                                                                                                                               Path_Report (Order MarkupPairID
-                                                                                                                                                                                                                  ((Markup,
-                                                                                                                                                                                                                    Markup)))) q) x
-                                                                                                                Peek_ReportView_Markups q
-                                                                                                                                        x -> Peek_Report_Markups ((Path_Report_View :: Path_ReportView (Order MarkupID
-                                                                                                                                                                                                              Markup) ->
-                                                                                                                                                                                       Path_Report (Order MarkupID
-                                                                                                                                                                                                          Markup)) q) x
-                                                                                                                Peek_ReportView_MaybeReportIntendedUse q
-                                                                                                                                                       x -> Peek_Report_MaybeReportIntendedUse ((Path_Report_View :: Path_ReportView (Maybe ReportIntendedUse) ->
-                                                                                                                                                                                                                     Path_Report (Maybe ReportIntendedUse)) q) x
-                                                                                                                Peek_ReportView_ReportElem q
-                                                                                                                                           x -> Peek_Report_ReportElem ((Path_Report_View :: Path_ReportView ReportElem ->
-                                                                                                                                                                                             Path_Report ReportElem) q) x
-                                                                                                                Peek_ReportView_ReportElems q
-                                                                                                                                            x -> Peek_Report_ReportElems ((Path_Report_View :: Path_ReportView (Order ReportElemID
-                                                                                                                                                                                                                      ReportElem) ->
-                                                                                                                                                                                               Path_Report (Order ReportElemID
-                                                                                                                                                                                                                  ReportElem)) q) x
-                                                                                                                Peek_ReportView_ReportFlags q
-                                                                                                                                            x -> Peek_Report_ReportFlags ((Path_Report_View :: Path_ReportView ReportFlags ->
-                                                                                                                                                                                               Path_Report ReportFlags) q) x
-                                                                                                                Peek_ReportView_ReportStandard q
-                                                                                                                                               x -> Peek_Report_ReportStandard ((Path_Report_View :: Path_ReportView ReportStandard ->
-                                                                                                                                                                                                     Path_Report ReportStandard) q) x
-                                                                                                                Peek_ReportView_ReportStatus q
-                                                                                                                                             x -> Peek_Report_ReportStatus ((Path_Report_View :: Path_ReportView ReportStatus ->
-                                                                                                                                                                                                 Path_Report ReportStatus) q) x
-                                                                                                                Peek_ReportView_ReportValueApproachInfo q
-                                                                                                                                                        x -> Peek_Report_ReportValueApproachInfo ((Path_Report_View :: Path_ReportView ReportValueApproachInfo ->
-                                                                                                                                                                                                                       Path_Report ReportValueApproachInfo) q) x
-                                                                                                                Peek_ReportView_ReportValueTypeInfo q
-                                                                                                                                                    x -> Peek_Report_ReportValueTypeInfo ((Path_Report_View :: Path_ReportView ReportValueTypeInfo ->
-                                                                                                                                                                                                               Path_Report ReportValueTypeInfo) q) x
-                                                                                                                Peek_ReportView_EUI q
-                                                                                                                                    x -> Peek_Report_EUI ((Path_Report_View :: Path_ReportView (Either URI
-                                                                                                                                                                                                       ImageFile) ->
-                                                                                                                                                                               Path_Report (Either URI
-                                                                                                                                                                                                   ImageFile)) q) x
-                                                                                                                Peek_ReportView_MEUI q
-                                                                                                                                     x -> Peek_Report_MEUI ((Path_Report_View :: Path_ReportView (Maybe (Either URI
-                                                                                                                                                                                                                ImageFile)) ->
-                                                                                                                                                                                 Path_Report (Maybe (Either URI
-                                                                                                                                                                                                            ImageFile))) q) x
-                                                                                                                Peek_ReportView_MaybeImageFile q
-                                                                                                                                               x -> Peek_Report_MaybeImageFile ((Path_Report_View :: Path_ReportView (Maybe ImageFile) ->
-                                                                                                                                                                                                     Path_Report (Maybe ImageFile)) q) x
-                                                                                                                Peek_ReportView_ReportImage q
-                                                                                                                                            x -> Peek_Report_ReportImage ((Path_Report_View :: Path_ReportView ReportImage ->
-                                                                                                                                                                                               Path_Report ReportImage) q) x
-                                                                                                                Peek_ReportView_ReportImages q
-                                                                                                                                             x -> Peek_Report_ReportImages ((Path_Report_View :: Path_ReportView (Order ReportImageID
-                                                                                                                                                                                                                        ReportImage) ->
-                                                                                                                                                                                                 Path_Report (Order ReportImageID
-                                                                                                                                                                                                                    ReportImage)) q) x
-                                                                                                                Peek_ReportView_ReadOnlyFilePath q
-                                                                                                                                                 x -> Peek_Report_ReadOnlyFilePath ((Path_Report_View :: Path_ReportView (ReadOnly ([Char])) ->
-                                                                                                                                                                                                         Path_Report (ReadOnly ([Char]))) q) x
-                                                                                                                Peek_ReportView_ReportImageView q
-                                                                                                                                                x -> Peek_Report_ReportImageView ((Path_Report_View :: Path_ReportView ReportImageView ->
-                                                                                                                                                                                                       Path_Report ReportImageView) q) x
-                                                                                                                Peek_ReportView_ReportView q
-                                                                                                                                           x -> Peek_Report_ReportView ((Path_Report_View :: Path_ReportView ReportView ->
-                                                                                                                                                                                             Path_Report ReportView) q) x
-                                                                                                                Peek_ReportView_SaneSizeImageSize q
-                                                                                                                                                  x -> Peek_Report_SaneSizeImageSize ((Path_Report_View :: Path_ReportView (SaneSize ImageSize) ->
-                                                                                                                                                                                                           Path_Report (SaneSize ImageSize)) q) x
-                                                                                                                Peek_ReportView_Item q
-                                                                                                                                     x -> Peek_Report_Item ((Path_Report_View :: Path_ReportView Item ->
-                                                                                                                                                                                 Path_Report Item) q) x
-                                                                                                                Peek_ReportView_MIM q
-                                                                                                                                    x -> Peek_Report_MIM ((Path_Report_View :: Path_ReportView (Map ItemFieldName
-                                                                                                                                                                                                    Markup) ->
-                                                                                                                                                                               Path_Report (Map ItemFieldName
-                                                                                                                                                                                                Markup)) q) x
-                                                                                                                Peek_ReportView_CIString q
-                                                                                                                                         x -> Peek_Report_CIString ((Path_Report_View :: Path_ReportView CIString ->
-                                                                                                                                                                                         Path_Report CIString) q) x
-                                                                                                                Peek_ReportView_URI q
-                                                                                                                                    x -> Peek_Report_URI ((Path_Report_View :: Path_ReportView URI ->
-                                                                                                                                                                               Path_Report URI) q) x
-                                                                                                                Peek_ReportView_Text q
-                                                                                                                                     x -> Peek_Report_Text ((Path_Report_View :: Path_ReportView Text ->
-                                                                                                                                                                                 Path_Report Text) q) x
-                                                                                                                Peek_ReportView_UserId q
-                                                                                                                                       x -> Peek_Report_UserId ((Path_Report_View :: Path_ReportView UserId ->
-                                                                                                                                                                                     Path_Report UserId) q) x
-                                                                                                                Peek_ReportView_UUID q
-                                                                                                                                     x -> Peek_Report_UUID ((Path_Report_View :: Path_ReportView UUID ->
-                                                                                                                                                                                 Path_Report UUID) q) x) (peek y :: Forest (Peek ReportView)))]
-                       [] -> [] :: Forest (Peek Report)
+          peek x = let paths = filter (\p -> case p of
+                                                 Path_Report_View _ -> True
+                                                 _ -> False) (pathsOf x (undefined :: Proxy ReportView)) :: [Path_Report ReportView]
+                    in map (\path -> case path of
+                                         p@(Path_Report_View _) -> let [y] = toListOf (toLens p) x :: [ReportView]
+                                                                    in Node (Peek_Report_ReportView p y) (forestMap (\v -> case v of
+                                                                                                                               Peek_ReportView_String q
+                                                                                                                                                      x -> Peek_Report_String ((Path_Report_View :: Path_ReportView ([Char]) ->
+                                                                                                                                                                                                    Path_Report ([Char])) q) x
+                                                                                                                               Peek_ReportView_Int64 q
+                                                                                                                                                     x -> Peek_Report_Int64 ((Path_Report_View :: Path_ReportView Int64 ->
+                                                                                                                                                                                                  Path_Report Int64) q) x
+                                                                                                                               Peek_ReportView_Int q
+                                                                                                                                                   x -> Peek_Report_Int ((Path_Report_View :: Path_ReportView Int ->
+                                                                                                                                                                                              Path_Report Int) q) x
+                                                                                                                               Peek_ReportView_Bool q
+                                                                                                                                                    x -> Peek_Report_Bool ((Path_Report_View :: Path_ReportView Bool ->
+                                                                                                                                                                                                Path_Report Bool) q) x
+                                                                                                                               Peek_ReportView_Double q
+                                                                                                                                                      x -> Peek_Report_Double ((Path_Report_View :: Path_ReportView Double ->
+                                                                                                                                                                                                    Path_Report Double) q) x
+                                                                                                                               Peek_ReportView_Dimension q
+                                                                                                                                                         x -> Peek_Report_Dimension ((Path_Report_View :: Path_ReportView Dimension ->
+                                                                                                                                                                                                          Path_Report Dimension) q) x
+                                                                                                                               Peek_ReportView_ImageCrop q
+                                                                                                                                                         x -> Peek_Report_ImageCrop ((Path_Report_View :: Path_ReportView ImageCrop ->
+                                                                                                                                                                                                          Path_Report ImageCrop) q) x
+                                                                                                                               Peek_ReportView_ImageSize q
+                                                                                                                                                         x -> Peek_Report_ImageSize ((Path_Report_View :: Path_ReportView ImageSize ->
+                                                                                                                                                                                                          Path_Report ImageSize) q) x
+                                                                                                                               Peek_ReportView_Units q
+                                                                                                                                                     x -> Peek_Report_Units ((Path_Report_View :: Path_ReportView Units ->
+                                                                                                                                                                                                  Path_Report Units) q) x
+                                                                                                                               Peek_ReportView_ImageFile q
+                                                                                                                                                         x -> Peek_Report_ImageFile ((Path_Report_View :: Path_ReportView ImageFile ->
+                                                                                                                                                                                                          Path_Report ImageFile) q) x
+                                                                                                                               Peek_ReportView_Integer q
+                                                                                                                                                       x -> Peek_Report_Integer ((Path_Report_View :: Path_ReportView Integer ->
+                                                                                                                                                                                                      Path_Report Integer) q) x
+                                                                                                                               Peek_ReportView_JSONText q
+                                                                                                                                                        x -> Peek_Report_JSONText ((Path_Report_View :: Path_ReportView JSONText ->
+                                                                                                                                                                                                        Path_Report JSONText) q) x
+                                                                                                                               Peek_ReportView_Markup q
+                                                                                                                                                      x -> Peek_Report_Markup ((Path_Report_View :: Path_ReportView Markup ->
+                                                                                                                                                                                                    Path_Report Markup) q) x
+                                                                                                                               Peek_ReportView_Permissions q
+                                                                                                                                                           x -> Peek_Report_Permissions ((Path_Report_View :: Path_ReportView Permissions ->
+                                                                                                                                                                                                              Path_Report Permissions) q) x
+                                                                                                                               Peek_ReportView_UserIds q
+                                                                                                                                                       x -> Peek_Report_UserIds ((Path_Report_View :: Path_ReportView ([UserId]) ->
+                                                                                                                                                                                                      Path_Report ([UserId])) q) x
+                                                                                                                               Peek_ReportView_AbbrevPair q
+                                                                                                                                                          x -> Peek_Report_AbbrevPair ((Path_Report_View :: Path_ReportView ((CIString,
+                                                                                                                                                                                                                              Markup)) ->
+                                                                                                                                                                                                            Path_Report ((CIString,
+                                                                                                                                                                                                                          Markup))) q) x
+                                                                                                                               Peek_ReportView_AbbrevPairs q
+                                                                                                                                                           x -> Peek_Report_AbbrevPairs ((Path_Report_View :: Path_ReportView (Order AbbrevPairID
+                                                                                                                                                                                                                                     ((CIString,
+                                                                                                                                                                                                                                       Markup))) ->
+                                                                                                                                                                                                              Path_Report (Order AbbrevPairID
+                                                                                                                                                                                                                                 ((CIString,
+                                                                                                                                                                                                                                   Markup)))) q) x
+                                                                                                                               Peek_ReportView_Author q
+                                                                                                                                                      x -> Peek_Report_Author ((Path_Report_View :: Path_ReportView Author ->
+                                                                                                                                                                                                    Path_Report Author) q) x
+                                                                                                                               Peek_ReportView_Authors q
+                                                                                                                                                       x -> Peek_Report_Authors ((Path_Report_View :: Path_ReportView (Order AuthorID
+                                                                                                                                                                                                                             Author) ->
+                                                                                                                                                                                                      Path_Report (Order AuthorID
+                                                                                                                                                                                                                         Author)) q) x
+                                                                                                                               Peek_ReportView_Branding q
+                                                                                                                                                        x -> Peek_Report_Branding ((Path_Report_View :: Path_ReportView Branding ->
+                                                                                                                                                                                                        Path_Report Branding) q) x
+                                                                                                                               Peek_ReportView_MarkupPair q
+                                                                                                                                                          x -> Peek_Report_MarkupPair ((Path_Report_View :: Path_ReportView ((Markup,
+                                                                                                                                                                                                                              Markup)) ->
+                                                                                                                                                                                                            Path_Report ((Markup,
+                                                                                                                                                                                                                          Markup))) q) x
+                                                                                                                               Peek_ReportView_MarkupPairs q
+                                                                                                                                                           x -> Peek_Report_MarkupPairs ((Path_Report_View :: Path_ReportView (Order MarkupPairID
+                                                                                                                                                                                                                                     ((Markup,
+                                                                                                                                                                                                                                       Markup))) ->
+                                                                                                                                                                                                              Path_Report (Order MarkupPairID
+                                                                                                                                                                                                                                 ((Markup,
+                                                                                                                                                                                                                                   Markup)))) q) x
+                                                                                                                               Peek_ReportView_Markups q
+                                                                                                                                                       x -> Peek_Report_Markups ((Path_Report_View :: Path_ReportView (Order MarkupID
+                                                                                                                                                                                                                             Markup) ->
+                                                                                                                                                                                                      Path_Report (Order MarkupID
+                                                                                                                                                                                                                         Markup)) q) x
+                                                                                                                               Peek_ReportView_MaybeReportIntendedUse q
+                                                                                                                                                                      x -> Peek_Report_MaybeReportIntendedUse ((Path_Report_View :: Path_ReportView (Maybe ReportIntendedUse) ->
+                                                                                                                                                                                                                                    Path_Report (Maybe ReportIntendedUse)) q) x
+                                                                                                                               Peek_ReportView_ReportElem q
+                                                                                                                                                          x -> Peek_Report_ReportElem ((Path_Report_View :: Path_ReportView ReportElem ->
+                                                                                                                                                                                                            Path_Report ReportElem) q) x
+                                                                                                                               Peek_ReportView_ReportElems q
+                                                                                                                                                           x -> Peek_Report_ReportElems ((Path_Report_View :: Path_ReportView (Order ReportElemID
+                                                                                                                                                                                                                                     ReportElem) ->
+                                                                                                                                                                                                              Path_Report (Order ReportElemID
+                                                                                                                                                                                                                                 ReportElem)) q) x
+                                                                                                                               Peek_ReportView_ReportFlags q
+                                                                                                                                                           x -> Peek_Report_ReportFlags ((Path_Report_View :: Path_ReportView ReportFlags ->
+                                                                                                                                                                                                              Path_Report ReportFlags) q) x
+                                                                                                                               Peek_ReportView_ReportStandard q
+                                                                                                                                                              x -> Peek_Report_ReportStandard ((Path_Report_View :: Path_ReportView ReportStandard ->
+                                                                                                                                                                                                                    Path_Report ReportStandard) q) x
+                                                                                                                               Peek_ReportView_ReportStatus q
+                                                                                                                                                            x -> Peek_Report_ReportStatus ((Path_Report_View :: Path_ReportView ReportStatus ->
+                                                                                                                                                                                                                Path_Report ReportStatus) q) x
+                                                                                                                               Peek_ReportView_ReportValueApproachInfo q
+                                                                                                                                                                       x -> Peek_Report_ReportValueApproachInfo ((Path_Report_View :: Path_ReportView ReportValueApproachInfo ->
+                                                                                                                                                                                                                                      Path_Report ReportValueApproachInfo) q) x
+                                                                                                                               Peek_ReportView_ReportValueTypeInfo q
+                                                                                                                                                                   x -> Peek_Report_ReportValueTypeInfo ((Path_Report_View :: Path_ReportView ReportValueTypeInfo ->
+                                                                                                                                                                                                                              Path_Report ReportValueTypeInfo) q) x
+                                                                                                                               Peek_ReportView_EUI q
+                                                                                                                                                   x -> Peek_Report_EUI ((Path_Report_View :: Path_ReportView (Either URI
+                                                                                                                                                                                                                      ImageFile) ->
+                                                                                                                                                                                              Path_Report (Either URI
+                                                                                                                                                                                                                  ImageFile)) q) x
+                                                                                                                               Peek_ReportView_MEUI q
+                                                                                                                                                    x -> Peek_Report_MEUI ((Path_Report_View :: Path_ReportView (Maybe (Either URI
+                                                                                                                                                                                                                               ImageFile)) ->
+                                                                                                                                                                                                Path_Report (Maybe (Either URI
+                                                                                                                                                                                                                           ImageFile))) q) x
+                                                                                                                               Peek_ReportView_MaybeImageFile q
+                                                                                                                                                              x -> Peek_Report_MaybeImageFile ((Path_Report_View :: Path_ReportView (Maybe ImageFile) ->
+                                                                                                                                                                                                                    Path_Report (Maybe ImageFile)) q) x
+                                                                                                                               Peek_ReportView_ReportImage q
+                                                                                                                                                           x -> Peek_Report_ReportImage ((Path_Report_View :: Path_ReportView ReportImage ->
+                                                                                                                                                                                                              Path_Report ReportImage) q) x
+                                                                                                                               Peek_ReportView_ReportImages q
+                                                                                                                                                            x -> Peek_Report_ReportImages ((Path_Report_View :: Path_ReportView (Order ReportImageID
+                                                                                                                                                                                                                                       ReportImage) ->
+                                                                                                                                                                                                                Path_Report (Order ReportImageID
+                                                                                                                                                                                                                                   ReportImage)) q) x
+                                                                                                                               Peek_ReportView_ReadOnlyFilePath q
+                                                                                                                                                                x -> Peek_Report_ReadOnlyFilePath ((Path_Report_View :: Path_ReportView (ReadOnly ([Char])) ->
+                                                                                                                                                                                                                        Path_Report (ReadOnly ([Char]))) q) x
+                                                                                                                               Peek_ReportView_ReportImageView q
+                                                                                                                                                               x -> Peek_Report_ReportImageView ((Path_Report_View :: Path_ReportView ReportImageView ->
+                                                                                                                                                                                                                      Path_Report ReportImageView) q) x
+                                                                                                                               Peek_ReportView_ReportView q
+                                                                                                                                                          x -> Peek_Report_ReportView ((Path_Report_View :: Path_ReportView ReportView ->
+                                                                                                                                                                                                            Path_Report ReportView) q) x
+                                                                                                                               Peek_ReportView_SaneSizeImageSize q
+                                                                                                                                                                 x -> Peek_Report_SaneSizeImageSize ((Path_Report_View :: Path_ReportView (SaneSize ImageSize) ->
+                                                                                                                                                                                                                          Path_Report (SaneSize ImageSize)) q) x
+                                                                                                                               Peek_ReportView_Item q
+                                                                                                                                                    x -> Peek_Report_Item ((Path_Report_View :: Path_ReportView Item ->
+                                                                                                                                                                                                Path_Report Item) q) x
+                                                                                                                               Peek_ReportView_MIM q
+                                                                                                                                                   x -> Peek_Report_MIM ((Path_Report_View :: Path_ReportView (Map ItemFieldName
+                                                                                                                                                                                                                   Markup) ->
+                                                                                                                                                                                              Path_Report (Map ItemFieldName
+                                                                                                                                                                                                               Markup)) q) x
+                                                                                                                               Peek_ReportView_CIString q
+                                                                                                                                                        x -> Peek_Report_CIString ((Path_Report_View :: Path_ReportView CIString ->
+                                                                                                                                                                                                        Path_Report CIString) q) x
+                                                                                                                               Peek_ReportView_URI q
+                                                                                                                                                   x -> Peek_Report_URI ((Path_Report_View :: Path_ReportView URI ->
+                                                                                                                                                                                              Path_Report URI) q) x
+                                                                                                                               Peek_ReportView_Text q
+                                                                                                                                                    x -> Peek_Report_Text ((Path_Report_View :: Path_ReportView Text ->
+                                                                                                                                                                                                Path_Report Text) q) x
+                                                                                                                               Peek_ReportView_UserId q
+                                                                                                                                                      x -> Peek_Report_UserId ((Path_Report_View :: Path_ReportView UserId ->
+                                                                                                                                                                                                    Path_Report UserId) q) x
+                                                                                                                               Peek_ReportView_UUID q
+                                                                                                                                                    x -> Peek_Report_UUID ((Path_Report_View :: Path_ReportView UUID ->
+                                                                                                                                                                                                Path_Report UUID) q) x) (peek y :: Forest (Peek ReportView)))
+                                         _ -> error ("doPeekNodesOf: " ++ show path)) paths
 instance IsPathNode ReportElem
     where data Peek ReportElem
               = Peek_ReportElem_String (Path_ReportElem ([Char])) ([Char])
@@ -10095,18 +10114,19 @@ instance IsPathNode ReportIntendedUse
               | Peek_ReportIntendedUse_ReportIntendedUse (Path_ReportIntendedUse ReportIntendedUse)
                                                          ReportIntendedUse
               deriving (Eq, Show)
-          peek x = case filter (\p -> case p of
-                                          Path_ReportIntendedUse_View _ -> True
-                                          _ -> False) (pathsOf x (undefined :: Proxy ([Char]))) :: [Path_ReportIntendedUse ([Char])] of
-                       [p@(Path_ReportIntendedUse_View _)] -> let [y] = toListOf (toLens p) x :: [[Char]]
-                                                               in [Node (Peek_ReportIntendedUse_String p y) (forestMap (\v -> case v of
-                                                                                                                                  Peek_String_String q
-                                                                                                                                                     x -> Peek_ReportIntendedUse_String ((Path_ReportIntendedUse_View :: Path_String ([Char]) ->
-                                                                                                                                                                                                                         Path_ReportIntendedUse ([Char])) q) x
-                                                                                                                                  Peek_String_JSONText q
-                                                                                                                                                       x -> Peek_ReportIntendedUse_JSONText ((Path_ReportIntendedUse_View :: Path_String JSONText ->
-                                                                                                                                                                                                                             Path_ReportIntendedUse JSONText) q) x) (peek y :: Forest (Peek ([Char]))))]
-                       [] -> [] :: Forest (Peek ReportIntendedUse)
+          peek x = let paths = filter (\p -> case p of
+                                                 Path_ReportIntendedUse_View _ -> True
+                                                 _ -> False) (pathsOf x (undefined :: Proxy ([Char]))) :: [Path_ReportIntendedUse ([Char])]
+                    in map (\path -> case path of
+                                         p@(Path_ReportIntendedUse_View _) -> let [y] = toListOf (toLens p) x :: [[Char]]
+                                                                               in Node (Peek_ReportIntendedUse_String p y) (forestMap (\v -> case v of
+                                                                                                                                                 Peek_String_String q
+                                                                                                                                                                    x -> Peek_ReportIntendedUse_String ((Path_ReportIntendedUse_View :: Path_String ([Char]) ->
+                                                                                                                                                                                                                                        Path_ReportIntendedUse ([Char])) q) x
+                                                                                                                                                 Peek_String_JSONText q
+                                                                                                                                                                      x -> Peek_ReportIntendedUse_JSONText ((Path_ReportIntendedUse_View :: Path_String JSONText ->
+                                                                                                                                                                                                                                            Path_ReportIntendedUse JSONText) q) x) (peek y :: Forest (Peek ([Char]))))
+                                         _ -> error ("doPeekNodesOf: " ++ show path)) paths
 instance IsPathNode ReportStandard
     where data Peek ReportStandard
               = Peek_ReportStandard_Int (Path_ReportStandard Int) Int
@@ -10130,18 +10150,19 @@ instance IsPathNode ReportStatus
               | Peek_ReportStatus_ReportStatus (Path_ReportStatus ReportStatus)
                                                ReportStatus
               deriving (Eq, Show)
-          peek x = case filter (\p -> case p of
-                                          Path_ReportStatus_View _ -> True
-                                          _ -> False) (pathsOf x (undefined :: Proxy ([Char]))) :: [Path_ReportStatus ([Char])] of
-                       [p@(Path_ReportStatus_View _)] -> let [y] = toListOf (toLens p) x :: [[Char]]
-                                                          in [Node (Peek_ReportStatus_String p y) (forestMap (\v -> case v of
-                                                                                                                        Peek_String_String q
-                                                                                                                                           x -> Peek_ReportStatus_String ((Path_ReportStatus_View :: Path_String ([Char]) ->
-                                                                                                                                                                                                     Path_ReportStatus ([Char])) q) x
-                                                                                                                        Peek_String_JSONText q
-                                                                                                                                             x -> Peek_ReportStatus_JSONText ((Path_ReportStatus_View :: Path_String JSONText ->
-                                                                                                                                                                                                         Path_ReportStatus JSONText) q) x) (peek y :: Forest (Peek ([Char]))))]
-                       [] -> [] :: Forest (Peek ReportStatus)
+          peek x = let paths = filter (\p -> case p of
+                                                 Path_ReportStatus_View _ -> True
+                                                 _ -> False) (pathsOf x (undefined :: Proxy ([Char]))) :: [Path_ReportStatus ([Char])]
+                    in map (\path -> case path of
+                                         p@(Path_ReportStatus_View _) -> let [y] = toListOf (toLens p) x :: [[Char]]
+                                                                          in Node (Peek_ReportStatus_String p y) (forestMap (\v -> case v of
+                                                                                                                                       Peek_String_String q
+                                                                                                                                                          x -> Peek_ReportStatus_String ((Path_ReportStatus_View :: Path_String ([Char]) ->
+                                                                                                                                                                                                                    Path_ReportStatus ([Char])) q) x
+                                                                                                                                       Peek_String_JSONText q
+                                                                                                                                                            x -> Peek_ReportStatus_JSONText ((Path_ReportStatus_View :: Path_String JSONText ->
+                                                                                                                                                                                                                        Path_ReportStatus JSONText) q) x) (peek y :: Forest (Peek ([Char]))))
+                                         _ -> error ("doPeekNodesOf: " ++ show path)) paths
 instance IsPathNode ReportValueApproachInfo
     where data Peek ReportValueApproachInfo
               = Peek_ReportValueApproachInfo_JSONText (Path_ReportValueApproachInfo JSONText)
@@ -10272,67 +10293,68 @@ instance IsPathNode ReportImage
               | Peek_ReportImage_URI (Path_ReportImage URI) URI
               | Peek_ReportImage_Text (Path_ReportImage Text) Text
               deriving (Eq, Show)
-          peek x = case filter (\p -> case p of
-                                          Path_ReportImage_View _ -> True
-                                          _ -> False) (pathsOf x (undefined :: Proxy ReportImageView)) :: [Path_ReportImage ReportImageView] of
-                       [p@(Path_ReportImage_View _)] -> let [y] = toListOf (toLens p) x :: [ReportImageView]
-                                                         in [Node (Peek_ReportImage_ReportImageView p y) (forestMap (\v -> case v of
-                                                                                                                               Peek_ReportImageView_String q
-                                                                                                                                                           x -> Peek_ReportImage_String ((Path_ReportImage_View :: Path_ReportImageView ([Char]) ->
-                                                                                                                                                                                                                   Path_ReportImage ([Char])) q) x
-                                                                                                                               Peek_ReportImageView_Bool q
-                                                                                                                                                         x -> Peek_ReportImage_Bool ((Path_ReportImage_View :: Path_ReportImageView Bool ->
-                                                                                                                                                                                                               Path_ReportImage Bool) q) x
-                                                                                                                               Peek_ReportImageView_Double q
-                                                                                                                                                           x -> Peek_ReportImage_Double ((Path_ReportImage_View :: Path_ReportImageView Double ->
-                                                                                                                                                                                                                   Path_ReportImage Double) q) x
-                                                                                                                               Peek_ReportImageView_Dimension q
-                                                                                                                                                              x -> Peek_ReportImage_Dimension ((Path_ReportImage_View :: Path_ReportImageView Dimension ->
-                                                                                                                                                                                                                         Path_ReportImage Dimension) q) x
-                                                                                                                               Peek_ReportImageView_ImageCrop q
-                                                                                                                                                              x -> Peek_ReportImage_ImageCrop ((Path_ReportImage_View :: Path_ReportImageView ImageCrop ->
-                                                                                                                                                                                                                         Path_ReportImage ImageCrop) q) x
-                                                                                                                               Peek_ReportImageView_ImageSize q
-                                                                                                                                                              x -> Peek_ReportImage_ImageSize ((Path_ReportImage_View :: Path_ReportImageView ImageSize ->
-                                                                                                                                                                                                                         Path_ReportImage ImageSize) q) x
-                                                                                                                               Peek_ReportImageView_Units q
-                                                                                                                                                          x -> Peek_ReportImage_Units ((Path_ReportImage_View :: Path_ReportImageView Units ->
-                                                                                                                                                                                                                 Path_ReportImage Units) q) x
-                                                                                                                               Peek_ReportImageView_ImageFile q
-                                                                                                                                                              x -> Peek_ReportImage_ImageFile ((Path_ReportImage_View :: Path_ReportImageView ImageFile ->
-                                                                                                                                                                                                                         Path_ReportImage ImageFile) q) x
-                                                                                                                               Peek_ReportImageView_JSONText q
-                                                                                                                                                             x -> Peek_ReportImage_JSONText ((Path_ReportImage_View :: Path_ReportImageView JSONText ->
-                                                                                                                                                                                                                       Path_ReportImage JSONText) q) x
-                                                                                                                               Peek_ReportImageView_Markup q
-                                                                                                                                                           x -> Peek_ReportImage_Markup ((Path_ReportImage_View :: Path_ReportImageView Markup ->
-                                                                                                                                                                                                                   Path_ReportImage Markup) q) x
-                                                                                                                               Peek_ReportImageView_EUI q
-                                                                                                                                                        x -> Peek_ReportImage_EUI ((Path_ReportImage_View :: Path_ReportImageView (Either URI
-                                                                                                                                                                                                                                          ImageFile) ->
-                                                                                                                                                                                                             Path_ReportImage (Either URI
-                                                                                                                                                                                                                                      ImageFile)) q) x
-                                                                                                                               Peek_ReportImageView_MEUI q
-                                                                                                                                                         x -> Peek_ReportImage_MEUI ((Path_ReportImage_View :: Path_ReportImageView (Maybe (Either URI
-                                                                                                                                                                                                                                                   ImageFile)) ->
-                                                                                                                                                                                                               Path_ReportImage (Maybe (Either URI
-                                                                                                                                                                                                                                               ImageFile))) q) x
-                                                                                                                               Peek_ReportImageView_MaybeImageFile q
-                                                                                                                                                                   x -> Peek_ReportImage_MaybeImageFile ((Path_ReportImage_View :: Path_ReportImageView (Maybe ImageFile) ->
-                                                                                                                                                                                                                                   Path_ReportImage (Maybe ImageFile)) q) x
-                                                                                                                               Peek_ReportImageView_ReportImageView q
-                                                                                                                                                                    x -> Peek_ReportImage_ReportImageView ((Path_ReportImage_View :: Path_ReportImageView ReportImageView ->
-                                                                                                                                                                                                                                     Path_ReportImage ReportImageView) q) x
-                                                                                                                               Peek_ReportImageView_SaneSizeImageSize q
-                                                                                                                                                                      x -> Peek_ReportImage_SaneSizeImageSize ((Path_ReportImage_View :: Path_ReportImageView (SaneSize ImageSize) ->
-                                                                                                                                                                                                                                         Path_ReportImage (SaneSize ImageSize)) q) x
-                                                                                                                               Peek_ReportImageView_URI q
-                                                                                                                                                        x -> Peek_ReportImage_URI ((Path_ReportImage_View :: Path_ReportImageView URI ->
-                                                                                                                                                                                                             Path_ReportImage URI) q) x
-                                                                                                                               Peek_ReportImageView_Text q
-                                                                                                                                                         x -> Peek_ReportImage_Text ((Path_ReportImage_View :: Path_ReportImageView Text ->
-                                                                                                                                                                                                               Path_ReportImage Text) q) x) (peek y :: Forest (Peek ReportImageView)))]
-                       [] -> [] :: Forest (Peek ReportImage)
+          peek x = let paths = filter (\p -> case p of
+                                                 Path_ReportImage_View _ -> True
+                                                 _ -> False) (pathsOf x (undefined :: Proxy ReportImageView)) :: [Path_ReportImage ReportImageView]
+                    in map (\path -> case path of
+                                         p@(Path_ReportImage_View _) -> let [y] = toListOf (toLens p) x :: [ReportImageView]
+                                                                         in Node (Peek_ReportImage_ReportImageView p y) (forestMap (\v -> case v of
+                                                                                                                                              Peek_ReportImageView_String q
+                                                                                                                                                                          x -> Peek_ReportImage_String ((Path_ReportImage_View :: Path_ReportImageView ([Char]) ->
+                                                                                                                                                                                                                                  Path_ReportImage ([Char])) q) x
+                                                                                                                                              Peek_ReportImageView_Bool q
+                                                                                                                                                                        x -> Peek_ReportImage_Bool ((Path_ReportImage_View :: Path_ReportImageView Bool ->
+                                                                                                                                                                                                                              Path_ReportImage Bool) q) x
+                                                                                                                                              Peek_ReportImageView_Double q
+                                                                                                                                                                          x -> Peek_ReportImage_Double ((Path_ReportImage_View :: Path_ReportImageView Double ->
+                                                                                                                                                                                                                                  Path_ReportImage Double) q) x
+                                                                                                                                              Peek_ReportImageView_Dimension q
+                                                                                                                                                                             x -> Peek_ReportImage_Dimension ((Path_ReportImage_View :: Path_ReportImageView Dimension ->
+                                                                                                                                                                                                                                        Path_ReportImage Dimension) q) x
+                                                                                                                                              Peek_ReportImageView_ImageCrop q
+                                                                                                                                                                             x -> Peek_ReportImage_ImageCrop ((Path_ReportImage_View :: Path_ReportImageView ImageCrop ->
+                                                                                                                                                                                                                                        Path_ReportImage ImageCrop) q) x
+                                                                                                                                              Peek_ReportImageView_ImageSize q
+                                                                                                                                                                             x -> Peek_ReportImage_ImageSize ((Path_ReportImage_View :: Path_ReportImageView ImageSize ->
+                                                                                                                                                                                                                                        Path_ReportImage ImageSize) q) x
+                                                                                                                                              Peek_ReportImageView_Units q
+                                                                                                                                                                         x -> Peek_ReportImage_Units ((Path_ReportImage_View :: Path_ReportImageView Units ->
+                                                                                                                                                                                                                                Path_ReportImage Units) q) x
+                                                                                                                                              Peek_ReportImageView_ImageFile q
+                                                                                                                                                                             x -> Peek_ReportImage_ImageFile ((Path_ReportImage_View :: Path_ReportImageView ImageFile ->
+                                                                                                                                                                                                                                        Path_ReportImage ImageFile) q) x
+                                                                                                                                              Peek_ReportImageView_JSONText q
+                                                                                                                                                                            x -> Peek_ReportImage_JSONText ((Path_ReportImage_View :: Path_ReportImageView JSONText ->
+                                                                                                                                                                                                                                      Path_ReportImage JSONText) q) x
+                                                                                                                                              Peek_ReportImageView_Markup q
+                                                                                                                                                                          x -> Peek_ReportImage_Markup ((Path_ReportImage_View :: Path_ReportImageView Markup ->
+                                                                                                                                                                                                                                  Path_ReportImage Markup) q) x
+                                                                                                                                              Peek_ReportImageView_EUI q
+                                                                                                                                                                       x -> Peek_ReportImage_EUI ((Path_ReportImage_View :: Path_ReportImageView (Either URI
+                                                                                                                                                                                                                                                         ImageFile) ->
+                                                                                                                                                                                                                            Path_ReportImage (Either URI
+                                                                                                                                                                                                                                                     ImageFile)) q) x
+                                                                                                                                              Peek_ReportImageView_MEUI q
+                                                                                                                                                                        x -> Peek_ReportImage_MEUI ((Path_ReportImage_View :: Path_ReportImageView (Maybe (Either URI
+                                                                                                                                                                                                                                                                  ImageFile)) ->
+                                                                                                                                                                                                                              Path_ReportImage (Maybe (Either URI
+                                                                                                                                                                                                                                                              ImageFile))) q) x
+                                                                                                                                              Peek_ReportImageView_MaybeImageFile q
+                                                                                                                                                                                  x -> Peek_ReportImage_MaybeImageFile ((Path_ReportImage_View :: Path_ReportImageView (Maybe ImageFile) ->
+                                                                                                                                                                                                                                                  Path_ReportImage (Maybe ImageFile)) q) x
+                                                                                                                                              Peek_ReportImageView_ReportImageView q
+                                                                                                                                                                                   x -> Peek_ReportImage_ReportImageView ((Path_ReportImage_View :: Path_ReportImageView ReportImageView ->
+                                                                                                                                                                                                                                                    Path_ReportImage ReportImageView) q) x
+                                                                                                                                              Peek_ReportImageView_SaneSizeImageSize q
+                                                                                                                                                                                     x -> Peek_ReportImage_SaneSizeImageSize ((Path_ReportImage_View :: Path_ReportImageView (SaneSize ImageSize) ->
+                                                                                                                                                                                                                                                        Path_ReportImage (SaneSize ImageSize)) q) x
+                                                                                                                                              Peek_ReportImageView_URI q
+                                                                                                                                                                       x -> Peek_ReportImage_URI ((Path_ReportImage_View :: Path_ReportImageView URI ->
+                                                                                                                                                                                                                            Path_ReportImage URI) q) x
+                                                                                                                                              Peek_ReportImageView_Text q
+                                                                                                                                                                        x -> Peek_ReportImage_Text ((Path_ReportImage_View :: Path_ReportImageView Text ->
+                                                                                                                                                                                                                              Path_ReportImage Text) q) x) (peek y :: Forest (Peek ReportImageView)))
+                                         _ -> error ("doPeekNodesOf: " ++ show path)) paths
 instance IsPathNode ReportImageView
     where data Peek ReportImageView
               = Peek_ReportImageView_String (Path_ReportImageView ([Char]))
@@ -11906,18 +11928,19 @@ instance IsPathNode CIString
               | Peek_CIString_CIString (Path_CIString CIString) CIString
               | Peek_CIString_Text (Path_CIString Text) Text
               deriving (Eq, Show)
-          peek x = case filter (\p -> case p of
-                                          Path_CIString_View _ -> True
-                                          _ -> False) (pathsOf x (undefined :: Proxy Text)) :: [Path_CIString Text] of
-                       [p@(Path_CIString_View _)] -> let [y] = toListOf (toLens p) x :: [Text]
-                                                      in [Node (Peek_CIString_Text p y) (forestMap (\v -> case v of
-                                                                                                              Peek_Text_JSONText q
-                                                                                                                                 x -> Peek_CIString_JSONText ((Path_CIString_View :: Path_Text JSONText ->
-                                                                                                                                                                                     Path_CIString JSONText) q) x
-                                                                                                              Peek_Text_Text q
-                                                                                                                             x -> Peek_CIString_Text ((Path_CIString_View :: Path_Text Text ->
-                                                                                                                                                                             Path_CIString Text) q) x) (peek y :: Forest (Peek Text)))]
-                       [] -> [] :: Forest (Peek CIString)
+          peek x = let paths = filter (\p -> case p of
+                                                 Path_CIString_View _ -> True
+                                                 _ -> False) (pathsOf x (undefined :: Proxy Text)) :: [Path_CIString Text]
+                    in map (\path -> case path of
+                                         p@(Path_CIString_View _) -> let [y] = toListOf (toLens p) x :: [Text]
+                                                                      in Node (Peek_CIString_Text p y) (forestMap (\v -> case v of
+                                                                                                                             Peek_Text_JSONText q
+                                                                                                                                                x -> Peek_CIString_JSONText ((Path_CIString_View :: Path_Text JSONText ->
+                                                                                                                                                                                                    Path_CIString JSONText) q) x
+                                                                                                                             Peek_Text_Text q
+                                                                                                                                            x -> Peek_CIString_Text ((Path_CIString_View :: Path_Text Text ->
+                                                                                                                                                                                            Path_CIString Text) q) x) (peek y :: Forest (Peek Text)))
+                                         _ -> error ("doPeekNodesOf: " ++ show path)) paths
 instance IsPathNode URI
     where data Peek URI
               = Peek_URI_URI (Path_URI URI) URI
@@ -11928,15 +11951,16 @@ instance IsPathNode Text
               = Peek_Text_JSONText (Path_Text JSONText) JSONText
               | Peek_Text_Text (Path_Text Text) Text
               deriving (Eq, Show)
-          peek x = case filter (\p -> case p of
-                                          Path_Text_View _ -> True
-                                          _ -> False) (pathsOf x (undefined :: Proxy JSONText)) :: [Path_Text JSONText] of
-                       [p@(Path_Text_View _)] -> let [y] = toListOf (toLens p) x :: [JSONText]
-                                                  in [Node (Peek_Text_JSONText p y) (forestMap (\v -> case v of
-                                                                                                          Peek_JSONText_JSONText q
-                                                                                                                                 x -> Peek_Text_JSONText ((Path_Text_View :: Path_JSONText JSONText ->
-                                                                                                                                                                             Path_Text JSONText) q) x) (peek y :: Forest (Peek JSONText)))]
-                       [] -> [] :: Forest (Peek Text)
+          peek x = let paths = filter (\p -> case p of
+                                                 Path_Text_View _ -> True
+                                                 _ -> False) (pathsOf x (undefined :: Proxy JSONText)) :: [Path_Text JSONText]
+                    in map (\path -> case path of
+                                         p@(Path_Text_View _) -> let [y] = toListOf (toLens p) x :: [JSONText]
+                                                                  in Node (Peek_Text_JSONText p y) (forestMap (\v -> case v of
+                                                                                                                         Peek_JSONText_JSONText q
+                                                                                                                                                x -> Peek_Text_JSONText ((Path_Text_View :: Path_JSONText JSONText ->
+                                                                                                                                                                                            Path_Text JSONText) q) x) (peek y :: Forest (Peek JSONText)))
+                                         _ -> error ("doPeekNodesOf: " ++ show path)) paths
 instance IsPathNode UserId
     where data Peek UserId
               = Peek_UserId_UserId (Path_UserId UserId) UserId
