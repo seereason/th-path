@@ -104,7 +104,7 @@ instance (ToLens f, ToLens g, A f ~ S g {-, B f ~ T g-}) => ToLens (f :.: g) whe
 -- the values of type @a@ which can be obtained from a value of type
 -- @s@ using a lens.  Any value of a 'Path' type can be passed
 -- to the 'toLens method to obtain the lens
-class (IsPathType (Path s a), ToLens (Path s a)) => IsPath s a where
+class (IsPathType (Path s a), ToLens (Path s a), S (Path s a) ~ s, A (Path s a) ~ a) => IsPath s a where
     type Path s a
     -- ^ Each instance defines this type function which returns the
     -- path type.  Each value of this type represents a different way
