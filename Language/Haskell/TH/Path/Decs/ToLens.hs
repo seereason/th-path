@@ -34,7 +34,7 @@ import Language.Haskell.TH.Context (ContextM, InstMap, reifyInstancesWithContext
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Core (mat, ToLens(toLens), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
-import Language.Haskell.TH.Path.Decs.Common (asName, fieldLensNameOld, makeFieldCon)
+import Language.Haskell.TH.Path.Decs.Common (asName, makeFieldCon)
 import Language.Haskell.TH.Path.Decs.PathType (pathType)
 import Language.Haskell.TH.Path.Graph (SelfPath, SinkType)
 import Language.Haskell.TH.Path.Order (lens_omat, Order, Path_OMap(..))
@@ -177,9 +177,10 @@ doName tname gkey =
                              let goal = view (vsimple . etype) fkey == view etype gkey
                              clauses' <- List.mapM (Monad.lift .
                                                     mapClause (\ pat -> conP (asName pcname) [pat])
-                                                              (\ lns -> if goal
-                                                                        then varE (fieldLensNameOld tname fn)
-                                                                        else [|$(varE (fieldLensNameOld tname fn)) . $lns|])) clauses
+                                                              (\ lns ->
+                                                                   let hop = [|\f x -> fmap (\y -> $(recUpdE [|x|] [fieldExp fn [|y|]])) (f $(appE (varE fn) [|x|]))|] in
+                                                                   -- let hop = varE (fieldLensNameOld tname fn) in
+                                                                   if goal then hop else [|$hop . $lns|])) clauses
                              return [(con, clauses')]
 
 
