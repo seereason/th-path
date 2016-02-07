@@ -1,4 +1,5 @@
 {-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE FunctionalDependencies #-}
@@ -11,11 +12,14 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE TypeOperators #-}
 module Language.Haskell.TH.Path.Core
     ( -- * Type classes and associated types
-      IsPath(toLens, pathsOf, Path)
+      IsPath(pathsOf, Path)
     , IsPathType(idPath)
     , IsPathNode(Peek, peek)
+    , ToLens(S, A, toLens)
+    , (:.:)(..)
 
     -- * Basic Path Types
     , Path_Pair(..)
@@ -62,6 +66,7 @@ import Data.Text as Text (Text, pack, unpack, unwords, words)
 import Data.Tree (Forest)
 import Data.UserId (UserId(..))
 import Debug.Trace (trace)
+import GHC.Generics (Generic)
 import Language.Haskell.TH
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
@@ -79,21 +84,34 @@ class IsPathType p where
     idPath :: p -- ^ The identity value for path type @p@.  Obeys the law
                 -- @toLens idPath == iso id id@.
 
+class ToLens p where
+    type S p
+    type A p
+    toLens :: p -> (forall (f :: * -> *). (Functor f, Applicative f) => (A p -> f (A p)) -> S p -> f (S p))
+
+data (f :.: g) = f :.: g deriving (Eq, Generic, Read, Show)
+
+instance (ToLens f, ToLens g, A f ~ S g {-, B f ~ T g-}) => ToLens (f :.: g) where
+  type S (f :.: g) = S f
+  -- type T (f :.: g) = T f
+  type A (f :.: g) = A g
+  -- type B (f :.: g) = B g
+  toLens (f :.: g) = toLens f . toLens g
+  -- ^ Function to turn a path value of type @p@ into a lens to access
+  -- (one of) the @A p@ values in an @S p@.
+
 -- | Instances of the 'IsPath' class are used to give a name to each of
 -- the values of type @a@ which can be obtained from a value of type
 -- @s@ using a lens.  Any value of a 'Path' type can be passed
--- to the 'toLens' method to obtain the lens
-class IsPathType (Path s a) => IsPath s a where
+-- to the 'toLens method to obtain the lens
+class (IsPathType (Path s a), ToLens (Path s a)) => IsPath s a where
     type Path s a
     -- ^ Each instance defines this type function which returns the
     -- path type.  Each value of this type represents a different way
     -- of obtaining the @a@ from the @s@.  For example, if @s@ is a
     -- record with two fields of type 'Int', the type @PathType s Int@
     -- would have distinct values for those two fields, and the lenses
-    -- returned by 'toLens' would access those two fields.
-    toLens :: Path s a -> Traversal' s a
-    -- ^ Function to turn a 'Path' into a lens to access (one of)
-    -- the @a@ values.
+    -- returned by 'toLens would access those two fields.
     pathsOf :: s -> Proxy a -> [Path s a]
     -- ^ Build the paths corresponding to a particular s.  This
     -- function will freak out if called with types for which there is

@@ -28,7 +28,7 @@ import Appraisal.ReportItem
 import Appraisal.ReportInstances
 import Appraisal.ReportMap
 import Appraisal.Utils.CIString
-import Control.Lens (Lens', toListOf)
+import Control.Lens (Lens', toListOf, view)
 import Control.Monad.Readers (MonadReaders)
 import Data.Algorithm.DiffContext (getContextDiff, prettyContextDiff)
 import Data.ByteString.UTF8 (toString)
@@ -47,6 +47,7 @@ import Language.Haskell.TH.Context (ContextM)
 import Language.Haskell.TH.Path.Core
 import Language.Haskell.TH.Path.Graph (runTypeGraphT)
 import Language.Haskell.TH.Path.Order (Path_OMap(..), fromPairs)
+import Language.Haskell.TH.Path.View (viewLens)
 import Language.Haskell.TH.TypeGraph.Prelude (friendlyNames)
 import Language.Haskell.TH.TypeGraph.TypeInfo (startTypes, TypeInfo)
 import Language.Haskell.TH.TypeGraph.TypeGraph (adjacent, TypeGraph, typeGraphVertex)
@@ -147,7 +148,7 @@ main = do
                            Node {rootLabel = Peek_ReportView_ReportStandard (Path_ReportView__reportStandardsVersion Path_ReportStandard) (ReportStandard {unReportStandard = 1}), subForest = [Node {rootLabel = Peek_ReportView_Int (Path_ReportView__reportStandardsVersion (Path_ReportStandard_unReportStandard Path_Int)) 1, subForest = []}]}]
 
                actual :: Forest (Peek ReportView)
-               actual = peek (head (toListOf (toLens (Path_Report_View idPath)) Report.report) :: ReportView) in
+               actual = peek (head (toListOf (toLens (Path_Report_View (idPath :: Path_ReportView ReportView))) Report.report) :: ReportView) in
            assertEqual' "peek ReportView" expected actual
 
          , let expected :: Peek Report
@@ -184,7 +185,16 @@ main = do
                actual = [] {-$(runTypeGraphT (editor ''ReportElem [|e|]) [ConT ''ReportMap] :: ExpQ)-} in
            assertEqual' "editor" expected actual
 -}
-         ]
+       , assertEqual' "toLens3" (toListOf (toLens (Path_ImageSize_dim (idPath :: Path_Dimension Dimension))) (picSize image)) [dim (picSize image) :: Dimension]
+       , assertEqual' "toLens4" (toListOf (toLens (Path_ImageSize_units (idPath :: Path_Units Units))) (picSize image)) [units (picSize image)]
+       , assertEqual' "toLens5" (toListOf (toLens (Path_ReportImage_View (idPath :: Path_ReportImageView ReportImageView))) image) [view viewLens image]
+       , assertEqual' "toLens6" (toListOf (toLens (Path_ReportImageView__picCrop (idPath :: Path_ImageCrop ImageCrop))) (view viewLens image)) [picCrop image]
+       , assertEqual' "toLens7" (toListOf (toLens ((Path_ReportImage_View (idPath :: Path_ReportImageView ReportImageView)) :.:
+                                                    (Path_ReportImageView__picCrop (idPath :: Path_ImageCrop ImageCrop)))) image) [picCrop image]
+       , assertEqual' "toLens8" ((Path_ReportImage_View (idPath :: Path_ReportImageView Bool) :.: Path_ReportImage_View (idPath :: Path_ReportImageView Bool)) ==
+                                 (Path_ReportImage_View (idPath :: Path_ReportImageView Bool) :.: Path_ReportImage_View (idPath :: Path_ReportImageView Bool))) True
+       ]
+
   case r of
     Counts {errors = 0, failures = 0} -> exitWith ExitSuccess
     _ -> error $ showCounts r

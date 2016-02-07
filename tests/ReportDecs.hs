@@ -804,67 +804,52 @@ class HasUserId c
           {-# INLINE lens_UserId__unUserId #-}
 instance IsPath String String
     where type Path String String = Path_String String
-          toLens _ = iso id id
           pathsOf _ _ = [idPath]
 instance IsPath String JSONText
     where type Path String JSONText = Path_String JSONText
-          toLens (Path_String_View _) = viewLens :: Lens' ([Char]) JSONText
           pathsOf x a = let {p = Path_String_View idPath :: Path ([Char])
                                                                  JSONText;
                              [x'] = toListOf (toLens p) x :: [JSONText]}
                          in map Path_String_View (pathsOf x' a :: [Path JSONText JSONText])
 instance IsPath Int64 Int64
     where type Path Int64 Int64 = Path_Int64 Int64
-          toLens _ = iso id id
           pathsOf _ _ = [idPath]
 instance IsPath Bool String
     where type Path Bool String = Path_Bool String
-          toLens (Path_Bool_View _) = viewLens :: Lens' Bool ([Char])
           pathsOf x a = let {p = Path_Bool_View idPath :: Path Bool ([Char]);
                              [x'] = toListOf (toLens p) x :: [[Char]]}
                          in map Path_Bool_View (pathsOf x' a :: [Path ([Char]) ([Char])])
 instance IsPath Bool Bool
     where type Path Bool Bool = Path_Bool Bool
-          toLens _ = iso id id
           pathsOf _ _ = [idPath]
 instance IsPath Bool JSONText
     where type Path Bool JSONText = Path_Bool JSONText
-          toLens (Path_Bool_View v) = (viewLens :: Lens' Bool
-                                                         ([Char])) . toLens v
           pathsOf x a = let {p = Path_Bool_View idPath :: Path Bool ([Char]);
                              [x'] = toListOf (toLens p) x :: [[Char]]}
                          in map Path_Bool_View (pathsOf x' a :: [Path ([Char]) JSONText])
 instance IsPath Double String
     where type Path Double String = Path_Double String
-          toLens (Path_Double_View _) = viewLens :: Lens' Double ([Char])
           pathsOf x a = let {p = Path_Double_View idPath :: Path Double
                                                                  ([Char]);
                              [x'] = toListOf (toLens p) x :: [[Char]]}
                          in map Path_Double_View (pathsOf x' a :: [Path ([Char]) ([Char])])
 instance IsPath Double Double
     where type Path Double Double = Path_Double Double
-          toLens _ = iso id id
           pathsOf _ _ = [idPath]
 instance IsPath Double JSONText
     where type Path Double JSONText = Path_Double JSONText
-          toLens (Path_Double_View v) = (viewLens :: Lens' Double
-                                                           ([Char])) . toLens v
           pathsOf x a = let {p = Path_Double_View idPath :: Path Double
                                                                  ([Char]);
                              [x'] = toListOf (toLens p) x :: [[Char]]}
                          in map Path_Double_View (pathsOf x' a :: [Path ([Char]) JSONText])
 instance IsPath Int Int
     where type Path Int Int = Path_Int Int
-          toLens _ = iso id id
           pathsOf _ _ = [idPath]
 instance IsPath Dimension Dimension
     where type Path Dimension Dimension = Path_Dimension Dimension
-          toLens _ = iso id id
           pathsOf _ _ = [idPath]
 instance IsPath Dimension JSONText
     where type Path Dimension JSONText = Path_Dimension JSONText
-          toLens (Path_Dimension_View _) = viewLens :: Lens' Dimension
-                                                             JSONText
           pathsOf x a = let {p = Path_Dimension_View idPath :: Path Dimension
                                                                     JSONText;
                              [x'] = toListOf (toLens p) x :: [JSONText]}
@@ -872,63 +857,47 @@ instance IsPath Dimension JSONText
                                                                            JSONText])
 instance IsPath ImageCrop ImageCrop
     where type Path ImageCrop ImageCrop = Path_ImageCrop ImageCrop
-          toLens _ = iso id id
           pathsOf _ _ = [idPath]
 instance IsPath ImageSize String
     where type Path ImageSize String = Path_ImageSize String
-          toLens (Path_ImageSize_size _x) = lens_ImageSize_size . toLens _x
           pathsOf (x@(ImageSize {})) a = concat [map Path_ImageSize_size (pathsOf (size x) a)]
 instance IsPath ImageSize Double
     where type Path ImageSize Double = Path_ImageSize Double
-          toLens (Path_ImageSize_size _x) = lens_ImageSize_size
           pathsOf (x@(ImageSize {})) a = concat [map Path_ImageSize_size (pathsOf (size x) a)]
 instance IsPath ImageSize Dimension
     where type Path ImageSize Dimension = Path_ImageSize Dimension
-          toLens (Path_ImageSize_dim _x) = lens_ImageSize_dim
           pathsOf (x@(ImageSize {})) a = concat [map Path_ImageSize_dim (pathsOf (dim x) a)]
 instance IsPath ImageSize ImageSize
     where type Path ImageSize ImageSize = Path_ImageSize ImageSize
-          toLens _ = iso id id
           pathsOf _ _ = [idPath]
 instance IsPath ImageSize Units
     where type Path ImageSize Units = Path_ImageSize Units
-          toLens (Path_ImageSize_units _x) = lens_ImageSize_units
           pathsOf (x@(ImageSize {})) a = concat [map Path_ImageSize_units (pathsOf (units x) a)]
 instance IsPath ImageSize JSONText
     where type Path ImageSize JSONText = Path_ImageSize JSONText
-          toLens (Path_ImageSize_dim _x) = lens_ImageSize_dim . toLens _x
-          toLens (Path_ImageSize_size _x) = lens_ImageSize_size . toLens _x
-          toLens (Path_ImageSize_units _x) = lens_ImageSize_units . toLens _x
           pathsOf (x@(ImageSize {})) a = concat [map Path_ImageSize_dim (pathsOf (dim x) a),
                                                  map Path_ImageSize_size (pathsOf (size x) a),
                                                  map Path_ImageSize_units (pathsOf (units x) a)]
 instance IsPath Units Units
     where type Path Units Units = Path_Units Units
-          toLens _ = iso id id
           pathsOf _ _ = [idPath]
 instance IsPath Units JSONText
     where type Path Units JSONText = Path_Units JSONText
-          toLens (Path_Units_View _) = viewLens :: Lens' Units JSONText
           pathsOf x a = let {p = Path_Units_View idPath :: Path Units
                                                                 JSONText;
                              [x'] = toListOf (toLens p) x :: [JSONText]}
                          in map Path_Units_View (pathsOf x' a :: [Path JSONText JSONText])
 instance IsPath ImageFile ImageFile
     where type Path ImageFile ImageFile = Path_ImageFile ImageFile
-          toLens _ = iso id id
           pathsOf _ _ = [idPath]
 instance IsPath Integer Integer
     where type Path Integer Integer = Path_Integer Integer
-          toLens _ = iso id id
           pathsOf _ _ = [idPath]
 instance IsPath JSONText JSONText
     where type Path JSONText JSONText = Path_JSONText JSONText
-          toLens _ = iso id id
           pathsOf _ _ = [idPath]
 instance IsPath Markup JSONText
     where type Path Markup JSONText = Path_Markup JSONText
-          toLens (Path_Markup_markdownText _x) = lens_Markup_markdownText . toLens _x
-          toLens (Path_Markup_htmlText _x) = lens_Markup_htmlText . toLens _x
           pathsOf (x@(Markdown {})) a = concat [map Path_Markup_markdownText (pathsOf (markdownText x) a)]
           pathsOf (x@(Html {})) a = concat [map Path_Markup_htmlText (pathsOf (htmlText x) a)]
           pathsOf (LaTeX p1) a = concat []
@@ -936,12 +905,9 @@ instance IsPath Markup JSONText
           pathsOf (Markup p1) a = concat []
 instance IsPath Markup Markup
     where type Path Markup Markup = Path_Markup Markup
-          toLens _ = iso id id
           pathsOf _ _ = [idPath]
 instance IsPath Markup Text
     where type Path Markup Text = Path_Markup Text
-          toLens (Path_Markup_markdownText _x) = lens_Markup_markdownText
-          toLens (Path_Markup_htmlText _x) = lens_Markup_htmlText
           pathsOf (x@(Markdown {})) a = concat [map Path_Markup_markdownText (pathsOf (markdownText x) a)]
           pathsOf (x@(Html {})) a = concat [map Path_Markup_htmlText (pathsOf (htmlText x) a)]
           pathsOf (LaTeX p1) a = concat []
@@ -949,46 +915,34 @@ instance IsPath Markup Text
           pathsOf (Markup p1) a = concat []
 instance IsPath Permissions JSONText
     where type Path Permissions JSONText = Path_Permissions JSONText
-          toLens (Path_Permissions_writers _x) = lens_Permissions_writers . toLens _x
-          toLens (Path_Permissions_readers _x) = lens_Permissions_readers . toLens _x
           pathsOf (x@(Permissions {})) a = concat [map Path_Permissions_writers (pathsOf (writers x) a),
                                                    map Path_Permissions_readers (pathsOf (readers x) a)]
 instance IsPath Permissions Permissions
     where type Path Permissions
                     Permissions = Path_Permissions Permissions
-          toLens _ = iso id id
           pathsOf _ _ = [idPath]
 instance IsPath Permissions UserIds
     where type Path Permissions UserIds = Path_Permissions UserIds
-          toLens (Path_Permissions_writers _x) = lens_Permissions_writers
-          toLens (Path_Permissions_readers _x) = lens_Permissions_readers
           pathsOf (x@(Permissions {})) a = concat [map Path_Permissions_writers (pathsOf (writers x) a),
                                                    map Path_Permissions_readers (pathsOf (readers x) a)]
 instance IsPath Permissions Text
     where type Path Permissions Text = Path_Permissions Text
-          toLens (Path_Permissions_writers _x) = lens_Permissions_writers . toLens _x
-          toLens (Path_Permissions_readers _x) = lens_Permissions_readers . toLens _x
           pathsOf (x@(Permissions {})) a = concat [map Path_Permissions_writers (pathsOf (writers x) a),
                                                    map Path_Permissions_readers (pathsOf (readers x) a)]
 instance IsPath Permissions UserId
     where type Path Permissions UserId = Path_Permissions UserId
-          toLens (Path_Permissions_owner _x) = lens_Permissions_owner
           pathsOf (x@(Permissions {})) a = concat [map Path_Permissions_owner (pathsOf (owner x) a)]
 instance IsPath UserIds JSONText
     where type Path UserIds JSONText = Path_UserIds JSONText
-          toLens (Path_UserIds_View v) = (viewLens :: Lens' ([UserId])
-                                                            Text) . toLens v
           pathsOf x a = let {p = Path_UserIds_View idPath :: Path ([UserId])
                                                                   Text;
                              [x'] = toListOf (toLens p) x :: [Text]}
                          in map Path_UserIds_View (pathsOf x' a :: [Path Text JSONText])
 instance IsPath UserIds UserIds
     where type Path UserIds UserIds = Path_UserIds UserIds
-          toLens _ = iso id id
           pathsOf _ _ = [idPath]
 instance IsPath UserIds Text
     where type Path UserIds Text = Path_UserIds Text
-          toLens (Path_UserIds_View _) = viewLens :: Lens' ([UserId]) Text
           pathsOf x a = let {p = Path_UserIds_View idPath :: Path ([UserId])
                                                                   Text;
                              [x'] = toListOf (toLens p) x :: [Text]}
@@ -997,8 +951,6 @@ instance IsPath AbbrevPair JSONText
     where type Path AbbrevPair
                     JSONText = Path_Pair (Path_CIString JSONText)
                                          (Path_Markup JSONText)
-          toLens (Path_First v) = _1 . toLens v
-          toLens (Path_Second v) = _2 . toLens v
           pathsOf x a = concatMap (\pv -> map ((\_ -> Path_First) pv) (pathsOf (fst pv) a :: [Path CIString
                                                                                                    JSONText])) ((: []) x)
           pathsOf x a = concatMap (\pv -> map ((\_ -> Path_Second) pv) (pathsOf (snd pv) a :: [Path Markup
@@ -1006,27 +958,22 @@ instance IsPath AbbrevPair JSONText
 instance IsPath AbbrevPair Markup
     where type Path AbbrevPair
                     Markup = Path_Pair (Path_CIString Markup) (Path_Markup Markup)
-          toLens (Path_Second _) = _2
           pathsOf x a = concatMap (\pv -> map ((\_ -> Path_Second) pv) (pathsOf (snd pv) a :: [Path Markup
                                                                                                     Markup])) ((: []) x)
 instance IsPath AbbrevPair AbbrevPair
     where type Path AbbrevPair
                     AbbrevPair = Path_Pair (Path_CIString AbbrevPair)
                                            (Path_Markup AbbrevPair)
-          toLens _ = iso id id
           pathsOf _ _ = [idPath]
 instance IsPath AbbrevPair CIString
     where type Path AbbrevPair
                     CIString = Path_Pair (Path_CIString CIString)
                                          (Path_Markup CIString)
-          toLens (Path_First _) = _1
           pathsOf x a = concatMap (\pv -> map ((\_ -> Path_First) pv) (pathsOf (fst pv) a :: [Path CIString
                                                                                                    CIString])) ((: []) x)
 instance IsPath AbbrevPair Text
     where type Path AbbrevPair Text = Path_Pair (Path_CIString Text)
                                                 (Path_Markup Text)
-          toLens (Path_First v) = _1 . toLens v
-          toLens (Path_Second v) = _2 . toLens v
           pathsOf x a = concatMap (\pv -> map ((\_ -> Path_First) pv) (pathsOf (fst pv) a :: [Path CIString
                                                                                                    Text])) ((: []) x)
           pathsOf x a = concatMap (\pv -> map ((\_ -> Path_Second) pv) (pathsOf (snd pv) a :: [Path Markup
@@ -1035,7 +982,6 @@ instance IsPath AbbrevPairs JSONText
     where type Path AbbrevPairs JSONText = Path_OMap AbbrevPairID
                                                      (Path_Pair (Path_CIString JSONText)
                                                                 (Path_Markup JSONText))
-          toLens (Path_At k v) = lens_omat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ((CIString,
                                                                                                   Markup))
                                                                                                 JSONText])) ((toPairs :: Order AbbrevPairID
@@ -1048,7 +994,6 @@ instance IsPath AbbrevPairs Markup
     where type Path AbbrevPairs Markup = Path_OMap AbbrevPairID
                                                    (Path_Pair (Path_CIString Markup)
                                                               (Path_Markup Markup))
-          toLens (Path_At k v) = lens_omat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ((CIString,
                                                                                                   Markup))
                                                                                                 Markup])) ((toPairs :: Order AbbrevPairID
@@ -1061,7 +1006,6 @@ instance IsPath AbbrevPairs AbbrevPair
     where type Path AbbrevPairs AbbrevPair = Path_OMap AbbrevPairID
                                                        (Path_Pair (Path_CIString AbbrevPair)
                                                                   (Path_Markup AbbrevPair))
-          toLens (Path_At k _) = lens_omat k
           pathsOf x a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ((CIString,
                                                                                                   Markup))
                                                                                                 ((CIString,
@@ -1075,13 +1019,11 @@ instance IsPath AbbrevPairs AbbrevPairs
     where type Path AbbrevPairs AbbrevPairs = Path_OMap AbbrevPairID
                                                         (Path_Pair (Path_CIString AbbrevPairs)
                                                                    (Path_Markup AbbrevPairs))
-          toLens _ = iso id id
           pathsOf _ _ = [idPath]
 instance IsPath AbbrevPairs CIString
     where type Path AbbrevPairs CIString = Path_OMap AbbrevPairID
                                                      (Path_Pair (Path_CIString CIString)
                                                                 (Path_Markup CIString))
-          toLens (Path_At k v) = lens_omat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ((CIString,
                                                                                                   Markup))
                                                                                                 CIString])) ((toPairs :: Order AbbrevPairID
@@ -1093,7 +1035,6 @@ instance IsPath AbbrevPairs CIString
 instance IsPath AbbrevPairs Text
     where type Path AbbrevPairs Text = Path_OMap AbbrevPairID
                                                  (Path_Pair (Path_CIString Text) (Path_Markup Text))
-          toLens (Path_At k v) = lens_omat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ((CIString,
                                                                                                   Markup))
                                                                                                 Text])) ((toPairs :: Order AbbrevPairID
@@ -1104,30 +1045,22 @@ instance IsPath AbbrevPairs Text
                                                                                                                         Markup))]) x)
 instance IsPath Author JSONText
     where type Path Author JSONText = Path_Author JSONText
-          toLens (Path_Author_authorName _x) = lens_Author_authorName . toLens _x
-          toLens (Path_Author_authorCredentials _x) = lens_Author_authorCredentials . toLens _x
           pathsOf (x@(Author {})) a = concat [map Path_Author_authorName (pathsOf (authorName x) a),
                                               map Path_Author_authorCredentials (pathsOf (authorCredentials x) a)]
 instance IsPath Author Markup
     where type Path Author Markup = Path_Author Markup
-          toLens (Path_Author_authorName _x) = lens_Author_authorName
-          toLens (Path_Author_authorCredentials _x) = lens_Author_authorCredentials
           pathsOf (x@(Author {})) a = concat [map Path_Author_authorName (pathsOf (authorName x) a),
                                               map Path_Author_authorCredentials (pathsOf (authorCredentials x) a)]
 instance IsPath Author Author
     where type Path Author Author = Path_Author Author
-          toLens _ = iso id id
           pathsOf _ _ = [idPath]
 instance IsPath Author Text
     where type Path Author Text = Path_Author Text
-          toLens (Path_Author_authorName _x) = lens_Author_authorName . toLens _x
-          toLens (Path_Author_authorCredentials _x) = lens_Author_authorCredentials . toLens _x
           pathsOf (x@(Author {})) a = concat [map Path_Author_authorName (pathsOf (authorName x) a),
                                               map Path_Author_authorCredentials (pathsOf (authorCredentials x) a)]
 instance IsPath Authors JSONText
     where type Path Authors JSONText = Path_OMap AuthorID
                                                  (Path_Author JSONText)
-          toLens (Path_At k v) = lens_omat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path Author
                                                                                                 JSONText])) ((toPairs :: Order AuthorID
                                                                                                                                Author ->
@@ -1136,7 +1069,6 @@ instance IsPath Authors JSONText
 instance IsPath Authors Markup
     where type Path Authors Markup = Path_OMap AuthorID
                                                (Path_Author Markup)
-          toLens (Path_At k v) = lens_omat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path Author
                                                                                                 Markup])) ((toPairs :: Order AuthorID
                                                                                                                              Author ->
@@ -1145,7 +1077,6 @@ instance IsPath Authors Markup
 instance IsPath Authors Author
     where type Path Authors Author = Path_OMap AuthorID
                                                (Path_Author Author)
-          toLens (Path_At k _) = lens_omat k
           pathsOf x a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path Author
                                                                                                 Author])) ((toPairs :: Order AuthorID
                                                                                                                              Author ->
@@ -1154,12 +1085,10 @@ instance IsPath Authors Author
 instance IsPath Authors Authors
     where type Path Authors Authors = Path_OMap AuthorID
                                                 (Path_Author Authors)
-          toLens _ = iso id id
           pathsOf _ _ = [idPath]
 instance IsPath Authors Text
     where type Path Authors Text = Path_OMap AuthorID
                                              (Path_Author Text)
-          toLens (Path_At k v) = lens_omat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path Author
                                                                                                 Text])) ((toPairs :: Order AuthorID
                                                                                                                            Author ->
@@ -1167,19 +1096,15 @@ instance IsPath Authors Text
                                                                                                                        Author)]) x)
 instance IsPath Branding JSONText
     where type Path Branding JSONText = Path_Branding JSONText
-          toLens (Path_Branding_View v) = (viewLens :: Lens' Branding
-                                                             Text) . toLens v
           pathsOf x a = let {p = Path_Branding_View idPath :: Path Branding
                                                                    Text;
                              [x'] = toListOf (toLens p) x :: [Text]}
                          in map Path_Branding_View (pathsOf x' a :: [Path Text JSONText])
 instance IsPath Branding Branding
     where type Path Branding Branding = Path_Branding Branding
-          toLens _ = iso id id
           pathsOf _ _ = [idPath]
 instance IsPath Branding Text
     where type Path Branding Text = Path_Branding Text
-          toLens (Path_Branding_View _) = viewLens :: Lens' Branding Text
           pathsOf x a = let {p = Path_Branding_View idPath :: Path Branding
                                                                    Text;
                              [x'] = toListOf (toLens p) x :: [Text]}
@@ -1187,8 +1112,6 @@ instance IsPath Branding Text
 instance IsPath MarkupPair JSONText
     where type Path MarkupPair
                     JSONText = Path_Pair (Path_Markup JSONText) (Path_Markup JSONText)
-          toLens (Path_First v) = _1 . toLens v
-          toLens (Path_Second v) = _2 . toLens v
           pathsOf x a = concatMap (\pv -> map ((\_ -> Path_First) pv) (pathsOf (fst pv) a :: [Path Markup
                                                                                                    JSONText])) ((: []) x)
           pathsOf x a = concatMap (\pv -> map ((\_ -> Path_Second) pv) (pathsOf (snd pv) a :: [Path Markup
@@ -1196,8 +1119,6 @@ instance IsPath MarkupPair JSONText
 instance IsPath MarkupPair Markup
     where type Path MarkupPair Markup = Path_Pair (Path_Markup Markup)
                                                   (Path_Markup Markup)
-          toLens (Path_First _) = _1
-          toLens (Path_Second _) = _2
           pathsOf x a = concatMap (\pv -> map ((\_ -> Path_First) pv) (pathsOf (fst pv) a :: [Path Markup
                                                                                                    Markup])) ((: []) x)
           pathsOf x a = concatMap (\pv -> map ((\_ -> Path_Second) pv) (pathsOf (snd pv) a :: [Path Markup
@@ -1206,13 +1127,10 @@ instance IsPath MarkupPair MarkupPair
     where type Path MarkupPair
                     MarkupPair = Path_Pair (Path_Markup MarkupPair)
                                            (Path_Markup MarkupPair)
-          toLens _ = iso id id
           pathsOf _ _ = [idPath]
 instance IsPath MarkupPair Text
     where type Path MarkupPair Text = Path_Pair (Path_Markup Text)
                                                 (Path_Markup Text)
-          toLens (Path_First v) = _1 . toLens v
-          toLens (Path_Second v) = _2 . toLens v
           pathsOf x a = concatMap (\pv -> map ((\_ -> Path_First) pv) (pathsOf (fst pv) a :: [Path Markup
                                                                                                    Text])) ((: []) x)
           pathsOf x a = concatMap (\pv -> map ((\_ -> Path_Second) pv) (pathsOf (snd pv) a :: [Path Markup
@@ -1221,7 +1139,6 @@ instance IsPath MarkupPairs JSONText
     where type Path MarkupPairs JSONText = Path_OMap MarkupPairID
                                                      (Path_Pair (Path_Markup JSONText)
                                                                 (Path_Markup JSONText))
-          toLens (Path_At k v) = lens_omat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ((Markup,
                                                                                                   Markup))
                                                                                                 JSONText])) ((toPairs :: Order MarkupPairID
@@ -1234,7 +1151,6 @@ instance IsPath MarkupPairs Markup
     where type Path MarkupPairs Markup = Path_OMap MarkupPairID
                                                    (Path_Pair (Path_Markup Markup)
                                                               (Path_Markup Markup))
-          toLens (Path_At k v) = lens_omat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ((Markup,
                                                                                                   Markup))
                                                                                                 Markup])) ((toPairs :: Order MarkupPairID
@@ -1247,7 +1163,6 @@ instance IsPath MarkupPairs MarkupPair
     where type Path MarkupPairs MarkupPair = Path_OMap MarkupPairID
                                                        (Path_Pair (Path_Markup MarkupPair)
                                                                   (Path_Markup MarkupPair))
-          toLens (Path_At k _) = lens_omat k
           pathsOf x a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ((Markup,
                                                                                                   Markup))
                                                                                                 ((Markup,
@@ -1261,12 +1176,10 @@ instance IsPath MarkupPairs MarkupPairs
     where type Path MarkupPairs MarkupPairs = Path_OMap MarkupPairID
                                                         (Path_Pair (Path_Markup MarkupPairs)
                                                                    (Path_Markup MarkupPairs))
-          toLens _ = iso id id
           pathsOf _ _ = [idPath]
 instance IsPath MarkupPairs Text
     where type Path MarkupPairs Text = Path_OMap MarkupPairID
                                                  (Path_Pair (Path_Markup Text) (Path_Markup Text))
-          toLens (Path_At k v) = lens_omat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ((Markup,
                                                                                                   Markup))
                                                                                                 Text])) ((toPairs :: Order MarkupPairID
@@ -1278,7 +1191,6 @@ instance IsPath MarkupPairs Text
 instance IsPath Markups JSONText
     where type Path Markups JSONText = Path_OMap MarkupID
                                                  (Path_Markup JSONText)
-          toLens (Path_At k v) = lens_omat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path Markup
                                                                                                 JSONText])) ((toPairs :: Order MarkupID
                                                                                                                                Markup ->
@@ -1287,7 +1199,6 @@ instance IsPath Markups JSONText
 instance IsPath Markups Markup
     where type Path Markups Markup = Path_OMap MarkupID
                                                (Path_Markup Markup)
-          toLens (Path_At k _) = lens_omat k
           pathsOf x a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path Markup
                                                                                                 Markup])) ((toPairs :: Order MarkupID
                                                                                                                              Markup ->
@@ -1296,12 +1207,10 @@ instance IsPath Markups Markup
 instance IsPath Markups Markups
     where type Path Markups Markups = Path_OMap MarkupID
                                                 (Path_Markup Markups)
-          toLens _ = iso id id
           pathsOf _ _ = [idPath]
 instance IsPath Markups Text
     where type Path Markups Text = Path_OMap MarkupID
                                              (Path_Markup Text)
-          toLens (Path_At k v) = lens_omat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path Markup
                                                                                                 Text])) ((toPairs :: Order MarkupID
                                                                                                                            Markup ->
@@ -1310,8 +1219,6 @@ instance IsPath Markups Text
 instance IsPath MaybeReportIntendedUse String
     where type Path MaybeReportIntendedUse
                     String = Path_MaybeReportIntendedUse String
-          toLens (Path_MaybeReportIntendedUse_View _) = viewLens :: Lens' (Maybe ReportIntendedUse)
-                                                                          ([Char])
           pathsOf x a = let {p = Path_MaybeReportIntendedUse_View idPath :: Path (Maybe ReportIntendedUse)
                                                                                  ([Char]);
                              [x'] = toListOf (toLens p) x :: [[Char]]}
@@ -1320,8 +1227,6 @@ instance IsPath MaybeReportIntendedUse String
 instance IsPath MaybeReportIntendedUse JSONText
     where type Path MaybeReportIntendedUse
                     JSONText = Path_MaybeReportIntendedUse JSONText
-          toLens (Path_MaybeReportIntendedUse_View v) = (viewLens :: Lens' (Maybe ReportIntendedUse)
-                                                                           ([Char])) . toLens v
           pathsOf x a = let {p = Path_MaybeReportIntendedUse_View idPath :: Path (Maybe ReportIntendedUse)
                                                                                  ([Char]);
                              [x'] = toListOf (toLens p) x :: [[Char]]}
@@ -1330,12 +1235,9 @@ instance IsPath MaybeReportIntendedUse JSONText
 instance IsPath MaybeReportIntendedUse MaybeReportIntendedUse
     where type Path MaybeReportIntendedUse
                     MaybeReportIntendedUse = Path_MaybeReportIntendedUse MaybeReportIntendedUse
-          toLens _ = iso id id
           pathsOf _ _ = [idPath]
 instance IsPath Report String
     where type Path Report String = Path_Report String
-          toLens (Path_Report_View v) = (viewLens :: Lens' Report
-                                                           ReportView) . toLens v
           pathsOf x a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
@@ -1343,40 +1245,30 @@ instance IsPath Report String
                                                                         ([Char])])
 instance IsPath Report Int64
     where type Path Report Int64 = Path_Report Int64
-          toLens (Path_Report_View v) = (viewLens :: Lens' Report
-                                                           ReportView) . toLens v
           pathsOf x a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
                          in map Path_Report_View (pathsOf x' a :: [Path ReportView Int64])
 instance IsPath Report Bool
     where type Path Report Bool = Path_Report Bool
-          toLens (Path_Report_View v) = (viewLens :: Lens' Report
-                                                           ReportView) . toLens v
           pathsOf x a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
                          in map Path_Report_View (pathsOf x' a :: [Path ReportView Bool])
 instance IsPath Report Double
     where type Path Report Double = Path_Report Double
-          toLens (Path_Report_View v) = (viewLens :: Lens' Report
-                                                           ReportView) . toLens v
           pathsOf x a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
                          in map Path_Report_View (pathsOf x' a :: [Path ReportView Double])
 instance IsPath Report Int
     where type Path Report Int = Path_Report Int
-          toLens (Path_Report_View v) = (viewLens :: Lens' Report
-                                                           ReportView) . toLens v
           pathsOf x a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
                          in map Path_Report_View (pathsOf x' a :: [Path ReportView Int])
 instance IsPath Report Dimension
     where type Path Report Dimension = Path_Report Dimension
-          toLens (Path_Report_View v) = (viewLens :: Lens' Report
-                                                           ReportView) . toLens v
           pathsOf x a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
@@ -1384,8 +1276,6 @@ instance IsPath Report Dimension
                                                                         Dimension])
 instance IsPath Report ImageCrop
     where type Path Report ImageCrop = Path_Report ImageCrop
-          toLens (Path_Report_View v) = (viewLens :: Lens' Report
-                                                           ReportView) . toLens v
           pathsOf x a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
@@ -1393,8 +1283,6 @@ instance IsPath Report ImageCrop
                                                                         ImageCrop])
 instance IsPath Report ImageSize
     where type Path Report ImageSize = Path_Report ImageSize
-          toLens (Path_Report_View v) = (viewLens :: Lens' Report
-                                                           ReportView) . toLens v
           pathsOf x a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
@@ -1402,16 +1290,12 @@ instance IsPath Report ImageSize
                                                                         ImageSize])
 instance IsPath Report Units
     where type Path Report Units = Path_Report Units
-          toLens (Path_Report_View v) = (viewLens :: Lens' Report
-                                                           ReportView) . toLens v
           pathsOf x a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
                          in map Path_Report_View (pathsOf x' a :: [Path ReportView Units])
 instance IsPath Report ImageFile
     where type Path Report ImageFile = Path_Report ImageFile
-          toLens (Path_Report_View v) = (viewLens :: Lens' Report
-                                                           ReportView) . toLens v
           pathsOf x a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
@@ -1419,8 +1303,6 @@ instance IsPath Report ImageFile
                                                                         ImageFile])
 instance IsPath Report Integer
     where type Path Report Integer = Path_Report Integer
-          toLens (Path_Report_View v) = (viewLens :: Lens' Report
-                                                           ReportView) . toLens v
           pathsOf x a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
@@ -1428,8 +1310,6 @@ instance IsPath Report Integer
                                                                         Integer])
 instance IsPath Report JSONText
     where type Path Report JSONText = Path_Report JSONText
-          toLens (Path_Report_View v) = (viewLens :: Lens' Report
-                                                           ReportView) . toLens v
           pathsOf x a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
@@ -1437,16 +1317,12 @@ instance IsPath Report JSONText
                                                                         JSONText])
 instance IsPath Report Markup
     where type Path Report Markup = Path_Report Markup
-          toLens (Path_Report_View v) = (viewLens :: Lens' Report
-                                                           ReportView) . toLens v
           pathsOf x a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
                          in map Path_Report_View (pathsOf x' a :: [Path ReportView Markup])
 instance IsPath Report Permissions
     where type Path Report Permissions = Path_Report Permissions
-          toLens (Path_Report_View v) = (viewLens :: Lens' Report
-                                                           ReportView) . toLens v
           pathsOf x a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
@@ -1454,8 +1330,6 @@ instance IsPath Report Permissions
                                                                         Permissions])
 instance IsPath Report UserIds
     where type Path Report UserIds = Path_Report UserIds
-          toLens (Path_Report_View v) = (viewLens :: Lens' Report
-                                                           ReportView) . toLens v
           pathsOf x a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
@@ -1463,8 +1337,6 @@ instance IsPath Report UserIds
                                                                         ([UserId])])
 instance IsPath Report AbbrevPair
     where type Path Report AbbrevPair = Path_Report AbbrevPair
-          toLens (Path_Report_View v) = (viewLens :: Lens' Report
-                                                           ReportView) . toLens v
           pathsOf x a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
@@ -1472,8 +1344,6 @@ instance IsPath Report AbbrevPair
                                                                         ((CIString, Markup))])
 instance IsPath Report AbbrevPairs
     where type Path Report AbbrevPairs = Path_Report AbbrevPairs
-          toLens (Path_Report_View v) = (viewLens :: Lens' Report
-                                                           ReportView) . toLens v
           pathsOf x a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
@@ -1483,16 +1353,12 @@ instance IsPath Report AbbrevPairs
                                                                                  Markup)))])
 instance IsPath Report Author
     where type Path Report Author = Path_Report Author
-          toLens (Path_Report_View v) = (viewLens :: Lens' Report
-                                                           ReportView) . toLens v
           pathsOf x a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
                          in map Path_Report_View (pathsOf x' a :: [Path ReportView Author])
 instance IsPath Report Authors
     where type Path Report Authors = Path_Report Authors
-          toLens (Path_Report_View v) = (viewLens :: Lens' Report
-                                                           ReportView) . toLens v
           pathsOf x a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
@@ -1500,8 +1366,6 @@ instance IsPath Report Authors
                                                                         (Order AuthorID Author)])
 instance IsPath Report Branding
     where type Path Report Branding = Path_Report Branding
-          toLens (Path_Report_View v) = (viewLens :: Lens' Report
-                                                           ReportView) . toLens v
           pathsOf x a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
@@ -1509,8 +1373,6 @@ instance IsPath Report Branding
                                                                         Branding])
 instance IsPath Report MarkupPair
     where type Path Report MarkupPair = Path_Report MarkupPair
-          toLens (Path_Report_View v) = (viewLens :: Lens' Report
-                                                           ReportView) . toLens v
           pathsOf x a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
@@ -1518,8 +1380,6 @@ instance IsPath Report MarkupPair
                                                                         ((Markup, Markup))])
 instance IsPath Report MarkupPairs
     where type Path Report MarkupPairs = Path_Report MarkupPairs
-          toLens (Path_Report_View v) = (viewLens :: Lens' Report
-                                                           ReportView) . toLens v
           pathsOf x a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
@@ -1528,8 +1388,6 @@ instance IsPath Report MarkupPairs
                                                                                ((Markup, Markup)))])
 instance IsPath Report Markups
     where type Path Report Markups = Path_Report Markups
-          toLens (Path_Report_View v) = (viewLens :: Lens' Report
-                                                           ReportView) . toLens v
           pathsOf x a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
@@ -1538,8 +1396,6 @@ instance IsPath Report Markups
 instance IsPath Report MaybeReportIntendedUse
     where type Path Report
                     MaybeReportIntendedUse = Path_Report MaybeReportIntendedUse
-          toLens (Path_Report_View v) = (viewLens :: Lens' Report
-                                                           ReportView) . toLens v
           pathsOf x a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
@@ -1547,12 +1403,9 @@ instance IsPath Report MaybeReportIntendedUse
                                                                         (Maybe ReportIntendedUse)])
 instance IsPath Report Report
     where type Path Report Report = Path_Report Report
-          toLens _ = iso id id
           pathsOf _ _ = [idPath]
 instance IsPath Report ReportElem
     where type Path Report ReportElem = Path_Report ReportElem
-          toLens (Path_Report_View v) = (viewLens :: Lens' Report
-                                                           ReportView) . toLens v
           pathsOf x a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
@@ -1560,8 +1413,6 @@ instance IsPath Report ReportElem
                                                                         ReportElem])
 instance IsPath Report ReportElems
     where type Path Report ReportElems = Path_Report ReportElems
-          toLens (Path_Report_View v) = (viewLens :: Lens' Report
-                                                           ReportView) . toLens v
           pathsOf x a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
@@ -1570,8 +1421,6 @@ instance IsPath Report ReportElems
                                                                                ReportElem)])
 instance IsPath Report ReportFlags
     where type Path Report ReportFlags = Path_Report ReportFlags
-          toLens (Path_Report_View v) = (viewLens :: Lens' Report
-                                                           ReportView) . toLens v
           pathsOf x a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
@@ -1579,8 +1428,6 @@ instance IsPath Report ReportFlags
                                                                         ReportFlags])
 instance IsPath Report ReportStandard
     where type Path Report ReportStandard = Path_Report ReportStandard
-          toLens (Path_Report_View v) = (viewLens :: Lens' Report
-                                                           ReportView) . toLens v
           pathsOf x a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
@@ -1588,8 +1435,6 @@ instance IsPath Report ReportStandard
                                                                         ReportStandard])
 instance IsPath Report ReportStatus
     where type Path Report ReportStatus = Path_Report ReportStatus
-          toLens (Path_Report_View v) = (viewLens :: Lens' Report
-                                                           ReportView) . toLens v
           pathsOf x a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
@@ -1598,8 +1443,6 @@ instance IsPath Report ReportStatus
 instance IsPath Report ReportValueApproachInfo
     where type Path Report
                     ReportValueApproachInfo = Path_Report ReportValueApproachInfo
-          toLens (Path_Report_View v) = (viewLens :: Lens' Report
-                                                           ReportView) . toLens v
           pathsOf x a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
@@ -1608,8 +1451,6 @@ instance IsPath Report ReportValueApproachInfo
 instance IsPath Report ReportValueTypeInfo
     where type Path Report
                     ReportValueTypeInfo = Path_Report ReportValueTypeInfo
-          toLens (Path_Report_View v) = (viewLens :: Lens' Report
-                                                           ReportView) . toLens v
           pathsOf x a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
@@ -1617,8 +1458,6 @@ instance IsPath Report ReportValueTypeInfo
                                                                         ReportValueTypeInfo])
 instance IsPath Report EUI
     where type Path Report EUI = Path_Report EUI
-          toLens (Path_Report_View v) = (viewLens :: Lens' Report
-                                                           ReportView) . toLens v
           pathsOf x a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
@@ -1626,8 +1465,6 @@ instance IsPath Report EUI
                                                                         (Either URI ImageFile)])
 instance IsPath Report MEUI
     where type Path Report MEUI = Path_Report MEUI
-          toLens (Path_Report_View v) = (viewLens :: Lens' Report
-                                                           ReportView) . toLens v
           pathsOf x a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
@@ -1636,8 +1473,6 @@ instance IsPath Report MEUI
                                                                                        ImageFile))])
 instance IsPath Report MaybeImageFile
     where type Path Report MaybeImageFile = Path_Report MaybeImageFile
-          toLens (Path_Report_View v) = (viewLens :: Lens' Report
-                                                           ReportView) . toLens v
           pathsOf x a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
@@ -1645,8 +1480,6 @@ instance IsPath Report MaybeImageFile
                                                                         (Maybe ImageFile)])
 instance IsPath Report ReportImage
     where type Path Report ReportImage = Path_Report ReportImage
-          toLens (Path_Report_View v) = (viewLens :: Lens' Report
-                                                           ReportView) . toLens v
           pathsOf x a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
@@ -1654,8 +1487,6 @@ instance IsPath Report ReportImage
                                                                         ReportImage])
 instance IsPath Report ReportImages
     where type Path Report ReportImages = Path_Report ReportImages
-          toLens (Path_Report_View v) = (viewLens :: Lens' Report
-                                                           ReportView) . toLens v
           pathsOf x a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
@@ -1665,8 +1496,6 @@ instance IsPath Report ReportImages
 instance IsPath Report ReadOnlyFilePath
     where type Path Report
                     ReadOnlyFilePath = Path_Report ReadOnlyFilePath
-          toLens (Path_Report_View v) = (viewLens :: Lens' Report
-                                                           ReportView) . toLens v
           pathsOf x a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
@@ -1675,8 +1504,6 @@ instance IsPath Report ReadOnlyFilePath
 instance IsPath Report ReportImageView
     where type Path Report
                     ReportImageView = Path_Report ReportImageView
-          toLens (Path_Report_View v) = (viewLens :: Lens' Report
-                                                           ReportView) . toLens v
           pathsOf x a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
@@ -1684,7 +1511,6 @@ instance IsPath Report ReportImageView
                                                                         ReportImageView])
 instance IsPath Report ReportView
     where type Path Report ReportView = Path_Report ReportView
-          toLens (Path_Report_View _) = viewLens :: Lens' Report ReportView
           pathsOf x a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
@@ -1693,8 +1519,6 @@ instance IsPath Report ReportView
 instance IsPath Report SaneSizeImageSize
     where type Path Report
                     SaneSizeImageSize = Path_Report SaneSizeImageSize
-          toLens (Path_Report_View v) = (viewLens :: Lens' Report
-                                                           ReportView) . toLens v
           pathsOf x a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
@@ -1702,16 +1526,12 @@ instance IsPath Report SaneSizeImageSize
                                                                         (SaneSize ImageSize)])
 instance IsPath Report Item
     where type Path Report Item = Path_Report Item
-          toLens (Path_Report_View v) = (viewLens :: Lens' Report
-                                                           ReportView) . toLens v
           pathsOf x a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
                          in map Path_Report_View (pathsOf x' a :: [Path ReportView Item])
 instance IsPath Report MIM
     where type Path Report MIM = Path_Report MIM
-          toLens (Path_Report_View v) = (viewLens :: Lens' Report
-                                                           ReportView) . toLens v
           pathsOf x a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
@@ -1719,8 +1539,6 @@ instance IsPath Report MIM
                                                                         (Map ItemFieldName Markup)])
 instance IsPath Report CIString
     where type Path Report CIString = Path_Report CIString
-          toLens (Path_Report_View v) = (viewLens :: Lens' Report
-                                                           ReportView) . toLens v
           pathsOf x a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
@@ -1728,178 +1546,144 @@ instance IsPath Report CIString
                                                                         CIString])
 instance IsPath Report URI
     where type Path Report URI = Path_Report URI
-          toLens (Path_Report_View v) = (viewLens :: Lens' Report
-                                                           ReportView) . toLens v
           pathsOf x a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
                          in map Path_Report_View (pathsOf x' a :: [Path ReportView URI])
 instance IsPath Report Text
     where type Path Report Text = Path_Report Text
-          toLens (Path_Report_View v) = (viewLens :: Lens' Report
-                                                           ReportView) . toLens v
           pathsOf x a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
                          in map Path_Report_View (pathsOf x' a :: [Path ReportView Text])
 instance IsPath Report UserId
     where type Path Report UserId = Path_Report UserId
-          toLens (Path_Report_View v) = (viewLens :: Lens' Report
-                                                           ReportView) . toLens v
           pathsOf x a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
                          in map Path_Report_View (pathsOf x' a :: [Path ReportView UserId])
 instance IsPath Report UUID
     where type Path Report UUID = Path_Report UUID
-          toLens (Path_Report_View v) = (viewLens :: Lens' Report
-                                                           ReportView) . toLens v
           pathsOf x a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [x'] = toListOf (toLens p) x :: [ReportView]}
                          in map Path_Report_View (pathsOf x' a :: [Path ReportView UUID])
 instance IsPath ReportElem String
     where type Path ReportElem String = Path_ReportElem String
-          toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
           pathsOf (x@(ReportItem {})) a = concat [map Path_ReportElem_elemItem (pathsOf (elemItem x) a)]
           pathsOf (x@(ReportParagraph {})) a = concat []
           pathsOf (ReportUndecided) a = concat []
 instance IsPath ReportElem Bool
     where type Path ReportElem Bool = Path_ReportElem Bool
-          toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
           pathsOf (x@(ReportItem {})) a = concat [map Path_ReportElem_elemItem (pathsOf (elemItem x) a)]
           pathsOf (x@(ReportParagraph {})) a = concat []
           pathsOf (ReportUndecided) a = concat []
 instance IsPath ReportElem Double
     where type Path ReportElem Double = Path_ReportElem Double
-          toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
           pathsOf (x@(ReportItem {})) a = concat [map Path_ReportElem_elemItem (pathsOf (elemItem x) a)]
           pathsOf (x@(ReportParagraph {})) a = concat []
           pathsOf (ReportUndecided) a = concat []
 instance IsPath ReportElem Dimension
     where type Path ReportElem Dimension = Path_ReportElem Dimension
-          toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
           pathsOf (x@(ReportItem {})) a = concat [map Path_ReportElem_elemItem (pathsOf (elemItem x) a)]
           pathsOf (x@(ReportParagraph {})) a = concat []
           pathsOf (ReportUndecided) a = concat []
 instance IsPath ReportElem ImageCrop
     where type Path ReportElem ImageCrop = Path_ReportElem ImageCrop
-          toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
           pathsOf (x@(ReportItem {})) a = concat [map Path_ReportElem_elemItem (pathsOf (elemItem x) a)]
           pathsOf (x@(ReportParagraph {})) a = concat []
           pathsOf (ReportUndecided) a = concat []
 instance IsPath ReportElem ImageSize
     where type Path ReportElem ImageSize = Path_ReportElem ImageSize
-          toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
           pathsOf (x@(ReportItem {})) a = concat [map Path_ReportElem_elemItem (pathsOf (elemItem x) a)]
           pathsOf (x@(ReportParagraph {})) a = concat []
           pathsOf (ReportUndecided) a = concat []
 instance IsPath ReportElem Units
     where type Path ReportElem Units = Path_ReportElem Units
-          toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
           pathsOf (x@(ReportItem {})) a = concat [map Path_ReportElem_elemItem (pathsOf (elemItem x) a)]
           pathsOf (x@(ReportParagraph {})) a = concat []
           pathsOf (ReportUndecided) a = concat []
 instance IsPath ReportElem ImageFile
     where type Path ReportElem ImageFile = Path_ReportElem ImageFile
-          toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
           pathsOf (x@(ReportItem {})) a = concat [map Path_ReportElem_elemItem (pathsOf (elemItem x) a)]
           pathsOf (x@(ReportParagraph {})) a = concat []
           pathsOf (ReportUndecided) a = concat []
 instance IsPath ReportElem JSONText
     where type Path ReportElem JSONText = Path_ReportElem JSONText
-          toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
-          toLens (Path_ReportElem_elemText _x) = lens_ReportElem_elemText . toLens _x
           pathsOf (x@(ReportItem {})) a = concat [map Path_ReportElem_elemItem (pathsOf (elemItem x) a)]
           pathsOf (x@(ReportParagraph {})) a = concat [map Path_ReportElem_elemText (pathsOf (elemText x) a)]
           pathsOf (ReportUndecided) a = concat []
 instance IsPath ReportElem Markup
     where type Path ReportElem Markup = Path_ReportElem Markup
-          toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
-          toLens (Path_ReportElem_elemText _x) = lens_ReportElem_elemText
           pathsOf (x@(ReportItem {})) a = concat [map Path_ReportElem_elemItem (pathsOf (elemItem x) a)]
           pathsOf (x@(ReportParagraph {})) a = concat [map Path_ReportElem_elemText (pathsOf (elemText x) a)]
           pathsOf (ReportUndecided) a = concat []
 instance IsPath ReportElem ReportElem
     where type Path ReportElem ReportElem = Path_ReportElem ReportElem
-          toLens _ = iso id id
           pathsOf _ _ = [idPath]
 instance IsPath ReportElem EUI
     where type Path ReportElem EUI = Path_ReportElem EUI
-          toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
           pathsOf (x@(ReportItem {})) a = concat [map Path_ReportElem_elemItem (pathsOf (elemItem x) a)]
           pathsOf (x@(ReportParagraph {})) a = concat []
           pathsOf (ReportUndecided) a = concat []
 instance IsPath ReportElem MEUI
     where type Path ReportElem MEUI = Path_ReportElem MEUI
-          toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
           pathsOf (x@(ReportItem {})) a = concat [map Path_ReportElem_elemItem (pathsOf (elemItem x) a)]
           pathsOf (x@(ReportParagraph {})) a = concat []
           pathsOf (ReportUndecided) a = concat []
 instance IsPath ReportElem MaybeImageFile
     where type Path ReportElem
                     MaybeImageFile = Path_ReportElem MaybeImageFile
-          toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
           pathsOf (x@(ReportItem {})) a = concat [map Path_ReportElem_elemItem (pathsOf (elemItem x) a)]
           pathsOf (x@(ReportParagraph {})) a = concat []
           pathsOf (ReportUndecided) a = concat []
 instance IsPath ReportElem ReportImage
     where type Path ReportElem
                     ReportImage = Path_ReportElem ReportImage
-          toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
           pathsOf (x@(ReportItem {})) a = concat [map Path_ReportElem_elemItem (pathsOf (elemItem x) a)]
           pathsOf (x@(ReportParagraph {})) a = concat []
           pathsOf (ReportUndecided) a = concat []
 instance IsPath ReportElem ReportImages
     where type Path ReportElem
                     ReportImages = Path_ReportElem ReportImages
-          toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
           pathsOf (x@(ReportItem {})) a = concat [map Path_ReportElem_elemItem (pathsOf (elemItem x) a)]
           pathsOf (x@(ReportParagraph {})) a = concat []
           pathsOf (ReportUndecided) a = concat []
 instance IsPath ReportElem ReportImageView
     where type Path ReportElem
                     ReportImageView = Path_ReportElem ReportImageView
-          toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
           pathsOf (x@(ReportItem {})) a = concat [map Path_ReportElem_elemItem (pathsOf (elemItem x) a)]
           pathsOf (x@(ReportParagraph {})) a = concat []
           pathsOf (ReportUndecided) a = concat []
 instance IsPath ReportElem SaneSizeImageSize
     where type Path ReportElem
                     SaneSizeImageSize = Path_ReportElem SaneSizeImageSize
-          toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
           pathsOf (x@(ReportItem {})) a = concat [map Path_ReportElem_elemItem (pathsOf (elemItem x) a)]
           pathsOf (x@(ReportParagraph {})) a = concat []
           pathsOf (ReportUndecided) a = concat []
 instance IsPath ReportElem Item
     where type Path ReportElem Item = Path_ReportElem Item
-          toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem
           pathsOf (x@(ReportItem {})) a = concat [map Path_ReportElem_elemItem (pathsOf (elemItem x) a)]
           pathsOf (x@(ReportParagraph {})) a = concat []
           pathsOf (ReportUndecided) a = concat []
 instance IsPath ReportElem MIM
     where type Path ReportElem MIM = Path_ReportElem MIM
-          toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
           pathsOf (x@(ReportItem {})) a = concat [map Path_ReportElem_elemItem (pathsOf (elemItem x) a)]
           pathsOf (x@(ReportParagraph {})) a = concat []
           pathsOf (ReportUndecided) a = concat []
 instance IsPath ReportElem URI
     where type Path ReportElem URI = Path_ReportElem URI
-          toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
           pathsOf (x@(ReportItem {})) a = concat [map Path_ReportElem_elemItem (pathsOf (elemItem x) a)]
           pathsOf (x@(ReportParagraph {})) a = concat []
           pathsOf (ReportUndecided) a = concat []
 instance IsPath ReportElem Text
     where type Path ReportElem Text = Path_ReportElem Text
-          toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
-          toLens (Path_ReportElem_elemText _x) = lens_ReportElem_elemText . toLens _x
           pathsOf (x@(ReportItem {})) a = concat [map Path_ReportElem_elemItem (pathsOf (elemItem x) a)]
           pathsOf (x@(ReportParagraph {})) a = concat [map Path_ReportElem_elemText (pathsOf (elemText x) a)]
           pathsOf (ReportUndecided) a = concat []
 instance IsPath ReportElems String
     where type Path ReportElems String = Path_OMap ReportElemID
                                                    (Path_ReportElem String)
-          toLens (Path_At k v) = lens_omat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportElem
                                                                                                 ([Char])])) ((toPairs :: Order ReportElemID
                                                                                                                                ReportElem ->
@@ -1908,7 +1692,6 @@ instance IsPath ReportElems String
 instance IsPath ReportElems Bool
     where type Path ReportElems Bool = Path_OMap ReportElemID
                                                  (Path_ReportElem Bool)
-          toLens (Path_At k v) = lens_omat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportElem
                                                                                                 Bool])) ((toPairs :: Order ReportElemID
                                                                                                                            ReportElem ->
@@ -1917,7 +1700,6 @@ instance IsPath ReportElems Bool
 instance IsPath ReportElems Double
     where type Path ReportElems Double = Path_OMap ReportElemID
                                                    (Path_ReportElem Double)
-          toLens (Path_At k v) = lens_omat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportElem
                                                                                                 Double])) ((toPairs :: Order ReportElemID
                                                                                                                              ReportElem ->
@@ -1926,7 +1708,6 @@ instance IsPath ReportElems Double
 instance IsPath ReportElems Dimension
     where type Path ReportElems Dimension = Path_OMap ReportElemID
                                                       (Path_ReportElem Dimension)
-          toLens (Path_At k v) = lens_omat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportElem
                                                                                                 Dimension])) ((toPairs :: Order ReportElemID
                                                                                                                                 ReportElem ->
@@ -1935,7 +1716,6 @@ instance IsPath ReportElems Dimension
 instance IsPath ReportElems ImageCrop
     where type Path ReportElems ImageCrop = Path_OMap ReportElemID
                                                       (Path_ReportElem ImageCrop)
-          toLens (Path_At k v) = lens_omat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportElem
                                                                                                 ImageCrop])) ((toPairs :: Order ReportElemID
                                                                                                                                 ReportElem ->
@@ -1944,7 +1724,6 @@ instance IsPath ReportElems ImageCrop
 instance IsPath ReportElems ImageSize
     where type Path ReportElems ImageSize = Path_OMap ReportElemID
                                                       (Path_ReportElem ImageSize)
-          toLens (Path_At k v) = lens_omat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportElem
                                                                                                 ImageSize])) ((toPairs :: Order ReportElemID
                                                                                                                                 ReportElem ->
@@ -1953,7 +1732,6 @@ instance IsPath ReportElems ImageSize
 instance IsPath ReportElems Units
     where type Path ReportElems Units = Path_OMap ReportElemID
                                                   (Path_ReportElem Units)
-          toLens (Path_At k v) = lens_omat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportElem
                                                                                                 Units])) ((toPairs :: Order ReportElemID
                                                                                                                             ReportElem ->
@@ -1962,7 +1740,6 @@ instance IsPath ReportElems Units
 instance IsPath ReportElems ImageFile
     where type Path ReportElems ImageFile = Path_OMap ReportElemID
                                                       (Path_ReportElem ImageFile)
-          toLens (Path_At k v) = lens_omat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportElem
                                                                                                 ImageFile])) ((toPairs :: Order ReportElemID
                                                                                                                                 ReportElem ->
@@ -1971,7 +1748,6 @@ instance IsPath ReportElems ImageFile
 instance IsPath ReportElems JSONText
     where type Path ReportElems JSONText = Path_OMap ReportElemID
                                                      (Path_ReportElem JSONText)
-          toLens (Path_At k v) = lens_omat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportElem
                                                                                                 JSONText])) ((toPairs :: Order ReportElemID
                                                                                                                                ReportElem ->
@@ -1980,7 +1756,6 @@ instance IsPath ReportElems JSONText
 instance IsPath ReportElems Markup
     where type Path ReportElems Markup = Path_OMap ReportElemID
                                                    (Path_ReportElem Markup)
-          toLens (Path_At k v) = lens_omat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportElem
                                                                                                 Markup])) ((toPairs :: Order ReportElemID
                                                                                                                              ReportElem ->
@@ -1989,7 +1764,6 @@ instance IsPath ReportElems Markup
 instance IsPath ReportElems ReportElem
     where type Path ReportElems ReportElem = Path_OMap ReportElemID
                                                        (Path_ReportElem ReportElem)
-          toLens (Path_At k _) = lens_omat k
           pathsOf x a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportElem
                                                                                                 ReportElem])) ((toPairs :: Order ReportElemID
                                                                                                                                  ReportElem ->
@@ -1998,12 +1772,10 @@ instance IsPath ReportElems ReportElem
 instance IsPath ReportElems ReportElems
     where type Path ReportElems ReportElems = Path_OMap ReportElemID
                                                         (Path_ReportElem ReportElems)
-          toLens _ = iso id id
           pathsOf _ _ = [idPath]
 instance IsPath ReportElems EUI
     where type Path ReportElems EUI = Path_OMap ReportElemID
                                                 (Path_ReportElem EUI)
-          toLens (Path_At k v) = lens_omat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportElem
                                                                                                 (Either URI
                                                                                                         ImageFile)])) ((toPairs :: Order ReportElemID
@@ -2013,7 +1785,6 @@ instance IsPath ReportElems EUI
 instance IsPath ReportElems MEUI
     where type Path ReportElems MEUI = Path_OMap ReportElemID
                                                  (Path_ReportElem MEUI)
-          toLens (Path_At k v) = lens_omat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportElem
                                                                                                 (Maybe (Either URI
                                                                                                                ImageFile))])) ((toPairs :: Order ReportElemID
@@ -2023,7 +1794,6 @@ instance IsPath ReportElems MEUI
 instance IsPath ReportElems MaybeImageFile
     where type Path ReportElems MaybeImageFile = Path_OMap ReportElemID
                                                            (Path_ReportElem MaybeImageFile)
-          toLens (Path_At k v) = lens_omat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportElem
                                                                                                 (Maybe ImageFile)])) ((toPairs :: Order ReportElemID
                                                                                                                                         ReportElem ->
@@ -2032,7 +1802,6 @@ instance IsPath ReportElems MaybeImageFile
 instance IsPath ReportElems ReportImage
     where type Path ReportElems ReportImage = Path_OMap ReportElemID
                                                         (Path_ReportElem ReportImage)
-          toLens (Path_At k v) = lens_omat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportElem
                                                                                                 ReportImage])) ((toPairs :: Order ReportElemID
                                                                                                                                   ReportElem ->
@@ -2041,7 +1810,6 @@ instance IsPath ReportElems ReportImage
 instance IsPath ReportElems ReportImages
     where type Path ReportElems ReportImages = Path_OMap ReportElemID
                                                          (Path_ReportElem ReportImages)
-          toLens (Path_At k v) = lens_omat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportElem
                                                                                                 (Order ReportImageID
                                                                                                        ReportImage)])) ((toPairs :: Order ReportElemID
@@ -2052,7 +1820,6 @@ instance IsPath ReportElems ReportImageView
     where type Path ReportElems
                     ReportImageView = Path_OMap ReportElemID
                                                 (Path_ReportElem ReportImageView)
-          toLens (Path_At k v) = lens_omat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportElem
                                                                                                 ReportImageView])) ((toPairs :: Order ReportElemID
                                                                                                                                       ReportElem ->
@@ -2062,7 +1829,6 @@ instance IsPath ReportElems SaneSizeImageSize
     where type Path ReportElems
                     SaneSizeImageSize = Path_OMap ReportElemID
                                                   (Path_ReportElem SaneSizeImageSize)
-          toLens (Path_At k v) = lens_omat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportElem
                                                                                                 (SaneSize ImageSize)])) ((toPairs :: Order ReportElemID
                                                                                                                                            ReportElem ->
@@ -2071,7 +1837,6 @@ instance IsPath ReportElems SaneSizeImageSize
 instance IsPath ReportElems Item
     where type Path ReportElems Item = Path_OMap ReportElemID
                                                  (Path_ReportElem Item)
-          toLens (Path_At k v) = lens_omat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportElem
                                                                                                 Item])) ((toPairs :: Order ReportElemID
                                                                                                                            ReportElem ->
@@ -2080,7 +1845,6 @@ instance IsPath ReportElems Item
 instance IsPath ReportElems MIM
     where type Path ReportElems MIM = Path_OMap ReportElemID
                                                 (Path_ReportElem MIM)
-          toLens (Path_At k v) = lens_omat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportElem
                                                                                                 (Map ItemFieldName
                                                                                                      Markup)])) ((toPairs :: Order ReportElemID
@@ -2090,7 +1854,6 @@ instance IsPath ReportElems MIM
 instance IsPath ReportElems URI
     where type Path ReportElems URI = Path_OMap ReportElemID
                                                 (Path_ReportElem URI)
-          toLens (Path_At k v) = lens_omat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportElem
                                                                                                 URI])) ((toPairs :: Order ReportElemID
                                                                                                                           ReportElem ->
@@ -2099,7 +1862,6 @@ instance IsPath ReportElems URI
 instance IsPath ReportElems Text
     where type Path ReportElems Text = Path_OMap ReportElemID
                                                  (Path_ReportElem Text)
-          toLens (Path_At k v) = lens_omat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportElem
                                                                                                 Text])) ((toPairs :: Order ReportElemID
                                                                                                                            ReportElem ->
@@ -2107,26 +1869,20 @@ instance IsPath ReportElems Text
                                                                                                                        ReportElem)]) x)
 instance IsPath ReportFlags String
     where type Path ReportFlags String = Path_ReportFlags String
-          toLens (Path_ReportFlags_hideEmptyItemFields _x) = lens_ReportFlags_hideEmptyItemFields . toLens _x
           pathsOf (x@(ReportFlags {})) a = concat [map Path_ReportFlags_hideEmptyItemFields (pathsOf (hideEmptyItemFields x) a)]
 instance IsPath ReportFlags Bool
     where type Path ReportFlags Bool = Path_ReportFlags Bool
-          toLens (Path_ReportFlags_hideEmptyItemFields _x) = lens_ReportFlags_hideEmptyItemFields
           pathsOf (x@(ReportFlags {})) a = concat [map Path_ReportFlags_hideEmptyItemFields (pathsOf (hideEmptyItemFields x) a)]
 instance IsPath ReportFlags JSONText
     where type Path ReportFlags JSONText = Path_ReportFlags JSONText
-          toLens (Path_ReportFlags_hideEmptyItemFields _x) = lens_ReportFlags_hideEmptyItemFields . toLens _x
           pathsOf (x@(ReportFlags {})) a = concat [map Path_ReportFlags_hideEmptyItemFields (pathsOf (hideEmptyItemFields x) a)]
 instance IsPath ReportFlags ReportFlags
     where type Path ReportFlags
                     ReportFlags = Path_ReportFlags ReportFlags
-          toLens _ = iso id id
           pathsOf _ _ = [idPath]
 instance IsPath ReportIntendedUse String
     where type Path ReportIntendedUse
                     String = Path_ReportIntendedUse String
-          toLens (Path_ReportIntendedUse_View _) = viewLens :: Lens' ReportIntendedUse
-                                                                     ([Char])
           pathsOf x a = let {p = Path_ReportIntendedUse_View idPath :: Path ReportIntendedUse
                                                                             ([Char]);
                              [x'] = toListOf (toLens p) x :: [[Char]]}
@@ -2135,8 +1891,6 @@ instance IsPath ReportIntendedUse String
 instance IsPath ReportIntendedUse JSONText
     where type Path ReportIntendedUse
                     JSONText = Path_ReportIntendedUse JSONText
-          toLens (Path_ReportIntendedUse_View v) = (viewLens :: Lens' ReportIntendedUse
-                                                                      ([Char])) . toLens v
           pathsOf x a = let {p = Path_ReportIntendedUse_View idPath :: Path ReportIntendedUse
                                                                             ([Char]);
                              [x'] = toListOf (toLens p) x :: [[Char]]}
@@ -2145,21 +1899,16 @@ instance IsPath ReportIntendedUse JSONText
 instance IsPath ReportIntendedUse ReportIntendedUse
     where type Path ReportIntendedUse
                     ReportIntendedUse = Path_ReportIntendedUse ReportIntendedUse
-          toLens _ = iso id id
           pathsOf _ _ = [idPath]
 instance IsPath ReportStandard Int
     where type Path ReportStandard Int = Path_ReportStandard Int
-          toLens (Path_ReportStandard_unReportStandard _x) = lens_ReportStandard_unReportStandard
           pathsOf (x@(ReportStandard {})) a = concat [map Path_ReportStandard_unReportStandard (pathsOf (unReportStandard x) a)]
 instance IsPath ReportStandard ReportStandard
     where type Path ReportStandard
                     ReportStandard = Path_ReportStandard ReportStandard
-          toLens _ = iso id id
           pathsOf _ _ = [idPath]
 instance IsPath ReportStatus String
     where type Path ReportStatus String = Path_ReportStatus String
-          toLens (Path_ReportStatus_View _) = viewLens :: Lens' ReportStatus
-                                                                ([Char])
           pathsOf x a = let {p = Path_ReportStatus_View idPath :: Path ReportStatus
                                                                        ([Char]);
                              [x'] = toListOf (toLens p) x :: [[Char]]}
@@ -2167,8 +1916,6 @@ instance IsPath ReportStatus String
                                                                               ([Char])])
 instance IsPath ReportStatus JSONText
     where type Path ReportStatus JSONText = Path_ReportStatus JSONText
-          toLens (Path_ReportStatus_View v) = (viewLens :: Lens' ReportStatus
-                                                                 ([Char])) . toLens v
           pathsOf x a = let {p = Path_ReportStatus_View idPath :: Path ReportStatus
                                                                        ([Char]);
                              [x'] = toListOf (toLens p) x :: [[Char]]}
@@ -2177,95 +1924,72 @@ instance IsPath ReportStatus JSONText
 instance IsPath ReportStatus ReportStatus
     where type Path ReportStatus
                     ReportStatus = Path_ReportStatus ReportStatus
-          toLens _ = iso id id
           pathsOf _ _ = [idPath]
 instance IsPath ReportValueApproachInfo JSONText
     where type Path ReportValueApproachInfo
                     JSONText = Path_ReportValueApproachInfo JSONText
-          toLens (Path_ReportValueApproachInfo_reportValueApproachName _x) = lens_ReportValueApproachInfo_reportValueApproachName . toLens _x
-          toLens (Path_ReportValueApproachInfo_reportValueApproachDescription _x) = lens_ReportValueApproachInfo_reportValueApproachDescription . toLens _x
           pathsOf (x@(ReportValueApproachInfo {})) a = concat [map Path_ReportValueApproachInfo_reportValueApproachName (pathsOf (reportValueApproachName x) a),
                                                                map Path_ReportValueApproachInfo_reportValueApproachDescription (pathsOf (reportValueApproachDescription x) a)]
 instance IsPath ReportValueApproachInfo Markup
     where type Path ReportValueApproachInfo
                     Markup = Path_ReportValueApproachInfo Markup
-          toLens (Path_ReportValueApproachInfo_reportValueApproachName _x) = lens_ReportValueApproachInfo_reportValueApproachName
-          toLens (Path_ReportValueApproachInfo_reportValueApproachDescription _x) = lens_ReportValueApproachInfo_reportValueApproachDescription
           pathsOf (x@(ReportValueApproachInfo {})) a = concat [map Path_ReportValueApproachInfo_reportValueApproachName (pathsOf (reportValueApproachName x) a),
                                                                map Path_ReportValueApproachInfo_reportValueApproachDescription (pathsOf (reportValueApproachDescription x) a)]
 instance IsPath ReportValueApproachInfo ReportValueApproachInfo
     where type Path ReportValueApproachInfo
                     ReportValueApproachInfo = Path_ReportValueApproachInfo ReportValueApproachInfo
-          toLens _ = iso id id
           pathsOf _ _ = [idPath]
 instance IsPath ReportValueApproachInfo Text
     where type Path ReportValueApproachInfo
                     Text = Path_ReportValueApproachInfo Text
-          toLens (Path_ReportValueApproachInfo_reportValueApproachName _x) = lens_ReportValueApproachInfo_reportValueApproachName . toLens _x
-          toLens (Path_ReportValueApproachInfo_reportValueApproachDescription _x) = lens_ReportValueApproachInfo_reportValueApproachDescription . toLens _x
           pathsOf (x@(ReportValueApproachInfo {})) a = concat [map Path_ReportValueApproachInfo_reportValueApproachName (pathsOf (reportValueApproachName x) a),
                                                                map Path_ReportValueApproachInfo_reportValueApproachDescription (pathsOf (reportValueApproachDescription x) a)]
 instance IsPath ReportValueTypeInfo JSONText
     where type Path ReportValueTypeInfo
                     JSONText = Path_ReportValueTypeInfo JSONText
-          toLens (Path_ReportValueTypeInfo_reportValueTypeName _x) = lens_ReportValueTypeInfo_reportValueTypeName . toLens _x
-          toLens (Path_ReportValueTypeInfo_reportValueTypeDescription _x) = lens_ReportValueTypeInfo_reportValueTypeDescription . toLens _x
-          toLens (Path_ReportValueTypeInfo_reportValueTypeDefinition _x) = lens_ReportValueTypeInfo_reportValueTypeDefinition . toLens _x
           pathsOf (x@(ReportValueTypeInfo {})) a = concat [map Path_ReportValueTypeInfo_reportValueTypeName (pathsOf (reportValueTypeName x) a),
                                                            map Path_ReportValueTypeInfo_reportValueTypeDescription (pathsOf (reportValueTypeDescription x) a),
                                                            map Path_ReportValueTypeInfo_reportValueTypeDefinition (pathsOf (reportValueTypeDefinition x) a)]
 instance IsPath ReportValueTypeInfo Markup
     where type Path ReportValueTypeInfo
                     Markup = Path_ReportValueTypeInfo Markup
-          toLens (Path_ReportValueTypeInfo_reportValueTypeName _x) = lens_ReportValueTypeInfo_reportValueTypeName
-          toLens (Path_ReportValueTypeInfo_reportValueTypeDescription _x) = lens_ReportValueTypeInfo_reportValueTypeDescription
-          toLens (Path_ReportValueTypeInfo_reportValueTypeDefinition _x) = lens_ReportValueTypeInfo_reportValueTypeDefinition
           pathsOf (x@(ReportValueTypeInfo {})) a = concat [map Path_ReportValueTypeInfo_reportValueTypeName (pathsOf (reportValueTypeName x) a),
                                                            map Path_ReportValueTypeInfo_reportValueTypeDescription (pathsOf (reportValueTypeDescription x) a),
                                                            map Path_ReportValueTypeInfo_reportValueTypeDefinition (pathsOf (reportValueTypeDefinition x) a)]
 instance IsPath ReportValueTypeInfo ReportValueTypeInfo
     where type Path ReportValueTypeInfo
                     ReportValueTypeInfo = Path_ReportValueTypeInfo ReportValueTypeInfo
-          toLens _ = iso id id
           pathsOf _ _ = [idPath]
 instance IsPath ReportValueTypeInfo Text
     where type Path ReportValueTypeInfo
                     Text = Path_ReportValueTypeInfo Text
-          toLens (Path_ReportValueTypeInfo_reportValueTypeName _x) = lens_ReportValueTypeInfo_reportValueTypeName . toLens _x
-          toLens (Path_ReportValueTypeInfo_reportValueTypeDescription _x) = lens_ReportValueTypeInfo_reportValueTypeDescription . toLens _x
-          toLens (Path_ReportValueTypeInfo_reportValueTypeDefinition _x) = lens_ReportValueTypeInfo_reportValueTypeDefinition . toLens _x
           pathsOf (x@(ReportValueTypeInfo {})) a = concat [map Path_ReportValueTypeInfo_reportValueTypeName (pathsOf (reportValueTypeName x) a),
                                                            map Path_ReportValueTypeInfo_reportValueTypeDescription (pathsOf (reportValueTypeDescription x) a),
                                                            map Path_ReportValueTypeInfo_reportValueTypeDefinition (pathsOf (reportValueTypeDefinition x) a)]
 instance IsPath EUI ImageFile
     where type Path EUI ImageFile = Path_Either (Path_URI ImageFile)
                                                 (Path_ImageFile ImageFile)
-          toLens (Path_Right _) = _Right
           pathsOf x a = concatMap (\pv -> map ((\_ -> Path_Right) pv) (pathsOf (id pv) a :: [Path ImageFile
                                                                                                   ImageFile])) (either (const []) (: []) x)
 instance IsPath EUI EUI
     where type Path EUI EUI = Path_Either (Path_URI EUI)
                                           (Path_ImageFile EUI)
-          toLens _ = iso id id
           pathsOf _ _ = [idPath]
 instance IsPath EUI URI
     where type Path EUI URI = Path_Either (Path_URI URI)
                                           (Path_ImageFile URI)
-          toLens (Path_Left _) = _Left
           pathsOf x a = concatMap (\pv -> map ((\_ -> Path_Left) pv) (pathsOf (id pv) a :: [Path URI
                                                                                                  URI])) (either (: []) (const []) x)
 instance IsPath MEUI ImageFile
     where type Path MEUI
                     ImageFile = Path_Maybe (Path_Either (Path_URI ImageFile)
                                                         (Path_ImageFile ImageFile))
-          toLens (Path_Just v) = _Just . toLens v
           pathsOf x a = concatMap (\pv -> map ((\_ -> Path_Just) pv) (pathsOf (id pv) a :: [Path (Either URI
                                                                                                          ImageFile)
                                                                                                  ImageFile])) (maybe [] (: []) x)
 instance IsPath MEUI EUI
     where type Path MEUI EUI = Path_Maybe (Path_Either (Path_URI EUI)
                                                        (Path_ImageFile EUI))
-          toLens (Path_Just _) = _Just
           pathsOf x a = concatMap (\pv -> map ((\_ -> Path_Just) pv) (pathsOf (id pv) a :: [Path (Either URI
                                                                                                          ImageFile)
                                                                                                  (Either URI
@@ -2273,19 +1997,15 @@ instance IsPath MEUI EUI
 instance IsPath MEUI MEUI
     where type Path MEUI MEUI = Path_Maybe (Path_Either (Path_URI MEUI)
                                                         (Path_ImageFile MEUI))
-          toLens _ = iso id id
           pathsOf _ _ = [idPath]
 instance IsPath MEUI URI
     where type Path MEUI URI = Path_Maybe (Path_Either (Path_URI URI)
                                                        (Path_ImageFile URI))
-          toLens (Path_Just v) = _Just . toLens v
           pathsOf x a = concatMap (\pv -> map ((\_ -> Path_Just) pv) (pathsOf (id pv) a :: [Path (Either URI
                                                                                                          ImageFile)
                                                                                                  URI])) (maybe [] (: []) x)
 instance IsPath MaybeImageFile String
     where type Path MaybeImageFile String = Path_MaybeImageFile String
-          toLens (Path_MaybeImageFile_View _) = viewLens :: Lens' (Maybe ImageFile)
-                                                                  ([Char])
           pathsOf x a = let {p = Path_MaybeImageFile_View idPath :: Path (Maybe ImageFile)
                                                                          ([Char]);
                              [x'] = toListOf (toLens p) x :: [[Char]]}
@@ -2294,8 +2014,6 @@ instance IsPath MaybeImageFile String
 instance IsPath MaybeImageFile JSONText
     where type Path MaybeImageFile
                     JSONText = Path_MaybeImageFile JSONText
-          toLens (Path_MaybeImageFile_View v) = (viewLens :: Lens' (Maybe ImageFile)
-                                                                   ([Char])) . toLens v
           pathsOf x a = let {p = Path_MaybeImageFile_View idPath :: Path (Maybe ImageFile)
                                                                          ([Char]);
                              [x'] = toListOf (toLens p) x :: [[Char]]}
@@ -2304,12 +2022,9 @@ instance IsPath MaybeImageFile JSONText
 instance IsPath MaybeImageFile MaybeImageFile
     where type Path MaybeImageFile
                     MaybeImageFile = Path_MaybeImageFile MaybeImageFile
-          toLens _ = iso id id
           pathsOf _ _ = [idPath]
 instance IsPath ReportImage String
     where type Path ReportImage String = Path_ReportImage String
-          toLens (Path_ReportImage_View v) = (viewLens :: Lens' ReportImage
-                                                                ReportImageView) . toLens v
           pathsOf x a = let {p = Path_ReportImage_View idPath :: Path ReportImage
                                                                       ReportImageView;
                              [x'] = toListOf (toLens p) x :: [ReportImageView]}
@@ -2317,8 +2032,6 @@ instance IsPath ReportImage String
                                                                              ([Char])])
 instance IsPath ReportImage Bool
     where type Path ReportImage Bool = Path_ReportImage Bool
-          toLens (Path_ReportImage_View v) = (viewLens :: Lens' ReportImage
-                                                                ReportImageView) . toLens v
           pathsOf x a = let {p = Path_ReportImage_View idPath :: Path ReportImage
                                                                       ReportImageView;
                              [x'] = toListOf (toLens p) x :: [ReportImageView]}
@@ -2326,8 +2039,6 @@ instance IsPath ReportImage Bool
                                                                              Bool])
 instance IsPath ReportImage Double
     where type Path ReportImage Double = Path_ReportImage Double
-          toLens (Path_ReportImage_View v) = (viewLens :: Lens' ReportImage
-                                                                ReportImageView) . toLens v
           pathsOf x a = let {p = Path_ReportImage_View idPath :: Path ReportImage
                                                                       ReportImageView;
                              [x'] = toListOf (toLens p) x :: [ReportImageView]}
@@ -2335,8 +2046,6 @@ instance IsPath ReportImage Double
                                                                              Double])
 instance IsPath ReportImage Dimension
     where type Path ReportImage Dimension = Path_ReportImage Dimension
-          toLens (Path_ReportImage_View v) = (viewLens :: Lens' ReportImage
-                                                                ReportImageView) . toLens v
           pathsOf x a = let {p = Path_ReportImage_View idPath :: Path ReportImage
                                                                       ReportImageView;
                              [x'] = toListOf (toLens p) x :: [ReportImageView]}
@@ -2344,8 +2053,6 @@ instance IsPath ReportImage Dimension
                                                                              Dimension])
 instance IsPath ReportImage ImageCrop
     where type Path ReportImage ImageCrop = Path_ReportImage ImageCrop
-          toLens (Path_ReportImage_View v) = (viewLens :: Lens' ReportImage
-                                                                ReportImageView) . toLens v
           pathsOf x a = let {p = Path_ReportImage_View idPath :: Path ReportImage
                                                                       ReportImageView;
                              [x'] = toListOf (toLens p) x :: [ReportImageView]}
@@ -2353,8 +2060,6 @@ instance IsPath ReportImage ImageCrop
                                                                              ImageCrop])
 instance IsPath ReportImage ImageSize
     where type Path ReportImage ImageSize = Path_ReportImage ImageSize
-          toLens (Path_ReportImage_View v) = (viewLens :: Lens' ReportImage
-                                                                ReportImageView) . toLens v
           pathsOf x a = let {p = Path_ReportImage_View idPath :: Path ReportImage
                                                                       ReportImageView;
                              [x'] = toListOf (toLens p) x :: [ReportImageView]}
@@ -2362,8 +2067,6 @@ instance IsPath ReportImage ImageSize
                                                                              ImageSize])
 instance IsPath ReportImage Units
     where type Path ReportImage Units = Path_ReportImage Units
-          toLens (Path_ReportImage_View v) = (viewLens :: Lens' ReportImage
-                                                                ReportImageView) . toLens v
           pathsOf x a = let {p = Path_ReportImage_View idPath :: Path ReportImage
                                                                       ReportImageView;
                              [x'] = toListOf (toLens p) x :: [ReportImageView]}
@@ -2371,8 +2074,6 @@ instance IsPath ReportImage Units
                                                                              Units])
 instance IsPath ReportImage ImageFile
     where type Path ReportImage ImageFile = Path_ReportImage ImageFile
-          toLens (Path_ReportImage_View v) = (viewLens :: Lens' ReportImage
-                                                                ReportImageView) . toLens v
           pathsOf x a = let {p = Path_ReportImage_View idPath :: Path ReportImage
                                                                       ReportImageView;
                              [x'] = toListOf (toLens p) x :: [ReportImageView]}
@@ -2380,8 +2081,6 @@ instance IsPath ReportImage ImageFile
                                                                              ImageFile])
 instance IsPath ReportImage JSONText
     where type Path ReportImage JSONText = Path_ReportImage JSONText
-          toLens (Path_ReportImage_View v) = (viewLens :: Lens' ReportImage
-                                                                ReportImageView) . toLens v
           pathsOf x a = let {p = Path_ReportImage_View idPath :: Path ReportImage
                                                                       ReportImageView;
                              [x'] = toListOf (toLens p) x :: [ReportImageView]}
@@ -2389,8 +2088,6 @@ instance IsPath ReportImage JSONText
                                                                              JSONText])
 instance IsPath ReportImage Markup
     where type Path ReportImage Markup = Path_ReportImage Markup
-          toLens (Path_ReportImage_View v) = (viewLens :: Lens' ReportImage
-                                                                ReportImageView) . toLens v
           pathsOf x a = let {p = Path_ReportImage_View idPath :: Path ReportImage
                                                                       ReportImageView;
                              [x'] = toListOf (toLens p) x :: [ReportImageView]}
@@ -2398,8 +2095,6 @@ instance IsPath ReportImage Markup
                                                                              Markup])
 instance IsPath ReportImage EUI
     where type Path ReportImage EUI = Path_ReportImage EUI
-          toLens (Path_ReportImage_View v) = (viewLens :: Lens' ReportImage
-                                                                ReportImageView) . toLens v
           pathsOf x a = let {p = Path_ReportImage_View idPath :: Path ReportImage
                                                                       ReportImageView;
                              [x'] = toListOf (toLens p) x :: [ReportImageView]}
@@ -2408,8 +2103,6 @@ instance IsPath ReportImage EUI
                                                                                      ImageFile)])
 instance IsPath ReportImage MEUI
     where type Path ReportImage MEUI = Path_ReportImage MEUI
-          toLens (Path_ReportImage_View v) = (viewLens :: Lens' ReportImage
-                                                                ReportImageView) . toLens v
           pathsOf x a = let {p = Path_ReportImage_View idPath :: Path ReportImage
                                                                       ReportImageView;
                              [x'] = toListOf (toLens p) x :: [ReportImageView]}
@@ -2419,8 +2112,6 @@ instance IsPath ReportImage MEUI
 instance IsPath ReportImage MaybeImageFile
     where type Path ReportImage
                     MaybeImageFile = Path_ReportImage MaybeImageFile
-          toLens (Path_ReportImage_View v) = (viewLens :: Lens' ReportImage
-                                                                ReportImageView) . toLens v
           pathsOf x a = let {p = Path_ReportImage_View idPath :: Path ReportImage
                                                                       ReportImageView;
                              [x'] = toListOf (toLens p) x :: [ReportImageView]}
@@ -2429,13 +2120,10 @@ instance IsPath ReportImage MaybeImageFile
 instance IsPath ReportImage ReportImage
     where type Path ReportImage
                     ReportImage = Path_ReportImage ReportImage
-          toLens _ = iso id id
           pathsOf _ _ = [idPath]
 instance IsPath ReportImage ReportImageView
     where type Path ReportImage
                     ReportImageView = Path_ReportImage ReportImageView
-          toLens (Path_ReportImage_View _) = viewLens :: Lens' ReportImage
-                                                               ReportImageView
           pathsOf x a = let {p = Path_ReportImage_View idPath :: Path ReportImage
                                                                       ReportImageView;
                              [x'] = toListOf (toLens p) x :: [ReportImageView]}
@@ -2444,8 +2132,6 @@ instance IsPath ReportImage ReportImageView
 instance IsPath ReportImage SaneSizeImageSize
     where type Path ReportImage
                     SaneSizeImageSize = Path_ReportImage SaneSizeImageSize
-          toLens (Path_ReportImage_View v) = (viewLens :: Lens' ReportImage
-                                                                ReportImageView) . toLens v
           pathsOf x a = let {p = Path_ReportImage_View idPath :: Path ReportImage
                                                                       ReportImageView;
                              [x'] = toListOf (toLens p) x :: [ReportImageView]}
@@ -2453,8 +2139,6 @@ instance IsPath ReportImage SaneSizeImageSize
                                                                              (SaneSize ImageSize)])
 instance IsPath ReportImage URI
     where type Path ReportImage URI = Path_ReportImage URI
-          toLens (Path_ReportImage_View v) = (viewLens :: Lens' ReportImage
-                                                                ReportImageView) . toLens v
           pathsOf x a = let {p = Path_ReportImage_View idPath :: Path ReportImage
                                                                       ReportImageView;
                              [x'] = toListOf (toLens p) x :: [ReportImageView]}
@@ -2462,8 +2146,6 @@ instance IsPath ReportImage URI
                                                                              URI])
 instance IsPath ReportImage Text
     where type Path ReportImage Text = Path_ReportImage Text
-          toLens (Path_ReportImage_View v) = (viewLens :: Lens' ReportImage
-                                                                ReportImageView) . toLens v
           pathsOf x a = let {p = Path_ReportImage_View idPath :: Path ReportImage
                                                                       ReportImageView;
                              [x'] = toListOf (toLens p) x :: [ReportImageView]}
@@ -2472,7 +2154,6 @@ instance IsPath ReportImage Text
 instance IsPath ReportImages String
     where type Path ReportImages String = Path_OMap ReportImageID
                                                     (Path_ReportImage String)
-          toLens (Path_At k v) = lens_omat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportImage
                                                                                                 ([Char])])) ((toPairs :: Order ReportImageID
                                                                                                                                ReportImage ->
@@ -2481,7 +2162,6 @@ instance IsPath ReportImages String
 instance IsPath ReportImages Bool
     where type Path ReportImages Bool = Path_OMap ReportImageID
                                                   (Path_ReportImage Bool)
-          toLens (Path_At k v) = lens_omat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportImage
                                                                                                 Bool])) ((toPairs :: Order ReportImageID
                                                                                                                            ReportImage ->
@@ -2490,7 +2170,6 @@ instance IsPath ReportImages Bool
 instance IsPath ReportImages Double
     where type Path ReportImages Double = Path_OMap ReportImageID
                                                     (Path_ReportImage Double)
-          toLens (Path_At k v) = lens_omat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportImage
                                                                                                 Double])) ((toPairs :: Order ReportImageID
                                                                                                                              ReportImage ->
@@ -2499,7 +2178,6 @@ instance IsPath ReportImages Double
 instance IsPath ReportImages Dimension
     where type Path ReportImages Dimension = Path_OMap ReportImageID
                                                        (Path_ReportImage Dimension)
-          toLens (Path_At k v) = lens_omat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportImage
                                                                                                 Dimension])) ((toPairs :: Order ReportImageID
                                                                                                                                 ReportImage ->
@@ -2508,7 +2186,6 @@ instance IsPath ReportImages Dimension
 instance IsPath ReportImages ImageCrop
     where type Path ReportImages ImageCrop = Path_OMap ReportImageID
                                                        (Path_ReportImage ImageCrop)
-          toLens (Path_At k v) = lens_omat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportImage
                                                                                                 ImageCrop])) ((toPairs :: Order ReportImageID
                                                                                                                                 ReportImage ->
@@ -2517,7 +2194,6 @@ instance IsPath ReportImages ImageCrop
 instance IsPath ReportImages ImageSize
     where type Path ReportImages ImageSize = Path_OMap ReportImageID
                                                        (Path_ReportImage ImageSize)
-          toLens (Path_At k v) = lens_omat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportImage
                                                                                                 ImageSize])) ((toPairs :: Order ReportImageID
                                                                                                                                 ReportImage ->
@@ -2526,7 +2202,6 @@ instance IsPath ReportImages ImageSize
 instance IsPath ReportImages Units
     where type Path ReportImages Units = Path_OMap ReportImageID
                                                    (Path_ReportImage Units)
-          toLens (Path_At k v) = lens_omat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportImage
                                                                                                 Units])) ((toPairs :: Order ReportImageID
                                                                                                                             ReportImage ->
@@ -2535,7 +2210,6 @@ instance IsPath ReportImages Units
 instance IsPath ReportImages ImageFile
     where type Path ReportImages ImageFile = Path_OMap ReportImageID
                                                        (Path_ReportImage ImageFile)
-          toLens (Path_At k v) = lens_omat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportImage
                                                                                                 ImageFile])) ((toPairs :: Order ReportImageID
                                                                                                                                 ReportImage ->
@@ -2544,7 +2218,6 @@ instance IsPath ReportImages ImageFile
 instance IsPath ReportImages JSONText
     where type Path ReportImages JSONText = Path_OMap ReportImageID
                                                       (Path_ReportImage JSONText)
-          toLens (Path_At k v) = lens_omat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportImage
                                                                                                 JSONText])) ((toPairs :: Order ReportImageID
                                                                                                                                ReportImage ->
@@ -2553,7 +2226,6 @@ instance IsPath ReportImages JSONText
 instance IsPath ReportImages Markup
     where type Path ReportImages Markup = Path_OMap ReportImageID
                                                     (Path_ReportImage Markup)
-          toLens (Path_At k v) = lens_omat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportImage
                                                                                                 Markup])) ((toPairs :: Order ReportImageID
                                                                                                                              ReportImage ->
@@ -2562,7 +2234,6 @@ instance IsPath ReportImages Markup
 instance IsPath ReportImages EUI
     where type Path ReportImages EUI = Path_OMap ReportImageID
                                                  (Path_ReportImage EUI)
-          toLens (Path_At k v) = lens_omat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportImage
                                                                                                 (Either URI
                                                                                                         ImageFile)])) ((toPairs :: Order ReportImageID
@@ -2572,7 +2243,6 @@ instance IsPath ReportImages EUI
 instance IsPath ReportImages MEUI
     where type Path ReportImages MEUI = Path_OMap ReportImageID
                                                   (Path_ReportImage MEUI)
-          toLens (Path_At k v) = lens_omat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportImage
                                                                                                 (Maybe (Either URI
                                                                                                                ImageFile))])) ((toPairs :: Order ReportImageID
@@ -2583,7 +2253,6 @@ instance IsPath ReportImages MaybeImageFile
     where type Path ReportImages
                     MaybeImageFile = Path_OMap ReportImageID
                                                (Path_ReportImage MaybeImageFile)
-          toLens (Path_At k v) = lens_omat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportImage
                                                                                                 (Maybe ImageFile)])) ((toPairs :: Order ReportImageID
                                                                                                                                         ReportImage ->
@@ -2592,7 +2261,6 @@ instance IsPath ReportImages MaybeImageFile
 instance IsPath ReportImages ReportImage
     where type Path ReportImages ReportImage = Path_OMap ReportImageID
                                                          (Path_ReportImage ReportImage)
-          toLens (Path_At k _) = lens_omat k
           pathsOf x a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportImage
                                                                                                 ReportImage])) ((toPairs :: Order ReportImageID
                                                                                                                                   ReportImage ->
@@ -2601,13 +2269,11 @@ instance IsPath ReportImages ReportImage
 instance IsPath ReportImages ReportImages
     where type Path ReportImages ReportImages = Path_OMap ReportImageID
                                                           (Path_ReportImage ReportImages)
-          toLens _ = iso id id
           pathsOf _ _ = [idPath]
 instance IsPath ReportImages ReportImageView
     where type Path ReportImages
                     ReportImageView = Path_OMap ReportImageID
                                                 (Path_ReportImage ReportImageView)
-          toLens (Path_At k v) = lens_omat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportImage
                                                                                                 ReportImageView])) ((toPairs :: Order ReportImageID
                                                                                                                                       ReportImage ->
@@ -2617,7 +2283,6 @@ instance IsPath ReportImages SaneSizeImageSize
     where type Path ReportImages
                     SaneSizeImageSize = Path_OMap ReportImageID
                                                   (Path_ReportImage SaneSizeImageSize)
-          toLens (Path_At k v) = lens_omat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportImage
                                                                                                 (SaneSize ImageSize)])) ((toPairs :: Order ReportImageID
                                                                                                                                            ReportImage ->
@@ -2626,7 +2291,6 @@ instance IsPath ReportImages SaneSizeImageSize
 instance IsPath ReportImages URI
     where type Path ReportImages URI = Path_OMap ReportImageID
                                                  (Path_ReportImage URI)
-          toLens (Path_At k v) = lens_omat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportImage
                                                                                                 URI])) ((toPairs :: Order ReportImageID
                                                                                                                           ReportImage ->
@@ -2635,7 +2299,6 @@ instance IsPath ReportImages URI
 instance IsPath ReportImages Text
     where type Path ReportImages Text = Path_OMap ReportImageID
                                                   (Path_ReportImage Text)
-          toLens (Path_At k v) = lens_omat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportImage
                                                                                                 Text])) ((toPairs :: Order ReportImageID
                                                                                                                            ReportImage ->
@@ -2644,8 +2307,6 @@ instance IsPath ReportImages Text
 instance IsPath ReadOnlyFilePath String
     where type Path ReadOnlyFilePath
                     String = Path_ReadOnlyFilePath String
-          toLens (Path_ReadOnlyFilePath_View _) = viewLens :: Lens' (ReadOnly ([Char]))
-                                                                    ([Char])
           pathsOf x a = let {p = Path_ReadOnlyFilePath_View idPath :: Path (ReadOnly ([Char]))
                                                                            ([Char]);
                              [x'] = toListOf (toLens p) x :: [[Char]]}
@@ -2654,8 +2315,6 @@ instance IsPath ReadOnlyFilePath String
 instance IsPath ReadOnlyFilePath JSONText
     where type Path ReadOnlyFilePath
                     JSONText = Path_ReadOnlyFilePath JSONText
-          toLens (Path_ReadOnlyFilePath_View v) = (viewLens :: Lens' (ReadOnly ([Char]))
-                                                                     ([Char])) . toLens v
           pathsOf x a = let {p = Path_ReadOnlyFilePath_View idPath :: Path (ReadOnly ([Char]))
                                                                            ([Char]);
                              [x'] = toListOf (toLens p) x :: [[Char]]}
@@ -2664,17 +2323,10 @@ instance IsPath ReadOnlyFilePath JSONText
 instance IsPath ReadOnlyFilePath ReadOnlyFilePath
     where type Path ReadOnlyFilePath
                     ReadOnlyFilePath = Path_ReadOnlyFilePath ReadOnlyFilePath
-          toLens _ = iso id id
           pathsOf _ _ = [idPath]
 instance IsPath ReportImageView String
     where type Path ReportImageView
                     String = Path_ReportImageView String
-          toLens (Path_ReportImageView__picSize _x) = lens_ReportImageView__picSize . toLens _x
-          toLens (Path_ReportImageView__picEditedDeprecated _x) = lens_ReportImageView__picEditedDeprecated . toLens _x
-          toLens (Path_ReportImageView__picThumbDeprecated _x) = lens_ReportImageView__picThumbDeprecated . toLens _x
-          toLens (Path_ReportImageView__picPrinterDeprecated _x) = lens_ReportImageView__picPrinterDeprecated . toLens _x
-          toLens (Path_ReportImageView__picMustEnlarge _x) = lens_ReportImageView__picMustEnlarge . toLens _x
-          toLens (Path_ReportImageView__picEnlargedDeprecated _x) = lens_ReportImageView__picEnlargedDeprecated . toLens _x
           pathsOf (x@(ReportImageView {})) a = concat [map Path_ReportImageView__picSize (pathsOf (_picSize x) a),
                                                        map Path_ReportImageView__picEditedDeprecated (pathsOf (_picEditedDeprecated x) a),
                                                        map Path_ReportImageView__picThumbDeprecated (pathsOf (_picThumbDeprecated x) a),
@@ -2683,47 +2335,33 @@ instance IsPath ReportImageView String
                                                        map Path_ReportImageView__picEnlargedDeprecated (pathsOf (_picEnlargedDeprecated x) a)]
 instance IsPath ReportImageView Bool
     where type Path ReportImageView Bool = Path_ReportImageView Bool
-          toLens (Path_ReportImageView__picMustEnlarge _x) = lens_ReportImageView__picMustEnlarge
           pathsOf (x@(ReportImageView {})) a = concat [map Path_ReportImageView__picMustEnlarge (pathsOf (_picMustEnlarge x) a)]
 instance IsPath ReportImageView Double
     where type Path ReportImageView
                     Double = Path_ReportImageView Double
-          toLens (Path_ReportImageView__picSize _x) = lens_ReportImageView__picSize . toLens _x
           pathsOf (x@(ReportImageView {})) a = concat [map Path_ReportImageView__picSize (pathsOf (_picSize x) a)]
 instance IsPath ReportImageView Dimension
     where type Path ReportImageView
                     Dimension = Path_ReportImageView Dimension
-          toLens (Path_ReportImageView__picSize _x) = lens_ReportImageView__picSize . toLens _x
           pathsOf (x@(ReportImageView {})) a = concat [map Path_ReportImageView__picSize (pathsOf (_picSize x) a)]
 instance IsPath ReportImageView ImageCrop
     where type Path ReportImageView
                     ImageCrop = Path_ReportImageView ImageCrop
-          toLens (Path_ReportImageView__picCrop _x) = lens_ReportImageView__picCrop
           pathsOf (x@(ReportImageView {})) a = concat [map Path_ReportImageView__picCrop (pathsOf (_picCrop x) a)]
 instance IsPath ReportImageView ImageSize
     where type Path ReportImageView
                     ImageSize = Path_ReportImageView ImageSize
-          toLens (Path_ReportImageView__picSize _x) = lens_ReportImageView__picSize . toLens _x
           pathsOf (x@(ReportImageView {})) a = concat [map Path_ReportImageView__picSize (pathsOf (_picSize x) a)]
 instance IsPath ReportImageView Units
     where type Path ReportImageView Units = Path_ReportImageView Units
-          toLens (Path_ReportImageView__picSize _x) = lens_ReportImageView__picSize . toLens _x
           pathsOf (x@(ReportImageView {})) a = concat [map Path_ReportImageView__picSize (pathsOf (_picSize x) a)]
 instance IsPath ReportImageView ImageFile
     where type Path ReportImageView
                     ImageFile = Path_ReportImageView ImageFile
-          toLens (Path_ReportImageView__picOriginal _x) = lens_ReportImageView__picOriginal . toLens _x
           pathsOf (x@(ReportImageView {})) a = concat [map Path_ReportImageView__picOriginal (pathsOf (_picOriginal x) a)]
 instance IsPath ReportImageView JSONText
     where type Path ReportImageView
                     JSONText = Path_ReportImageView JSONText
-          toLens (Path_ReportImageView__picSize _x) = lens_ReportImageView__picSize . toLens _x
-          toLens (Path_ReportImageView__picCaption _x) = lens_ReportImageView__picCaption . toLens _x
-          toLens (Path_ReportImageView__picEditedDeprecated _x) = lens_ReportImageView__picEditedDeprecated . toLens _x
-          toLens (Path_ReportImageView__picThumbDeprecated _x) = lens_ReportImageView__picThumbDeprecated . toLens _x
-          toLens (Path_ReportImageView__picPrinterDeprecated _x) = lens_ReportImageView__picPrinterDeprecated . toLens _x
-          toLens (Path_ReportImageView__picMustEnlarge _x) = lens_ReportImageView__picMustEnlarge . toLens _x
-          toLens (Path_ReportImageView__picEnlargedDeprecated _x) = lens_ReportImageView__picEnlargedDeprecated . toLens _x
           pathsOf (x@(ReportImageView {})) a = concat [map Path_ReportImageView__picSize (pathsOf (_picSize x) a),
                                                        map Path_ReportImageView__picCaption (pathsOf (_picCaption x) a),
                                                        map Path_ReportImageView__picEditedDeprecated (pathsOf (_picEditedDeprecated x) a),
@@ -2734,23 +2372,16 @@ instance IsPath ReportImageView JSONText
 instance IsPath ReportImageView Markup
     where type Path ReportImageView
                     Markup = Path_ReportImageView Markup
-          toLens (Path_ReportImageView__picCaption _x) = lens_ReportImageView__picCaption
           pathsOf (x@(ReportImageView {})) a = concat [map Path_ReportImageView__picCaption (pathsOf (_picCaption x) a)]
 instance IsPath ReportImageView EUI
     where type Path ReportImageView EUI = Path_ReportImageView EUI
-          toLens (Path_ReportImageView__picOriginal _x) = lens_ReportImageView__picOriginal . toLens _x
           pathsOf (x@(ReportImageView {})) a = concat [map Path_ReportImageView__picOriginal (pathsOf (_picOriginal x) a)]
 instance IsPath ReportImageView MEUI
     where type Path ReportImageView MEUI = Path_ReportImageView MEUI
-          toLens (Path_ReportImageView__picOriginal _x) = lens_ReportImageView__picOriginal
           pathsOf (x@(ReportImageView {})) a = concat [map Path_ReportImageView__picOriginal (pathsOf (_picOriginal x) a)]
 instance IsPath ReportImageView MaybeImageFile
     where type Path ReportImageView
                     MaybeImageFile = Path_ReportImageView MaybeImageFile
-          toLens (Path_ReportImageView__picEditedDeprecated _x) = lens_ReportImageView__picEditedDeprecated
-          toLens (Path_ReportImageView__picThumbDeprecated _x) = lens_ReportImageView__picThumbDeprecated
-          toLens (Path_ReportImageView__picPrinterDeprecated _x) = lens_ReportImageView__picPrinterDeprecated
-          toLens (Path_ReportImageView__picEnlargedDeprecated _x) = lens_ReportImageView__picEnlargedDeprecated
           pathsOf (x@(ReportImageView {})) a = concat [map Path_ReportImageView__picEditedDeprecated (pathsOf (_picEditedDeprecated x) a),
                                                        map Path_ReportImageView__picThumbDeprecated (pathsOf (_picThumbDeprecated x) a),
                                                        map Path_ReportImageView__picPrinterDeprecated (pathsOf (_picPrinterDeprecated x) a),
@@ -2758,31 +2389,19 @@ instance IsPath ReportImageView MaybeImageFile
 instance IsPath ReportImageView ReportImageView
     where type Path ReportImageView
                     ReportImageView = Path_ReportImageView ReportImageView
-          toLens _ = iso id id
           pathsOf _ _ = [idPath]
 instance IsPath ReportImageView SaneSizeImageSize
     where type Path ReportImageView
                     SaneSizeImageSize = Path_ReportImageView SaneSizeImageSize
-          toLens (Path_ReportImageView__picSize _x) = lens_ReportImageView__picSize
           pathsOf (x@(ReportImageView {})) a = concat [map Path_ReportImageView__picSize (pathsOf (_picSize x) a)]
 instance IsPath ReportImageView URI
     where type Path ReportImageView URI = Path_ReportImageView URI
-          toLens (Path_ReportImageView__picOriginal _x) = lens_ReportImageView__picOriginal . toLens _x
           pathsOf (x@(ReportImageView {})) a = concat [map Path_ReportImageView__picOriginal (pathsOf (_picOriginal x) a)]
 instance IsPath ReportImageView Text
     where type Path ReportImageView Text = Path_ReportImageView Text
-          toLens (Path_ReportImageView__picCaption _x) = lens_ReportImageView__picCaption . toLens _x
           pathsOf (x@(ReportImageView {})) a = concat [map Path_ReportImageView__picCaption (pathsOf (_picCaption x) a)]
 instance IsPath ReportView String
     where type Path ReportView String = Path_ReportView String
-          toLens (Path_ReportView__reportFolder _x) = lens_ReportView__reportFolder . toLens _x
-          toLens (Path_ReportView__reportIntendedUse _x) = lens_ReportView__reportIntendedUse . toLens _x
-          toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
-          toLens (Path_ReportView__reportStatus _x) = lens_ReportView__reportStatus . toLens _x
-          toLens (Path_ReportView__reportRedacted _x) = lens_ReportView__reportRedacted . toLens _x
-          toLens (Path_ReportView__reportFlags _x) = lens_ReportView__reportFlags . toLens _x
-          toLens (Path_ReportView__reportOrderByItemName _x) = lens_ReportView__reportOrderByItemName . toLens _x
-          toLens (Path_ReportView__reportDisplayItemName _x) = lens_ReportView__reportDisplayItemName . toLens _x
           pathsOf (x@(ReportView {})) a = concat [map Path_ReportView__reportFolder (pathsOf (_reportFolder x) a),
                                                   map Path_ReportView__reportIntendedUse (pathsOf (_reportIntendedUse x) a),
                                                   map Path_ReportView__reportBody (pathsOf (_reportBody x) a),
@@ -2793,15 +2412,9 @@ instance IsPath ReportView String
                                                   map Path_ReportView__reportDisplayItemName (pathsOf (_reportDisplayItemName x) a)]
 instance IsPath ReportView Int64
     where type Path ReportView Int64 = Path_ReportView Int64
-          toLens (Path_ReportView__reportCreated _x) = lens_ReportView__reportCreated
           pathsOf (x@(ReportView {})) a = concat [map Path_ReportView__reportCreated (pathsOf (_reportCreated x) a)]
 instance IsPath ReportView Bool
     where type Path ReportView Bool = Path_ReportView Bool
-          toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
-          toLens (Path_ReportView__reportRedacted _x) = lens_ReportView__reportRedacted
-          toLens (Path_ReportView__reportFlags _x) = lens_ReportView__reportFlags . toLens _x
-          toLens (Path_ReportView__reportOrderByItemName _x) = lens_ReportView__reportOrderByItemName
-          toLens (Path_ReportView__reportDisplayItemName _x) = lens_ReportView__reportDisplayItemName
           pathsOf (x@(ReportView {})) a = concat [map Path_ReportView__reportBody (pathsOf (_reportBody x) a),
                                                   map Path_ReportView__reportRedacted (pathsOf (_reportRedacted x) a),
                                                   map Path_ReportView__reportFlags (pathsOf (_reportFlags x) a),
@@ -2809,79 +2422,30 @@ instance IsPath ReportView Bool
                                                   map Path_ReportView__reportDisplayItemName (pathsOf (_reportDisplayItemName x) a)]
 instance IsPath ReportView Double
     where type Path ReportView Double = Path_ReportView Double
-          toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
           pathsOf (x@(ReportView {})) a = concat [map Path_ReportView__reportBody (pathsOf (_reportBody x) a)]
 instance IsPath ReportView Int
     where type Path ReportView Int = Path_ReportView Int
-          toLens (Path_ReportView__reportStandardsVersion _x) = lens_ReportView__reportStandardsVersion . toLens _x
           pathsOf (x@(ReportView {})) a = concat [map Path_ReportView__reportStandardsVersion (pathsOf (_reportStandardsVersion x) a)]
 instance IsPath ReportView Dimension
     where type Path ReportView Dimension = Path_ReportView Dimension
-          toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
           pathsOf (x@(ReportView {})) a = concat [map Path_ReportView__reportBody (pathsOf (_reportBody x) a)]
 instance IsPath ReportView ImageCrop
     where type Path ReportView ImageCrop = Path_ReportView ImageCrop
-          toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
           pathsOf (x@(ReportView {})) a = concat [map Path_ReportView__reportBody (pathsOf (_reportBody x) a)]
 instance IsPath ReportView ImageSize
     where type Path ReportView ImageSize = Path_ReportView ImageSize
-          toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
           pathsOf (x@(ReportView {})) a = concat [map Path_ReportView__reportBody (pathsOf (_reportBody x) a)]
 instance IsPath ReportView Units
     where type Path ReportView Units = Path_ReportView Units
-          toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
           pathsOf (x@(ReportView {})) a = concat [map Path_ReportView__reportBody (pathsOf (_reportBody x) a)]
 instance IsPath ReportView ImageFile
     where type Path ReportView ImageFile = Path_ReportView ImageFile
-          toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
           pathsOf (x@(ReportView {})) a = concat [map Path_ReportView__reportBody (pathsOf (_reportBody x) a)]
 instance IsPath ReportView Integer
     where type Path ReportView Integer = Path_ReportView Integer
-          toLens (Path_ReportView__reportRevision _x) = lens_ReportView__reportRevision
           pathsOf (x@(ReportView {})) a = concat [map Path_ReportView__reportRevision (pathsOf (_reportRevision x) a)]
 instance IsPath ReportView JSONText
     where type Path ReportView JSONText = Path_ReportView JSONText
-          toLens (Path_ReportView__reportFolder _x) = lens_ReportView__reportFolder . toLens _x
-          toLens (Path_ReportView__reportName _x) = lens_ReportView__reportName . toLens _x
-          toLens (Path_ReportView__reportDate _x) = lens_ReportView__reportDate . toLens _x
-          toLens (Path_ReportView__reportContractDate _x) = lens_ReportView__reportContractDate . toLens _x
-          toLens (Path_ReportView__reportInspectionDate _x) = lens_ReportView__reportInspectionDate . toLens _x
-          toLens (Path_ReportView__reportEffectiveDate _x) = lens_ReportView__reportEffectiveDate . toLens _x
-          toLens (Path_ReportView__reportAuthors _x) = lens_ReportView__reportAuthors . toLens _x
-          toLens (Path_ReportView__reportPreparer _x) = lens_ReportView__reportPreparer . toLens _x
-          toLens (Path_ReportView__reportPreparerEIN _x) = lens_ReportView__reportPreparerEIN . toLens _x
-          toLens (Path_ReportView__reportPreparerAddress _x) = lens_ReportView__reportPreparerAddress . toLens _x
-          toLens (Path_ReportView__reportPreparerEMail _x) = lens_ReportView__reportPreparerEMail . toLens _x
-          toLens (Path_ReportView__reportPreparerWebsite _x) = lens_ReportView__reportPreparerWebsite . toLens _x
-          toLens (Path_ReportView__reportAbbrevs _x) = lens_ReportView__reportAbbrevs . toLens _x
-          toLens (Path_ReportView__reportTitle _x) = lens_ReportView__reportTitle . toLens _x
-          toLens (Path_ReportView__reportHeader _x) = lens_ReportView__reportHeader . toLens _x
-          toLens (Path_ReportView__reportFooter _x) = lens_ReportView__reportFooter . toLens _x
-          toLens (Path_ReportView__reportIntendedUse _x) = lens_ReportView__reportIntendedUse . toLens _x
-          toLens (Path_ReportView__reportValueTypeInfo _x) = lens_ReportView__reportValueTypeInfo . toLens _x
-          toLens (Path_ReportView__reportValueApproachInfo _x) = lens_ReportView__reportValueApproachInfo . toLens _x
-          toLens (Path_ReportView__reportClientName _x) = lens_ReportView__reportClientName . toLens _x
-          toLens (Path_ReportView__reportClientAddress _x) = lens_ReportView__reportClientAddress . toLens _x
-          toLens (Path_ReportView__reportClientGreeting _x) = lens_ReportView__reportClientGreeting . toLens _x
-          toLens (Path_ReportView__reportItemsOwnerFull _x) = lens_ReportView__reportItemsOwnerFull . toLens _x
-          toLens (Path_ReportView__reportItemsOwner _x) = lens_ReportView__reportItemsOwner . toLens _x
-          toLens (Path_ReportView__reportBriefItems _x) = lens_ReportView__reportBriefItems . toLens _x
-          toLens (Path_ReportView__reportInspectionLocation _x) = lens_ReportView__reportInspectionLocation . toLens _x
-          toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
-          toLens (Path_ReportView__reportGlossary _x) = lens_ReportView__reportGlossary . toLens _x
-          toLens (Path_ReportView__reportSources _x) = lens_ReportView__reportSources . toLens _x
-          toLens (Path_ReportView__reportLetterOfTransmittal _x) = lens_ReportView__reportLetterOfTransmittal . toLens _x
-          toLens (Path_ReportView__reportScopeOfWork _x) = lens_ReportView__reportScopeOfWork . toLens _x
-          toLens (Path_ReportView__reportCertification _x) = lens_ReportView__reportCertification . toLens _x
-          toLens (Path_ReportView__reportLimitingConditions _x) = lens_ReportView__reportLimitingConditions . toLens _x
-          toLens (Path_ReportView__reportPrivacyPolicy _x) = lens_ReportView__reportPrivacyPolicy . toLens _x
-          toLens (Path_ReportView__reportPerms _x) = lens_ReportView__reportPerms . toLens _x
-          toLens (Path_ReportView__reportBranding _x) = lens_ReportView__reportBranding . toLens _x
-          toLens (Path_ReportView__reportStatus _x) = lens_ReportView__reportStatus . toLens _x
-          toLens (Path_ReportView__reportRedacted _x) = lens_ReportView__reportRedacted . toLens _x
-          toLens (Path_ReportView__reportFlags _x) = lens_ReportView__reportFlags . toLens _x
-          toLens (Path_ReportView__reportOrderByItemName _x) = lens_ReportView__reportOrderByItemName . toLens _x
-          toLens (Path_ReportView__reportDisplayItemName _x) = lens_ReportView__reportDisplayItemName . toLens _x
           pathsOf (x@(ReportView {})) a = concat [map Path_ReportView__reportFolder (pathsOf (_reportFolder x) a),
                                                   map Path_ReportView__reportName (pathsOf (_reportName x) a),
                                                   map Path_ReportView__reportDate (pathsOf (_reportDate x) a),
@@ -2925,38 +2489,6 @@ instance IsPath ReportView JSONText
                                                   map Path_ReportView__reportDisplayItemName (pathsOf (_reportDisplayItemName x) a)]
 instance IsPath ReportView Markup
     where type Path ReportView Markup = Path_ReportView Markup
-          toLens (Path_ReportView__reportName _x) = lens_ReportView__reportName
-          toLens (Path_ReportView__reportDate _x) = lens_ReportView__reportDate
-          toLens (Path_ReportView__reportContractDate _x) = lens_ReportView__reportContractDate
-          toLens (Path_ReportView__reportInspectionDate _x) = lens_ReportView__reportInspectionDate
-          toLens (Path_ReportView__reportEffectiveDate _x) = lens_ReportView__reportEffectiveDate
-          toLens (Path_ReportView__reportAuthors _x) = lens_ReportView__reportAuthors . toLens _x
-          toLens (Path_ReportView__reportPreparer _x) = lens_ReportView__reportPreparer
-          toLens (Path_ReportView__reportPreparerEIN _x) = lens_ReportView__reportPreparerEIN
-          toLens (Path_ReportView__reportPreparerAddress _x) = lens_ReportView__reportPreparerAddress
-          toLens (Path_ReportView__reportPreparerEMail _x) = lens_ReportView__reportPreparerEMail
-          toLens (Path_ReportView__reportPreparerWebsite _x) = lens_ReportView__reportPreparerWebsite
-          toLens (Path_ReportView__reportAbbrevs _x) = lens_ReportView__reportAbbrevs . toLens _x
-          toLens (Path_ReportView__reportTitle _x) = lens_ReportView__reportTitle
-          toLens (Path_ReportView__reportHeader _x) = lens_ReportView__reportHeader
-          toLens (Path_ReportView__reportFooter _x) = lens_ReportView__reportFooter
-          toLens (Path_ReportView__reportValueTypeInfo _x) = lens_ReportView__reportValueTypeInfo . toLens _x
-          toLens (Path_ReportView__reportValueApproachInfo _x) = lens_ReportView__reportValueApproachInfo . toLens _x
-          toLens (Path_ReportView__reportClientName _x) = lens_ReportView__reportClientName
-          toLens (Path_ReportView__reportClientAddress _x) = lens_ReportView__reportClientAddress
-          toLens (Path_ReportView__reportClientGreeting _x) = lens_ReportView__reportClientGreeting
-          toLens (Path_ReportView__reportItemsOwnerFull _x) = lens_ReportView__reportItemsOwnerFull
-          toLens (Path_ReportView__reportItemsOwner _x) = lens_ReportView__reportItemsOwner
-          toLens (Path_ReportView__reportBriefItems _x) = lens_ReportView__reportBriefItems
-          toLens (Path_ReportView__reportInspectionLocation _x) = lens_ReportView__reportInspectionLocation
-          toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
-          toLens (Path_ReportView__reportGlossary _x) = lens_ReportView__reportGlossary . toLens _x
-          toLens (Path_ReportView__reportSources _x) = lens_ReportView__reportSources . toLens _x
-          toLens (Path_ReportView__reportLetterOfTransmittal _x) = lens_ReportView__reportLetterOfTransmittal
-          toLens (Path_ReportView__reportScopeOfWork _x) = lens_ReportView__reportScopeOfWork
-          toLens (Path_ReportView__reportCertification _x) = lens_ReportView__reportCertification . toLens _x
-          toLens (Path_ReportView__reportLimitingConditions _x) = lens_ReportView__reportLimitingConditions . toLens _x
-          toLens (Path_ReportView__reportPrivacyPolicy _x) = lens_ReportView__reportPrivacyPolicy
           pathsOf (x@(ReportView {})) a = concat [map Path_ReportView__reportName (pathsOf (_reportName x) a),
                                                   map Path_ReportView__reportDate (pathsOf (_reportDate x) a),
                                                   map Path_ReportView__reportContractDate (pathsOf (_reportContractDate x) a),
@@ -2992,185 +2524,117 @@ instance IsPath ReportView Markup
 instance IsPath ReportView Permissions
     where type Path ReportView
                     Permissions = Path_ReportView Permissions
-          toLens (Path_ReportView__reportPerms _x) = lens_ReportView__reportPerms
           pathsOf (x@(ReportView {})) a = concat [map Path_ReportView__reportPerms (pathsOf (_reportPerms x) a)]
 instance IsPath ReportView UserIds
     where type Path ReportView UserIds = Path_ReportView UserIds
-          toLens (Path_ReportView__reportPerms _x) = lens_ReportView__reportPerms . toLens _x
           pathsOf (x@(ReportView {})) a = concat [map Path_ReportView__reportPerms (pathsOf (_reportPerms x) a)]
 instance IsPath ReportView AbbrevPair
     where type Path ReportView AbbrevPair = Path_ReportView AbbrevPair
-          toLens (Path_ReportView__reportAbbrevs _x) = lens_ReportView__reportAbbrevs . toLens _x
           pathsOf (x@(ReportView {})) a = concat [map Path_ReportView__reportAbbrevs (pathsOf (_reportAbbrevs x) a)]
 instance IsPath ReportView AbbrevPairs
     where type Path ReportView
                     AbbrevPairs = Path_ReportView AbbrevPairs
-          toLens (Path_ReportView__reportAbbrevs _x) = lens_ReportView__reportAbbrevs
           pathsOf (x@(ReportView {})) a = concat [map Path_ReportView__reportAbbrevs (pathsOf (_reportAbbrevs x) a)]
 instance IsPath ReportView Author
     where type Path ReportView Author = Path_ReportView Author
-          toLens (Path_ReportView__reportAuthors _x) = lens_ReportView__reportAuthors . toLens _x
           pathsOf (x@(ReportView {})) a = concat [map Path_ReportView__reportAuthors (pathsOf (_reportAuthors x) a)]
 instance IsPath ReportView Authors
     where type Path ReportView Authors = Path_ReportView Authors
-          toLens (Path_ReportView__reportAuthors _x) = lens_ReportView__reportAuthors
           pathsOf (x@(ReportView {})) a = concat [map Path_ReportView__reportAuthors (pathsOf (_reportAuthors x) a)]
 instance IsPath ReportView Branding
     where type Path ReportView Branding = Path_ReportView Branding
-          toLens (Path_ReportView__reportBranding _x) = lens_ReportView__reportBranding
           pathsOf (x@(ReportView {})) a = concat [map Path_ReportView__reportBranding (pathsOf (_reportBranding x) a)]
 instance IsPath ReportView MarkupPair
     where type Path ReportView MarkupPair = Path_ReportView MarkupPair
-          toLens (Path_ReportView__reportGlossary _x) = lens_ReportView__reportGlossary . toLens _x
-          toLens (Path_ReportView__reportSources _x) = lens_ReportView__reportSources . toLens _x
           pathsOf (x@(ReportView {})) a = concat [map Path_ReportView__reportGlossary (pathsOf (_reportGlossary x) a),
                                                   map Path_ReportView__reportSources (pathsOf (_reportSources x) a)]
 instance IsPath ReportView MarkupPairs
     where type Path ReportView
                     MarkupPairs = Path_ReportView MarkupPairs
-          toLens (Path_ReportView__reportGlossary _x) = lens_ReportView__reportGlossary
-          toLens (Path_ReportView__reportSources _x) = lens_ReportView__reportSources
           pathsOf (x@(ReportView {})) a = concat [map Path_ReportView__reportGlossary (pathsOf (_reportGlossary x) a),
                                                   map Path_ReportView__reportSources (pathsOf (_reportSources x) a)]
 instance IsPath ReportView Markups
     where type Path ReportView Markups = Path_ReportView Markups
-          toLens (Path_ReportView__reportCertification _x) = lens_ReportView__reportCertification
-          toLens (Path_ReportView__reportLimitingConditions _x) = lens_ReportView__reportLimitingConditions
           pathsOf (x@(ReportView {})) a = concat [map Path_ReportView__reportCertification (pathsOf (_reportCertification x) a),
                                                   map Path_ReportView__reportLimitingConditions (pathsOf (_reportLimitingConditions x) a)]
 instance IsPath ReportView MaybeReportIntendedUse
     where type Path ReportView
                     MaybeReportIntendedUse = Path_ReportView MaybeReportIntendedUse
-          toLens (Path_ReportView__reportIntendedUse _x) = lens_ReportView__reportIntendedUse
           pathsOf (x@(ReportView {})) a = concat [map Path_ReportView__reportIntendedUse (pathsOf (_reportIntendedUse x) a)]
 instance IsPath ReportView ReportElem
     where type Path ReportView ReportElem = Path_ReportView ReportElem
-          toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
           pathsOf (x@(ReportView {})) a = concat [map Path_ReportView__reportBody (pathsOf (_reportBody x) a)]
 instance IsPath ReportView ReportElems
     where type Path ReportView
                     ReportElems = Path_ReportView ReportElems
-          toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody
           pathsOf (x@(ReportView {})) a = concat [map Path_ReportView__reportBody (pathsOf (_reportBody x) a)]
 instance IsPath ReportView ReportFlags
     where type Path ReportView
                     ReportFlags = Path_ReportView ReportFlags
-          toLens (Path_ReportView__reportFlags _x) = lens_ReportView__reportFlags
           pathsOf (x@(ReportView {})) a = concat [map Path_ReportView__reportFlags (pathsOf (_reportFlags x) a)]
 instance IsPath ReportView ReportStandard
     where type Path ReportView
                     ReportStandard = Path_ReportView ReportStandard
-          toLens (Path_ReportView__reportStandardsVersion _x) = lens_ReportView__reportStandardsVersion
           pathsOf (x@(ReportView {})) a = concat [map Path_ReportView__reportStandardsVersion (pathsOf (_reportStandardsVersion x) a)]
 instance IsPath ReportView ReportStatus
     where type Path ReportView
                     ReportStatus = Path_ReportView ReportStatus
-          toLens (Path_ReportView__reportStatus _x) = lens_ReportView__reportStatus
           pathsOf (x@(ReportView {})) a = concat [map Path_ReportView__reportStatus (pathsOf (_reportStatus x) a)]
 instance IsPath ReportView ReportValueApproachInfo
     where type Path ReportView
                     ReportValueApproachInfo = Path_ReportView ReportValueApproachInfo
-          toLens (Path_ReportView__reportValueApproachInfo _x) = lens_ReportView__reportValueApproachInfo
           pathsOf (x@(ReportView {})) a = concat [map Path_ReportView__reportValueApproachInfo (pathsOf (_reportValueApproachInfo x) a)]
 instance IsPath ReportView ReportValueTypeInfo
     where type Path ReportView
                     ReportValueTypeInfo = Path_ReportView ReportValueTypeInfo
-          toLens (Path_ReportView__reportValueTypeInfo _x) = lens_ReportView__reportValueTypeInfo
           pathsOf (x@(ReportView {})) a = concat [map Path_ReportView__reportValueTypeInfo (pathsOf (_reportValueTypeInfo x) a)]
 instance IsPath ReportView EUI
     where type Path ReportView EUI = Path_ReportView EUI
-          toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
           pathsOf (x@(ReportView {})) a = concat [map Path_ReportView__reportBody (pathsOf (_reportBody x) a)]
 instance IsPath ReportView MEUI
     where type Path ReportView MEUI = Path_ReportView MEUI
-          toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
           pathsOf (x@(ReportView {})) a = concat [map Path_ReportView__reportBody (pathsOf (_reportBody x) a)]
 instance IsPath ReportView MaybeImageFile
     where type Path ReportView
                     MaybeImageFile = Path_ReportView MaybeImageFile
-          toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
           pathsOf (x@(ReportView {})) a = concat [map Path_ReportView__reportBody (pathsOf (_reportBody x) a)]
 instance IsPath ReportView ReportImage
     where type Path ReportView
                     ReportImage = Path_ReportView ReportImage
-          toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
           pathsOf (x@(ReportView {})) a = concat [map Path_ReportView__reportBody (pathsOf (_reportBody x) a)]
 instance IsPath ReportView ReportImages
     where type Path ReportView
                     ReportImages = Path_ReportView ReportImages
-          toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
           pathsOf (x@(ReportView {})) a = concat [map Path_ReportView__reportBody (pathsOf (_reportBody x) a)]
 instance IsPath ReportView ReadOnlyFilePath
     where type Path ReportView
                     ReadOnlyFilePath = Path_ReportView ReadOnlyFilePath
-          toLens (Path_ReportView__reportFolder _x) = lens_ReportView__reportFolder
           pathsOf (x@(ReportView {})) a = concat [map Path_ReportView__reportFolder (pathsOf (_reportFolder x) a)]
 instance IsPath ReportView ReportImageView
     where type Path ReportView
                     ReportImageView = Path_ReportView ReportImageView
-          toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
           pathsOf (x@(ReportView {})) a = concat [map Path_ReportView__reportBody (pathsOf (_reportBody x) a)]
 instance IsPath ReportView ReportView
     where type Path ReportView ReportView = Path_ReportView ReportView
-          toLens _ = iso id id
           pathsOf _ _ = [idPath]
 instance IsPath ReportView SaneSizeImageSize
     where type Path ReportView
                     SaneSizeImageSize = Path_ReportView SaneSizeImageSize
-          toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
           pathsOf (x@(ReportView {})) a = concat [map Path_ReportView__reportBody (pathsOf (_reportBody x) a)]
 instance IsPath ReportView Item
     where type Path ReportView Item = Path_ReportView Item
-          toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
           pathsOf (x@(ReportView {})) a = concat [map Path_ReportView__reportBody (pathsOf (_reportBody x) a)]
 instance IsPath ReportView MIM
     where type Path ReportView MIM = Path_ReportView MIM
-          toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
           pathsOf (x@(ReportView {})) a = concat [map Path_ReportView__reportBody (pathsOf (_reportBody x) a)]
 instance IsPath ReportView CIString
     where type Path ReportView CIString = Path_ReportView CIString
-          toLens (Path_ReportView__reportAbbrevs _x) = lens_ReportView__reportAbbrevs . toLens _x
           pathsOf (x@(ReportView {})) a = concat [map Path_ReportView__reportAbbrevs (pathsOf (_reportAbbrevs x) a)]
 instance IsPath ReportView URI
     where type Path ReportView URI = Path_ReportView URI
-          toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
           pathsOf (x@(ReportView {})) a = concat [map Path_ReportView__reportBody (pathsOf (_reportBody x) a)]
 instance IsPath ReportView Text
     where type Path ReportView Text = Path_ReportView Text
-          toLens (Path_ReportView__reportName _x) = lens_ReportView__reportName . toLens _x
-          toLens (Path_ReportView__reportDate _x) = lens_ReportView__reportDate . toLens _x
-          toLens (Path_ReportView__reportContractDate _x) = lens_ReportView__reportContractDate . toLens _x
-          toLens (Path_ReportView__reportInspectionDate _x) = lens_ReportView__reportInspectionDate . toLens _x
-          toLens (Path_ReportView__reportEffectiveDate _x) = lens_ReportView__reportEffectiveDate . toLens _x
-          toLens (Path_ReportView__reportAuthors _x) = lens_ReportView__reportAuthors . toLens _x
-          toLens (Path_ReportView__reportPreparer _x) = lens_ReportView__reportPreparer . toLens _x
-          toLens (Path_ReportView__reportPreparerEIN _x) = lens_ReportView__reportPreparerEIN . toLens _x
-          toLens (Path_ReportView__reportPreparerAddress _x) = lens_ReportView__reportPreparerAddress . toLens _x
-          toLens (Path_ReportView__reportPreparerEMail _x) = lens_ReportView__reportPreparerEMail . toLens _x
-          toLens (Path_ReportView__reportPreparerWebsite _x) = lens_ReportView__reportPreparerWebsite . toLens _x
-          toLens (Path_ReportView__reportAbbrevs _x) = lens_ReportView__reportAbbrevs . toLens _x
-          toLens (Path_ReportView__reportTitle _x) = lens_ReportView__reportTitle . toLens _x
-          toLens (Path_ReportView__reportHeader _x) = lens_ReportView__reportHeader . toLens _x
-          toLens (Path_ReportView__reportFooter _x) = lens_ReportView__reportFooter . toLens _x
-          toLens (Path_ReportView__reportValueTypeInfo _x) = lens_ReportView__reportValueTypeInfo . toLens _x
-          toLens (Path_ReportView__reportValueApproachInfo _x) = lens_ReportView__reportValueApproachInfo . toLens _x
-          toLens (Path_ReportView__reportClientName _x) = lens_ReportView__reportClientName . toLens _x
-          toLens (Path_ReportView__reportClientAddress _x) = lens_ReportView__reportClientAddress . toLens _x
-          toLens (Path_ReportView__reportClientGreeting _x) = lens_ReportView__reportClientGreeting . toLens _x
-          toLens (Path_ReportView__reportItemsOwnerFull _x) = lens_ReportView__reportItemsOwnerFull . toLens _x
-          toLens (Path_ReportView__reportItemsOwner _x) = lens_ReportView__reportItemsOwner . toLens _x
-          toLens (Path_ReportView__reportBriefItems _x) = lens_ReportView__reportBriefItems . toLens _x
-          toLens (Path_ReportView__reportInspectionLocation _x) = lens_ReportView__reportInspectionLocation . toLens _x
-          toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
-          toLens (Path_ReportView__reportGlossary _x) = lens_ReportView__reportGlossary . toLens _x
-          toLens (Path_ReportView__reportSources _x) = lens_ReportView__reportSources . toLens _x
-          toLens (Path_ReportView__reportLetterOfTransmittal _x) = lens_ReportView__reportLetterOfTransmittal . toLens _x
-          toLens (Path_ReportView__reportScopeOfWork _x) = lens_ReportView__reportScopeOfWork . toLens _x
-          toLens (Path_ReportView__reportCertification _x) = lens_ReportView__reportCertification . toLens _x
-          toLens (Path_ReportView__reportLimitingConditions _x) = lens_ReportView__reportLimitingConditions . toLens _x
-          toLens (Path_ReportView__reportPrivacyPolicy _x) = lens_ReportView__reportPrivacyPolicy . toLens _x
-          toLens (Path_ReportView__reportPerms _x) = lens_ReportView__reportPerms . toLens _x
-          toLens (Path_ReportView__reportBranding _x) = lens_ReportView__reportBranding . toLens _x
           pathsOf (x@(ReportView {})) a = concat [map Path_ReportView__reportName (pathsOf (_reportName x) a),
                                                   map Path_ReportView__reportDate (pathsOf (_reportDate x) a),
                                                   map Path_ReportView__reportContractDate (pathsOf (_reportContractDate x) a),
@@ -3207,17 +2671,13 @@ instance IsPath ReportView Text
                                                   map Path_ReportView__reportBranding (pathsOf (_reportBranding x) a)]
 instance IsPath ReportView UserId
     where type Path ReportView UserId = Path_ReportView UserId
-          toLens (Path_ReportView__reportPerms _x) = lens_ReportView__reportPerms . toLens _x
           pathsOf (x@(ReportView {})) a = concat [map Path_ReportView__reportPerms (pathsOf (_reportPerms x) a)]
 instance IsPath ReportView UUID
     where type Path ReportView UUID = Path_ReportView UUID
-          toLens (Path_ReportView__reportUUID _x) = lens_ReportView__reportUUID
           pathsOf (x@(ReportView {})) a = concat [map Path_ReportView__reportUUID (pathsOf (_reportUUID x) a)]
 instance IsPath SaneSizeImageSize String
     where type Path SaneSizeImageSize
                     String = Path_SaneSizeImageSize String
-          toLens (Path_SaneSizeImageSize_View v) = (viewLens :: Lens' (SaneSize ImageSize)
-                                                                      ImageSize) . toLens v
           pathsOf x a = let {p = Path_SaneSizeImageSize_View idPath :: Path (SaneSize ImageSize)
                                                                             ImageSize;
                              [x'] = toListOf (toLens p) x :: [ImageSize]}
@@ -3226,8 +2686,6 @@ instance IsPath SaneSizeImageSize String
 instance IsPath SaneSizeImageSize Double
     where type Path SaneSizeImageSize
                     Double = Path_SaneSizeImageSize Double
-          toLens (Path_SaneSizeImageSize_View v) = (viewLens :: Lens' (SaneSize ImageSize)
-                                                                      ImageSize) . toLens v
           pathsOf x a = let {p = Path_SaneSizeImageSize_View idPath :: Path (SaneSize ImageSize)
                                                                             ImageSize;
                              [x'] = toListOf (toLens p) x :: [ImageSize]}
@@ -3236,8 +2694,6 @@ instance IsPath SaneSizeImageSize Double
 instance IsPath SaneSizeImageSize Dimension
     where type Path SaneSizeImageSize
                     Dimension = Path_SaneSizeImageSize Dimension
-          toLens (Path_SaneSizeImageSize_View v) = (viewLens :: Lens' (SaneSize ImageSize)
-                                                                      ImageSize) . toLens v
           pathsOf x a = let {p = Path_SaneSizeImageSize_View idPath :: Path (SaneSize ImageSize)
                                                                             ImageSize;
                              [x'] = toListOf (toLens p) x :: [ImageSize]}
@@ -3246,8 +2702,6 @@ instance IsPath SaneSizeImageSize Dimension
 instance IsPath SaneSizeImageSize ImageSize
     where type Path SaneSizeImageSize
                     ImageSize = Path_SaneSizeImageSize ImageSize
-          toLens (Path_SaneSizeImageSize_View _) = viewLens :: Lens' (SaneSize ImageSize)
-                                                                     ImageSize
           pathsOf x a = let {p = Path_SaneSizeImageSize_View idPath :: Path (SaneSize ImageSize)
                                                                             ImageSize;
                              [x'] = toListOf (toLens p) x :: [ImageSize]}
@@ -3256,8 +2710,6 @@ instance IsPath SaneSizeImageSize ImageSize
 instance IsPath SaneSizeImageSize Units
     where type Path SaneSizeImageSize
                     Units = Path_SaneSizeImageSize Units
-          toLens (Path_SaneSizeImageSize_View v) = (viewLens :: Lens' (SaneSize ImageSize)
-                                                                      ImageSize) . toLens v
           pathsOf x a = let {p = Path_SaneSizeImageSize_View idPath :: Path (SaneSize ImageSize)
                                                                             ImageSize;
                              [x'] = toListOf (toLens p) x :: [ImageSize]}
@@ -3266,8 +2718,6 @@ instance IsPath SaneSizeImageSize Units
 instance IsPath SaneSizeImageSize JSONText
     where type Path SaneSizeImageSize
                     JSONText = Path_SaneSizeImageSize JSONText
-          toLens (Path_SaneSizeImageSize_View v) = (viewLens :: Lens' (SaneSize ImageSize)
-                                                                      ImageSize) . toLens v
           pathsOf x a = let {p = Path_SaneSizeImageSize_View idPath :: Path (SaneSize ImageSize)
                                                                             ImageSize;
                              [x'] = toListOf (toLens p) x :: [ImageSize]}
@@ -3276,252 +2726,199 @@ instance IsPath SaneSizeImageSize JSONText
 instance IsPath SaneSizeImageSize SaneSizeImageSize
     where type Path SaneSizeImageSize
                     SaneSizeImageSize = Path_SaneSizeImageSize SaneSizeImageSize
-          toLens _ = iso id id
           pathsOf _ _ = [idPath]
 instance IsPath Item String
     where type Path Item String = Path_Item String
-          toLens (Path_Item_images _x) = lens_Item_images . toLens _x
           pathsOf (x@(Item {})) a = concat [map Path_Item_images (pathsOf (images x) a)]
 instance IsPath Item Bool
     where type Path Item Bool = Path_Item Bool
-          toLens (Path_Item_images _x) = lens_Item_images . toLens _x
           pathsOf (x@(Item {})) a = concat [map Path_Item_images (pathsOf (images x) a)]
 instance IsPath Item Double
     where type Path Item Double = Path_Item Double
-          toLens (Path_Item_images _x) = lens_Item_images . toLens _x
           pathsOf (x@(Item {})) a = concat [map Path_Item_images (pathsOf (images x) a)]
 instance IsPath Item Dimension
     where type Path Item Dimension = Path_Item Dimension
-          toLens (Path_Item_images _x) = lens_Item_images . toLens _x
           pathsOf (x@(Item {})) a = concat [map Path_Item_images (pathsOf (images x) a)]
 instance IsPath Item ImageCrop
     where type Path Item ImageCrop = Path_Item ImageCrop
-          toLens (Path_Item_images _x) = lens_Item_images . toLens _x
           pathsOf (x@(Item {})) a = concat [map Path_Item_images (pathsOf (images x) a)]
 instance IsPath Item ImageSize
     where type Path Item ImageSize = Path_Item ImageSize
-          toLens (Path_Item_images _x) = lens_Item_images . toLens _x
           pathsOf (x@(Item {})) a = concat [map Path_Item_images (pathsOf (images x) a)]
 instance IsPath Item Units
     where type Path Item Units = Path_Item Units
-          toLens (Path_Item_images _x) = lens_Item_images . toLens _x
           pathsOf (x@(Item {})) a = concat [map Path_Item_images (pathsOf (images x) a)]
 instance IsPath Item ImageFile
     where type Path Item ImageFile = Path_Item ImageFile
-          toLens (Path_Item_images _x) = lens_Item_images . toLens _x
           pathsOf (x@(Item {})) a = concat [map Path_Item_images (pathsOf (images x) a)]
 instance IsPath Item JSONText
     where type Path Item JSONText = Path_Item JSONText
-          toLens (Path_Item_itemName _x) = lens_Item_itemName . toLens _x
-          toLens (Path_Item_fields _x) = lens_Item_fields . toLens _x
-          toLens (Path_Item_images _x) = lens_Item_images . toLens _x
           pathsOf (x@(Item {})) a = concat [map Path_Item_itemName (pathsOf (itemName x) a),
                                             map Path_Item_fields (pathsOf (fields x) a),
                                             map Path_Item_images (pathsOf (images x) a)]
 instance IsPath Item Markup
     where type Path Item Markup = Path_Item Markup
-          toLens (Path_Item_fields _x) = lens_Item_fields . toLens _x
-          toLens (Path_Item_images _x) = lens_Item_images . toLens _x
           pathsOf (x@(Item {})) a = concat [map Path_Item_fields (pathsOf (fields x) a),
                                             map Path_Item_images (pathsOf (images x) a)]
 instance IsPath Item EUI
     where type Path Item EUI = Path_Item EUI
-          toLens (Path_Item_images _x) = lens_Item_images . toLens _x
           pathsOf (x@(Item {})) a = concat [map Path_Item_images (pathsOf (images x) a)]
 instance IsPath Item MEUI
     where type Path Item MEUI = Path_Item MEUI
-          toLens (Path_Item_images _x) = lens_Item_images . toLens _x
           pathsOf (x@(Item {})) a = concat [map Path_Item_images (pathsOf (images x) a)]
 instance IsPath Item MaybeImageFile
     where type Path Item MaybeImageFile = Path_Item MaybeImageFile
-          toLens (Path_Item_images _x) = lens_Item_images . toLens _x
           pathsOf (x@(Item {})) a = concat [map Path_Item_images (pathsOf (images x) a)]
 instance IsPath Item ReportImage
     where type Path Item ReportImage = Path_Item ReportImage
-          toLens (Path_Item_images _x) = lens_Item_images . toLens _x
           pathsOf (x@(Item {})) a = concat [map Path_Item_images (pathsOf (images x) a)]
 instance IsPath Item ReportImages
     where type Path Item ReportImages = Path_Item ReportImages
-          toLens (Path_Item_images _x) = lens_Item_images
           pathsOf (x@(Item {})) a = concat [map Path_Item_images (pathsOf (images x) a)]
 instance IsPath Item ReportImageView
     where type Path Item ReportImageView = Path_Item ReportImageView
-          toLens (Path_Item_images _x) = lens_Item_images . toLens _x
           pathsOf (x@(Item {})) a = concat [map Path_Item_images (pathsOf (images x) a)]
 instance IsPath Item SaneSizeImageSize
     where type Path Item
                     SaneSizeImageSize = Path_Item SaneSizeImageSize
-          toLens (Path_Item_images _x) = lens_Item_images . toLens _x
           pathsOf (x@(Item {})) a = concat [map Path_Item_images (pathsOf (images x) a)]
 instance IsPath Item Item
     where type Path Item Item = Path_Item Item
-          toLens _ = iso id id
           pathsOf _ _ = [idPath]
 instance IsPath Item MIM
     where type Path Item MIM = Path_Item MIM
-          toLens (Path_Item_fields _x) = lens_Item_fields
           pathsOf (x@(Item {})) a = concat [map Path_Item_fields (pathsOf (fields x) a)]
 instance IsPath Item URI
     where type Path Item URI = Path_Item URI
-          toLens (Path_Item_images _x) = lens_Item_images . toLens _x
           pathsOf (x@(Item {})) a = concat [map Path_Item_images (pathsOf (images x) a)]
 instance IsPath Item Text
     where type Path Item Text = Path_Item Text
-          toLens (Path_Item_itemName _x) = lens_Item_itemName
-          toLens (Path_Item_fields _x) = lens_Item_fields . toLens _x
-          toLens (Path_Item_images _x) = lens_Item_images . toLens _x
           pathsOf (x@(Item {})) a = concat [map Path_Item_itemName (pathsOf (itemName x) a),
                                             map Path_Item_fields (pathsOf (fields x) a),
                                             map Path_Item_images (pathsOf (images x) a)]
 instance IsPath MIM JSONText
     where type Path MIM JSONText = Path_Map ItemFieldName
                                             (Path_Markup JSONText)
-          toLens (Path_Look k v) = mat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Markup
                                                                                                   JSONText])) (toList x)
 instance IsPath MIM Markup
     where type Path MIM Markup = Path_Map ItemFieldName
                                           (Path_Markup Markup)
-          toLens (Path_Look k _) = mat k
           pathsOf x a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Markup
                                                                                                   Markup])) (toList x)
 instance IsPath MIM MIM
     where type Path MIM MIM = Path_Map ItemFieldName (Path_Markup MIM)
-          toLens _ = iso id id
           pathsOf _ _ = [idPath]
 instance IsPath MIM Text
     where type Path MIM Text = Path_Map ItemFieldName
                                         (Path_Markup Text)
-          toLens (Path_Look k v) = mat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Markup
                                                                                                   Text])) (toList x)
 instance IsPath MRR String
     where type Path MRR String = Path_Map ReportID (Path_Report String)
-          toLens (Path_Look k v) = mat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   ([Char])])) (toList x)
 instance IsPath MRR Int64
     where type Path MRR Int64 = Path_Map ReportID (Path_Report Int64)
-          toLens (Path_Look k v) = mat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   Int64])) (toList x)
 instance IsPath MRR Bool
     where type Path MRR Bool = Path_Map ReportID (Path_Report Bool)
-          toLens (Path_Look k v) = mat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   Bool])) (toList x)
 instance IsPath MRR Double
     where type Path MRR Double = Path_Map ReportID (Path_Report Double)
-          toLens (Path_Look k v) = mat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   Double])) (toList x)
 instance IsPath MRR Int
     where type Path MRR Int = Path_Map ReportID (Path_Report Int)
-          toLens (Path_Look k v) = mat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   Int])) (toList x)
 instance IsPath MRR Dimension
     where type Path MRR Dimension = Path_Map ReportID
                                              (Path_Report Dimension)
-          toLens (Path_Look k v) = mat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   Dimension])) (toList x)
 instance IsPath MRR ImageCrop
     where type Path MRR ImageCrop = Path_Map ReportID
                                              (Path_Report ImageCrop)
-          toLens (Path_Look k v) = mat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   ImageCrop])) (toList x)
 instance IsPath MRR ImageSize
     where type Path MRR ImageSize = Path_Map ReportID
                                              (Path_Report ImageSize)
-          toLens (Path_Look k v) = mat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   ImageSize])) (toList x)
 instance IsPath MRR Units
     where type Path MRR Units = Path_Map ReportID (Path_Report Units)
-          toLens (Path_Look k v) = mat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   Units])) (toList x)
 instance IsPath MRR ImageFile
     where type Path MRR ImageFile = Path_Map ReportID
                                              (Path_Report ImageFile)
-          toLens (Path_Look k v) = mat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   ImageFile])) (toList x)
 instance IsPath MRR Integer
     where type Path MRR Integer = Path_Map ReportID
                                            (Path_Report Integer)
-          toLens (Path_Look k v) = mat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   Integer])) (toList x)
 instance IsPath MRR JSONText
     where type Path MRR JSONText = Path_Map ReportID
                                             (Path_Report JSONText)
-          toLens (Path_Look k v) = mat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   JSONText])) (toList x)
 instance IsPath MRR Markup
     where type Path MRR Markup = Path_Map ReportID (Path_Report Markup)
-          toLens (Path_Look k v) = mat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   Markup])) (toList x)
 instance IsPath MRR Permissions
     where type Path MRR Permissions = Path_Map ReportID
                                                (Path_Report Permissions)
-          toLens (Path_Look k v) = mat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   Permissions])) (toList x)
 instance IsPath MRR UserIds
     where type Path MRR UserIds = Path_Map ReportID
                                            (Path_Report UserIds)
-          toLens (Path_Look k v) = mat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   ([UserId])])) (toList x)
 instance IsPath MRR AbbrevPair
     where type Path MRR AbbrevPair = Path_Map ReportID
                                               (Path_Report AbbrevPair)
-          toLens (Path_Look k v) = mat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   ((CIString,
                                                                                                     Markup))])) (toList x)
 instance IsPath MRR AbbrevPairs
     where type Path MRR AbbrevPairs = Path_Map ReportID
                                                (Path_Report AbbrevPairs)
-          toLens (Path_Look k v) = mat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   (Order AbbrevPairID
                                                                                                          ((CIString,
                                                                                                            Markup)))])) (toList x)
 instance IsPath MRR Author
     where type Path MRR Author = Path_Map ReportID (Path_Report Author)
-          toLens (Path_Look k v) = mat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   Author])) (toList x)
 instance IsPath MRR Authors
     where type Path MRR Authors = Path_Map ReportID
                                            (Path_Report Authors)
-          toLens (Path_Look k v) = mat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   (Order AuthorID
                                                                                                          Author)])) (toList x)
 instance IsPath MRR Branding
     where type Path MRR Branding = Path_Map ReportID
                                             (Path_Report Branding)
-          toLens (Path_Look k v) = mat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   Branding])) (toList x)
 instance IsPath MRR MarkupPair
     where type Path MRR MarkupPair = Path_Map ReportID
                                               (Path_Report MarkupPair)
-          toLens (Path_Look k v) = mat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   ((Markup,
                                                                                                     Markup))])) (toList x)
 instance IsPath MRR MarkupPairs
     where type Path MRR MarkupPairs = Path_Map ReportID
                                                (Path_Report MarkupPairs)
-          toLens (Path_Look k v) = mat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   (Order MarkupPairID
                                                                                                          ((Markup,
@@ -3529,410 +2926,324 @@ instance IsPath MRR MarkupPairs
 instance IsPath MRR Markups
     where type Path MRR Markups = Path_Map ReportID
                                            (Path_Report Markups)
-          toLens (Path_Look k v) = mat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   (Order MarkupID
                                                                                                          Markup)])) (toList x)
 instance IsPath MRR MaybeReportIntendedUse
     where type Path MRR MaybeReportIntendedUse = Path_Map ReportID
                                                           (Path_Report MaybeReportIntendedUse)
-          toLens (Path_Look k v) = mat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   (Maybe ReportIntendedUse)])) (toList x)
 instance IsPath MRR Report
     where type Path MRR Report = Path_Map ReportID (Path_Report Report)
-          toLens (Path_Look k _) = mat k
           pathsOf x a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   Report])) (toList x)
 instance IsPath MRR ReportElem
     where type Path MRR ReportElem = Path_Map ReportID
                                               (Path_Report ReportElem)
-          toLens (Path_Look k v) = mat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   ReportElem])) (toList x)
 instance IsPath MRR ReportElems
     where type Path MRR ReportElems = Path_Map ReportID
                                                (Path_Report ReportElems)
-          toLens (Path_Look k v) = mat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   (Order ReportElemID
                                                                                                          ReportElem)])) (toList x)
 instance IsPath MRR ReportFlags
     where type Path MRR ReportFlags = Path_Map ReportID
                                                (Path_Report ReportFlags)
-          toLens (Path_Look k v) = mat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   ReportFlags])) (toList x)
 instance IsPath MRR ReportStandard
     where type Path MRR ReportStandard = Path_Map ReportID
                                                   (Path_Report ReportStandard)
-          toLens (Path_Look k v) = mat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   ReportStandard])) (toList x)
 instance IsPath MRR ReportStatus
     where type Path MRR ReportStatus = Path_Map ReportID
                                                 (Path_Report ReportStatus)
-          toLens (Path_Look k v) = mat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   ReportStatus])) (toList x)
 instance IsPath MRR ReportValueApproachInfo
     where type Path MRR ReportValueApproachInfo = Path_Map ReportID
                                                            (Path_Report ReportValueApproachInfo)
-          toLens (Path_Look k v) = mat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   ReportValueApproachInfo])) (toList x)
 instance IsPath MRR ReportValueTypeInfo
     where type Path MRR ReportValueTypeInfo = Path_Map ReportID
                                                        (Path_Report ReportValueTypeInfo)
-          toLens (Path_Look k v) = mat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   ReportValueTypeInfo])) (toList x)
 instance IsPath MRR EUI
     where type Path MRR EUI = Path_Map ReportID (Path_Report EUI)
-          toLens (Path_Look k v) = mat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   (Either URI
                                                                                                           ImageFile)])) (toList x)
 instance IsPath MRR MEUI
     where type Path MRR MEUI = Path_Map ReportID (Path_Report MEUI)
-          toLens (Path_Look k v) = mat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   (Maybe (Either URI
                                                                                                                  ImageFile))])) (toList x)
 instance IsPath MRR MaybeImageFile
     where type Path MRR MaybeImageFile = Path_Map ReportID
                                                   (Path_Report MaybeImageFile)
-          toLens (Path_Look k v) = mat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   (Maybe ImageFile)])) (toList x)
 instance IsPath MRR ReportImage
     where type Path MRR ReportImage = Path_Map ReportID
                                                (Path_Report ReportImage)
-          toLens (Path_Look k v) = mat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   ReportImage])) (toList x)
 instance IsPath MRR ReportImages
     where type Path MRR ReportImages = Path_Map ReportID
                                                 (Path_Report ReportImages)
-          toLens (Path_Look k v) = mat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   (Order ReportImageID
                                                                                                          ReportImage)])) (toList x)
 instance IsPath MRR ReadOnlyFilePath
     where type Path MRR ReadOnlyFilePath = Path_Map ReportID
                                                     (Path_Report ReadOnlyFilePath)
-          toLens (Path_Look k v) = mat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   (ReadOnly ([Char]))])) (toList x)
 instance IsPath MRR ReportImageView
     where type Path MRR ReportImageView = Path_Map ReportID
                                                    (Path_Report ReportImageView)
-          toLens (Path_Look k v) = mat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   ReportImageView])) (toList x)
 instance IsPath MRR ReportView
     where type Path MRR ReportView = Path_Map ReportID
                                               (Path_Report ReportView)
-          toLens (Path_Look k v) = mat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   ReportView])) (toList x)
 instance IsPath MRR SaneSizeImageSize
     where type Path MRR SaneSizeImageSize = Path_Map ReportID
                                                      (Path_Report SaneSizeImageSize)
-          toLens (Path_Look k v) = mat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   (SaneSize ImageSize)])) (toList x)
 instance IsPath MRR Item
     where type Path MRR Item = Path_Map ReportID (Path_Report Item)
-          toLens (Path_Look k v) = mat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   Item])) (toList x)
 instance IsPath MRR MIM
     where type Path MRR MIM = Path_Map ReportID (Path_Report MIM)
-          toLens (Path_Look k v) = mat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   (Map ItemFieldName
                                                                                                        Markup)])) (toList x)
 instance IsPath MRR MRR
     where type Path MRR MRR = Path_Map ReportID (Path_Report MRR)
-          toLens _ = iso id id
           pathsOf _ _ = [idPath]
 instance IsPath MRR CIString
     where type Path MRR CIString = Path_Map ReportID
                                             (Path_Report CIString)
-          toLens (Path_Look k v) = mat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   CIString])) (toList x)
 instance IsPath MRR URI
     where type Path MRR URI = Path_Map ReportID (Path_Report URI)
-          toLens (Path_Look k v) = mat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   URI])) (toList x)
 instance IsPath MRR Text
     where type Path MRR Text = Path_Map ReportID (Path_Report Text)
-          toLens (Path_Look k v) = mat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   Text])) (toList x)
 instance IsPath MRR UserId
     where type Path MRR UserId = Path_Map ReportID (Path_Report UserId)
-          toLens (Path_Look k v) = mat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   UserId])) (toList x)
 instance IsPath MRR UUID
     where type Path MRR UUID = Path_Map ReportID (Path_Report UUID)
-          toLens (Path_Look k v) = mat k . toLens v
           pathsOf x a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   UUID])) (toList x)
 instance IsPath ReportMap String
     where type Path ReportMap String = Path_ReportMap String
-          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
           pathsOf (x@(ReportMap {})) a = concat [map Path_ReportMap_unReportMap (pathsOf (unReportMap x) a)]
 instance IsPath ReportMap Int64
     where type Path ReportMap Int64 = Path_ReportMap Int64
-          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
           pathsOf (x@(ReportMap {})) a = concat [map Path_ReportMap_unReportMap (pathsOf (unReportMap x) a)]
 instance IsPath ReportMap Bool
     where type Path ReportMap Bool = Path_ReportMap Bool
-          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
           pathsOf (x@(ReportMap {})) a = concat [map Path_ReportMap_unReportMap (pathsOf (unReportMap x) a)]
 instance IsPath ReportMap Double
     where type Path ReportMap Double = Path_ReportMap Double
-          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
           pathsOf (x@(ReportMap {})) a = concat [map Path_ReportMap_unReportMap (pathsOf (unReportMap x) a)]
 instance IsPath ReportMap Int
     where type Path ReportMap Int = Path_ReportMap Int
-          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
           pathsOf (x@(ReportMap {})) a = concat [map Path_ReportMap_unReportMap (pathsOf (unReportMap x) a)]
 instance IsPath ReportMap Dimension
     where type Path ReportMap Dimension = Path_ReportMap Dimension
-          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
           pathsOf (x@(ReportMap {})) a = concat [map Path_ReportMap_unReportMap (pathsOf (unReportMap x) a)]
 instance IsPath ReportMap ImageCrop
     where type Path ReportMap ImageCrop = Path_ReportMap ImageCrop
-          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
           pathsOf (x@(ReportMap {})) a = concat [map Path_ReportMap_unReportMap (pathsOf (unReportMap x) a)]
 instance IsPath ReportMap ImageSize
     where type Path ReportMap ImageSize = Path_ReportMap ImageSize
-          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
           pathsOf (x@(ReportMap {})) a = concat [map Path_ReportMap_unReportMap (pathsOf (unReportMap x) a)]
 instance IsPath ReportMap Units
     where type Path ReportMap Units = Path_ReportMap Units
-          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
           pathsOf (x@(ReportMap {})) a = concat [map Path_ReportMap_unReportMap (pathsOf (unReportMap x) a)]
 instance IsPath ReportMap ImageFile
     where type Path ReportMap ImageFile = Path_ReportMap ImageFile
-          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
           pathsOf (x@(ReportMap {})) a = concat [map Path_ReportMap_unReportMap (pathsOf (unReportMap x) a)]
 instance IsPath ReportMap Integer
     where type Path ReportMap Integer = Path_ReportMap Integer
-          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
           pathsOf (x@(ReportMap {})) a = concat [map Path_ReportMap_unReportMap (pathsOf (unReportMap x) a)]
 instance IsPath ReportMap JSONText
     where type Path ReportMap JSONText = Path_ReportMap JSONText
-          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
           pathsOf (x@(ReportMap {})) a = concat [map Path_ReportMap_unReportMap (pathsOf (unReportMap x) a)]
 instance IsPath ReportMap Markup
     where type Path ReportMap Markup = Path_ReportMap Markup
-          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
           pathsOf (x@(ReportMap {})) a = concat [map Path_ReportMap_unReportMap (pathsOf (unReportMap x) a)]
 instance IsPath ReportMap Permissions
     where type Path ReportMap Permissions = Path_ReportMap Permissions
-          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
           pathsOf (x@(ReportMap {})) a = concat [map Path_ReportMap_unReportMap (pathsOf (unReportMap x) a)]
 instance IsPath ReportMap UserIds
     where type Path ReportMap UserIds = Path_ReportMap UserIds
-          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
           pathsOf (x@(ReportMap {})) a = concat [map Path_ReportMap_unReportMap (pathsOf (unReportMap x) a)]
 instance IsPath ReportMap AbbrevPair
     where type Path ReportMap AbbrevPair = Path_ReportMap AbbrevPair
-          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
           pathsOf (x@(ReportMap {})) a = concat [map Path_ReportMap_unReportMap (pathsOf (unReportMap x) a)]
 instance IsPath ReportMap AbbrevPairs
     where type Path ReportMap AbbrevPairs = Path_ReportMap AbbrevPairs
-          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
           pathsOf (x@(ReportMap {})) a = concat [map Path_ReportMap_unReportMap (pathsOf (unReportMap x) a)]
 instance IsPath ReportMap Author
     where type Path ReportMap Author = Path_ReportMap Author
-          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
           pathsOf (x@(ReportMap {})) a = concat [map Path_ReportMap_unReportMap (pathsOf (unReportMap x) a)]
 instance IsPath ReportMap Authors
     where type Path ReportMap Authors = Path_ReportMap Authors
-          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
           pathsOf (x@(ReportMap {})) a = concat [map Path_ReportMap_unReportMap (pathsOf (unReportMap x) a)]
 instance IsPath ReportMap Branding
     where type Path ReportMap Branding = Path_ReportMap Branding
-          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
           pathsOf (x@(ReportMap {})) a = concat [map Path_ReportMap_unReportMap (pathsOf (unReportMap x) a)]
 instance IsPath ReportMap MarkupPair
     where type Path ReportMap MarkupPair = Path_ReportMap MarkupPair
-          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
           pathsOf (x@(ReportMap {})) a = concat [map Path_ReportMap_unReportMap (pathsOf (unReportMap x) a)]
 instance IsPath ReportMap MarkupPairs
     where type Path ReportMap MarkupPairs = Path_ReportMap MarkupPairs
-          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
           pathsOf (x@(ReportMap {})) a = concat [map Path_ReportMap_unReportMap (pathsOf (unReportMap x) a)]
 instance IsPath ReportMap Markups
     where type Path ReportMap Markups = Path_ReportMap Markups
-          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
           pathsOf (x@(ReportMap {})) a = concat [map Path_ReportMap_unReportMap (pathsOf (unReportMap x) a)]
 instance IsPath ReportMap MaybeReportIntendedUse
     where type Path ReportMap
                     MaybeReportIntendedUse = Path_ReportMap MaybeReportIntendedUse
-          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
           pathsOf (x@(ReportMap {})) a = concat [map Path_ReportMap_unReportMap (pathsOf (unReportMap x) a)]
 instance IsPath ReportMap Report
     where type Path ReportMap Report = Path_ReportMap Report
-          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
           pathsOf (x@(ReportMap {})) a = concat [map Path_ReportMap_unReportMap (pathsOf (unReportMap x) a)]
 instance IsPath ReportMap ReportElem
     where type Path ReportMap ReportElem = Path_ReportMap ReportElem
-          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
           pathsOf (x@(ReportMap {})) a = concat [map Path_ReportMap_unReportMap (pathsOf (unReportMap x) a)]
 instance IsPath ReportMap ReportElems
     where type Path ReportMap ReportElems = Path_ReportMap ReportElems
-          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
           pathsOf (x@(ReportMap {})) a = concat [map Path_ReportMap_unReportMap (pathsOf (unReportMap x) a)]
 instance IsPath ReportMap ReportFlags
     where type Path ReportMap ReportFlags = Path_ReportMap ReportFlags
-          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
           pathsOf (x@(ReportMap {})) a = concat [map Path_ReportMap_unReportMap (pathsOf (unReportMap x) a)]
 instance IsPath ReportMap ReportStandard
     where type Path ReportMap
                     ReportStandard = Path_ReportMap ReportStandard
-          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
           pathsOf (x@(ReportMap {})) a = concat [map Path_ReportMap_unReportMap (pathsOf (unReportMap x) a)]
 instance IsPath ReportMap ReportStatus
     where type Path ReportMap
                     ReportStatus = Path_ReportMap ReportStatus
-          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
           pathsOf (x@(ReportMap {})) a = concat [map Path_ReportMap_unReportMap (pathsOf (unReportMap x) a)]
 instance IsPath ReportMap ReportValueApproachInfo
     where type Path ReportMap
                     ReportValueApproachInfo = Path_ReportMap ReportValueApproachInfo
-          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
           pathsOf (x@(ReportMap {})) a = concat [map Path_ReportMap_unReportMap (pathsOf (unReportMap x) a)]
 instance IsPath ReportMap ReportValueTypeInfo
     where type Path ReportMap
                     ReportValueTypeInfo = Path_ReportMap ReportValueTypeInfo
-          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
           pathsOf (x@(ReportMap {})) a = concat [map Path_ReportMap_unReportMap (pathsOf (unReportMap x) a)]
 instance IsPath ReportMap EUI
     where type Path ReportMap EUI = Path_ReportMap EUI
-          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
           pathsOf (x@(ReportMap {})) a = concat [map Path_ReportMap_unReportMap (pathsOf (unReportMap x) a)]
 instance IsPath ReportMap MEUI
     where type Path ReportMap MEUI = Path_ReportMap MEUI
-          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
           pathsOf (x@(ReportMap {})) a = concat [map Path_ReportMap_unReportMap (pathsOf (unReportMap x) a)]
 instance IsPath ReportMap MaybeImageFile
     where type Path ReportMap
                     MaybeImageFile = Path_ReportMap MaybeImageFile
-          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
           pathsOf (x@(ReportMap {})) a = concat [map Path_ReportMap_unReportMap (pathsOf (unReportMap x) a)]
 instance IsPath ReportMap ReportImage
     where type Path ReportMap ReportImage = Path_ReportMap ReportImage
-          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
           pathsOf (x@(ReportMap {})) a = concat [map Path_ReportMap_unReportMap (pathsOf (unReportMap x) a)]
 instance IsPath ReportMap ReportImages
     where type Path ReportMap
                     ReportImages = Path_ReportMap ReportImages
-          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
           pathsOf (x@(ReportMap {})) a = concat [map Path_ReportMap_unReportMap (pathsOf (unReportMap x) a)]
 instance IsPath ReportMap ReadOnlyFilePath
     where type Path ReportMap
                     ReadOnlyFilePath = Path_ReportMap ReadOnlyFilePath
-          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
           pathsOf (x@(ReportMap {})) a = concat [map Path_ReportMap_unReportMap (pathsOf (unReportMap x) a)]
 instance IsPath ReportMap ReportImageView
     where type Path ReportMap
                     ReportImageView = Path_ReportMap ReportImageView
-          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
           pathsOf (x@(ReportMap {})) a = concat [map Path_ReportMap_unReportMap (pathsOf (unReportMap x) a)]
 instance IsPath ReportMap ReportView
     where type Path ReportMap ReportView = Path_ReportMap ReportView
-          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
           pathsOf (x@(ReportMap {})) a = concat [map Path_ReportMap_unReportMap (pathsOf (unReportMap x) a)]
 instance IsPath ReportMap SaneSizeImageSize
     where type Path ReportMap
                     SaneSizeImageSize = Path_ReportMap SaneSizeImageSize
-          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
           pathsOf (x@(ReportMap {})) a = concat [map Path_ReportMap_unReportMap (pathsOf (unReportMap x) a)]
 instance IsPath ReportMap Item
     where type Path ReportMap Item = Path_ReportMap Item
-          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
           pathsOf (x@(ReportMap {})) a = concat [map Path_ReportMap_unReportMap (pathsOf (unReportMap x) a)]
 instance IsPath ReportMap MIM
     where type Path ReportMap MIM = Path_ReportMap MIM
-          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
           pathsOf (x@(ReportMap {})) a = concat [map Path_ReportMap_unReportMap (pathsOf (unReportMap x) a)]
 instance IsPath ReportMap MRR
     where type Path ReportMap MRR = Path_ReportMap MRR
-          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap
           pathsOf (x@(ReportMap {})) a = concat [map Path_ReportMap_unReportMap (pathsOf (unReportMap x) a)]
 instance IsPath ReportMap ReportMap
     where type Path ReportMap ReportMap = Path_ReportMap ReportMap
-          toLens _ = iso id id
           pathsOf _ _ = [idPath]
 instance IsPath ReportMap CIString
     where type Path ReportMap CIString = Path_ReportMap CIString
-          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
           pathsOf (x@(ReportMap {})) a = concat [map Path_ReportMap_unReportMap (pathsOf (unReportMap x) a)]
 instance IsPath ReportMap URI
     where type Path ReportMap URI = Path_ReportMap URI
-          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
           pathsOf (x@(ReportMap {})) a = concat [map Path_ReportMap_unReportMap (pathsOf (unReportMap x) a)]
 instance IsPath ReportMap Text
     where type Path ReportMap Text = Path_ReportMap Text
-          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
           pathsOf (x@(ReportMap {})) a = concat [map Path_ReportMap_unReportMap (pathsOf (unReportMap x) a)]
 instance IsPath ReportMap UserId
     where type Path ReportMap UserId = Path_ReportMap UserId
-          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
           pathsOf (x@(ReportMap {})) a = concat [map Path_ReportMap_unReportMap (pathsOf (unReportMap x) a)]
 instance IsPath ReportMap UUID
     where type Path ReportMap UUID = Path_ReportMap UUID
-          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
           pathsOf (x@(ReportMap {})) a = concat [map Path_ReportMap_unReportMap (pathsOf (unReportMap x) a)]
 instance IsPath CIString JSONText
     where type Path CIString JSONText = Path_CIString JSONText
-          toLens (Path_CIString_View v) = (viewLens :: Lens' CIString
-                                                             Text) . toLens v
           pathsOf x a = let {p = Path_CIString_View idPath :: Path CIString
                                                                    Text;
                              [x'] = toListOf (toLens p) x :: [Text]}
                          in map Path_CIString_View (pathsOf x' a :: [Path Text JSONText])
 instance IsPath CIString CIString
     where type Path CIString CIString = Path_CIString CIString
-          toLens _ = iso id id
           pathsOf _ _ = [idPath]
 instance IsPath CIString Text
     where type Path CIString Text = Path_CIString Text
-          toLens (Path_CIString_View _) = viewLens :: Lens' CIString Text
           pathsOf x a = let {p = Path_CIString_View idPath :: Path CIString
                                                                    Text;
                              [x'] = toListOf (toLens p) x :: [Text]}
                          in map Path_CIString_View (pathsOf x' a :: [Path Text Text])
 instance IsPath URI URI
     where type Path URI URI = Path_URI URI
-          toLens _ = iso id id
           pathsOf _ _ = [idPath]
 instance IsPath Text JSONText
     where type Path Text JSONText = Path_Text JSONText
-          toLens (Path_Text_View _) = viewLens :: Lens' Text JSONText
           pathsOf x a = let {p = Path_Text_View idPath :: Path Text JSONText;
                              [x'] = toListOf (toLens p) x :: [JSONText]}
                          in map Path_Text_View (pathsOf x' a :: [Path JSONText JSONText])
 instance IsPath Text Text
     where type Path Text Text = Path_Text Text
-          toLens _ = iso id id
           pathsOf _ _ = [idPath]
 instance IsPath UserId UserId
     where type Path UserId UserId = Path_UserId UserId
-          toLens _ = iso id id
           pathsOf _ _ = [idPath]
 instance IsPath UUID UUID
     where type Path UUID UUID = Path_UUID UUID
-          toLens _ = iso id id
           pathsOf _ _ = [idPath]
 instance HasAuthor Author
     where lens_author = id
@@ -12049,3 +11360,2205 @@ instance IsPathType (Path_UserId a)
     where idPath = Path_UserId
 instance IsPathType (Path_UserIds a)
     where idPath = Path_UserIds
+instance ToLens (Path_Either (Path_URI ImageFile)
+                             (Path_ImageFile ImageFile))
+    where type S (Path_Either (Path_URI ImageFile)
+                              (Path_ImageFile ImageFile)) = EUI
+          type A (Path_Either (Path_URI ImageFile)
+                              (Path_ImageFile ImageFile)) = ImageFile
+          toLens (Path_Right _) = _Right
+instance ToLens (Path_Either (Path_URI EUI) (Path_ImageFile EUI))
+    where type S (Path_Either (Path_URI EUI)
+                              (Path_ImageFile EUI)) = EUI
+          type A (Path_Either (Path_URI EUI) (Path_ImageFile EUI)) = EUI
+          toLens _ = id
+instance ToLens (Path_Either (Path_URI URI) (Path_ImageFile URI))
+    where type S (Path_Either (Path_URI URI)
+                              (Path_ImageFile URI)) = EUI
+          type A (Path_Either (Path_URI URI) (Path_ImageFile URI)) = URI
+          toLens (Path_Left _) = _Left
+instance ToLens (Path_Map ItemFieldName (Path_Markup JSONText))
+    where type S (Path_Map ItemFieldName (Path_Markup JSONText)) = MIM
+          type A (Path_Map ItemFieldName (Path_Markup JSONText)) = JSONText
+          toLens (Path_Look k v) = mat k . toLens v
+instance ToLens (Path_Map ItemFieldName (Path_Markup Markup))
+    where type S (Path_Map ItemFieldName (Path_Markup Markup)) = MIM
+          type A (Path_Map ItemFieldName (Path_Markup Markup)) = Markup
+          toLens (Path_Look k _) = mat k
+instance ToLens (Path_Map ItemFieldName (Path_Markup MIM))
+    where type S (Path_Map ItemFieldName (Path_Markup MIM)) = MIM
+          type A (Path_Map ItemFieldName (Path_Markup MIM)) = MIM
+          toLens _ = id
+instance ToLens (Path_Map ItemFieldName (Path_Markup Text))
+    where type S (Path_Map ItemFieldName (Path_Markup Text)) = MIM
+          type A (Path_Map ItemFieldName (Path_Markup Text)) = Text
+          toLens (Path_Look k v) = mat k . toLens v
+instance ToLens (Path_Map ReportID (Path_Report String))
+    where type S (Path_Map ReportID (Path_Report String)) = MRR
+          type A (Path_Map ReportID (Path_Report String)) = String
+          toLens (Path_Look k v) = mat k . toLens v
+instance ToLens (Path_Map ReportID (Path_Report Int64))
+    where type S (Path_Map ReportID (Path_Report Int64)) = MRR
+          type A (Path_Map ReportID (Path_Report Int64)) = Int64
+          toLens (Path_Look k v) = mat k . toLens v
+instance ToLens (Path_Map ReportID (Path_Report Bool))
+    where type S (Path_Map ReportID (Path_Report Bool)) = MRR
+          type A (Path_Map ReportID (Path_Report Bool)) = Bool
+          toLens (Path_Look k v) = mat k . toLens v
+instance ToLens (Path_Map ReportID (Path_Report Double))
+    where type S (Path_Map ReportID (Path_Report Double)) = MRR
+          type A (Path_Map ReportID (Path_Report Double)) = Double
+          toLens (Path_Look k v) = mat k . toLens v
+instance ToLens (Path_Map ReportID (Path_Report Int))
+    where type S (Path_Map ReportID (Path_Report Int)) = MRR
+          type A (Path_Map ReportID (Path_Report Int)) = Int
+          toLens (Path_Look k v) = mat k . toLens v
+instance ToLens (Path_Map ReportID (Path_Report Dimension))
+    where type S (Path_Map ReportID (Path_Report Dimension)) = MRR
+          type A (Path_Map ReportID (Path_Report Dimension)) = Dimension
+          toLens (Path_Look k v) = mat k . toLens v
+instance ToLens (Path_Map ReportID (Path_Report ImageCrop))
+    where type S (Path_Map ReportID (Path_Report ImageCrop)) = MRR
+          type A (Path_Map ReportID (Path_Report ImageCrop)) = ImageCrop
+          toLens (Path_Look k v) = mat k . toLens v
+instance ToLens (Path_Map ReportID (Path_Report ImageSize))
+    where type S (Path_Map ReportID (Path_Report ImageSize)) = MRR
+          type A (Path_Map ReportID (Path_Report ImageSize)) = ImageSize
+          toLens (Path_Look k v) = mat k . toLens v
+instance ToLens (Path_Map ReportID (Path_Report Units))
+    where type S (Path_Map ReportID (Path_Report Units)) = MRR
+          type A (Path_Map ReportID (Path_Report Units)) = Units
+          toLens (Path_Look k v) = mat k . toLens v
+instance ToLens (Path_Map ReportID (Path_Report ImageFile))
+    where type S (Path_Map ReportID (Path_Report ImageFile)) = MRR
+          type A (Path_Map ReportID (Path_Report ImageFile)) = ImageFile
+          toLens (Path_Look k v) = mat k . toLens v
+instance ToLens (Path_Map ReportID (Path_Report Integer))
+    where type S (Path_Map ReportID (Path_Report Integer)) = MRR
+          type A (Path_Map ReportID (Path_Report Integer)) = Integer
+          toLens (Path_Look k v) = mat k . toLens v
+instance ToLens (Path_Map ReportID (Path_Report JSONText))
+    where type S (Path_Map ReportID (Path_Report JSONText)) = MRR
+          type A (Path_Map ReportID (Path_Report JSONText)) = JSONText
+          toLens (Path_Look k v) = mat k . toLens v
+instance ToLens (Path_Map ReportID (Path_Report Markup))
+    where type S (Path_Map ReportID (Path_Report Markup)) = MRR
+          type A (Path_Map ReportID (Path_Report Markup)) = Markup
+          toLens (Path_Look k v) = mat k . toLens v
+instance ToLens (Path_Map ReportID (Path_Report Permissions))
+    where type S (Path_Map ReportID (Path_Report Permissions)) = MRR
+          type A (Path_Map ReportID (Path_Report Permissions)) = Permissions
+          toLens (Path_Look k v) = mat k . toLens v
+instance ToLens (Path_Map ReportID (Path_Report UserIds))
+    where type S (Path_Map ReportID (Path_Report UserIds)) = MRR
+          type A (Path_Map ReportID (Path_Report UserIds)) = UserIds
+          toLens (Path_Look k v) = mat k . toLens v
+instance ToLens (Path_Map ReportID (Path_Report AbbrevPair))
+    where type S (Path_Map ReportID (Path_Report AbbrevPair)) = MRR
+          type A (Path_Map ReportID (Path_Report AbbrevPair)) = AbbrevPair
+          toLens (Path_Look k v) = mat k . toLens v
+instance ToLens (Path_Map ReportID (Path_Report AbbrevPairs))
+    where type S (Path_Map ReportID (Path_Report AbbrevPairs)) = MRR
+          type A (Path_Map ReportID (Path_Report AbbrevPairs)) = AbbrevPairs
+          toLens (Path_Look k v) = mat k . toLens v
+instance ToLens (Path_Map ReportID (Path_Report Author))
+    where type S (Path_Map ReportID (Path_Report Author)) = MRR
+          type A (Path_Map ReportID (Path_Report Author)) = Author
+          toLens (Path_Look k v) = mat k . toLens v
+instance ToLens (Path_Map ReportID (Path_Report Authors))
+    where type S (Path_Map ReportID (Path_Report Authors)) = MRR
+          type A (Path_Map ReportID (Path_Report Authors)) = Authors
+          toLens (Path_Look k v) = mat k . toLens v
+instance ToLens (Path_Map ReportID (Path_Report Branding))
+    where type S (Path_Map ReportID (Path_Report Branding)) = MRR
+          type A (Path_Map ReportID (Path_Report Branding)) = Branding
+          toLens (Path_Look k v) = mat k . toLens v
+instance ToLens (Path_Map ReportID (Path_Report MarkupPair))
+    where type S (Path_Map ReportID (Path_Report MarkupPair)) = MRR
+          type A (Path_Map ReportID (Path_Report MarkupPair)) = MarkupPair
+          toLens (Path_Look k v) = mat k . toLens v
+instance ToLens (Path_Map ReportID (Path_Report MarkupPairs))
+    where type S (Path_Map ReportID (Path_Report MarkupPairs)) = MRR
+          type A (Path_Map ReportID (Path_Report MarkupPairs)) = MarkupPairs
+          toLens (Path_Look k v) = mat k . toLens v
+instance ToLens (Path_Map ReportID (Path_Report Markups))
+    where type S (Path_Map ReportID (Path_Report Markups)) = MRR
+          type A (Path_Map ReportID (Path_Report Markups)) = Markups
+          toLens (Path_Look k v) = mat k . toLens v
+instance ToLens (Path_Map ReportID
+                          (Path_Report MaybeReportIntendedUse))
+    where type S (Path_Map ReportID
+                           (Path_Report MaybeReportIntendedUse)) = MRR
+          type A (Path_Map ReportID
+                           (Path_Report MaybeReportIntendedUse)) = MaybeReportIntendedUse
+          toLens (Path_Look k v) = mat k . toLens v
+instance ToLens (Path_Map ReportID (Path_Report Report))
+    where type S (Path_Map ReportID (Path_Report Report)) = MRR
+          type A (Path_Map ReportID (Path_Report Report)) = Report
+          toLens (Path_Look k _) = mat k
+instance ToLens (Path_Map ReportID (Path_Report ReportElem))
+    where type S (Path_Map ReportID (Path_Report ReportElem)) = MRR
+          type A (Path_Map ReportID (Path_Report ReportElem)) = ReportElem
+          toLens (Path_Look k v) = mat k . toLens v
+instance ToLens (Path_Map ReportID (Path_Report ReportElems))
+    where type S (Path_Map ReportID (Path_Report ReportElems)) = MRR
+          type A (Path_Map ReportID (Path_Report ReportElems)) = ReportElems
+          toLens (Path_Look k v) = mat k . toLens v
+instance ToLens (Path_Map ReportID (Path_Report ReportFlags))
+    where type S (Path_Map ReportID (Path_Report ReportFlags)) = MRR
+          type A (Path_Map ReportID (Path_Report ReportFlags)) = ReportFlags
+          toLens (Path_Look k v) = mat k . toLens v
+instance ToLens (Path_Map ReportID (Path_Report ReportStandard))
+    where type S (Path_Map ReportID (Path_Report ReportStandard)) = MRR
+          type A (Path_Map ReportID
+                           (Path_Report ReportStandard)) = ReportStandard
+          toLens (Path_Look k v) = mat k . toLens v
+instance ToLens (Path_Map ReportID (Path_Report ReportStatus))
+    where type S (Path_Map ReportID (Path_Report ReportStatus)) = MRR
+          type A (Path_Map ReportID
+                           (Path_Report ReportStatus)) = ReportStatus
+          toLens (Path_Look k v) = mat k . toLens v
+instance ToLens (Path_Map ReportID
+                          (Path_Report ReportValueApproachInfo))
+    where type S (Path_Map ReportID
+                           (Path_Report ReportValueApproachInfo)) = MRR
+          type A (Path_Map ReportID
+                           (Path_Report ReportValueApproachInfo)) = ReportValueApproachInfo
+          toLens (Path_Look k v) = mat k . toLens v
+instance ToLens (Path_Map ReportID
+                          (Path_Report ReportValueTypeInfo))
+    where type S (Path_Map ReportID
+                           (Path_Report ReportValueTypeInfo)) = MRR
+          type A (Path_Map ReportID
+                           (Path_Report ReportValueTypeInfo)) = ReportValueTypeInfo
+          toLens (Path_Look k v) = mat k . toLens v
+instance ToLens (Path_Map ReportID (Path_Report EUI))
+    where type S (Path_Map ReportID (Path_Report EUI)) = MRR
+          type A (Path_Map ReportID (Path_Report EUI)) = EUI
+          toLens (Path_Look k v) = mat k . toLens v
+instance ToLens (Path_Map ReportID (Path_Report MEUI))
+    where type S (Path_Map ReportID (Path_Report MEUI)) = MRR
+          type A (Path_Map ReportID (Path_Report MEUI)) = MEUI
+          toLens (Path_Look k v) = mat k . toLens v
+instance ToLens (Path_Map ReportID (Path_Report MaybeImageFile))
+    where type S (Path_Map ReportID (Path_Report MaybeImageFile)) = MRR
+          type A (Path_Map ReportID
+                           (Path_Report MaybeImageFile)) = MaybeImageFile
+          toLens (Path_Look k v) = mat k . toLens v
+instance ToLens (Path_Map ReportID (Path_Report ReportImage))
+    where type S (Path_Map ReportID (Path_Report ReportImage)) = MRR
+          type A (Path_Map ReportID (Path_Report ReportImage)) = ReportImage
+          toLens (Path_Look k v) = mat k . toLens v
+instance ToLens (Path_Map ReportID (Path_Report ReportImages))
+    where type S (Path_Map ReportID (Path_Report ReportImages)) = MRR
+          type A (Path_Map ReportID
+                           (Path_Report ReportImages)) = ReportImages
+          toLens (Path_Look k v) = mat k . toLens v
+instance ToLens (Path_Map ReportID (Path_Report ReadOnlyFilePath))
+    where type S (Path_Map ReportID
+                           (Path_Report ReadOnlyFilePath)) = MRR
+          type A (Path_Map ReportID
+                           (Path_Report ReadOnlyFilePath)) = ReadOnlyFilePath
+          toLens (Path_Look k v) = mat k . toLens v
+instance ToLens (Path_Map ReportID (Path_Report ReportImageView))
+    where type S (Path_Map ReportID
+                           (Path_Report ReportImageView)) = MRR
+          type A (Path_Map ReportID
+                           (Path_Report ReportImageView)) = ReportImageView
+          toLens (Path_Look k v) = mat k . toLens v
+instance ToLens (Path_Map ReportID (Path_Report ReportView))
+    where type S (Path_Map ReportID (Path_Report ReportView)) = MRR
+          type A (Path_Map ReportID (Path_Report ReportView)) = ReportView
+          toLens (Path_Look k v) = mat k . toLens v
+instance ToLens (Path_Map ReportID (Path_Report SaneSizeImageSize))
+    where type S (Path_Map ReportID
+                           (Path_Report SaneSizeImageSize)) = MRR
+          type A (Path_Map ReportID
+                           (Path_Report SaneSizeImageSize)) = SaneSizeImageSize
+          toLens (Path_Look k v) = mat k . toLens v
+instance ToLens (Path_Map ReportID (Path_Report Item))
+    where type S (Path_Map ReportID (Path_Report Item)) = MRR
+          type A (Path_Map ReportID (Path_Report Item)) = Item
+          toLens (Path_Look k v) = mat k . toLens v
+instance ToLens (Path_Map ReportID (Path_Report MIM))
+    where type S (Path_Map ReportID (Path_Report MIM)) = MRR
+          type A (Path_Map ReportID (Path_Report MIM)) = MIM
+          toLens (Path_Look k v) = mat k . toLens v
+instance ToLens (Path_Map ReportID (Path_Report MRR))
+    where type S (Path_Map ReportID (Path_Report MRR)) = MRR
+          type A (Path_Map ReportID (Path_Report MRR)) = MRR
+          toLens _ = id
+instance ToLens (Path_Map ReportID (Path_Report CIString))
+    where type S (Path_Map ReportID (Path_Report CIString)) = MRR
+          type A (Path_Map ReportID (Path_Report CIString)) = CIString
+          toLens (Path_Look k v) = mat k . toLens v
+instance ToLens (Path_Map ReportID (Path_Report URI))
+    where type S (Path_Map ReportID (Path_Report URI)) = MRR
+          type A (Path_Map ReportID (Path_Report URI)) = URI
+          toLens (Path_Look k v) = mat k . toLens v
+instance ToLens (Path_Map ReportID (Path_Report Text))
+    where type S (Path_Map ReportID (Path_Report Text)) = MRR
+          type A (Path_Map ReportID (Path_Report Text)) = Text
+          toLens (Path_Look k v) = mat k . toLens v
+instance ToLens (Path_Map ReportID (Path_Report UserId))
+    where type S (Path_Map ReportID (Path_Report UserId)) = MRR
+          type A (Path_Map ReportID (Path_Report UserId)) = UserId
+          toLens (Path_Look k v) = mat k . toLens v
+instance ToLens (Path_Map ReportID (Path_Report UUID))
+    where type S (Path_Map ReportID (Path_Report UUID)) = MRR
+          type A (Path_Map ReportID (Path_Report UUID)) = UUID
+          toLens (Path_Look k v) = mat k . toLens v
+instance ToLens (Path_Pair (Path_CIString JSONText)
+                           (Path_Markup JSONText))
+    where type S (Path_Pair (Path_CIString JSONText)
+                            (Path_Markup JSONText)) = AbbrevPair
+          type A (Path_Pair (Path_CIString JSONText)
+                            (Path_Markup JSONText)) = JSONText
+          toLens (Path_First v) = _1 . toLens v
+          toLens (Path_Second v) = _2 . toLens v
+instance ToLens (Path_Pair (Path_CIString Markup)
+                           (Path_Markup Markup))
+    where type S (Path_Pair (Path_CIString Markup)
+                            (Path_Markup Markup)) = AbbrevPair
+          type A (Path_Pair (Path_CIString Markup)
+                            (Path_Markup Markup)) = Markup
+          toLens (Path_Second _) = _2
+instance ToLens (Path_Pair (Path_CIString AbbrevPair)
+                           (Path_Markup AbbrevPair))
+    where type S (Path_Pair (Path_CIString AbbrevPair)
+                            (Path_Markup AbbrevPair)) = AbbrevPair
+          type A (Path_Pair (Path_CIString AbbrevPair)
+                            (Path_Markup AbbrevPair)) = AbbrevPair
+          toLens _ = id
+instance ToLens (Path_Pair (Path_CIString CIString)
+                           (Path_Markup CIString))
+    where type S (Path_Pair (Path_CIString CIString)
+                            (Path_Markup CIString)) = AbbrevPair
+          type A (Path_Pair (Path_CIString CIString)
+                            (Path_Markup CIString)) = CIString
+          toLens (Path_First _) = _1
+instance ToLens (Path_Pair (Path_CIString Text) (Path_Markup Text))
+    where type S (Path_Pair (Path_CIString Text)
+                            (Path_Markup Text)) = AbbrevPair
+          type A (Path_Pair (Path_CIString Text) (Path_Markup Text)) = Text
+          toLens (Path_First v) = _1 . toLens v
+          toLens (Path_Second v) = _2 . toLens v
+instance ToLens (Path_Pair (Path_Markup JSONText)
+                           (Path_Markup JSONText))
+    where type S (Path_Pair (Path_Markup JSONText)
+                            (Path_Markup JSONText)) = MarkupPair
+          type A (Path_Pair (Path_Markup JSONText)
+                            (Path_Markup JSONText)) = JSONText
+          toLens (Path_First v) = _1 . toLens v
+          toLens (Path_Second v) = _2 . toLens v
+instance ToLens (Path_Pair (Path_Markup Markup)
+                           (Path_Markup Markup))
+    where type S (Path_Pair (Path_Markup Markup)
+                            (Path_Markup Markup)) = MarkupPair
+          type A (Path_Pair (Path_Markup Markup)
+                            (Path_Markup Markup)) = Markup
+          toLens (Path_First _) = _1
+          toLens (Path_Second _) = _2
+instance ToLens (Path_Pair (Path_Markup MarkupPair)
+                           (Path_Markup MarkupPair))
+    where type S (Path_Pair (Path_Markup MarkupPair)
+                            (Path_Markup MarkupPair)) = MarkupPair
+          type A (Path_Pair (Path_Markup MarkupPair)
+                            (Path_Markup MarkupPair)) = MarkupPair
+          toLens _ = id
+instance ToLens (Path_Pair (Path_Markup Text) (Path_Markup Text))
+    where type S (Path_Pair (Path_Markup Text)
+                            (Path_Markup Text)) = MarkupPair
+          type A (Path_Pair (Path_Markup Text) (Path_Markup Text)) = Text
+          toLens (Path_First v) = _1 . toLens v
+          toLens (Path_Second v) = _2 . toLens v
+instance ToLens (Path_OMap AbbrevPairID
+                           (Path_Pair (Path_CIString JSONText) (Path_Markup JSONText)))
+    where type S (Path_OMap AbbrevPairID
+                            (Path_Pair (Path_CIString JSONText)
+                                       (Path_Markup JSONText))) = AbbrevPairs
+          type A (Path_OMap AbbrevPairID
+                            (Path_Pair (Path_CIString JSONText)
+                                       (Path_Markup JSONText))) = JSONText
+          toLens (Path_At k v) = lens_omat k . toLens v
+instance ToLens (Path_OMap AbbrevPairID
+                           (Path_Pair (Path_CIString Markup) (Path_Markup Markup)))
+    where type S (Path_OMap AbbrevPairID
+                            (Path_Pair (Path_CIString Markup)
+                                       (Path_Markup Markup))) = AbbrevPairs
+          type A (Path_OMap AbbrevPairID
+                            (Path_Pair (Path_CIString Markup) (Path_Markup Markup))) = Markup
+          toLens (Path_At k v) = lens_omat k . toLens v
+instance ToLens (Path_OMap AbbrevPairID
+                           (Path_Pair (Path_CIString AbbrevPair) (Path_Markup AbbrevPair)))
+    where type S (Path_OMap AbbrevPairID
+                            (Path_Pair (Path_CIString AbbrevPair)
+                                       (Path_Markup AbbrevPair))) = AbbrevPairs
+          type A (Path_OMap AbbrevPairID
+                            (Path_Pair (Path_CIString AbbrevPair)
+                                       (Path_Markup AbbrevPair))) = AbbrevPair
+          toLens (Path_At k _) = lens_omat k
+instance ToLens (Path_OMap AbbrevPairID
+                           (Path_Pair (Path_CIString AbbrevPairs) (Path_Markup AbbrevPairs)))
+    where type S (Path_OMap AbbrevPairID
+                            (Path_Pair (Path_CIString AbbrevPairs)
+                                       (Path_Markup AbbrevPairs))) = AbbrevPairs
+          type A (Path_OMap AbbrevPairID
+                            (Path_Pair (Path_CIString AbbrevPairs)
+                                       (Path_Markup AbbrevPairs))) = AbbrevPairs
+          toLens _ = id
+instance ToLens (Path_OMap AbbrevPairID
+                           (Path_Pair (Path_CIString CIString) (Path_Markup CIString)))
+    where type S (Path_OMap AbbrevPairID
+                            (Path_Pair (Path_CIString CIString)
+                                       (Path_Markup CIString))) = AbbrevPairs
+          type A (Path_OMap AbbrevPairID
+                            (Path_Pair (Path_CIString CIString)
+                                       (Path_Markup CIString))) = CIString
+          toLens (Path_At k v) = lens_omat k . toLens v
+instance ToLens (Path_OMap AbbrevPairID
+                           (Path_Pair (Path_CIString Text) (Path_Markup Text)))
+    where type S (Path_OMap AbbrevPairID
+                            (Path_Pair (Path_CIString Text) (Path_Markup Text))) = AbbrevPairs
+          type A (Path_OMap AbbrevPairID
+                            (Path_Pair (Path_CIString Text) (Path_Markup Text))) = Text
+          toLens (Path_At k v) = lens_omat k . toLens v
+instance ToLens (Path_OMap AuthorID (Path_Author JSONText))
+    where type S (Path_OMap AuthorID (Path_Author JSONText)) = Authors
+          type A (Path_OMap AuthorID (Path_Author JSONText)) = JSONText
+          toLens (Path_At k v) = lens_omat k . toLens v
+instance ToLens (Path_OMap AuthorID (Path_Author Markup))
+    where type S (Path_OMap AuthorID (Path_Author Markup)) = Authors
+          type A (Path_OMap AuthorID (Path_Author Markup)) = Markup
+          toLens (Path_At k v) = lens_omat k . toLens v
+instance ToLens (Path_OMap AuthorID (Path_Author Author))
+    where type S (Path_OMap AuthorID (Path_Author Author)) = Authors
+          type A (Path_OMap AuthorID (Path_Author Author)) = Author
+          toLens (Path_At k _) = lens_omat k
+instance ToLens (Path_OMap AuthorID (Path_Author Authors))
+    where type S (Path_OMap AuthorID (Path_Author Authors)) = Authors
+          type A (Path_OMap AuthorID (Path_Author Authors)) = Authors
+          toLens _ = id
+instance ToLens (Path_OMap AuthorID (Path_Author Text))
+    where type S (Path_OMap AuthorID (Path_Author Text)) = Authors
+          type A (Path_OMap AuthorID (Path_Author Text)) = Text
+          toLens (Path_At k v) = lens_omat k . toLens v
+instance ToLens (Path_OMap MarkupID (Path_Markup JSONText))
+    where type S (Path_OMap MarkupID (Path_Markup JSONText)) = Markups
+          type A (Path_OMap MarkupID (Path_Markup JSONText)) = JSONText
+          toLens (Path_At k v) = lens_omat k . toLens v
+instance ToLens (Path_OMap MarkupID (Path_Markup Markup))
+    where type S (Path_OMap MarkupID (Path_Markup Markup)) = Markups
+          type A (Path_OMap MarkupID (Path_Markup Markup)) = Markup
+          toLens (Path_At k _) = lens_omat k
+instance ToLens (Path_OMap MarkupID (Path_Markup Markups))
+    where type S (Path_OMap MarkupID (Path_Markup Markups)) = Markups
+          type A (Path_OMap MarkupID (Path_Markup Markups)) = Markups
+          toLens _ = id
+instance ToLens (Path_OMap MarkupID (Path_Markup Text))
+    where type S (Path_OMap MarkupID (Path_Markup Text)) = Markups
+          type A (Path_OMap MarkupID (Path_Markup Text)) = Text
+          toLens (Path_At k v) = lens_omat k . toLens v
+instance ToLens (Path_OMap MarkupPairID
+                           (Path_Pair (Path_Markup JSONText) (Path_Markup JSONText)))
+    where type S (Path_OMap MarkupPairID
+                            (Path_Pair (Path_Markup JSONText)
+                                       (Path_Markup JSONText))) = MarkupPairs
+          type A (Path_OMap MarkupPairID
+                            (Path_Pair (Path_Markup JSONText)
+                                       (Path_Markup JSONText))) = JSONText
+          toLens (Path_At k v) = lens_omat k . toLens v
+instance ToLens (Path_OMap MarkupPairID
+                           (Path_Pair (Path_Markup Markup) (Path_Markup Markup)))
+    where type S (Path_OMap MarkupPairID
+                            (Path_Pair (Path_Markup Markup)
+                                       (Path_Markup Markup))) = MarkupPairs
+          type A (Path_OMap MarkupPairID
+                            (Path_Pair (Path_Markup Markup) (Path_Markup Markup))) = Markup
+          toLens (Path_At k v) = lens_omat k . toLens v
+instance ToLens (Path_OMap MarkupPairID
+                           (Path_Pair (Path_Markup MarkupPair) (Path_Markup MarkupPair)))
+    where type S (Path_OMap MarkupPairID
+                            (Path_Pair (Path_Markup MarkupPair)
+                                       (Path_Markup MarkupPair))) = MarkupPairs
+          type A (Path_OMap MarkupPairID
+                            (Path_Pair (Path_Markup MarkupPair)
+                                       (Path_Markup MarkupPair))) = MarkupPair
+          toLens (Path_At k _) = lens_omat k
+instance ToLens (Path_OMap MarkupPairID
+                           (Path_Pair (Path_Markup MarkupPairs) (Path_Markup MarkupPairs)))
+    where type S (Path_OMap MarkupPairID
+                            (Path_Pair (Path_Markup MarkupPairs)
+                                       (Path_Markup MarkupPairs))) = MarkupPairs
+          type A (Path_OMap MarkupPairID
+                            (Path_Pair (Path_Markup MarkupPairs)
+                                       (Path_Markup MarkupPairs))) = MarkupPairs
+          toLens _ = id
+instance ToLens (Path_OMap MarkupPairID
+                           (Path_Pair (Path_Markup Text) (Path_Markup Text)))
+    where type S (Path_OMap MarkupPairID
+                            (Path_Pair (Path_Markup Text) (Path_Markup Text))) = MarkupPairs
+          type A (Path_OMap MarkupPairID
+                            (Path_Pair (Path_Markup Text) (Path_Markup Text))) = Text
+          toLens (Path_At k v) = lens_omat k . toLens v
+instance ToLens (Path_OMap ReportElemID (Path_ReportElem String))
+    where type S (Path_OMap ReportElemID
+                            (Path_ReportElem String)) = ReportElems
+          type A (Path_OMap ReportElemID (Path_ReportElem String)) = String
+          toLens (Path_At k v) = lens_omat k . toLens v
+instance ToLens (Path_OMap ReportElemID (Path_ReportElem Bool))
+    where type S (Path_OMap ReportElemID
+                            (Path_ReportElem Bool)) = ReportElems
+          type A (Path_OMap ReportElemID (Path_ReportElem Bool)) = Bool
+          toLens (Path_At k v) = lens_omat k . toLens v
+instance ToLens (Path_OMap ReportElemID (Path_ReportElem Double))
+    where type S (Path_OMap ReportElemID
+                            (Path_ReportElem Double)) = ReportElems
+          type A (Path_OMap ReportElemID (Path_ReportElem Double)) = Double
+          toLens (Path_At k v) = lens_omat k . toLens v
+instance ToLens (Path_OMap ReportElemID
+                           (Path_ReportElem Dimension))
+    where type S (Path_OMap ReportElemID
+                            (Path_ReportElem Dimension)) = ReportElems
+          type A (Path_OMap ReportElemID
+                            (Path_ReportElem Dimension)) = Dimension
+          toLens (Path_At k v) = lens_omat k . toLens v
+instance ToLens (Path_OMap ReportElemID
+                           (Path_ReportElem ImageCrop))
+    where type S (Path_OMap ReportElemID
+                            (Path_ReportElem ImageCrop)) = ReportElems
+          type A (Path_OMap ReportElemID
+                            (Path_ReportElem ImageCrop)) = ImageCrop
+          toLens (Path_At k v) = lens_omat k . toLens v
+instance ToLens (Path_OMap ReportElemID
+                           (Path_ReportElem ImageSize))
+    where type S (Path_OMap ReportElemID
+                            (Path_ReportElem ImageSize)) = ReportElems
+          type A (Path_OMap ReportElemID
+                            (Path_ReportElem ImageSize)) = ImageSize
+          toLens (Path_At k v) = lens_omat k . toLens v
+instance ToLens (Path_OMap ReportElemID (Path_ReportElem Units))
+    where type S (Path_OMap ReportElemID
+                            (Path_ReportElem Units)) = ReportElems
+          type A (Path_OMap ReportElemID (Path_ReportElem Units)) = Units
+          toLens (Path_At k v) = lens_omat k . toLens v
+instance ToLens (Path_OMap ReportElemID
+                           (Path_ReportElem ImageFile))
+    where type S (Path_OMap ReportElemID
+                            (Path_ReportElem ImageFile)) = ReportElems
+          type A (Path_OMap ReportElemID
+                            (Path_ReportElem ImageFile)) = ImageFile
+          toLens (Path_At k v) = lens_omat k . toLens v
+instance ToLens (Path_OMap ReportElemID (Path_ReportElem JSONText))
+    where type S (Path_OMap ReportElemID
+                            (Path_ReportElem JSONText)) = ReportElems
+          type A (Path_OMap ReportElemID
+                            (Path_ReportElem JSONText)) = JSONText
+          toLens (Path_At k v) = lens_omat k . toLens v
+instance ToLens (Path_OMap ReportElemID (Path_ReportElem Markup))
+    where type S (Path_OMap ReportElemID
+                            (Path_ReportElem Markup)) = ReportElems
+          type A (Path_OMap ReportElemID (Path_ReportElem Markup)) = Markup
+          toLens (Path_At k v) = lens_omat k . toLens v
+instance ToLens (Path_OMap ReportElemID
+                           (Path_ReportElem ReportElem))
+    where type S (Path_OMap ReportElemID
+                            (Path_ReportElem ReportElem)) = ReportElems
+          type A (Path_OMap ReportElemID
+                            (Path_ReportElem ReportElem)) = ReportElem
+          toLens (Path_At k _) = lens_omat k
+instance ToLens (Path_OMap ReportElemID
+                           (Path_ReportElem ReportElems))
+    where type S (Path_OMap ReportElemID
+                            (Path_ReportElem ReportElems)) = ReportElems
+          type A (Path_OMap ReportElemID
+                            (Path_ReportElem ReportElems)) = ReportElems
+          toLens _ = id
+instance ToLens (Path_OMap ReportElemID (Path_ReportElem EUI))
+    where type S (Path_OMap ReportElemID
+                            (Path_ReportElem EUI)) = ReportElems
+          type A (Path_OMap ReportElemID (Path_ReportElem EUI)) = EUI
+          toLens (Path_At k v) = lens_omat k . toLens v
+instance ToLens (Path_OMap ReportElemID (Path_ReportElem MEUI))
+    where type S (Path_OMap ReportElemID
+                            (Path_ReportElem MEUI)) = ReportElems
+          type A (Path_OMap ReportElemID (Path_ReportElem MEUI)) = MEUI
+          toLens (Path_At k v) = lens_omat k . toLens v
+instance ToLens (Path_OMap ReportElemID
+                           (Path_ReportElem MaybeImageFile))
+    where type S (Path_OMap ReportElemID
+                            (Path_ReportElem MaybeImageFile)) = ReportElems
+          type A (Path_OMap ReportElemID
+                            (Path_ReportElem MaybeImageFile)) = MaybeImageFile
+          toLens (Path_At k v) = lens_omat k . toLens v
+instance ToLens (Path_OMap ReportElemID
+                           (Path_ReportElem ReportImage))
+    where type S (Path_OMap ReportElemID
+                            (Path_ReportElem ReportImage)) = ReportElems
+          type A (Path_OMap ReportElemID
+                            (Path_ReportElem ReportImage)) = ReportImage
+          toLens (Path_At k v) = lens_omat k . toLens v
+instance ToLens (Path_OMap ReportElemID
+                           (Path_ReportElem ReportImages))
+    where type S (Path_OMap ReportElemID
+                            (Path_ReportElem ReportImages)) = ReportElems
+          type A (Path_OMap ReportElemID
+                            (Path_ReportElem ReportImages)) = ReportImages
+          toLens (Path_At k v) = lens_omat k . toLens v
+instance ToLens (Path_OMap ReportElemID
+                           (Path_ReportElem ReportImageView))
+    where type S (Path_OMap ReportElemID
+                            (Path_ReportElem ReportImageView)) = ReportElems
+          type A (Path_OMap ReportElemID
+                            (Path_ReportElem ReportImageView)) = ReportImageView
+          toLens (Path_At k v) = lens_omat k . toLens v
+instance ToLens (Path_OMap ReportElemID
+                           (Path_ReportElem SaneSizeImageSize))
+    where type S (Path_OMap ReportElemID
+                            (Path_ReportElem SaneSizeImageSize)) = ReportElems
+          type A (Path_OMap ReportElemID
+                            (Path_ReportElem SaneSizeImageSize)) = SaneSizeImageSize
+          toLens (Path_At k v) = lens_omat k . toLens v
+instance ToLens (Path_OMap ReportElemID (Path_ReportElem Item))
+    where type S (Path_OMap ReportElemID
+                            (Path_ReportElem Item)) = ReportElems
+          type A (Path_OMap ReportElemID (Path_ReportElem Item)) = Item
+          toLens (Path_At k v) = lens_omat k . toLens v
+instance ToLens (Path_OMap ReportElemID (Path_ReportElem MIM))
+    where type S (Path_OMap ReportElemID
+                            (Path_ReportElem MIM)) = ReportElems
+          type A (Path_OMap ReportElemID (Path_ReportElem MIM)) = MIM
+          toLens (Path_At k v) = lens_omat k . toLens v
+instance ToLens (Path_OMap ReportElemID (Path_ReportElem URI))
+    where type S (Path_OMap ReportElemID
+                            (Path_ReportElem URI)) = ReportElems
+          type A (Path_OMap ReportElemID (Path_ReportElem URI)) = URI
+          toLens (Path_At k v) = lens_omat k . toLens v
+instance ToLens (Path_OMap ReportElemID (Path_ReportElem Text))
+    where type S (Path_OMap ReportElemID
+                            (Path_ReportElem Text)) = ReportElems
+          type A (Path_OMap ReportElemID (Path_ReportElem Text)) = Text
+          toLens (Path_At k v) = lens_omat k . toLens v
+instance ToLens (Path_OMap ReportImageID (Path_ReportImage String))
+    where type S (Path_OMap ReportImageID
+                            (Path_ReportImage String)) = ReportImages
+          type A (Path_OMap ReportImageID (Path_ReportImage String)) = String
+          toLens (Path_At k v) = lens_omat k . toLens v
+instance ToLens (Path_OMap ReportImageID (Path_ReportImage Bool))
+    where type S (Path_OMap ReportImageID
+                            (Path_ReportImage Bool)) = ReportImages
+          type A (Path_OMap ReportImageID (Path_ReportImage Bool)) = Bool
+          toLens (Path_At k v) = lens_omat k . toLens v
+instance ToLens (Path_OMap ReportImageID (Path_ReportImage Double))
+    where type S (Path_OMap ReportImageID
+                            (Path_ReportImage Double)) = ReportImages
+          type A (Path_OMap ReportImageID (Path_ReportImage Double)) = Double
+          toLens (Path_At k v) = lens_omat k . toLens v
+instance ToLens (Path_OMap ReportImageID
+                           (Path_ReportImage Dimension))
+    where type S (Path_OMap ReportImageID
+                            (Path_ReportImage Dimension)) = ReportImages
+          type A (Path_OMap ReportImageID
+                            (Path_ReportImage Dimension)) = Dimension
+          toLens (Path_At k v) = lens_omat k . toLens v
+instance ToLens (Path_OMap ReportImageID
+                           (Path_ReportImage ImageCrop))
+    where type S (Path_OMap ReportImageID
+                            (Path_ReportImage ImageCrop)) = ReportImages
+          type A (Path_OMap ReportImageID
+                            (Path_ReportImage ImageCrop)) = ImageCrop
+          toLens (Path_At k v) = lens_omat k . toLens v
+instance ToLens (Path_OMap ReportImageID
+                           (Path_ReportImage ImageSize))
+    where type S (Path_OMap ReportImageID
+                            (Path_ReportImage ImageSize)) = ReportImages
+          type A (Path_OMap ReportImageID
+                            (Path_ReportImage ImageSize)) = ImageSize
+          toLens (Path_At k v) = lens_omat k . toLens v
+instance ToLens (Path_OMap ReportImageID (Path_ReportImage Units))
+    where type S (Path_OMap ReportImageID
+                            (Path_ReportImage Units)) = ReportImages
+          type A (Path_OMap ReportImageID (Path_ReportImage Units)) = Units
+          toLens (Path_At k v) = lens_omat k . toLens v
+instance ToLens (Path_OMap ReportImageID
+                           (Path_ReportImage ImageFile))
+    where type S (Path_OMap ReportImageID
+                            (Path_ReportImage ImageFile)) = ReportImages
+          type A (Path_OMap ReportImageID
+                            (Path_ReportImage ImageFile)) = ImageFile
+          toLens (Path_At k v) = lens_omat k . toLens v
+instance ToLens (Path_OMap ReportImageID
+                           (Path_ReportImage JSONText))
+    where type S (Path_OMap ReportImageID
+                            (Path_ReportImage JSONText)) = ReportImages
+          type A (Path_OMap ReportImageID
+                            (Path_ReportImage JSONText)) = JSONText
+          toLens (Path_At k v) = lens_omat k . toLens v
+instance ToLens (Path_OMap ReportImageID (Path_ReportImage Markup))
+    where type S (Path_OMap ReportImageID
+                            (Path_ReportImage Markup)) = ReportImages
+          type A (Path_OMap ReportImageID (Path_ReportImage Markup)) = Markup
+          toLens (Path_At k v) = lens_omat k . toLens v
+instance ToLens (Path_OMap ReportImageID (Path_ReportImage EUI))
+    where type S (Path_OMap ReportImageID
+                            (Path_ReportImage EUI)) = ReportImages
+          type A (Path_OMap ReportImageID (Path_ReportImage EUI)) = EUI
+          toLens (Path_At k v) = lens_omat k . toLens v
+instance ToLens (Path_OMap ReportImageID (Path_ReportImage MEUI))
+    where type S (Path_OMap ReportImageID
+                            (Path_ReportImage MEUI)) = ReportImages
+          type A (Path_OMap ReportImageID (Path_ReportImage MEUI)) = MEUI
+          toLens (Path_At k v) = lens_omat k . toLens v
+instance ToLens (Path_OMap ReportImageID
+                           (Path_ReportImage MaybeImageFile))
+    where type S (Path_OMap ReportImageID
+                            (Path_ReportImage MaybeImageFile)) = ReportImages
+          type A (Path_OMap ReportImageID
+                            (Path_ReportImage MaybeImageFile)) = MaybeImageFile
+          toLens (Path_At k v) = lens_omat k . toLens v
+instance ToLens (Path_OMap ReportImageID
+                           (Path_ReportImage ReportImage))
+    where type S (Path_OMap ReportImageID
+                            (Path_ReportImage ReportImage)) = ReportImages
+          type A (Path_OMap ReportImageID
+                            (Path_ReportImage ReportImage)) = ReportImage
+          toLens (Path_At k _) = lens_omat k
+instance ToLens (Path_OMap ReportImageID
+                           (Path_ReportImage ReportImages))
+    where type S (Path_OMap ReportImageID
+                            (Path_ReportImage ReportImages)) = ReportImages
+          type A (Path_OMap ReportImageID
+                            (Path_ReportImage ReportImages)) = ReportImages
+          toLens _ = id
+instance ToLens (Path_OMap ReportImageID
+                           (Path_ReportImage ReportImageView))
+    where type S (Path_OMap ReportImageID
+                            (Path_ReportImage ReportImageView)) = ReportImages
+          type A (Path_OMap ReportImageID
+                            (Path_ReportImage ReportImageView)) = ReportImageView
+          toLens (Path_At k v) = lens_omat k . toLens v
+instance ToLens (Path_OMap ReportImageID
+                           (Path_ReportImage SaneSizeImageSize))
+    where type S (Path_OMap ReportImageID
+                            (Path_ReportImage SaneSizeImageSize)) = ReportImages
+          type A (Path_OMap ReportImageID
+                            (Path_ReportImage SaneSizeImageSize)) = SaneSizeImageSize
+          toLens (Path_At k v) = lens_omat k . toLens v
+instance ToLens (Path_OMap ReportImageID (Path_ReportImage URI))
+    where type S (Path_OMap ReportImageID
+                            (Path_ReportImage URI)) = ReportImages
+          type A (Path_OMap ReportImageID (Path_ReportImage URI)) = URI
+          toLens (Path_At k v) = lens_omat k . toLens v
+instance ToLens (Path_OMap ReportImageID (Path_ReportImage Text))
+    where type S (Path_OMap ReportImageID
+                            (Path_ReportImage Text)) = ReportImages
+          type A (Path_OMap ReportImageID (Path_ReportImage Text)) = Text
+          toLens (Path_At k v) = lens_omat k . toLens v
+instance ToLens (Path_Author JSONText)
+    where type S (Path_Author JSONText) = Author
+          type A (Path_Author JSONText) = JSONText
+          toLens (Path_Author_authorName _x) = lens_Author_authorName . toLens _x
+          toLens (Path_Author_authorCredentials _x) = lens_Author_authorCredentials . toLens _x
+instance ToLens (Path_Author Markup)
+    where type S (Path_Author Markup) = Author
+          type A (Path_Author Markup) = Markup
+          toLens (Path_Author_authorName _x) = lens_Author_authorName
+          toLens (Path_Author_authorCredentials _x) = lens_Author_authorCredentials
+instance ToLens (Path_Author Author)
+    where type S (Path_Author Author) = Author
+          type A (Path_Author Author) = Author
+          toLens _ = id
+instance ToLens (Path_Author Text)
+    where type S (Path_Author Text) = Author
+          type A (Path_Author Text) = Text
+          toLens (Path_Author_authorName _x) = lens_Author_authorName . toLens _x
+          toLens (Path_Author_authorCredentials _x) = lens_Author_authorCredentials . toLens _x
+instance ToLens (Path_Bool String)
+    where type S (Path_Bool String) = Bool
+          type A (Path_Bool String) = String
+          toLens (Path_Bool_View _) = viewLens :: Lens' Bool ([Char])
+instance ToLens (Path_Bool Bool)
+    where type S (Path_Bool Bool) = Bool
+          type A (Path_Bool Bool) = Bool
+          toLens _ = id
+instance ToLens (Path_Bool JSONText)
+    where type S (Path_Bool JSONText) = Bool
+          type A (Path_Bool JSONText) = JSONText
+          toLens (Path_Bool_View v) = (viewLens :: Lens' Bool
+                                                         ([Char])) . toLens v
+instance ToLens (Path_Branding JSONText)
+    where type S (Path_Branding JSONText) = Branding
+          type A (Path_Branding JSONText) = JSONText
+          toLens (Path_Branding_View v) = (viewLens :: Lens' Branding
+                                                             Text) . toLens v
+instance ToLens (Path_Branding Branding)
+    where type S (Path_Branding Branding) = Branding
+          type A (Path_Branding Branding) = Branding
+          toLens _ = id
+instance ToLens (Path_Branding Text)
+    where type S (Path_Branding Text) = Branding
+          type A (Path_Branding Text) = Text
+          toLens (Path_Branding_View _) = viewLens :: Lens' Branding Text
+instance ToLens (Path_CIString JSONText)
+    where type S (Path_CIString JSONText) = CIString
+          type A (Path_CIString JSONText) = JSONText
+          toLens (Path_CIString_View v) = (viewLens :: Lens' CIString
+                                                             Text) . toLens v
+instance ToLens (Path_CIString CIString)
+    where type S (Path_CIString CIString) = CIString
+          type A (Path_CIString CIString) = CIString
+          toLens _ = id
+instance ToLens (Path_CIString Text)
+    where type S (Path_CIString Text) = CIString
+          type A (Path_CIString Text) = Text
+          toLens (Path_CIString_View _) = viewLens :: Lens' CIString Text
+instance ToLens (Path_Dimension Dimension)
+    where type S (Path_Dimension Dimension) = Dimension
+          type A (Path_Dimension Dimension) = Dimension
+          toLens _ = id
+instance ToLens (Path_Dimension JSONText)
+    where type S (Path_Dimension JSONText) = Dimension
+          type A (Path_Dimension JSONText) = JSONText
+          toLens (Path_Dimension_View _) = viewLens :: Lens' Dimension
+                                                             JSONText
+instance ToLens (Path_Double String)
+    where type S (Path_Double String) = Double
+          type A (Path_Double String) = String
+          toLens (Path_Double_View _) = viewLens :: Lens' Double ([Char])
+instance ToLens (Path_Double Double)
+    where type S (Path_Double Double) = Double
+          type A (Path_Double Double) = Double
+          toLens _ = id
+instance ToLens (Path_Double JSONText)
+    where type S (Path_Double JSONText) = Double
+          type A (Path_Double JSONText) = JSONText
+          toLens (Path_Double_View v) = (viewLens :: Lens' Double
+                                                           ([Char])) . toLens v
+instance ToLens (Path_ImageCrop ImageCrop)
+    where type S (Path_ImageCrop ImageCrop) = ImageCrop
+          type A (Path_ImageCrop ImageCrop) = ImageCrop
+          toLens _ = id
+instance ToLens (Path_ImageFile ImageFile)
+    where type S (Path_ImageFile ImageFile) = ImageFile
+          type A (Path_ImageFile ImageFile) = ImageFile
+          toLens _ = id
+instance ToLens (Path_ImageSize String)
+    where type S (Path_ImageSize String) = ImageSize
+          type A (Path_ImageSize String) = String
+          toLens (Path_ImageSize_size _x) = lens_ImageSize_size . toLens _x
+instance ToLens (Path_ImageSize Double)
+    where type S (Path_ImageSize Double) = ImageSize
+          type A (Path_ImageSize Double) = Double
+          toLens (Path_ImageSize_size _x) = lens_ImageSize_size
+instance ToLens (Path_ImageSize Dimension)
+    where type S (Path_ImageSize Dimension) = ImageSize
+          type A (Path_ImageSize Dimension) = Dimension
+          toLens (Path_ImageSize_dim _x) = lens_ImageSize_dim
+instance ToLens (Path_ImageSize ImageSize)
+    where type S (Path_ImageSize ImageSize) = ImageSize
+          type A (Path_ImageSize ImageSize) = ImageSize
+          toLens _ = id
+instance ToLens (Path_ImageSize Units)
+    where type S (Path_ImageSize Units) = ImageSize
+          type A (Path_ImageSize Units) = Units
+          toLens (Path_ImageSize_units _x) = lens_ImageSize_units
+instance ToLens (Path_ImageSize JSONText)
+    where type S (Path_ImageSize JSONText) = ImageSize
+          type A (Path_ImageSize JSONText) = JSONText
+          toLens (Path_ImageSize_dim _x) = lens_ImageSize_dim . toLens _x
+          toLens (Path_ImageSize_size _x) = lens_ImageSize_size . toLens _x
+          toLens (Path_ImageSize_units _x) = lens_ImageSize_units . toLens _x
+instance ToLens (Path_Int Int)
+    where type S (Path_Int Int) = Int
+          type A (Path_Int Int) = Int
+          toLens _ = id
+instance ToLens (Path_Int64 Int64)
+    where type S (Path_Int64 Int64) = Int64
+          type A (Path_Int64 Int64) = Int64
+          toLens _ = id
+instance ToLens (Path_Integer Integer)
+    where type S (Path_Integer Integer) = Integer
+          type A (Path_Integer Integer) = Integer
+          toLens _ = id
+instance ToLens (Path_Item String)
+    where type S (Path_Item String) = Item
+          type A (Path_Item String) = String
+          toLens (Path_Item_images _x) = lens_Item_images . toLens _x
+instance ToLens (Path_Item Bool)
+    where type S (Path_Item Bool) = Item
+          type A (Path_Item Bool) = Bool
+          toLens (Path_Item_images _x) = lens_Item_images . toLens _x
+instance ToLens (Path_Item Double)
+    where type S (Path_Item Double) = Item
+          type A (Path_Item Double) = Double
+          toLens (Path_Item_images _x) = lens_Item_images . toLens _x
+instance ToLens (Path_Item Dimension)
+    where type S (Path_Item Dimension) = Item
+          type A (Path_Item Dimension) = Dimension
+          toLens (Path_Item_images _x) = lens_Item_images . toLens _x
+instance ToLens (Path_Item ImageCrop)
+    where type S (Path_Item ImageCrop) = Item
+          type A (Path_Item ImageCrop) = ImageCrop
+          toLens (Path_Item_images _x) = lens_Item_images . toLens _x
+instance ToLens (Path_Item ImageSize)
+    where type S (Path_Item ImageSize) = Item
+          type A (Path_Item ImageSize) = ImageSize
+          toLens (Path_Item_images _x) = lens_Item_images . toLens _x
+instance ToLens (Path_Item Units)
+    where type S (Path_Item Units) = Item
+          type A (Path_Item Units) = Units
+          toLens (Path_Item_images _x) = lens_Item_images . toLens _x
+instance ToLens (Path_Item ImageFile)
+    where type S (Path_Item ImageFile) = Item
+          type A (Path_Item ImageFile) = ImageFile
+          toLens (Path_Item_images _x) = lens_Item_images . toLens _x
+instance ToLens (Path_Item JSONText)
+    where type S (Path_Item JSONText) = Item
+          type A (Path_Item JSONText) = JSONText
+          toLens (Path_Item_itemName _x) = lens_Item_itemName . toLens _x
+          toLens (Path_Item_fields _x) = lens_Item_fields . toLens _x
+          toLens (Path_Item_images _x) = lens_Item_images . toLens _x
+instance ToLens (Path_Item Markup)
+    where type S (Path_Item Markup) = Item
+          type A (Path_Item Markup) = Markup
+          toLens (Path_Item_fields _x) = lens_Item_fields . toLens _x
+          toLens (Path_Item_images _x) = lens_Item_images . toLens _x
+instance ToLens (Path_Item EUI)
+    where type S (Path_Item EUI) = Item
+          type A (Path_Item EUI) = EUI
+          toLens (Path_Item_images _x) = lens_Item_images . toLens _x
+instance ToLens (Path_Item MEUI)
+    where type S (Path_Item MEUI) = Item
+          type A (Path_Item MEUI) = MEUI
+          toLens (Path_Item_images _x) = lens_Item_images . toLens _x
+instance ToLens (Path_Item MaybeImageFile)
+    where type S (Path_Item MaybeImageFile) = Item
+          type A (Path_Item MaybeImageFile) = MaybeImageFile
+          toLens (Path_Item_images _x) = lens_Item_images . toLens _x
+instance ToLens (Path_Item ReportImage)
+    where type S (Path_Item ReportImage) = Item
+          type A (Path_Item ReportImage) = ReportImage
+          toLens (Path_Item_images _x) = lens_Item_images . toLens _x
+instance ToLens (Path_Item ReportImages)
+    where type S (Path_Item ReportImages) = Item
+          type A (Path_Item ReportImages) = ReportImages
+          toLens (Path_Item_images _x) = lens_Item_images
+instance ToLens (Path_Item ReportImageView)
+    where type S (Path_Item ReportImageView) = Item
+          type A (Path_Item ReportImageView) = ReportImageView
+          toLens (Path_Item_images _x) = lens_Item_images . toLens _x
+instance ToLens (Path_Item SaneSizeImageSize)
+    where type S (Path_Item SaneSizeImageSize) = Item
+          type A (Path_Item SaneSizeImageSize) = SaneSizeImageSize
+          toLens (Path_Item_images _x) = lens_Item_images . toLens _x
+instance ToLens (Path_Item Item)
+    where type S (Path_Item Item) = Item
+          type A (Path_Item Item) = Item
+          toLens _ = id
+instance ToLens (Path_Item MIM)
+    where type S (Path_Item MIM) = Item
+          type A (Path_Item MIM) = MIM
+          toLens (Path_Item_fields _x) = lens_Item_fields
+instance ToLens (Path_Item URI)
+    where type S (Path_Item URI) = Item
+          type A (Path_Item URI) = URI
+          toLens (Path_Item_images _x) = lens_Item_images . toLens _x
+instance ToLens (Path_Item Text)
+    where type S (Path_Item Text) = Item
+          type A (Path_Item Text) = Text
+          toLens (Path_Item_itemName _x) = lens_Item_itemName
+          toLens (Path_Item_fields _x) = lens_Item_fields . toLens _x
+          toLens (Path_Item_images _x) = lens_Item_images . toLens _x
+instance ToLens (Path_JSONText JSONText)
+    where type S (Path_JSONText JSONText) = JSONText
+          type A (Path_JSONText JSONText) = JSONText
+          toLens _ = id
+instance ToLens (Path_Markup JSONText)
+    where type S (Path_Markup JSONText) = Markup
+          type A (Path_Markup JSONText) = JSONText
+          toLens (Path_Markup_markdownText _x) = lens_Markup_markdownText . toLens _x
+          toLens (Path_Markup_htmlText _x) = lens_Markup_htmlText . toLens _x
+instance ToLens (Path_Markup Markup)
+    where type S (Path_Markup Markup) = Markup
+          type A (Path_Markup Markup) = Markup
+          toLens _ = id
+instance ToLens (Path_Markup Text)
+    where type S (Path_Markup Text) = Markup
+          type A (Path_Markup Text) = Text
+          toLens (Path_Markup_markdownText _x) = lens_Markup_markdownText
+          toLens (Path_Markup_htmlText _x) = lens_Markup_htmlText
+instance ToLens (Path_MaybeImageFile String)
+    where type S (Path_MaybeImageFile String) = MaybeImageFile
+          type A (Path_MaybeImageFile String) = String
+          toLens (Path_MaybeImageFile_View _) = viewLens :: Lens' (Maybe ImageFile)
+                                                                  ([Char])
+instance ToLens (Path_MaybeImageFile JSONText)
+    where type S (Path_MaybeImageFile JSONText) = MaybeImageFile
+          type A (Path_MaybeImageFile JSONText) = JSONText
+          toLens (Path_MaybeImageFile_View v) = (viewLens :: Lens' (Maybe ImageFile)
+                                                                   ([Char])) . toLens v
+instance ToLens (Path_MaybeImageFile MaybeImageFile)
+    where type S (Path_MaybeImageFile MaybeImageFile) = MaybeImageFile
+          type A (Path_MaybeImageFile MaybeImageFile) = MaybeImageFile
+          toLens _ = id
+instance ToLens (Path_MaybeReportIntendedUse String)
+    where type S (Path_MaybeReportIntendedUse String) = MaybeReportIntendedUse
+          type A (Path_MaybeReportIntendedUse String) = String
+          toLens (Path_MaybeReportIntendedUse_View _) = viewLens :: Lens' (Maybe ReportIntendedUse)
+                                                                          ([Char])
+instance ToLens (Path_MaybeReportIntendedUse JSONText)
+    where type S (Path_MaybeReportIntendedUse JSONText) = MaybeReportIntendedUse
+          type A (Path_MaybeReportIntendedUse JSONText) = JSONText
+          toLens (Path_MaybeReportIntendedUse_View v) = (viewLens :: Lens' (Maybe ReportIntendedUse)
+                                                                           ([Char])) . toLens v
+instance ToLens (Path_MaybeReportIntendedUse MaybeReportIntendedUse)
+    where type S (Path_MaybeReportIntendedUse MaybeReportIntendedUse) = MaybeReportIntendedUse
+          type A (Path_MaybeReportIntendedUse MaybeReportIntendedUse) = MaybeReportIntendedUse
+          toLens _ = id
+instance ToLens (Path_Permissions JSONText)
+    where type S (Path_Permissions JSONText) = Permissions
+          type A (Path_Permissions JSONText) = JSONText
+          toLens (Path_Permissions_writers _x) = lens_Permissions_writers . toLens _x
+          toLens (Path_Permissions_readers _x) = lens_Permissions_readers . toLens _x
+instance ToLens (Path_Permissions Permissions)
+    where type S (Path_Permissions Permissions) = Permissions
+          type A (Path_Permissions Permissions) = Permissions
+          toLens _ = id
+instance ToLens (Path_Permissions UserIds)
+    where type S (Path_Permissions UserIds) = Permissions
+          type A (Path_Permissions UserIds) = UserIds
+          toLens (Path_Permissions_writers _x) = lens_Permissions_writers
+          toLens (Path_Permissions_readers _x) = lens_Permissions_readers
+instance ToLens (Path_Permissions Text)
+    where type S (Path_Permissions Text) = Permissions
+          type A (Path_Permissions Text) = Text
+          toLens (Path_Permissions_writers _x) = lens_Permissions_writers . toLens _x
+          toLens (Path_Permissions_readers _x) = lens_Permissions_readers . toLens _x
+instance ToLens (Path_Permissions UserId)
+    where type S (Path_Permissions UserId) = Permissions
+          type A (Path_Permissions UserId) = UserId
+          toLens (Path_Permissions_owner _x) = lens_Permissions_owner
+instance ToLens (Path_ReadOnlyFilePath String)
+    where type S (Path_ReadOnlyFilePath String) = ReadOnlyFilePath
+          type A (Path_ReadOnlyFilePath String) = String
+          toLens (Path_ReadOnlyFilePath_View _) = viewLens :: Lens' (ReadOnly ([Char]))
+                                                                    ([Char])
+instance ToLens (Path_ReadOnlyFilePath JSONText)
+    where type S (Path_ReadOnlyFilePath JSONText) = ReadOnlyFilePath
+          type A (Path_ReadOnlyFilePath JSONText) = JSONText
+          toLens (Path_ReadOnlyFilePath_View v) = (viewLens :: Lens' (ReadOnly ([Char]))
+                                                                     ([Char])) . toLens v
+instance ToLens (Path_ReadOnlyFilePath ReadOnlyFilePath)
+    where type S (Path_ReadOnlyFilePath ReadOnlyFilePath) = ReadOnlyFilePath
+          type A (Path_ReadOnlyFilePath ReadOnlyFilePath) = ReadOnlyFilePath
+          toLens _ = id
+instance ToLens (Path_Report String)
+    where type S (Path_Report String) = Report
+          type A (Path_Report String) = String
+          toLens (Path_Report_View v) = (viewLens :: Lens' Report
+                                                           ReportView) . toLens v
+instance ToLens (Path_Report Int64)
+    where type S (Path_Report Int64) = Report
+          type A (Path_Report Int64) = Int64
+          toLens (Path_Report_View v) = (viewLens :: Lens' Report
+                                                           ReportView) . toLens v
+instance ToLens (Path_Report Bool)
+    where type S (Path_Report Bool) = Report
+          type A (Path_Report Bool) = Bool
+          toLens (Path_Report_View v) = (viewLens :: Lens' Report
+                                                           ReportView) . toLens v
+instance ToLens (Path_Report Double)
+    where type S (Path_Report Double) = Report
+          type A (Path_Report Double) = Double
+          toLens (Path_Report_View v) = (viewLens :: Lens' Report
+                                                           ReportView) . toLens v
+instance ToLens (Path_Report Int)
+    where type S (Path_Report Int) = Report
+          type A (Path_Report Int) = Int
+          toLens (Path_Report_View v) = (viewLens :: Lens' Report
+                                                           ReportView) . toLens v
+instance ToLens (Path_Report Dimension)
+    where type S (Path_Report Dimension) = Report
+          type A (Path_Report Dimension) = Dimension
+          toLens (Path_Report_View v) = (viewLens :: Lens' Report
+                                                           ReportView) . toLens v
+instance ToLens (Path_Report ImageCrop)
+    where type S (Path_Report ImageCrop) = Report
+          type A (Path_Report ImageCrop) = ImageCrop
+          toLens (Path_Report_View v) = (viewLens :: Lens' Report
+                                                           ReportView) . toLens v
+instance ToLens (Path_Report ImageSize)
+    where type S (Path_Report ImageSize) = Report
+          type A (Path_Report ImageSize) = ImageSize
+          toLens (Path_Report_View v) = (viewLens :: Lens' Report
+                                                           ReportView) . toLens v
+instance ToLens (Path_Report Units)
+    where type S (Path_Report Units) = Report
+          type A (Path_Report Units) = Units
+          toLens (Path_Report_View v) = (viewLens :: Lens' Report
+                                                           ReportView) . toLens v
+instance ToLens (Path_Report ImageFile)
+    where type S (Path_Report ImageFile) = Report
+          type A (Path_Report ImageFile) = ImageFile
+          toLens (Path_Report_View v) = (viewLens :: Lens' Report
+                                                           ReportView) . toLens v
+instance ToLens (Path_Report Integer)
+    where type S (Path_Report Integer) = Report
+          type A (Path_Report Integer) = Integer
+          toLens (Path_Report_View v) = (viewLens :: Lens' Report
+                                                           ReportView) . toLens v
+instance ToLens (Path_Report JSONText)
+    where type S (Path_Report JSONText) = Report
+          type A (Path_Report JSONText) = JSONText
+          toLens (Path_Report_View v) = (viewLens :: Lens' Report
+                                                           ReportView) . toLens v
+instance ToLens (Path_Report Markup)
+    where type S (Path_Report Markup) = Report
+          type A (Path_Report Markup) = Markup
+          toLens (Path_Report_View v) = (viewLens :: Lens' Report
+                                                           ReportView) . toLens v
+instance ToLens (Path_Report Permissions)
+    where type S (Path_Report Permissions) = Report
+          type A (Path_Report Permissions) = Permissions
+          toLens (Path_Report_View v) = (viewLens :: Lens' Report
+                                                           ReportView) . toLens v
+instance ToLens (Path_Report UserIds)
+    where type S (Path_Report UserIds) = Report
+          type A (Path_Report UserIds) = UserIds
+          toLens (Path_Report_View v) = (viewLens :: Lens' Report
+                                                           ReportView) . toLens v
+instance ToLens (Path_Report AbbrevPair)
+    where type S (Path_Report AbbrevPair) = Report
+          type A (Path_Report AbbrevPair) = AbbrevPair
+          toLens (Path_Report_View v) = (viewLens :: Lens' Report
+                                                           ReportView) . toLens v
+instance ToLens (Path_Report AbbrevPairs)
+    where type S (Path_Report AbbrevPairs) = Report
+          type A (Path_Report AbbrevPairs) = AbbrevPairs
+          toLens (Path_Report_View v) = (viewLens :: Lens' Report
+                                                           ReportView) . toLens v
+instance ToLens (Path_Report Author)
+    where type S (Path_Report Author) = Report
+          type A (Path_Report Author) = Author
+          toLens (Path_Report_View v) = (viewLens :: Lens' Report
+                                                           ReportView) . toLens v
+instance ToLens (Path_Report Authors)
+    where type S (Path_Report Authors) = Report
+          type A (Path_Report Authors) = Authors
+          toLens (Path_Report_View v) = (viewLens :: Lens' Report
+                                                           ReportView) . toLens v
+instance ToLens (Path_Report Branding)
+    where type S (Path_Report Branding) = Report
+          type A (Path_Report Branding) = Branding
+          toLens (Path_Report_View v) = (viewLens :: Lens' Report
+                                                           ReportView) . toLens v
+instance ToLens (Path_Report MarkupPair)
+    where type S (Path_Report MarkupPair) = Report
+          type A (Path_Report MarkupPair) = MarkupPair
+          toLens (Path_Report_View v) = (viewLens :: Lens' Report
+                                                           ReportView) . toLens v
+instance ToLens (Path_Report MarkupPairs)
+    where type S (Path_Report MarkupPairs) = Report
+          type A (Path_Report MarkupPairs) = MarkupPairs
+          toLens (Path_Report_View v) = (viewLens :: Lens' Report
+                                                           ReportView) . toLens v
+instance ToLens (Path_Report Markups)
+    where type S (Path_Report Markups) = Report
+          type A (Path_Report Markups) = Markups
+          toLens (Path_Report_View v) = (viewLens :: Lens' Report
+                                                           ReportView) . toLens v
+instance ToLens (Path_Report MaybeReportIntendedUse)
+    where type S (Path_Report MaybeReportIntendedUse) = Report
+          type A (Path_Report MaybeReportIntendedUse) = MaybeReportIntendedUse
+          toLens (Path_Report_View v) = (viewLens :: Lens' Report
+                                                           ReportView) . toLens v
+instance ToLens (Path_Report Report)
+    where type S (Path_Report Report) = Report
+          type A (Path_Report Report) = Report
+          toLens _ = id
+instance ToLens (Path_Report ReportElem)
+    where type S (Path_Report ReportElem) = Report
+          type A (Path_Report ReportElem) = ReportElem
+          toLens (Path_Report_View v) = (viewLens :: Lens' Report
+                                                           ReportView) . toLens v
+instance ToLens (Path_Report ReportElems)
+    where type S (Path_Report ReportElems) = Report
+          type A (Path_Report ReportElems) = ReportElems
+          toLens (Path_Report_View v) = (viewLens :: Lens' Report
+                                                           ReportView) . toLens v
+instance ToLens (Path_Report ReportFlags)
+    where type S (Path_Report ReportFlags) = Report
+          type A (Path_Report ReportFlags) = ReportFlags
+          toLens (Path_Report_View v) = (viewLens :: Lens' Report
+                                                           ReportView) . toLens v
+instance ToLens (Path_Report ReportStandard)
+    where type S (Path_Report ReportStandard) = Report
+          type A (Path_Report ReportStandard) = ReportStandard
+          toLens (Path_Report_View v) = (viewLens :: Lens' Report
+                                                           ReportView) . toLens v
+instance ToLens (Path_Report ReportStatus)
+    where type S (Path_Report ReportStatus) = Report
+          type A (Path_Report ReportStatus) = ReportStatus
+          toLens (Path_Report_View v) = (viewLens :: Lens' Report
+                                                           ReportView) . toLens v
+instance ToLens (Path_Report ReportValueApproachInfo)
+    where type S (Path_Report ReportValueApproachInfo) = Report
+          type A (Path_Report ReportValueApproachInfo) = ReportValueApproachInfo
+          toLens (Path_Report_View v) = (viewLens :: Lens' Report
+                                                           ReportView) . toLens v
+instance ToLens (Path_Report ReportValueTypeInfo)
+    where type S (Path_Report ReportValueTypeInfo) = Report
+          type A (Path_Report ReportValueTypeInfo) = ReportValueTypeInfo
+          toLens (Path_Report_View v) = (viewLens :: Lens' Report
+                                                           ReportView) . toLens v
+instance ToLens (Path_Report EUI)
+    where type S (Path_Report EUI) = Report
+          type A (Path_Report EUI) = EUI
+          toLens (Path_Report_View v) = (viewLens :: Lens' Report
+                                                           ReportView) . toLens v
+instance ToLens (Path_Report MEUI)
+    where type S (Path_Report MEUI) = Report
+          type A (Path_Report MEUI) = MEUI
+          toLens (Path_Report_View v) = (viewLens :: Lens' Report
+                                                           ReportView) . toLens v
+instance ToLens (Path_Report MaybeImageFile)
+    where type S (Path_Report MaybeImageFile) = Report
+          type A (Path_Report MaybeImageFile) = MaybeImageFile
+          toLens (Path_Report_View v) = (viewLens :: Lens' Report
+                                                           ReportView) . toLens v
+instance ToLens (Path_Report ReportImage)
+    where type S (Path_Report ReportImage) = Report
+          type A (Path_Report ReportImage) = ReportImage
+          toLens (Path_Report_View v) = (viewLens :: Lens' Report
+                                                           ReportView) . toLens v
+instance ToLens (Path_Report ReportImages)
+    where type S (Path_Report ReportImages) = Report
+          type A (Path_Report ReportImages) = ReportImages
+          toLens (Path_Report_View v) = (viewLens :: Lens' Report
+                                                           ReportView) . toLens v
+instance ToLens (Path_Report ReadOnlyFilePath)
+    where type S (Path_Report ReadOnlyFilePath) = Report
+          type A (Path_Report ReadOnlyFilePath) = ReadOnlyFilePath
+          toLens (Path_Report_View v) = (viewLens :: Lens' Report
+                                                           ReportView) . toLens v
+instance ToLens (Path_Report ReportImageView)
+    where type S (Path_Report ReportImageView) = Report
+          type A (Path_Report ReportImageView) = ReportImageView
+          toLens (Path_Report_View v) = (viewLens :: Lens' Report
+                                                           ReportView) . toLens v
+instance ToLens (Path_Report ReportView)
+    where type S (Path_Report ReportView) = Report
+          type A (Path_Report ReportView) = ReportView
+          toLens (Path_Report_View _) = viewLens :: Lens' Report ReportView
+instance ToLens (Path_Report SaneSizeImageSize)
+    where type S (Path_Report SaneSizeImageSize) = Report
+          type A (Path_Report SaneSizeImageSize) = SaneSizeImageSize
+          toLens (Path_Report_View v) = (viewLens :: Lens' Report
+                                                           ReportView) . toLens v
+instance ToLens (Path_Report Item)
+    where type S (Path_Report Item) = Report
+          type A (Path_Report Item) = Item
+          toLens (Path_Report_View v) = (viewLens :: Lens' Report
+                                                           ReportView) . toLens v
+instance ToLens (Path_Report MIM)
+    where type S (Path_Report MIM) = Report
+          type A (Path_Report MIM) = MIM
+          toLens (Path_Report_View v) = (viewLens :: Lens' Report
+                                                           ReportView) . toLens v
+instance ToLens (Path_Report CIString)
+    where type S (Path_Report CIString) = Report
+          type A (Path_Report CIString) = CIString
+          toLens (Path_Report_View v) = (viewLens :: Lens' Report
+                                                           ReportView) . toLens v
+instance ToLens (Path_Report URI)
+    where type S (Path_Report URI) = Report
+          type A (Path_Report URI) = URI
+          toLens (Path_Report_View v) = (viewLens :: Lens' Report
+                                                           ReportView) . toLens v
+instance ToLens (Path_Report Text)
+    where type S (Path_Report Text) = Report
+          type A (Path_Report Text) = Text
+          toLens (Path_Report_View v) = (viewLens :: Lens' Report
+                                                           ReportView) . toLens v
+instance ToLens (Path_Report UserId)
+    where type S (Path_Report UserId) = Report
+          type A (Path_Report UserId) = UserId
+          toLens (Path_Report_View v) = (viewLens :: Lens' Report
+                                                           ReportView) . toLens v
+instance ToLens (Path_Report UUID)
+    where type S (Path_Report UUID) = Report
+          type A (Path_Report UUID) = UUID
+          toLens (Path_Report_View v) = (viewLens :: Lens' Report
+                                                           ReportView) . toLens v
+instance ToLens (Path_ReportElem String)
+    where type S (Path_ReportElem String) = ReportElem
+          type A (Path_ReportElem String) = String
+          toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
+instance ToLens (Path_ReportElem Bool)
+    where type S (Path_ReportElem Bool) = ReportElem
+          type A (Path_ReportElem Bool) = Bool
+          toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
+instance ToLens (Path_ReportElem Double)
+    where type S (Path_ReportElem Double) = ReportElem
+          type A (Path_ReportElem Double) = Double
+          toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
+instance ToLens (Path_ReportElem Dimension)
+    where type S (Path_ReportElem Dimension) = ReportElem
+          type A (Path_ReportElem Dimension) = Dimension
+          toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
+instance ToLens (Path_ReportElem ImageCrop)
+    where type S (Path_ReportElem ImageCrop) = ReportElem
+          type A (Path_ReportElem ImageCrop) = ImageCrop
+          toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
+instance ToLens (Path_ReportElem ImageSize)
+    where type S (Path_ReportElem ImageSize) = ReportElem
+          type A (Path_ReportElem ImageSize) = ImageSize
+          toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
+instance ToLens (Path_ReportElem Units)
+    where type S (Path_ReportElem Units) = ReportElem
+          type A (Path_ReportElem Units) = Units
+          toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
+instance ToLens (Path_ReportElem ImageFile)
+    where type S (Path_ReportElem ImageFile) = ReportElem
+          type A (Path_ReportElem ImageFile) = ImageFile
+          toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
+instance ToLens (Path_ReportElem JSONText)
+    where type S (Path_ReportElem JSONText) = ReportElem
+          type A (Path_ReportElem JSONText) = JSONText
+          toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
+          toLens (Path_ReportElem_elemText _x) = lens_ReportElem_elemText . toLens _x
+instance ToLens (Path_ReportElem Markup)
+    where type S (Path_ReportElem Markup) = ReportElem
+          type A (Path_ReportElem Markup) = Markup
+          toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
+          toLens (Path_ReportElem_elemText _x) = lens_ReportElem_elemText
+instance ToLens (Path_ReportElem ReportElem)
+    where type S (Path_ReportElem ReportElem) = ReportElem
+          type A (Path_ReportElem ReportElem) = ReportElem
+          toLens _ = id
+instance ToLens (Path_ReportElem EUI)
+    where type S (Path_ReportElem EUI) = ReportElem
+          type A (Path_ReportElem EUI) = EUI
+          toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
+instance ToLens (Path_ReportElem MEUI)
+    where type S (Path_ReportElem MEUI) = ReportElem
+          type A (Path_ReportElem MEUI) = MEUI
+          toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
+instance ToLens (Path_ReportElem MaybeImageFile)
+    where type S (Path_ReportElem MaybeImageFile) = ReportElem
+          type A (Path_ReportElem MaybeImageFile) = MaybeImageFile
+          toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
+instance ToLens (Path_ReportElem ReportImage)
+    where type S (Path_ReportElem ReportImage) = ReportElem
+          type A (Path_ReportElem ReportImage) = ReportImage
+          toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
+instance ToLens (Path_ReportElem ReportImages)
+    where type S (Path_ReportElem ReportImages) = ReportElem
+          type A (Path_ReportElem ReportImages) = ReportImages
+          toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
+instance ToLens (Path_ReportElem ReportImageView)
+    where type S (Path_ReportElem ReportImageView) = ReportElem
+          type A (Path_ReportElem ReportImageView) = ReportImageView
+          toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
+instance ToLens (Path_ReportElem SaneSizeImageSize)
+    where type S (Path_ReportElem SaneSizeImageSize) = ReportElem
+          type A (Path_ReportElem SaneSizeImageSize) = SaneSizeImageSize
+          toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
+instance ToLens (Path_ReportElem Item)
+    where type S (Path_ReportElem Item) = ReportElem
+          type A (Path_ReportElem Item) = Item
+          toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem
+instance ToLens (Path_ReportElem MIM)
+    where type S (Path_ReportElem MIM) = ReportElem
+          type A (Path_ReportElem MIM) = MIM
+          toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
+instance ToLens (Path_ReportElem URI)
+    where type S (Path_ReportElem URI) = ReportElem
+          type A (Path_ReportElem URI) = URI
+          toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
+instance ToLens (Path_ReportElem Text)
+    where type S (Path_ReportElem Text) = ReportElem
+          type A (Path_ReportElem Text) = Text
+          toLens (Path_ReportElem_elemItem _x) = lens_ReportElem_elemItem . toLens _x
+          toLens (Path_ReportElem_elemText _x) = lens_ReportElem_elemText . toLens _x
+instance ToLens (Path_ReportFlags String)
+    where type S (Path_ReportFlags String) = ReportFlags
+          type A (Path_ReportFlags String) = String
+          toLens (Path_ReportFlags_hideEmptyItemFields _x) = lens_ReportFlags_hideEmptyItemFields . toLens _x
+instance ToLens (Path_ReportFlags Bool)
+    where type S (Path_ReportFlags Bool) = ReportFlags
+          type A (Path_ReportFlags Bool) = Bool
+          toLens (Path_ReportFlags_hideEmptyItemFields _x) = lens_ReportFlags_hideEmptyItemFields
+instance ToLens (Path_ReportFlags JSONText)
+    where type S (Path_ReportFlags JSONText) = ReportFlags
+          type A (Path_ReportFlags JSONText) = JSONText
+          toLens (Path_ReportFlags_hideEmptyItemFields _x) = lens_ReportFlags_hideEmptyItemFields . toLens _x
+instance ToLens (Path_ReportFlags ReportFlags)
+    where type S (Path_ReportFlags ReportFlags) = ReportFlags
+          type A (Path_ReportFlags ReportFlags) = ReportFlags
+          toLens _ = id
+instance ToLens (Path_ReportImage String)
+    where type S (Path_ReportImage String) = ReportImage
+          type A (Path_ReportImage String) = String
+          toLens (Path_ReportImage_View v) = (viewLens :: Lens' ReportImage
+                                                                ReportImageView) . toLens v
+instance ToLens (Path_ReportImage Bool)
+    where type S (Path_ReportImage Bool) = ReportImage
+          type A (Path_ReportImage Bool) = Bool
+          toLens (Path_ReportImage_View v) = (viewLens :: Lens' ReportImage
+                                                                ReportImageView) . toLens v
+instance ToLens (Path_ReportImage Double)
+    where type S (Path_ReportImage Double) = ReportImage
+          type A (Path_ReportImage Double) = Double
+          toLens (Path_ReportImage_View v) = (viewLens :: Lens' ReportImage
+                                                                ReportImageView) . toLens v
+instance ToLens (Path_ReportImage Dimension)
+    where type S (Path_ReportImage Dimension) = ReportImage
+          type A (Path_ReportImage Dimension) = Dimension
+          toLens (Path_ReportImage_View v) = (viewLens :: Lens' ReportImage
+                                                                ReportImageView) . toLens v
+instance ToLens (Path_ReportImage ImageCrop)
+    where type S (Path_ReportImage ImageCrop) = ReportImage
+          type A (Path_ReportImage ImageCrop) = ImageCrop
+          toLens (Path_ReportImage_View v) = (viewLens :: Lens' ReportImage
+                                                                ReportImageView) . toLens v
+instance ToLens (Path_ReportImage ImageSize)
+    where type S (Path_ReportImage ImageSize) = ReportImage
+          type A (Path_ReportImage ImageSize) = ImageSize
+          toLens (Path_ReportImage_View v) = (viewLens :: Lens' ReportImage
+                                                                ReportImageView) . toLens v
+instance ToLens (Path_ReportImage Units)
+    where type S (Path_ReportImage Units) = ReportImage
+          type A (Path_ReportImage Units) = Units
+          toLens (Path_ReportImage_View v) = (viewLens :: Lens' ReportImage
+                                                                ReportImageView) . toLens v
+instance ToLens (Path_ReportImage ImageFile)
+    where type S (Path_ReportImage ImageFile) = ReportImage
+          type A (Path_ReportImage ImageFile) = ImageFile
+          toLens (Path_ReportImage_View v) = (viewLens :: Lens' ReportImage
+                                                                ReportImageView) . toLens v
+instance ToLens (Path_ReportImage JSONText)
+    where type S (Path_ReportImage JSONText) = ReportImage
+          type A (Path_ReportImage JSONText) = JSONText
+          toLens (Path_ReportImage_View v) = (viewLens :: Lens' ReportImage
+                                                                ReportImageView) . toLens v
+instance ToLens (Path_ReportImage Markup)
+    where type S (Path_ReportImage Markup) = ReportImage
+          type A (Path_ReportImage Markup) = Markup
+          toLens (Path_ReportImage_View v) = (viewLens :: Lens' ReportImage
+                                                                ReportImageView) . toLens v
+instance ToLens (Path_ReportImage EUI)
+    where type S (Path_ReportImage EUI) = ReportImage
+          type A (Path_ReportImage EUI) = EUI
+          toLens (Path_ReportImage_View v) = (viewLens :: Lens' ReportImage
+                                                                ReportImageView) . toLens v
+instance ToLens (Path_ReportImage MEUI)
+    where type S (Path_ReportImage MEUI) = ReportImage
+          type A (Path_ReportImage MEUI) = MEUI
+          toLens (Path_ReportImage_View v) = (viewLens :: Lens' ReportImage
+                                                                ReportImageView) . toLens v
+instance ToLens (Path_ReportImage MaybeImageFile)
+    where type S (Path_ReportImage MaybeImageFile) = ReportImage
+          type A (Path_ReportImage MaybeImageFile) = MaybeImageFile
+          toLens (Path_ReportImage_View v) = (viewLens :: Lens' ReportImage
+                                                                ReportImageView) . toLens v
+instance ToLens (Path_ReportImage ReportImage)
+    where type S (Path_ReportImage ReportImage) = ReportImage
+          type A (Path_ReportImage ReportImage) = ReportImage
+          toLens _ = id
+instance ToLens (Path_ReportImage ReportImageView)
+    where type S (Path_ReportImage ReportImageView) = ReportImage
+          type A (Path_ReportImage ReportImageView) = ReportImageView
+          toLens (Path_ReportImage_View _) = viewLens :: Lens' ReportImage
+                                                               ReportImageView
+instance ToLens (Path_ReportImage SaneSizeImageSize)
+    where type S (Path_ReportImage SaneSizeImageSize) = ReportImage
+          type A (Path_ReportImage SaneSizeImageSize) = SaneSizeImageSize
+          toLens (Path_ReportImage_View v) = (viewLens :: Lens' ReportImage
+                                                                ReportImageView) . toLens v
+instance ToLens (Path_ReportImage URI)
+    where type S (Path_ReportImage URI) = ReportImage
+          type A (Path_ReportImage URI) = URI
+          toLens (Path_ReportImage_View v) = (viewLens :: Lens' ReportImage
+                                                                ReportImageView) . toLens v
+instance ToLens (Path_ReportImage Text)
+    where type S (Path_ReportImage Text) = ReportImage
+          type A (Path_ReportImage Text) = Text
+          toLens (Path_ReportImage_View v) = (viewLens :: Lens' ReportImage
+                                                                ReportImageView) . toLens v
+instance ToLens (Path_ReportImageView String)
+    where type S (Path_ReportImageView String) = ReportImageView
+          type A (Path_ReportImageView String) = String
+          toLens (Path_ReportImageView__picSize _x) = lens_ReportImageView__picSize . toLens _x
+          toLens (Path_ReportImageView__picEditedDeprecated _x) = lens_ReportImageView__picEditedDeprecated . toLens _x
+          toLens (Path_ReportImageView__picThumbDeprecated _x) = lens_ReportImageView__picThumbDeprecated . toLens _x
+          toLens (Path_ReportImageView__picPrinterDeprecated _x) = lens_ReportImageView__picPrinterDeprecated . toLens _x
+          toLens (Path_ReportImageView__picMustEnlarge _x) = lens_ReportImageView__picMustEnlarge . toLens _x
+          toLens (Path_ReportImageView__picEnlargedDeprecated _x) = lens_ReportImageView__picEnlargedDeprecated . toLens _x
+instance ToLens (Path_ReportImageView Bool)
+    where type S (Path_ReportImageView Bool) = ReportImageView
+          type A (Path_ReportImageView Bool) = Bool
+          toLens (Path_ReportImageView__picMustEnlarge _x) = lens_ReportImageView__picMustEnlarge
+instance ToLens (Path_ReportImageView Double)
+    where type S (Path_ReportImageView Double) = ReportImageView
+          type A (Path_ReportImageView Double) = Double
+          toLens (Path_ReportImageView__picSize _x) = lens_ReportImageView__picSize . toLens _x
+instance ToLens (Path_ReportImageView Dimension)
+    where type S (Path_ReportImageView Dimension) = ReportImageView
+          type A (Path_ReportImageView Dimension) = Dimension
+          toLens (Path_ReportImageView__picSize _x) = lens_ReportImageView__picSize . toLens _x
+instance ToLens (Path_ReportImageView ImageCrop)
+    where type S (Path_ReportImageView ImageCrop) = ReportImageView
+          type A (Path_ReportImageView ImageCrop) = ImageCrop
+          toLens (Path_ReportImageView__picCrop _x) = lens_ReportImageView__picCrop
+instance ToLens (Path_ReportImageView ImageSize)
+    where type S (Path_ReportImageView ImageSize) = ReportImageView
+          type A (Path_ReportImageView ImageSize) = ImageSize
+          toLens (Path_ReportImageView__picSize _x) = lens_ReportImageView__picSize . toLens _x
+instance ToLens (Path_ReportImageView Units)
+    where type S (Path_ReportImageView Units) = ReportImageView
+          type A (Path_ReportImageView Units) = Units
+          toLens (Path_ReportImageView__picSize _x) = lens_ReportImageView__picSize . toLens _x
+instance ToLens (Path_ReportImageView ImageFile)
+    where type S (Path_ReportImageView ImageFile) = ReportImageView
+          type A (Path_ReportImageView ImageFile) = ImageFile
+          toLens (Path_ReportImageView__picOriginal _x) = lens_ReportImageView__picOriginal . toLens _x
+instance ToLens (Path_ReportImageView JSONText)
+    where type S (Path_ReportImageView JSONText) = ReportImageView
+          type A (Path_ReportImageView JSONText) = JSONText
+          toLens (Path_ReportImageView__picSize _x) = lens_ReportImageView__picSize . toLens _x
+          toLens (Path_ReportImageView__picCaption _x) = lens_ReportImageView__picCaption . toLens _x
+          toLens (Path_ReportImageView__picEditedDeprecated _x) = lens_ReportImageView__picEditedDeprecated . toLens _x
+          toLens (Path_ReportImageView__picThumbDeprecated _x) = lens_ReportImageView__picThumbDeprecated . toLens _x
+          toLens (Path_ReportImageView__picPrinterDeprecated _x) = lens_ReportImageView__picPrinterDeprecated . toLens _x
+          toLens (Path_ReportImageView__picMustEnlarge _x) = lens_ReportImageView__picMustEnlarge . toLens _x
+          toLens (Path_ReportImageView__picEnlargedDeprecated _x) = lens_ReportImageView__picEnlargedDeprecated . toLens _x
+instance ToLens (Path_ReportImageView Markup)
+    where type S (Path_ReportImageView Markup) = ReportImageView
+          type A (Path_ReportImageView Markup) = Markup
+          toLens (Path_ReportImageView__picCaption _x) = lens_ReportImageView__picCaption
+instance ToLens (Path_ReportImageView EUI)
+    where type S (Path_ReportImageView EUI) = ReportImageView
+          type A (Path_ReportImageView EUI) = EUI
+          toLens (Path_ReportImageView__picOriginal _x) = lens_ReportImageView__picOriginal . toLens _x
+instance ToLens (Path_ReportImageView MEUI)
+    where type S (Path_ReportImageView MEUI) = ReportImageView
+          type A (Path_ReportImageView MEUI) = MEUI
+          toLens (Path_ReportImageView__picOriginal _x) = lens_ReportImageView__picOriginal
+instance ToLens (Path_ReportImageView MaybeImageFile)
+    where type S (Path_ReportImageView MaybeImageFile) = ReportImageView
+          type A (Path_ReportImageView MaybeImageFile) = MaybeImageFile
+          toLens (Path_ReportImageView__picEditedDeprecated _x) = lens_ReportImageView__picEditedDeprecated
+          toLens (Path_ReportImageView__picThumbDeprecated _x) = lens_ReportImageView__picThumbDeprecated
+          toLens (Path_ReportImageView__picPrinterDeprecated _x) = lens_ReportImageView__picPrinterDeprecated
+          toLens (Path_ReportImageView__picEnlargedDeprecated _x) = lens_ReportImageView__picEnlargedDeprecated
+instance ToLens (Path_ReportImageView ReportImageView)
+    where type S (Path_ReportImageView ReportImageView) = ReportImageView
+          type A (Path_ReportImageView ReportImageView) = ReportImageView
+          toLens _ = id
+instance ToLens (Path_ReportImageView SaneSizeImageSize)
+    where type S (Path_ReportImageView SaneSizeImageSize) = ReportImageView
+          type A (Path_ReportImageView SaneSizeImageSize) = SaneSizeImageSize
+          toLens (Path_ReportImageView__picSize _x) = lens_ReportImageView__picSize
+instance ToLens (Path_ReportImageView URI)
+    where type S (Path_ReportImageView URI) = ReportImageView
+          type A (Path_ReportImageView URI) = URI
+          toLens (Path_ReportImageView__picOriginal _x) = lens_ReportImageView__picOriginal . toLens _x
+instance ToLens (Path_ReportImageView Text)
+    where type S (Path_ReportImageView Text) = ReportImageView
+          type A (Path_ReportImageView Text) = Text
+          toLens (Path_ReportImageView__picCaption _x) = lens_ReportImageView__picCaption . toLens _x
+instance ToLens (Path_ReportIntendedUse String)
+    where type S (Path_ReportIntendedUse String) = ReportIntendedUse
+          type A (Path_ReportIntendedUse String) = String
+          toLens (Path_ReportIntendedUse_View _) = viewLens :: Lens' ReportIntendedUse
+                                                                     ([Char])
+instance ToLens (Path_ReportIntendedUse JSONText)
+    where type S (Path_ReportIntendedUse JSONText) = ReportIntendedUse
+          type A (Path_ReportIntendedUse JSONText) = JSONText
+          toLens (Path_ReportIntendedUse_View v) = (viewLens :: Lens' ReportIntendedUse
+                                                                      ([Char])) . toLens v
+instance ToLens (Path_ReportIntendedUse ReportIntendedUse)
+    where type S (Path_ReportIntendedUse ReportIntendedUse) = ReportIntendedUse
+          type A (Path_ReportIntendedUse ReportIntendedUse) = ReportIntendedUse
+          toLens _ = id
+instance ToLens (Path_ReportMap String)
+    where type S (Path_ReportMap String) = ReportMap
+          type A (Path_ReportMap String) = String
+          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
+instance ToLens (Path_ReportMap Int64)
+    where type S (Path_ReportMap Int64) = ReportMap
+          type A (Path_ReportMap Int64) = Int64
+          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
+instance ToLens (Path_ReportMap Bool)
+    where type S (Path_ReportMap Bool) = ReportMap
+          type A (Path_ReportMap Bool) = Bool
+          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
+instance ToLens (Path_ReportMap Double)
+    where type S (Path_ReportMap Double) = ReportMap
+          type A (Path_ReportMap Double) = Double
+          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
+instance ToLens (Path_ReportMap Int)
+    where type S (Path_ReportMap Int) = ReportMap
+          type A (Path_ReportMap Int) = Int
+          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
+instance ToLens (Path_ReportMap Dimension)
+    where type S (Path_ReportMap Dimension) = ReportMap
+          type A (Path_ReportMap Dimension) = Dimension
+          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
+instance ToLens (Path_ReportMap ImageCrop)
+    where type S (Path_ReportMap ImageCrop) = ReportMap
+          type A (Path_ReportMap ImageCrop) = ImageCrop
+          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
+instance ToLens (Path_ReportMap ImageSize)
+    where type S (Path_ReportMap ImageSize) = ReportMap
+          type A (Path_ReportMap ImageSize) = ImageSize
+          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
+instance ToLens (Path_ReportMap Units)
+    where type S (Path_ReportMap Units) = ReportMap
+          type A (Path_ReportMap Units) = Units
+          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
+instance ToLens (Path_ReportMap ImageFile)
+    where type S (Path_ReportMap ImageFile) = ReportMap
+          type A (Path_ReportMap ImageFile) = ImageFile
+          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
+instance ToLens (Path_ReportMap Integer)
+    where type S (Path_ReportMap Integer) = ReportMap
+          type A (Path_ReportMap Integer) = Integer
+          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
+instance ToLens (Path_ReportMap JSONText)
+    where type S (Path_ReportMap JSONText) = ReportMap
+          type A (Path_ReportMap JSONText) = JSONText
+          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
+instance ToLens (Path_ReportMap Markup)
+    where type S (Path_ReportMap Markup) = ReportMap
+          type A (Path_ReportMap Markup) = Markup
+          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
+instance ToLens (Path_ReportMap Permissions)
+    where type S (Path_ReportMap Permissions) = ReportMap
+          type A (Path_ReportMap Permissions) = Permissions
+          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
+instance ToLens (Path_ReportMap UserIds)
+    where type S (Path_ReportMap UserIds) = ReportMap
+          type A (Path_ReportMap UserIds) = UserIds
+          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
+instance ToLens (Path_ReportMap AbbrevPair)
+    where type S (Path_ReportMap AbbrevPair) = ReportMap
+          type A (Path_ReportMap AbbrevPair) = AbbrevPair
+          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
+instance ToLens (Path_ReportMap AbbrevPairs)
+    where type S (Path_ReportMap AbbrevPairs) = ReportMap
+          type A (Path_ReportMap AbbrevPairs) = AbbrevPairs
+          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
+instance ToLens (Path_ReportMap Author)
+    where type S (Path_ReportMap Author) = ReportMap
+          type A (Path_ReportMap Author) = Author
+          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
+instance ToLens (Path_ReportMap Authors)
+    where type S (Path_ReportMap Authors) = ReportMap
+          type A (Path_ReportMap Authors) = Authors
+          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
+instance ToLens (Path_ReportMap Branding)
+    where type S (Path_ReportMap Branding) = ReportMap
+          type A (Path_ReportMap Branding) = Branding
+          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
+instance ToLens (Path_ReportMap MarkupPair)
+    where type S (Path_ReportMap MarkupPair) = ReportMap
+          type A (Path_ReportMap MarkupPair) = MarkupPair
+          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
+instance ToLens (Path_ReportMap MarkupPairs)
+    where type S (Path_ReportMap MarkupPairs) = ReportMap
+          type A (Path_ReportMap MarkupPairs) = MarkupPairs
+          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
+instance ToLens (Path_ReportMap Markups)
+    where type S (Path_ReportMap Markups) = ReportMap
+          type A (Path_ReportMap Markups) = Markups
+          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
+instance ToLens (Path_ReportMap MaybeReportIntendedUse)
+    where type S (Path_ReportMap MaybeReportIntendedUse) = ReportMap
+          type A (Path_ReportMap MaybeReportIntendedUse) = MaybeReportIntendedUse
+          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
+instance ToLens (Path_ReportMap Report)
+    where type S (Path_ReportMap Report) = ReportMap
+          type A (Path_ReportMap Report) = Report
+          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
+instance ToLens (Path_ReportMap ReportElem)
+    where type S (Path_ReportMap ReportElem) = ReportMap
+          type A (Path_ReportMap ReportElem) = ReportElem
+          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
+instance ToLens (Path_ReportMap ReportElems)
+    where type S (Path_ReportMap ReportElems) = ReportMap
+          type A (Path_ReportMap ReportElems) = ReportElems
+          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
+instance ToLens (Path_ReportMap ReportFlags)
+    where type S (Path_ReportMap ReportFlags) = ReportMap
+          type A (Path_ReportMap ReportFlags) = ReportFlags
+          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
+instance ToLens (Path_ReportMap ReportStandard)
+    where type S (Path_ReportMap ReportStandard) = ReportMap
+          type A (Path_ReportMap ReportStandard) = ReportStandard
+          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
+instance ToLens (Path_ReportMap ReportStatus)
+    where type S (Path_ReportMap ReportStatus) = ReportMap
+          type A (Path_ReportMap ReportStatus) = ReportStatus
+          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
+instance ToLens (Path_ReportMap ReportValueApproachInfo)
+    where type S (Path_ReportMap ReportValueApproachInfo) = ReportMap
+          type A (Path_ReportMap ReportValueApproachInfo) = ReportValueApproachInfo
+          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
+instance ToLens (Path_ReportMap ReportValueTypeInfo)
+    where type S (Path_ReportMap ReportValueTypeInfo) = ReportMap
+          type A (Path_ReportMap ReportValueTypeInfo) = ReportValueTypeInfo
+          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
+instance ToLens (Path_ReportMap EUI)
+    where type S (Path_ReportMap EUI) = ReportMap
+          type A (Path_ReportMap EUI) = EUI
+          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
+instance ToLens (Path_ReportMap MEUI)
+    where type S (Path_ReportMap MEUI) = ReportMap
+          type A (Path_ReportMap MEUI) = MEUI
+          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
+instance ToLens (Path_ReportMap MaybeImageFile)
+    where type S (Path_ReportMap MaybeImageFile) = ReportMap
+          type A (Path_ReportMap MaybeImageFile) = MaybeImageFile
+          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
+instance ToLens (Path_ReportMap ReportImage)
+    where type S (Path_ReportMap ReportImage) = ReportMap
+          type A (Path_ReportMap ReportImage) = ReportImage
+          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
+instance ToLens (Path_ReportMap ReportImages)
+    where type S (Path_ReportMap ReportImages) = ReportMap
+          type A (Path_ReportMap ReportImages) = ReportImages
+          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
+instance ToLens (Path_ReportMap ReadOnlyFilePath)
+    where type S (Path_ReportMap ReadOnlyFilePath) = ReportMap
+          type A (Path_ReportMap ReadOnlyFilePath) = ReadOnlyFilePath
+          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
+instance ToLens (Path_ReportMap ReportImageView)
+    where type S (Path_ReportMap ReportImageView) = ReportMap
+          type A (Path_ReportMap ReportImageView) = ReportImageView
+          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
+instance ToLens (Path_ReportMap ReportView)
+    where type S (Path_ReportMap ReportView) = ReportMap
+          type A (Path_ReportMap ReportView) = ReportView
+          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
+instance ToLens (Path_ReportMap SaneSizeImageSize)
+    where type S (Path_ReportMap SaneSizeImageSize) = ReportMap
+          type A (Path_ReportMap SaneSizeImageSize) = SaneSizeImageSize
+          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
+instance ToLens (Path_ReportMap Item)
+    where type S (Path_ReportMap Item) = ReportMap
+          type A (Path_ReportMap Item) = Item
+          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
+instance ToLens (Path_ReportMap MIM)
+    where type S (Path_ReportMap MIM) = ReportMap
+          type A (Path_ReportMap MIM) = MIM
+          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
+instance ToLens (Path_ReportMap MRR)
+    where type S (Path_ReportMap MRR) = ReportMap
+          type A (Path_ReportMap MRR) = MRR
+          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap
+instance ToLens (Path_ReportMap ReportMap)
+    where type S (Path_ReportMap ReportMap) = ReportMap
+          type A (Path_ReportMap ReportMap) = ReportMap
+          toLens _ = id
+instance ToLens (Path_ReportMap CIString)
+    where type S (Path_ReportMap CIString) = ReportMap
+          type A (Path_ReportMap CIString) = CIString
+          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
+instance ToLens (Path_ReportMap URI)
+    where type S (Path_ReportMap URI) = ReportMap
+          type A (Path_ReportMap URI) = URI
+          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
+instance ToLens (Path_ReportMap Text)
+    where type S (Path_ReportMap Text) = ReportMap
+          type A (Path_ReportMap Text) = Text
+          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
+instance ToLens (Path_ReportMap UserId)
+    where type S (Path_ReportMap UserId) = ReportMap
+          type A (Path_ReportMap UserId) = UserId
+          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
+instance ToLens (Path_ReportMap UUID)
+    where type S (Path_ReportMap UUID) = ReportMap
+          type A (Path_ReportMap UUID) = UUID
+          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
+instance ToLens (Path_ReportStandard Int)
+    where type S (Path_ReportStandard Int) = ReportStandard
+          type A (Path_ReportStandard Int) = Int
+          toLens (Path_ReportStandard_unReportStandard _x) = lens_ReportStandard_unReportStandard
+instance ToLens (Path_ReportStandard ReportStandard)
+    where type S (Path_ReportStandard ReportStandard) = ReportStandard
+          type A (Path_ReportStandard ReportStandard) = ReportStandard
+          toLens _ = id
+instance ToLens (Path_ReportStatus String)
+    where type S (Path_ReportStatus String) = ReportStatus
+          type A (Path_ReportStatus String) = String
+          toLens (Path_ReportStatus_View _) = viewLens :: Lens' ReportStatus
+                                                                ([Char])
+instance ToLens (Path_ReportStatus JSONText)
+    where type S (Path_ReportStatus JSONText) = ReportStatus
+          type A (Path_ReportStatus JSONText) = JSONText
+          toLens (Path_ReportStatus_View v) = (viewLens :: Lens' ReportStatus
+                                                                 ([Char])) . toLens v
+instance ToLens (Path_ReportStatus ReportStatus)
+    where type S (Path_ReportStatus ReportStatus) = ReportStatus
+          type A (Path_ReportStatus ReportStatus) = ReportStatus
+          toLens _ = id
+instance ToLens (Path_ReportValueApproachInfo JSONText)
+    where type S (Path_ReportValueApproachInfo JSONText) = ReportValueApproachInfo
+          type A (Path_ReportValueApproachInfo JSONText) = JSONText
+          toLens (Path_ReportValueApproachInfo_reportValueApproachName _x) = lens_ReportValueApproachInfo_reportValueApproachName . toLens _x
+          toLens (Path_ReportValueApproachInfo_reportValueApproachDescription _x) = lens_ReportValueApproachInfo_reportValueApproachDescription . toLens _x
+instance ToLens (Path_ReportValueApproachInfo Markup)
+    where type S (Path_ReportValueApproachInfo Markup) = ReportValueApproachInfo
+          type A (Path_ReportValueApproachInfo Markup) = Markup
+          toLens (Path_ReportValueApproachInfo_reportValueApproachName _x) = lens_ReportValueApproachInfo_reportValueApproachName
+          toLens (Path_ReportValueApproachInfo_reportValueApproachDescription _x) = lens_ReportValueApproachInfo_reportValueApproachDescription
+instance ToLens (Path_ReportValueApproachInfo ReportValueApproachInfo)
+    where type S (Path_ReportValueApproachInfo ReportValueApproachInfo) = ReportValueApproachInfo
+          type A (Path_ReportValueApproachInfo ReportValueApproachInfo) = ReportValueApproachInfo
+          toLens _ = id
+instance ToLens (Path_ReportValueApproachInfo Text)
+    where type S (Path_ReportValueApproachInfo Text) = ReportValueApproachInfo
+          type A (Path_ReportValueApproachInfo Text) = Text
+          toLens (Path_ReportValueApproachInfo_reportValueApproachName _x) = lens_ReportValueApproachInfo_reportValueApproachName . toLens _x
+          toLens (Path_ReportValueApproachInfo_reportValueApproachDescription _x) = lens_ReportValueApproachInfo_reportValueApproachDescription . toLens _x
+instance ToLens (Path_ReportValueTypeInfo JSONText)
+    where type S (Path_ReportValueTypeInfo JSONText) = ReportValueTypeInfo
+          type A (Path_ReportValueTypeInfo JSONText) = JSONText
+          toLens (Path_ReportValueTypeInfo_reportValueTypeName _x) = lens_ReportValueTypeInfo_reportValueTypeName . toLens _x
+          toLens (Path_ReportValueTypeInfo_reportValueTypeDescription _x) = lens_ReportValueTypeInfo_reportValueTypeDescription . toLens _x
+          toLens (Path_ReportValueTypeInfo_reportValueTypeDefinition _x) = lens_ReportValueTypeInfo_reportValueTypeDefinition . toLens _x
+instance ToLens (Path_ReportValueTypeInfo Markup)
+    where type S (Path_ReportValueTypeInfo Markup) = ReportValueTypeInfo
+          type A (Path_ReportValueTypeInfo Markup) = Markup
+          toLens (Path_ReportValueTypeInfo_reportValueTypeName _x) = lens_ReportValueTypeInfo_reportValueTypeName
+          toLens (Path_ReportValueTypeInfo_reportValueTypeDescription _x) = lens_ReportValueTypeInfo_reportValueTypeDescription
+          toLens (Path_ReportValueTypeInfo_reportValueTypeDefinition _x) = lens_ReportValueTypeInfo_reportValueTypeDefinition
+instance ToLens (Path_ReportValueTypeInfo ReportValueTypeInfo)
+    where type S (Path_ReportValueTypeInfo ReportValueTypeInfo) = ReportValueTypeInfo
+          type A (Path_ReportValueTypeInfo ReportValueTypeInfo) = ReportValueTypeInfo
+          toLens _ = id
+instance ToLens (Path_ReportValueTypeInfo Text)
+    where type S (Path_ReportValueTypeInfo Text) = ReportValueTypeInfo
+          type A (Path_ReportValueTypeInfo Text) = Text
+          toLens (Path_ReportValueTypeInfo_reportValueTypeName _x) = lens_ReportValueTypeInfo_reportValueTypeName . toLens _x
+          toLens (Path_ReportValueTypeInfo_reportValueTypeDescription _x) = lens_ReportValueTypeInfo_reportValueTypeDescription . toLens _x
+          toLens (Path_ReportValueTypeInfo_reportValueTypeDefinition _x) = lens_ReportValueTypeInfo_reportValueTypeDefinition . toLens _x
+instance ToLens (Path_ReportView String)
+    where type S (Path_ReportView String) = ReportView
+          type A (Path_ReportView String) = String
+          toLens (Path_ReportView__reportFolder _x) = lens_ReportView__reportFolder . toLens _x
+          toLens (Path_ReportView__reportIntendedUse _x) = lens_ReportView__reportIntendedUse . toLens _x
+          toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
+          toLens (Path_ReportView__reportStatus _x) = lens_ReportView__reportStatus . toLens _x
+          toLens (Path_ReportView__reportRedacted _x) = lens_ReportView__reportRedacted . toLens _x
+          toLens (Path_ReportView__reportFlags _x) = lens_ReportView__reportFlags . toLens _x
+          toLens (Path_ReportView__reportOrderByItemName _x) = lens_ReportView__reportOrderByItemName . toLens _x
+          toLens (Path_ReportView__reportDisplayItemName _x) = lens_ReportView__reportDisplayItemName . toLens _x
+instance ToLens (Path_ReportView Int64)
+    where type S (Path_ReportView Int64) = ReportView
+          type A (Path_ReportView Int64) = Int64
+          toLens (Path_ReportView__reportCreated _x) = lens_ReportView__reportCreated
+instance ToLens (Path_ReportView Bool)
+    where type S (Path_ReportView Bool) = ReportView
+          type A (Path_ReportView Bool) = Bool
+          toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
+          toLens (Path_ReportView__reportRedacted _x) = lens_ReportView__reportRedacted
+          toLens (Path_ReportView__reportFlags _x) = lens_ReportView__reportFlags . toLens _x
+          toLens (Path_ReportView__reportOrderByItemName _x) = lens_ReportView__reportOrderByItemName
+          toLens (Path_ReportView__reportDisplayItemName _x) = lens_ReportView__reportDisplayItemName
+instance ToLens (Path_ReportView Double)
+    where type S (Path_ReportView Double) = ReportView
+          type A (Path_ReportView Double) = Double
+          toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
+instance ToLens (Path_ReportView Int)
+    where type S (Path_ReportView Int) = ReportView
+          type A (Path_ReportView Int) = Int
+          toLens (Path_ReportView__reportStandardsVersion _x) = lens_ReportView__reportStandardsVersion . toLens _x
+instance ToLens (Path_ReportView Dimension)
+    where type S (Path_ReportView Dimension) = ReportView
+          type A (Path_ReportView Dimension) = Dimension
+          toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
+instance ToLens (Path_ReportView ImageCrop)
+    where type S (Path_ReportView ImageCrop) = ReportView
+          type A (Path_ReportView ImageCrop) = ImageCrop
+          toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
+instance ToLens (Path_ReportView ImageSize)
+    where type S (Path_ReportView ImageSize) = ReportView
+          type A (Path_ReportView ImageSize) = ImageSize
+          toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
+instance ToLens (Path_ReportView Units)
+    where type S (Path_ReportView Units) = ReportView
+          type A (Path_ReportView Units) = Units
+          toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
+instance ToLens (Path_ReportView ImageFile)
+    where type S (Path_ReportView ImageFile) = ReportView
+          type A (Path_ReportView ImageFile) = ImageFile
+          toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
+instance ToLens (Path_ReportView Integer)
+    where type S (Path_ReportView Integer) = ReportView
+          type A (Path_ReportView Integer) = Integer
+          toLens (Path_ReportView__reportRevision _x) = lens_ReportView__reportRevision
+instance ToLens (Path_ReportView JSONText)
+    where type S (Path_ReportView JSONText) = ReportView
+          type A (Path_ReportView JSONText) = JSONText
+          toLens (Path_ReportView__reportFolder _x) = lens_ReportView__reportFolder . toLens _x
+          toLens (Path_ReportView__reportName _x) = lens_ReportView__reportName . toLens _x
+          toLens (Path_ReportView__reportDate _x) = lens_ReportView__reportDate . toLens _x
+          toLens (Path_ReportView__reportContractDate _x) = lens_ReportView__reportContractDate . toLens _x
+          toLens (Path_ReportView__reportInspectionDate _x) = lens_ReportView__reportInspectionDate . toLens _x
+          toLens (Path_ReportView__reportEffectiveDate _x) = lens_ReportView__reportEffectiveDate . toLens _x
+          toLens (Path_ReportView__reportAuthors _x) = lens_ReportView__reportAuthors . toLens _x
+          toLens (Path_ReportView__reportPreparer _x) = lens_ReportView__reportPreparer . toLens _x
+          toLens (Path_ReportView__reportPreparerEIN _x) = lens_ReportView__reportPreparerEIN . toLens _x
+          toLens (Path_ReportView__reportPreparerAddress _x) = lens_ReportView__reportPreparerAddress . toLens _x
+          toLens (Path_ReportView__reportPreparerEMail _x) = lens_ReportView__reportPreparerEMail . toLens _x
+          toLens (Path_ReportView__reportPreparerWebsite _x) = lens_ReportView__reportPreparerWebsite . toLens _x
+          toLens (Path_ReportView__reportAbbrevs _x) = lens_ReportView__reportAbbrevs . toLens _x
+          toLens (Path_ReportView__reportTitle _x) = lens_ReportView__reportTitle . toLens _x
+          toLens (Path_ReportView__reportHeader _x) = lens_ReportView__reportHeader . toLens _x
+          toLens (Path_ReportView__reportFooter _x) = lens_ReportView__reportFooter . toLens _x
+          toLens (Path_ReportView__reportIntendedUse _x) = lens_ReportView__reportIntendedUse . toLens _x
+          toLens (Path_ReportView__reportValueTypeInfo _x) = lens_ReportView__reportValueTypeInfo . toLens _x
+          toLens (Path_ReportView__reportValueApproachInfo _x) = lens_ReportView__reportValueApproachInfo . toLens _x
+          toLens (Path_ReportView__reportClientName _x) = lens_ReportView__reportClientName . toLens _x
+          toLens (Path_ReportView__reportClientAddress _x) = lens_ReportView__reportClientAddress . toLens _x
+          toLens (Path_ReportView__reportClientGreeting _x) = lens_ReportView__reportClientGreeting . toLens _x
+          toLens (Path_ReportView__reportItemsOwnerFull _x) = lens_ReportView__reportItemsOwnerFull . toLens _x
+          toLens (Path_ReportView__reportItemsOwner _x) = lens_ReportView__reportItemsOwner . toLens _x
+          toLens (Path_ReportView__reportBriefItems _x) = lens_ReportView__reportBriefItems . toLens _x
+          toLens (Path_ReportView__reportInspectionLocation _x) = lens_ReportView__reportInspectionLocation . toLens _x
+          toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
+          toLens (Path_ReportView__reportGlossary _x) = lens_ReportView__reportGlossary . toLens _x
+          toLens (Path_ReportView__reportSources _x) = lens_ReportView__reportSources . toLens _x
+          toLens (Path_ReportView__reportLetterOfTransmittal _x) = lens_ReportView__reportLetterOfTransmittal . toLens _x
+          toLens (Path_ReportView__reportScopeOfWork _x) = lens_ReportView__reportScopeOfWork . toLens _x
+          toLens (Path_ReportView__reportCertification _x) = lens_ReportView__reportCertification . toLens _x
+          toLens (Path_ReportView__reportLimitingConditions _x) = lens_ReportView__reportLimitingConditions . toLens _x
+          toLens (Path_ReportView__reportPrivacyPolicy _x) = lens_ReportView__reportPrivacyPolicy . toLens _x
+          toLens (Path_ReportView__reportPerms _x) = lens_ReportView__reportPerms . toLens _x
+          toLens (Path_ReportView__reportBranding _x) = lens_ReportView__reportBranding . toLens _x
+          toLens (Path_ReportView__reportStatus _x) = lens_ReportView__reportStatus . toLens _x
+          toLens (Path_ReportView__reportRedacted _x) = lens_ReportView__reportRedacted . toLens _x
+          toLens (Path_ReportView__reportFlags _x) = lens_ReportView__reportFlags . toLens _x
+          toLens (Path_ReportView__reportOrderByItemName _x) = lens_ReportView__reportOrderByItemName . toLens _x
+          toLens (Path_ReportView__reportDisplayItemName _x) = lens_ReportView__reportDisplayItemName . toLens _x
+instance ToLens (Path_ReportView Markup)
+    where type S (Path_ReportView Markup) = ReportView
+          type A (Path_ReportView Markup) = Markup
+          toLens (Path_ReportView__reportName _x) = lens_ReportView__reportName
+          toLens (Path_ReportView__reportDate _x) = lens_ReportView__reportDate
+          toLens (Path_ReportView__reportContractDate _x) = lens_ReportView__reportContractDate
+          toLens (Path_ReportView__reportInspectionDate _x) = lens_ReportView__reportInspectionDate
+          toLens (Path_ReportView__reportEffectiveDate _x) = lens_ReportView__reportEffectiveDate
+          toLens (Path_ReportView__reportAuthors _x) = lens_ReportView__reportAuthors . toLens _x
+          toLens (Path_ReportView__reportPreparer _x) = lens_ReportView__reportPreparer
+          toLens (Path_ReportView__reportPreparerEIN _x) = lens_ReportView__reportPreparerEIN
+          toLens (Path_ReportView__reportPreparerAddress _x) = lens_ReportView__reportPreparerAddress
+          toLens (Path_ReportView__reportPreparerEMail _x) = lens_ReportView__reportPreparerEMail
+          toLens (Path_ReportView__reportPreparerWebsite _x) = lens_ReportView__reportPreparerWebsite
+          toLens (Path_ReportView__reportAbbrevs _x) = lens_ReportView__reportAbbrevs . toLens _x
+          toLens (Path_ReportView__reportTitle _x) = lens_ReportView__reportTitle
+          toLens (Path_ReportView__reportHeader _x) = lens_ReportView__reportHeader
+          toLens (Path_ReportView__reportFooter _x) = lens_ReportView__reportFooter
+          toLens (Path_ReportView__reportValueTypeInfo _x) = lens_ReportView__reportValueTypeInfo . toLens _x
+          toLens (Path_ReportView__reportValueApproachInfo _x) = lens_ReportView__reportValueApproachInfo . toLens _x
+          toLens (Path_ReportView__reportClientName _x) = lens_ReportView__reportClientName
+          toLens (Path_ReportView__reportClientAddress _x) = lens_ReportView__reportClientAddress
+          toLens (Path_ReportView__reportClientGreeting _x) = lens_ReportView__reportClientGreeting
+          toLens (Path_ReportView__reportItemsOwnerFull _x) = lens_ReportView__reportItemsOwnerFull
+          toLens (Path_ReportView__reportItemsOwner _x) = lens_ReportView__reportItemsOwner
+          toLens (Path_ReportView__reportBriefItems _x) = lens_ReportView__reportBriefItems
+          toLens (Path_ReportView__reportInspectionLocation _x) = lens_ReportView__reportInspectionLocation
+          toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
+          toLens (Path_ReportView__reportGlossary _x) = lens_ReportView__reportGlossary . toLens _x
+          toLens (Path_ReportView__reportSources _x) = lens_ReportView__reportSources . toLens _x
+          toLens (Path_ReportView__reportLetterOfTransmittal _x) = lens_ReportView__reportLetterOfTransmittal
+          toLens (Path_ReportView__reportScopeOfWork _x) = lens_ReportView__reportScopeOfWork
+          toLens (Path_ReportView__reportCertification _x) = lens_ReportView__reportCertification . toLens _x
+          toLens (Path_ReportView__reportLimitingConditions _x) = lens_ReportView__reportLimitingConditions . toLens _x
+          toLens (Path_ReportView__reportPrivacyPolicy _x) = lens_ReportView__reportPrivacyPolicy
+instance ToLens (Path_ReportView Permissions)
+    where type S (Path_ReportView Permissions) = ReportView
+          type A (Path_ReportView Permissions) = Permissions
+          toLens (Path_ReportView__reportPerms _x) = lens_ReportView__reportPerms
+instance ToLens (Path_ReportView UserIds)
+    where type S (Path_ReportView UserIds) = ReportView
+          type A (Path_ReportView UserIds) = UserIds
+          toLens (Path_ReportView__reportPerms _x) = lens_ReportView__reportPerms . toLens _x
+instance ToLens (Path_ReportView AbbrevPair)
+    where type S (Path_ReportView AbbrevPair) = ReportView
+          type A (Path_ReportView AbbrevPair) = AbbrevPair
+          toLens (Path_ReportView__reportAbbrevs _x) = lens_ReportView__reportAbbrevs . toLens _x
+instance ToLens (Path_ReportView AbbrevPairs)
+    where type S (Path_ReportView AbbrevPairs) = ReportView
+          type A (Path_ReportView AbbrevPairs) = AbbrevPairs
+          toLens (Path_ReportView__reportAbbrevs _x) = lens_ReportView__reportAbbrevs
+instance ToLens (Path_ReportView Author)
+    where type S (Path_ReportView Author) = ReportView
+          type A (Path_ReportView Author) = Author
+          toLens (Path_ReportView__reportAuthors _x) = lens_ReportView__reportAuthors . toLens _x
+instance ToLens (Path_ReportView Authors)
+    where type S (Path_ReportView Authors) = ReportView
+          type A (Path_ReportView Authors) = Authors
+          toLens (Path_ReportView__reportAuthors _x) = lens_ReportView__reportAuthors
+instance ToLens (Path_ReportView Branding)
+    where type S (Path_ReportView Branding) = ReportView
+          type A (Path_ReportView Branding) = Branding
+          toLens (Path_ReportView__reportBranding _x) = lens_ReportView__reportBranding
+instance ToLens (Path_ReportView MarkupPair)
+    where type S (Path_ReportView MarkupPair) = ReportView
+          type A (Path_ReportView MarkupPair) = MarkupPair
+          toLens (Path_ReportView__reportGlossary _x) = lens_ReportView__reportGlossary . toLens _x
+          toLens (Path_ReportView__reportSources _x) = lens_ReportView__reportSources . toLens _x
+instance ToLens (Path_ReportView MarkupPairs)
+    where type S (Path_ReportView MarkupPairs) = ReportView
+          type A (Path_ReportView MarkupPairs) = MarkupPairs
+          toLens (Path_ReportView__reportGlossary _x) = lens_ReportView__reportGlossary
+          toLens (Path_ReportView__reportSources _x) = lens_ReportView__reportSources
+instance ToLens (Path_ReportView Markups)
+    where type S (Path_ReportView Markups) = ReportView
+          type A (Path_ReportView Markups) = Markups
+          toLens (Path_ReportView__reportCertification _x) = lens_ReportView__reportCertification
+          toLens (Path_ReportView__reportLimitingConditions _x) = lens_ReportView__reportLimitingConditions
+instance ToLens (Path_ReportView MaybeReportIntendedUse)
+    where type S (Path_ReportView MaybeReportIntendedUse) = ReportView
+          type A (Path_ReportView MaybeReportIntendedUse) = MaybeReportIntendedUse
+          toLens (Path_ReportView__reportIntendedUse _x) = lens_ReportView__reportIntendedUse
+instance ToLens (Path_ReportView ReportElem)
+    where type S (Path_ReportView ReportElem) = ReportView
+          type A (Path_ReportView ReportElem) = ReportElem
+          toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
+instance ToLens (Path_ReportView ReportElems)
+    where type S (Path_ReportView ReportElems) = ReportView
+          type A (Path_ReportView ReportElems) = ReportElems
+          toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody
+instance ToLens (Path_ReportView ReportFlags)
+    where type S (Path_ReportView ReportFlags) = ReportView
+          type A (Path_ReportView ReportFlags) = ReportFlags
+          toLens (Path_ReportView__reportFlags _x) = lens_ReportView__reportFlags
+instance ToLens (Path_ReportView ReportStandard)
+    where type S (Path_ReportView ReportStandard) = ReportView
+          type A (Path_ReportView ReportStandard) = ReportStandard
+          toLens (Path_ReportView__reportStandardsVersion _x) = lens_ReportView__reportStandardsVersion
+instance ToLens (Path_ReportView ReportStatus)
+    where type S (Path_ReportView ReportStatus) = ReportView
+          type A (Path_ReportView ReportStatus) = ReportStatus
+          toLens (Path_ReportView__reportStatus _x) = lens_ReportView__reportStatus
+instance ToLens (Path_ReportView ReportValueApproachInfo)
+    where type S (Path_ReportView ReportValueApproachInfo) = ReportView
+          type A (Path_ReportView ReportValueApproachInfo) = ReportValueApproachInfo
+          toLens (Path_ReportView__reportValueApproachInfo _x) = lens_ReportView__reportValueApproachInfo
+instance ToLens (Path_ReportView ReportValueTypeInfo)
+    where type S (Path_ReportView ReportValueTypeInfo) = ReportView
+          type A (Path_ReportView ReportValueTypeInfo) = ReportValueTypeInfo
+          toLens (Path_ReportView__reportValueTypeInfo _x) = lens_ReportView__reportValueTypeInfo
+instance ToLens (Path_ReportView EUI)
+    where type S (Path_ReportView EUI) = ReportView
+          type A (Path_ReportView EUI) = EUI
+          toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
+instance ToLens (Path_ReportView MEUI)
+    where type S (Path_ReportView MEUI) = ReportView
+          type A (Path_ReportView MEUI) = MEUI
+          toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
+instance ToLens (Path_ReportView MaybeImageFile)
+    where type S (Path_ReportView MaybeImageFile) = ReportView
+          type A (Path_ReportView MaybeImageFile) = MaybeImageFile
+          toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
+instance ToLens (Path_ReportView ReportImage)
+    where type S (Path_ReportView ReportImage) = ReportView
+          type A (Path_ReportView ReportImage) = ReportImage
+          toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
+instance ToLens (Path_ReportView ReportImages)
+    where type S (Path_ReportView ReportImages) = ReportView
+          type A (Path_ReportView ReportImages) = ReportImages
+          toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
+instance ToLens (Path_ReportView ReadOnlyFilePath)
+    where type S (Path_ReportView ReadOnlyFilePath) = ReportView
+          type A (Path_ReportView ReadOnlyFilePath) = ReadOnlyFilePath
+          toLens (Path_ReportView__reportFolder _x) = lens_ReportView__reportFolder
+instance ToLens (Path_ReportView ReportImageView)
+    where type S (Path_ReportView ReportImageView) = ReportView
+          type A (Path_ReportView ReportImageView) = ReportImageView
+          toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
+instance ToLens (Path_ReportView ReportView)
+    where type S (Path_ReportView ReportView) = ReportView
+          type A (Path_ReportView ReportView) = ReportView
+          toLens _ = id
+instance ToLens (Path_ReportView SaneSizeImageSize)
+    where type S (Path_ReportView SaneSizeImageSize) = ReportView
+          type A (Path_ReportView SaneSizeImageSize) = SaneSizeImageSize
+          toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
+instance ToLens (Path_ReportView Item)
+    where type S (Path_ReportView Item) = ReportView
+          type A (Path_ReportView Item) = Item
+          toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
+instance ToLens (Path_ReportView MIM)
+    where type S (Path_ReportView MIM) = ReportView
+          type A (Path_ReportView MIM) = MIM
+          toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
+instance ToLens (Path_ReportView CIString)
+    where type S (Path_ReportView CIString) = ReportView
+          type A (Path_ReportView CIString) = CIString
+          toLens (Path_ReportView__reportAbbrevs _x) = lens_ReportView__reportAbbrevs . toLens _x
+instance ToLens (Path_ReportView URI)
+    where type S (Path_ReportView URI) = ReportView
+          type A (Path_ReportView URI) = URI
+          toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
+instance ToLens (Path_ReportView Text)
+    where type S (Path_ReportView Text) = ReportView
+          type A (Path_ReportView Text) = Text
+          toLens (Path_ReportView__reportName _x) = lens_ReportView__reportName . toLens _x
+          toLens (Path_ReportView__reportDate _x) = lens_ReportView__reportDate . toLens _x
+          toLens (Path_ReportView__reportContractDate _x) = lens_ReportView__reportContractDate . toLens _x
+          toLens (Path_ReportView__reportInspectionDate _x) = lens_ReportView__reportInspectionDate . toLens _x
+          toLens (Path_ReportView__reportEffectiveDate _x) = lens_ReportView__reportEffectiveDate . toLens _x
+          toLens (Path_ReportView__reportAuthors _x) = lens_ReportView__reportAuthors . toLens _x
+          toLens (Path_ReportView__reportPreparer _x) = lens_ReportView__reportPreparer . toLens _x
+          toLens (Path_ReportView__reportPreparerEIN _x) = lens_ReportView__reportPreparerEIN . toLens _x
+          toLens (Path_ReportView__reportPreparerAddress _x) = lens_ReportView__reportPreparerAddress . toLens _x
+          toLens (Path_ReportView__reportPreparerEMail _x) = lens_ReportView__reportPreparerEMail . toLens _x
+          toLens (Path_ReportView__reportPreparerWebsite _x) = lens_ReportView__reportPreparerWebsite . toLens _x
+          toLens (Path_ReportView__reportAbbrevs _x) = lens_ReportView__reportAbbrevs . toLens _x
+          toLens (Path_ReportView__reportTitle _x) = lens_ReportView__reportTitle . toLens _x
+          toLens (Path_ReportView__reportHeader _x) = lens_ReportView__reportHeader . toLens _x
+          toLens (Path_ReportView__reportFooter _x) = lens_ReportView__reportFooter . toLens _x
+          toLens (Path_ReportView__reportValueTypeInfo _x) = lens_ReportView__reportValueTypeInfo . toLens _x
+          toLens (Path_ReportView__reportValueApproachInfo _x) = lens_ReportView__reportValueApproachInfo . toLens _x
+          toLens (Path_ReportView__reportClientName _x) = lens_ReportView__reportClientName . toLens _x
+          toLens (Path_ReportView__reportClientAddress _x) = lens_ReportView__reportClientAddress . toLens _x
+          toLens (Path_ReportView__reportClientGreeting _x) = lens_ReportView__reportClientGreeting . toLens _x
+          toLens (Path_ReportView__reportItemsOwnerFull _x) = lens_ReportView__reportItemsOwnerFull . toLens _x
+          toLens (Path_ReportView__reportItemsOwner _x) = lens_ReportView__reportItemsOwner . toLens _x
+          toLens (Path_ReportView__reportBriefItems _x) = lens_ReportView__reportBriefItems . toLens _x
+          toLens (Path_ReportView__reportInspectionLocation _x) = lens_ReportView__reportInspectionLocation . toLens _x
+          toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
+          toLens (Path_ReportView__reportGlossary _x) = lens_ReportView__reportGlossary . toLens _x
+          toLens (Path_ReportView__reportSources _x) = lens_ReportView__reportSources . toLens _x
+          toLens (Path_ReportView__reportLetterOfTransmittal _x) = lens_ReportView__reportLetterOfTransmittal . toLens _x
+          toLens (Path_ReportView__reportScopeOfWork _x) = lens_ReportView__reportScopeOfWork . toLens _x
+          toLens (Path_ReportView__reportCertification _x) = lens_ReportView__reportCertification . toLens _x
+          toLens (Path_ReportView__reportLimitingConditions _x) = lens_ReportView__reportLimitingConditions . toLens _x
+          toLens (Path_ReportView__reportPrivacyPolicy _x) = lens_ReportView__reportPrivacyPolicy . toLens _x
+          toLens (Path_ReportView__reportPerms _x) = lens_ReportView__reportPerms . toLens _x
+          toLens (Path_ReportView__reportBranding _x) = lens_ReportView__reportBranding . toLens _x
+instance ToLens (Path_ReportView UserId)
+    where type S (Path_ReportView UserId) = ReportView
+          type A (Path_ReportView UserId) = UserId
+          toLens (Path_ReportView__reportPerms _x) = lens_ReportView__reportPerms . toLens _x
+instance ToLens (Path_ReportView UUID)
+    where type S (Path_ReportView UUID) = ReportView
+          type A (Path_ReportView UUID) = UUID
+          toLens (Path_ReportView__reportUUID _x) = lens_ReportView__reportUUID
+instance ToLens (Path_SaneSizeImageSize String)
+    where type S (Path_SaneSizeImageSize String) = SaneSizeImageSize
+          type A (Path_SaneSizeImageSize String) = String
+          toLens (Path_SaneSizeImageSize_View v) = (viewLens :: Lens' (SaneSize ImageSize)
+                                                                      ImageSize) . toLens v
+instance ToLens (Path_SaneSizeImageSize Double)
+    where type S (Path_SaneSizeImageSize Double) = SaneSizeImageSize
+          type A (Path_SaneSizeImageSize Double) = Double
+          toLens (Path_SaneSizeImageSize_View v) = (viewLens :: Lens' (SaneSize ImageSize)
+                                                                      ImageSize) . toLens v
+instance ToLens (Path_SaneSizeImageSize Dimension)
+    where type S (Path_SaneSizeImageSize Dimension) = SaneSizeImageSize
+          type A (Path_SaneSizeImageSize Dimension) = Dimension
+          toLens (Path_SaneSizeImageSize_View v) = (viewLens :: Lens' (SaneSize ImageSize)
+                                                                      ImageSize) . toLens v
+instance ToLens (Path_SaneSizeImageSize ImageSize)
+    where type S (Path_SaneSizeImageSize ImageSize) = SaneSizeImageSize
+          type A (Path_SaneSizeImageSize ImageSize) = ImageSize
+          toLens (Path_SaneSizeImageSize_View _) = viewLens :: Lens' (SaneSize ImageSize)
+                                                                     ImageSize
+instance ToLens (Path_SaneSizeImageSize Units)
+    where type S (Path_SaneSizeImageSize Units) = SaneSizeImageSize
+          type A (Path_SaneSizeImageSize Units) = Units
+          toLens (Path_SaneSizeImageSize_View v) = (viewLens :: Lens' (SaneSize ImageSize)
+                                                                      ImageSize) . toLens v
+instance ToLens (Path_SaneSizeImageSize JSONText)
+    where type S (Path_SaneSizeImageSize JSONText) = SaneSizeImageSize
+          type A (Path_SaneSizeImageSize JSONText) = JSONText
+          toLens (Path_SaneSizeImageSize_View v) = (viewLens :: Lens' (SaneSize ImageSize)
+                                                                      ImageSize) . toLens v
+instance ToLens (Path_SaneSizeImageSize SaneSizeImageSize)
+    where type S (Path_SaneSizeImageSize SaneSizeImageSize) = SaneSizeImageSize
+          type A (Path_SaneSizeImageSize SaneSizeImageSize) = SaneSizeImageSize
+          toLens _ = id
+instance ToLens (Path_String String)
+    where type S (Path_String String) = String
+          type A (Path_String String) = String
+          toLens _ = id
+instance ToLens (Path_String JSONText)
+    where type S (Path_String JSONText) = String
+          type A (Path_String JSONText) = JSONText
+          toLens (Path_String_View _) = viewLens :: Lens' ([Char]) JSONText
+instance ToLens (Path_Text JSONText)
+    where type S (Path_Text JSONText) = Text
+          type A (Path_Text JSONText) = JSONText
+          toLens (Path_Text_View _) = viewLens :: Lens' Text JSONText
+instance ToLens (Path_Text Text)
+    where type S (Path_Text Text) = Text
+          type A (Path_Text Text) = Text
+          toLens _ = id
+instance ToLens (Path_URI URI)
+    where type S (Path_URI URI) = URI
+          type A (Path_URI URI) = URI
+          toLens _ = id
+instance ToLens (Path_UUID UUID)
+    where type S (Path_UUID UUID) = UUID
+          type A (Path_UUID UUID) = UUID
+          toLens _ = id
+instance ToLens (Path_Units Units)
+    where type S (Path_Units Units) = Units
+          type A (Path_Units Units) = Units
+          toLens _ = id
+instance ToLens (Path_Units JSONText)
+    where type S (Path_Units JSONText) = Units
+          type A (Path_Units JSONText) = JSONText
+          toLens (Path_Units_View _) = viewLens :: Lens' Units JSONText
+instance ToLens (Path_UserId UserId)
+    where type S (Path_UserId UserId) = UserId
+          type A (Path_UserId UserId) = UserId
+          toLens _ = id
+instance ToLens (Path_UserIds JSONText)
+    where type S (Path_UserIds JSONText) = UserIds
+          type A (Path_UserIds JSONText) = JSONText
+          toLens (Path_UserIds_View v) = (viewLens :: Lens' ([UserId])
+                                                            Text) . toLens v
+instance ToLens (Path_UserIds UserIds)
+    where type S (Path_UserIds UserIds) = UserIds
+          type A (Path_UserIds UserIds) = UserIds
+          toLens _ = id
+instance ToLens (Path_UserIds Text)
+    where type S (Path_UserIds Text) = UserIds
+          type A (Path_UserIds Text) = Text
+          toLens (Path_UserIds_View _) = viewLens :: Lens' ([UserId]) Text
+instance ToLens (Path_Maybe (Path_Either (Path_URI ImageFile)
+                                         (Path_ImageFile ImageFile)))
+    where type S (Path_Maybe (Path_Either (Path_URI ImageFile)
+                                          (Path_ImageFile ImageFile))) = MEUI
+          type A (Path_Maybe (Path_Either (Path_URI ImageFile)
+                                          (Path_ImageFile ImageFile))) = ImageFile
+          toLens (Path_Just v) = _Just . toLens v
+instance ToLens (Path_Maybe (Path_Either (Path_URI EUI)
+                                         (Path_ImageFile EUI)))
+    where type S (Path_Maybe (Path_Either (Path_URI EUI)
+                                          (Path_ImageFile EUI))) = MEUI
+          type A (Path_Maybe (Path_Either (Path_URI EUI)
+                                          (Path_ImageFile EUI))) = EUI
+          toLens (Path_Just _) = _Just
+instance ToLens (Path_Maybe (Path_Either (Path_URI MEUI)
+                                         (Path_ImageFile MEUI)))
+    where type S (Path_Maybe (Path_Either (Path_URI MEUI)
+                                          (Path_ImageFile MEUI))) = MEUI
+          type A (Path_Maybe (Path_Either (Path_URI MEUI)
+                                          (Path_ImageFile MEUI))) = MEUI
+          toLens _ = id
+instance ToLens (Path_Maybe (Path_Either (Path_URI URI)
+                                         (Path_ImageFile URI)))
+    where type S (Path_Maybe (Path_Either (Path_URI URI)
+                                          (Path_ImageFile URI))) = MEUI
+          type A (Path_Maybe (Path_Either (Path_URI URI)
+                                          (Path_ImageFile URI))) = URI
+          toLens (Path_Just v) = _Just . toLens v

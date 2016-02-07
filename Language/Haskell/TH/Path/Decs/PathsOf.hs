@@ -30,8 +30,8 @@ import Data.Set.Extra as Set (insert, member, Set)
 import Language.Haskell.TH
 import Language.Haskell.TH.Context (ContextM, reifyInstancesWithContext)
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.Path.Core (IsPathType(idPath), IsPath(..), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
-import Language.Haskell.TH.Path.Decs.Common (asConQ, asName, asType, asTypeQ, bestTypeName, clauses, makePathCon, makePathType, ModelType(ModelType))
+import Language.Haskell.TH.Path.Core (IsPathType(idPath), IsPath(..), ToLens(..), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
+import Language.Haskell.TH.Path.Decs.Common (asConQ, asTypeQ, bestTypeName, makePathCon, makePathType, ModelType(ModelType))
 import Language.Haskell.TH.Path.Decs.PathType (pathType)
 import Language.Haskell.TH.Path.Decs.ToLens (toLensClauses)
 import Language.Haskell.TH.Path.Graph (SelfPath, SinkType)
@@ -57,9 +57,13 @@ pathDecs key gkey = do
   -- exp <- thePathExp gkey key ptyp clauses'
   when (not (null tlc)) $
        (runQ $ sequence
-             [instanceD (pure []) [t|IsPath $(pure (bestType key)) $(pure (bestType gkey))|]
+            [ instanceD (pure []) [t|ToLens $(pure ptyp)|]
+                [ tySynInstD ''S (tySynEqn [(pure ptyp)] (pure (bestType key)))
+                , tySynInstD ''A (tySynEqn [(pure ptyp)] (pure (bestType gkey)))
+                , funD 'toLens tlc -- [clause [wildP] (normalB (if key == gkey then [|id|] else [|undefined|])) []]
+                ]
+            , instanceD (pure []) [t|IsPath $(pure (bestType key)) $(pure (bestType gkey))|]
                 [ tySynInstD ''Path (tySynEqn [pure (bestType key), pure (bestType gkey)] (pure ptyp))
-                , funD 'toLens tlc
                 , funD 'pathsOf poc
                 ]]) >>= tell
     where
@@ -149,7 +153,7 @@ pathsOfClauses key gkey =
       doInfo (TyConI dec) = doDec dec
       doInfo _ = return ()
       doDec :: Dec -> m ()
-      doDec (NewtypeD cx tname binds con supers) = doCon con
+      doDec (NewtypeD _cx _tname _binds con _supers) = doCon con
       doDec (DataD _cx _tname _binds cons _supers) = mapM_ doCon cons
       doDec dec = error $ "Unexpected Dec: " ++ pprint dec
       doCon :: Con -> m ()
@@ -157,13 +161,13 @@ pathsOfClauses key gkey =
       doCon (InfixC lhs _cname rhs) = return () -- Implement
       doCon (NormalC cname binds) = do
         fIsPath <- mapM (\(_, ftype) -> testIsPath ftype gkey) binds
-        x <- runQ $ newName "x"
+        -- x <- runQ $ newName "x"
         a <- runQ $ newName "a"
         let ns = map snd (zip binds ([1..] :: [Int]))
         ps <- runQ $ mapM (\n -> newName ("p" ++ show n)) ns
         let Just tname = bestName key
         let doField (_, False, _, _) = []
-            doField ((_, ftype), isPath, n, p) =
+            doField (_, True, n, p) =
                 [ [| map $(asConQ (makePathCon (makePathType (ModelType tname)) (show n)))
                          (pathsOf $(varE p) $(varE a)) |] ]
         tell [clause [conP cname (map varP ps), varP a]
@@ -176,13 +180,14 @@ pathsOfClauses key gkey =
         let ns = map snd (zip vbinds ([1..] :: [Int]))
         let Just tname = bestName key
         let doField (_, False, _) = []
-            doField ((fname, _, ftype), isPath, n) =
+            doField ((fname, _, _), _, _) =
                 [ [| map $(asConQ (makePathCon (makePathType (ModelType tname)) (nameBase fname)))
                          (pathsOf ($(varE fname) $(varE x)) $(varE a)) |] ]
         tell [clause [asP x (recP cname []), varP a]
                      (normalB [|concat $(listE (concatMap doField (zip3 vbinds fIsPath ns)))|])
                      []]
 
+zip4 :: [a] -> [b] -> [c] -> [d] -> [(a, b, c, d)]
 zip4 l1 l2 l3 l4 = map (\((a, b), (c, d)) -> (a, b, c, d)) (zip (zip l1 l2) (zip l3 l4))
 
 doClause :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [ClauseQ] m) =>

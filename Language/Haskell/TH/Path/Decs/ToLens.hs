@@ -33,7 +33,7 @@ import Language.Haskell.TH
 import Language.Haskell.TH.Context (ContextM, InstMap, reifyInstancesWithContext)
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.Path.Core (mat, IsPath(..), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
+import Language.Haskell.TH.Path.Core (mat, ToLens(toLens), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
 import Language.Haskell.TH.Path.Decs.Common (asName, fieldLensNameOld, makeFieldCon)
 import Language.Haskell.TH.Path.Decs.PathType (pathType)
 import Language.Haskell.TH.Path.Graph (SelfPath, SinkType)
@@ -51,14 +51,14 @@ toLensClauses :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders T
                     -> StateT (Set Name) m ()
 toLensClauses key gkey
     | view etype key == view etype gkey =
-        tell [clause [wildP] (normalB [|iso id id|]) []]
+        tell [clause [wildP] (normalB [|id|]) []]
 toLensClauses key gkey =
   -- Use this to raise errors when the path patterns aren't exhaustive.
   -- That is supposed to be impossible, so this is debugging code.
   -- toLensClauses key gkey ptyp = do
   --   x <- runQ (newName "x")
   --   r <- foldPath control key
-  --   return $ r ++ [clause [varP x] (normalB [|error ("toLens (" ++ $(lift (pprint' key)) ++ ") -> (" ++ $(lift (pprint' gkey)) ++ ") - unmatched: " ++ show $(varE x))|]) []]
+  --   return $ r ++ [clause [varP x] (normalB [|error ("toLens' (" ++ $(lift (pprint' key)) ++ ") -> (" ++ $(lift (pprint' gkey)) ++ ") - unmatched: " ++ show $(varE x))|]) []]
   do ptyp <- pathType (pure (bestType gkey)) key
      let v = key
      selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [let (E typ) = view etype v in typ]
@@ -72,7 +72,7 @@ toLensClauses key gkey =
              let ltyp = fromJust viewType
              lns <- runQ [|viewLens :: Lens' $(return typ) $(return ltyp)|]
              -- Ok, we have a type key, and a lens that goes between key and
-             -- lkey, and we need to create a toLens function for key's path type.
+             -- lkey, and we need to create a toLens' function for key's path type.
              -- The tricky bit is to extract the path value for lkey from the path
              -- value we have.
              let (AppT (ConT pname) _gtyp) = ptyp
@@ -106,7 +106,7 @@ toLensClauses key gkey =
 
 -- | Given a function pfunc that modifies a pattern, add a
 -- 'Language.Haskell.TH.Clause' (a function with a typically incomplete
--- pattern) to the toLens method we are building to handle the new
+-- pattern) to the toLens' method we are building to handle the new
 -- pattern.
 doClause :: forall m. (DsMonad m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [ClauseQ] m, MonadStates InstMap m, MonadStates ExpandMap m) =>
             TGVSimple -> Type -> (PatQ -> PatQ) -> ExpQ -> m ()

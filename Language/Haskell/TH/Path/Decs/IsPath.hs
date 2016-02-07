@@ -28,7 +28,8 @@ import Data.Tree (Tree(Node), Forest)
 import Language.Haskell.TH
 import Language.Haskell.TH.Context (ContextM, reifyInstancesWithContext)
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.Path.Core (IsPathNode(Peek, peek), IsPath(..), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
+import Language.Haskell.TH.Path.Core (IsPathNode(Peek, peek), IsPath(..), ToLens(toLens),
+                                      Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
 import Language.Haskell.TH.Path.Decs.Common (asConQ, asName, asType, asTypeQ, bestPathTypeName, bestTypeName, clauses,
                                              makeFieldCon, makePathCon, makePathType, makePeekCon,
                                              ModelType(ModelType), PathCon, forestMap, PathCon(PathCon))

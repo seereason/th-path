@@ -22,7 +22,7 @@ import Debug.Trace (trace)
 import Language.Haskell.TH
 import Language.Haskell.TH.Context (ContextM)
 import Language.Haskell.TH.Lift (lift)
-import Language.Haskell.TH.Path.Core (IsPath(toLens, pathsOf, Path), IsPathType(idPath))
+import Language.Haskell.TH.Path.Core (IsPath(pathsOf, Path), ToLens(toLens), IsPathType(idPath))
 import Language.Haskell.TH.Path.View (viewInstanceType)
 import Language.Haskell.TH.TypeGraph.Expand (expandType)
 import Language.Haskell.TH.TypeGraph.TypeGraph
