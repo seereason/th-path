@@ -68,7 +68,7 @@ instance (Ord k, Enum k, FromJSON k, FromJSON a) => FromJSON (Order k a) where
 
 deriveOrderJS :: Name -> Q [Dec]
 deriveOrderJS t = do
-  decs <- deriveOrder [t|IntJS|] t
+  decs <- deriveOrder [t|IntJS|] t []
   let idname = mkName (nameBase t ++ "ID")
       unname = mkName ("un" ++ nameBase t ++ "ID")
   insts <- [d| instance ToIntJS $(conT idname) where

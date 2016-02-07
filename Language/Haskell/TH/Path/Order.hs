@@ -233,12 +233,12 @@ view' i m = maybe (error "Order.view'") fst (view i m)
 --       toEnum = AbbrevPairID . toEnum
 --       fromEnum = fromEnum . unAbbrevPairID
 -- @@
-deriveOrder :: TypeQ -> Name -> Q [Dec]
-deriveOrder ityp t = do
+deriveOrder :: TypeQ -> Name -> [Name] -> Q [Dec]
+deriveOrder ityp t supers = do
   let idname = mkName (nameBase t ++ "ID")
       unname = mkName ("un" ++ nameBase t ++ "ID")
       mpname = mkName (nameBase t ++ "s")
-  idtype <- newtypeD (cxt []) idname [] (recC idname [varStrictType unname (strictType notStrict ityp) ]) [''Eq, ''Ord, ''Read, ''Show, ''Data, ''Typeable]
+  idtype <- newtypeD (cxt []) idname [] (recC idname [varStrictType unname (strictType notStrict ityp) ]) ([''Eq, ''Ord, ''Read, ''Show, ''Data, ''Typeable] ++ supers)
   insts <- [d| instance Enum $(conT idname) where
                  toEnum = $(conE idname) . toEnum
                  fromEnum = fromEnum . $(varE unname) |]
