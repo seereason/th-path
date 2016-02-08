@@ -33,7 +33,7 @@ import Language.Haskell.TH.Context (ContextM, reifyInstancesWithContext)
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Core (IsPathType(idPath))
-import Language.Haskell.TH.Path.Decs.Common (asConQ, asName, asTypeQ, bestPathTypeName,
+import Language.Haskell.TH.Path.Decs.Common (asConQ, asName, asTypeQ, bestPathTypeName, fieldLensNamePair,
                                              makeFieldCon, makePathCon, makePathType, ModelType(ModelType))
 import Language.Haskell.TH.Path.Decs.IsPath (peekDecs)
 import Language.Haskell.TH.Path.Decs.PathsOf (pathDecs)
@@ -57,6 +57,8 @@ doNode v = do
   peekDecs v
   -- generate the IsPath instance declarations
   pathKeys v >>= Set.mapM_ (pathDecs v)
+  -- generate the lenses
+  mapM makePathLens (toList (typeNames v)) >>= tell . concat
   -- generate the data Path_* declarations
   selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [let (E typ) = view etype v in typ]
   simplePath <- (not . null) <$> reifyInstancesWithContext ''SinkType [let (E typ) = view etype v in typ]
@@ -171,3 +173,20 @@ doNames v = mapM_ (\tname -> runQ (reify tname) >>= doInfo) (typeNames v)
 
 supers :: [Name]
 supers = [''Eq, ''Ord, ''Read, ''Show, ''Typeable, ''Data]
+
+-- | Make lenses for a type with the names described by fieldLensNamePair, which is a little
+-- different from the namer used in th-typegraph (for historical reasons I guess.)
+makePathLens :: ContextM m => Name -> m [Dec]
+makePathLens tname =
+    -- runQ (runIO (putStrLn ("makePathLens " ++ nameBase tname))) >>
+    qReify tname >>= execWriterT . doInfo
+    where
+      doInfo (TyConI dec) = doDec dec
+      doInfo _ = return ()
+      doDec (NewtypeD {}) = lensNamePairs fieldLensNamePair tname >>= \pairs -> runQ (makeClassyFor ("Has" ++ nameBase tname) ("lens_" ++ uncap (nameBase tname)) pairs tname) >>= tell
+      doDec (DataD {}) =    lensNamePairs fieldLensNamePair tname >>= \pairs -> runQ (makeClassyFor ("Has" ++ nameBase tname) ("lens_" ++ uncap (nameBase tname)) pairs tname) >>= tell
+      doDec _ = return ()
+
+uncap :: String -> String
+uncap (n : ame) = toLower n : ame
+uncap "" = ""

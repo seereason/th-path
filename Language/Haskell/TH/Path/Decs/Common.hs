@@ -21,6 +21,7 @@ module Language.Haskell.TH.Path.Decs.Common
     , bestPathTypeName
     , bestTypeName
     , clauses
+    , fieldLensNamePair
     , HasTypeQ(asTypeQ)
     , HasType(asType)
     , HasName(asName)
@@ -75,6 +76,14 @@ bestTypeName v =
     case bestType v of
       ConT tname -> Just (ModelType tname)
       _ -> maybe Nothing (Just . fst) (minView (Set.map ModelType $ typeNames v))
+
+fieldLensNameOld :: Name -> Name -> Name
+fieldLensNameOld tname fname = mkName ("lens_" ++ nameBase tname ++ "_" ++ nameBase fname)
+
+-- | Version of fieldLensName suitable for use as argument to
+-- findNames below.
+fieldLensNamePair :: Name -> Name -> Name -> (String, String)
+fieldLensNamePair tname _cname fname = (nameBase fname, nameBase (fieldLensNameOld tname fname))
 
 class ToPat x where
     toPat :: x -> PatQ
