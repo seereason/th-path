@@ -20,12 +20,13 @@ module Language.Haskell.TH.Path.Decs.PathsOf (pathDecs) where
 import Control.Lens hiding (cons, Strict)
 import Control.Monad (when)
 import Control.Monad.Readers (MonadReaders)
-import Control.Monad.State (evalStateT, get, modify, StateT)
-import Control.Monad.Trans as Monad (lift)
+import Control.Monad.State (evalStateT)
+import Control.Monad.States (getPoly, modifyPoly, MonadStates)
 import Control.Monad.Writer (MonadWriter, execWriterT, tell)
 import Data.List as List (concatMap, map)
 import Data.Map as Map (lookup, Map, toList)
 import Data.Maybe (isJust)
+import Data.Monoid ((<>))
 import Data.Set.Extra as Set (insert, member, Set)
 import Language.Haskell.TH
 import Language.Haskell.TH.Context (ContextM, reifyInstancesWithContext)
@@ -35,6 +36,7 @@ import Language.Haskell.TH.Path.Decs.Common (asConQ, asTypeQ, bestTypeName, make
 import Language.Haskell.TH.Path.Decs.PathType (pathType)
 import Language.Haskell.TH.Path.Decs.ToLens (toLensClauses)
 import Language.Haskell.TH.Path.Graph (SelfPath, SinkType)
+import Language.Haskell.TH.Path.Instances ()
 import Language.Haskell.TH.Path.Order (Order, Path_OMap(..), toPairs)
 import Language.Haskell.TH.Path.View (viewInstanceType)
 import Language.Haskell.TH.Syntax as TH (Quasi(qReify))
@@ -52,9 +54,9 @@ pathDecs :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeIn
 pathDecs key gkey = do
   ptyp <- pathType (pure (bestType gkey)) key
   tlc <- execWriterT $ evalStateT (toLensClauses key gkey) mempty
-  poc <- execWriterT $ evalStateT (pathsOfClauses key gkey) mempty
-  -- clauses' <- runQ $ sequence clauses
-  -- exp <- thePathExp gkey key ptyp clauses'
+  s <- runQ (newName "s")
+  a <- runQ (newName "a")
+  poe <- evalStateT (pathsOfExprs key gkey (varE s) (varE a)) (mempty :: Set TGVSimple)
   when (not (null tlc)) $
        (runQ $ sequence
             [ instanceD (pure []) [t|ToLens $(pure ptyp)|]
@@ -64,46 +66,39 @@ pathDecs key gkey = do
                 ]
             , instanceD (pure []) [t|IsPath $(pure (bestType key)) $(pure (bestType gkey))|]
                 [ tySynInstD ''Path (tySynEqn [pure (bestType key), pure (bestType gkey)] (pure ptyp))
-                , funD 'pathsOf poc
+                , funD 'pathsOf [clause [varP s, varP a] (normalB (pure poe)) []]
                 ]]) >>= tell
-    where
-      -- Send a single dec to our funky writer monad
-      -- tell :: (DsMonad m, MonadWriter [Dec] m) => [DecQ] -> m ()
-      -- tell dec = runQ (sequence dec) >>= tell
 
--- | Clauses of the pathsOf function.  Each clause matches a value of
--- type s and returns a path from s to some subtype a.  These clauses
--- are of the form
---
---    f x = exp :: [PathType s (Proxy a)]
-pathsOfClauses :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [ClauseQ] m) =>
-                       TGVSimple -- ^ the type whose clauses we are generating
-                    -> TGVSimple -- ^ the goal type key
-                    -> StateT (Set TGVSimple) m ()
-pathsOfClauses key gkey
-    | view etype key == view etype gkey = tell [clause [wildP, wildP] (normalB [|[idPath] |]) []]
-pathsOfClauses key gkey =
+-- | Build an expression whose value is a list of paths from type S to
+-- type A
+pathsOfExprs :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadStates (Set TGVSimple) m) =>
+                TGVSimple -- ^ the type whose clauses we are generating
+             -> TGVSimple -- ^ the goal type key
+             -> ExpQ -- ^ S
+             -> ExpQ -- ^ Proxy A
+             -> m Exp
+pathsOfExprs key gkey s a =
   do -- the corresponding path type - first type parameter of ToLens
      -- ptyp <- pathType (pure (bestType gkey)) key
      selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [view (etype . unE) key]
      simplePath <- (not . null) <$> reifyInstancesWithContext ''SinkType [view (etype . unE) key]
      viewType <- viewInstanceType (view etype key)
      case view (etype . unE) key of
-       _ | selfPath -> return ()
-         | simplePath -> return ()
+       _ | key == gkey -> runQ [| [idPath] |]
+         | selfPath -> runQ [| [] |]
+         | simplePath -> runQ [| [] |]
          | isJust viewType ->
              do let Just vtyp = viewType
                 vIsPath <- testIsPath vtyp gkey
                 let Just tname = bestTypeName key
                 let pcname = makePathCon (makePathType tname) "View"
                 -- Get the value as transformed by the view lens
-                x <- runQ $ newName "x"
-                a <- runQ $ newName "a"
-                when vIsPath (tell [clause [varP x, varP a]
-                                           (normalB [| let p = $(asConQ pcname) idPath :: Path $(asTypeQ key) $(pure vtyp)
-                                                           [x'] = toListOf (toLens p) $(varE x) :: [$(pure vtyp)] in
-                                                       List.map $(asConQ pcname) (pathsOf x' $(varE a) :: [Path $(pure vtyp) $(pure (view (etype . unE) gkey))]) |])
-                                           []])
+                if vIsPath
+                then runQ [| let p = $(asConQ pcname) idPath :: Path $(asTypeQ key) $(pure vtyp)
+                                 [s'] = toListOf (toLens p) $s :: [$(pure vtyp)] in
+                             List.map $(asConQ pcname) (pathsOf s' $a ::
+                                                            [Path $(pure vtyp) $(pure (view (etype . unE) gkey))]) |]
+                else runQ [| [] |]
        ConT tname ->
            doName tname
        AppT (AppT mtyp ityp) vtyp
@@ -111,27 +106,31 @@ pathsOfClauses key gkey =
                -- Return a path for each element of an order, assuming
                -- there is a path from the element type to the goal.
                do vIsPath <- testIsPath vtyp gkey
-                  when vIsPath (doClause vtyp gkey varP
+                  if vIsPath
+                  then doClause vtyp gkey s a
                                          [|Path_At . fst|]
                                          [|snd|]
-                                         [|toPairs :: Order $(pure ityp) $(pure vtyp) -> [($(pure ityp), $(pure vtyp))]|])
-       AppT ListT _etyp -> return ()
+                                         [|toPairs :: Order $(pure ityp) $(pure vtyp) -> [($(pure ityp), $(pure vtyp))]|]
+                  else runQ [| [] |]
+       AppT ListT _etyp -> runQ [| [] |]
        AppT (AppT t3 _ktyp) vtyp
            | t3 == ConT ''Map ->
                do vIsPath <- testIsPath vtyp gkey
-                  when vIsPath (doClause vtyp gkey varP
+                  if vIsPath
+                  then (doClause vtyp gkey s a
                                          [|Path_Look . fst|]
                                          [|snd|]
                                          [|Map.toList|])
+                  else runQ [| [] |]
        AppT (AppT (TupleT 2) ftyp) styp ->
            do fIsPath <- testIsPath ftyp gkey
               sIsPath <- testIsPath styp gkey
-              when fIsPath (doClause ftyp gkey varP [|\_ -> Path_First|] [|fst|] [|(: [])|])
-              when sIsPath (doClause styp gkey varP [|\_ -> Path_Second|] [|snd|] [|(: [])|])
+              fexp <- if fIsPath then doClause ftyp gkey s a [|\_ -> Path_First|] [|fst|] [|(: [])|] else runQ [| [] |]
+              sexp <- if sIsPath then doClause styp gkey s a [|\_ -> Path_Second|] [|snd|] [|(: [])|] else runQ [| [] |]
+              runQ [| $(pure fexp) <> $(pure sexp) |]
        AppT t1 etyp
            | t1 == ConT ''Maybe ->
-               do eIsPath <- testIsPath etyp gkey
-                  when eIsPath (doClause etyp gkey varP [|\_ -> Path_Just|] [|id|] [|maybe [] (: [])|])
+               doClause etyp gkey s a [|\_ -> Path_Just|] [|id|] [|maybe [] (: [])|]
        AppT (AppT t3 ltyp) rtyp
            | t3 == ConT ''Either ->
                do -- Are there paths from the left type to a?  This is
@@ -139,72 +138,68 @@ pathsOfClauses key gkey =
                   -- here is kind of a hack.
                   lIsPath <- testIsPath ltyp gkey
                   rIsPath <- testIsPath rtyp gkey
-                  when lIsPath (doClause ltyp gkey varP [|\_ -> Path_Left|] [|id|] [|either (: []) (const [])|])
-                  when rIsPath (doClause rtyp gkey varP [|\_ -> Path_Right|] [|id|] [|either (const []) (: [])|])
-       _ -> tell [clause [wildP, wildP] (normalB [|error $ "pathsOfClauses - unexpected type: " ++ pprint key|]) []]
+                  lexp <- if lIsPath then doClause ltyp gkey s a [|\_ -> Path_Left|] [|id|] [|either (: []) (const [])|] else runQ [| [] |]
+                  rexp <- if rIsPath then doClause rtyp gkey s a [|\_ -> Path_Right|] [|id|] [|either (const []) (: [])|] else runQ [| [] |]
+                  runQ [| $(pure lexp) <> $(pure rexp) |]
+       _ -> runQ [|error $ "pathsOfExpr - unexpected type: " ++ pprint key|]
     where
-      doName :: Name -> StateT (Set TGVSimple) m ()
+      doName :: Name -> m Exp
       doName tname = do
-        ns <- get
+        ns <- getPoly
         case Set.member key ns of
-          True -> return ()
-          False -> modify (Set.insert key) >> qReify tname >>= lift . doInfo
-      doInfo :: Info -> m ()
+          True -> runQ [| [] |]
+          False -> modifyPoly (Set.insert key) >> qReify tname >>= doInfo
+      doInfo :: Info -> m Exp
       doInfo (TyConI dec) = doDec dec
-      doInfo _ = return ()
-      doDec :: Dec -> m ()
-      doDec (NewtypeD _cx _tname _binds con _supers) = doCon con
-      doDec (DataD _cx _tname _binds cons _supers) = mapM_ doCon cons
+      doInfo _ = runQ [| [] |]
+      doDec :: Dec -> m Exp
+      doDec (NewtypeD cx tname binds con supers) = doDec (DataD cx tname binds [con] supers)
+      doDec (DataD _cx _tname _binds cons _supers) = do
+        matches <- mapM doCon cons
+        runQ (caseE s (map pure matches))
       doDec dec = error $ "Unexpected Dec: " ++ pprint dec
-      doCon :: Con -> m ()
+      doCon :: Con -> m Match
       doCon (ForallC _binds _cx con) = doCon con -- Should probably do something here
-      doCon (InfixC lhs _cname rhs) = return () -- Implement
+      doCon (InfixC lhs cname rhs) =
+           runQ $ match (infixP wildP cname wildP) (normalB [| [] |]) [] -- Implement
       doCon (NormalC cname binds) = do
         fIsPath <- mapM (\(_, ftype) -> testIsPath ftype gkey) binds
-        -- x <- runQ $ newName "x"
-        a <- runQ $ newName "a"
         let ns = map snd (zip binds ([1..] :: [Int]))
         ps <- runQ $ mapM (\n -> newName ("p" ++ show n)) ns
         let Just tname = bestName key
         let doField (_, False, _, _) = []
             doField (_, True, n, p) =
                 [ [| map $(asConQ (makePathCon (makePathType (ModelType tname)) (show n)))
-                         (pathsOf $(varE p) $(varE a)) |] ]
-        case concatMap doField (zip4 binds fIsPath ns ps) of
-          [] ->   tell [clause [conP cname (map (const wildP) ps), wildP] (normalB [| [] |]) []]
-          exps -> tell [clause [conP cname (map varP ps),         varP a] (normalB [|concat $(listE exps)|]) []]
+                         (pathsOf $(varE p) $a) |] ]
+        runQ $ match (conP cname (map varP ps)) (normalB (listE (concatMap doField (zip4 binds fIsPath ns ps)))) []
       doCon (RecC cname vbinds) = do
         fIsPath <- mapM (\(_, _, ftype) -> testIsPath ftype gkey) vbinds
-        x <- runQ $ newName "x"
-        a <- runQ $ newName "a"
         let ns = map snd (zip vbinds ([1..] :: [Int]))
         let Just tname = bestName key
         let doField (_, False, _) = []
             doField ((fname, _, _), _, _) =
                 [ [| map $(asConQ (makePathCon (makePathType (ModelType tname)) (nameBase fname)))
-                         (pathsOf ($(varE fname) $(varE x)) $(varE a)) |] ]
-        case concatMap doField (zip3 vbinds fIsPath ns) of
-          [] -> tell [clause [recP cname [], wildP] (normalB [| [] |]) []]
-          exps -> tell [clause [asP x (recP cname []), varP a] (normalB [|concat $(listE exps)|]) []]
+                         (pathsOf ($(varE fname) $s) $a) |] ]
+        runQ $ match (recP cname []) (normalB [|mconcat $(listE (concatMap doField (zip3 vbinds fIsPath ns)))|]) []
 
 zip4 :: [a] -> [b] -> [c] -> [d] -> [(a, b, c, d)]
 zip4 l1 l2 l3 l4 = map (\((a, b), (c, d)) -> (a, b, c, d)) (zip (zip l1 l2) (zip l3 l4))
 
-doClause :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [ClauseQ] m) =>
+doClause :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) =>
             Type
          -> TGVSimple
-         -> (Name -> PatQ)
+         -> ExpQ -- ^ S
+         -> ExpQ -- ^ Proxy A
          -> ExpQ -- ^ Build a path
          -> ExpQ -- ^ Build a value
          -> ExpQ -- ^ The list of values we will turn into paths
-         -> m ()
-doClause vtyp gkey xpat toPath toVal asList = do
-  x <- runQ $ newName "x"
-  a <- runQ $ newName "a"
-  tell [clause [xpat x, varP a]
-               (normalB [| List.concatMap (\pv -> List.map ($toPath pv) (pathsOf ($toVal pv) $(varE a) :: [Path $(pure vtyp) $(asTypeQ gkey)])) ($asList $(varE x)) |])
-               []]
+         -> m Exp
+doClause vtyp gkey s a toPath toVal asList = do
+  runQ [| List.concatMap (\pv -> List.map ($toPath pv) (pathsOf ($toVal pv) $a :: [Path $(pure vtyp) $(asTypeQ gkey)])) ($asList $s) |]
 
+-- | See if there is a path from typ to gkey.  We need to avoid
+-- building expressions for non-existant paths because they will cause
+-- "no Path instance" errors.
 testIsPath :: (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => Type -> TGVSimple -> m Bool
 testIsPath typ gkey = do
   key <- expandType typ >>= typeVertex
