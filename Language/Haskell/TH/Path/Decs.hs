@@ -11,7 +11,6 @@
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE StandaloneDeriving #-}
-{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeSynonymInstances #-}
 module Language.Haskell.TH.Path.Decs
@@ -32,14 +31,12 @@ import Language.Haskell.TH
 import Language.Haskell.TH.Context (ContextM, reifyInstancesWithContext)
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.Path.Core (IsPathType(idPath))
+import Language.Haskell.TH.Path.Core (IsPathType(idPath), SelfPath, SinkType)
 import Language.Haskell.TH.Path.Decs.Common (asConQ, asName, asTypeQ, bestPathTypeName, fieldLensNamePair,
                                              makeFieldCon, makePathCon, makePathType, ModelType(ModelType))
 import Language.Haskell.TH.Path.Decs.IsPath (peekDecs)
 import Language.Haskell.TH.Path.Decs.PathsOf (pathDecs)
 import Language.Haskell.TH.Path.Decs.PathType (pathType)
--- import Language.Haskell.TH.Path.Decs.PeekType (doPeekType)
-import Language.Haskell.TH.Path.Graph (SelfPath, SinkType)
 import Language.Haskell.TH.Path.View (viewInstanceType)
 import Language.Haskell.TH.Syntax as TH (Quasi(qReify), VarStrictType)
 import Language.Haskell.TH.TypeGraph.Expand (E(E), expandType)

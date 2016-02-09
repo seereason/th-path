@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleContexts #-}
@@ -9,7 +10,6 @@
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE StandaloneDeriving #-}
-{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
@@ -20,6 +20,11 @@ module Language.Haskell.TH.Path.Core
     , IsPathNode(Peek, peek)
     , ToLens(S, A, toLens)
     , (:.:)(..)
+
+    -- * Hint classes
+    , SinkType
+    , HideType
+    , SelfPath
 
     -- * Basic Path Types
     , Path_Pair(..)
@@ -49,7 +54,9 @@ module Language.Haskell.TH.Path.Core
     , IsText(textLens')
     , stringLens
     , lens_UserIds_Text
+#if !__GHCJS__
     , pathTypeNames
+#endif
     ) where
 
 import Control.Applicative.Error (maybeRead)
@@ -121,6 +128,22 @@ class IsPathNode s where
     data Peek s
     peek :: s -> Forest (Peek s)
 
+-- | 'Path' instances can be customized by declaring types to be
+-- instances of this class and the ones that follow.  If a type is an
+-- instance of 'SinkType', no paths that lead to the internal stucture
+-- of the value will be created - the value is considered atomic.
+class SinkType a
+
+-- | Like SinkType, but no paths out or into the type will be created.
+class HideType a
+
+-- | Types for which
+-- a 'SelfPath' instance is declared will be used as their own Path
+-- Type.  For example, a UUID or some enumerated type contained in a
+-- record could be used directly to reference the object that contains
+-- it.
+class SelfPath a
+
 -- Primitive path types
 
 -- | A path type with constructors to extract either @fst@, @snd@, or
@@ -138,6 +161,7 @@ instance IsPathType (Path_Either a b) where idPath = Path_Either
 instance IsPathType (Path_Map k v) where idPath = Path_Map
 instance IsPathType (Path_List a) where idPath = Path_List
 
+#if !__GHCJS__
 $(derivePathInfo ''Path_Pair)
 $(derivePathInfo ''Path_List)
 $(derivePathInfo ''Path_Map)
@@ -149,6 +173,7 @@ $(deriveSafeCopy 0 'base ''Path_List)
 $(deriveSafeCopy 0 'base ''Path_Map)
 $(deriveSafeCopy 0 'base ''Path_Either)
 $(deriveSafeCopy 0 'base ''Path_Maybe)
+#endif
 
 idLens :: Lens' a a
 idLens = iso id id
@@ -287,6 +312,7 @@ lens_UserIds_Text = iso (encode') (decode')
           Text.unwords . List.map showId $ uids
           where showId = Text.pack . show . _unUserId
 
+#if !__GHCJS__
 -- | Find all the names of the path types.
 pathTypeNames :: DsMonad m => m (Set Name)
 pathTypeNames = do
@@ -299,3 +325,4 @@ pathTypeNames = do
 
 -- primitivePathTypeNames :: Set Name
 -- primitivePathTypeNames = Set.fromList [''Path_Pair, ''Path_List, ''Path_Either, ''Path_Map, ''Path_OMap, ''Path_Maybe]
+#endif

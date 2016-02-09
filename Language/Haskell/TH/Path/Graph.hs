@@ -10,15 +10,11 @@
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE StandaloneDeriving #-}
-{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE TupleSections #-}
 module Language.Haskell.TH.Path.Graph
     ( runContextT
     , runTypeGraphT
-    -- * Hint classes
-    , SinkType
-    , HideType
-    , SelfPath
     ) where
 
 import Control.Applicative
@@ -41,6 +37,7 @@ import Language.Haskell.TH.Context (ContextM, InstMap, reifyInstancesWithContext
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.KindInference (inferKind)
+import Language.Haskell.TH.Path.Core (SinkType, HideType)
 import Language.Haskell.TH.Path.Instances ()
 import Language.Haskell.TH.Path.Order (Order)
 import Language.Haskell.TH.Path.View (viewInstanceType, viewTypes)
@@ -165,22 +162,6 @@ pathGraphEdges =
       diff m1 m2 = Map.fromList $ Set.toList $ Set.difference (Set.fromList (Map.toList m1))
                                                               (Set.fromList (Map.toList m2))
 -}
-
--- | 'Path' instances can be customized by declaring types to be
--- instances of this class and the ones that follow.  If a type is an
--- instance of 'SinkType', no paths that lead to the internal stucture
--- of the value will be created - the value is considered atomic.
-class SinkType a
-
--- | Like SinkType, but no paths out or into the type will be created.
-class HideType a
-
--- | Types for which
--- a 'SelfPath' instance is declared will be used as their own Path
--- Type.  For example, a UUID or some enumerated type contained in a
--- record could be used directly to reference the object that contains
--- it.
-class SelfPath a
 
 -- | Remove any vertices that are labelled with primitive types, and then
 -- apply the hints obtained from the

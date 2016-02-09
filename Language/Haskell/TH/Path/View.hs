@@ -1,12 +1,14 @@
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
 module Language.Haskell.TH.Path.View
     ( View(viewLens, ViewType)
+#if !__GHCJS__
     , viewInstanceType
     , viewTypes
+#endif
     ) where
 
 import Control.Lens (Lens')
@@ -39,6 +41,7 @@ class View a where
     type ViewType a
     viewLens :: Lens' a (ViewType a)
 
+#if !__GHCJS__
 -- | Determine whether there is a 'View' instance for a type and if so
 -- return @ViewType a@.
 viewInstanceType :: (DsMonad m, MonadStates ExpandMap m) => E Type -> m (Maybe Type)
@@ -87,3 +90,4 @@ viewTypes :: (DsMonad m, MonadStates InstMap m) => m (Set Type)
 viewTypes = do
   FamilyI _ tySynInsts <- runQ $ reify ''ViewType
   return $ Set.fromList $ concatMap (\ (TySynInstD _vt (TySynEqn [a] b)) -> [a, b]) tySynInsts
+#endif

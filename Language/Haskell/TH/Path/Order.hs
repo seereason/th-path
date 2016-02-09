@@ -4,13 +4,13 @@
 
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE ImpredicativeTypes #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE UndecidableInstances #-}
 
@@ -52,6 +52,7 @@ import Data.Map as Map (Map, (!))
 import qualified Data.Map as Map
 import Data.SafeCopy (SafeCopy(..), base, contain, deriveSafeCopy, safeGet, safePut)
 import Data.Typeable (Typeable)
+import GHC.Generics (Generic)
 import Language.Haskell.TH
 import Language.Haskell.TH.Path.Core (IsPathType(idPath))
 import Prelude hiding (init)
@@ -65,7 +66,7 @@ data Order k v =
           , next :: k
           -- ^ Next available key
           }
-    deriving (Data, Typeable)
+    deriving (Data, Typeable, Generic)
 
 init :: Enum k => k
 init = toEnum 1            -- Yeah, that's right, 1.  F**k zeroth elements.
