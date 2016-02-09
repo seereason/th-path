@@ -2,6 +2,7 @@
 -- @k@, representing the element order.  This means the @[k]@ can be
 -- reordered without invalidating any @k@ values that might be in use.
 
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
@@ -14,8 +15,10 @@
 {-# LANGUAGE UndecidableInstances #-}
 
 module Language.Haskell.TH.Path.Order
-    ( Order(elems, order, next)
+    ( Order(..)
+#if !__GHCJS__
     , deriveOrder
+#endif
     -- * Query
     , view
     , view'
@@ -222,6 +225,10 @@ lens_omat k = lens getter setter . _Just
 view' :: (Ord k, Enum k) => k -> Order k v -> v
 view' i m = maybe (error "Order.view'") fst (view i m)
 
+data Path_OMap k a = Path_OMap | Path_At k a deriving (Eq, Ord, Read, Show, Typeable, Data)
+instance IsPathType (Path_OMap k a) where idPath = Path_OMap
+
+#if !__GHCJS__
 -- | Given the name of a type such as AbbrevPair, generate declarations
 -- @@
 --     newtype AbbrevPairID = AbbrevPairID {unAbbrevPairID :: IntJS} deriving (Eq, Ord, Read, Show, Data, Typeable)
@@ -245,7 +252,6 @@ deriveOrder ityp t supers = do
   omtype <- tySynD mpname [] [t|Order $(conT idname) $(conT t)|]
   return $ [idtype, omtype] ++ insts
 
-data Path_OMap k a = Path_OMap | Path_At k a deriving (Eq, Ord, Read, Show, Typeable, Data)
-instance IsPathType (Path_OMap k a) where idPath = Path_OMap
 $(derivePathInfo ''Path_OMap)
 $(deriveSafeCopy 0 'base ''Path_OMap)
+#endif
