@@ -3,6 +3,7 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeSynonymInstances #-}
+{-# OPTIONS_GHC -fno-warn-orphans #-}
 module Appraisal.IntJS
     ( IntJS
     , ToIntJS(intJS)
@@ -19,8 +20,6 @@ import Data.Aeson (ToJSON(toJSON), FromJSON(parseJSON))
 import Data.Generics (Typeable)
 import Data.Int (Int32)
 import Data.Map as Map (fromList, Map, toList)
-import Data.Text as Text (null, pack)
-import Data.Text.Read (decimal, signed)
 import Language.Haskell.TH
 import Language.Haskell.TH.Path.Order (deriveOrder, fromPairs, Order, toPairs)
 import Language.Javascript.JMacro (ToJExpr(toJExpr), JExpr(ValExpr), JVal(JInt))

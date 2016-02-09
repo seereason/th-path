@@ -6,6 +6,7 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeSynonymInstances #-}
+{-# OPTIONS -fno-warn-orphans #-}
 module Appraisal.ReportInstances where
 
 import Appraisal.File (URI, File)

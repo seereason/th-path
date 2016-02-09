@@ -87,7 +87,7 @@ class IsPathType p where
 class ToLens p where
     type S p
     type A p
-    toLens :: p -> (forall (f :: * -> *). (Functor f, Applicative f) => (A p -> f (A p)) -> S p -> f (S p))
+    toLens :: p -> Traversal' (S p) (A p)
 
 data (f :.: g) = f :.: g deriving (Eq, Generic, Read, Show)
 

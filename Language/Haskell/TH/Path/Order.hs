@@ -212,13 +212,10 @@ find p m =
             Just x -> Just (k, x)
 
 -- | Build a lens to focus on the k element of an Order.
-lens_omat :: forall k v. (Ord k, Enum k) => k -> Traversal' (Order k v) v
-lens_omat k =
-    lens getter setter . _Just
+lens_omat :: (Ord k, Enum k) => k -> Traversal' (Order k v) v
+lens_omat k = lens getter setter . _Just
     where
-      getter :: Order k v -> Maybe v
-      getter s = Map.lookup k $ elems s
-      setter :: Order k v -> Maybe v -> Order k v
+      getter s = Map.lookup k (elems s)
       setter s a = maybe s (\ a' -> putItem k a' s) a
 
 -- | Like view, but discards the remainder list

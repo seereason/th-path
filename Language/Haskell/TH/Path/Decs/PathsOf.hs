@@ -170,9 +170,9 @@ pathsOfClauses key gkey =
             doField (_, True, n, p) =
                 [ [| map $(asConQ (makePathCon (makePathType (ModelType tname)) (show n)))
                          (pathsOf $(varE p) $(varE a)) |] ]
-        tell [clause [conP cname (map varP ps), varP a]
-                     (normalB [|concat $(listE (concatMap doField (zip4 binds fIsPath ns ps)))|])
-                     []]
+        case concatMap doField (zip4 binds fIsPath ns ps) of
+          [] ->   tell [clause [conP cname (map (const wildP) ps), wildP] (normalB [| [] |]) []]
+          exps -> tell [clause [conP cname (map varP ps),         varP a] (normalB [|concat $(listE exps)|]) []]
       doCon (RecC cname vbinds) = do
         fIsPath <- mapM (\(_, _, ftype) -> testIsPath ftype gkey) vbinds
         x <- runQ $ newName "x"
@@ -183,9 +183,9 @@ pathsOfClauses key gkey =
             doField ((fname, _, _), _, _) =
                 [ [| map $(asConQ (makePathCon (makePathType (ModelType tname)) (nameBase fname)))
                          (pathsOf ($(varE fname) $(varE x)) $(varE a)) |] ]
-        tell [clause [asP x (recP cname []), varP a]
-                     (normalB [|concat $(listE (concatMap doField (zip3 vbinds fIsPath ns)))|])
-                     []]
+        case concatMap doField (zip3 vbinds fIsPath ns) of
+          [] -> tell [clause [recP cname [], wildP] (normalB [| [] |]) []]
+          exps -> tell [clause [asP x (recP cname []), varP a] (normalB [|concat $(listE exps)|]) []]
 
 zip4 :: [a] -> [b] -> [c] -> [d] -> [(a, b, c, d)]
 zip4 l1 l2 l3 l4 = map (\((a, b), (c, d)) -> (a, b, c, d)) (zip (zip l1 l2) (zip l3 l4))

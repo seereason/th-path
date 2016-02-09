@@ -137,7 +137,7 @@ peekClauses v =
       doMatchingFields' :: Name -> Name -> Name -> [(Strict, Type)] -> m [ClauseQ]
       doMatchingFields' tname x cname sts = do
         flds <- mapM (doField' tname x) sts
-        return [clause [asP x (recP cname [])] (normalB (listE (List.map pure flds))) []]
+        return [clause [recP cname []] (normalB (listE (List.map pure flds))) []]
 
       doField :: Name -> Name -> (Name, Strict, Type) -> m Exp
       doField tname x (fname, _, ftype) = do
@@ -224,20 +224,20 @@ doPeekNodeOf v wtyp pcname =
 -- | Build a value of type such as Peek_AbbrevPair -> Peek_AbbrevPairs
 shim :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => TGVSimple -> TGVSimple -> ExpQ -> m Exp
 shim w v pcname =
-    do x <- runQ $ newName "x"
+    do z <- runQ $ newName "z"
        gs <- pathKeys w
-       matches <- concat <$> (mapM (doPair x) (Foldable.toList gs))
-       runQ [| \v -> $(caseE [|v|] (List.map pure matches)) |]
+       matches <- concat <$> (mapM (doPair z) (Foldable.toList gs))
+       runQ [| \v' -> $(caseE [|v'|] (List.map pure matches)) |]
     where
       doPair :: Name -> TGVSimple -> m [Match]
-      doPair x g = do
+      doPair z g = do
         case (bestName v, bestName w, bestName g) of
           (Just vn, Just wn, Just gn) ->
               do q <- runQ $ newName "q"
                  sequence
-                   [runQ $ match (conP (asName (makePeekCon (ModelType wn) (ModelType gn))) [varP q, varP x])
+                   [runQ $ match (conP (asName (makePeekCon (ModelType wn) (ModelType gn))) [varP q, varP z])
                              (normalB [|$(asConQ (makePeekCon (ModelType vn) (ModelType gn)))
                                          (($pcname :: $(asTypeQ (makePathType (ModelType wn))) $(asTypeQ g) ->
-                                                     $(asTypeQ (makePathType (ModelType vn))) $(asTypeQ g)) $(varE q)) $(varE x)|])
+                                                     $(asTypeQ (makePathType (ModelType vn))) $(asTypeQ g)) $(varE q)) $(varE z)|])
                              []]
           _ -> pure []

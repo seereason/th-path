@@ -62,7 +62,6 @@ import Data.List as List (groupBy, sortBy)
 import qualified Data.ListLike as LL
 import Data.Map as Map (lookup)
 import Data.Maybe (catMaybes)
-import Data.Monoid ((<>))
 import Data.Text as T (Text, groupBy, pack, unpack, strip, uncons, empty)
 import Debug.Trace (trace)
 import Language.Haskell.TH.Path.Core (lens_mrs, readShowLens)

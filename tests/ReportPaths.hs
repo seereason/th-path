@@ -33,7 +33,7 @@ import Data.Text (unpack)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Lift (Lift(lift), deriveLiftMany)
 import Language.Haskell.TH.Path.Core (Path_Pair, Path_Map, Path_Maybe, Path_Either)
-import Language.Haskell.TH.Path.Order (Order, Path_OMap(Path_At))
+import Language.Haskell.TH.Path.Order (Order, Path_OMap)
 import Network.URI (URIAuth, URI)
 import Text.LaTeX hiding (lift)
 import Text.LaTeX.Base.Syntax
