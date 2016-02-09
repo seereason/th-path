@@ -21,7 +21,7 @@ import Appraisal.ReportImage(ReportImages)
 import Data.Generics (Data, Typeable)
 import Data.Map as Map (Map, fromList, lookup)
 import qualified Data.Text as T
-import Language.Haskell.TH.Path.Graph (SelfPath)
+import Language.Haskell.TH.Path.Core (SelfPath)
 import Language.Haskell.TH.Path.Order as Order (empty)
 
 data ItemFieldName

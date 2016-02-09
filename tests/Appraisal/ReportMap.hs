@@ -20,7 +20,7 @@ import Data.UUID.Types.Internal (UUID(..))
 import Control.Lens (makeLensesFor)
 import Data.Data (Data, Typeable)
 import qualified Data.Map as M (fromList, lookup, Map, size)
-import Language.Haskell.TH.Path.Graph (SelfPath)
+import Language.Haskell.TH.Path.Core (SelfPath)
 
 type MRR = M.Map ReportID Report
 

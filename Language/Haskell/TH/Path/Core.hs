@@ -14,8 +14,10 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
 module Language.Haskell.TH.Path.Core
-    ( -- * Type classes and associated types
-      IsPath(pathsOf, Path)
+    ( treeMap
+    , forestMap
+      -- * Type classes and associated types
+    , IsPath(pathsOf, Path)
     , IsPathType(idPath)
     , IsPathNode(Peek, peek)
     , ToLens(S, A, toLens)
@@ -70,7 +72,7 @@ import Data.Proxy
 import Data.SafeCopy (base, deriveSafeCopy)
 import Data.Set as Set ({-difference,-} fromList, Set)
 import Data.Text as Text (Text, pack, unpack, unwords, words)
-import Data.Tree (Forest)
+import Data.Tree (Tree(Node), Forest)
 import Data.UserId (UserId(..))
 import Debug.Trace (trace)
 import GHC.Generics (Generic)
@@ -82,6 +84,12 @@ import Language.Haskell.TH.TypeGraph.Prelude (pprint')
 import Prelude hiding (exp)
 import Safe (readMay)
 import Web.Routes.TH (derivePathInfo)
+
+treeMap :: (a -> b) -> Tree a -> Tree b
+treeMap f (Node x ns) = Node (f x) (forestMap f ns)
+
+forestMap :: (a -> b) -> Forest a -> Forest b
+forestMap f = List.map (treeMap f)
 
 -- | A superclass for 'IsPath' that lets us declare the 'idPath' method
 -- for primitive path types with type parameters (such as @Path_Map k

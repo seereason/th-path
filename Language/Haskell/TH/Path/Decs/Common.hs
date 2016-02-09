@@ -14,9 +14,7 @@
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeSynonymInstances #-}
 module Language.Haskell.TH.Path.Decs.Common
-    ( treeMap
-    , forestMap
-    , bestNames
+    ( bestNames
     , bestPathTypeName
     , bestTypeName
     , clauses
@@ -46,12 +44,6 @@ import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Instances ()
 import Language.Haskell.TH.TypeGraph.Expand (E, unE)
 import Language.Haskell.TH.TypeGraph.Vertex (etype, field, TGV, TGVSimple, TypeGraphVertex(bestType), typeNames, vsimple)
-
-treeMap :: (a -> b) -> Tree a -> Tree b
-treeMap f (Node x ns) = Node (f x) (forestMap f ns)
-
-forestMap :: (a -> b) -> Forest a -> Forest b
-forestMap f = List.map (treeMap f)
 
 -- Naming conventions
 

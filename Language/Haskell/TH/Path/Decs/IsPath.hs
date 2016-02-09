@@ -28,10 +28,10 @@ import Language.Haskell.TH
 import Language.Haskell.TH.Context (ContextM, reifyInstancesWithContext)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Core (IsPathNode(Peek, peek), IsPath(..), ToLens(toLens), SelfPath, SinkType,
-                                      Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
+                                      Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..), forestMap)
 import Language.Haskell.TH.Path.Decs.Common (asConQ, asName, asType, asTypeQ, bestPathTypeName, bestTypeName, clauses,
                                              makeFieldCon, makePathCon, makePathType, makePeekCon,
-                                             ModelType(ModelType), PathCon, forestMap, PathCon(PathCon))
+                                             ModelType(ModelType), PathCon, PathCon(PathCon))
 import Language.Haskell.TH.Path.Order (Order, Path_OMap(..))
 import Language.Haskell.TH.Path.View (viewInstanceType)
 import Language.Haskell.TH.Syntax as TH (Quasi(qReify))
