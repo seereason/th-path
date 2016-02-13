@@ -18,8 +18,8 @@ module Language.Haskell.TH.Path.Core
     , forestMap
       -- * Type classes and associated types
     , IsPath(pathsOf, Path)
-    , IsPathType(idPath)
-    , IsPathNode(Peek, peek)
+    , IsPathEnd(idPath)
+    , IsPathStart(Peek, peek)
     , ToLens(S, A, toLens)
     , (:.:)(..)
 
@@ -95,9 +95,13 @@ forestMap f = List.map (treeMap f)
 -- for primitive path types with type parameters (such as @Path_Map k
 -- a@.)  The methods of 'IsPath' can only be written for specific
 -- bindings of @k@ and @a@.
-class IsPathType p where
+class IsPathEnd p where
     idPath :: p -- ^ The identity value for path type @p@.  Obeys the law
                 -- @toLens idPath == iso id id@.
+
+class IsPathEnd s => IsPathStart s where
+    data Peek s
+    peek :: s -> Forest (Peek s)
 
 class ToLens p where
     type S p
@@ -119,7 +123,7 @@ instance (ToLens f, ToLens g, A f ~ S g {-, B f ~ T g-}) => ToLens (f :.: g) whe
 -- the values of type @a@ which can be obtained from a value of type
 -- @s@ using a lens.  Any value of a 'Path' type can be passed
 -- to the 'toLens method to obtain the lens
-class (IsPathType (Path s a), ToLens (Path s a), S (Path s a) ~ s, A (Path s a) ~ a) => IsPath s a where
+class (IsPathEnd (Path s a), ToLens (Path s a), S (Path s a) ~ s, A (Path s a) ~ a) => IsPath s a where
     type Path s a
     -- ^ Each instance defines this type function which returns the
     -- path type.  Each value of this type represents a different way
@@ -131,10 +135,6 @@ class (IsPathType (Path s a), ToLens (Path s a), S (Path s a) ~ s, A (Path s a) 
     -- ^ Build the paths corresponding to a particular s.  This
     -- function will freak out if called with types for which there is
     -- no instance @IsPath s a@.
-
-class IsPathNode s where
-    data Peek s
-    peek :: s -> Forest (Peek s)
 
 -- | 'Path' instances can be customized by declaring types to be
 -- instances of this class and the ones that follow.  If a type is an
@@ -163,11 +163,11 @@ data Path_Maybe a = Path_Just a | Path_Maybe deriving (Eq, Ord, Read, Show, Type
 data Path_Map k v = Path_Look k v | Path_Map  deriving (Eq, Ord, Read, Show, Typeable, Data)
 data Path_List a = Path_List deriving (Eq, Ord, Read, Show, Typeable, Data) -- No element lookup path - too dangerous, use OMap
 
-instance IsPathType (Path_Pair a b) where idPath = Path_Pair
-instance IsPathType (Path_Maybe a) where idPath = Path_Maybe
-instance IsPathType (Path_Either a b) where idPath = Path_Either
-instance IsPathType (Path_Map k v) where idPath = Path_Map
-instance IsPathType (Path_List a) where idPath = Path_List
+instance IsPathEnd (Path_Pair a b) where idPath = Path_Pair
+instance IsPathEnd (Path_Maybe a) where idPath = Path_Maybe
+instance IsPathEnd (Path_Either a b) where idPath = Path_Either
+instance IsPathEnd (Path_Map k v) where idPath = Path_Map
+instance IsPathEnd (Path_List a) where idPath = Path_List
 
 #if !__GHCJS__
 $(derivePathInfo ''Path_Pair)

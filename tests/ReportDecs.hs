@@ -7983,7 +7983,85 @@ instance HasUserId UserId
     where lens_userId = id
           lens_UserId__unUserId = iso (\(UserId x) -> x) UserId
           {-# INLINE lens_UserId__unUserId #-}
-instance IsPathNode (Either URI ImageFile)
+instance IsPathEnd (Path_Author a)
+    where idPath = Path_Author
+instance IsPathEnd (Path_Bool a)
+    where idPath = Path_Bool
+instance IsPathEnd (Path_Branding a)
+    where idPath = Path_Branding
+instance IsPathEnd (Path_CIString a)
+    where idPath = Path_CIString
+instance IsPathEnd (Path_Dimension a)
+    where idPath = Path_Dimension
+instance IsPathEnd (Path_Double a)
+    where idPath = Path_Double
+instance IsPathEnd (Path_ImageCrop a)
+    where idPath = Path_ImageCrop
+instance IsPathEnd (Path_ImageFile a)
+    where idPath = Path_ImageFile
+instance IsPathEnd (Path_ImageSize a)
+    where idPath = Path_ImageSize
+instance IsPathEnd (Path_Int a)
+    where idPath = Path_Int
+instance IsPathEnd (Path_Int64 a)
+    where idPath = Path_Int64
+instance IsPathEnd (Path_Integer a)
+    where idPath = Path_Integer
+instance IsPathEnd (Path_Item a)
+    where idPath = Path_Item
+instance IsPathEnd (Path_JSONText a)
+    where idPath = Path_JSONText
+instance IsPathEnd (Path_Markup a)
+    where idPath = Path_Markup
+instance IsPathEnd (Path_MaybeImageFile a)
+    where idPath = Path_MaybeImageFile
+instance IsPathEnd (Path_MaybeReportIntendedUse a)
+    where idPath = Path_MaybeReportIntendedUse
+instance IsPathEnd (Path_Permissions a)
+    where idPath = Path_Permissions
+instance IsPathEnd (Path_ReadOnlyFilePath a)
+    where idPath = Path_ReadOnlyFilePath
+instance IsPathEnd (Path_Report a)
+    where idPath = Path_Report
+instance IsPathEnd (Path_ReportElem a)
+    where idPath = Path_ReportElem
+instance IsPathEnd (Path_ReportFlags a)
+    where idPath = Path_ReportFlags
+instance IsPathEnd (Path_ReportImage a)
+    where idPath = Path_ReportImage
+instance IsPathEnd (Path_ReportImageView a)
+    where idPath = Path_ReportImageView
+instance IsPathEnd (Path_ReportIntendedUse a)
+    where idPath = Path_ReportIntendedUse
+instance IsPathEnd (Path_ReportMap a)
+    where idPath = Path_ReportMap
+instance IsPathEnd (Path_ReportStandard a)
+    where idPath = Path_ReportStandard
+instance IsPathEnd (Path_ReportStatus a)
+    where idPath = Path_ReportStatus
+instance IsPathEnd (Path_ReportValueApproachInfo a)
+    where idPath = Path_ReportValueApproachInfo
+instance IsPathEnd (Path_ReportValueTypeInfo a)
+    where idPath = Path_ReportValueTypeInfo
+instance IsPathEnd (Path_ReportView a)
+    where idPath = Path_ReportView
+instance IsPathEnd (Path_SaneSizeImageSize a)
+    where idPath = Path_SaneSizeImageSize
+instance IsPathEnd (Path_String a)
+    where idPath = Path_String
+instance IsPathEnd (Path_Text a)
+    where idPath = Path_Text
+instance IsPathEnd (Path_URI a)
+    where idPath = Path_URI
+instance IsPathEnd (Path_UUID a)
+    where idPath = Path_UUID
+instance IsPathEnd (Path_Units a)
+    where idPath = Path_Units
+instance IsPathEnd (Path_UserId a)
+    where idPath = Path_UserId
+instance IsPathEnd (Path_UserIds a)
+    where idPath = Path_UserIds
+instance IsPathStart (Either URI ImageFile)
     where data Peek (Either URI ImageFile)
               = Peek_EUI_ImageFile (Path_EUI ImageFile) ImageFile
               | Peek_EUI_EUI (Path_EUI (Either URI ImageFile))
@@ -8010,7 +8088,7 @@ instance IsPathNode (Either URI ImageFile)
                                                                                                                                                z -> Peek_EUI_ImageFile ((Path_Right :: Path_ImageFile ImageFile ->
                                                                                                                                                                                        Path_EUI ImageFile) q) z) (peek y :: Forest (Peek ImageFile)))
                                          _ -> error ("doPeekNodesOf: " ++ show path)) paths
-instance IsPathNode (Map ItemFieldName Markup)
+instance IsPathStart (Map ItemFieldName Markup)
     where data Peek (Map ItemFieldName Markup)
               = Peek_MIM_JSONText (Path_MIM JSONText) JSONText
               | Peek_MIM_Markup (Path_MIM Markup) Markup
@@ -8034,7 +8112,7 @@ instance IsPathNode (Map ItemFieldName Markup)
                                                                                                                                                                        Path_MIM Text) q) z) (peek y :: Forest (Peek Markup)))
                                          _ -> error ("doPeekNodesOfMap: " ++ show path)) paths :: Forest (Peek (Map ItemFieldName
                                                                                                                     Markup))
-instance IsPathNode (Map ReportID Report)
+instance IsPathStart (Map ReportID Report)
     where data Peek (Map ReportID Report)
               = Peek_MRR_String (Path_MRR ([Char])) ([Char])
               | Peek_MRR_Int64 (Path_MRR Int64) Int64
@@ -8285,7 +8363,7 @@ instance IsPathNode (Map ReportID Report)
                                                                                                                                                                        Path_MRR UUID) q) z) (peek y :: Forest (Peek Report)))
                                          _ -> error ("doPeekNodesOfMap: " ++ show path)) paths :: Forest (Peek (Map ReportID
                                                                                                                     Report))
-instance IsPathNode (Order AbbrevPairID ((CIString, Markup)))
+instance IsPathStart (Order AbbrevPairID ((CIString, Markup)))
     where data Peek (Order AbbrevPairID ((CIString, Markup)))
               = Peek_AbbrevPairs_JSONText (Path_AbbrevPairs JSONText) JSONText
               | Peek_AbbrevPairs_Markup (Path_AbbrevPairs Markup) Markup
@@ -8327,7 +8405,7 @@ instance IsPathNode (Order AbbrevPairID ((CIString, Markup)))
                                          _ -> error ("doPeekNodesOfOrder: " ++ show path)) paths :: Forest (Peek (Order AbbrevPairID
                                                                                                                         ((CIString,
                                                                                                                           Markup))))
-instance IsPathNode (Order AuthorID Author)
+instance IsPathStart (Order AuthorID Author)
     where data Peek (Order AuthorID Author)
               = Peek_Authors_JSONText (Path_Authors JSONText) JSONText
               | Peek_Authors_Markup (Path_Authors Markup) Markup
@@ -8355,7 +8433,7 @@ instance IsPathNode (Order AuthorID Author)
                                                                                                                                                                            Path_Authors Text) q) z) (peek y :: Forest (Peek Author)))
                                          _ -> error ("doPeekNodesOfOrder: " ++ show path)) paths :: Forest (Peek (Order AuthorID
                                                                                                                         Author))
-instance IsPathNode (Order MarkupID Markup)
+instance IsPathStart (Order MarkupID Markup)
     where data Peek (Order MarkupID Markup)
               = Peek_Markups_JSONText (Path_Markups JSONText) JSONText
               | Peek_Markups_Markup (Path_Markups Markup) Markup
@@ -8379,7 +8457,7 @@ instance IsPathNode (Order MarkupID Markup)
                                                                                                                                                                            Path_Markups Text) q) z) (peek y :: Forest (Peek Markup)))
                                          _ -> error ("doPeekNodesOfOrder: " ++ show path)) paths :: Forest (Peek (Order MarkupID
                                                                                                                         Markup))
-instance IsPathNode (Order MarkupPairID ((Markup, Markup)))
+instance IsPathStart (Order MarkupPairID ((Markup, Markup)))
     where data Peek (Order MarkupPairID ((Markup, Markup)))
               = Peek_MarkupPairs_JSONText (Path_MarkupPairs JSONText) JSONText
               | Peek_MarkupPairs_Markup (Path_MarkupPairs Markup) Markup
@@ -8416,7 +8494,7 @@ instance IsPathNode (Order MarkupPairID ((Markup, Markup)))
                                          _ -> error ("doPeekNodesOfOrder: " ++ show path)) paths :: Forest (Peek (Order MarkupPairID
                                                                                                                         ((Markup,
                                                                                                                           Markup))))
-instance IsPathNode (Order ReportElemID ReportElem)
+instance IsPathStart (Order ReportElemID ReportElem)
     where data Peek (Order ReportElemID ReportElem)
               = Peek_ReportElems_String (Path_ReportElems ([Char])) ([Char])
               | Peek_ReportElems_Bool (Path_ReportElems Bool) Bool
@@ -8537,7 +8615,7 @@ instance IsPathNode (Order ReportElemID ReportElem)
                                                                                                                                                                                            Path_ReportElems Text) q) z) (peek y :: Forest (Peek ReportElem)))
                                          _ -> error ("doPeekNodesOfOrder: " ++ show path)) paths :: Forest (Peek (Order ReportElemID
                                                                                                                         ReportElem))
-instance IsPathNode (Order ReportImageID ReportImage)
+instance IsPathStart (Order ReportImageID ReportImage)
     where data Peek (Order ReportImageID ReportImage)
               = Peek_ReportImages_String (Path_ReportImages ([Char])) ([Char])
               | Peek_ReportImages_Bool (Path_ReportImages Bool) Bool
@@ -8637,7 +8715,7 @@ instance IsPathNode (Order ReportImageID ReportImage)
                                                                                                                                                                                                Path_ReportImages Text) q) z) (peek y :: Forest (Peek ReportImage)))
                                          _ -> error ("doPeekNodesOfOrder: " ++ show path)) paths :: Forest (Peek (Order ReportImageID
                                                                                                                         ReportImage))
-instance IsPathNode ((Markup, Markup))
+instance IsPathStart ((Markup, Markup))
     where data Peek ((Markup, Markup))
               = Peek_MarkupPair_JSONText (Path_MarkupPair JSONText) JSONText
               | Peek_MarkupPair_Markup (Path_MarkupPair Markup) Markup
@@ -8677,7 +8755,7 @@ instance IsPathNode ((Markup, Markup))
                                                                                                                                             z -> Peek_MarkupPair_Text ((Path_Second :: Path_Markup Text ->
                                                                                                                                                                                        Path_MarkupPair Text) q) z) (peek y :: Forest (Peek Markup)))
                                          _ -> error ("doPeekNodesOf: " ++ show path)) paths
-instance IsPathNode ((CIString, Markup))
+instance IsPathStart ((CIString, Markup))
     where data Peek ((CIString, Markup))
               = Peek_AbbrevPair_JSONText (Path_AbbrevPair JSONText) JSONText
               | Peek_AbbrevPair_Markup (Path_AbbrevPair Markup) Markup
@@ -8718,7 +8796,7 @@ instance IsPathNode ((CIString, Markup))
                                                                                                                                             z -> Peek_AbbrevPair_Text ((Path_Second :: Path_Markup Text ->
                                                                                                                                                                                        Path_AbbrevPair Text) q) z) (peek y :: Forest (Peek Markup)))
                                          _ -> error ("doPeekNodesOf: " ++ show path)) paths
-instance IsPathNode (Maybe (Either URI ImageFile))
+instance IsPathStart (Maybe (Either URI ImageFile))
     where data Peek (Maybe (Either URI ImageFile))
               = Peek_MEUI_ImageFile (Path_MEUI ImageFile) ImageFile
               | Peek_MEUI_EUI (Path_MEUI (Either URI ImageFile))
@@ -8749,7 +8827,7 @@ instance IsPathNode (Maybe (Either URI ImageFile))
                                                                                                                                                                Path_MEUI URI) q) z) (peek y :: Forest (Peek (Either URI
                                                                                                                                                                                                                     ImageFile))))
                                          _ -> error ("doPeekNodesOf: " ++ show path)) paths
-instance IsPathNode (Maybe ImageFile)
+instance IsPathStart (Maybe ImageFile)
     where data Peek (Maybe ImageFile)
               = Peek_MaybeImageFile_String (Path_MaybeImageFile ([Char]))
                                            ([Char])
@@ -8771,7 +8849,7 @@ instance IsPathNode (Maybe ImageFile)
                                                                                                                                                                  z -> Peek_MaybeImageFile_JSONText ((Path_MaybeImageFile_View :: Path_String JSONText ->
                                                                                                                                                                                                                                  Path_MaybeImageFile JSONText) q) z) (peek y :: Forest (Peek ([Char]))))
                                          _ -> error ("doPeekNodesOf: " ++ show path)) paths
-instance IsPathNode (Maybe ReportIntendedUse)
+instance IsPathStart (Maybe ReportIntendedUse)
     where data Peek (Maybe ReportIntendedUse)
               = Peek_MaybeReportIntendedUse_String (Path_MaybeReportIntendedUse ([Char]))
                                                    ([Char])
@@ -8793,7 +8871,7 @@ instance IsPathNode (Maybe ReportIntendedUse)
                                                                                                                                                                                  z -> Peek_MaybeReportIntendedUse_JSONText ((Path_MaybeReportIntendedUse_View :: Path_String JSONText ->
                                                                                                                                                                                                                                                                  Path_MaybeReportIntendedUse JSONText) q) z) (peek y :: Forest (Peek ([Char]))))
                                          _ -> error ("doPeekNodesOf: " ++ show path)) paths
-instance IsPathNode (ReadOnly ([Char]))
+instance IsPathStart (ReadOnly ([Char]))
     where data Peek (ReadOnly ([Char]))
               = Peek_ReadOnlyFilePath_String (Path_ReadOnlyFilePath ([Char]))
                                              ([Char])
@@ -8815,7 +8893,7 @@ instance IsPathNode (ReadOnly ([Char]))
                                                                                                                                                                      z -> Peek_ReadOnlyFilePath_JSONText ((Path_ReadOnlyFilePath_View :: Path_String JSONText ->
                                                                                                                                                                                                                                          Path_ReadOnlyFilePath JSONText) q) z) (peek y :: Forest (Peek ([Char]))))
                                          _ -> error ("doPeekNodesOf: " ++ show path)) paths
-instance IsPathNode (SaneSize ImageSize)
+instance IsPathStart (SaneSize ImageSize)
     where data Peek (SaneSize ImageSize)
               = Peek_SaneSizeImageSize_String (Path_SaneSizeImageSize ([Char]))
                                               ([Char])
@@ -8856,7 +8934,7 @@ instance IsPathNode (SaneSize ImageSize)
                                                                                                                                                                              z -> Peek_SaneSizeImageSize_JSONText ((Path_SaneSizeImageSize_View :: Path_ImageSize JSONText ->
                                                                                                                                                                                                                                                    Path_SaneSizeImageSize JSONText) q) z) (peek y :: Forest (Peek ImageSize)))
                                          _ -> error ("doPeekNodesOf: " ++ show path)) paths
-instance IsPathNode ([Char])
+instance IsPathStart ([Char])
     where data Peek ([Char])
               = Peek_String_String (Path_String ([Char])) ([Char])
               | Peek_String_JSONText (Path_String JSONText) JSONText
@@ -8871,7 +8949,7 @@ instance IsPathNode ([Char])
                                                                                                                                                      z -> Peek_String_JSONText ((Path_String_View :: Path_JSONText JSONText ->
                                                                                                                                                                                                      Path_String JSONText) q) z) (peek y :: Forest (Peek JSONText)))
                                          _ -> error ("doPeekNodesOf: " ++ show path)) paths
-instance IsPathNode ([UserId])
+instance IsPathStart ([UserId])
     where data Peek ([UserId])
               = Peek_UserIds_JSONText (Path_UserIds JSONText) JSONText
               | Peek_UserIds_UserIds (Path_UserIds ([UserId])) ([UserId])
@@ -8890,12 +8968,12 @@ instance IsPathNode ([UserId])
                                                                                                                                            z -> Peek_UserIds_Text ((Path_UserIds_View :: Path_Text Text ->
                                                                                                                                                                                          Path_UserIds Text) q) z) (peek y :: Forest (Peek Text)))
                                          _ -> error ("doPeekNodesOf: " ++ show path)) paths
-instance IsPathNode Int64
+instance IsPathStart Int64
     where data Peek Int64
               = Peek_Int64_Int64 (Path_Int64 Int64) Int64
               deriving (Eq, Show)
           peek _ = []
-instance IsPathNode Bool
+instance IsPathStart Bool
     where data Peek Bool
               = Peek_Bool_String (Path_Bool ([Char])) ([Char])
               | Peek_Bool_Bool (Path_Bool Bool) Bool
@@ -8914,7 +8992,7 @@ instance IsPathNode Bool
                                                                                                                                              z -> Peek_Bool_JSONText ((Path_Bool_View :: Path_String JSONText ->
                                                                                                                                                                                          Path_Bool JSONText) q) z) (peek y :: Forest (Peek ([Char]))))
                                          _ -> error ("doPeekNodesOf: " ++ show path)) paths
-instance IsPathNode Double
+instance IsPathStart Double
     where data Peek Double
               = Peek_Double_String (Path_Double ([Char])) ([Char])
               | Peek_Double_Double (Path_Double Double) Double
@@ -8933,12 +9011,12 @@ instance IsPathNode Double
                                                                                                                                                  z -> Peek_Double_JSONText ((Path_Double_View :: Path_String JSONText ->
                                                                                                                                                                                                  Path_Double JSONText) q) z) (peek y :: Forest (Peek ([Char]))))
                                          _ -> error ("doPeekNodesOf: " ++ show path)) paths
-instance IsPathNode Int
+instance IsPathStart Int
     where data Peek Int
               = Peek_Int_Int (Path_Int Int) Int
               deriving (Eq, Show)
           peek _ = []
-instance IsPathNode Dimension
+instance IsPathStart Dimension
     where data Peek Dimension
               = Peek_Dimension_Dimension (Path_Dimension Dimension) Dimension
               | Peek_Dimension_JSONText (Path_Dimension JSONText) JSONText
@@ -8953,12 +9031,12 @@ instance IsPathNode Dimension
                                                                                                                                                            z -> Peek_Dimension_JSONText ((Path_Dimension_View :: Path_JSONText JSONText ->
                                                                                                                                                                                                                  Path_Dimension JSONText) q) z) (peek y :: Forest (Peek JSONText)))
                                          _ -> error ("doPeekNodesOf: " ++ show path)) paths
-instance IsPathNode ImageCrop
+instance IsPathStart ImageCrop
     where data Peek ImageCrop
               = Peek_ImageCrop_ImageCrop (Path_ImageCrop ImageCrop) ImageCrop
               deriving (Eq, Show)
           peek _ = []
-instance IsPathNode ImageSize
+instance IsPathStart ImageSize
     where data Peek ImageSize
               = Peek_ImageSize_String (Path_ImageSize ([Char])) ([Char])
               | Peek_ImageSize_Double (Path_ImageSize Double) Double
@@ -9009,7 +9087,7 @@ instance IsPathNode ImageSize
                                                                                                                                                                                               Path_ImageSize JSONText) q) z) (peek y :: Forest (Peek Units)))
                         [] -> error "No Path_ImageSize_units field found"
                         ps -> error $ ("Multiple Path_ImageSize_units fields found: " ++ show ps)]
-instance IsPathNode Units
+instance IsPathStart Units
     where data Peek Units
               = Peek_Units_Units (Path_Units Units) Units
               | Peek_Units_JSONText (Path_Units JSONText) JSONText
@@ -9024,22 +9102,22 @@ instance IsPathNode Units
                                                                                                                                                    z -> Peek_Units_JSONText ((Path_Units_View :: Path_JSONText JSONText ->
                                                                                                                                                                                                  Path_Units JSONText) q) z) (peek y :: Forest (Peek JSONText)))
                                          _ -> error ("doPeekNodesOf: " ++ show path)) paths
-instance IsPathNode ImageFile
+instance IsPathStart ImageFile
     where data Peek ImageFile
               = Peek_ImageFile_ImageFile (Path_ImageFile ImageFile) ImageFile
               deriving (Eq, Show)
           peek _ = []
-instance IsPathNode Integer
+instance IsPathStart Integer
     where data Peek Integer
               = Peek_Integer_Integer (Path_Integer Integer) Integer
               deriving (Eq, Show)
           peek _ = []
-instance IsPathNode JSONText
+instance IsPathStart JSONText
     where data Peek JSONText
               = Peek_JSONText_JSONText (Path_JSONText JSONText) JSONText
               deriving (Eq, Show)
           peek _ = []
-instance IsPathNode Markup
+instance IsPathStart Markup
     where data Peek Markup
               = Peek_Markup_JSONText (Path_Markup JSONText) JSONText
               | Peek_Markup_Markup (Path_Markup Markup) Markup
@@ -9074,7 +9152,7 @@ instance IsPathNode Markup
           peek (LaTeX {}) = [error "doField' Text.LaTeX.Base.Syntax.LaTeX"]
           peek (Pandoc {}) = [error "doField' Text.Pandoc.Definition.Pandoc"]
           peek (Markup {}) = [error "doField' [Appraisal.Markup.Markup]"]
-instance IsPathNode Permissions
+instance IsPathStart Permissions
     where data Peek Permissions
               = Peek_Permissions_JSONText (Path_Permissions JSONText) JSONText
               | Peek_Permissions_Permissions (Path_Permissions Permissions)
@@ -9125,7 +9203,7 @@ instance IsPathNode Permissions
                                                                                                                                                                                                       Path_Permissions Text) q) z) (peek y :: Forest (Peek ([UserId]))))
                         [] -> error "No Path_Permissions_readers field found"
                         ps -> error $ ("Multiple Path_Permissions_readers fields found: " ++ show ps)]
-instance IsPathNode Author
+instance IsPathStart Author
     where data Peek Author
               = Peek_Author_JSONText (Path_Author JSONText) JSONText
               | Peek_Author_Markup (Path_Author Markup) Markup
@@ -9164,7 +9242,7 @@ instance IsPathNode Author
                                                                                                                                                                                                     Path_Author Text) q) z) (peek y :: Forest (Peek Markup)))
                         [] -> error "No Path_Author_authorCredentials field found"
                         ps -> error $ ("Multiple Path_Author_authorCredentials fields found: " ++ show ps)]
-instance IsPathNode Branding
+instance IsPathStart Branding
     where data Peek Branding
               = Peek_Branding_JSONText (Path_Branding JSONText) JSONText
               | Peek_Branding_Branding (Path_Branding Branding) Branding
@@ -9183,7 +9261,7 @@ instance IsPathNode Branding
                                                                                                                                              z -> Peek_Branding_Text ((Path_Branding_View :: Path_Text Text ->
                                                                                                                                                                                              Path_Branding Text) q) z) (peek y :: Forest (Peek Text)))
                                          _ -> error ("doPeekNodesOf: " ++ show path)) paths
-instance IsPathNode Report
+instance IsPathStart Report
     where data Peek Report
               = Peek_Report_String (Path_Report ([Char])) ([Char])
               | Peek_Report_Int64 (Path_Report Int64) Int64
@@ -9431,7 +9509,7 @@ instance IsPathNode Report
                                                                                                                                                      z -> Peek_Report_UUID ((Path_Report_View :: Path_ReportView UUID ->
                                                                                                                                                                                                  Path_Report UUID) q) z) (peek y :: Forest (Peek ReportView)))
                                          _ -> error ("doPeekNodesOf: " ++ show path)) paths
-instance IsPathNode ReportElem
+instance IsPathStart ReportElem
     where data Peek ReportElem
               = Peek_ReportElem_String (Path_ReportElem ([Char])) ([Char])
               | Peek_ReportElem_Bool (Path_ReportElem Bool) Bool
@@ -9562,7 +9640,7 @@ instance IsPathNode ReportElem
                                                [] -> error "No Path_ReportElem_elemText field found"
                                                ps -> error $ ("Multiple Path_ReportElem_elemText fields found: " ++ show ps)]
           peek (ReportUndecided {}) = []
-instance IsPathNode ReportFlags
+instance IsPathStart ReportFlags
     where data Peek ReportFlags
               = Peek_ReportFlags_String (Path_ReportFlags ([Char])) ([Char])
               | Peek_ReportFlags_Bool (Path_ReportFlags Bool) Bool
@@ -9586,7 +9664,7 @@ instance IsPathNode ReportFlags
                                                                                                                                                                                                                                 Path_ReportFlags JSONText) q) z) (peek y :: Forest (Peek Bool)))
                         [] -> error "No Path_ReportFlags_hideEmptyItemFields field found"
                         ps -> error $ ("Multiple Path_ReportFlags_hideEmptyItemFields fields found: " ++ show ps)]
-instance IsPathNode ReportIntendedUse
+instance IsPathStart ReportIntendedUse
     where data Peek ReportIntendedUse
               = Peek_ReportIntendedUse_String (Path_ReportIntendedUse ([Char]))
                                               ([Char])
@@ -9608,7 +9686,7 @@ instance IsPathNode ReportIntendedUse
                                                                                                                                                                        z -> Peek_ReportIntendedUse_JSONText ((Path_ReportIntendedUse_View :: Path_String JSONText ->
                                                                                                                                                                                                                                              Path_ReportIntendedUse JSONText) q) z) (peek y :: Forest (Peek ([Char]))))
                                          _ -> error ("doPeekNodesOf: " ++ show path)) paths
-instance IsPathNode ReportStandard
+instance IsPathStart ReportStandard
     where data Peek ReportStandard
               = Peek_ReportStandard_Int (Path_ReportStandard Int) Int
               | Peek_ReportStandard_ReportStandard (Path_ReportStandard ReportStandard)
@@ -9624,7 +9702,7 @@ instance IsPathNode ReportStandard
                                                                                                                                                                                                                           Path_ReportStandard Int) q) z) (peek y :: Forest (Peek Int)))
                         [] -> error "No Path_ReportStandard_unReportStandard field found"
                         ps -> error $ ("Multiple Path_ReportStandard_unReportStandard fields found: " ++ show ps)]
-instance IsPathNode ReportStatus
+instance IsPathStart ReportStatus
     where data Peek ReportStatus
               = Peek_ReportStatus_String (Path_ReportStatus ([Char])) ([Char])
               | Peek_ReportStatus_JSONText (Path_ReportStatus JSONText) JSONText
@@ -9644,7 +9722,7 @@ instance IsPathNode ReportStatus
                                                                                                                                                              z -> Peek_ReportStatus_JSONText ((Path_ReportStatus_View :: Path_String JSONText ->
                                                                                                                                                                                                                          Path_ReportStatus JSONText) q) z) (peek y :: Forest (Peek ([Char]))))
                                          _ -> error ("doPeekNodesOf: " ++ show path)) paths
-instance IsPathNode ReportValueApproachInfo
+instance IsPathStart ReportValueApproachInfo
     where data Peek ReportValueApproachInfo
               = Peek_ReportValueApproachInfo_JSONText (Path_ReportValueApproachInfo JSONText)
                                                       JSONText
@@ -9687,7 +9765,7 @@ instance IsPathNode ReportValueApproachInfo
                                                                                                                                                                                                                                                                                                   Path_ReportValueApproachInfo Text) q) z) (peek y :: Forest (Peek Markup)))
                         [] -> error "No Path_ReportValueApproachInfo_reportValueApproachDescription field found"
                         ps -> error $ ("Multiple Path_ReportValueApproachInfo_reportValueApproachDescription fields found: " ++ show ps)]
-instance IsPathNode ReportValueTypeInfo
+instance IsPathStart ReportValueTypeInfo
     where data Peek ReportValueTypeInfo
               = Peek_ReportValueTypeInfo_JSONText (Path_ReportValueTypeInfo JSONText)
                                                   JSONText
@@ -9746,7 +9824,7 @@ instance IsPathNode ReportValueTypeInfo
                                                                                                                                                                                                                                                                         Path_ReportValueTypeInfo Text) q) z) (peek y :: Forest (Peek Markup)))
                         [] -> error "No Path_ReportValueTypeInfo_reportValueTypeDefinition field found"
                         ps -> error $ ("Multiple Path_ReportValueTypeInfo_reportValueTypeDefinition fields found: " ++ show ps)]
-instance IsPathNode ReportImage
+instance IsPathStart ReportImage
     where data Peek ReportImage
               = Peek_ReportImage_String (Path_ReportImage ([Char])) ([Char])
               | Peek_ReportImage_Bool (Path_ReportImage Bool) Bool
@@ -9836,7 +9914,7 @@ instance IsPathNode ReportImage
                                                                                                                                                                          z -> Peek_ReportImage_Text ((Path_ReportImage_View :: Path_ReportImageView Text ->
                                                                                                                                                                                                                                Path_ReportImage Text) q) z) (peek y :: Forest (Peek ReportImageView)))
                                          _ -> error ("doPeekNodesOf: " ++ show path)) paths
-instance IsPathNode ReportImageView
+instance IsPathStart ReportImageView
     where data Peek ReportImageView
               = Peek_ReportImageView_String (Path_ReportImageView ([Char]))
                                             ([Char])
@@ -10030,7 +10108,7 @@ instance IsPathNode ReportImageView
                                                                                                                                                                                                                                                                                       Path_ReportImageView (Maybe ImageFile)) q) z) (peek y :: Forest (Peek (Maybe ImageFile))))
                         [] -> error "No Path_ReportImageView__picEnlargedDeprecated field found"
                         ps -> error $ ("Multiple Path_ReportImageView__picEnlargedDeprecated fields found: " ++ show ps)]
-instance IsPathNode ReportView
+instance IsPathStart ReportView
     where data Peek ReportView
               = Peek_ReportView_String (Path_ReportView ([Char])) ([Char])
               | Peek_ReportView_Int64 (Path_ReportView Int64) Int64
@@ -10991,7 +11069,7 @@ instance IsPathNode ReportView
                                                                                                                                                                                                                                                                     Path_ReportView ReportStandard) q) z) (peek y :: Forest (Peek ReportStandard)))
                         [] -> error "No Path_ReportView__reportStandardsVersion field found"
                         ps -> error $ ("Multiple Path_ReportView__reportStandardsVersion fields found: " ++ show ps)]
-instance IsPathNode Item
+instance IsPathStart Item
     where data Peek Item
               = Peek_Item_String (Path_Item ([Char])) ([Char])
               | Peek_Item_Bool (Path_Item Bool) Bool
@@ -11135,7 +11213,7 @@ instance IsPathNode Item
                                                                                                                                                                                                                                        ReportImage))))
                         [] -> error "No Path_Item_images field found"
                         ps -> error $ ("Multiple Path_Item_images fields found: " ++ show ps)]
-instance IsPathNode ReportMap
+instance IsPathStart ReportMap
     where data Peek ReportMap
               = Peek_ReportMap_String (Path_ReportMap ([Char])) ([Char])
               | Peek_ReportMap_Int64 (Path_ReportMap Int64) Int64
@@ -11403,7 +11481,7 @@ instance IsPathNode ReportMap
                                                                                                                                                                                                                                                       Report))))
                         [] -> error "No Path_ReportMap_unReportMap field found"
                         ps -> error $ ("Multiple Path_ReportMap_unReportMap fields found: " ++ show ps)]
-instance IsPathNode CIString
+instance IsPathStart CIString
     where data Peek CIString
               = Peek_CIString_JSONText (Path_CIString JSONText) JSONText
               | Peek_CIString_CIString (Path_CIString CIString) CIString
@@ -11422,12 +11500,12 @@ instance IsPathNode CIString
                                                                                                                                              z -> Peek_CIString_Text ((Path_CIString_View :: Path_Text Text ->
                                                                                                                                                                                              Path_CIString Text) q) z) (peek y :: Forest (Peek Text)))
                                          _ -> error ("doPeekNodesOf: " ++ show path)) paths
-instance IsPathNode URI
+instance IsPathStart URI
     where data Peek URI
               = Peek_URI_URI (Path_URI URI) URI
               deriving (Eq, Show)
           peek _ = []
-instance IsPathNode Text
+instance IsPathStart Text
     where data Peek Text
               = Peek_Text_JSONText (Path_Text JSONText) JSONText
               | Peek_Text_Text (Path_Text Text) Text
@@ -11442,94 +11520,16 @@ instance IsPathNode Text
                                                                                                                                                  z -> Peek_Text_JSONText ((Path_Text_View :: Path_JSONText JSONText ->
                                                                                                                                                                                              Path_Text JSONText) q) z) (peek y :: Forest (Peek JSONText)))
                                          _ -> error ("doPeekNodesOf: " ++ show path)) paths
-instance IsPathNode UserId
+instance IsPathStart UserId
     where data Peek UserId
               = Peek_UserId_UserId (Path_UserId UserId) UserId
               deriving (Eq, Show)
           peek _ = []
-instance IsPathNode UUID
+instance IsPathStart UUID
     where data Peek UUID
               = Peek_UUID_UUID (Path_UUID UUID) UUID
               deriving (Eq, Show)
           peek _ = []
-instance IsPathType (Path_Author a)
-    where idPath = Path_Author
-instance IsPathType (Path_Bool a)
-    where idPath = Path_Bool
-instance IsPathType (Path_Branding a)
-    where idPath = Path_Branding
-instance IsPathType (Path_CIString a)
-    where idPath = Path_CIString
-instance IsPathType (Path_Dimension a)
-    where idPath = Path_Dimension
-instance IsPathType (Path_Double a)
-    where idPath = Path_Double
-instance IsPathType (Path_ImageCrop a)
-    where idPath = Path_ImageCrop
-instance IsPathType (Path_ImageFile a)
-    where idPath = Path_ImageFile
-instance IsPathType (Path_ImageSize a)
-    where idPath = Path_ImageSize
-instance IsPathType (Path_Int a)
-    where idPath = Path_Int
-instance IsPathType (Path_Int64 a)
-    where idPath = Path_Int64
-instance IsPathType (Path_Integer a)
-    where idPath = Path_Integer
-instance IsPathType (Path_Item a)
-    where idPath = Path_Item
-instance IsPathType (Path_JSONText a)
-    where idPath = Path_JSONText
-instance IsPathType (Path_Markup a)
-    where idPath = Path_Markup
-instance IsPathType (Path_MaybeImageFile a)
-    where idPath = Path_MaybeImageFile
-instance IsPathType (Path_MaybeReportIntendedUse a)
-    where idPath = Path_MaybeReportIntendedUse
-instance IsPathType (Path_Permissions a)
-    where idPath = Path_Permissions
-instance IsPathType (Path_ReadOnlyFilePath a)
-    where idPath = Path_ReadOnlyFilePath
-instance IsPathType (Path_Report a)
-    where idPath = Path_Report
-instance IsPathType (Path_ReportElem a)
-    where idPath = Path_ReportElem
-instance IsPathType (Path_ReportFlags a)
-    where idPath = Path_ReportFlags
-instance IsPathType (Path_ReportImage a)
-    where idPath = Path_ReportImage
-instance IsPathType (Path_ReportImageView a)
-    where idPath = Path_ReportImageView
-instance IsPathType (Path_ReportIntendedUse a)
-    where idPath = Path_ReportIntendedUse
-instance IsPathType (Path_ReportMap a)
-    where idPath = Path_ReportMap
-instance IsPathType (Path_ReportStandard a)
-    where idPath = Path_ReportStandard
-instance IsPathType (Path_ReportStatus a)
-    where idPath = Path_ReportStatus
-instance IsPathType (Path_ReportValueApproachInfo a)
-    where idPath = Path_ReportValueApproachInfo
-instance IsPathType (Path_ReportValueTypeInfo a)
-    where idPath = Path_ReportValueTypeInfo
-instance IsPathType (Path_ReportView a)
-    where idPath = Path_ReportView
-instance IsPathType (Path_SaneSizeImageSize a)
-    where idPath = Path_SaneSizeImageSize
-instance IsPathType (Path_String a)
-    where idPath = Path_String
-instance IsPathType (Path_Text a)
-    where idPath = Path_Text
-instance IsPathType (Path_URI a)
-    where idPath = Path_URI
-instance IsPathType (Path_UUID a)
-    where idPath = Path_UUID
-instance IsPathType (Path_Units a)
-    where idPath = Path_Units
-instance IsPathType (Path_UserId a)
-    where idPath = Path_UserId
-instance IsPathType (Path_UserIds a)
-    where idPath = Path_UserIds
 instance ToLens (Path_Either (Path_URI ImageFile)
                              (Path_ImageFile ImageFile))
     where type S (Path_Either (Path_URI ImageFile)

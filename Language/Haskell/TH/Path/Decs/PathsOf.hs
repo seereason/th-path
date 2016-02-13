@@ -21,48 +21,45 @@ import Control.Monad (when)
 import Control.Monad.Readers (MonadReaders)
 import Control.Monad.State (evalStateT)
 import Control.Monad.States (getPoly, modifyPoly, MonadStates)
-import Control.Monad.Writer (MonadWriter, execWriterT, tell)
+import Control.Monad.Writer (MonadWriter, tell)
 import Data.List as List (concatMap, map)
 import Data.Map as Map (lookup, Map, toList)
 import Data.Maybe (isJust)
 import Data.Monoid ((<>))
-import Data.Set.Extra as Set (insert, member, Set)
+import Data.Set.Extra as Set (insert, mapM_, member, Set)
 import Language.Haskell.TH
 import Language.Haskell.TH.Context (ContextM, reifyInstancesWithContext)
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.Path.Core (IsPathType(idPath), IsPath(..), ToLens(..), SelfPath, SinkType, Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
+import Language.Haskell.TH.Path.Core (IsPathEnd(idPath), IsPath(..), ToLens(..), SelfPath, SinkType, Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
 import Language.Haskell.TH.Path.Decs.Common (asConQ, asTypeQ, bestTypeName, makePathCon, makePathType, ModelType(ModelType))
 import Language.Haskell.TH.Path.Decs.PathType (pathType)
-import Language.Haskell.TH.Path.Decs.ToLens (toLensClauses)
 import Language.Haskell.TH.Path.Instances ()
 import Language.Haskell.TH.Path.Order (Order, Path_OMap(..), toPairs)
 import Language.Haskell.TH.Path.View (viewInstanceType)
 import Language.Haskell.TH.Syntax as TH (Quasi(qReify))
 import Language.Haskell.TH.TypeGraph.Expand (unE, expandType)
-import Language.Haskell.TH.TypeGraph.TypeGraph (allPathKeys, TypeGraph)
+import Language.Haskell.TH.TypeGraph.TypeGraph (allPathKeys, pathKeys, TypeGraph)
 import Language.Haskell.TH.TypeGraph.TypeInfo (TypeInfo, typeVertex)
 import Language.Haskell.TH.TypeGraph.Vertex (bestName, etype, TGVSimple, TypeGraphVertex(bestType))
+
+pathDecs :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) => TGVSimple -> m ()
+pathDecs v =
+    pathKeys v >>= Set.mapM_ (pathDecs' v)
 
 -- | For a given pair of TGVSimples, compute the declaration of the
 -- corresponding Path instance.  Each clause matches some possible value
 -- of the path type, and returns a lens that extracts the value the
 -- path type value specifies.
-pathDecs :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) =>
+pathDecs' :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) =>
             TGVSimple -> TGVSimple -> m ()
-pathDecs key gkey = do
+pathDecs' key gkey = do
   ptyp <- pathType (pure (bestType gkey)) key
-  tlc <- execWriterT $ evalStateT (toLensClauses key gkey) mempty
   s <- runQ (newName "s")
   a <- runQ (newName "a")
   poe <- evalStateT (pathsOfExprs key gkey (varE s) (varE a)) (mempty :: Set TGVSimple)
-  when (not (null tlc)) $
+  when (poe /= ListE []) $
        (runQ $ sequence
-            [ instanceD (pure []) [t|ToLens $(pure ptyp)|]
-                [ tySynInstD ''S (tySynEqn [(pure ptyp)] (pure (bestType key)))
-                , tySynInstD ''A (tySynEqn [(pure ptyp)] (pure (bestType gkey)))
-                , funD 'toLens tlc -- [clause [wildP] (normalB (if key == gkey then [|id|] else [|undefined|])) []]
-                ]
-            , instanceD (pure []) [t|IsPath $(pure (bestType key)) $(pure (bestType gkey))|]
+            [ instanceD (pure []) [t|IsPath $(pure (bestType key)) $(pure (bestType gkey))|]
                 [ tySynInstD ''Path (tySynEqn [pure (bestType key), pure (bestType gkey)] (pure ptyp))
                 , funD 'pathsOf [clause [varP s, varP a] (normalB (pure poe)) []]
                 ]]) >>= tell

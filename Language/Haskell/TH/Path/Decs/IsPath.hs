@@ -27,7 +27,7 @@ import Data.Tree (Tree(Node), Forest)
 import Language.Haskell.TH
 import Language.Haskell.TH.Context (ContextM, reifyInstancesWithContext)
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.Path.Core (IsPathNode(Peek, peek), IsPath(..), ToLens(toLens), SelfPath, SinkType,
+import Language.Haskell.TH.Path.Core (IsPathStart(Peek, peek), IsPath(..), ToLens(toLens), SelfPath, SinkType,
                                       Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..), forestMap)
 import Language.Haskell.TH.Path.Decs.Common (asConQ, asName, asType, asTypeQ, bestPathTypeName, bestTypeName, clauses,
                                              makeFieldCon, makePathCon, makePathType, makePeekCon,
@@ -47,7 +47,7 @@ peekDecs v =
       Just _tname -> do
         (pnc :: [ClauseQ]) <- peekClauses v
         (cons :: [ConQ]) <- peekCons
-        runQ (instanceD (cxt []) (appT (conT ''IsPathNode) (asTypeQ v))
+        runQ (instanceD (cxt []) (appT (conT ''IsPathStart) (asTypeQ v))
                 [dataInstD (cxt []) ''Peek [asTypeQ v] cons [''Eq, ''Show],
                  funD 'peek (case pnc of
                                [] -> [clause [wildP] (normalB [| [] |]) []]

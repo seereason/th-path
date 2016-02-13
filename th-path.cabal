@@ -62,6 +62,7 @@ library
       Language.Haskell.TH.Path.Decs
       Language.Haskell.TH.Path.Decs.Common
       Language.Haskell.TH.Path.Decs.IsPath
+      Language.Haskell.TH.Path.Decs.Lens
       Language.Haskell.TH.Path.Decs.PathsOf
       Language.Haskell.TH.Path.Decs.PathType
       Language.Haskell.TH.Path.Decs.ToLens
