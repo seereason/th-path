@@ -19,7 +19,7 @@ module Language.Haskell.TH.Path.Core
       -- * Type classes and associated types
     , IsPath(pathsOf, Path)
     , IsPathEnd(idPath)
-    , IsPathStart(Peek, peek)
+    , IsPathStart(Peek, peek, Hop)
     , ToLens(S, A, toLens)
     , (:.:)(..)
 
@@ -104,6 +104,7 @@ class {-IsPathEnd s =>-} IsPathStart s where
     peek :: s -> Forest (Peek s)
     -- ^ Given an @s@, return a forest containing every 'Peek' that can
     -- be reached from it.
+    data Hop s
 
 class ToLens p where
     type S p

@@ -30,6 +30,7 @@ module Language.Haskell.TH.Path.Decs.Common
     , makePathType
     , makePeekType
     , makePeekCon
+    , makeHopCon
     , makePathCon
     , makeFieldCon
     ) where
@@ -104,6 +105,7 @@ newtype PathType = PathType {unPathType :: Name} deriving (Eq, Ord, Show) -- e.g
 newtype PathCon = PathCon {unPathCon :: Name} deriving (Eq, Ord, Show) -- e.g. Path_UserIds_View
 newtype PeekType = PeekType {unPeekType :: Name} deriving (Eq, Ord, Show) -- e.g. Peek_AbbrevPairs
 newtype PeekCon = PeekCon {unPeekCon :: Name} deriving (Eq, Ord, Show) -- e.g. Peek_AbbrevPairs_Markup
+newtype HopCon = HopCon {unHopCon :: Name} deriving (Eq, Ord, Show) -- e.g. Hop_AbbrevPairs_Markup
 
 class HasTypeQ a where asTypeQ :: a -> TypeQ
 class HasType a where asType :: a -> Type
@@ -131,6 +133,9 @@ instance HasTypeQ PeekType where asTypeQ = conT . unPeekType
 instance HasName PeekCon where asName = unPeekCon
 instance HasCon PeekCon where asCon = ConE . unPeekCon
 instance HasConQ PeekCon where asConQ = conE . unPeekCon
+instance HasName HopCon where asName = unHopCon
+instance HasCon HopCon where asCon = ConE . unHopCon
+instance HasConQ HopCon where asConQ = conE . unHopCon
 
 instance HasType TGVSimple where asType = asType . view etype
 instance HasType TGV where asType = asType . view vsimple
@@ -149,6 +154,9 @@ makePeekType (ModelType s) = PeekType (mkName ("Peek_" ++ nameBase s))
 
 makePeekCon :: ModelType -> ModelType -> PeekCon
 makePeekCon (ModelType s) (ModelType g) = PeekCon (mkName ("Peek_" ++ nameBase s ++ "_" ++ nameBase g))
+
+makeHopCon :: ModelType -> ModelType -> HopCon
+makeHopCon (ModelType s) (ModelType g) = HopCon (mkName ("Hop_" ++ nameBase s ++ "_" ++ nameBase g))
 
 makePathCon :: PathType -> String -> PathCon
 makePathCon (PathType p) a = PathCon $ mkName $ nameBase p ++ "_" ++ a

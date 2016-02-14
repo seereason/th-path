@@ -8092,6 +8092,11 @@ instance IsPathStart (Either URI ImageFile)
                                                                                                                                                                                        Path EUI
                                                                                                                                                                                             ImageFile) q) z) (peek y :: Forest (Peek ImageFile)))
                                          _ -> error ("doPeekNodesOf: " ++ show path)) paths
+          data Hop (Either URI ImageFile)
+              = Hop_EUI_ImageFile (Path_EUI ImageFile)
+              | Hop_EUI_EUI (Path_EUI (Either URI ImageFile))
+              | Hop_EUI_URI (Path_EUI URI)
+              deriving (Eq, Show)
 instance IsPathStart (Map ItemFieldName Markup)
     where data Peek (Map ItemFieldName Markup)
               = Peek_MIM_JSONText (Path_MIM JSONText) JSONText
@@ -8122,6 +8127,12 @@ instance IsPathStart (Map ItemFieldName Markup)
                                                                                                                                                                             Text) q) z) (peek y :: Forest (Peek Markup)))
                                          _ -> error ("doPeekNodesOfMap: " ++ show path)) paths :: Forest (Peek (Map ItemFieldName
                                                                                                                     Markup))
+          data Hop (Map ItemFieldName Markup)
+              = Hop_MIM_JSONText (Path_MIM JSONText)
+              | Hop_MIM_Markup (Path_MIM Markup)
+              | Hop_MIM_MIM (Path_MIM (Map ItemFieldName Markup))
+              | Hop_MIM_Text (Path_MIM Text)
+              deriving (Eq, Show)
 instance IsPathStart (Map ReportID Report)
     where data Peek (Map ReportID Report)
               = Peek_MRR_String (Path_MRR ([Char])) ([Char])
@@ -8469,6 +8480,59 @@ instance IsPathStart (Map ReportID Report)
                                                                                                                                                                             UUID) q) z) (peek y :: Forest (Peek Report)))
                                          _ -> error ("doPeekNodesOfMap: " ++ show path)) paths :: Forest (Peek (Map ReportID
                                                                                                                     Report))
+          data Hop (Map ReportID Report)
+              = Hop_MRR_String (Path_MRR ([Char]))
+              | Hop_MRR_Int64 (Path_MRR Int64)
+              | Hop_MRR_Int (Path_MRR Int)
+              | Hop_MRR_Bool (Path_MRR Bool)
+              | Hop_MRR_Double (Path_MRR Double)
+              | Hop_MRR_Dimension (Path_MRR Dimension)
+              | Hop_MRR_ImageCrop (Path_MRR ImageCrop)
+              | Hop_MRR_ImageSize (Path_MRR ImageSize)
+              | Hop_MRR_Units (Path_MRR Units)
+              | Hop_MRR_ImageFile (Path_MRR ImageFile)
+              | Hop_MRR_Integer (Path_MRR Integer)
+              | Hop_MRR_JSONText (Path_MRR JSONText)
+              | Hop_MRR_Markup (Path_MRR Markup)
+              | Hop_MRR_Permissions (Path_MRR Permissions)
+              | Hop_MRR_UserIds (Path_MRR ([UserId]))
+              | Hop_MRR_AbbrevPair (Path_MRR ((CIString, Markup)))
+              | Hop_MRR_AbbrevPairs (Path_MRR (Order AbbrevPairID
+                                                     ((CIString, Markup))))
+              | Hop_MRR_Author (Path_MRR Author)
+              | Hop_MRR_Authors (Path_MRR (Order AuthorID Author))
+              | Hop_MRR_Branding (Path_MRR Branding)
+              | Hop_MRR_MarkupPair (Path_MRR ((Markup, Markup)))
+              | Hop_MRR_MarkupPairs (Path_MRR (Order MarkupPairID
+                                                     ((Markup, Markup))))
+              | Hop_MRR_Markups (Path_MRR (Order MarkupID Markup))
+              | Hop_MRR_MaybeReportIntendedUse (Path_MRR (Maybe ReportIntendedUse))
+              | Hop_MRR_Report (Path_MRR Report)
+              | Hop_MRR_ReportElem (Path_MRR ReportElem)
+              | Hop_MRR_ReportElems (Path_MRR (Order ReportElemID ReportElem))
+              | Hop_MRR_ReportFlags (Path_MRR ReportFlags)
+              | Hop_MRR_ReportStandard (Path_MRR ReportStandard)
+              | Hop_MRR_ReportStatus (Path_MRR ReportStatus)
+              | Hop_MRR_ReportValueApproachInfo (Path_MRR ReportValueApproachInfo)
+              | Hop_MRR_ReportValueTypeInfo (Path_MRR ReportValueTypeInfo)
+              | Hop_MRR_EUI (Path_MRR (Either URI ImageFile))
+              | Hop_MRR_MEUI (Path_MRR (Maybe (Either URI ImageFile)))
+              | Hop_MRR_MaybeImageFile (Path_MRR (Maybe ImageFile))
+              | Hop_MRR_ReportImage (Path_MRR ReportImage)
+              | Hop_MRR_ReportImages (Path_MRR (Order ReportImageID ReportImage))
+              | Hop_MRR_ReadOnlyFilePath (Path_MRR (ReadOnly ([Char])))
+              | Hop_MRR_ReportImageView (Path_MRR ReportImageView)
+              | Hop_MRR_ReportView (Path_MRR ReportView)
+              | Hop_MRR_SaneSizeImageSize (Path_MRR (SaneSize ImageSize))
+              | Hop_MRR_Item (Path_MRR Item)
+              | Hop_MRR_MIM (Path_MRR (Map ItemFieldName Markup))
+              | Hop_MRR_MRR (Path_MRR (Map ReportID Report))
+              | Hop_MRR_CIString (Path_MRR CIString)
+              | Hop_MRR_URI (Path_MRR URI)
+              | Hop_MRR_Text (Path_MRR Text)
+              | Hop_MRR_UserId (Path_MRR UserId)
+              | Hop_MRR_UUID (Path_MRR UUID)
+              deriving (Eq, Show)
 instance IsPathStart (Order AbbrevPairID ((CIString, Markup)))
     where data Peek (Order AbbrevPairID ((CIString, Markup)))
               = Peek_AbbrevPairs_JSONText (Path_AbbrevPairs JSONText) JSONText
@@ -8521,6 +8585,16 @@ instance IsPathStart (Order AbbrevPairID ((CIString, Markup)))
                                          _ -> error ("doPeekNodesOfOrder: " ++ show path)) paths :: Forest (Peek (Order AbbrevPairID
                                                                                                                         ((CIString,
                                                                                                                           Markup))))
+          data Hop (Order AbbrevPairID ((CIString, Markup)))
+              = Hop_AbbrevPairs_JSONText (Path_AbbrevPairs JSONText)
+              | Hop_AbbrevPairs_Markup (Path_AbbrevPairs Markup)
+              | Hop_AbbrevPairs_AbbrevPair (Path_AbbrevPairs ((CIString,
+                                                               Markup)))
+              | Hop_AbbrevPairs_AbbrevPairs (Path_AbbrevPairs (Order AbbrevPairID
+                                                                     ((CIString, Markup))))
+              | Hop_AbbrevPairs_CIString (Path_AbbrevPairs CIString)
+              | Hop_AbbrevPairs_Text (Path_AbbrevPairs Text)
+              deriving (Eq, Show)
 instance IsPathStart (Order AuthorID Author)
     where data Peek (Order AuthorID Author)
               = Peek_Authors_JSONText (Path_Authors JSONText) JSONText
@@ -8557,6 +8631,13 @@ instance IsPathStart (Order AuthorID Author)
                                                                                                                                                                                 Text) q) z) (peek y :: Forest (Peek Author)))
                                          _ -> error ("doPeekNodesOfOrder: " ++ show path)) paths :: Forest (Peek (Order AuthorID
                                                                                                                         Author))
+          data Hop (Order AuthorID Author)
+              = Hop_Authors_JSONText (Path_Authors JSONText)
+              | Hop_Authors_Markup (Path_Authors Markup)
+              | Hop_Authors_Author (Path_Authors Author)
+              | Hop_Authors_Authors (Path_Authors (Order AuthorID Author))
+              | Hop_Authors_Text (Path_Authors Text)
+              deriving (Eq, Show)
 instance IsPathStart (Order MarkupID Markup)
     where data Peek (Order MarkupID Markup)
               = Peek_Markups_JSONText (Path_Markups JSONText) JSONText
@@ -8587,6 +8668,12 @@ instance IsPathStart (Order MarkupID Markup)
                                                                                                                                                                                 Text) q) z) (peek y :: Forest (Peek Markup)))
                                          _ -> error ("doPeekNodesOfOrder: " ++ show path)) paths :: Forest (Peek (Order MarkupID
                                                                                                                         Markup))
+          data Hop (Order MarkupID Markup)
+              = Hop_Markups_JSONText (Path_Markups JSONText)
+              | Hop_Markups_Markup (Path_Markups Markup)
+              | Hop_Markups_Markups (Path_Markups (Order MarkupID Markup))
+              | Hop_Markups_Text (Path_Markups Text)
+              deriving (Eq, Show)
 instance IsPathStart (Order MarkupPairID ((Markup, Markup)))
     where data Peek (Order MarkupPairID ((Markup, Markup)))
               = Peek_MarkupPairs_JSONText (Path_MarkupPairs JSONText) JSONText
@@ -8632,6 +8719,14 @@ instance IsPathStart (Order MarkupPairID ((Markup, Markup)))
                                          _ -> error ("doPeekNodesOfOrder: " ++ show path)) paths :: Forest (Peek (Order MarkupPairID
                                                                                                                         ((Markup,
                                                                                                                           Markup))))
+          data Hop (Order MarkupPairID ((Markup, Markup)))
+              = Hop_MarkupPairs_JSONText (Path_MarkupPairs JSONText)
+              | Hop_MarkupPairs_Markup (Path_MarkupPairs Markup)
+              | Hop_MarkupPairs_MarkupPair (Path_MarkupPairs ((Markup, Markup)))
+              | Hop_MarkupPairs_MarkupPairs (Path_MarkupPairs (Order MarkupPairID
+                                                                     ((Markup, Markup))))
+              | Hop_MarkupPairs_Text (Path_MarkupPairs Text)
+              deriving (Eq, Show)
 instance IsPathStart (Order ReportElemID ReportElem)
     where data Peek (Order ReportElemID ReportElem)
               = Peek_ReportElems_String (Path_ReportElems ([Char])) ([Char])
@@ -8797,6 +8892,34 @@ instance IsPathStart (Order ReportElemID ReportElem)
                                                                                                                                                                                                 Text) q) z) (peek y :: Forest (Peek ReportElem)))
                                          _ -> error ("doPeekNodesOfOrder: " ++ show path)) paths :: Forest (Peek (Order ReportElemID
                                                                                                                         ReportElem))
+          data Hop (Order ReportElemID ReportElem)
+              = Hop_ReportElems_String (Path_ReportElems ([Char]))
+              | Hop_ReportElems_Bool (Path_ReportElems Bool)
+              | Hop_ReportElems_Double (Path_ReportElems Double)
+              | Hop_ReportElems_Dimension (Path_ReportElems Dimension)
+              | Hop_ReportElems_ImageCrop (Path_ReportElems ImageCrop)
+              | Hop_ReportElems_ImageSize (Path_ReportElems ImageSize)
+              | Hop_ReportElems_Units (Path_ReportElems Units)
+              | Hop_ReportElems_ImageFile (Path_ReportElems ImageFile)
+              | Hop_ReportElems_JSONText (Path_ReportElems JSONText)
+              | Hop_ReportElems_Markup (Path_ReportElems Markup)
+              | Hop_ReportElems_ReportElem (Path_ReportElems ReportElem)
+              | Hop_ReportElems_ReportElems (Path_ReportElems (Order ReportElemID
+                                                                     ReportElem))
+              | Hop_ReportElems_EUI (Path_ReportElems (Either URI ImageFile))
+              | Hop_ReportElems_MEUI (Path_ReportElems (Maybe (Either URI
+                                                                      ImageFile)))
+              | Hop_ReportElems_MaybeImageFile (Path_ReportElems (Maybe ImageFile))
+              | Hop_ReportElems_ReportImage (Path_ReportElems ReportImage)
+              | Hop_ReportElems_ReportImages (Path_ReportElems (Order ReportImageID
+                                                                      ReportImage))
+              | Hop_ReportElems_ReportImageView (Path_ReportElems ReportImageView)
+              | Hop_ReportElems_SaneSizeImageSize (Path_ReportElems (SaneSize ImageSize))
+              | Hop_ReportElems_Item (Path_ReportElems Item)
+              | Hop_ReportElems_MIM (Path_ReportElems (Map ItemFieldName Markup))
+              | Hop_ReportElems_URI (Path_ReportElems URI)
+              | Hop_ReportElems_Text (Path_ReportElems Text)
+              deriving (Eq, Show)
 instance IsPathStart (Order ReportImageID ReportImage)
     where data Peek (Order ReportImageID ReportImage)
               = Peek_ReportImages_String (Path_ReportImages ([Char])) ([Char])
@@ -8933,6 +9056,29 @@ instance IsPathStart (Order ReportImageID ReportImage)
                                                                                                                                                                                                     Text) q) z) (peek y :: Forest (Peek ReportImage)))
                                          _ -> error ("doPeekNodesOfOrder: " ++ show path)) paths :: Forest (Peek (Order ReportImageID
                                                                                                                         ReportImage))
+          data Hop (Order ReportImageID ReportImage)
+              = Hop_ReportImages_String (Path_ReportImages ([Char]))
+              | Hop_ReportImages_Bool (Path_ReportImages Bool)
+              | Hop_ReportImages_Double (Path_ReportImages Double)
+              | Hop_ReportImages_Dimension (Path_ReportImages Dimension)
+              | Hop_ReportImages_ImageCrop (Path_ReportImages ImageCrop)
+              | Hop_ReportImages_ImageSize (Path_ReportImages ImageSize)
+              | Hop_ReportImages_Units (Path_ReportImages Units)
+              | Hop_ReportImages_ImageFile (Path_ReportImages ImageFile)
+              | Hop_ReportImages_JSONText (Path_ReportImages JSONText)
+              | Hop_ReportImages_Markup (Path_ReportImages Markup)
+              | Hop_ReportImages_EUI (Path_ReportImages (Either URI ImageFile))
+              | Hop_ReportImages_MEUI (Path_ReportImages (Maybe (Either URI
+                                                                        ImageFile)))
+              | Hop_ReportImages_MaybeImageFile (Path_ReportImages (Maybe ImageFile))
+              | Hop_ReportImages_ReportImage (Path_ReportImages ReportImage)
+              | Hop_ReportImages_ReportImages (Path_ReportImages (Order ReportImageID
+                                                                        ReportImage))
+              | Hop_ReportImages_ReportImageView (Path_ReportImages ReportImageView)
+              | Hop_ReportImages_SaneSizeImageSize (Path_ReportImages (SaneSize ImageSize))
+              | Hop_ReportImages_URI (Path_ReportImages URI)
+              | Hop_ReportImages_Text (Path_ReportImages Text)
+              deriving (Eq, Show)
 instance IsPathStart ((Markup, Markup))
     where data Peek ((Markup, Markup))
               = Peek_MarkupPair_JSONText (Path_MarkupPair JSONText) JSONText
@@ -8985,6 +9131,12 @@ instance IsPathStart ((Markup, Markup))
                                                                                                                                                                                        Path MarkupPair
                                                                                                                                                                                             Text) q) z) (peek y :: Forest (Peek Markup)))
                                          _ -> error ("doPeekNodesOf: " ++ show path)) paths
+          data Hop ((Markup, Markup))
+              = Hop_MarkupPair_JSONText (Path_MarkupPair JSONText)
+              | Hop_MarkupPair_Markup (Path_MarkupPair Markup)
+              | Hop_MarkupPair_MarkupPair (Path_MarkupPair ((Markup, Markup)))
+              | Hop_MarkupPair_Text (Path_MarkupPair Text)
+              deriving (Eq, Show)
 instance IsPathStart ((CIString, Markup))
     where data Peek ((CIString, Markup))
               = Peek_AbbrevPair_JSONText (Path_AbbrevPair JSONText) JSONText
@@ -9038,6 +9190,13 @@ instance IsPathStart ((CIString, Markup))
                                                                                                                                                                                        Path AbbrevPair
                                                                                                                                                                                             Text) q) z) (peek y :: Forest (Peek Markup)))
                                          _ -> error ("doPeekNodesOf: " ++ show path)) paths
+          data Hop ((CIString, Markup))
+              = Hop_AbbrevPair_JSONText (Path_AbbrevPair JSONText)
+              | Hop_AbbrevPair_Markup (Path_AbbrevPair Markup)
+              | Hop_AbbrevPair_AbbrevPair (Path_AbbrevPair ((CIString, Markup)))
+              | Hop_AbbrevPair_CIString (Path_AbbrevPair CIString)
+              | Hop_AbbrevPair_Text (Path_AbbrevPair Text)
+              deriving (Eq, Show)
 instance IsPathStart (Maybe (Either URI ImageFile))
     where data Peek (Maybe (Either URI ImageFile))
               = Peek_MEUI_ImageFile (Path_MEUI ImageFile) ImageFile
@@ -9075,6 +9234,12 @@ instance IsPathStart (Maybe (Either URI ImageFile))
                                                                                                                                                                     URI) q) z) (peek y :: Forest (Peek (Either URI
                                                                                                                                                                                                                ImageFile))))
                                          _ -> error ("doPeekNodesOf: " ++ show path)) paths
+          data Hop (Maybe (Either URI ImageFile))
+              = Hop_MEUI_ImageFile (Path_MEUI ImageFile)
+              | Hop_MEUI_EUI (Path_MEUI (Either URI ImageFile))
+              | Hop_MEUI_MEUI (Path_MEUI (Maybe (Either URI ImageFile)))
+              | Hop_MEUI_URI (Path_MEUI URI)
+              deriving (Eq, Show)
 instance IsPathStart (Maybe ImageFile)
     where data Peek (Maybe ImageFile)
               = Peek_MaybeImageFile_String (Path_MaybeImageFile ([Char]))
@@ -9101,6 +9266,11 @@ instance IsPathStart (Maybe ImageFile)
                                                                                                                                                                                                                                  Path MaybeImageFile
                                                                                                                                                                                                                                       JSONText) q) z) (peek y :: Forest (Peek ([Char]))))
                                          _ -> error ("doPeekNodesOf: " ++ show path)) paths
+          data Hop (Maybe ImageFile)
+              = Hop_MaybeImageFile_String (Path_MaybeImageFile ([Char]))
+              | Hop_MaybeImageFile_JSONText (Path_MaybeImageFile JSONText)
+              | Hop_MaybeImageFile_MaybeImageFile (Path_MaybeImageFile (Maybe ImageFile))
+              deriving (Eq, Show)
 instance IsPathStart (Maybe ReportIntendedUse)
     where data Peek (Maybe ReportIntendedUse)
               = Peek_MaybeReportIntendedUse_String (Path_MaybeReportIntendedUse ([Char]))
@@ -9127,6 +9297,11 @@ instance IsPathStart (Maybe ReportIntendedUse)
                                                                                                                                                                                                                                                                  Path MaybeReportIntendedUse
                                                                                                                                                                                                                                                                       JSONText) q) z) (peek y :: Forest (Peek ([Char]))))
                                          _ -> error ("doPeekNodesOf: " ++ show path)) paths
+          data Hop (Maybe ReportIntendedUse)
+              = Hop_MaybeReportIntendedUse_String (Path_MaybeReportIntendedUse ([Char]))
+              | Hop_MaybeReportIntendedUse_JSONText (Path_MaybeReportIntendedUse JSONText)
+              | Hop_MaybeReportIntendedUse_MaybeReportIntendedUse (Path_MaybeReportIntendedUse (Maybe ReportIntendedUse))
+              deriving (Eq, Show)
 instance IsPathStart (ReadOnly ([Char]))
     where data Peek (ReadOnly ([Char]))
               = Peek_ReadOnlyFilePath_String (Path_ReadOnlyFilePath ([Char]))
@@ -9153,6 +9328,11 @@ instance IsPathStart (ReadOnly ([Char]))
                                                                                                                                                                                                                                          Path ReadOnlyFilePath
                                                                                                                                                                                                                                               JSONText) q) z) (peek y :: Forest (Peek ([Char]))))
                                          _ -> error ("doPeekNodesOf: " ++ show path)) paths
+          data Hop (ReadOnly ([Char]))
+              = Hop_ReadOnlyFilePath_String (Path_ReadOnlyFilePath ([Char]))
+              | Hop_ReadOnlyFilePath_JSONText (Path_ReadOnlyFilePath JSONText)
+              | Hop_ReadOnlyFilePath_ReadOnlyFilePath (Path_ReadOnlyFilePath (ReadOnly ([Char])))
+              deriving (Eq, Show)
 instance IsPathStart (SaneSize ImageSize)
     where data Peek (SaneSize ImageSize)
               = Peek_SaneSizeImageSize_String (Path_SaneSizeImageSize ([Char]))
@@ -9206,6 +9386,15 @@ instance IsPathStart (SaneSize ImageSize)
                                                                                                                                                                                                                                                    Path SaneSizeImageSize
                                                                                                                                                                                                                                                         JSONText) q) z) (peek y :: Forest (Peek ImageSize)))
                                          _ -> error ("doPeekNodesOf: " ++ show path)) paths
+          data Hop (SaneSize ImageSize)
+              = Hop_SaneSizeImageSize_String (Path_SaneSizeImageSize ([Char]))
+              | Hop_SaneSizeImageSize_Double (Path_SaneSizeImageSize Double)
+              | Hop_SaneSizeImageSize_Dimension (Path_SaneSizeImageSize Dimension)
+              | Hop_SaneSizeImageSize_ImageSize (Path_SaneSizeImageSize ImageSize)
+              | Hop_SaneSizeImageSize_Units (Path_SaneSizeImageSize Units)
+              | Hop_SaneSizeImageSize_JSONText (Path_SaneSizeImageSize JSONText)
+              | Hop_SaneSizeImageSize_SaneSizeImageSize (Path_SaneSizeImageSize (SaneSize ImageSize))
+              deriving (Eq, Show)
 instance IsPathStart ([Char])
     where data Peek ([Char])
               = Peek_String_String (Path_String ([Char])) ([Char])
@@ -9223,6 +9412,10 @@ instance IsPathStart ([Char])
                                                                                                                                                                                                      Path String
                                                                                                                                                                                                           JSONText) q) z) (peek y :: Forest (Peek JSONText)))
                                          _ -> error ("doPeekNodesOf: " ++ show path)) paths
+          data Hop ([Char])
+              = Hop_String_String (Path_String ([Char]))
+              | Hop_String_JSONText (Path_String JSONText)
+              deriving (Eq, Show)
 instance IsPathStart ([UserId])
     where data Peek ([UserId])
               = Peek_UserIds_JSONText (Path_UserIds JSONText) JSONText
@@ -9246,11 +9439,19 @@ instance IsPathStart ([UserId])
                                                                                                                                                                                          Path UserIds
                                                                                                                                                                                               Text) q) z) (peek y :: Forest (Peek Text)))
                                          _ -> error ("doPeekNodesOf: " ++ show path)) paths
+          data Hop ([UserId])
+              = Hop_UserIds_JSONText (Path_UserIds JSONText)
+              | Hop_UserIds_UserIds (Path_UserIds ([UserId]))
+              | Hop_UserIds_Text (Path_UserIds Text)
+              deriving (Eq, Show)
 instance IsPathStart Int64
     where data Peek Int64
               = Peek_Int64_Int64 (Path_Int64 Int64) Int64
               deriving (Eq, Show)
           peek _ = []
+          data Hop Int64
+              = Hop_Int64_Int64 (Path_Int64 Int64)
+              deriving (Eq, Show)
 instance IsPathStart Bool
     where data Peek Bool
               = Peek_Bool_String (Path_Bool ([Char])) ([Char])
@@ -9274,6 +9475,11 @@ instance IsPathStart Bool
                                                                                                                                                                                          Path Bool
                                                                                                                                                                                               JSONText) q) z) (peek y :: Forest (Peek ([Char]))))
                                          _ -> error ("doPeekNodesOf: " ++ show path)) paths
+          data Hop Bool
+              = Hop_Bool_String (Path_Bool ([Char]))
+              | Hop_Bool_Bool (Path_Bool Bool)
+              | Hop_Bool_JSONText (Path_Bool JSONText)
+              deriving (Eq, Show)
 instance IsPathStart Double
     where data Peek Double
               = Peek_Double_String (Path_Double ([Char])) ([Char])
@@ -9297,11 +9503,17 @@ instance IsPathStart Double
                                                                                                                                                                                                  Path Double
                                                                                                                                                                                                       JSONText) q) z) (peek y :: Forest (Peek ([Char]))))
                                          _ -> error ("doPeekNodesOf: " ++ show path)) paths
+          data Hop Double
+              = Hop_Double_String (Path_Double ([Char]))
+              | Hop_Double_Double (Path_Double Double)
+              | Hop_Double_JSONText (Path_Double JSONText)
+              deriving (Eq, Show)
 instance IsPathStart Int
     where data Peek Int
               = Peek_Int_Int (Path_Int Int) Int
               deriving (Eq, Show)
           peek _ = []
+          data Hop Int = Hop_Int_Int (Path_Int Int) deriving (Eq, Show)
 instance IsPathStart Dimension
     where data Peek Dimension
               = Peek_Dimension_Dimension (Path_Dimension Dimension) Dimension
@@ -9319,11 +9531,18 @@ instance IsPathStart Dimension
                                                                                                                                                                                                                  Path Dimension
                                                                                                                                                                                                                       JSONText) q) z) (peek y :: Forest (Peek JSONText)))
                                          _ -> error ("doPeekNodesOf: " ++ show path)) paths
+          data Hop Dimension
+              = Hop_Dimension_Dimension (Path_Dimension Dimension)
+              | Hop_Dimension_JSONText (Path_Dimension JSONText)
+              deriving (Eq, Show)
 instance IsPathStart ImageCrop
     where data Peek ImageCrop
               = Peek_ImageCrop_ImageCrop (Path_ImageCrop ImageCrop) ImageCrop
               deriving (Eq, Show)
           peek _ = []
+          data Hop ImageCrop
+              = Hop_ImageCrop_ImageCrop (Path_ImageCrop ImageCrop)
+              deriving (Eq, Show)
 instance IsPathStart ImageSize
     where data Peek ImageSize
               = Peek_ImageSize_String (Path_ImageSize ([Char])) ([Char])
@@ -9389,6 +9608,14 @@ instance IsPathStart ImageSize
                                                                                                                                                                                                    JSONText) q) z) (peek y :: Forest (Peek Units)))
                         [] -> error "No Path_ImageSize_units field found"
                         ps -> error $ ("Multiple Path_ImageSize_units fields found: " ++ show ps)]
+          data Hop ImageSize
+              = Hop_ImageSize_String (Path_ImageSize ([Char]))
+              | Hop_ImageSize_Double (Path_ImageSize Double)
+              | Hop_ImageSize_Dimension (Path_ImageSize Dimension)
+              | Hop_ImageSize_ImageSize (Path_ImageSize ImageSize)
+              | Hop_ImageSize_Units (Path_ImageSize Units)
+              | Hop_ImageSize_JSONText (Path_ImageSize JSONText)
+              deriving (Eq, Show)
 instance IsPathStart Units
     where data Peek Units
               = Peek_Units_Units (Path_Units Units) Units
@@ -9406,21 +9633,34 @@ instance IsPathStart Units
                                                                                                                                                                                                  Path Units
                                                                                                                                                                                                       JSONText) q) z) (peek y :: Forest (Peek JSONText)))
                                          _ -> error ("doPeekNodesOf: " ++ show path)) paths
+          data Hop Units
+              = Hop_Units_Units (Path_Units Units)
+              | Hop_Units_JSONText (Path_Units JSONText)
+              deriving (Eq, Show)
 instance IsPathStart ImageFile
     where data Peek ImageFile
               = Peek_ImageFile_ImageFile (Path_ImageFile ImageFile) ImageFile
               deriving (Eq, Show)
           peek _ = []
+          data Hop ImageFile
+              = Hop_ImageFile_ImageFile (Path_ImageFile ImageFile)
+              deriving (Eq, Show)
 instance IsPathStart Integer
     where data Peek Integer
               = Peek_Integer_Integer (Path_Integer Integer) Integer
               deriving (Eq, Show)
           peek _ = []
+          data Hop Integer
+              = Hop_Integer_Integer (Path_Integer Integer)
+              deriving (Eq, Show)
 instance IsPathStart JSONText
     where data Peek JSONText
               = Peek_JSONText_JSONText (Path_JSONText JSONText) JSONText
               deriving (Eq, Show)
           peek _ = []
+          data Hop JSONText
+              = Hop_JSONText_JSONText (Path_JSONText JSONText)
+              deriving (Eq, Show)
 instance IsPathStart Markup
     where data Peek Markup
               = Peek_Markup_JSONText (Path_Markup JSONText) JSONText
@@ -9464,6 +9704,11 @@ instance IsPathStart Markup
           peek (LaTeX {}) = [error "doField' Text.LaTeX.Base.Syntax.LaTeX"]
           peek (Pandoc {}) = [error "doField' Text.Pandoc.Definition.Pandoc"]
           peek (Markup {}) = [error "doField' [Appraisal.Markup.Markup]"]
+          data Hop Markup
+              = Hop_Markup_JSONText (Path_Markup JSONText)
+              | Hop_Markup_Markup (Path_Markup Markup)
+              | Hop_Markup_Text (Path_Markup Text)
+              deriving (Eq, Show)
 instance IsPathStart Permissions
     where data Peek Permissions
               = Peek_Permissions_JSONText (Path_Permissions JSONText) JSONText
@@ -9529,6 +9774,13 @@ instance IsPathStart Permissions
                                                                                                                                                                                                            Text) q) z) (peek y :: Forest (Peek ([UserId]))))
                         [] -> error "No Path_Permissions_readers field found"
                         ps -> error $ ("Multiple Path_Permissions_readers fields found: " ++ show ps)]
+          data Hop Permissions
+              = Hop_Permissions_JSONText (Path_Permissions JSONText)
+              | Hop_Permissions_Permissions (Path_Permissions Permissions)
+              | Hop_Permissions_UserIds (Path_Permissions ([UserId]))
+              | Hop_Permissions_Text (Path_Permissions Text)
+              | Hop_Permissions_UserId (Path_Permissions UserId)
+              deriving (Eq, Show)
 instance IsPathStart Author
     where data Peek Author
               = Peek_Author_JSONText (Path_Author JSONText) JSONText
@@ -9580,6 +9832,12 @@ instance IsPathStart Author
                                                                                                                                                                                                          Text) q) z) (peek y :: Forest (Peek Markup)))
                         [] -> error "No Path_Author_authorCredentials field found"
                         ps -> error $ ("Multiple Path_Author_authorCredentials fields found: " ++ show ps)]
+          data Hop Author
+              = Hop_Author_JSONText (Path_Author JSONText)
+              | Hop_Author_Markup (Path_Author Markup)
+              | Hop_Author_Author (Path_Author Author)
+              | Hop_Author_Text (Path_Author Text)
+              deriving (Eq, Show)
 instance IsPathStart Branding
     where data Peek Branding
               = Peek_Branding_JSONText (Path_Branding JSONText) JSONText
@@ -9603,6 +9861,11 @@ instance IsPathStart Branding
                                                                                                                                                                                              Path Branding
                                                                                                                                                                                                   Text) q) z) (peek y :: Forest (Peek Text)))
                                          _ -> error ("doPeekNodesOf: " ++ show path)) paths
+          data Hop Branding
+              = Hop_Branding_JSONText (Path_Branding JSONText)
+              | Hop_Branding_Branding (Path_Branding Branding)
+              | Hop_Branding_Text (Path_Branding Text)
+              deriving (Eq, Show)
 instance IsPathStart Report
     where data Peek Report
               = Peek_Report_String (Path_Report ([Char])) ([Char])
@@ -9945,6 +10208,60 @@ instance IsPathStart Report
                                                                                                                                                                                                  Path Report
                                                                                                                                                                                                       UUID) q) z) (peek y :: Forest (Peek ReportView)))
                                          _ -> error ("doPeekNodesOf: " ++ show path)) paths
+          data Hop Report
+              = Hop_Report_String (Path_Report ([Char]))
+              | Hop_Report_Int64 (Path_Report Int64)
+              | Hop_Report_Int (Path_Report Int)
+              | Hop_Report_Bool (Path_Report Bool)
+              | Hop_Report_Double (Path_Report Double)
+              | Hop_Report_Dimension (Path_Report Dimension)
+              | Hop_Report_ImageCrop (Path_Report ImageCrop)
+              | Hop_Report_ImageSize (Path_Report ImageSize)
+              | Hop_Report_Units (Path_Report Units)
+              | Hop_Report_ImageFile (Path_Report ImageFile)
+              | Hop_Report_Integer (Path_Report Integer)
+              | Hop_Report_JSONText (Path_Report JSONText)
+              | Hop_Report_Markup (Path_Report Markup)
+              | Hop_Report_Permissions (Path_Report Permissions)
+              | Hop_Report_UserIds (Path_Report ([UserId]))
+              | Hop_Report_AbbrevPair (Path_Report ((CIString, Markup)))
+              | Hop_Report_AbbrevPairs (Path_Report (Order AbbrevPairID
+                                                           ((CIString, Markup))))
+              | Hop_Report_Author (Path_Report Author)
+              | Hop_Report_Authors (Path_Report (Order AuthorID Author))
+              | Hop_Report_Branding (Path_Report Branding)
+              | Hop_Report_MarkupPair (Path_Report ((Markup, Markup)))
+              | Hop_Report_MarkupPairs (Path_Report (Order MarkupPairID
+                                                           ((Markup, Markup))))
+              | Hop_Report_Markups (Path_Report (Order MarkupID Markup))
+              | Hop_Report_MaybeReportIntendedUse (Path_Report (Maybe ReportIntendedUse))
+              | Hop_Report_Report (Path_Report Report)
+              | Hop_Report_ReportElem (Path_Report ReportElem)
+              | Hop_Report_ReportElems (Path_Report (Order ReportElemID
+                                                           ReportElem))
+              | Hop_Report_ReportFlags (Path_Report ReportFlags)
+              | Hop_Report_ReportStandard (Path_Report ReportStandard)
+              | Hop_Report_ReportStatus (Path_Report ReportStatus)
+              | Hop_Report_ReportValueApproachInfo (Path_Report ReportValueApproachInfo)
+              | Hop_Report_ReportValueTypeInfo (Path_Report ReportValueTypeInfo)
+              | Hop_Report_EUI (Path_Report (Either URI ImageFile))
+              | Hop_Report_MEUI (Path_Report (Maybe (Either URI ImageFile)))
+              | Hop_Report_MaybeImageFile (Path_Report (Maybe ImageFile))
+              | Hop_Report_ReportImage (Path_Report ReportImage)
+              | Hop_Report_ReportImages (Path_Report (Order ReportImageID
+                                                            ReportImage))
+              | Hop_Report_ReadOnlyFilePath (Path_Report (ReadOnly ([Char])))
+              | Hop_Report_ReportImageView (Path_Report ReportImageView)
+              | Hop_Report_ReportView (Path_Report ReportView)
+              | Hop_Report_SaneSizeImageSize (Path_Report (SaneSize ImageSize))
+              | Hop_Report_Item (Path_Report Item)
+              | Hop_Report_MIM (Path_Report (Map ItemFieldName Markup))
+              | Hop_Report_CIString (Path_Report CIString)
+              | Hop_Report_URI (Path_Report URI)
+              | Hop_Report_Text (Path_Report Text)
+              | Hop_Report_UserId (Path_Report UserId)
+              | Hop_Report_UUID (Path_Report UUID)
+              deriving (Eq, Show)
 instance IsPathStart ReportElem
     where data Peek ReportElem
               = Peek_ReportElem_String (Path_ReportElem ([Char])) ([Char])
@@ -10124,6 +10441,32 @@ instance IsPathStart ReportElem
                                                [] -> error "No Path_ReportElem_elemText field found"
                                                ps -> error $ ("Multiple Path_ReportElem_elemText fields found: " ++ show ps)]
           peek (ReportUndecided {}) = []
+          data Hop ReportElem
+              = Hop_ReportElem_String (Path_ReportElem ([Char]))
+              | Hop_ReportElem_Bool (Path_ReportElem Bool)
+              | Hop_ReportElem_Double (Path_ReportElem Double)
+              | Hop_ReportElem_Dimension (Path_ReportElem Dimension)
+              | Hop_ReportElem_ImageCrop (Path_ReportElem ImageCrop)
+              | Hop_ReportElem_ImageSize (Path_ReportElem ImageSize)
+              | Hop_ReportElem_Units (Path_ReportElem Units)
+              | Hop_ReportElem_ImageFile (Path_ReportElem ImageFile)
+              | Hop_ReportElem_JSONText (Path_ReportElem JSONText)
+              | Hop_ReportElem_Markup (Path_ReportElem Markup)
+              | Hop_ReportElem_ReportElem (Path_ReportElem ReportElem)
+              | Hop_ReportElem_EUI (Path_ReportElem (Either URI ImageFile))
+              | Hop_ReportElem_MEUI (Path_ReportElem (Maybe (Either URI
+                                                                    ImageFile)))
+              | Hop_ReportElem_MaybeImageFile (Path_ReportElem (Maybe ImageFile))
+              | Hop_ReportElem_ReportImage (Path_ReportElem ReportImage)
+              | Hop_ReportElem_ReportImages (Path_ReportElem (Order ReportImageID
+                                                                    ReportImage))
+              | Hop_ReportElem_ReportImageView (Path_ReportElem ReportImageView)
+              | Hop_ReportElem_SaneSizeImageSize (Path_ReportElem (SaneSize ImageSize))
+              | Hop_ReportElem_Item (Path_ReportElem Item)
+              | Hop_ReportElem_MIM (Path_ReportElem (Map ItemFieldName Markup))
+              | Hop_ReportElem_URI (Path_ReportElem URI)
+              | Hop_ReportElem_Text (Path_ReportElem Text)
+              deriving (Eq, Show)
 instance IsPathStart ReportFlags
     where data Peek ReportFlags
               = Peek_ReportFlags_String (Path_ReportFlags ([Char])) ([Char])
@@ -10154,6 +10497,12 @@ instance IsPathStart ReportFlags
                                                                                                                                                                                                                                      JSONText) q) z) (peek y :: Forest (Peek Bool)))
                         [] -> error "No Path_ReportFlags_hideEmptyItemFields field found"
                         ps -> error $ ("Multiple Path_ReportFlags_hideEmptyItemFields fields found: " ++ show ps)]
+          data Hop ReportFlags
+              = Hop_ReportFlags_String (Path_ReportFlags ([Char]))
+              | Hop_ReportFlags_Bool (Path_ReportFlags Bool)
+              | Hop_ReportFlags_JSONText (Path_ReportFlags JSONText)
+              | Hop_ReportFlags_ReportFlags (Path_ReportFlags ReportFlags)
+              deriving (Eq, Show)
 instance IsPathStart ReportIntendedUse
     where data Peek ReportIntendedUse
               = Peek_ReportIntendedUse_String (Path_ReportIntendedUse ([Char]))
@@ -10180,6 +10529,11 @@ instance IsPathStart ReportIntendedUse
                                                                                                                                                                                                                                              Path ReportIntendedUse
                                                                                                                                                                                                                                                   JSONText) q) z) (peek y :: Forest (Peek ([Char]))))
                                          _ -> error ("doPeekNodesOf: " ++ show path)) paths
+          data Hop ReportIntendedUse
+              = Hop_ReportIntendedUse_String (Path_ReportIntendedUse ([Char]))
+              | Hop_ReportIntendedUse_JSONText (Path_ReportIntendedUse JSONText)
+              | Hop_ReportIntendedUse_ReportIntendedUse (Path_ReportIntendedUse ReportIntendedUse)
+              deriving (Eq, Show)
 instance IsPathStart ReportStandard
     where data Peek ReportStandard
               = Peek_ReportStandard_Int (Path_ReportStandard Int) Int
@@ -10198,6 +10552,10 @@ instance IsPathStart ReportStandard
                                                                                                                                                                                                                                Int) q) z) (peek y :: Forest (Peek Int)))
                         [] -> error "No Path_ReportStandard_unReportStandard field found"
                         ps -> error $ ("Multiple Path_ReportStandard_unReportStandard fields found: " ++ show ps)]
+          data Hop ReportStandard
+              = Hop_ReportStandard_Int (Path_ReportStandard Int)
+              | Hop_ReportStandard_ReportStandard (Path_ReportStandard ReportStandard)
+              deriving (Eq, Show)
 instance IsPathStart ReportStatus
     where data Peek ReportStatus
               = Peek_ReportStatus_String (Path_ReportStatus ([Char])) ([Char])
@@ -10222,6 +10580,11 @@ instance IsPathStart ReportStatus
                                                                                                                                                                                                                          Path ReportStatus
                                                                                                                                                                                                                               JSONText) q) z) (peek y :: Forest (Peek ([Char]))))
                                          _ -> error ("doPeekNodesOf: " ++ show path)) paths
+          data Hop ReportStatus
+              = Hop_ReportStatus_String (Path_ReportStatus ([Char]))
+              | Hop_ReportStatus_JSONText (Path_ReportStatus JSONText)
+              | Hop_ReportStatus_ReportStatus (Path_ReportStatus ReportStatus)
+              deriving (Eq, Show)
 instance IsPathStart ReportValueApproachInfo
     where data Peek ReportValueApproachInfo
               = Peek_ReportValueApproachInfo_JSONText (Path_ReportValueApproachInfo JSONText)
@@ -10277,6 +10640,12 @@ instance IsPathStart ReportValueApproachInfo
                                                                                                                                                                                                                                                                                                        Text) q) z) (peek y :: Forest (Peek Markup)))
                         [] -> error "No Path_ReportValueApproachInfo_reportValueApproachDescription field found"
                         ps -> error $ ("Multiple Path_ReportValueApproachInfo_reportValueApproachDescription fields found: " ++ show ps)]
+          data Hop ReportValueApproachInfo
+              = Hop_ReportValueApproachInfo_JSONText (Path_ReportValueApproachInfo JSONText)
+              | Hop_ReportValueApproachInfo_Markup (Path_ReportValueApproachInfo Markup)
+              | Hop_ReportValueApproachInfo_ReportValueApproachInfo (Path_ReportValueApproachInfo ReportValueApproachInfo)
+              | Hop_ReportValueApproachInfo_Text (Path_ReportValueApproachInfo Text)
+              deriving (Eq, Show)
 instance IsPathStart ReportValueTypeInfo
     where data Peek ReportValueTypeInfo
               = Peek_ReportValueTypeInfo_JSONText (Path_ReportValueTypeInfo JSONText)
@@ -10354,6 +10723,12 @@ instance IsPathStart ReportValueTypeInfo
                                                                                                                                                                                                                                                                              Text) q) z) (peek y :: Forest (Peek Markup)))
                         [] -> error "No Path_ReportValueTypeInfo_reportValueTypeDefinition field found"
                         ps -> error $ ("Multiple Path_ReportValueTypeInfo_reportValueTypeDefinition fields found: " ++ show ps)]
+          data Hop ReportValueTypeInfo
+              = Hop_ReportValueTypeInfo_JSONText (Path_ReportValueTypeInfo JSONText)
+              | Hop_ReportValueTypeInfo_Markup (Path_ReportValueTypeInfo Markup)
+              | Hop_ReportValueTypeInfo_ReportValueTypeInfo (Path_ReportValueTypeInfo ReportValueTypeInfo)
+              | Hop_ReportValueTypeInfo_Text (Path_ReportValueTypeInfo Text)
+              deriving (Eq, Show)
 instance IsPathStart ReportImage
     where data Peek ReportImage
               = Peek_ReportImage_String (Path_ReportImage ([Char])) ([Char])
@@ -10478,6 +10853,27 @@ instance IsPathStart ReportImage
                                                                                                                                                                                                                                Path ReportImage
                                                                                                                                                                                                                                     Text) q) z) (peek y :: Forest (Peek ReportImageView)))
                                          _ -> error ("doPeekNodesOf: " ++ show path)) paths
+          data Hop ReportImage
+              = Hop_ReportImage_String (Path_ReportImage ([Char]))
+              | Hop_ReportImage_Bool (Path_ReportImage Bool)
+              | Hop_ReportImage_Double (Path_ReportImage Double)
+              | Hop_ReportImage_Dimension (Path_ReportImage Dimension)
+              | Hop_ReportImage_ImageCrop (Path_ReportImage ImageCrop)
+              | Hop_ReportImage_ImageSize (Path_ReportImage ImageSize)
+              | Hop_ReportImage_Units (Path_ReportImage Units)
+              | Hop_ReportImage_ImageFile (Path_ReportImage ImageFile)
+              | Hop_ReportImage_JSONText (Path_ReportImage JSONText)
+              | Hop_ReportImage_Markup (Path_ReportImage Markup)
+              | Hop_ReportImage_EUI (Path_ReportImage (Either URI ImageFile))
+              | Hop_ReportImage_MEUI (Path_ReportImage (Maybe (Either URI
+                                                                      ImageFile)))
+              | Hop_ReportImage_MaybeImageFile (Path_ReportImage (Maybe ImageFile))
+              | Hop_ReportImage_ReportImage (Path_ReportImage ReportImage)
+              | Hop_ReportImage_ReportImageView (Path_ReportImage ReportImageView)
+              | Hop_ReportImage_SaneSizeImageSize (Path_ReportImage (SaneSize ImageSize))
+              | Hop_ReportImage_URI (Path_ReportImage URI)
+              | Hop_ReportImage_Text (Path_ReportImage Text)
+              deriving (Eq, Show)
 instance IsPathStart ReportImageView
     where data Peek ReportImageView
               = Peek_ReportImageView_String (Path_ReportImageView ([Char]))
@@ -10732,6 +11128,27 @@ instance IsPathStart ReportImageView
                                                                                                                                                                                                                                                                                            (Maybe ImageFile)) q) z) (peek y :: Forest (Peek (Maybe ImageFile))))
                         [] -> error "No Path_ReportImageView__picEnlargedDeprecated field found"
                         ps -> error $ ("Multiple Path_ReportImageView__picEnlargedDeprecated fields found: " ++ show ps)]
+          data Hop ReportImageView
+              = Hop_ReportImageView_String (Path_ReportImageView ([Char]))
+              | Hop_ReportImageView_Bool (Path_ReportImageView Bool)
+              | Hop_ReportImageView_Double (Path_ReportImageView Double)
+              | Hop_ReportImageView_Dimension (Path_ReportImageView Dimension)
+              | Hop_ReportImageView_ImageCrop (Path_ReportImageView ImageCrop)
+              | Hop_ReportImageView_ImageSize (Path_ReportImageView ImageSize)
+              | Hop_ReportImageView_Units (Path_ReportImageView Units)
+              | Hop_ReportImageView_ImageFile (Path_ReportImageView ImageFile)
+              | Hop_ReportImageView_JSONText (Path_ReportImageView JSONText)
+              | Hop_ReportImageView_Markup (Path_ReportImageView Markup)
+              | Hop_ReportImageView_EUI (Path_ReportImageView (Either URI
+                                                                      ImageFile))
+              | Hop_ReportImageView_MEUI (Path_ReportImageView (Maybe (Either URI
+                                                                              ImageFile)))
+              | Hop_ReportImageView_MaybeImageFile (Path_ReportImageView (Maybe ImageFile))
+              | Hop_ReportImageView_ReportImageView (Path_ReportImageView ReportImageView)
+              | Hop_ReportImageView_SaneSizeImageSize (Path_ReportImageView (SaneSize ImageSize))
+              | Hop_ReportImageView_URI (Path_ReportImageView URI)
+              | Hop_ReportImageView_Text (Path_ReportImageView Text)
+              deriving (Eq, Show)
 instance IsPathStart ReportView
     where data Peek ReportView
               = Peek_ReportView_String (Path_ReportView ([Char])) ([Char])
@@ -12021,6 +12438,60 @@ instance IsPathStart ReportView
                                                                                                                                                                                                                                                                          ReportStandard) q) z) (peek y :: Forest (Peek ReportStandard)))
                         [] -> error "No Path_ReportView__reportStandardsVersion field found"
                         ps -> error $ ("Multiple Path_ReportView__reportStandardsVersion fields found: " ++ show ps)]
+          data Hop ReportView
+              = Hop_ReportView_String (Path_ReportView ([Char]))
+              | Hop_ReportView_Int64 (Path_ReportView Int64)
+              | Hop_ReportView_Int (Path_ReportView Int)
+              | Hop_ReportView_Bool (Path_ReportView Bool)
+              | Hop_ReportView_Double (Path_ReportView Double)
+              | Hop_ReportView_Dimension (Path_ReportView Dimension)
+              | Hop_ReportView_ImageCrop (Path_ReportView ImageCrop)
+              | Hop_ReportView_ImageSize (Path_ReportView ImageSize)
+              | Hop_ReportView_Units (Path_ReportView Units)
+              | Hop_ReportView_ImageFile (Path_ReportView ImageFile)
+              | Hop_ReportView_Integer (Path_ReportView Integer)
+              | Hop_ReportView_JSONText (Path_ReportView JSONText)
+              | Hop_ReportView_Markup (Path_ReportView Markup)
+              | Hop_ReportView_Permissions (Path_ReportView Permissions)
+              | Hop_ReportView_UserIds (Path_ReportView ([UserId]))
+              | Hop_ReportView_AbbrevPair (Path_ReportView ((CIString, Markup)))
+              | Hop_ReportView_AbbrevPairs (Path_ReportView (Order AbbrevPairID
+                                                                   ((CIString, Markup))))
+              | Hop_ReportView_Author (Path_ReportView Author)
+              | Hop_ReportView_Authors (Path_ReportView (Order AuthorID Author))
+              | Hop_ReportView_Branding (Path_ReportView Branding)
+              | Hop_ReportView_MarkupPair (Path_ReportView ((Markup, Markup)))
+              | Hop_ReportView_MarkupPairs (Path_ReportView (Order MarkupPairID
+                                                                   ((Markup, Markup))))
+              | Hop_ReportView_Markups (Path_ReportView (Order MarkupID Markup))
+              | Hop_ReportView_MaybeReportIntendedUse (Path_ReportView (Maybe ReportIntendedUse))
+              | Hop_ReportView_ReportElem (Path_ReportView ReportElem)
+              | Hop_ReportView_ReportElems (Path_ReportView (Order ReportElemID
+                                                                   ReportElem))
+              | Hop_ReportView_ReportFlags (Path_ReportView ReportFlags)
+              | Hop_ReportView_ReportStandard (Path_ReportView ReportStandard)
+              | Hop_ReportView_ReportStatus (Path_ReportView ReportStatus)
+              | Hop_ReportView_ReportValueApproachInfo (Path_ReportView ReportValueApproachInfo)
+              | Hop_ReportView_ReportValueTypeInfo (Path_ReportView ReportValueTypeInfo)
+              | Hop_ReportView_EUI (Path_ReportView (Either URI ImageFile))
+              | Hop_ReportView_MEUI (Path_ReportView (Maybe (Either URI
+                                                                    ImageFile)))
+              | Hop_ReportView_MaybeImageFile (Path_ReportView (Maybe ImageFile))
+              | Hop_ReportView_ReportImage (Path_ReportView ReportImage)
+              | Hop_ReportView_ReportImages (Path_ReportView (Order ReportImageID
+                                                                    ReportImage))
+              | Hop_ReportView_ReadOnlyFilePath (Path_ReportView (ReadOnly ([Char])))
+              | Hop_ReportView_ReportImageView (Path_ReportView ReportImageView)
+              | Hop_ReportView_ReportView (Path_ReportView ReportView)
+              | Hop_ReportView_SaneSizeImageSize (Path_ReportView (SaneSize ImageSize))
+              | Hop_ReportView_Item (Path_ReportView Item)
+              | Hop_ReportView_MIM (Path_ReportView (Map ItemFieldName Markup))
+              | Hop_ReportView_CIString (Path_ReportView CIString)
+              | Hop_ReportView_URI (Path_ReportView URI)
+              | Hop_ReportView_Text (Path_ReportView Text)
+              | Hop_ReportView_UserId (Path_ReportView UserId)
+              | Hop_ReportView_UUID (Path_ReportView UUID)
+              deriving (Eq, Show)
 instance IsPathStart Item
     where data Peek Item
               = Peek_Item_String (Path_Item ([Char])) ([Char])
@@ -12215,6 +12686,30 @@ instance IsPathStart Item
                                                                                                                                                                                                                                   ReportImage))))
                         [] -> error "No Path_Item_images field found"
                         ps -> error $ ("Multiple Path_Item_images fields found: " ++ show ps)]
+          data Hop Item
+              = Hop_Item_String (Path_Item ([Char]))
+              | Hop_Item_Bool (Path_Item Bool)
+              | Hop_Item_Double (Path_Item Double)
+              | Hop_Item_Dimension (Path_Item Dimension)
+              | Hop_Item_ImageCrop (Path_Item ImageCrop)
+              | Hop_Item_ImageSize (Path_Item ImageSize)
+              | Hop_Item_Units (Path_Item Units)
+              | Hop_Item_ImageFile (Path_Item ImageFile)
+              | Hop_Item_JSONText (Path_Item JSONText)
+              | Hop_Item_Markup (Path_Item Markup)
+              | Hop_Item_EUI (Path_Item (Either URI ImageFile))
+              | Hop_Item_MEUI (Path_Item (Maybe (Either URI ImageFile)))
+              | Hop_Item_MaybeImageFile (Path_Item (Maybe ImageFile))
+              | Hop_Item_ReportImage (Path_Item ReportImage)
+              | Hop_Item_ReportImages (Path_Item (Order ReportImageID
+                                                        ReportImage))
+              | Hop_Item_ReportImageView (Path_Item ReportImageView)
+              | Hop_Item_SaneSizeImageSize (Path_Item (SaneSize ImageSize))
+              | Hop_Item_Item (Path_Item Item)
+              | Hop_Item_MIM (Path_Item (Map ItemFieldName Markup))
+              | Hop_Item_URI (Path_Item URI)
+              | Hop_Item_Text (Path_Item Text)
+              deriving (Eq, Show)
 instance IsPathStart ReportMap
     where data Peek ReportMap
               = Peek_ReportMap_String (Path_ReportMap ([Char])) ([Char])
@@ -12581,6 +13076,63 @@ instance IsPathStart ReportMap
                                                                                                                                                                                                                                             Report))))
                         [] -> error "No Path_ReportMap_unReportMap field found"
                         ps -> error $ ("Multiple Path_ReportMap_unReportMap fields found: " ++ show ps)]
+          data Hop ReportMap
+              = Hop_ReportMap_String (Path_ReportMap ([Char]))
+              | Hop_ReportMap_Int64 (Path_ReportMap Int64)
+              | Hop_ReportMap_Int (Path_ReportMap Int)
+              | Hop_ReportMap_Bool (Path_ReportMap Bool)
+              | Hop_ReportMap_Double (Path_ReportMap Double)
+              | Hop_ReportMap_Dimension (Path_ReportMap Dimension)
+              | Hop_ReportMap_ImageCrop (Path_ReportMap ImageCrop)
+              | Hop_ReportMap_ImageSize (Path_ReportMap ImageSize)
+              | Hop_ReportMap_Units (Path_ReportMap Units)
+              | Hop_ReportMap_ImageFile (Path_ReportMap ImageFile)
+              | Hop_ReportMap_Integer (Path_ReportMap Integer)
+              | Hop_ReportMap_JSONText (Path_ReportMap JSONText)
+              | Hop_ReportMap_Markup (Path_ReportMap Markup)
+              | Hop_ReportMap_Permissions (Path_ReportMap Permissions)
+              | Hop_ReportMap_UserIds (Path_ReportMap ([UserId]))
+              | Hop_ReportMap_AbbrevPair (Path_ReportMap ((CIString, Markup)))
+              | Hop_ReportMap_AbbrevPairs (Path_ReportMap (Order AbbrevPairID
+                                                                 ((CIString, Markup))))
+              | Hop_ReportMap_Author (Path_ReportMap Author)
+              | Hop_ReportMap_Authors (Path_ReportMap (Order AuthorID Author))
+              | Hop_ReportMap_Branding (Path_ReportMap Branding)
+              | Hop_ReportMap_MarkupPair (Path_ReportMap ((Markup, Markup)))
+              | Hop_ReportMap_MarkupPairs (Path_ReportMap (Order MarkupPairID
+                                                                 ((Markup, Markup))))
+              | Hop_ReportMap_Markups (Path_ReportMap (Order MarkupID Markup))
+              | Hop_ReportMap_MaybeReportIntendedUse (Path_ReportMap (Maybe ReportIntendedUse))
+              | Hop_ReportMap_Report (Path_ReportMap Report)
+              | Hop_ReportMap_ReportElem (Path_ReportMap ReportElem)
+              | Hop_ReportMap_ReportElems (Path_ReportMap (Order ReportElemID
+                                                                 ReportElem))
+              | Hop_ReportMap_ReportFlags (Path_ReportMap ReportFlags)
+              | Hop_ReportMap_ReportStandard (Path_ReportMap ReportStandard)
+              | Hop_ReportMap_ReportStatus (Path_ReportMap ReportStatus)
+              | Hop_ReportMap_ReportValueApproachInfo (Path_ReportMap ReportValueApproachInfo)
+              | Hop_ReportMap_ReportValueTypeInfo (Path_ReportMap ReportValueTypeInfo)
+              | Hop_ReportMap_EUI (Path_ReportMap (Either URI ImageFile))
+              | Hop_ReportMap_MEUI (Path_ReportMap (Maybe (Either URI
+                                                                  ImageFile)))
+              | Hop_ReportMap_MaybeImageFile (Path_ReportMap (Maybe ImageFile))
+              | Hop_ReportMap_ReportImage (Path_ReportMap ReportImage)
+              | Hop_ReportMap_ReportImages (Path_ReportMap (Order ReportImageID
+                                                                  ReportImage))
+              | Hop_ReportMap_ReadOnlyFilePath (Path_ReportMap (ReadOnly ([Char])))
+              | Hop_ReportMap_ReportImageView (Path_ReportMap ReportImageView)
+              | Hop_ReportMap_ReportView (Path_ReportMap ReportView)
+              | Hop_ReportMap_SaneSizeImageSize (Path_ReportMap (SaneSize ImageSize))
+              | Hop_ReportMap_Item (Path_ReportMap Item)
+              | Hop_ReportMap_MIM (Path_ReportMap (Map ItemFieldName Markup))
+              | Hop_ReportMap_MRR (Path_ReportMap (Map ReportID Report))
+              | Hop_ReportMap_ReportMap (Path_ReportMap ReportMap)
+              | Hop_ReportMap_CIString (Path_ReportMap CIString)
+              | Hop_ReportMap_URI (Path_ReportMap URI)
+              | Hop_ReportMap_Text (Path_ReportMap Text)
+              | Hop_ReportMap_UserId (Path_ReportMap UserId)
+              | Hop_ReportMap_UUID (Path_ReportMap UUID)
+              deriving (Eq, Show)
 instance IsPathStart CIString
     where data Peek CIString
               = Peek_CIString_JSONText (Path_CIString JSONText) JSONText
@@ -12604,11 +13156,17 @@ instance IsPathStart CIString
                                                                                                                                                                                              Path CIString
                                                                                                                                                                                                   Text) q) z) (peek y :: Forest (Peek Text)))
                                          _ -> error ("doPeekNodesOf: " ++ show path)) paths
+          data Hop CIString
+              = Hop_CIString_JSONText (Path_CIString JSONText)
+              | Hop_CIString_CIString (Path_CIString CIString)
+              | Hop_CIString_Text (Path_CIString Text)
+              deriving (Eq, Show)
 instance IsPathStart URI
     where data Peek URI
               = Peek_URI_URI (Path_URI URI) URI
               deriving (Eq, Show)
           peek _ = []
+          data Hop URI = Hop_URI_URI (Path_URI URI) deriving (Eq, Show)
 instance IsPathStart Text
     where data Peek Text
               = Peek_Text_JSONText (Path_Text JSONText) JSONText
@@ -12626,16 +13184,24 @@ instance IsPathStart Text
                                                                                                                                                                                              Path Text
                                                                                                                                                                                                   JSONText) q) z) (peek y :: Forest (Peek JSONText)))
                                          _ -> error ("doPeekNodesOf: " ++ show path)) paths
+          data Hop Text
+              = Hop_Text_JSONText (Path_Text JSONText)
+              | Hop_Text_Text (Path_Text Text)
+              deriving (Eq, Show)
 instance IsPathStart UserId
     where data Peek UserId
               = Peek_UserId_UserId (Path_UserId UserId) UserId
               deriving (Eq, Show)
           peek _ = []
+          data Hop UserId
+              = Hop_UserId_UserId (Path_UserId UserId)
+              deriving (Eq, Show)
 instance IsPathStart UUID
     where data Peek UUID
               = Peek_UUID_UUID (Path_UUID UUID) UUID
               deriving (Eq, Show)
           peek _ = []
+          data Hop UUID = Hop_UUID_UUID (Path_UUID UUID) deriving (Eq, Show)
 instance ToLens (Path_Either (Path_URI ImageFile)
                              (Path_ImageFile ImageFile))
     where type S (Path_Either (Path_URI ImageFile)

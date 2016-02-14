@@ -27,10 +27,10 @@ import Data.Tree (Tree(Node), Forest)
 import Language.Haskell.TH
 import Language.Haskell.TH.Context (ContextM, reifyInstancesWithContext)
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.Path.Core (IsPathStart(Peek, peek), IsPath(..), ToLens(toLens), SelfPath, SinkType,
+import Language.Haskell.TH.Path.Core (IsPathStart(Peek, peek, Hop), IsPath(..), ToLens(toLens), SelfPath, SinkType,
                                       Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..), forestMap)
 import Language.Haskell.TH.Path.Decs.Common (asConQ, asName, asType, asTypeQ, bestPathTypeName, bestTypeName, clauses,
-                                             makeFieldCon, makePathCon, makePathType, makePeekCon,
+                                             makeFieldCon, makePathCon, makePathType, makePeekCon, makeHopCon,
                                              ModelType(ModelType), PathCon, PathCon(PathCon))
 import Language.Haskell.TH.Path.Order (Order, Path_OMap(..))
 import Language.Haskell.TH.Path.View (viewInstanceType)
@@ -47,11 +47,14 @@ peekDecs v =
       Just _tname -> do
         (pnc :: [ClauseQ]) <- peekClauses v
         (cons :: [ConQ]) <- peekCons
+        (hcons :: [ConQ]) <- hopCons
         runQ (instanceD (cxt []) (appT (conT ''IsPathStart) (asTypeQ v))
                 [dataInstD (cxt []) ''Peek [asTypeQ v] cons [''Eq, ''Show],
                  funD 'peek (case pnc of
                                [] -> [clause [wildP] (normalB [| [] |]) []]
-                               _ -> pnc)]) >>= tell . (: [])
+                               _ -> pnc),
+                 dataInstD (cxt []) ''Hop [asTypeQ v] hcons [''Eq, ''Show]
+                ]) >>= tell . (: [])
       Nothing -> return ()
     where
       peekCons :: m [ConQ]
@@ -64,6 +67,16 @@ peekDecs v =
                 [normalC (asName (makePeekCon (ModelType vn) (ModelType gn)))
                          [(,) <$> notStrict <*> [t|$(asTypeQ vp) $(pure (view (etype . unE) g))|],
                           (,) <$> notStrict <*> pure (view (etype . unE) g)]]
+            _ -> []
+      hopCons :: m [ConQ]
+      hopCons = (concat . List.map doHopPair . toList) <$> (pathKeys v)
+      doHopPair :: TGVSimple -> [ConQ]
+      doHopPair g =
+          let Just (vp, _) = bestPathTypeName v in
+          case (bestName v, bestName g) of
+            (Just vn, Just gn) ->
+                [normalC (asName (makeHopCon (ModelType vn) (ModelType gn)))
+                         [(,) <$> notStrict <*> [t|$(asTypeQ vp) $(pure (view (etype . unE) g))|]]]
             _ -> []
 
 peekClauses :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) =>
