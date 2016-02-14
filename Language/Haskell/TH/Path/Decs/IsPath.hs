@@ -36,7 +36,7 @@ import Language.Haskell.TH.Path.Order (Order, Path_OMap(..))
 import Language.Haskell.TH.Path.View (viewInstanceType)
 import Language.Haskell.TH.Syntax as TH (Quasi(qReify))
 import Language.Haskell.TH.TypeGraph.Expand (expandType, unE)
-import Language.Haskell.TH.TypeGraph.TypeGraph (pathKeys, TypeGraph)
+import Language.Haskell.TH.TypeGraph.TypeGraph (lensKeys, pathKeys, TypeGraph)
 import Language.Haskell.TH.TypeGraph.TypeInfo (fieldVertex, TypeInfo, typeVertex)
 import Language.Haskell.TH.TypeGraph.Vertex (bestName, etype, TGV, TGVSimple, vsimple)
 
@@ -69,14 +69,14 @@ peekDecs v =
                           (,) <$> notStrict <*> pure (view (etype . unE) g)]]
             _ -> []
       hopCons :: m [ConQ]
-      hopCons = (concat . List.map doHopPair . toList) <$> (pathKeys v)
-      doHopPair :: TGVSimple -> [ConQ]
+      hopCons = (concat . List.map doHopPair . toList) <$> (lensKeys v)
+      doHopPair :: TGV -> [ConQ]
       doHopPair g =
           let Just (vp, _) = bestPathTypeName v in
           case (bestName v, bestName g) of
             (Just vn, Just gn) ->
-                [normalC (asName (makeHopCon (ModelType vn) (ModelType gn)))
-                         [(,) <$> notStrict <*> [t|$(asTypeQ vp) $(pure (view (etype . unE) g))|]]]
+                [normalC (asName (makeHopCon (ModelType vn) g))
+                         [(,) <$> notStrict <*> [t|$(asTypeQ vp) $(pure (view (vsimple . etype . unE) g))|]]]
             _ -> []
 
 peekClauses :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) =>

@@ -155,8 +155,12 @@ makePeekType (ModelType s) = PeekType (mkName ("Peek_" ++ nameBase s))
 makePeekCon :: ModelType -> ModelType -> PeekCon
 makePeekCon (ModelType s) (ModelType g) = PeekCon (mkName ("Peek_" ++ nameBase s ++ "_" ++ nameBase g))
 
-makeHopCon :: ModelType -> ModelType -> HopCon
-makeHopCon (ModelType s) (ModelType g) = HopCon (mkName ("Hop_" ++ nameBase s ++ "_" ++ nameBase g))
+makeHopCon :: ModelType -> TGV -> HopCon
+makeHopCon (ModelType s) g = HopCon (mkName ("Hop_" ++ nameBase s ++ "_" ++ case g ^. field of
+                                                                              Just (_, _, fname) -> either show nameBase fname
+                                                                              Nothing -> case bestTypeName g of
+                                                                                           Just (ModelType tname) -> nameBase tname
+                                                                                           Nothing -> error "makeHopCon"))
 
 makePathCon :: PathType -> String -> PathCon
 makePathCon (PathType p) a = PathCon $ mkName $ nameBase p ++ "_" ++ a
