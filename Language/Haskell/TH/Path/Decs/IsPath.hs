@@ -235,7 +235,7 @@ shim w v pcname =
                  sequence
                    [runQ $ match (conP (asName (makePeekCon (ModelType wn) (ModelType gn))) [varP q, varP z])
                              (normalB [|$(asConQ (makePeekCon (ModelType vn) (ModelType gn)))
-                                         (($pcname :: $(asTypeQ (makePathType (ModelType wn))) $(asTypeQ g) ->
-                                                     $(asTypeQ (makePathType (ModelType vn))) $(asTypeQ g)) $(varE q)) $(varE z)|])
+                                         (($pcname :: Path $(asTypeQ (ModelType wn)) $(asTypeQ g) ->
+                                                      Path $(asTypeQ (ModelType vn)) $(asTypeQ g)) $(varE q)) $(varE z)|])
                              []]
           _ -> pure []
