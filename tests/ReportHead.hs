@@ -28,16 +28,16 @@ import Control.Lens (iso, _Just, _1, _2, _Left, _Right, Lens', toListOf, Travers
 import Data.Generics (Data, Typeable)
 import Data.Int (Int64)
 import Data.Map (Map, toList)
+import Data.Monoid ((<>))
 import Data.Proxy
 import Data.Text (Text)
 import Data.Tree (Tree(Node), Forest)
 import Data.UserId (UserId(UserId))
 import Data.UUID (UUID)
 import Data.UUID.Orphans ()
-import Language.Haskell.TH.Path.Core (IsPath(Path, pathsOf), ToLens (A, S, toLens), IsPathNode(Peek, peek), IsPathType(idPath),
+import Language.Haskell.TH.Path.Core (IsPath(Path, pathsOf), ToLens (A, S, toLens), IsPathStart(Peek, peek), IsPathEnd(idPath),
                                       Path_Either(Path_Left, Path_Right), Path_Map(Path_Look),
-                                      Path_Maybe(Path_Just), Path_Pair(Path_First, Path_Second), mat)
-import Language.Haskell.TH.Path.Decs.Common (forestMap)
+                                      Path_Maybe(Path_Just), Path_Pair(Path_First, Path_Second), forestMap, mat)
 import Language.Haskell.TH.Path.Order (lens_omat, Order, Path_OMap(Path_At), toPairs)
 import Language.Haskell.TH.Path.View (View(viewLens))
 import Network.URI (URI(URI), URIAuth)

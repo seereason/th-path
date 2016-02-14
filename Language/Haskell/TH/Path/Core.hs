@@ -91,17 +91,19 @@ treeMap f (Node x ns) = Node (f x) (forestMap f ns)
 forestMap :: (a -> b) -> Forest a -> Forest b
 forestMap f = List.map (treeMap f)
 
--- | A superclass for 'IsPath' that lets us declare the 'idPath' method
--- for primitive path types with type parameters (such as @Path_Map k
--- a@.)  The methods of 'IsPath' can only be written for specific
--- bindings of @k@ and @a@.
 class IsPathEnd p where
     idPath :: p -- ^ The identity value for path type @p@.  Obeys the law
                 -- @toLens idPath == iso id id@.
 
-class IsPathEnd s => IsPathStart s where
+-- | If a path type @s@ is the beginning of a path we can reach other
+-- path types from it.
+class {-IsPathEnd s =>-} IsPathStart s where
     data Peek s
+    -- ^ A 'Peek' is a path associated with the @a@ value found at the
+    -- end of that path.
     peek :: s -> Forest (Peek s)
+    -- ^ Given an @s@, return a forest containing every 'Peek' that can
+    -- be reached from it.
 
 class ToLens p where
     type S p
