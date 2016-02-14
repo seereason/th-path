@@ -14,7 +14,8 @@
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeSynonymInstances #-}
 module Language.Haskell.TH.Path.Decs
-    ( allDecs
+    ( derivePaths
+    , allDecs
     ) where
 
 import Control.Monad.Readers (MonadReaders)
@@ -27,19 +28,26 @@ import Language.Haskell.TH.Path.Decs.Lens (lensDecs)
 import Language.Haskell.TH.Path.Decs.PathsOf (pathDecs)
 import Language.Haskell.TH.Path.Decs.PathType (pathTypeDecs)
 import Language.Haskell.TH.Path.Decs.ToLens (toLensDecs)
+import Language.Haskell.TH.Path.Graph (runTypeGraphT)
+import Language.Haskell.TH.TypeGraph.Expand (expandType)
 import Language.Haskell.TH.TypeGraph.TypeGraph (allPathStarts, TypeGraph)
-import Language.Haskell.TH.TypeGraph.TypeInfo (TypeInfo)
+import Language.Haskell.TH.TypeGraph.TypeInfo (TypeInfo, typeVertex)
 import Language.Haskell.TH.TypeGraph.Vertex (TGVSimple)
+
+derivePaths :: [TypeQ] -> TypeQ -> Q [Dec]
+derivePaths topTypes thisType =
+    runTypeGraphT (execWriterT . doType =<< runQ thisType) =<< sequence topTypes
 
 allDecs :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => m [Dec]
 allDecs = execWriterT $ allPathStarts >>= mapM_ doNode
 
+doType :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) => Type -> m ()
+doType t = expandType t >>= typeVertex >>= doNode
+
 doNode :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) => TGVSimple -> m ()
 doNode v = do
-  peekDecs v
-  toLensDecs v
-  -- generate the IsPath instance declarations
-  pathDecs v
-  -- generate the lenses
-  lensDecs v
-  pathTypeDecs v
+  lensDecs v      -- generate lenses using makeClassyFor
+  pathTypeDecs v  -- generate Path types and the IsPathEnd instances
+  toLensDecs v    -- generate ToLens instances
+  pathDecs v      -- generate IsPath instances
+  peekDecs v      -- generate IsPathStart instances
