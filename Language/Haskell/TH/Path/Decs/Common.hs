@@ -137,6 +137,14 @@ instance HasName HopCon where asName = unHopCon
 instance HasCon HopCon where asCon = ConE . unHopCon
 instance HasConQ HopCon where asConQ = conE . unHopCon
 
+instance HasName TGVSimple where
+    asName x = case bestTypeName x of
+                 Just x -> asName x
+                 Nothing -> error "HasName TGVSImple"
+instance HasName TGV where
+    asName x = case bestTypeName x of
+                 Just x -> asName x
+                 Nothing -> error "HasName TGV"
 instance HasType TGVSimple where asType = asType . view etype
 instance HasType TGV where asType = asType . view vsimple
 instance HasType (E Type) where asType = view unE

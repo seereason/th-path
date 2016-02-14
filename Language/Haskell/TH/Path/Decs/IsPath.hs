@@ -38,7 +38,7 @@ import Language.Haskell.TH.Syntax as TH (Quasi(qReify))
 import Language.Haskell.TH.TypeGraph.Expand (expandType, unE)
 import Language.Haskell.TH.TypeGraph.TypeGraph (lensKeys, pathKeys, TypeGraph)
 import Language.Haskell.TH.TypeGraph.TypeInfo (fieldVertex, TypeInfo, typeVertex)
-import Language.Haskell.TH.TypeGraph.Vertex (bestName, etype, TGV, TGVSimple, vsimple)
+import Language.Haskell.TH.TypeGraph.Vertex (bestName, etype, tgv, TGV, TGVSimple, vsimple)
 
 peekDecs :: forall m. (MonadWriter [Dec] m, ContextM m, MonadReaders TypeInfo m, MonadReaders TypeGraph m) =>
             TGVSimple -> m ()
@@ -53,7 +53,9 @@ peekDecs v =
                  funD 'peek (case pnc of
                                [] -> [clause [wildP] (normalB [| [] |]) []]
                                _ -> pnc),
-                 dataInstD (cxt []) ''Hop [asTypeQ v] hcons [''Eq, ''Show]
+                 dataInstD (cxt []) ''Hop [asTypeQ v] (case hcons of
+                                                         [] -> [normalC (asName (makeHopCon (ModelType (asName v)) (tgv v))) []]
+                                                         _ -> hcons) [''Eq, ''Show]
                 ]) >>= tell . (: [])
       Nothing -> return ()
     where

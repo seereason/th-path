@@ -9308,7 +9308,7 @@ instance IsPathStart Int64
               = Peek_Int64_Int64 (Path_Int64 Int64) Int64
               deriving (Eq, Show)
           peek _ = []
-          data Hop Int64 deriving (Eq, Show)
+          data Hop Int64 = Hop_Int64_Int64 deriving (Eq, Show)
 instance IsPathStart Bool
     where data Peek Bool
               = Peek_Bool_String (Path_Bool ([Char])) ([Char])
@@ -9366,7 +9366,7 @@ instance IsPathStart Int
               = Peek_Int_Int (Path_Int Int) Int
               deriving (Eq, Show)
           peek _ = []
-          data Hop Int deriving (Eq, Show)
+          data Hop Int = Hop_Int_Int deriving (Eq, Show)
 instance IsPathStart Dimension
     where data Peek Dimension
               = Peek_Dimension_Dimension (Path_Dimension Dimension) Dimension
@@ -9392,7 +9392,7 @@ instance IsPathStart ImageCrop
               = Peek_ImageCrop_ImageCrop (Path_ImageCrop ImageCrop) ImageCrop
               deriving (Eq, Show)
           peek _ = []
-          data Hop ImageCrop deriving (Eq, Show)
+          data Hop ImageCrop = Hop_ImageCrop_ImageCrop deriving (Eq, Show)
 instance IsPathStart ImageSize
     where data Peek ImageSize
               = Peek_ImageSize_String (Path_ImageSize ([Char])) ([Char])
@@ -9488,19 +9488,19 @@ instance IsPathStart ImageFile
               = Peek_ImageFile_ImageFile (Path_ImageFile ImageFile) ImageFile
               deriving (Eq, Show)
           peek _ = []
-          data Hop ImageFile deriving (Eq, Show)
+          data Hop ImageFile = Hop_ImageFile_ImageFile deriving (Eq, Show)
 instance IsPathStart Integer
     where data Peek Integer
               = Peek_Integer_Integer (Path_Integer Integer) Integer
               deriving (Eq, Show)
           peek _ = []
-          data Hop Integer deriving (Eq, Show)
+          data Hop Integer = Hop_Integer_Integer deriving (Eq, Show)
 instance IsPathStart JSONText
     where data Peek JSONText
               = Peek_JSONText_JSONText (Path_JSONText JSONText) JSONText
               deriving (Eq, Show)
           peek _ = []
-          data Hop JSONText deriving (Eq, Show)
+          data Hop JSONText = Hop_JSONText_JSONText deriving (Eq, Show)
 instance IsPathStart Markup
     where data Peek Markup
               = Peek_Markup_JSONText (Path_Markup JSONText) JSONText
@@ -12813,7 +12813,7 @@ instance IsPathStart URI
               = Peek_URI_URI (Path_URI URI) URI
               deriving (Eq, Show)
           peek _ = []
-          data Hop URI deriving (Eq, Show)
+          data Hop URI = Hop_URI_URI deriving (Eq, Show)
 instance IsPathStart Text
     where data Peek Text
               = Peek_Text_JSONText (Path_Text JSONText) JSONText
@@ -12839,13 +12839,13 @@ instance IsPathStart UserId
               = Peek_UserId_UserId (Path_UserId UserId) UserId
               deriving (Eq, Show)
           peek _ = []
-          data Hop UserId deriving (Eq, Show)
+          data Hop UserId = Hop_UserId_UserId deriving (Eq, Show)
 instance IsPathStart UUID
     where data Peek UUID
               = Peek_UUID_UUID (Path_UUID UUID) UUID
               deriving (Eq, Show)
           peek _ = []
-          data Hop UUID deriving (Eq, Show)
+          data Hop UUID = Hop_UUID_UUID deriving (Eq, Show)
 instance ToLens (Path_Either (Path_URI ImageFile)
                              (Path_ImageFile ImageFile))
     where type S (Path_Either (Path_URI ImageFile)
