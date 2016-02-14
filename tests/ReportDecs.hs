@@ -35,7 +35,7 @@ import Data.Tree (Tree(Node), Forest)
 import Data.UserId (UserId(UserId))
 import Data.UUID (UUID)
 import Data.UUID.Orphans ()
-import Language.Haskell.TH.Path.Core (IsPath(Path, pathsOf), ToLens (A, S, toLens), IsPathStart(Peek, peek), IsPathEnd(idPath),
+import Language.Haskell.TH.Path.Core (IsPath(Path, pathsOf), ToLens (A, S, toLens), IsPathStart(Peek, peek, Hop), IsPathEnd(idPath),
                                       Path_Either(Path_Left, Path_Right), Path_Map(Path_Look),
                                       Path_Maybe(Path_Just), Path_Pair(Path_First, Path_Second), forestMap, mat)
 import Language.Haskell.TH.Path.Order (lens_omat, Order, Path_OMap(Path_At), toPairs)
