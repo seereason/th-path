@@ -8070,6 +8070,7 @@ instance IsPathStart (Either URI ImageFile)
               deriving (Eq, Show)
           peek x = let paths = filter (\p -> case p of
                                                  Path_Left _ -> True
+                                                 Path_Right _ -> True
                                                  _ -> False) (pathsOf x (undefined :: Proxy URI)) :: [Path_EUI URI]
                     in map (\path -> case path of
                                          p@(Path_Left _) -> let [y] = toListOf (toLens p) x :: [URI]
@@ -8079,18 +8080,13 @@ instance IsPathStart (Either URI ImageFile)
                                                                                                                                                                   URI ->
                                                                                                                                                              Path EUI
                                                                                                                                                                   URI) q) z) (peek y :: Forest (Peek URI)))
-                                         _ -> error ("doPeekNodesOf: " ++ show path)) paths
-          peek x = let paths = filter (\p -> case p of
-                                                 Path_Right _ -> True
-                                                 _ -> False) (pathsOf x (undefined :: Proxy ImageFile)) :: [Path_EUI ImageFile]
-                    in map (\path -> case path of
-                                         p@(Path_Right _) -> let [y] = toListOf (toLens p) x :: [ImageFile]
-                                                              in Node (Peek_EUI_ImageFile p y) (forestMap (\v' -> case v' of
-                                                                                                                      Peek_ImageFile_ImageFile q
-                                                                                                                                               z -> Peek_EUI_ImageFile ((Path_Right :: Path ImageFile
-                                                                                                                                                                                            ImageFile ->
-                                                                                                                                                                                       Path EUI
-                                                                                                                                                                                            ImageFile) q) z) (peek y :: Forest (Peek ImageFile)))
+                                         p@(Path_Right _) -> let [y] = toListOf (toLens p) x :: [URI]
+                                                              in Node (Peek_EUI_URI p y) (forestMap (\v' -> case v' of
+                                                                                                                Peek_URI_URI q
+                                                                                                                             z -> Peek_EUI_URI ((Path_Right :: Path URI
+                                                                                                                                                                    URI ->
+                                                                                                                                                               Path EUI
+                                                                                                                                                                    URI) q) z) (peek y :: Forest (Peek URI)))
                                          _ -> error ("doPeekNodesOf: " ++ show path)) paths
           data Hop (Either URI ImageFile)
               = Hop_EUI_ImageFile (Path_EUI ImageFile)
@@ -8972,6 +8968,7 @@ instance IsPathStart ((Markup, Markup))
               deriving (Eq, Show)
           peek x = let paths = filter (\p -> case p of
                                                  Path_First _ -> True
+                                                 Path_Second _ -> True
                                                  _ -> False) (pathsOf x (undefined :: Proxy Markup)) :: [Path_MarkupPair Markup]
                     in map (\path -> case path of
                                          p@(Path_First _) -> let [y] = toListOf (toLens p) x :: [Markup]
@@ -8991,11 +8988,6 @@ instance IsPathStart ((Markup, Markup))
                                                                                                                                                                                           Text ->
                                                                                                                                                                                      Path MarkupPair
                                                                                                                                                                                           Text) q) z) (peek y :: Forest (Peek Markup)))
-                                         _ -> error ("doPeekNodesOf: " ++ show path)) paths
-          peek x = let paths = filter (\p -> case p of
-                                                 Path_Second _ -> True
-                                                 _ -> False) (pathsOf x (undefined :: Proxy Markup)) :: [Path_MarkupPair Markup]
-                    in map (\path -> case path of
                                          p@(Path_Second _) -> let [y] = toListOf (toLens p) x :: [Markup]
                                                                in Node (Peek_MarkupPair_Markup p y) (forestMap (\v' -> case v' of
                                                                                                                            Peek_Markup_JSONText q
@@ -9028,6 +9020,7 @@ instance IsPathStart ((CIString, Markup))
               deriving (Eq, Show)
           peek x = let paths = filter (\p -> case p of
                                                  Path_First _ -> True
+                                                 Path_Second _ -> True
                                                  _ -> False) (pathsOf x (undefined :: Proxy CIString)) :: [Path_AbbrevPair CIString]
                     in map (\path -> case path of
                                          p@(Path_First _) -> let [y] = toListOf (toLens p) x :: [CIString]
@@ -9047,28 +9040,23 @@ instance IsPathStart ((CIString, Markup))
                                                                                                                                                                                               Text ->
                                                                                                                                                                                          Path AbbrevPair
                                                                                                                                                                                               Text) q) z) (peek y :: Forest (Peek CIString)))
-                                         _ -> error ("doPeekNodesOf: " ++ show path)) paths
-          peek x = let paths = filter (\p -> case p of
-                                                 Path_Second _ -> True
-                                                 _ -> False) (pathsOf x (undefined :: Proxy Markup)) :: [Path_AbbrevPair Markup]
-                    in map (\path -> case path of
-                                         p@(Path_Second _) -> let [y] = toListOf (toLens p) x :: [Markup]
-                                                               in Node (Peek_AbbrevPair_Markup p y) (forestMap (\v' -> case v' of
-                                                                                                                           Peek_Markup_JSONText q
-                                                                                                                                                z -> Peek_AbbrevPair_JSONText ((Path_Second :: Path Markup
-                                                                                                                                                                                                    JSONText ->
-                                                                                                                                                                                               Path AbbrevPair
-                                                                                                                                                                                                    JSONText) q) z
-                                                                                                                           Peek_Markup_Markup q
-                                                                                                                                              z -> Peek_AbbrevPair_Markup ((Path_Second :: Path Markup
-                                                                                                                                                                                                Markup ->
+                                         p@(Path_Second _) -> let [y] = toListOf (toLens p) x :: [CIString]
+                                                               in Node (Peek_AbbrevPair_CIString p y) (forestMap (\v' -> case v' of
+                                                                                                                             Peek_CIString_JSONText q
+                                                                                                                                                    z -> Peek_AbbrevPair_JSONText ((Path_Second :: Path CIString
+                                                                                                                                                                                                        JSONText ->
+                                                                                                                                                                                                   Path AbbrevPair
+                                                                                                                                                                                                        JSONText) q) z
+                                                                                                                             Peek_CIString_CIString q
+                                                                                                                                                    z -> Peek_AbbrevPair_CIString ((Path_Second :: Path CIString
+                                                                                                                                                                                                        CIString ->
+                                                                                                                                                                                                   Path AbbrevPair
+                                                                                                                                                                                                        CIString) q) z
+                                                                                                                             Peek_CIString_Text q
+                                                                                                                                                z -> Peek_AbbrevPair_Text ((Path_Second :: Path CIString
+                                                                                                                                                                                                Text ->
                                                                                                                                                                                            Path AbbrevPair
-                                                                                                                                                                                                Markup) q) z
-                                                                                                                           Peek_Markup_Text q
-                                                                                                                                            z -> Peek_AbbrevPair_Text ((Path_Second :: Path Markup
-                                                                                                                                                                                            Text ->
-                                                                                                                                                                                       Path AbbrevPair
-                                                                                                                                                                                            Text) q) z) (peek y :: Forest (Peek Markup)))
+                                                                                                                                                                                                Text) q) z) (peek y :: Forest (Peek CIString)))
                                          _ -> error ("doPeekNodesOf: " ++ show path)) paths
           data Hop ((CIString, Markup))
               = Hop_AbbrevPair_Markup (Path_AbbrevPair Markup)
