@@ -178,4 +178,8 @@ makePathCon (PathType p) a = PathCon $ mkName $ nameBase p ++ "_" ++ a
 
 -- | Path type constructor for the field described by key in the parent type named tname.
 makeFieldCon :: TGV -> Maybe PathCon
-makeFieldCon key = maybe Nothing (\ (tname, _, Right fname') -> Just $ makePathCon (makePathType (ModelType tname)) (nameBase fname')) (key ^. field)
+makeFieldCon key =
+    case key ^. field of
+      Nothing -> Nothing
+      Just (tname, _, Right fname) -> Just $ makePathCon (makePathType (ModelType tname)) (nameBase fname)
+      Just (tname, _, Left fpos) -> Just $ makePathCon (makePathType (ModelType tname)) (show fpos)

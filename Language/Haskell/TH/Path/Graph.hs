@@ -98,7 +98,7 @@ pathGraphEdges =
         _modify "unlifted" (cutM isUnlifted)
         _modify "higherOrder" (dissolveM higherOrder)
         _modify "view edges" (linkM viewEdges)
-        _modify "unlifed" pruneTypeGraph
+        _modify "unlifted" pruneTypeGraph
         _modify "freeVars" (dissolveM hasFreeVars)
         _modify "unlifted2" (dissolveM isUnlifted)
         _modify "unreachable" isolateUnreachable
