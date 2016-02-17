@@ -31,8 +31,8 @@ import Language.Haskell.TH.Context (ContextM, reifyInstancesWithContext)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Core (IsPathStart(Peek, peek, Hop), IsPath(..), ToLens(toLens), SelfPath, SinkType,
                                       Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..), forestMap)
-import Language.Haskell.TH.Path.Decs.Common (asConQ, asName, asType, asTypeQ, bestPathTypeName, bestTypeName,
-                                             makeFieldCon, makePathCon, makePathType, makePeekCon, makeHopCon,
+import Language.Haskell.TH.Path.Decs.Common (HasConQ(asConQ), HasCon(asCon), HasName(asName), HasType(asType), HasTypeQ(asTypeQ), bestPathTypeName, bestTypeName,
+                                             makeFieldCon, makePathCon, makePathType, makeHopCon,
                                              ModelType(ModelType), PathCon, PathCon(PathCon))
 import Language.Haskell.TH.Path.Order (Order, Path_OMap(..))
 import Language.Haskell.TH.Path.View (viewInstanceType)
@@ -41,6 +41,22 @@ import Language.Haskell.TH.TypeGraph.Expand (expandType, unE)
 import Language.Haskell.TH.TypeGraph.TypeGraph (lensKeys, pathKeys, TypeGraph)
 import Language.Haskell.TH.TypeGraph.TypeInfo (fieldVertex, TypeInfo, typeVertex)
 import Language.Haskell.TH.TypeGraph.Vertex (bestName, etype, tgv, TGV, TGVSimple, vsimple)
+
+newtype PeekType = PeekType {unPeekType :: Name} deriving (Eq, Ord, Show) -- e.g. Peek_AbbrevPairs
+newtype PeekCon = PeekCon {unPeekCon :: Name} deriving (Eq, Ord, Show) -- e.g. Peek_AbbrevPairs_Markup
+
+instance HasName PeekType where asName = unPeekType
+instance HasType PeekType where asType = ConT . unPeekType
+instance HasTypeQ PeekType where asTypeQ = conT . unPeekType
+instance HasName PeekCon where asName = unPeekCon
+instance HasCon PeekCon where asCon = ConE . unPeekCon
+instance HasConQ PeekCon where asConQ = conE . unPeekCon
+
+makePeekType :: ModelType -> PeekType
+makePeekType (ModelType s) = PeekType (mkName ("Peek_" ++ nameBase s))
+
+makePeekCon :: ModelType -> ModelType -> PeekCon
+makePeekCon (ModelType s) (ModelType g) = PeekCon (mkName ("Peek_" ++ nameBase s ++ "_" ++ nameBase g))
 
 peekDecs :: forall m. (MonadWriter [Dec] m, ContextM m, MonadReaders TypeInfo m, MonadReaders TypeGraph m) =>
             TGVSimple -> m ()
