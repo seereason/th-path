@@ -24,7 +24,6 @@ import Data.List as List (map, nub)
 import Data.Map as Map (Map)
 import Data.Maybe (fromJust, fromMaybe, isJust)
 import Data.Proxy
-import Data.Set (Set)
 import Data.Tree (Tree(Node), Forest)
 import Language.Haskell.TH
 import Language.Haskell.TH.Context (ContextM, reifyInstancesWithContext)
@@ -126,8 +125,7 @@ peekClauses v =
        AppT (AppT (TupleT 2) ftyp) styp ->
            do f <- expandType ftyp >>= typeVertex
               s <- expandType styp >>= typeVertex
-              mappend <$> doPeekNodeOf (varE x) v [(varP x, [(f, conP 'Path_First [wildP], [|Path_First|])])]
-                      <*> doPeekNodeOf (varE x) v [(varP x, [(s, conP 'Path_Second [wildP], [|Path_Second|])])]
+              doPeekNodeOf (varE x) v [(varP x, [(f, conP 'Path_First [wildP], [|Path_First|]), (s, conP 'Path_Second [wildP], [|Path_Second|])])]
        AppT t1 etyp
            | t1 == ConT ''Maybe ->
                do e <- expandType etyp >>= typeVertex
@@ -173,7 +171,6 @@ peekClauses v =
       doField tname x ((fname, _, ftype), _fpos) = do
         f <- expandType ftype >>= fieldVertex (tname, undefined, Right fname)
         let w = view vsimple f
-        gs <- pathKeys w
         maybe (pure [|error $(litE (stringL ("doField " ++ show f)))|])
               (\pcname -> forestOf (varE x) v [(w, conP (asName pcname) [wildP], asConQ pcname)])
               (makeFieldCon f)
@@ -212,7 +209,7 @@ doPeekNodesOfMap v wtyp pcname =
      return [clause [varP x] (normalB forest) []]
 
 doPeekNodeOf :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => ExpQ -> TGVSimple -> [(PatQ, [(TGVSimple, PatQ, ExpQ)])] -> m [ClauseQ]
-doPeekNodeOf x v alts@[(xpat, [(w, ppat, pcon)])] =
+doPeekNodeOf x v alts =
     mapM (\(xpat, concs) -> do
             forest <- forestOf x v concs
             return $ clause [xpat] (normalB forest) []) alts

@@ -9095,9 +9095,6 @@ instance IsPathStart ((Markup, Markup))
                                                                                                                                                                                               Path ((Markup,
                                                                                                                                                                                                      Markup))
                                                                                                                                                                                                    Text) q) z) (peek y :: Forest (Peek Markup)))) (toListOf (toLens p) x :: [Markup])
-                                           _ -> []) (concat [pathsOf x (undefined :: Proxy Markup) :: [Path_MarkupPair Markup]]) :: Forest (Peek ((Markup,
-                                                                                                                                                   Markup)))
-          peek x = concatMap (\path -> case path of
                                            p@(Path_Second _) -> map (\y -> Node (Peek_MarkupPair_Markup p y) (forestMap (\v' -> case v' of
                                                                                                                                     Peek_Markup_JSONText q
                                                                                                                                                          z -> Peek_MarkupPair_JSONText ((Path_Second :: Path Markup
@@ -9151,9 +9148,6 @@ instance IsPathStart ((CIString, Markup))
                                                                                                                                                                                                   Path ((CIString,
                                                                                                                                                                                                          Markup))
                                                                                                                                                                                                        Text) q) z) (peek y :: Forest (Peek CIString)))) (toListOf (toLens p) x :: [CIString])
-                                           _ -> []) (concat [pathsOf x (undefined :: Proxy CIString) :: [Path_AbbrevPair CIString]]) :: Forest (Peek ((CIString,
-                                                                                                                                                       Markup)))
-          peek x = concatMap (\path -> case path of
                                            p@(Path_Second _) -> map (\y -> Node (Peek_AbbrevPair_Markup p y) (forestMap (\v' -> case v' of
                                                                                                                                     Peek_Markup_JSONText q
                                                                                                                                                          z -> Peek_AbbrevPair_JSONText ((Path_Second :: Path Markup
@@ -9173,7 +9167,8 @@ instance IsPathStart ((CIString, Markup))
                                                                                                                                                                                                 Path ((CIString,
                                                                                                                                                                                                        Markup))
                                                                                                                                                                                                      Text) q) z) (peek y :: Forest (Peek Markup)))) (toListOf (toLens p) x :: [Markup])
-                                           _ -> []) (concat [pathsOf x (undefined :: Proxy Markup) :: [Path_AbbrevPair Markup]]) :: Forest (Peek ((CIString,
+                                           _ -> []) (concat [pathsOf x (undefined :: Proxy CIString) :: [Path_AbbrevPair CIString],
+                                                             pathsOf x (undefined :: Proxy Markup) :: [Path_AbbrevPair Markup]]) :: Forest (Peek ((CIString,
                                                                                                                                                    Markup)))
           data Hop ((CIString, Markup))
               = Hop_AbbrevPair_Markup (Path_AbbrevPair Markup)
