@@ -9586,7 +9586,7 @@ instance IsPathStart ImageSize
                                                                                                                                                                                                                                                                            JSONText ->
                                                                                                                                                                                                                                                                       Path ImageSize
                                                                                                                                                                                                                                                                            JSONText) q) z) vs)) (toListOf (toLens p) x :: [Dimension])
-                                                                    _ -> []) (concat [pathsOf x (undefined :: Proxy Dimension) :: [Path_ImageSize Dimension]]) :: Forest (Peek ImageSize),
+                                                                    _ -> []) (pathsOf x (undefined :: Proxy Dimension) :: [Path_ImageSize Dimension]) :: Forest (Peek ImageSize),
                                             concatMap (\path -> case path of
                                                                     p@(Path_ImageSize_size _) -> map (\y -> let vs = peek y :: Forest (Peek Double)
                                                                                                              in Node (Peek_ImageSize_Double p (if null vs
@@ -9607,7 +9607,7 @@ instance IsPathStart ImageSize
                                                                                                                                                                                                                                                                        JSONText ->
                                                                                                                                                                                                                                                                   Path ImageSize
                                                                                                                                                                                                                                                                        JSONText) q) z) vs)) (toListOf (toLens p) x :: [Double])
-                                                                    _ -> []) (concat [pathsOf x (undefined :: Proxy Double) :: [Path_ImageSize Double]]) :: Forest (Peek ImageSize),
+                                                                    _ -> []) (pathsOf x (undefined :: Proxy Double) :: [Path_ImageSize Double]) :: Forest (Peek ImageSize),
                                             concatMap (\path -> case path of
                                                                     p@(Path_ImageSize_units _) -> map (\y -> let vs = peek y :: Forest (Peek Units)
                                                                                                               in Node (Peek_ImageSize_Units p (if null vs
@@ -9623,7 +9623,7 @@ instance IsPathStart ImageSize
                                                                                                                                                                                                                                                                        JSONText ->
                                                                                                                                                                                                                                                                   Path ImageSize
                                                                                                                                                                                                                                                                        JSONText) q) z) vs)) (toListOf (toLens p) x :: [Units])
-                                                                    _ -> []) (concat [pathsOf x (undefined :: Proxy Units) :: [Path_ImageSize Units]]) :: Forest (Peek ImageSize)]
+                                                                    _ -> []) (pathsOf x (undefined :: Proxy Units) :: [Path_ImageSize Units]) :: Forest (Peek ImageSize)]
           data Hop ImageSize
               = Hop_ImageSize_dim (Path_ImageSize Dimension)
               | Hop_ImageSize_size (Path_ImageSize Double)
@@ -9688,7 +9688,7 @@ instance IsPathStart Markup
                                                                                                                                                                                                                                                               Text ->
                                                                                                                                                                                                                                                          Path Markup
                                                                                                                                                                                                                                                               Text) q) z) vs)) (toListOf (toLens p) x :: [Text])
-                                                                   _ -> []) (concat [pathsOf x (undefined :: Proxy Text) :: [Path_Markup Text]]) :: Forest (Peek Markup)]
+                                                                   _ -> []) (pathsOf x (undefined :: Proxy Text) :: [Path_Markup Text]) :: Forest (Peek Markup)]
           peek (x@(Html {})) = concat [concatMap (\path -> case path of
                                                                p@(Path_Markup_htmlText _) -> map (\y -> let vs = peek y :: Forest (Peek Text)
                                                                                                          in Node (Peek_Markup_Text p (if null vs
@@ -9704,10 +9704,7 @@ instance IsPathStart Markup
                                                                                                                                                                                                                                                   Text ->
                                                                                                                                                                                                                                              Path Markup
                                                                                                                                                                                                                                                   Text) q) z) vs)) (toListOf (toLens p) x :: [Text])
-                                                               _ -> []) (concat [pathsOf x (undefined :: Proxy Text) :: [Path_Markup Text]]) :: Forest (Peek Markup)]
-          peek (x@(LaTeX {})) = [error "doFieldAnon Text.LaTeX.Base.Syntax.LaTeX"]
-          peek (x@(Pandoc {})) = [error "doFieldAnon Text.Pandoc.Definition.Pandoc"]
-          peek (x@(Markup {})) = [error "doFieldAnon [Appraisal.Markup.Markup]"]
+                                                               _ -> []) (pathsOf x (undefined :: Proxy Text) :: [Path_Markup Text]) :: Forest (Peek Markup)]
           data Hop Markup
               = Hop_Markup_htmlText (Path_Markup Text)
               | Hop_Markup_markdownText (Path_Markup Text)
@@ -9733,7 +9730,7 @@ instance IsPathStart Permissions
                                                                                                                                                                                                                                                                                UserId ->
                                                                                                                                                                                                                                                                           Path Permissions
                                                                                                                                                                                                                                                                                UserId) q) z) vs)) (toListOf (toLens p) x :: [UserId])
-                                                                      _ -> []) (concat [pathsOf x (undefined :: Proxy UserId) :: [Path_Permissions UserId]]) :: Forest (Peek Permissions),
+                                                                      _ -> []) (pathsOf x (undefined :: Proxy UserId) :: [Path_Permissions UserId]) :: Forest (Peek Permissions),
                                               concatMap (\path -> case path of
                                                                       p@(Path_Permissions_writers _) -> map (\y -> let vs = peek y :: Forest (Peek ([UserId]))
                                                                                                                     in Node (Peek_Permissions_UserIds p (if null vs
@@ -9754,7 +9751,7 @@ instance IsPathStart Permissions
                                                                                                                                                                                                                                                                                  Text ->
                                                                                                                                                                                                                                                                             Path Permissions
                                                                                                                                                                                                                                                                                  Text) q) z) vs)) (toListOf (toLens p) x :: [[UserId]])
-                                                                      _ -> []) (concat [pathsOf x (undefined :: Proxy ([UserId])) :: [Path_Permissions ([UserId])]]) :: Forest (Peek Permissions),
+                                                                      _ -> []) (pathsOf x (undefined :: Proxy ([UserId])) :: [Path_Permissions ([UserId])]) :: Forest (Peek Permissions),
                                               concatMap (\path -> case path of
                                                                       p@(Path_Permissions_readers _) -> map (\y -> let vs = peek y :: Forest (Peek ([UserId]))
                                                                                                                     in Node (Peek_Permissions_UserIds p (if null vs
@@ -9775,7 +9772,7 @@ instance IsPathStart Permissions
                                                                                                                                                                                                                                                                                  Text ->
                                                                                                                                                                                                                                                                             Path Permissions
                                                                                                                                                                                                                                                                                  Text) q) z) vs)) (toListOf (toLens p) x :: [[UserId]])
-                                                                      _ -> []) (concat [pathsOf x (undefined :: Proxy ([UserId])) :: [Path_Permissions ([UserId])]]) :: Forest (Peek Permissions)]
+                                                                      _ -> []) (pathsOf x (undefined :: Proxy ([UserId])) :: [Path_Permissions ([UserId])]) :: Forest (Peek Permissions)]
           data Hop Permissions
               = Hop_Permissions_owner (Path_Permissions UserId)
               | Hop_Permissions_readers (Path_Permissions ([UserId]))
@@ -9808,7 +9805,7 @@ instance IsPathStart Author
                                                                                                                                                                                                                                                             Text ->
                                                                                                                                                                                                                                                        Path Author
                                                                                                                                                                                                                                                             Text) q) z) vs)) (toListOf (toLens p) x :: [Markup])
-                                                                 _ -> []) (concat [pathsOf x (undefined :: Proxy Markup) :: [Path_Author Markup]]) :: Forest (Peek Author),
+                                                                 _ -> []) (pathsOf x (undefined :: Proxy Markup) :: [Path_Author Markup]) :: Forest (Peek Author),
                                          concatMap (\path -> case path of
                                                                  p@(Path_Author_authorCredentials _) -> map (\y -> let vs = peek y :: Forest (Peek Markup)
                                                                                                                     in Node (Peek_Author_Markup p (if null vs
@@ -9829,7 +9826,7 @@ instance IsPathStart Author
                                                                                                                                                                                                                                                                           Text ->
                                                                                                                                                                                                                                                                      Path Author
                                                                                                                                                                                                                                                                           Text) q) z) vs)) (toListOf (toLens p) x :: [Markup])
-                                                                 _ -> []) (concat [pathsOf x (undefined :: Proxy Markup) :: [Path_Author Markup]]) :: Forest (Peek Author)]
+                                                                 _ -> []) (pathsOf x (undefined :: Proxy Markup) :: [Path_Author Markup]) :: Forest (Peek Author)]
           data Hop Author
               = Hop_Author_authorCredentials (Path_Author Markup)
               | Hop_Author_authorName (Path_Author Markup)
@@ -10369,7 +10366,7 @@ instance IsPathStart ReportElem
                                                                                                                                                                                                                                                                         Text ->
                                                                                                                                                                                                                                                                    Path ReportElem
                                                                                                                                                                                                                                                                         Text) q) z) vs)) (toListOf (toLens p) x :: [Item])
-                                                                     _ -> []) (concat [pathsOf x (undefined :: Proxy Item) :: [Path_ReportElem Item]]) :: Forest (Peek ReportElem)]
+                                                                     _ -> []) (pathsOf x (undefined :: Proxy Item) :: [Path_ReportElem Item]) :: Forest (Peek ReportElem)]
           peek (x@(ReportParagraph {})) = concat [concatMap (\path -> case path of
                                                                           p@(Path_ReportElem_elemText _) -> map (\y -> let vs = peek y :: Forest (Peek Markup)
                                                                                                                         in Node (Peek_ReportElem_Markup p (if null vs
@@ -10390,8 +10387,7 @@ instance IsPathStart ReportElem
                                                                                                                                                                                                                                                                                  Text ->
                                                                                                                                                                                                                                                                             Path ReportElem
                                                                                                                                                                                                                                                                                  Text) q) z) vs)) (toListOf (toLens p) x :: [Markup])
-                                                                          _ -> []) (concat [pathsOf x (undefined :: Proxy Markup) :: [Path_ReportElem Markup]]) :: Forest (Peek ReportElem)]
-          peek (x@(ReportUndecided {})) = []
+                                                                          _ -> []) (pathsOf x (undefined :: Proxy Markup) :: [Path_ReportElem Markup]) :: Forest (Peek ReportElem)]
           data Hop ReportElem
               = Hop_ReportElem_elemItem (Path_ReportElem Item)
               | Hop_ReportElem_elemText (Path_ReportElem Markup)
@@ -10426,7 +10422,7 @@ instance IsPathStart ReportFlags
                                                                                                                                                                                                                                                                                                            JSONText ->
                                                                                                                                                                                                                                                                                                       Path ReportFlags
                                                                                                                                                                                                                                                                                                            JSONText) q) z) vs)) (toListOf (toLens p) x :: [Bool])
-                                                                      _ -> []) (concat [pathsOf x (undefined :: Proxy Bool) :: [Path_ReportFlags Bool]]) :: Forest (Peek ReportFlags)]
+                                                                      _ -> []) (pathsOf x (undefined :: Proxy Bool) :: [Path_ReportFlags Bool]) :: Forest (Peek ReportFlags)]
           data Hop ReportFlags
               = Hop_ReportFlags_hideEmptyItemFields (Path_ReportFlags Bool)
               deriving (Eq, Show)
@@ -10474,7 +10470,7 @@ instance IsPathStart ReportStandard
                                                                                                                                                                                                                                                                                                         Int ->
                                                                                                                                                                                                                                                                                                    Path ReportStandard
                                                                                                                                                                                                                                                                                                         Int) q) z) vs)) (toListOf (toLens p) x :: [Int])
-                                                                         _ -> []) (concat [pathsOf x (undefined :: Proxy Int) :: [Path_ReportStandard Int]]) :: Forest (Peek ReportStandard)]
+                                                                         _ -> []) (pathsOf x (undefined :: Proxy Int) :: [Path_ReportStandard Int]) :: Forest (Peek ReportStandard)]
           data Hop ReportStandard
               = Hop_ReportStandard_unReportStandard (Path_ReportStandard Int)
               deriving (Eq, Show)
@@ -10537,7 +10533,7 @@ instance IsPathStart ReportValueApproachInfo
                                                                                                                                                                                                                                                                                                                                                                            Text ->
                                                                                                                                                                                                                                                                                                                                                                       Path ReportValueApproachInfo
                                                                                                                                                                                                                                                                                                                                                                            Text) q) z) vs)) (toListOf (toLens p) x :: [Markup])
-                                                                                  _ -> []) (concat [pathsOf x (undefined :: Proxy Markup) :: [Path_ReportValueApproachInfo Markup]]) :: Forest (Peek ReportValueApproachInfo),
+                                                                                  _ -> []) (pathsOf x (undefined :: Proxy Markup) :: [Path_ReportValueApproachInfo Markup]) :: Forest (Peek ReportValueApproachInfo),
                                                           concatMap (\path -> case path of
                                                                                   p@(Path_ReportValueApproachInfo_reportValueApproachDescription _) -> map (\y -> let vs = peek y :: Forest (Peek Markup)
                                                                                                                                                                    in Node (Peek_ReportValueApproachInfo_Markup p (if null vs
@@ -10558,7 +10554,7 @@ instance IsPathStart ReportValueApproachInfo
                                                                                                                                                                                                                                                                                                                                                                                          Text ->
                                                                                                                                                                                                                                                                                                                                                                                     Path ReportValueApproachInfo
                                                                                                                                                                                                                                                                                                                                                                                          Text) q) z) vs)) (toListOf (toLens p) x :: [Markup])
-                                                                                  _ -> []) (concat [pathsOf x (undefined :: Proxy Markup) :: [Path_ReportValueApproachInfo Markup]]) :: Forest (Peek ReportValueApproachInfo)]
+                                                                                  _ -> []) (pathsOf x (undefined :: Proxy Markup) :: [Path_ReportValueApproachInfo Markup]) :: Forest (Peek ReportValueApproachInfo)]
           data Hop ReportValueApproachInfo
               = Hop_ReportValueApproachInfo_reportValueApproachDescription (Path_ReportValueApproachInfo Markup)
               | Hop_ReportValueApproachInfo_reportValueApproachName (Path_ReportValueApproachInfo Markup)
@@ -10594,7 +10590,7 @@ instance IsPathStart ReportValueTypeInfo
                                                                                                                                                                                                                                                                                                                                                Text ->
                                                                                                                                                                                                                                                                                                                                           Path ReportValueTypeInfo
                                                                                                                                                                                                                                                                                                                                                Text) q) z) vs)) (toListOf (toLens p) x :: [Markup])
-                                                                              _ -> []) (concat [pathsOf x (undefined :: Proxy Markup) :: [Path_ReportValueTypeInfo Markup]]) :: Forest (Peek ReportValueTypeInfo),
+                                                                              _ -> []) (pathsOf x (undefined :: Proxy Markup) :: [Path_ReportValueTypeInfo Markup]) :: Forest (Peek ReportValueTypeInfo),
                                                       concatMap (\path -> case path of
                                                                               p@(Path_ReportValueTypeInfo_reportValueTypeDescription _) -> map (\y -> let vs = peek y :: Forest (Peek Markup)
                                                                                                                                                        in Node (Peek_ReportValueTypeInfo_Markup p (if null vs
@@ -10615,7 +10611,7 @@ instance IsPathStart ReportValueTypeInfo
                                                                                                                                                                                                                                                                                                                                                              Text ->
                                                                                                                                                                                                                                                                                                                                                         Path ReportValueTypeInfo
                                                                                                                                                                                                                                                                                                                                                              Text) q) z) vs)) (toListOf (toLens p) x :: [Markup])
-                                                                              _ -> []) (concat [pathsOf x (undefined :: Proxy Markup) :: [Path_ReportValueTypeInfo Markup]]) :: Forest (Peek ReportValueTypeInfo),
+                                                                              _ -> []) (pathsOf x (undefined :: Proxy Markup) :: [Path_ReportValueTypeInfo Markup]) :: Forest (Peek ReportValueTypeInfo),
                                                       concatMap (\path -> case path of
                                                                               p@(Path_ReportValueTypeInfo_reportValueTypeDefinition _) -> map (\y -> let vs = peek y :: Forest (Peek Markup)
                                                                                                                                                       in Node (Peek_ReportValueTypeInfo_Markup p (if null vs
@@ -10636,7 +10632,7 @@ instance IsPathStart ReportValueTypeInfo
                                                                                                                                                                                                                                                                                                                                                            Text ->
                                                                                                                                                                                                                                                                                                                                                       Path ReportValueTypeInfo
                                                                                                                                                                                                                                                                                                                                                            Text) q) z) vs)) (toListOf (toLens p) x :: [Markup])
-                                                                              _ -> []) (concat [pathsOf x (undefined :: Proxy Markup) :: [Path_ReportValueTypeInfo Markup]]) :: Forest (Peek ReportValueTypeInfo)]
+                                                                              _ -> []) (pathsOf x (undefined :: Proxy Markup) :: [Path_ReportValueTypeInfo Markup]) :: Forest (Peek ReportValueTypeInfo)]
           data Hop ReportValueTypeInfo
               = Hop_ReportValueTypeInfo_reportValueTypeDefinition (Path_ReportValueTypeInfo Markup)
               | Hop_ReportValueTypeInfo_reportValueTypeDescription (Path_ReportValueTypeInfo Markup)
@@ -10852,7 +10848,7 @@ instance IsPathStart ReportImageView
                                                                                                                                                                                                                                                                                                                                                      (SaneSize ImageSize) ->
                                                                                                                                                                                                                                                                                                                                                 Path ReportImageView
                                                                                                                                                                                                                                                                                                                                                      (SaneSize ImageSize)) q) z) vs)) (toListOf (toLens p) x :: [SaneSize ImageSize])
-                                                                          _ -> []) (concat [pathsOf x (undefined :: Proxy (SaneSize ImageSize)) :: [Path_ReportImageView (SaneSize ImageSize)]]) :: Forest (Peek ReportImageView),
+                                                                          _ -> []) (pathsOf x (undefined :: Proxy (SaneSize ImageSize)) :: [Path_ReportImageView (SaneSize ImageSize)]) :: Forest (Peek ReportImageView),
                                                   concatMap (\path -> case path of
                                                                           p@(Path_ReportImageView__picCrop _) -> map (\y -> let vs = peek y :: Forest (Peek ImageCrop)
                                                                                                                              in Node (Peek_ReportImageView_ImageCrop p (if null vs
@@ -10863,7 +10859,7 @@ instance IsPathStart ReportImageView
                                                                                                                                                                                                                                                                                                                      ImageCrop ->
                                                                                                                                                                                                                                                                                                                 Path ReportImageView
                                                                                                                                                                                                                                                                                                                      ImageCrop) q) z) vs)) (toListOf (toLens p) x :: [ImageCrop])
-                                                                          _ -> []) (concat [pathsOf x (undefined :: Proxy ImageCrop) :: [Path_ReportImageView ImageCrop]]) :: Forest (Peek ReportImageView),
+                                                                          _ -> []) (pathsOf x (undefined :: Proxy ImageCrop) :: [Path_ReportImageView ImageCrop]) :: Forest (Peek ReportImageView),
                                                   concatMap (\path -> case path of
                                                                           p@(Path_ReportImageView__picCaption _) -> map (\y -> let vs = peek y :: Forest (Peek Markup)
                                                                                                                                 in Node (Peek_ReportImageView_Markup p (if null vs
@@ -10884,7 +10880,7 @@ instance IsPathStart ReportImageView
                                                                                                                                                                                                                                                                                                            Text ->
                                                                                                                                                                                                                                                                                                       Path ReportImageView
                                                                                                                                                                                                                                                                                                            Text) q) z) vs)) (toListOf (toLens p) x :: [Markup])
-                                                                          _ -> []) (concat [pathsOf x (undefined :: Proxy Markup) :: [Path_ReportImageView Markup]]) :: Forest (Peek ReportImageView),
+                                                                          _ -> []) (pathsOf x (undefined :: Proxy Markup) :: [Path_ReportImageView Markup]) :: Forest (Peek ReportImageView),
                                                   concatMap (\path -> case path of
                                                                           p@(Path_ReportImageView__picOriginal _) -> map (\y -> let vs = peek y :: Forest (Peek (Maybe (Either URI
                                                                                                                                                                                ImageFile)))
@@ -10920,9 +10916,9 @@ instance IsPathStart ReportImageView
                                                                                                                                                                                                                                                                                                   Path ReportImageView
                                                                                                                                                                                                                                                                                                        URI) q) z) vs)) (toListOf (toLens p) x :: [Maybe (Either URI
                                                                                                                                                                                                                                                                                                                                                                 ImageFile)])
-                                                                          _ -> []) (concat [pathsOf x (undefined :: Proxy (Maybe (Either URI
-                                                                                                                                         ImageFile))) :: [Path_ReportImageView (Maybe (Either URI
-                                                                                                                                                                                              ImageFile))]]) :: Forest (Peek ReportImageView),
+                                                                          _ -> []) (pathsOf x (undefined :: Proxy (Maybe (Either URI
+                                                                                                                                 ImageFile))) :: [Path_ReportImageView (Maybe (Either URI
+                                                                                                                                                                                      ImageFile))]) :: Forest (Peek ReportImageView),
                                                   concatMap (\path -> case path of
                                                                           p@(Path_ReportImageView__picEditedDeprecated _) -> map (\y -> let vs = peek y :: Forest (Peek (Maybe ImageFile))
                                                                                                                                          in Node (Peek_ReportImageView_MaybeImageFile p (if null vs
@@ -10943,7 +10939,7 @@ instance IsPathStart ReportImageView
                                                                                                                                                                                                                                                                                                                                                                  (Maybe ImageFile) ->
                                                                                                                                                                                                                                                                                                                                                             Path ReportImageView
                                                                                                                                                                                                                                                                                                                                                                  (Maybe ImageFile)) q) z) vs)) (toListOf (toLens p) x :: [Maybe ImageFile])
-                                                                          _ -> []) (concat [pathsOf x (undefined :: Proxy (Maybe ImageFile)) :: [Path_ReportImageView (Maybe ImageFile)]]) :: Forest (Peek ReportImageView),
+                                                                          _ -> []) (pathsOf x (undefined :: Proxy (Maybe ImageFile)) :: [Path_ReportImageView (Maybe ImageFile)]) :: Forest (Peek ReportImageView),
                                                   concatMap (\path -> case path of
                                                                           p@(Path_ReportImageView__picThumbDeprecated _) -> map (\y -> let vs = peek y :: Forest (Peek (Maybe ImageFile))
                                                                                                                                         in Node (Peek_ReportImageView_MaybeImageFile p (if null vs
@@ -10964,7 +10960,7 @@ instance IsPathStart ReportImageView
                                                                                                                                                                                                                                                                                                                                                                (Maybe ImageFile) ->
                                                                                                                                                                                                                                                                                                                                                           Path ReportImageView
                                                                                                                                                                                                                                                                                                                                                                (Maybe ImageFile)) q) z) vs)) (toListOf (toLens p) x :: [Maybe ImageFile])
-                                                                          _ -> []) (concat [pathsOf x (undefined :: Proxy (Maybe ImageFile)) :: [Path_ReportImageView (Maybe ImageFile)]]) :: Forest (Peek ReportImageView),
+                                                                          _ -> []) (pathsOf x (undefined :: Proxy (Maybe ImageFile)) :: [Path_ReportImageView (Maybe ImageFile)]) :: Forest (Peek ReportImageView),
                                                   concatMap (\path -> case path of
                                                                           p@(Path_ReportImageView__picPrinterDeprecated _) -> map (\y -> let vs = peek y :: Forest (Peek (Maybe ImageFile))
                                                                                                                                           in Node (Peek_ReportImageView_MaybeImageFile p (if null vs
@@ -10985,7 +10981,7 @@ instance IsPathStart ReportImageView
                                                                                                                                                                                                                                                                                                                                                                    (Maybe ImageFile) ->
                                                                                                                                                                                                                                                                                                                                                               Path ReportImageView
                                                                                                                                                                                                                                                                                                                                                                    (Maybe ImageFile)) q) z) vs)) (toListOf (toLens p) x :: [Maybe ImageFile])
-                                                                          _ -> []) (concat [pathsOf x (undefined :: Proxy (Maybe ImageFile)) :: [Path_ReportImageView (Maybe ImageFile)]]) :: Forest (Peek ReportImageView),
+                                                                          _ -> []) (pathsOf x (undefined :: Proxy (Maybe ImageFile)) :: [Path_ReportImageView (Maybe ImageFile)]) :: Forest (Peek ReportImageView),
                                                   concatMap (\path -> case path of
                                                                           p@(Path_ReportImageView__picMustEnlarge _) -> map (\y -> let vs = peek y :: Forest (Peek Bool)
                                                                                                                                     in Node (Peek_ReportImageView_Bool p (if null vs
@@ -11006,7 +11002,7 @@ instance IsPathStart ReportImageView
                                                                                                                                                                                                                                                                                                                        JSONText ->
                                                                                                                                                                                                                                                                                                                   Path ReportImageView
                                                                                                                                                                                                                                                                                                                        JSONText) q) z) vs)) (toListOf (toLens p) x :: [Bool])
-                                                                          _ -> []) (concat [pathsOf x (undefined :: Proxy Bool) :: [Path_ReportImageView Bool]]) :: Forest (Peek ReportImageView),
+                                                                          _ -> []) (pathsOf x (undefined :: Proxy Bool) :: [Path_ReportImageView Bool]) :: Forest (Peek ReportImageView),
                                                   concatMap (\path -> case path of
                                                                           p@(Path_ReportImageView__picEnlargedDeprecated _) -> map (\y -> let vs = peek y :: Forest (Peek (Maybe ImageFile))
                                                                                                                                            in Node (Peek_ReportImageView_MaybeImageFile p (if null vs
@@ -11027,7 +11023,7 @@ instance IsPathStart ReportImageView
                                                                                                                                                                                                                                                                                                                                                                      (Maybe ImageFile) ->
                                                                                                                                                                                                                                                                                                                                                                 Path ReportImageView
                                                                                                                                                                                                                                                                                                                                                                      (Maybe ImageFile)) q) z) vs)) (toListOf (toLens p) x :: [Maybe ImageFile])
-                                                                          _ -> []) (concat [pathsOf x (undefined :: Proxy (Maybe ImageFile)) :: [Path_ReportImageView (Maybe ImageFile)]]) :: Forest (Peek ReportImageView)]
+                                                                          _ -> []) (pathsOf x (undefined :: Proxy (Maybe ImageFile)) :: [Path_ReportImageView (Maybe ImageFile)]) :: Forest (Peek ReportImageView)]
           data Hop ReportImageView
               = Hop_ReportImageView__picCaption (Path_ReportImageView Markup)
               | Hop_ReportImageView__picCrop (Path_ReportImageView ImageCrop)
@@ -11149,7 +11145,7 @@ instance IsPathStart ReportView
                                                                                                                                                                                                                                                                                                                                   (ReadOnly ([Char])) ->
                                                                                                                                                                                                                                                                                                                              Path ReportView
                                                                                                                                                                                                                                                                                                                                   (ReadOnly ([Char]))) q) z) vs)) (toListOf (toLens p) x :: [ReadOnly ([Char])])
-                                                                     _ -> []) (concat [pathsOf x (undefined :: Proxy (ReadOnly ([Char]))) :: [Path_ReportView (ReadOnly ([Char]))]]) :: Forest (Peek ReportView),
+                                                                     _ -> []) (pathsOf x (undefined :: Proxy (ReadOnly ([Char]))) :: [Path_ReportView (ReadOnly ([Char]))]) :: Forest (Peek ReportView),
                                              concatMap (\path -> case path of
                                                                      p@(Path_ReportView__reportName _) -> map (\y -> let vs = peek y :: Forest (Peek Markup)
                                                                                                                       in Node (Peek_ReportView_Markup p (if null vs
@@ -11170,7 +11166,7 @@ instance IsPathStart ReportView
                                                                                                                                                                                                                                                                                   Text ->
                                                                                                                                                                                                                                                                              Path ReportView
                                                                                                                                                                                                                                                                                   Text) q) z) vs)) (toListOf (toLens p) x :: [Markup])
-                                                                     _ -> []) (concat [pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]]) :: Forest (Peek ReportView),
+                                                                     _ -> []) (pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]) :: Forest (Peek ReportView),
                                              concatMap (\path -> case path of
                                                                      p@(Path_ReportView__reportDate _) -> map (\y -> let vs = peek y :: Forest (Peek Markup)
                                                                                                                       in Node (Peek_ReportView_Markup p (if null vs
@@ -11191,7 +11187,7 @@ instance IsPathStart ReportView
                                                                                                                                                                                                                                                                                   Text ->
                                                                                                                                                                                                                                                                              Path ReportView
                                                                                                                                                                                                                                                                                   Text) q) z) vs)) (toListOf (toLens p) x :: [Markup])
-                                                                     _ -> []) (concat [pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]]) :: Forest (Peek ReportView),
+                                                                     _ -> []) (pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]) :: Forest (Peek ReportView),
                                              concatMap (\path -> case path of
                                                                      p@(Path_ReportView__reportContractDate _) -> map (\y -> let vs = peek y :: Forest (Peek Markup)
                                                                                                                               in Node (Peek_ReportView_Markup p (if null vs
@@ -11212,7 +11208,7 @@ instance IsPathStart ReportView
                                                                                                                                                                                                                                                                                                   Text ->
                                                                                                                                                                                                                                                                                              Path ReportView
                                                                                                                                                                                                                                                                                                   Text) q) z) vs)) (toListOf (toLens p) x :: [Markup])
-                                                                     _ -> []) (concat [pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]]) :: Forest (Peek ReportView),
+                                                                     _ -> []) (pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]) :: Forest (Peek ReportView),
                                              concatMap (\path -> case path of
                                                                      p@(Path_ReportView__reportInspectionDate _) -> map (\y -> let vs = peek y :: Forest (Peek Markup)
                                                                                                                                 in Node (Peek_ReportView_Markup p (if null vs
@@ -11233,7 +11229,7 @@ instance IsPathStart ReportView
                                                                                                                                                                                                                                                                                                       Text ->
                                                                                                                                                                                                                                                                                                  Path ReportView
                                                                                                                                                                                                                                                                                                       Text) q) z) vs)) (toListOf (toLens p) x :: [Markup])
-                                                                     _ -> []) (concat [pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]]) :: Forest (Peek ReportView),
+                                                                     _ -> []) (pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]) :: Forest (Peek ReportView),
                                              concatMap (\path -> case path of
                                                                      p@(Path_ReportView__reportEffectiveDate _) -> map (\y -> let vs = peek y :: Forest (Peek Markup)
                                                                                                                                in Node (Peek_ReportView_Markup p (if null vs
@@ -11254,7 +11250,7 @@ instance IsPathStart ReportView
                                                                                                                                                                                                                                                                                                     Text ->
                                                                                                                                                                                                                                                                                                Path ReportView
                                                                                                                                                                                                                                                                                                     Text) q) z) vs)) (toListOf (toLens p) x :: [Markup])
-                                                                     _ -> []) (concat [pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]]) :: Forest (Peek ReportView),
+                                                                     _ -> []) (pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]) :: Forest (Peek ReportView),
                                              concatMap (\path -> case path of
                                                                      p@(Path_ReportView__reportAuthors _) -> map (\y -> let vs = peek y :: Forest (Peek (Order AuthorID
                                                                                                                                                                Author))
@@ -11294,9 +11290,9 @@ instance IsPathStart ReportView
                                                                                                                                                                                                                                                                                      Path ReportView
                                                                                                                                                                                                                                                                                           Text) q) z) vs)) (toListOf (toLens p) x :: [Order AuthorID
                                                                                                                                                                                                                                                                                                                                             Author])
-                                                                     _ -> []) (concat [pathsOf x (undefined :: Proxy (Order AuthorID
-                                                                                                                            Author)) :: [Path_ReportView (Order AuthorID
-                                                                                                                                                                Author)]]) :: Forest (Peek ReportView),
+                                                                     _ -> []) (pathsOf x (undefined :: Proxy (Order AuthorID
+                                                                                                                    Author)) :: [Path_ReportView (Order AuthorID
+                                                                                                                                                        Author)]) :: Forest (Peek ReportView),
                                              concatMap (\path -> case path of
                                                                      p@(Path_ReportView__reportPreparer _) -> map (\y -> let vs = peek y :: Forest (Peek Markup)
                                                                                                                           in Node (Peek_ReportView_Markup p (if null vs
@@ -11317,7 +11313,7 @@ instance IsPathStart ReportView
                                                                                                                                                                                                                                                                                           Text ->
                                                                                                                                                                                                                                                                                      Path ReportView
                                                                                                                                                                                                                                                                                           Text) q) z) vs)) (toListOf (toLens p) x :: [Markup])
-                                                                     _ -> []) (concat [pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]]) :: Forest (Peek ReportView),
+                                                                     _ -> []) (pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]) :: Forest (Peek ReportView),
                                              concatMap (\path -> case path of
                                                                      p@(Path_ReportView__reportPreparerEIN _) -> map (\y -> let vs = peek y :: Forest (Peek Markup)
                                                                                                                              in Node (Peek_ReportView_Markup p (if null vs
@@ -11338,7 +11334,7 @@ instance IsPathStart ReportView
                                                                                                                                                                                                                                                                                                 Text ->
                                                                                                                                                                                                                                                                                            Path ReportView
                                                                                                                                                                                                                                                                                                 Text) q) z) vs)) (toListOf (toLens p) x :: [Markup])
-                                                                     _ -> []) (concat [pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]]) :: Forest (Peek ReportView),
+                                                                     _ -> []) (pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]) :: Forest (Peek ReportView),
                                              concatMap (\path -> case path of
                                                                      p@(Path_ReportView__reportPreparerAddress _) -> map (\y -> let vs = peek y :: Forest (Peek Markup)
                                                                                                                                  in Node (Peek_ReportView_Markup p (if null vs
@@ -11359,7 +11355,7 @@ instance IsPathStart ReportView
                                                                                                                                                                                                                                                                                                         Text ->
                                                                                                                                                                                                                                                                                                    Path ReportView
                                                                                                                                                                                                                                                                                                         Text) q) z) vs)) (toListOf (toLens p) x :: [Markup])
-                                                                     _ -> []) (concat [pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]]) :: Forest (Peek ReportView),
+                                                                     _ -> []) (pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]) :: Forest (Peek ReportView),
                                              concatMap (\path -> case path of
                                                                      p@(Path_ReportView__reportPreparerEMail _) -> map (\y -> let vs = peek y :: Forest (Peek Markup)
                                                                                                                                in Node (Peek_ReportView_Markup p (if null vs
@@ -11380,7 +11376,7 @@ instance IsPathStart ReportView
                                                                                                                                                                                                                                                                                                     Text ->
                                                                                                                                                                                                                                                                                                Path ReportView
                                                                                                                                                                                                                                                                                                     Text) q) z) vs)) (toListOf (toLens p) x :: [Markup])
-                                                                     _ -> []) (concat [pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]]) :: Forest (Peek ReportView),
+                                                                     _ -> []) (pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]) :: Forest (Peek ReportView),
                                              concatMap (\path -> case path of
                                                                      p@(Path_ReportView__reportPreparerWebsite _) -> map (\y -> let vs = peek y :: Forest (Peek Markup)
                                                                                                                                  in Node (Peek_ReportView_Markup p (if null vs
@@ -11401,7 +11397,7 @@ instance IsPathStart ReportView
                                                                                                                                                                                                                                                                                                         Text ->
                                                                                                                                                                                                                                                                                                    Path ReportView
                                                                                                                                                                                                                                                                                                         Text) q) z) vs)) (toListOf (toLens p) x :: [Markup])
-                                                                     _ -> []) (concat [pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]]) :: Forest (Peek ReportView),
+                                                                     _ -> []) (pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]) :: Forest (Peek ReportView),
                                              concatMap (\path -> case path of
                                                                      p@(Path_ReportView__reportAbbrevs _) -> map (\y -> let vs = peek y :: Forest (Peek (Order AbbrevPairID
                                                                                                                                                                ((CIString,
@@ -11459,11 +11455,11 @@ instance IsPathStart ReportView
                                                                                                                                                                                                                                                                                                   Text) q) z) vs)) (toListOf (toLens p) x :: [Order AbbrevPairID
                                                                                                                                                                                                                                                                                                                                                     ((CIString,
                                                                                                                                                                                                                                                                                                                                                       Markup))])
-                                                                     _ -> []) (concat [pathsOf x (undefined :: Proxy (Order AbbrevPairID
-                                                                                                                            ((CIString,
-                                                                                                                              Markup)))) :: [Path_ReportView (Order AbbrevPairID
-                                                                                                                                                                    ((CIString,
-                                                                                                                                                                      Markup)))]]) :: Forest (Peek ReportView),
+                                                                     _ -> []) (pathsOf x (undefined :: Proxy (Order AbbrevPairID
+                                                                                                                    ((CIString,
+                                                                                                                      Markup)))) :: [Path_ReportView (Order AbbrevPairID
+                                                                                                                                                            ((CIString,
+                                                                                                                                                              Markup)))]) :: Forest (Peek ReportView),
                                              concatMap (\path -> case path of
                                                                      p@(Path_ReportView__reportTitle _) -> map (\y -> let vs = peek y :: Forest (Peek Markup)
                                                                                                                        in Node (Peek_ReportView_Markup p (if null vs
@@ -11484,7 +11480,7 @@ instance IsPathStart ReportView
                                                                                                                                                                                                                                                                                     Text ->
                                                                                                                                                                                                                                                                                Path ReportView
                                                                                                                                                                                                                                                                                     Text) q) z) vs)) (toListOf (toLens p) x :: [Markup])
-                                                                     _ -> []) (concat [pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]]) :: Forest (Peek ReportView),
+                                                                     _ -> []) (pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]) :: Forest (Peek ReportView),
                                              concatMap (\path -> case path of
                                                                      p@(Path_ReportView__reportHeader _) -> map (\y -> let vs = peek y :: Forest (Peek Markup)
                                                                                                                         in Node (Peek_ReportView_Markup p (if null vs
@@ -11505,7 +11501,7 @@ instance IsPathStart ReportView
                                                                                                                                                                                                                                                                                       Text ->
                                                                                                                                                                                                                                                                                  Path ReportView
                                                                                                                                                                                                                                                                                       Text) q) z) vs)) (toListOf (toLens p) x :: [Markup])
-                                                                     _ -> []) (concat [pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]]) :: Forest (Peek ReportView),
+                                                                     _ -> []) (pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]) :: Forest (Peek ReportView),
                                              concatMap (\path -> case path of
                                                                      p@(Path_ReportView__reportFooter _) -> map (\y -> let vs = peek y :: Forest (Peek Markup)
                                                                                                                         in Node (Peek_ReportView_Markup p (if null vs
@@ -11526,7 +11522,7 @@ instance IsPathStart ReportView
                                                                                                                                                                                                                                                                                       Text ->
                                                                                                                                                                                                                                                                                  Path ReportView
                                                                                                                                                                                                                                                                                       Text) q) z) vs)) (toListOf (toLens p) x :: [Markup])
-                                                                     _ -> []) (concat [pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]]) :: Forest (Peek ReportView),
+                                                                     _ -> []) (pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]) :: Forest (Peek ReportView),
                                              concatMap (\path -> case path of
                                                                      p@(Path_ReportView__reportIntendedUse _) -> map (\y -> let vs = peek y :: Forest (Peek (Maybe ReportIntendedUse))
                                                                                                                              in Node (Peek_ReportView_MaybeReportIntendedUse p (if null vs
@@ -11547,7 +11543,7 @@ instance IsPathStart ReportView
                                                                                                                                                                                                                                                                                                                                                                     (Maybe ReportIntendedUse) ->
                                                                                                                                                                                                                                                                                                                                                                Path ReportView
                                                                                                                                                                                                                                                                                                                                                                     (Maybe ReportIntendedUse)) q) z) vs)) (toListOf (toLens p) x :: [Maybe ReportIntendedUse])
-                                                                     _ -> []) (concat [pathsOf x (undefined :: Proxy (Maybe ReportIntendedUse)) :: [Path_ReportView (Maybe ReportIntendedUse)]]) :: Forest (Peek ReportView),
+                                                                     _ -> []) (pathsOf x (undefined :: Proxy (Maybe ReportIntendedUse)) :: [Path_ReportView (Maybe ReportIntendedUse)]) :: Forest (Peek ReportView),
                                              concatMap (\path -> case path of
                                                                      p@(Path_ReportView__reportValueTypeInfo _) -> map (\y -> let vs = peek y :: Forest (Peek ReportValueTypeInfo)
                                                                                                                                in Node (Peek_ReportView_ReportValueTypeInfo p (if null vs
@@ -11573,7 +11569,7 @@ instance IsPathStart ReportView
                                                                                                                                                                                                                                                                                                                               Text ->
                                                                                                                                                                                                                                                                                                                          Path ReportView
                                                                                                                                                                                                                                                                                                                               Text) q) z) vs)) (toListOf (toLens p) x :: [ReportValueTypeInfo])
-                                                                     _ -> []) (concat [pathsOf x (undefined :: Proxy ReportValueTypeInfo) :: [Path_ReportView ReportValueTypeInfo]]) :: Forest (Peek ReportView),
+                                                                     _ -> []) (pathsOf x (undefined :: Proxy ReportValueTypeInfo) :: [Path_ReportView ReportValueTypeInfo]) :: Forest (Peek ReportView),
                                              concatMap (\path -> case path of
                                                                      p@(Path_ReportView__reportValueApproachInfo _) -> map (\y -> let vs = peek y :: Forest (Peek ReportValueApproachInfo)
                                                                                                                                    in Node (Peek_ReportView_ReportValueApproachInfo p (if null vs
@@ -11599,7 +11595,7 @@ instance IsPathStart ReportView
                                                                                                                                                                                                                                                                                                                                               Text ->
                                                                                                                                                                                                                                                                                                                                          Path ReportView
                                                                                                                                                                                                                                                                                                                                               Text) q) z) vs)) (toListOf (toLens p) x :: [ReportValueApproachInfo])
-                                                                     _ -> []) (concat [pathsOf x (undefined :: Proxy ReportValueApproachInfo) :: [Path_ReportView ReportValueApproachInfo]]) :: Forest (Peek ReportView),
+                                                                     _ -> []) (pathsOf x (undefined :: Proxy ReportValueApproachInfo) :: [Path_ReportView ReportValueApproachInfo]) :: Forest (Peek ReportView),
                                              concatMap (\path -> case path of
                                                                      p@(Path_ReportView__reportClientName _) -> map (\y -> let vs = peek y :: Forest (Peek Markup)
                                                                                                                             in Node (Peek_ReportView_Markup p (if null vs
@@ -11620,7 +11616,7 @@ instance IsPathStart ReportView
                                                                                                                                                                                                                                                                                               Text ->
                                                                                                                                                                                                                                                                                          Path ReportView
                                                                                                                                                                                                                                                                                               Text) q) z) vs)) (toListOf (toLens p) x :: [Markup])
-                                                                     _ -> []) (concat [pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]]) :: Forest (Peek ReportView),
+                                                                     _ -> []) (pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]) :: Forest (Peek ReportView),
                                              concatMap (\path -> case path of
                                                                      p@(Path_ReportView__reportClientAddress _) -> map (\y -> let vs = peek y :: Forest (Peek Markup)
                                                                                                                                in Node (Peek_ReportView_Markup p (if null vs
@@ -11641,7 +11637,7 @@ instance IsPathStart ReportView
                                                                                                                                                                                                                                                                                                     Text ->
                                                                                                                                                                                                                                                                                                Path ReportView
                                                                                                                                                                                                                                                                                                     Text) q) z) vs)) (toListOf (toLens p) x :: [Markup])
-                                                                     _ -> []) (concat [pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]]) :: Forest (Peek ReportView),
+                                                                     _ -> []) (pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]) :: Forest (Peek ReportView),
                                              concatMap (\path -> case path of
                                                                      p@(Path_ReportView__reportClientGreeting _) -> map (\y -> let vs = peek y :: Forest (Peek Markup)
                                                                                                                                 in Node (Peek_ReportView_Markup p (if null vs
@@ -11662,7 +11658,7 @@ instance IsPathStart ReportView
                                                                                                                                                                                                                                                                                                       Text ->
                                                                                                                                                                                                                                                                                                  Path ReportView
                                                                                                                                                                                                                                                                                                       Text) q) z) vs)) (toListOf (toLens p) x :: [Markup])
-                                                                     _ -> []) (concat [pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]]) :: Forest (Peek ReportView),
+                                                                     _ -> []) (pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]) :: Forest (Peek ReportView),
                                              concatMap (\path -> case path of
                                                                      p@(Path_ReportView__reportItemsOwnerFull _) -> map (\y -> let vs = peek y :: Forest (Peek Markup)
                                                                                                                                 in Node (Peek_ReportView_Markup p (if null vs
@@ -11683,7 +11679,7 @@ instance IsPathStart ReportView
                                                                                                                                                                                                                                                                                                       Text ->
                                                                                                                                                                                                                                                                                                  Path ReportView
                                                                                                                                                                                                                                                                                                       Text) q) z) vs)) (toListOf (toLens p) x :: [Markup])
-                                                                     _ -> []) (concat [pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]]) :: Forest (Peek ReportView),
+                                                                     _ -> []) (pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]) :: Forest (Peek ReportView),
                                              concatMap (\path -> case path of
                                                                      p@(Path_ReportView__reportItemsOwner _) -> map (\y -> let vs = peek y :: Forest (Peek Markup)
                                                                                                                             in Node (Peek_ReportView_Markup p (if null vs
@@ -11704,7 +11700,7 @@ instance IsPathStart ReportView
                                                                                                                                                                                                                                                                                               Text ->
                                                                                                                                                                                                                                                                                          Path ReportView
                                                                                                                                                                                                                                                                                               Text) q) z) vs)) (toListOf (toLens p) x :: [Markup])
-                                                                     _ -> []) (concat [pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]]) :: Forest (Peek ReportView),
+                                                                     _ -> []) (pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]) :: Forest (Peek ReportView),
                                              concatMap (\path -> case path of
                                                                      p@(Path_ReportView__reportBriefItems _) -> map (\y -> let vs = peek y :: Forest (Peek Markup)
                                                                                                                             in Node (Peek_ReportView_Markup p (if null vs
@@ -11725,7 +11721,7 @@ instance IsPathStart ReportView
                                                                                                                                                                                                                                                                                               Text ->
                                                                                                                                                                                                                                                                                          Path ReportView
                                                                                                                                                                                                                                                                                               Text) q) z) vs)) (toListOf (toLens p) x :: [Markup])
-                                                                     _ -> []) (concat [pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]]) :: Forest (Peek ReportView),
+                                                                     _ -> []) (pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]) :: Forest (Peek ReportView),
                                              concatMap (\path -> case path of
                                                                      p@(Path_ReportView__reportInspectionLocation _) -> map (\y -> let vs = peek y :: Forest (Peek Markup)
                                                                                                                                     in Node (Peek_ReportView_Markup p (if null vs
@@ -11746,7 +11742,7 @@ instance IsPathStart ReportView
                                                                                                                                                                                                                                                                                                               Text ->
                                                                                                                                                                                                                                                                                                          Path ReportView
                                                                                                                                                                                                                                                                                                               Text) q) z) vs)) (toListOf (toLens p) x :: [Markup])
-                                                                     _ -> []) (concat [pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]]) :: Forest (Peek ReportView),
+                                                                     _ -> []) (pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]) :: Forest (Peek ReportView),
                                              concatMap (\path -> case path of
                                                                      p@(Path_ReportView__reportBody _) -> map (\y -> let vs = peek y :: Forest (Peek (Order ReportElemID
                                                                                                                                                             ReportElem))
@@ -11902,9 +11898,9 @@ instance IsPathStart ReportView
                                                                                                                                                                                                                                                                                        Path ReportView
                                                                                                                                                                                                                                                                                             Text) q) z) vs)) (toListOf (toLens p) x :: [Order ReportElemID
                                                                                                                                                                                                                                                                                                                                               ReportElem])
-                                                                     _ -> []) (concat [pathsOf x (undefined :: Proxy (Order ReportElemID
-                                                                                                                            ReportElem)) :: [Path_ReportView (Order ReportElemID
-                                                                                                                                                                    ReportElem)]]) :: Forest (Peek ReportView),
+                                                                     _ -> []) (pathsOf x (undefined :: Proxy (Order ReportElemID
+                                                                                                                    ReportElem)) :: [Path_ReportView (Order ReportElemID
+                                                                                                                                                            ReportElem)]) :: Forest (Peek ReportView),
                                              concatMap (\path -> case path of
                                                                      p@(Path_ReportView__reportGlossary _) -> map (\y -> let vs = peek y :: Forest (Peek (Order MarkupPairID
                                                                                                                                                                 ((Markup,
@@ -11955,11 +11951,11 @@ instance IsPathStart ReportView
                                                                                                                                                                                                                                                                                                     Text) q) z) vs)) (toListOf (toLens p) x :: [Order MarkupPairID
                                                                                                                                                                                                                                                                                                                                                       ((Markup,
                                                                                                                                                                                                                                                                                                                                                         Markup))])
-                                                                     _ -> []) (concat [pathsOf x (undefined :: Proxy (Order MarkupPairID
-                                                                                                                            ((Markup,
-                                                                                                                              Markup)))) :: [Path_ReportView (Order MarkupPairID
-                                                                                                                                                                    ((Markup,
-                                                                                                                                                                      Markup)))]]) :: Forest (Peek ReportView),
+                                                                     _ -> []) (pathsOf x (undefined :: Proxy (Order MarkupPairID
+                                                                                                                    ((Markup,
+                                                                                                                      Markup)))) :: [Path_ReportView (Order MarkupPairID
+                                                                                                                                                            ((Markup,
+                                                                                                                                                              Markup)))]) :: Forest (Peek ReportView),
                                              concatMap (\path -> case path of
                                                                      p@(Path_ReportView__reportSources _) -> map (\y -> let vs = peek y :: Forest (Peek (Order MarkupPairID
                                                                                                                                                                ((Markup,
@@ -12010,11 +12006,11 @@ instance IsPathStart ReportView
                                                                                                                                                                                                                                                                                                   Text) q) z) vs)) (toListOf (toLens p) x :: [Order MarkupPairID
                                                                                                                                                                                                                                                                                                                                                     ((Markup,
                                                                                                                                                                                                                                                                                                                                                       Markup))])
-                                                                     _ -> []) (concat [pathsOf x (undefined :: Proxy (Order MarkupPairID
-                                                                                                                            ((Markup,
-                                                                                                                              Markup)))) :: [Path_ReportView (Order MarkupPairID
-                                                                                                                                                                    ((Markup,
-                                                                                                                                                                      Markup)))]]) :: Forest (Peek ReportView),
+                                                                     _ -> []) (pathsOf x (undefined :: Proxy (Order MarkupPairID
+                                                                                                                    ((Markup,
+                                                                                                                      Markup)))) :: [Path_ReportView (Order MarkupPairID
+                                                                                                                                                            ((Markup,
+                                                                                                                                                              Markup)))]) :: Forest (Peek ReportView),
                                              concatMap (\path -> case path of
                                                                      p@(Path_ReportView__reportLetterOfTransmittal _) -> map (\y -> let vs = peek y :: Forest (Peek Markup)
                                                                                                                                      in Node (Peek_ReportView_Markup p (if null vs
@@ -12035,7 +12031,7 @@ instance IsPathStart ReportView
                                                                                                                                                                                                                                                                                                                 Text ->
                                                                                                                                                                                                                                                                                                            Path ReportView
                                                                                                                                                                                                                                                                                                                 Text) q) z) vs)) (toListOf (toLens p) x :: [Markup])
-                                                                     _ -> []) (concat [pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]]) :: Forest (Peek ReportView),
+                                                                     _ -> []) (pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]) :: Forest (Peek ReportView),
                                              concatMap (\path -> case path of
                                                                      p@(Path_ReportView__reportScopeOfWork _) -> map (\y -> let vs = peek y :: Forest (Peek Markup)
                                                                                                                              in Node (Peek_ReportView_Markup p (if null vs
@@ -12056,7 +12052,7 @@ instance IsPathStart ReportView
                                                                                                                                                                                                                                                                                                 Text ->
                                                                                                                                                                                                                                                                                            Path ReportView
                                                                                                                                                                                                                                                                                                 Text) q) z) vs)) (toListOf (toLens p) x :: [Markup])
-                                                                     _ -> []) (concat [pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]]) :: Forest (Peek ReportView),
+                                                                     _ -> []) (pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]) :: Forest (Peek ReportView),
                                              concatMap (\path -> case path of
                                                                      p@(Path_ReportView__reportCertification _) -> map (\y -> let vs = peek y :: Forest (Peek (Order MarkupID
                                                                                                                                                                      Markup))
@@ -12090,9 +12086,9 @@ instance IsPathStart ReportView
                                                                                                                                                                                                                                                                                                  Path ReportView
                                                                                                                                                                                                                                                                                                       Text) q) z) vs)) (toListOf (toLens p) x :: [Order MarkupID
                                                                                                                                                                                                                                                                                                                                                         Markup])
-                                                                     _ -> []) (concat [pathsOf x (undefined :: Proxy (Order MarkupID
-                                                                                                                            Markup)) :: [Path_ReportView (Order MarkupID
-                                                                                                                                                                Markup)]]) :: Forest (Peek ReportView),
+                                                                     _ -> []) (pathsOf x (undefined :: Proxy (Order MarkupID
+                                                                                                                    Markup)) :: [Path_ReportView (Order MarkupID
+                                                                                                                                                        Markup)]) :: Forest (Peek ReportView),
                                              concatMap (\path -> case path of
                                                                      p@(Path_ReportView__reportLimitingConditions _) -> map (\y -> let vs = peek y :: Forest (Peek (Order MarkupID
                                                                                                                                                                           Markup))
@@ -12126,9 +12122,9 @@ instance IsPathStart ReportView
                                                                                                                                                                                                                                                                                                            Path ReportView
                                                                                                                                                                                                                                                                                                                 Text) q) z) vs)) (toListOf (toLens p) x :: [Order MarkupID
                                                                                                                                                                                                                                                                                                                                                                   Markup])
-                                                                     _ -> []) (concat [pathsOf x (undefined :: Proxy (Order MarkupID
-                                                                                                                            Markup)) :: [Path_ReportView (Order MarkupID
-                                                                                                                                                                Markup)]]) :: Forest (Peek ReportView),
+                                                                     _ -> []) (pathsOf x (undefined :: Proxy (Order MarkupID
+                                                                                                                    Markup)) :: [Path_ReportView (Order MarkupID
+                                                                                                                                                        Markup)]) :: Forest (Peek ReportView),
                                              concatMap (\path -> case path of
                                                                      p@(Path_ReportView__reportPrivacyPolicy _) -> map (\y -> let vs = peek y :: Forest (Peek Markup)
                                                                                                                                in Node (Peek_ReportView_Markup p (if null vs
@@ -12149,7 +12145,7 @@ instance IsPathStart ReportView
                                                                                                                                                                                                                                                                                                     Text ->
                                                                                                                                                                                                                                                                                                Path ReportView
                                                                                                                                                                                                                                                                                                     Text) q) z) vs)) (toListOf (toLens p) x :: [Markup])
-                                                                     _ -> []) (concat [pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]]) :: Forest (Peek ReportView),
+                                                                     _ -> []) (pathsOf x (undefined :: Proxy Markup) :: [Path_ReportView Markup]) :: Forest (Peek ReportView),
                                              concatMap (\path -> case path of
                                                                      p@(Path_ReportView__reportPerms _) -> map (\y -> let vs = peek y :: Forest (Peek Permissions)
                                                                                                                        in Node (Peek_ReportView_Permissions p (if null vs
@@ -12180,7 +12176,7 @@ instance IsPathStart ReportView
                                                                                                                                                                                                                                                                                                   UserId ->
                                                                                                                                                                                                                                                                                              Path ReportView
                                                                                                                                                                                                                                                                                                   UserId) q) z) vs)) (toListOf (toLens p) x :: [Permissions])
-                                                                     _ -> []) (concat [pathsOf x (undefined :: Proxy Permissions) :: [Path_ReportView Permissions]]) :: Forest (Peek ReportView),
+                                                                     _ -> []) (pathsOf x (undefined :: Proxy Permissions) :: [Path_ReportView Permissions]) :: Forest (Peek ReportView),
                                              concatMap (\path -> case path of
                                                                      p@(Path_ReportView__reportRevision _) -> map (\y -> let vs = peek y :: Forest (Peek Integer)
                                                                                                                           in Node (Peek_ReportView_Integer p (if null vs
@@ -12191,7 +12187,7 @@ instance IsPathStart ReportView
                                                                                                                                                                                                                                                                                                   Integer ->
                                                                                                                                                                                                                                                                                              Path ReportView
                                                                                                                                                                                                                                                                                                   Integer) q) z) vs)) (toListOf (toLens p) x :: [Integer])
-                                                                     _ -> []) (concat [pathsOf x (undefined :: Proxy Integer) :: [Path_ReportView Integer]]) :: Forest (Peek ReportView),
+                                                                     _ -> []) (pathsOf x (undefined :: Proxy Integer) :: [Path_ReportView Integer]) :: Forest (Peek ReportView),
                                              concatMap (\path -> case path of
                                                                      p@(Path_ReportView__reportCreated _) -> map (\y -> let vs = peek y :: Forest (Peek Int64)
                                                                                                                          in Node (Peek_ReportView_Int64 p (if null vs
@@ -12202,7 +12198,7 @@ instance IsPathStart ReportView
                                                                                                                                                                                                                                                                                         Int64 ->
                                                                                                                                                                                                                                                                                    Path ReportView
                                                                                                                                                                                                                                                                                         Int64) q) z) vs)) (toListOf (toLens p) x :: [Int64])
-                                                                     _ -> []) (concat [pathsOf x (undefined :: Proxy Int64) :: [Path_ReportView Int64]]) :: Forest (Peek ReportView),
+                                                                     _ -> []) (pathsOf x (undefined :: Proxy Int64) :: [Path_ReportView Int64]) :: Forest (Peek ReportView),
                                              concatMap (\path -> case path of
                                                                      p@(Path_ReportView__reportBranding _) -> map (\y -> let vs = peek y :: Forest (Peek Branding)
                                                                                                                           in Node (Peek_ReportView_Branding p (if null vs
@@ -12223,7 +12219,7 @@ instance IsPathStart ReportView
                                                                                                                                                                                                                                                                                               Text ->
                                                                                                                                                                                                                                                                                          Path ReportView
                                                                                                                                                                                                                                                                                               Text) q) z) vs)) (toListOf (toLens p) x :: [Branding])
-                                                                     _ -> []) (concat [pathsOf x (undefined :: Proxy Branding) :: [Path_ReportView Branding]]) :: Forest (Peek ReportView),
+                                                                     _ -> []) (pathsOf x (undefined :: Proxy Branding) :: [Path_ReportView Branding]) :: Forest (Peek ReportView),
                                              concatMap (\path -> case path of
                                                                      p@(Path_ReportView__reportStatus _) -> map (\y -> let vs = peek y :: Forest (Peek ReportStatus)
                                                                                                                         in Node (Peek_ReportView_ReportStatus p (if null vs
@@ -12244,7 +12240,7 @@ instance IsPathStart ReportView
                                                                                                                                                                                                                                                                                                                   ReportStatus ->
                                                                                                                                                                                                                                                                                                              Path ReportView
                                                                                                                                                                                                                                                                                                                   ReportStatus) q) z) vs)) (toListOf (toLens p) x :: [ReportStatus])
-                                                                     _ -> []) (concat [pathsOf x (undefined :: Proxy ReportStatus) :: [Path_ReportView ReportStatus]]) :: Forest (Peek ReportView),
+                                                                     _ -> []) (pathsOf x (undefined :: Proxy ReportStatus) :: [Path_ReportView ReportStatus]) :: Forest (Peek ReportView),
                                              concatMap (\path -> case path of
                                                                      p@(Path_ReportView__reportRedacted _) -> map (\y -> let vs = peek y :: Forest (Peek Bool)
                                                                                                                           in Node (Peek_ReportView_Bool p (if null vs
@@ -12265,7 +12261,7 @@ instance IsPathStart ReportView
                                                                                                                                                                                                                                                                                               JSONText ->
                                                                                                                                                                                                                                                                                          Path ReportView
                                                                                                                                                                                                                                                                                               JSONText) q) z) vs)) (toListOf (toLens p) x :: [Bool])
-                                                                     _ -> []) (concat [pathsOf x (undefined :: Proxy Bool) :: [Path_ReportView Bool]]) :: Forest (Peek ReportView),
+                                                                     _ -> []) (pathsOf x (undefined :: Proxy Bool) :: [Path_ReportView Bool]) :: Forest (Peek ReportView),
                                              concatMap (\path -> case path of
                                                                      p@(Path_ReportView__reportFlags _) -> map (\y -> let vs = peek y :: Forest (Peek ReportFlags)
                                                                                                                        in Node (Peek_ReportView_ReportFlags p (if null vs
@@ -12291,7 +12287,7 @@ instance IsPathStart ReportView
                                                                                                                                                                                                                                                                                                             ReportFlags ->
                                                                                                                                                                                                                                                                                                        Path ReportView
                                                                                                                                                                                                                                                                                                             ReportFlags) q) z) vs)) (toListOf (toLens p) x :: [ReportFlags])
-                                                                     _ -> []) (concat [pathsOf x (undefined :: Proxy ReportFlags) :: [Path_ReportView ReportFlags]]) :: Forest (Peek ReportView),
+                                                                     _ -> []) (pathsOf x (undefined :: Proxy ReportFlags) :: [Path_ReportView ReportFlags]) :: Forest (Peek ReportView),
                                              concatMap (\path -> case path of
                                                                      p@(Path_ReportView__reportUUID _) -> map (\y -> let vs = peek y :: Forest (Peek UUID)
                                                                                                                       in Node (Peek_ReportView_UUID p (if null vs
@@ -12302,7 +12298,7 @@ instance IsPathStart ReportView
                                                                                                                                                                                                                                                                               UUID ->
                                                                                                                                                                                                                                                                          Path ReportView
                                                                                                                                                                                                                                                                               UUID) q) z) vs)) (toListOf (toLens p) x :: [UUID])
-                                                                     _ -> []) (concat [pathsOf x (undefined :: Proxy UUID) :: [Path_ReportView UUID]]) :: Forest (Peek ReportView),
+                                                                     _ -> []) (pathsOf x (undefined :: Proxy UUID) :: [Path_ReportView UUID]) :: Forest (Peek ReportView),
                                              concatMap (\path -> case path of
                                                                      p@(Path_ReportView__reportOrderByItemName _) -> map (\y -> let vs = peek y :: Forest (Peek Bool)
                                                                                                                                  in Node (Peek_ReportView_Bool p (if null vs
@@ -12323,7 +12319,7 @@ instance IsPathStart ReportView
                                                                                                                                                                                                                                                                                                             JSONText ->
                                                                                                                                                                                                                                                                                                        Path ReportView
                                                                                                                                                                                                                                                                                                             JSONText) q) z) vs)) (toListOf (toLens p) x :: [Bool])
-                                                                     _ -> []) (concat [pathsOf x (undefined :: Proxy Bool) :: [Path_ReportView Bool]]) :: Forest (Peek ReportView),
+                                                                     _ -> []) (pathsOf x (undefined :: Proxy Bool) :: [Path_ReportView Bool]) :: Forest (Peek ReportView),
                                              concatMap (\path -> case path of
                                                                      p@(Path_ReportView__reportDisplayItemName _) -> map (\y -> let vs = peek y :: Forest (Peek Bool)
                                                                                                                                  in Node (Peek_ReportView_Bool p (if null vs
@@ -12344,7 +12340,7 @@ instance IsPathStart ReportView
                                                                                                                                                                                                                                                                                                             JSONText ->
                                                                                                                                                                                                                                                                                                        Path ReportView
                                                                                                                                                                                                                                                                                                             JSONText) q) z) vs)) (toListOf (toLens p) x :: [Bool])
-                                                                     _ -> []) (concat [pathsOf x (undefined :: Proxy Bool) :: [Path_ReportView Bool]]) :: Forest (Peek ReportView),
+                                                                     _ -> []) (pathsOf x (undefined :: Proxy Bool) :: [Path_ReportView Bool]) :: Forest (Peek ReportView),
                                              concatMap (\path -> case path of
                                                                      p@(Path_ReportView__reportStandardsVersion _) -> map (\y -> let vs = peek y :: Forest (Peek ReportStandard)
                                                                                                                                   in Node (Peek_ReportView_ReportStandard p (if null vs
@@ -12360,7 +12356,7 @@ instance IsPathStart ReportView
                                                                                                                                                                                                                                                                                                                                               ReportStandard ->
                                                                                                                                                                                                                                                                                                                                          Path ReportView
                                                                                                                                                                                                                                                                                                                                               ReportStandard) q) z) vs)) (toListOf (toLens p) x :: [ReportStandard])
-                                                                     _ -> []) (concat [pathsOf x (undefined :: Proxy ReportStandard) :: [Path_ReportView ReportStandard]]) :: Forest (Peek ReportView)]
+                                                                     _ -> []) (pathsOf x (undefined :: Proxy ReportStandard) :: [Path_ReportView ReportStandard]) :: Forest (Peek ReportView)]
           data Hop ReportView
               = Hop_ReportView__reportAbbrevs (Path_ReportView (Order AbbrevPairID
                                                                       ((CIString, Markup))))
@@ -12462,7 +12458,7 @@ instance IsPathStart Item
                                                                                                                                                                                                                                           Text ->
                                                                                                                                                                                                                                      Path Item
                                                                                                                                                                                                                                           Text) q) z) vs)) (toListOf (toLens p) x :: [Text])
-                                                               _ -> []) (concat [pathsOf x (undefined :: Proxy Text) :: [Path_Item Text]]) :: Forest (Peek Item),
+                                                               _ -> []) (pathsOf x (undefined :: Proxy Text) :: [Path_Item Text]) :: Forest (Peek Item),
                                        concatMap (\path -> case path of
                                                                p@(Path_Item_fields _) -> map (\y -> let vs = peek y :: Forest (Peek (Map ItemFieldName
                                                                                                                                          Markup))
@@ -12496,9 +12492,9 @@ instance IsPathStart Item
                                                                                                                                                                                                                                Path Item
                                                                                                                                                                                                                                     Text) q) z) vs)) (toListOf (toLens p) x :: [Map ItemFieldName
                                                                                                                                                                                                                                                                                     Markup])
-                                                               _ -> []) (concat [pathsOf x (undefined :: Proxy (Map ItemFieldName
-                                                                                                                    Markup)) :: [Path_Item (Map ItemFieldName
-                                                                                                                                                Markup)]]) :: Forest (Peek Item),
+                                                               _ -> []) (pathsOf x (undefined :: Proxy (Map ItemFieldName
+                                                                                                            Markup)) :: [Path_Item (Map ItemFieldName
+                                                                                                                                        Markup)]) :: Forest (Peek Item),
                                        concatMap (\path -> case path of
                                                                p@(Path_Item_images _) -> map (\y -> let vs = peek y :: Forest (Peek (Order ReportImageID
                                                                                                                                            ReportImage))
@@ -12626,9 +12622,9 @@ instance IsPathStart Item
                                                                                                                                                                                                                                                  Path Item
                                                                                                                                                                                                                                                       Text) q) z) vs)) (toListOf (toLens p) x :: [Order ReportImageID
                                                                                                                                                                                                                                                                                                         ReportImage])
-                                                               _ -> []) (concat [pathsOf x (undefined :: Proxy (Order ReportImageID
-                                                                                                                      ReportImage)) :: [Path_Item (Order ReportImageID
-                                                                                                                                                         ReportImage)]]) :: Forest (Peek Item)]
+                                                               _ -> []) (pathsOf x (undefined :: Proxy (Order ReportImageID
+                                                                                                              ReportImage)) :: [Path_Item (Order ReportImageID
+                                                                                                                                                 ReportImage)]) :: Forest (Peek Item)]
           data Hop Item
               = Hop_Item_fields (Path_Item (Map ItemFieldName Markup))
               | Hop_Item_images (Path_Item (Order ReportImageID ReportImage))
@@ -13056,9 +13052,9 @@ instance IsPathStart ReportMap
                                                                                                                                                                                                                                                                   Path ReportMap
                                                                                                                                                                                                                                                                        UUID) q) z) vs)) (toListOf (toLens p) x :: [Map ReportID
                                                                                                                                                                                                                                                                                                                        Report])
-                                                                    _ -> []) (concat [pathsOf x (undefined :: Proxy (Map ReportID
-                                                                                                                         Report)) :: [Path_ReportMap (Map ReportID
-                                                                                                                                                          Report)]]) :: Forest (Peek ReportMap)]
+                                                                    _ -> []) (pathsOf x (undefined :: Proxy (Map ReportID
+                                                                                                                 Report)) :: [Path_ReportMap (Map ReportID
+                                                                                                                                                  Report)]) :: Forest (Peek ReportMap)]
           data Hop ReportMap
               = Hop_ReportMap_unReportMap (Path_ReportMap (Map ReportID Report))
               deriving (Eq, Show)

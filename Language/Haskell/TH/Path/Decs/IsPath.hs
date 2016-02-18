@@ -20,7 +20,7 @@ import Control.Lens hiding (cons, Strict)
 import Control.Monad.Readers (MonadReaders)
 import Control.Monad.Writer (MonadWriter, tell)
 import Data.Foldable as Foldable
-import Data.List as List (map, nub)
+import Data.List as List (map)
 import Data.Map as Map (Map)
 import Data.Maybe (fromJust, fromMaybe, isJust)
 import Data.Proxy
@@ -113,7 +113,7 @@ peekClauses v =
                 let tname = fromMaybe (error $ "No name for " ++ pprint v) (bestTypeName v)
                 w <- expandType wtyp >>= typeVertex
                 let PathCon pcon = makePathCon (makePathType tname) "View"
-                forestOfAlts (varE x) v [(varP x, [(w, conP pcon [wildP], conE pcon)])]
+                (: []) <$> forestOfAlt (varE x) v (varP x, [(w, conP pcon [wildP], conE pcon)])
        ConT tname -> doName tname
        AppT (AppT mtyp _ityp) vtyp
            | mtyp == ConT ''Order ->
@@ -125,17 +125,17 @@ peekClauses v =
        AppT (AppT (TupleT 2) ftyp) styp ->
            do f <- expandType ftyp >>= typeVertex
               s <- expandType styp >>= typeVertex
-              forestOfAlts (varE x) v [(varP x, [(f, conP 'Path_First [wildP], [|Path_First|]), (s, conP 'Path_Second [wildP], [|Path_Second|])])]
+              (: []) <$> forestOfAlt (varE x) v (varP x, [(f, conP 'Path_First [wildP], [|Path_First|]), (s, conP 'Path_Second [wildP], [|Path_Second|])])
        AppT t1 etyp
            | t1 == ConT ''Maybe ->
                do e <- expandType etyp >>= typeVertex
-                  forestOfAlts (varE x) v [(varP x, [(e, conP 'Path_Just [wildP], [|Path_Just|])])]
+                  (: []) <$> forestOfAlt (varE x) v (varP x, [(e, conP 'Path_Just [wildP], [|Path_Just|])])
        AppT (AppT t3 ltyp) rtyp
            | t3 == ConT ''Either ->
                do l <- expandType ltyp >>= typeVertex
                   r <- expandType rtyp >>= typeVertex
-                  mappend <$> forestOfAlts (varE x) v [(asP x (conP 'Left [wildP]), [(l, conP 'Path_Left [wildP], [|Path_Left|])])]
-                          <*> forestOfAlts (varE x) v [(asP x (conP 'Right [wildP]), [(r, conP 'Path_Right [wildP], [|Path_Right|])])]
+                  mapM (forestOfAlt (varE x) v) [(asP x (conP 'Left [wildP]), [(l, conP 'Path_Left [wildP], [|Path_Left|])]),
+                                                 (asP x (conP 'Right [wildP]), [(r, conP 'Path_Right [wildP], [|Path_Right|])])]
        _ -> return []
     where
       doName :: Name -> m [ClauseQ]
@@ -157,69 +157,53 @@ peekClauses v =
 
       -- Each constructor turns into a clause of the peek function
       doCon tname x (RecC cname vsts) = do
-        flds <- mapM (doField tname x (asP x (recP cname []))) (zip vsts [1..])
-        return [clause [asP x (recP cname [])] (normalB [|concat $(listE flds)|]) []]
+        flds <- mapM (doNamedField tname) (zip vsts [1..])
+        c <- forestOfAlt (varE x) v (asP x (recP cname []), flds)
+        return [c]
       doCon tname x (NormalC cname sts) = do
-        flds <- mapM (doFieldAnon tname x (asP x (recP cname []))) (zip sts [1..])
-        return [clause [asP x (recP cname [])] (normalB (listE flds)) []]
-      doCon tname x (InfixC lhs cname rhs) = do
-        flds <- mapM (doFieldAnon tname x (asP x (infixP wildP cname wildP))) (zip [lhs, rhs] [1..])
-        return [clause [asP x (infixP wildP cname wildP)] (normalB (listE flds)) []]
-
-      -- Each field turns into an expression involving x and return a value of type Forest (Peek t)
-      doField :: Name -> Name -> PatQ -> ((Name, Strict, Type), Int) -> m ExpQ
-      doField tname x xpat ((fname, _, ftype), _fpos) = do
-        f <- expandType ftype >>= fieldVertex (tname, undefined, Right fname)
-        let w = view vsimple f
-        maybe (pure [|error $(litE (stringL ("doField " ++ show f)))|])
-              (\pcname -> forestOfAlt' (varE x) v (xpat, [(w, conP (asName pcname) [wildP], asConQ pcname)]))
-              (makeFieldCon f)
-
 #if 1
-        -- Anonymous fields are not supported.
-      doFieldAnon :: Name -> Name -> PatQ -> ((Strict, Type), Int) -> m ExpQ
-      doFieldAnon _tname _x _xpat ((_, ftype), _fpos) = do
-        pure [|error $(litE (stringL ("doFieldAnon " ++ pprint ftype)))|]
+        pure []
 #else
-      doFieldAnon :: Name -> Name -> PatQ -> ((Strict, Type), Int) -> m Exp
-      doFieldAnon tname x xpat ((_, ftype), fpos) = do
-        -- Would like to support anonymous fields, but haven't handled the naming yet
-        f <- expandType ftype >>= fieldVertex (tname, undefined, Left fpos)
-        let Just p = makeFieldCon f
-        let w = view vsimple f
-        maybe (runQ [|error $(litE (stringL ("doField " ++ show f)))|])
-              (\pcname -> runQ $ forestOfAlt' (varE x) v (xpat, [(w, conP (asName pcname) [wildP], asConQ pcname)]))
-              (makeFieldCon f)
+        flds <- mapM (doAnonField tname) (zip sts [1..])
+        c <- forestOfAlt (varE x) v (asP x (recP cname []), flds)
+        return [c]
 #endif
+      doCon tname x (InfixC lhs cname rhs) = do
+#if 1
+        pure []
+#else
+        flds <- mapM (doAnonField tname) (zip [lhs, rhs] [1..])
+        c <- forestOfAlt (varE x) v (asP x (infixP wildP cname wildP), flds)
+        return [c]
+#endif
+
+      doNamedField :: Name -> ((Name, Strict, Type), Int) -> m (TGVSimple, PatQ, ExpQ)
+      doNamedField tname ((fname, _, ftype), _fpos) =
+          do f <- expandType ftype >>= fieldVertex (tname, undefined, Right fname)
+             let w = view vsimple f
+             let Just pcname = makeFieldCon f
+             return (w, conP (asName pcname) [wildP], asConQ pcname)
+
+      doAnonField :: Name -> ((Strict, Type), Int) -> m (TGVSimple, PatQ, ExpQ)
+      doAnonField tname ((_, ftype), fpos) =
+          do f <- expandType ftype >>= fieldVertex (tname, undefined, Left fpos)
+             let w = view vsimple f
+             let Just pcname = makeFieldCon f
+             return (w, conP (asName pcname) [wildP], asConQ pcname)
 
 doPeekNodesOfOrder :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => TGVSimple -> Type -> PathCon -> m [ClauseQ]
 doPeekNodesOfOrder v wtyp pcname =
   do x <- runQ $ newName "x"
      w <- expandType wtyp >>= typeVertex :: m TGVSimple
      k <- runQ $ newName "k"
-     forestOfAlts (varE x) v [(varP x, [(w, conP (asName pcname) [varP k, wildP], [|$(asConQ pcname) $(varE k)|])])]
+     (: []) <$> forestOfAlt (varE x) v (varP x, [(w, conP (asName pcname) [varP k, wildP], [|$(asConQ pcname) $(varE k)|])])
 
 doPeekNodesOfMap :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => TGVSimple -> Type -> PathCon -> m [ClauseQ]
 doPeekNodesOfMap v wtyp pcname =
   do x <- runQ $ newName "x"
      w <- expandType wtyp >>= typeVertex :: m TGVSimple
      k <- runQ $ newName "k"
-     forestOfAlts (varE x) v [(varP x, [(w, conP (asName pcname) [varP k, wildP], [|$(asConQ pcname) $(varE k)|])])]
-
-forestOfAlts :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => ExpQ -> TGVSimple -> [(PatQ, [(TGVSimple, PatQ, ExpQ)])] -> m [ClauseQ]
-forestOfAlts x v alts =
-    mapM (forestOfAlt x v) alts
-
--- | Given a value @x@ of type @v@, return the corresponding expression of
--- type @Forest (Peek v)@.
-forestOfAlt' :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => ExpQ -> TGVSimple -> (PatQ, [(TGVSimple, PatQ, ExpQ)]) -> m ExpQ
-forestOfAlt' x v (xpat, alts) =
-  do ms <- mapM (forestOfType x v) alts
-     return [| concatMap (\path -> $(caseE [|path|] (ms ++ [match wildP (normalB [| [] |]) []])))
-                         $paths :: Forest (Peek $(asTypeQ v)) |]
-    where
-      paths = [| concat $(listE (map (\w -> [| (pathsOf $x (undefined :: Proxy $(asTypeQ w)) :: [$(asTypeQ (makePathType (ModelType (asName v)))) $(asTypeQ w)]) |])
-                                     (nub (map (view _1) alts)))) |]
+     (: []) <$> forestOfAlt (varE x) v (varP x, [(w, conP (asName pcname) [varP k, wildP], [|$(asConQ pcname) $(varE k)|])])
 
 forestOfAlt :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) =>  ExpQ -> TGVSimple -> (PatQ, [(TGVSimple, PatQ, ExpQ)]) -> m ClauseQ
 forestOfAlt x v (xpat, concs) =
@@ -241,20 +225,6 @@ forestOfConc x v (w, ppat, pcon) =
                                        (toListOf (toLens $(varE p)) $x :: [$(asTypeQ w)])
                                _ -> [])
                    (pathsOf $x (undefined :: Proxy $(asTypeQ w)) :: [$(asTypeQ (makePathType (ModelType (asName v)))) $(asTypeQ w)]) :: Forest (Peek $(asTypeQ v)) |]
-
-forestOfType :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => ExpQ -> TGVSimple -> (TGVSimple, PatQ, ExpQ) -> m MatchQ
-forestOfType x v (w, ppat, pcon) =
-    do gs <- pathKeys w
-       p <- runQ $ newName "p"
-       return $ match (asP p ppat :: PatQ)
-                      (normalB
-                       [| map (\y -> let vs = (peek y :: Forest (Peek $(asTypeQ w))) in
-                                     Node ($(asConQ (makePeekCon (ModelType (asName v)) (ModelType (asName w)))) $(varE p) (if null vs then Leaf y else Internal))
-                                          -- Build a function with type such as Peek_AbbrevPair -> Peek_AbbrevPairs, so we
-                                          -- can lift the forest of type AbbrevPair to be a forest of type AbbrevPairs.
-                                          (forestMap (\v' -> $(caseE [|v'|] (concatMap (doGoal v w pcon) (Foldable.toList gs)))) vs))
-                              (toListOf (toLens $(varE p)) $x :: [$(asTypeQ w)]) |])
-                      []
 
 doGoal :: TGVSimple -> TGVSimple -> ExpQ -> TGVSimple -> [MatchQ]
 doGoal v w pcon g = do
