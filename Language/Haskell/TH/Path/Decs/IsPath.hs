@@ -29,7 +29,7 @@ import Language.Haskell.TH
 import Language.Haskell.TH.Context (ContextM, reifyInstancesWithContext)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Core (IsPathStart(Peek, peek, Hop), IsPath(..), ToLens(toLens), SelfPath, SinkType,
-                                      Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..), forestMap, Value(Leaf, Internal))
+                                      Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..), forestMap)
 import Language.Haskell.TH.Path.Decs.Common (HasConQ(asConQ), HasCon(asCon), HasName(asName), HasType(asType), HasTypeQ(asTypeQ), bestPathTypeName, bestTypeName,
                                              makeFieldCon, makePathCon, makePathType, makeHopCon,
                                              ModelType(ModelType), PathCon, PathCon(PathCon))
@@ -85,7 +85,7 @@ peekDecs v =
             (Just vn, Just gn) ->
                 [normalC (asName (makePeekCon (ModelType vn) (ModelType gn)))
                          [(,) <$> notStrict <*> [t|$(asTypeQ vp) $(pure (view (etype . unE) g))|],
-                          (,) <$> notStrict <*> [t|Value $(pure (view (etype . unE) g))|] ]]
+                          (,) <$> notStrict <*> [t|Maybe $(pure (view (etype . unE) g))|] ]]
             _ -> []
       hopCons :: m [ConQ]
       hopCons = (concat . List.map doHopPair . toList) <$> (lensKeys v)
@@ -218,7 +218,7 @@ forestOfConc x v (w, ppat, pcon) =
                    (\path -> case path of
                                $(asP p ppat) ->
                                    map (\y -> let vs = (peek y :: Forest (Peek $(asTypeQ w))) in
-                                              Node ($(asConQ (makePeekCon (ModelType (asName v)) (ModelType (asName w)))) $(varE p) (if null vs then Leaf y else Internal))
+                                              Node ($(asConQ (makePeekCon (ModelType (asName v)) (ModelType (asName w)))) $(varE p) (if null vs then Just y else Nothing))
                                                    -- Build a function with type such as Peek_AbbrevPair -> Peek_AbbrevPairs, so we
                                                    -- can lift the forest of type AbbrevPair to be a forest of type AbbrevPairs.
                                                    (forestMap (\v' -> $(caseE [|v'|] (concatMap (doGoal v w pcon) (Foldable.toList gs)))) vs))
