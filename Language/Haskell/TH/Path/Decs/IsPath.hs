@@ -197,22 +197,51 @@ doPeekNodesOfOrder v wtyp pcname =
   do x <- runQ $ newName "x"
      w <- expandType wtyp >>= typeVertex :: m TGVSimple
      k <- runQ $ newName "k"
-     forest <- forestOf (varE x) v [(w, conP (asName pcname) [varP k, wildP], [|$(asConQ pcname) $(varE k)|])]
-     return [clause [varP x] (normalB forest) []]
+     doPeekNodeOf (varE x) v [(varP x, [(w, conP (asName pcname) [varP k, wildP], [|$(asConQ pcname) $(varE k)|])])]
 
 doPeekNodesOfMap :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => TGVSimple -> Type -> PathCon -> m [ClauseQ]
 doPeekNodesOfMap v wtyp pcname =
   do x <- runQ $ newName "x"
      w <- expandType wtyp >>= typeVertex :: m TGVSimple
      k <- runQ $ newName "k"
-     forest <- forestOf (varE x) v [(w, conP (asName pcname) [varP k, wildP], [|$(asConQ pcname) $(varE k)|])]
-     return [clause [varP x] (normalB forest) []]
+     doPeekNodeOf (varE x) v [(varP x, [(w, conP (asName pcname) [varP k, wildP], [|$(asConQ pcname) $(varE k)|])])]
 
 doPeekNodeOf :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => ExpQ -> TGVSimple -> [(PatQ, [(TGVSimple, PatQ, ExpQ)])] -> m [ClauseQ]
 doPeekNodeOf x v alts =
-    mapM (\(xpat, concs) -> do
-            forest <- forestOf x v concs
-            return $ clause [xpat] (normalB forest) []) alts
+    mapM (forestOfAlt x v) alts
+
+forestOfAlt :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) =>  ExpQ -> TGVSimple -> (PatQ, [(TGVSimple, PatQ, ExpQ)]) -> m ClauseQ
+forestOfAlt x v (xpat, concs) =
+    do fs <- mapM (forestOfConc x v) concs
+       return $ clause [xpat] (normalB [| concat $(listE fs) |]) []
+
+forestOfConc :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) =>  ExpQ -> TGVSimple -> (TGVSimple, PatQ, ExpQ) -> m ExpQ
+forestOfConc x v (w, ppat, pcon) =
+    do gs <- pathKeys w
+       p <- runQ $ newName "p"
+       return [| concatMap
+                   (\path -> case path of
+                               $(asP p ppat) ->
+                                   map (\y -> Node ($(asConQ (makePeekCon (ModelType (asName v)) (ModelType (asName w)))) $(varE p) y)
+                                                   -- Build a function with type such as Peek_AbbrevPair -> Peek_AbbrevPairs, so we
+                                                   -- can lift the forest of type AbbrevPair to be a forest of type AbbrevPairs.
+                                                   (forestMap (\v' -> $(caseE [|v'|] (concatMap doGoal (Foldable.toList gs)))) (peek y :: Forest (Peek $(asTypeQ w)))))
+                                       (toListOf (toLens $(varE p)) $x :: [$(asTypeQ w)])
+                               _ -> [])
+                   (pathsOf $x (undefined :: Proxy $(asTypeQ w)) :: [$(asTypeQ (makePathType (ModelType (asName v)))) $(asTypeQ w)]) :: Forest (Peek $(asTypeQ v)) |]
+    where
+      doGoal :: TGVSimple -> [MatchQ]
+      doGoal g = do
+        case (bestName v, bestName w, bestName g) of
+          (Just vn, Just wn, Just gn) ->
+              [newName "z" >>= \z ->
+               newName "q" >>= \q ->
+               match (conP (asName (makePeekCon (ModelType wn) (ModelType gn))) [varP q, varP z])
+                     (normalB [|$(asConQ (makePeekCon (ModelType vn) (ModelType gn)))
+                                 (($pcon :: Path $(asTypeQ w) $(asTypeQ g) ->
+                                            Path $(asTypeQ v) $(asTypeQ g)) $(varE q)) $(varE z)|])
+                     []]
+          _ -> []
 
 -- | Given a value @x@ of type @v@, return the corresponding expression of
 -- type @Forest (Peek v)@.
