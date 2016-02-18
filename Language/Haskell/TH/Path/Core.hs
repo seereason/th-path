@@ -16,6 +16,7 @@
 module Language.Haskell.TH.Path.Core
     ( treeMap
     , forestMap
+    , Value(Leaf, Internal)
       -- * Type classes and associated types
     , IsPath(pathsOf, Path)
     , IsPathEnd(idPath)
@@ -90,6 +91,8 @@ treeMap f (Node x ns) = Node (f x) (forestMap f ns)
 
 forestMap :: (a -> b) -> Forest a -> Forest b
 forestMap f = List.map (treeMap f)
+
+data Value a = Leaf a | Internal deriving (Eq, Show)
 
 class IsPathEnd p where
     idPath :: p -- ^ The identity value for path type @p@.  Obeys the law
