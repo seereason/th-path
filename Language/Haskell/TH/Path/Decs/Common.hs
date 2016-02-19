@@ -45,7 +45,7 @@ import Language.Haskell.TH.TypeGraph.Vertex (etype, field, TGV, TGVSimple, TypeG
 
 -- Naming conventions
 
-bestNames :: TypeGraphVertex v => v -> Maybe (ModelType Name, PathType, Set PathType)
+bestNames :: TypeGraphVertex v => v -> Maybe (ModelType Name, PathType Name, Set (PathType Name))
 bestNames v =
     case (bestTypeName v, bestPathTypeName v) of
       (Just tname, Just (pname, pnames)) -> Just (tname, pname, pnames)
@@ -53,7 +53,7 @@ bestNames v =
 
 -- | If the type is (ConT name) return name, otherwise return a type
 -- synonym name.
-bestPathTypeName :: TypeGraphVertex v => v -> Maybe (PathType, Set PathType)
+bestPathTypeName :: TypeGraphVertex v => v -> Maybe (PathType Name, Set (PathType Name))
 bestPathTypeName v =
     case (bestType v, typeNames v) of
       (ConT tname, names) -> Just (makePathType (ModelType tname), Set.map (makePathType . ModelType) (Set.delete tname names))
@@ -98,9 +98,9 @@ instance Clauses a => Clauses [a] where
 
 -- | Model as in Model-View-Controller.
 newtype HasName a => ModelType a = ModelType {unModelType :: a} deriving (Eq, Ord, Show) -- e.g. AbbrevPair
-newtype PathType = PathType {unPathType :: Name} deriving (Eq, Ord, Show) -- e.g. Path_AbbrevPair
-newtype PathCon = PathCon {unPathCon :: Name} deriving (Eq, Ord, Show) -- e.g. Path_UserIds_View
-newtype HopCon = HopCon {unHopCon :: Name} deriving (Eq, Ord, Show) -- e.g. Hop_AbbrevPairs_Markup
+newtype HasName a => PathType a = PathType {unPathType :: a} deriving (Eq, Ord, Show) -- e.g. Path_AbbrevPair
+newtype HasName a => PathCon a = PathCon {unPathCon :: a} deriving (Eq, Ord, Show) -- e.g. Path_UserIds_View
+newtype HasName a => HopCon a = HopCon {unHopCon :: a} deriving (Eq, Ord, Show) -- e.g. Hop_AbbrevPairs_Markup
 
 class HasTypeQ a where asTypeQ :: a -> TypeQ
 class HasType a where asType :: a -> Type
@@ -112,20 +112,20 @@ instance HasName Name where asName = id
 instance HasName a => HasName (ModelType a) where asName = asName . unModelType
 instance HasName a => HasType (ModelType a) where asType = ConT . asName . unModelType
 instance HasName a => HasTypeQ (ModelType a) where asTypeQ = conT . asName . unModelType
-instance HasName PathType where asName = unPathType
-instance HasType PathType where asType = ConT . unPathType
-instance HasTypeQ PathType where asTypeQ = conT . unPathType
-instance HasCon PathType where asCon = ConE . unPathType
+instance HasName a => HasName (PathType a) where asName = asName . unPathType
+instance HasName a => HasType (PathType a) where asType = ConT . asName . unPathType
+instance HasName a => HasTypeQ (PathType a) where asTypeQ = conT . asName . unPathType
+instance HasName a => HasCon (PathType a) where asCon = ConE . asName . unPathType
                                -- ^ There is always a self path constructor that has
                                -- the same name as the type.  But there are others
                                -- too, so this is not really safe.
-instance HasConQ PathType where asConQ = conE . unPathType
-instance HasName PathCon where asName = unPathCon
-instance HasCon PathCon where asCon = ConE . unPathCon
-instance HasConQ PathCon where asConQ = conE . unPathCon
-instance HasName HopCon where asName = unHopCon
-instance HasCon HopCon where asCon = ConE . unHopCon
-instance HasConQ HopCon where asConQ = conE . unHopCon
+instance HasName a => HasConQ (PathType a) where asConQ = conE . asName . unPathType
+instance HasName a => HasName (PathCon a) where asName = asName . unPathCon
+instance HasName a => HasCon (PathCon a) where asCon = ConE . asName . unPathCon
+instance HasName a => HasConQ (PathCon a) where asConQ = conE . asName . unPathCon
+instance HasName a => HasName (HopCon a) where asName = asName . unHopCon
+instance HasName a => HasCon (HopCon a) where asCon = ConE . asName . unHopCon
+instance HasName a => HasConQ (HopCon a) where asConQ = conE . asName . unHopCon
 
 {-
 instance HasName TGVSimple where
@@ -146,10 +146,10 @@ instance HasTypeQ TGV where asTypeQ = pure . asType
 instance HasTypeQ (E Type) where asTypeQ = pure . asType
 instance HasTypeQ Type where asTypeQ = pure
 
-makePathType :: HasName a => ModelType a -> PathType
+makePathType :: HasName a => ModelType a -> PathType Name
 makePathType (ModelType a) = PathType (mkName ("Path_" ++ nameBase (asName a)))
 
-makeHopCon :: TGVSimple -> TGV ->  HopCon
+makeHopCon :: TGVSimple -> TGV -> HopCon Name
 makeHopCon s g =
     HopCon (mkName ("Hop_" ++
                     (case bestTypeName s of
@@ -169,14 +169,14 @@ makeHopCon (ModelType s) g = HopCon (mkName ("Hop_" ++ nameBase s ++ "_" ++ case
                                                                                            Just (ModelType tname) -> nameBase tname
                                                                                            Nothing -> error "makeHopCon"))
 -}
-makePathCon :: PathType -> String -> PathCon
-makePathCon (PathType p) a = PathCon $ mkName $ nameBase p ++ "_" ++ a
+makePathCon :: HasName a => PathType a -> String -> PathCon Name
+makePathCon (PathType p) a = PathCon $ mkName $ nameBase (asName p) ++ "_" ++ a
 
 -- pathTypeNameFromTypeName :: ModelType -> PathType
 -- pathTypeNameFromTypeName = makePathType
 
 -- | Path type constructor for the field described by key in the parent type named tname.
-makeFieldCon :: TGV -> Maybe PathCon
+makeFieldCon :: TGV -> Maybe (PathCon Name)
 makeFieldCon key =
     case key ^. field of
       Nothing -> Nothing

@@ -192,14 +192,16 @@ peekClauses v =
              let Just pcname = makeFieldCon f
              return (w, conP (asName pcname) [wildP], asConQ pcname)
 
-doPeekNodesOfOrder :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => TGVSimple -> Type -> PathCon -> m [ClauseQ]
+doPeekNodesOfOrder :: forall m a. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, HasName a) =>
+                      TGVSimple -> Type -> PathCon a -> m [ClauseQ]
 doPeekNodesOfOrder v wtyp pcname =
   do x <- runQ $ newName "x"
      w <- expandType wtyp >>= typeVertex :: m TGVSimple
      k <- runQ $ newName "k"
      (: []) <$> forestOfAlt (varE x) v (varP x, [(w, conP (asName pcname) [varP k, wildP], [|$(asConQ pcname) $(varE k)|])])
 
-doPeekNodesOfMap :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => TGVSimple -> Type -> PathCon -> m [ClauseQ]
+doPeekNodesOfMap :: forall m a. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, HasName a) =>
+                    TGVSimple -> Type -> PathCon a -> m [ClauseQ]
 doPeekNodesOfMap v wtyp pcname =
   do x <- runQ $ newName "x"
      w <- expandType wtyp >>= typeVertex :: m TGVSimple
