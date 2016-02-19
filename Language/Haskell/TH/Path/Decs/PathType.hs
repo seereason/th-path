@@ -64,8 +64,9 @@ pathType gtyp key = do
     _ | selfPath -> return $ view (etype . unE) key
       | simplePath -> let Just (pname, _syns) = bestPathTypeName key in runQ [t|$(asTypeQ pname) $gtyp|]
       | isJust viewType ->
-          let Just (pname, _syns) = bestPathTypeName key in
-          runQ [t|$(asTypeQ pname) $gtyp|]
+          case bestPathTypeName key of
+            Nothing -> error $ "No type name for view type " ++ show key
+            Just (pname, _syns) -> runQ [t|$(asTypeQ pname) $gtyp|]
     ConT tname ->
         runQ $ [t|$(asTypeQ (makePathType (ModelType tname))) $gtyp|]
     AppT (AppT mtyp ityp) etyp

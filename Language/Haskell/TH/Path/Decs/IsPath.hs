@@ -30,7 +30,8 @@ import Language.Haskell.TH.Context (ContextM, reifyInstancesWithContext)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Core (IsPathStart(Peek, peek, Hop), IsPath(..), ToLens(toLens), SelfPath, SinkType,
                                       Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..), forestMap)
-import Language.Haskell.TH.Path.Decs.Common (HasConQ(asConQ), HasCon(asCon), HasName(asName), HasType(asType), HasTypeQ(asTypeQ), bestPathTypeName, bestTypeName,
+import Language.Haskell.TH.Path.Decs.Common (HasConQ(asConQ), HasCon(asCon), HasName(asName), HasType(asType), HasTypeQ(asTypeQ),
+                                             bestNames, bestPathTypeName, bestTypeName,
                                              makeFieldCon, makePathCon, makePathType, makeHopCon,
                                              ModelType(ModelType), PathCon, PathCon(PathCon))
 import Language.Haskell.TH.Path.Order (Order, Path_OMap(..))
@@ -54,8 +55,8 @@ instance HasConQ PeekCon where asConQ = conE . unPeekCon
 -- makePeekType :: ModelType -> PeekType
 -- makePeekType (ModelType s) = PeekType (mkName ("Peek_" ++ nameBase s))
 
-makePeekCon :: ModelType -> ModelType -> PeekCon
-makePeekCon (ModelType s) (ModelType g) = PeekCon (mkName ("Peek_" ++ nameBase s ++ "_" ++ nameBase g))
+makePeekCon :: (HasName s, HasName g) => ModelType s -> ModelType g -> PeekCon
+makePeekCon (ModelType s) (ModelType g) = PeekCon (mkName ("Peek_" ++ nameBase (asName s) ++ "_" ++ nameBase (asName g)))
 
 peekDecs :: forall m. (MonadWriter [Dec] m, ContextM m, MonadReaders TypeInfo m, MonadReaders TypeGraph m) =>
             TGVSimple -> m ()
@@ -71,7 +72,7 @@ peekDecs v =
                                [] -> [clause [wildP] (normalB [| [] |]) []]
                                _ -> pnc),
                  dataInstD (cxt []) ''Hop [asTypeQ v] (case hcons of
-                                                         [] -> [normalC (asName (makeHopCon (ModelType (asName v)) (tgv v))) []]
+                                                         [] -> [normalC (asName (makeHopCon v (tgv v))) []]
                                                          _ -> hcons) [''Eq, ''Show]
                 ]) >>= tell . (: [])
       Nothing -> return ()
@@ -84,7 +85,7 @@ peekDecs v =
           case (bestName v, bestName g) of
             (Just vn, Just gn) ->
                 [normalC (asName (makePeekCon (ModelType vn) (ModelType gn)))
-                         [(,) <$> notStrict <*> [t|$(asTypeQ vp) $(pure (view (etype . unE) g))|],
+                         [(,) <$> notStrict <*> [t|Path $(asTypeQ v) $(pure (view (etype . unE) g))|],
                           (,) <$> notStrict <*> [t|Maybe $(pure (view (etype . unE) g))|] ]]
             _ -> []
       hopCons :: m [ConQ]
@@ -94,7 +95,7 @@ peekDecs v =
           let Just (vp, _) = bestPathTypeName v in
           case (bestName v, bestName g) of
             (Just vn, Just gn) ->
-                [normalC (asName (makeHopCon (ModelType vn) g))
+                [normalC (asName (makeHopCon v g))
                          [(,) <$> notStrict <*> [t|$(asTypeQ vp) $(pure (view (vsimple . etype . unE) g))|]]]
             _ -> []
 
@@ -214,17 +215,19 @@ forestOfConc :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders Ty
 forestOfConc x v (w, ppat, pcon) =
     do gs <- pathKeys w
        p <- runQ $ newName "p"
+       let vn = maybe (error "forestOfConc") (asName . view _1) (bestNames v)
+           wn = maybe (error "forestOfConc") (asName . view _1) (bestNames w)
        return [| concatMap
                    (\path -> case path of
                                $(asP p ppat) ->
                                    map (\y -> let vs = (peek y :: Forest (Peek $(asTypeQ w))) in
-                                              Node ($(asConQ (makePeekCon (ModelType (asName v)) (ModelType (asName w)))) $(varE p) (if null vs then Just y else Nothing))
+                                              Node ($(asConQ (makePeekCon (ModelType vn) (ModelType wn))) $(varE p) (if null vs then Just y else Nothing))
                                                    -- Build a function with type such as Peek_AbbrevPair -> Peek_AbbrevPairs, so we
                                                    -- can lift the forest of type AbbrevPair to be a forest of type AbbrevPairs.
                                                    (forestMap (\v' -> $(caseE [|v'|] (concatMap (doGoal v w pcon) (Foldable.toList gs)))) vs))
                                        (toListOf (toLens $(varE p)) $x :: [$(asTypeQ w)])
                                _ -> [])
-                   (pathsOf $x (undefined :: Proxy $(asTypeQ w)) :: [$(asTypeQ (makePathType (ModelType (asName v)))) $(asTypeQ w)]) :: Forest (Peek $(asTypeQ v)) |]
+                   (pathsOf $x (undefined :: Proxy $(asTypeQ w)) :: [$(asTypeQ (makePathType (ModelType vn))) $(asTypeQ w)]) :: Forest (Peek $(asTypeQ v)) |]
 
 doGoal :: TGVSimple -> TGVSimple -> ExpQ -> TGVSimple -> [MatchQ]
 doGoal v w pcon g = do

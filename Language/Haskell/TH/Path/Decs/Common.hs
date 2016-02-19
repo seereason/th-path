@@ -37,7 +37,6 @@ import Control.Lens hiding (cons, Strict)
 import Data.List as List (map)
 import Data.Set as Set (delete, minView)
 import Data.Set.Extra as Set (map, Set)
-import Data.Tree (Tree(Node), Forest)
 import Language.Haskell.TH
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Instances ()
@@ -46,7 +45,7 @@ import Language.Haskell.TH.TypeGraph.Vertex (etype, field, TGV, TGVSimple, TypeG
 
 -- Naming conventions
 
-bestNames :: TypeGraphVertex v => v -> Maybe (ModelType, PathType, Set PathType)
+bestNames :: TypeGraphVertex v => v -> Maybe (ModelType Name, PathType, Set PathType)
 bestNames v =
     case (bestTypeName v, bestPathTypeName v) of
       (Just tname, Just (pname, pnames)) -> Just (tname, pname, pnames)
@@ -61,7 +60,7 @@ bestPathTypeName v =
       (_t, s) | null s -> Nothing
       (_t, _s) -> error "bestPathTypeName - unexpected name"
 
-bestTypeName :: TypeGraphVertex v => v -> Maybe ModelType
+bestTypeName :: TypeGraphVertex v => v -> Maybe (ModelType Name)
 bestTypeName v =
     case bestType v of
       ConT tname -> Just (ModelType tname)
@@ -98,7 +97,7 @@ instance Clauses a => Clauses [a] where
 -- Conversions
 
 -- | Model as in Model-View-Controller.
-newtype ModelType = ModelType {unModelType :: Name} deriving (Eq, Ord, Show) -- e.g. AbbrevPair
+newtype HasName a => ModelType a = ModelType {unModelType :: a} deriving (Eq, Ord, Show) -- e.g. AbbrevPair
 newtype PathType = PathType {unPathType :: Name} deriving (Eq, Ord, Show) -- e.g. Path_AbbrevPair
 newtype PathCon = PathCon {unPathCon :: Name} deriving (Eq, Ord, Show) -- e.g. Path_UserIds_View
 newtype HopCon = HopCon {unHopCon :: Name} deriving (Eq, Ord, Show) -- e.g. Hop_AbbrevPairs_Markup
@@ -109,9 +108,10 @@ class HasCon a where asCon :: a -> Exp
 class HasConQ a where asConQ :: a -> ExpQ
 class HasName a where asName :: a -> Name
 
-instance HasName ModelType where asName = unModelType
-instance HasType ModelType where asType = ConT . unModelType
-instance HasTypeQ ModelType where asTypeQ = conT . unModelType
+instance HasName Name where asName = id
+instance HasName a => HasName (ModelType a) where asName = asName . unModelType
+instance HasName a => HasType (ModelType a) where asType = ConT . asName . unModelType
+instance HasName a => HasTypeQ (ModelType a) where asTypeQ = conT . asName . unModelType
 instance HasName PathType where asName = unPathType
 instance HasType PathType where asType = ConT . unPathType
 instance HasTypeQ PathType where asTypeQ = conT . unPathType
@@ -127,14 +127,16 @@ instance HasName HopCon where asName = unHopCon
 instance HasCon HopCon where asCon = ConE . unHopCon
 instance HasConQ HopCon where asConQ = conE . unHopCon
 
+{-
 instance HasName TGVSimple where
     asName x = case bestTypeName x of
                  Just x -> asName x
-                 Nothing -> error "HasName TGVSImple"
+                 Nothing -> error $ "HasName " ++ pprint (view (etype . unE) x)
 instance HasName TGV where
     asName x = case bestTypeName x of
                  Just x -> asName x
                  Nothing -> error "HasName TGV"
+-}
 instance HasType TGVSimple where asType = asType . view etype
 instance HasType TGV where asType = asType . view vsimple
 instance HasType (E Type) where asType = view unE
@@ -144,16 +146,29 @@ instance HasTypeQ TGV where asTypeQ = pure . asType
 instance HasTypeQ (E Type) where asTypeQ = pure . asType
 instance HasTypeQ Type where asTypeQ = pure
 
-makePathType :: ModelType -> PathType
-makePathType (ModelType a) = PathType (mkName ("Path_" ++ nameBase a))
+makePathType :: HasName a => ModelType a -> PathType
+makePathType (ModelType a) = PathType (mkName ("Path_" ++ nameBase (asName a)))
 
+makeHopCon :: TGVSimple -> TGV ->  HopCon
+makeHopCon s g =
+    HopCon (mkName ("Hop_" ++
+                    (case bestTypeName s of
+                      Just (ModelType n) -> nameBase n
+                      Nothing -> error "makeHopCon") ++
+                    "_" ++
+                    (case g ^. field of
+                      Just (_, _, fname) -> either show nameBase fname
+                      Nothing -> case bestTypeName g of
+                                   Just (ModelType tname) -> nameBase tname
+                                   Nothing -> error "makeHopCon")))
+{-
 makeHopCon :: ModelType -> TGV -> HopCon
 makeHopCon (ModelType s) g = HopCon (mkName ("Hop_" ++ nameBase s ++ "_" ++ case g ^. field of
                                                                               Just (_, _, fname) -> either show nameBase fname
                                                                               Nothing -> case bestTypeName g of
                                                                                            Just (ModelType tname) -> nameBase tname
                                                                                            Nothing -> error "makeHopCon"))
-
+-}
 makePathCon :: PathType -> String -> PathCon
 makePathCon (PathType p) a = PathCon $ mkName $ nameBase p ++ "_" ++ a
 

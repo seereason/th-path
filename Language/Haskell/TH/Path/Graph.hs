@@ -28,7 +28,7 @@ import Control.Monad.Trans (lift)
 import Data.Foldable.Compat
 import Data.Graph as Graph (reachable)
 import Data.List as List (filter)
-import Data.Map as Map (filterWithKey, keys, Map, mapWithKey)
+import Data.Map as Map (filterWithKey, fromList, keys, Map, mapWithKey, toList)
 import Data.Maybe (mapMaybe)
 import Data.Set as Set (difference, empty, fromList, map, member, Set, singleton, toList)
 import Language.Haskell.Exts.Syntax ()
@@ -95,10 +95,10 @@ pathGraphEdges =
       finalizeEdges = do
         -- get >>= runQ . runIO . putStr . show . hang (text "initial edges of the type graph:") 2 . ppr
         _modify "mapkeys" (return . cutEdges isMapKey)
-        _modify "unlifted" (cutM isUnlifted)
+        _modify "unlifted1" (cutM isUnlifted)
         _modify "higherOrder" (dissolveM higherOrder)
         _modify "view edges" (linkM viewEdges)
-        _modify "unlifted" pruneTypeGraph
+        _modify "prune" pruneTypeGraph
         _modify "freeVars" (dissolveM hasFreeVars)
         _modify "unlifted2" (dissolveM isUnlifted)
         _modify "unreachable" isolateUnreachable
@@ -156,7 +156,7 @@ pathGraphEdges =
                              " - added:\n " ++ indent "+" (pprint (diff new old)) ++
                              "\nremoved:\n " ++  indent "-" (pprint (diff old new)) ++
                              "\nresult:\n " ++ indent " " (pprint new))))
-      indent s t = unlines . List.map (s ++) . lines $ t
+      indent s t = unlines . Prelude.map (s ++) . lines $ t
 
       -- Exact difference between two maps
       diff m1 m2 = Map.fromList $ Set.toList $ Set.difference (Set.fromList (Map.toList m1))
