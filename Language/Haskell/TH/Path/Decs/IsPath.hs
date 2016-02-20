@@ -22,18 +22,18 @@ import Control.Monad.Writer (MonadWriter, tell)
 import Data.Foldable as Foldable
 import Data.List as List (map)
 import Data.Map as Map (Map)
-import Data.Maybe (fromJust, fromMaybe, isJust)
+import Data.Maybe (fromJust, isJust)
 import Data.Proxy
 import Data.Tree (Tree(Node), Forest)
 import Language.Haskell.TH
 import Language.Haskell.TH.Context (ContextM, reifyInstancesWithContext)
 import Language.Haskell.TH.Instances ()
+import Language.Haskell.TH.Path.Common (HasConQ(asConQ), HasCon(asCon), HasName(asName), HasType(asType), HasTypeQ(asTypeQ),
+                                        bestPathTypeName, bestTypeName,
+                                        makeFieldCon, makePathCon, makePathType, makeHopCon,
+                                        ModelType(ModelType), PathCon, PathCon(PathCon))
 import Language.Haskell.TH.Path.Core (IsPathStart(Peek, peek, Hop), IsPath(..), ToLens(toLens), SelfPath, SinkType,
                                       Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..), forestMap)
-import Language.Haskell.TH.Path.Decs.Common (HasConQ(asConQ), HasCon(asCon), HasName(asName), HasType(asType), HasTypeQ(asTypeQ),
-                                             bestPathTypeName, bestTypeName,
-                                             makeFieldCon, makePathCon, makePathType, makeHopCon,
-                                             ModelType(ModelType), PathCon, PathCon(PathCon))
 import Language.Haskell.TH.Path.Order (Order, Path_OMap(..))
 import Language.Haskell.TH.Path.View (viewInstanceType)
 import Language.Haskell.TH.Syntax as TH (Quasi(qReify))
@@ -78,7 +78,6 @@ peekDecs v =
       peekCons = (concat . List.map doPair . toList) <$> (pathKeys v)
       doPair :: TGVSimple -> [ConQ]
       doPair g =
-          let Just vp = bestPathTypeName v in
           case (bestName v, bestName g) of
             (Just vn, Just gn) ->
                 [normalC (asName (makePeekCon (ModelType vn) (ModelType gn)))
@@ -89,11 +88,10 @@ peekDecs v =
       hopCons = (concat . List.map doHopPair . toList) <$> (lensKeys v)
       doHopPair :: TGV -> [ConQ]
       doHopPair g =
-          let Just vp = bestPathTypeName v in
           case (bestName v, bestName g) of
             (Just vn, Just gn) ->
                 [normalC (asName (makeHopCon v g))
-                         [(,) <$> notStrict <*> [t|$(asTypeQ vp) $(pure (view (vsimple . etype . unE) g))|]]]
+                         [(,) <$> notStrict <*> [t|$(asTypeQ (bestPathTypeName v)) $(pure (view (vsimple . etype . unE) g))|]]]
             _ -> []
 
 peekClauses :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) =>
@@ -108,7 +106,7 @@ peekClauses v =
          | simplePath -> return []
          | isJust viewType ->
              do let wtyp = fromJust viewType
-                let tname = fromMaybe (error $ "No name for " ++ pprint v) (bestTypeName v)
+                let tname = bestTypeName v
                 w <- expandType wtyp >>= typeVertex
                 let PathCon pcon = makePathCon (makePathType tname) "View"
                 (: []) <$> forestOfAlt (varE x) v (varP x, [(w, conP pcon [wildP], conE pcon)])
@@ -214,8 +212,8 @@ forestOfConc :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders Ty
 forestOfConc x v (w, ppat, pcon) =
     do gs <- pathKeys w
        p <- runQ $ newName "p"
-       let vn = maybe (error "forestOfConc") asName (bestTypeName v)
-           wn = maybe (error "forestOfConc") asName (bestTypeName w)
+       let vn = bestTypeName v
+           wn = bestTypeName w
        return [| concatMap
                    (\path -> case path of
                                $(asP p ppat) ->

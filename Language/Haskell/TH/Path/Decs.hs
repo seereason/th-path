@@ -18,33 +18,32 @@ module Language.Haskell.TH.Path.Decs
     , allDecs
     ) where
 
-import Control.Monad.Readers (MonadReaders)
 import Control.Monad.Writer (MonadWriter, execWriterT)
 import Language.Haskell.TH
-import Language.Haskell.TH.Context (ContextM)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Decs.IsPath (peekDecs)
 import Language.Haskell.TH.Path.Decs.Lens (lensDecs)
 import Language.Haskell.TH.Path.Decs.PathsOf (pathDecs)
 import Language.Haskell.TH.Path.Decs.PathType (pathTypeDecs)
 import Language.Haskell.TH.Path.Decs.ToLens (toLensDecs)
-import Language.Haskell.TH.Path.Graph (runTypeGraphT)
+import Language.Haskell.TH.Path.Graph (runTypeGraphT, TypeGraphM)
+import Language.Haskell.TH.Path.Instances ()
 import Language.Haskell.TH.TypeGraph.Expand (expandType)
-import Language.Haskell.TH.TypeGraph.TypeGraph (allPathStarts, TypeGraph)
-import Language.Haskell.TH.TypeGraph.TypeInfo (TypeInfo, typeVertex)
+import Language.Haskell.TH.TypeGraph.TypeGraph (allPathStarts)
+import Language.Haskell.TH.TypeGraph.TypeInfo (typeVertex)
 import Language.Haskell.TH.TypeGraph.Vertex (TGVSimple)
 
 derivePaths :: [TypeQ] -> TypeQ -> Q [Dec]
 derivePaths topTypes thisType =
     runTypeGraphT (execWriterT . doType =<< runQ thisType) =<< sequence topTypes
 
-allDecs :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => m [Dec]
+allDecs :: forall m. (TypeGraphM m) => m [Dec]
 allDecs = execWriterT $ allPathStarts >>= mapM_ doNode
 
-doType :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) => Type -> m ()
+doType :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => Type -> m ()
 doType t = expandType t >>= typeVertex >>= doNode
 
-doNode :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) => TGVSimple -> m ()
+doNode :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TGVSimple -> m ()
 doNode v = do
   lensDecs v      -- generate lenses using makeClassyFor
   pathTypeDecs v  -- generate Path types and the IsPathEnd instances

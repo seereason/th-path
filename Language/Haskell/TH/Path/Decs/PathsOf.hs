@@ -30,8 +30,8 @@ import Data.Set.Extra as Set (insert, mapM_, member, Set)
 import Language.Haskell.TH
 import Language.Haskell.TH.Context (ContextM, reifyInstancesWithContext)
 import Language.Haskell.TH.Instances ()
+import Language.Haskell.TH.Path.Common (asConQ, asTypeQ, bestTypeName, makePathCon, makePathType, ModelType(ModelType))
 import Language.Haskell.TH.Path.Core (IsPathEnd(idPath), IsPath(..), ToLens(..), SelfPath, SinkType, Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
-import Language.Haskell.TH.Path.Decs.Common (asConQ, asTypeQ, bestTypeName, makePathCon, makePathType, ModelType(ModelType))
 import Language.Haskell.TH.Path.Decs.PathType (pathType)
 import Language.Haskell.TH.Path.Instances ()
 import Language.Haskell.TH.Path.Order (Order, Path_OMap(..), toPairs)
@@ -85,7 +85,7 @@ pathsOfExprs key gkey s a =
          | isJust viewType ->
              do let Just vtyp = viewType
                 vIsPath <- testIsPath vtyp gkey
-                let Just tname = bestTypeName key
+                let tname = bestTypeName key
                 let pcname = makePathCon (makePathType tname) "View"
                 -- Get the value as transformed by the view lens
                 if vIsPath

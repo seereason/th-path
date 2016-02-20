@@ -17,21 +17,19 @@ module Language.Haskell.TH.Path.Decs.Lens
     ) where
 
 import Control.Lens hiding (cons, Strict)
-import Control.Monad.Readers (MonadReaders)
 import Control.Monad.Writer (MonadWriter, execWriterT, tell)
 import Data.Char (toLower)
 import Data.Foldable as Foldable
 import Language.Haskell.TH
 import Language.Haskell.TH.Context (ContextM)
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.Path.Decs.Common (fieldLensNamePair)
+import Language.Haskell.TH.Path.Common (fieldLensNamePair)
+import Language.Haskell.TH.Path.Graph (TypeGraphM)
 import Language.Haskell.TH.Syntax as TH (Quasi(qReify))
 import Language.Haskell.TH.TypeGraph.Lens (lensNamePairs)
-import Language.Haskell.TH.TypeGraph.TypeGraph (TypeGraph)
-import Language.Haskell.TH.TypeGraph.TypeInfo (TypeInfo)
 import Language.Haskell.TH.TypeGraph.Vertex (TGVSimple, typeNames)
 
-lensDecs :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) => TGVSimple -> m ()
+lensDecs :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TGVSimple -> m ()
 lensDecs v =
     mapM makePathLens (toList (typeNames v)) >>= tell . concat
 

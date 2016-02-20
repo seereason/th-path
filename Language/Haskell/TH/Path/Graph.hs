@@ -14,6 +14,7 @@
 {-# LANGUAGE TupleSections #-}
 module Language.Haskell.TH.Path.Graph
     ( runContextT
+    , TypeGraphM
     , runTypeGraphT
     ) where
 
@@ -25,10 +26,11 @@ import Control.Monad.Readers (askPoly, MonadReaders)
 import Control.Monad.State (execStateT, evalStateT, get, put, StateT)
 import Control.Monad.States (getPoly, modifyPoly, MonadStates, putPoly)
 import Control.Monad.Trans (lift)
+import Control.Monad.Writer (WriterT)
 import Data.Foldable.Compat
 import Data.Graph as Graph (reachable)
 import Data.List as List (filter)
-import Data.Map as Map (filterWithKey, fromList, keys, Map, mapWithKey, toList)
+import Data.Map as Map (filterWithKey, keys, Map, mapWithKey)
 import Data.Maybe (mapMaybe)
 import Data.Set as Set (difference, empty, fromList, map, member, Set, singleton, toList)
 import Language.Haskell.Exts.Syntax ()
@@ -37,6 +39,7 @@ import Language.Haskell.TH.Context (ContextM, InstMap, reifyInstancesWithContext
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.KindInference (inferKind)
+import Language.Haskell.TH.Path.Common ()
 import Language.Haskell.TH.Path.Core (SinkType, HideType)
 import Language.Haskell.TH.Path.Instances ()
 import Language.Haskell.TH.Path.Order (Order)
@@ -69,6 +72,13 @@ instance Monad m => MonadStates String (StateT S m) where
     putPoly s = prefix .= s
 
 instance DsMonad m => ContextM (StateT S m)
+
+class (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => TypeGraphM m
+
+instance TypeGraphM (ReaderT TypeGraph (ReaderT TypeInfo (StateT S Q)))
+
+instance (Monoid w, TypeGraphM m) => TypeGraphM (WriterT w m)
+instance TypeGraphM m => TypeGraphM (StateT (Set Name) m)
 
 runContextT :: Monad m => StateT S m a -> m a
 runContextT action = evalStateT action (S mempty mempty "")
