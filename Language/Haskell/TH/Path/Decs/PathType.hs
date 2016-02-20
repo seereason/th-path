@@ -25,11 +25,12 @@ import Data.Foldable as Foldable
 import Data.List as List (intercalate, map)
 import Data.Map as Map (Map)
 import Data.Maybe (isJust)
+import Data.Set as Set (delete)
 import Language.Haskell.TH
 import Language.Haskell.TH.Context (ContextM, reifyInstancesWithContext)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Core (SelfPath, SinkType, Path_List, Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
-import Language.Haskell.TH.Path.Decs.Common (asTypeQ, bestPathTypeName, ModelType(ModelType), makePathType)
+import Language.Haskell.TH.Path.Decs.Common (allPathTypeNames, asTypeQ, bestPathTypeName, ModelType(ModelType), makePathType)
 import Language.Haskell.TH.Path.Order (Order, Path_OMap(..))
 import Language.Haskell.TH.Path.View (viewInstanceType)
 import Language.Haskell.TH.TypeGraph.Expand (E(E), unE)
@@ -62,11 +63,11 @@ pathType gtyp key = do
   viewType <- viewInstanceType (view etype key)
   case view (etype . unE) key of
     _ | selfPath -> return $ view (etype . unE) key
-      | simplePath -> let Just (pname, _syns) = bestPathTypeName key in runQ [t|$(asTypeQ pname) $gtyp|]
+      | simplePath -> let Just pname = bestPathTypeName key in runQ [t|$(asTypeQ pname) $gtyp|]
       | isJust viewType ->
           case bestPathTypeName key of
             Nothing -> error $ "No type name for view type " ++ show key
-            Just (pname, _syns) -> runQ [t|$(asTypeQ pname) $gtyp|]
+            Just pname -> runQ [t|$(asTypeQ pname) $gtyp|]
     ConT tname ->
         runQ $ [t|$(asTypeQ (makePathType (ModelType tname))) $gtyp|]
     AppT (AppT mtyp ityp) etyp
@@ -108,7 +109,8 @@ pathTypeDecs v = do
   selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [let (E typ) = view etype v in typ]
   simplePath <- (not . null) <$> reifyInstancesWithContext ''SinkType [let (E typ) = view etype v in typ]
   viewType <- viewInstanceType (view etype v)
-  let Just (pname, psyns) = bestPathTypeName v
+  let Just pname = bestPathTypeName v
+      psyns = Set.delete pname (allPathTypeNames v)
   a <- runQ $ newName "a"
   -- e.g. type Path_EpochMilli a = Path_Int64 a
   runQ (mapM (\psyn -> tySynD (asName psyn) [PlainTV a] (appT (asTypeQ pname) (varT a))) (toList psyns)) >>= tell
@@ -121,7 +123,7 @@ pathTypeDecs v = do
 doSimplePath :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) =>
                 TGVSimple -> m ()
 doSimplePath v = do
-  let Just (pname, _psyns) = bestPathTypeName v
+  let Just pname = bestPathTypeName v
   a <- runQ $ newName "a"
   -- e.g. data Path_Int a = Path_Int deriving (Eq, Ord, Read, Show, Typeable, Data)
   runQ (dataD (pure []) (asName pname) [PlainTV a] [normalC (asName pname) []] supers) >>= tell . (: [])
@@ -129,7 +131,7 @@ doSimplePath v = do
 
 viewPath :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) => TGVSimple -> Type -> m ()
 viewPath v styp = do
-  let Just (pname, _psyns) = bestPathTypeName v
+  let Just pname = bestPathTypeName v
   skey <- expandType styp >>= typeVertex
   a <- runQ $ newName "a"
   ptype <- pathType (varT a) skey

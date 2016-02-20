@@ -31,7 +31,7 @@ import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Core (IsPathStart(Peek, peek, Hop), IsPath(..), ToLens(toLens), SelfPath, SinkType,
                                       Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..), forestMap)
 import Language.Haskell.TH.Path.Decs.Common (HasConQ(asConQ), HasCon(asCon), HasName(asName), HasType(asType), HasTypeQ(asTypeQ),
-                                             bestNames, bestPathTypeName, bestTypeName,
+                                             bestPathTypeName, bestTypeName,
                                              makeFieldCon, makePathCon, makePathType, makeHopCon,
                                              ModelType(ModelType), PathCon, PathCon(PathCon))
 import Language.Haskell.TH.Path.Order (Order, Path_OMap(..))
@@ -61,27 +61,24 @@ makePeekCon (ModelType s) (ModelType g) = PeekCon (mkName ("Peek_" ++ nameBase (
 peekDecs :: forall m. (MonadWriter [Dec] m, ContextM m, MonadReaders TypeInfo m, MonadReaders TypeGraph m) =>
             TGVSimple -> m ()
 peekDecs v =
-    case bestTypeName v of
-      Just _tname -> do
-        (pnc :: [ClauseQ]) <- peekClauses v
-        (cons :: [ConQ]) <- peekCons
-        (hcons :: [ConQ]) <- hopCons
-        runQ (instanceD (cxt []) (appT (conT ''IsPathStart) (asTypeQ v))
-                [dataInstD (cxt []) ''Peek [asTypeQ v] cons [''Eq, ''Show],
-                 funD 'peek (case pnc of
-                               [] -> [clause [wildP] (normalB [| [] |]) []]
-                               _ -> pnc),
-                 dataInstD (cxt []) ''Hop [asTypeQ v] (case hcons of
-                                                         [] -> [normalC (asName (makeHopCon v (tgv v))) []]
-                                                         _ -> hcons) [''Eq, ''Show]
-                ]) >>= tell . (: [])
-      Nothing -> return ()
+    do (pnc :: [ClauseQ]) <- peekClauses v
+       (cons :: [ConQ]) <- peekCons
+       (hcons :: [ConQ]) <- hopCons
+       runQ (instanceD (cxt []) (appT (conT ''IsPathStart) (asTypeQ v))
+               [dataInstD (cxt []) ''Peek [asTypeQ v] cons [''Eq, ''Show],
+                funD 'peek (case pnc of
+                              [] -> [clause [wildP] (normalB [| [] |]) []]
+                              _ -> pnc),
+                dataInstD (cxt []) ''Hop [asTypeQ v] (case hcons of
+                                                        [] -> [normalC (asName (makeHopCon v (tgv v))) []]
+                                                        _ -> hcons) [''Eq, ''Show]
+               ]) >>= tell . (: [])
     where
       peekCons :: m [ConQ]
       peekCons = (concat . List.map doPair . toList) <$> (pathKeys v)
       doPair :: TGVSimple -> [ConQ]
       doPair g =
-          let Just (vp, _) = bestPathTypeName v in
+          let Just vp = bestPathTypeName v in
           case (bestName v, bestName g) of
             (Just vn, Just gn) ->
                 [normalC (asName (makePeekCon (ModelType vn) (ModelType gn)))
@@ -92,7 +89,7 @@ peekDecs v =
       hopCons = (concat . List.map doHopPair . toList) <$> (lensKeys v)
       doHopPair :: TGV -> [ConQ]
       doHopPair g =
-          let Just (vp, _) = bestPathTypeName v in
+          let Just vp = bestPathTypeName v in
           case (bestName v, bestName g) of
             (Just vn, Just gn) ->
                 [normalC (asName (makeHopCon v g))
@@ -217,8 +214,8 @@ forestOfConc :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders Ty
 forestOfConc x v (w, ppat, pcon) =
     do gs <- pathKeys w
        p <- runQ $ newName "p"
-       let vn = maybe (error "forestOfConc") (asName . view _1) (bestNames v)
-           wn = maybe (error "forestOfConc") (asName . view _1) (bestNames w)
+       let vn = maybe (error "forestOfConc") asName (bestTypeName v)
+           wn = maybe (error "forestOfConc") asName (bestTypeName w)
        return [| concatMap
                    (\path -> case path of
                                $(asP p ppat) ->

@@ -14,8 +14,8 @@
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeSynonymInstances #-}
 module Language.Haskell.TH.Path.Decs.Common
-    ( bestNames
-    , bestPathTypeName
+    ( bestPathTypeName
+    , allPathTypeNames
     , bestTypeName
     , clauses
     , fieldLensNamePair
@@ -35,7 +35,7 @@ module Language.Haskell.TH.Path.Decs.Common
 
 import Control.Lens hiding (cons, Strict)
 import Data.List as List (map)
-import Data.Set as Set (delete, minView)
+import Data.Set as Set (minView)
 import Data.Set.Extra as Set (map, Set)
 import Language.Haskell.TH
 import Language.Haskell.TH.Instances ()
@@ -45,20 +45,13 @@ import Language.Haskell.TH.TypeGraph.Vertex (etype, field, TGV, TGVSimple, TypeG
 
 -- Naming conventions
 
-bestNames :: TypeGraphVertex v => v -> Maybe (ModelType Name, PathType Name, Set (PathType Name))
-bestNames v =
-    case (bestTypeName v, bestPathTypeName v) of
-      (Just tname, Just (pname, pnames)) -> Just (tname, pname, pnames)
-      _ -> Nothing
-
 -- | If the type is (ConT name) return name, otherwise return a type
 -- synonym name.
-bestPathTypeName :: TypeGraphVertex v => v -> Maybe (PathType Name, Set (PathType Name))
-bestPathTypeName v =
-    case (bestType v, typeNames v) of
-      (ConT tname, names) -> Just (makePathType (ModelType tname), Set.map (makePathType . ModelType) (Set.delete tname names))
-      (_t, s) | null s -> Nothing
-      (_t, _s) -> error "bestPathTypeName - unexpected name"
+bestPathTypeName :: TypeGraphVertex v => v -> Maybe (PathType Name)
+bestPathTypeName = fmap makePathType . bestTypeName
+
+allPathTypeNames :: TypeGraphVertex v => v -> Set (PathType Name)
+allPathTypeNames v = Set.map (makePathType . ModelType) (typeNames v)
 
 bestTypeName :: TypeGraphVertex v => v -> Maybe (ModelType Name)
 bestTypeName v =
