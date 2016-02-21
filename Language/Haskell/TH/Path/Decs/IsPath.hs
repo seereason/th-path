@@ -37,10 +37,10 @@ import Language.Haskell.TH.Path.Core (IsPathStart(Peek, peek, Hop), IsPath(..), 
 import Language.Haskell.TH.Path.Order (Order, Path_OMap(..))
 import Language.Haskell.TH.Path.View (viewInstanceType)
 import Language.Haskell.TH.Syntax as TH (Quasi(qReify))
-import Language.Haskell.TH.TypeGraph.Expand (expandType, unE)
-import Language.Haskell.TH.TypeGraph.TypeGraph (lensKeys, pathKeys, TypeGraph)
-import Language.Haskell.TH.TypeGraph.TypeInfo (fieldVertex, TypeInfo, typeVertex)
-import Language.Haskell.TH.TypeGraph.Vertex (bestName, etype, tgv, TGV, TGVSimple, vsimple)
+import Language.Haskell.TH.TypeGraph.Expand (expandType)
+import Language.Haskell.TH.TypeGraph.TypeGraph (lensKeys, pathKeys, tgvSimple, TypeGraph)
+import Language.Haskell.TH.TypeGraph.TypeInfo (fieldVertex, TypeInfo)
+import Language.Haskell.TH.TypeGraph.Vertex (bestName, etype, mkTGV, TGV', TGVSimple, TGVSimple', vsimple)
 
 newtype PeekType = PeekType {unPeekType :: Name} deriving (Eq, Ord, Show) -- e.g. Peek_AbbrevPairs
 newtype PeekCon = PeekCon {unPeekCon :: Name} deriving (Eq, Ord, Show) -- e.g. Peek_AbbrevPairs_Markup
@@ -70,28 +70,28 @@ peekDecs v =
                               [] -> [clause [wildP] (normalB [| [] |]) []]
                               _ -> pnc),
                 dataInstD (cxt []) ''Hop [asTypeQ v] (case hcons of
-                                                        [] -> [normalC (asName (makeHopCon v (tgv v))) []]
+                                                        [] -> [normalC (asName (makeHopCon v (mkTGV v))) []]
                                                         _ -> hcons) [''Eq, ''Show]
                ]) >>= tell . (: [])
     where
       peekCons :: m [ConQ]
       peekCons = (concat . List.map doPair . toList) <$> (pathKeys v)
-      doPair :: TGVSimple -> [ConQ]
+      doPair :: TGVSimple' -> [ConQ]
       doPair g =
           case (bestName v, bestName g) of
             (Just vn, Just gn) ->
                 [normalC (asName (makePeekCon (ModelType vn) (ModelType gn)))
-                         [(,) <$> notStrict <*> [t|Path $(asTypeQ v) $(pure (view (etype . unE) g))|],
-                          (,) <$> notStrict <*> [t|Maybe $(pure (view (etype . unE) g))|] ]]
+                         [(,) <$> notStrict <*> [t|Path $(asTypeQ v) $(asTypeQ g)|],
+                          (,) <$> notStrict <*> [t|Maybe $(asTypeQ g)|] ]]
             _ -> []
       hopCons :: m [ConQ]
       hopCons = (concat . List.map doHopPair . toList) <$> (lensKeys v)
-      doHopPair :: TGV -> [ConQ]
+      doHopPair :: TGV' -> [ConQ]
       doHopPair g =
           case (bestName v, bestName g) of
             (Just vn, Just gn) ->
                 [normalC (asName (makeHopCon v g))
-                         [(,) <$> notStrict <*> [t|$(asTypeQ (bestPathTypeName v)) $(pure (view (vsimple . etype . unE) g))|]]]
+                         [(,) <$> notStrict <*> [t|$(asTypeQ (bestPathTypeName v)) $(asTypeQ g)|]]]
             _ -> []
 
 peekClauses :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) =>
@@ -107,7 +107,7 @@ peekClauses v =
          | isJust viewType ->
              do let wtyp = fromJust viewType
                 let tname = bestTypeName v
-                w <- expandType wtyp >>= typeVertex
+                w <- tgvSimple wtyp
                 let PathCon pcon = makePathCon (makePathType tname) "View"
                 (: []) <$> forestOfAlt (varE x) v (varP x, [(w, conP pcon [wildP], conE pcon)])
        ConT tname -> doName tname
@@ -119,17 +119,17 @@ peekClauses v =
            | t3 == ConT ''Map ->
                doPeekNodesOfMap v vtyp (PathCon 'Path_Look)
        AppT (AppT (TupleT 2) ftyp) styp ->
-           do f <- expandType ftyp >>= typeVertex
-              s <- expandType styp >>= typeVertex
+           do f <- tgvSimple ftyp
+              s <- tgvSimple styp
               (: []) <$> forestOfAlt (varE x) v (varP x, [(f, conP 'Path_First [wildP], [|Path_First|]), (s, conP 'Path_Second [wildP], [|Path_Second|])])
        AppT t1 etyp
            | t1 == ConT ''Maybe ->
-               do e <- expandType etyp >>= typeVertex
+               do e <- tgvSimple etyp
                   (: []) <$> forestOfAlt (varE x) v (varP x, [(e, conP 'Path_Just [wildP], [|Path_Just|])])
        AppT (AppT t3 ltyp) rtyp
            | t3 == ConT ''Either ->
-               do l <- expandType ltyp >>= typeVertex
-                  r <- expandType rtyp >>= typeVertex
+               do l <- tgvSimple ltyp
+                  r <- tgvSimple rtyp
                   mapM (forestOfAlt (varE x) v) [(asP x (conP 'Left [wildP]), [(l, conP 'Path_Left [wildP], [|Path_Left|])]),
                                                  (asP x (conP 'Right [wildP]), [(r, conP 'Path_Right [wildP], [|Path_Right|])])]
        _ -> return []
@@ -191,7 +191,7 @@ doPeekNodesOfOrder :: forall m a. (ContextM m, MonadReaders TypeGraph m, MonadRe
                       TGVSimple -> Type -> PathCon a -> m [ClauseQ]
 doPeekNodesOfOrder v wtyp pcname =
   do x <- runQ $ newName "x"
-     w <- expandType wtyp >>= typeVertex :: m TGVSimple
+     w <- tgvSimple wtyp
      k <- runQ $ newName "k"
      (: []) <$> forestOfAlt (varE x) v (varP x, [(w, conP (asName pcname) [varP k, wildP], [|$(asConQ pcname) $(varE k)|])])
 
@@ -199,7 +199,7 @@ doPeekNodesOfMap :: forall m a. (ContextM m, MonadReaders TypeGraph m, MonadRead
                     TGVSimple -> Type -> PathCon a -> m [ClauseQ]
 doPeekNodesOfMap v wtyp pcname =
   do x <- runQ $ newName "x"
-     w <- expandType wtyp >>= typeVertex :: m TGVSimple
+     w <- tgvSimple wtyp
      k <- runQ $ newName "k"
      (: []) <$> forestOfAlt (varE x) v (varP x, [(w, conP (asName pcname) [varP k, wildP], [|$(asConQ pcname) $(varE k)|])])
 
@@ -226,7 +226,7 @@ forestOfConc x v (w, ppat, pcon) =
                                _ -> [])
                    (pathsOf $x (undefined :: Proxy $(asTypeQ w)) :: [$(asTypeQ (makePathType (ModelType vn))) $(asTypeQ w)]) :: Forest (Peek $(asTypeQ v)) |]
 
-doGoal :: TGVSimple -> TGVSimple -> ExpQ -> TGVSimple -> [MatchQ]
+doGoal :: TGVSimple -> TGVSimple -> ExpQ -> TGVSimple' -> [MatchQ]
 doGoal v w pcon g = do
   case (bestName v, bestName w, bestName g) of
     (Just vn, Just wn, Just gn) ->

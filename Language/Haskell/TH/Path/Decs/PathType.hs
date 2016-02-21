@@ -19,8 +19,7 @@ module Language.Haskell.TH.Path.Decs.PathType
     ) where
 
 import Control.Lens hiding (cons, Strict)
-import Control.Monad.Reader (runReaderT)
-import Control.Monad.Readers (askPoly, MonadReaders)
+import Control.Monad.Readers (MonadReaders)
 import Control.Monad.Writer (MonadWriter, tell)
 import Data.Data (Data, Typeable)
 import Data.Foldable as Foldable
@@ -32,22 +31,21 @@ import Language.Haskell.TH
 import Language.Haskell.TH.Context (ContextM, reifyInstancesWithContext)
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.Path.Common (allPathTypeNames, asConQ, asName, asTypeQ, bestPathTypeName, ModelType(ModelType),
+import Language.Haskell.TH.Path.Common (allPathTypeNames, asConQ, asName, asType, asTypeQ, bestPathTypeName, ModelType(ModelType),
                                         makeFieldCon, makePathCon, makePathType)
 import Language.Haskell.TH.Path.Core (IsPathEnd(idPath), SelfPath, SinkType,
                                       Path_List, Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
 import Language.Haskell.TH.Path.Order (Order, Path_OMap(..))
 import Language.Haskell.TH.Path.View (viewInstanceType)
 import Language.Haskell.TH.Syntax as TH (VarStrictType)
-import Language.Haskell.TH.TypeGraph.Expand (E(E), expandType, unE)
+import Language.Haskell.TH.TypeGraph.Expand (E(E), expandType)
 import Language.Haskell.TH.TypeGraph.Prelude (pprint')
-import Language.Haskell.TH.TypeGraph.TypeGraph (reachableFromSimple, TypeGraph)
-import Language.Haskell.TH.TypeGraph.TypeInfo (fieldVertex, TypeInfo, typeVertex)
-import Language.Haskell.TH.TypeGraph.TypeInfo ()
+import Language.Haskell.TH.TypeGraph.TypeGraph (reachableFromSimple, tgvSimple, TypeGraph)
+import Language.Haskell.TH.TypeGraph.TypeInfo (fieldVertex, TypeInfo)
 import Language.Haskell.TH.TypeGraph.Vertex (etype, TGVSimple, typeNames, vsimple)
 
 -- | Given a type, compute the corresponding path type.
-pathType :: (MonadReaders TypeGraph m, MonadReaders TypeInfo m, ContextM m) =>
+pathType :: forall m. (MonadReaders TypeGraph m, MonadReaders TypeInfo m, ContextM m) =>
             TypeQ
          -> TGVSimple -- ^ The type to convert to a path type
          -> m Type
@@ -55,44 +53,42 @@ pathType gtyp key = do
   selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [let (E typ) = view etype key in typ]
   simplePath <- (not . null) <$> reifyInstancesWithContext ''SinkType [let (E typ) = view etype key in typ]
   viewType <- viewInstanceType (view etype key)
-  case view (etype . unE) key of
-    _ | selfPath -> return $ view (etype . unE) key
+  case asType key of
+    _ | selfPath -> return $ asType key
       | simplePath -> runQ [t|$(asTypeQ (bestPathTypeName key)) $gtyp|]
       | isJust viewType -> runQ [t|$(asTypeQ (bestPathTypeName key)) $gtyp|]
     ConT tname ->
         runQ $ [t|$(asTypeQ (makePathType (ModelType tname))) $gtyp|]
     AppT (AppT mtyp ityp) etyp
         | mtyp == ConT ''Order ->
-            do ipath <- vert ityp >>= pathType gtyp
-               epath <- vert etyp >>= pathType gtyp
+            do ipath <- tgvSimple ityp >>= pathType gtyp
+               epath <- tgvSimple etyp >>= pathType gtyp
                runQ [t|Path_OMap $(return ipath) $(return epath)|]
     AppT ListT etyp ->
-        do epath <- vert etyp >>= pathType gtyp
+        do epath <- tgvSimple etyp >>= pathType gtyp
            runQ [t|Path_List $(return epath)|]
     AppT (AppT t3 ktyp) vtyp
         | t3 == ConT ''Map ->
-            do kpath <- vert ktyp >>= pathType gtyp
-               vpath <- vert vtyp >>= pathType gtyp
+            do kpath <- tgvSimple ktyp >>= pathType gtyp
+               vpath <- tgvSimple vtyp >>= pathType gtyp
                runQ [t| Path_Map $(return kpath) $(return vpath)|]
     AppT (AppT (TupleT 2) ftyp) styp ->
-        do fpath <- vert ftyp >>= pathType gtyp
-           spath <- vert styp >>= pathType gtyp
+        do fpath <- tgvSimple ftyp >>= pathType gtyp
+           spath <- tgvSimple styp >>= pathType gtyp
            runQ [t| Path_Pair $(return fpath) $(return spath) |]
     AppT t1 vtyp
         | t1 == ConT ''Maybe ->
-            do epath <- vert vtyp >>= pathType gtyp
+            do epath <- tgvSimple vtyp >>= pathType gtyp
                runQ [t|Path_Maybe $(return epath)|]
     AppT (AppT t3 ltyp) rtyp
         | t3 == ConT ''Either ->
-            do lpath <- vert ltyp >>= pathType gtyp
-               rpath <- vert rtyp >>= pathType gtyp
+            do lpath <- tgvSimple ltyp >>= pathType gtyp
+               rpath <- tgvSimple rtyp >>= pathType gtyp
                runQ [t| Path_Either $(return lpath) $(return rpath)|]
     _ -> do ks <- reachableFromSimple key
             error $ "pathType otherf: " ++ pprint' key ++ "\n" ++
                     intercalate "\n  " ("reachable from:" : List.map pprint' (Foldable.toList ks))
 
-    where
-      vert typ = askPoly >>= \(ti :: TypeInfo) -> runReaderT (typeVertex (E typ)) ti
 
 pathTypeDecs :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) => TGVSimple -> m ()
 pathTypeDecs v = do
@@ -123,7 +119,7 @@ doSimplePath v = do
 viewPath :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) => TGVSimple -> Type -> m ()
 viewPath v styp = do
   let pname = bestPathTypeName v
-  skey <- expandType styp >>= typeVertex
+  skey <- tgvSimple styp
   a <- runQ $ newName "a"
   ptype <- pathType (varT a) skey
   -- data Path_MaybeImageFile a =
@@ -147,7 +143,7 @@ doNames v = mapM_ (\tname -> runQ (reify tname) >>= doInfo) (typeNames v)
       -- If we have a type synonym, we can create a path type synonym
       doDec (TySynD _ _ typ') =
           do a <- runQ $ newName "a"
-             key' <- expandType typ' >>= typeVertex
+             key' <- tgvSimple typ'
              ptype <- pathType (varT a) key'
              mapM (\pname -> runQ (tySynD (asName pname) [PlainTV a] (pure ptype))) (toList . Set.map makePathType . Set.map ModelType . typeNames $ v) >>= tell
       doDec (NewtypeD _ tname _ con _) = doDataD tname [con]

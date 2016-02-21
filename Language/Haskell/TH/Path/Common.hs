@@ -40,7 +40,8 @@ import Language.Haskell.TH
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Instances ()
 import Language.Haskell.TH.TypeGraph.Expand (E, unE)
-import Language.Haskell.TH.TypeGraph.Vertex (etype, field, MayHaveField(fieldOf), syns, TGV, TGVSimple, TypeGraphVertex, typeNames, vsimple)
+import Language.Haskell.TH.TypeGraph.Vertex (etype, field, MayHaveField(fieldOf), syns,
+                                             TGV, TGVSimple, TGV', TGVSimple', TypeGraphVertex, typeNames, vsimple)
 
 -- Naming conventions
 
@@ -123,19 +124,27 @@ instance HasName a => HasConQ (HopCon a) where asConQ = conE . asName . unHopCon
 
 -- Temporary
 instance HasName TGVSimple where
-    asName x = case view (etype . unE) x of
+    asName x = case asType x of
                  ConT name -> name
                  _ -> case minView (view syns x) of
                         Just (name, _) -> name
-                        Nothing -> error $ "HasName " ++ pprint (view (etype . unE) x)
+                        Nothing -> error $ "HasName " ++ pprint (asType x)
+instance HasName TGVSimple' where
+    asName = asName . snd
 -- Temporary
 instance HasName TGV where
     asName = asName . view vsimple
+instance HasName TGV' where
+    asName = asName . snd
 
+instance HasType TGVSimple' where asType = asType . snd
+instance HasType TGV' where asType = asType . snd
 instance HasType TGVSimple where asType = asType . view etype
 instance HasType TGV where asType = asType . view vsimple
 instance HasType (E Type) where asType = view unE
 instance HasType Type where asType = id
+instance HasTypeQ TGVSimple' where asTypeQ = asTypeQ . snd
+instance HasTypeQ TGV' where asTypeQ = asTypeQ . snd
 instance HasTypeQ TGVSimple where asTypeQ = pure . asType
 instance HasTypeQ TGV where asTypeQ = pure . asType
 instance HasTypeQ (E Type) where asTypeQ = pure . asType

@@ -52,7 +52,7 @@ import Language.Haskell.TH.Ppr as TH (Ppr)
 import Language.Haskell.TH.PprLib as TH (text)
 import Language.Haskell.TH.TypeGraph.Prelude (friendlyNames)
 import Language.Haskell.TH.TypeGraph.TypeInfo (startTypes, TypeInfo)
-import Language.Haskell.TH.TypeGraph.TypeGraph (adjacent, TypeGraph, typeGraphVertex)
+import Language.Haskell.TH.TypeGraph.TypeGraph (TypeGraph, typeGraphVertex)
 import System.Exit
 import Test.HUnit
 import Text.PrettyPrint (text)

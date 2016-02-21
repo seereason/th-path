@@ -39,7 +39,7 @@ import Language.Haskell.TH.Context (ContextM, InstMap, reifyInstancesWithContext
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.KindInference (inferKind)
-import Language.Haskell.TH.Path.Common ()
+import Language.Haskell.TH.Path.Common (asType)
 import Language.Haskell.TH.Path.Core (SinkType, HideType)
 import Language.Haskell.TH.Path.Instances ()
 import Language.Haskell.TH.Path.Order (Order)
@@ -127,9 +127,9 @@ pathGraphEdges =
       -- involving unbound type variables (ReadOnly a).
       higherOrder :: TGV -> m Bool
       higherOrder v = let t1 k = {-trace ("Kind of " ++ pprint v ++ " is " ++ show k)-} (return k) in
-                      (/= Right StarT) <$> runQ (inferKind (view (vsimple . etype . unE) v) >>= t1)
+                      (/= Right StarT) <$> runQ (inferKind (asType v) >>= t1)
       hasFreeVars :: TGV -> m Bool
-      hasFreeVars v = (/= Set.empty) <$> runQ (freeTypeVars (view (vsimple . etype . unE) v))
+      hasFreeVars v = (/= Set.empty) <$> runQ (freeTypeVars (asType v))
       -- Primitive (unlifted) types can not be used as parameters to a
       -- type class, which makes them unusable in this system.
       isUnlifted :: TGV -> m Bool

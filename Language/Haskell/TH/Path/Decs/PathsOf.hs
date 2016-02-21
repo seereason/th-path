@@ -30,17 +30,16 @@ import Data.Set.Extra as Set (insert, mapM_, member, Set)
 import Language.Haskell.TH
 import Language.Haskell.TH.Context (ContextM, reifyInstancesWithContext)
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.Path.Common (asConQ, asTypeQ, bestTypeName, makePathCon, makePathType, ModelType(ModelType))
+import Language.Haskell.TH.Path.Common (asConQ, asType, asTypeQ, bestTypeName, makePathCon, makePathType, ModelType(ModelType))
 import Language.Haskell.TH.Path.Core (IsPathEnd(idPath), IsPath(..), ToLens(..), SelfPath, SinkType, Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
 import Language.Haskell.TH.Path.Decs.PathType (pathType)
 import Language.Haskell.TH.Path.Instances ()
 import Language.Haskell.TH.Path.Order (Order, Path_OMap(..), toPairs)
 import Language.Haskell.TH.Path.View (viewInstanceType)
 import Language.Haskell.TH.Syntax as TH (Quasi(qReify))
-import Language.Haskell.TH.TypeGraph.Expand (unE, expandType)
-import Language.Haskell.TH.TypeGraph.TypeGraph (allPathKeys, pathKeys, TypeGraph)
-import Language.Haskell.TH.TypeGraph.TypeInfo (TypeInfo, typeVertex)
-import Language.Haskell.TH.TypeGraph.Vertex (bestName, etype, TGVSimple, TypeGraphVertex(bestType))
+import Language.Haskell.TH.TypeGraph.TypeGraph (allPathKeys, pathKeys, tgvSimple, TypeGraph)
+import Language.Haskell.TH.TypeGraph.TypeInfo (TypeInfo)
+import Language.Haskell.TH.TypeGraph.Vertex (bestName, etype, TGVSimple, TGVSimple', TypeGraphVertex(bestType))
 
 pathDecs :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) => TGVSimple -> m ()
 pathDecs v =
@@ -51,7 +50,7 @@ pathDecs v =
 -- of the path type, and returns a lens that extracts the value the
 -- path type value specifies.
 pathDecs' :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) =>
-            TGVSimple -> TGVSimple -> m ()
+            TGVSimple -> TGVSimple' -> m ()
 pathDecs' key gkey = do
   ptyp <- pathType (pure (bestType gkey)) key
   s <- runQ (newName "s")
@@ -68,18 +67,18 @@ pathDecs' key gkey = do
 -- type A
 pathsOfExprs :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadStates (Set TGVSimple) m) =>
                 TGVSimple -- ^ the type whose clauses we are generating
-             -> TGVSimple -- ^ the goal type key
+             -> TGVSimple' -- ^ the goal type key
              -> ExpQ -- ^ S
              -> ExpQ -- ^ Proxy A
              -> m Exp
 pathsOfExprs key gkey s a =
   do -- the corresponding path type - first type parameter of ToLens
      -- ptyp <- pathType (pure (bestType gkey)) key
-     selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [view (etype . unE) key]
-     simplePath <- (not . null) <$> reifyInstancesWithContext ''SinkType [view (etype . unE) key]
+     selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [asType key]
+     simplePath <- (not . null) <$> reifyInstancesWithContext ''SinkType [asType key]
      viewType <- viewInstanceType (view etype key)
-     case view (etype . unE) key of
-       _ | key == gkey -> runQ [| [idPath] |]
+     case asType key of
+       _ | key == snd gkey -> runQ [| [idPath] |]
          | selfPath -> runQ [| [] |]
          | simplePath -> runQ [| [] |]
          | isJust viewType ->
@@ -92,7 +91,7 @@ pathsOfExprs key gkey s a =
                 then runQ [| let p = $(asConQ pcname) idPath :: Path $(asTypeQ key) $(pure vtyp)
                                  [s'] = toListOf (toLens p) $s :: [$(pure vtyp)] in
                              List.map $(asConQ pcname) (pathsOf s' $a ::
-                                                            [Path $(pure vtyp) $(pure (view (etype . unE) gkey))]) |]
+                                                            [Path $(pure vtyp) $(asTypeQ gkey)]) |]
                 else runQ [| [] |]
        ConT tname ->
            doName tname
@@ -182,7 +181,7 @@ zip4 l1 l2 l3 l4 = map (\((a, b), (c, d)) -> (a, b, c, d)) (zip (zip l1 l2) (zip
 
 doClause :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) =>
             Type
-         -> TGVSimple
+         -> TGVSimple'
          -> ExpQ -- ^ S
          -> ExpQ -- ^ Proxy A
          -> ExpQ -- ^ Build a path
@@ -195,7 +194,7 @@ doClause vtyp gkey s a toPath toVal asList = do
 -- | See if there is a path from typ to gkey.  We need to avoid
 -- building expressions for non-existant paths because they will cause
 -- "no Path instance" errors.
-testIsPath :: (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => Type -> TGVSimple -> m Bool
+testIsPath :: (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => Type -> TGVSimple' -> m Bool
 testIsPath typ gkey = do
-  key <- expandType typ >>= typeVertex
+  key <- tgvSimple typ
   (maybe False (Set.member gkey) . Map.lookup key) <$> allPathKeys

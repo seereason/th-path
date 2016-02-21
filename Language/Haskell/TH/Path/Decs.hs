@@ -28,9 +28,7 @@ import Language.Haskell.TH.Path.Decs.PathType (pathTypeDecs)
 import Language.Haskell.TH.Path.Decs.ToLens (toLensDecs)
 import Language.Haskell.TH.Path.Graph (runTypeGraphT, TypeGraphM)
 import Language.Haskell.TH.Path.Instances ()
-import Language.Haskell.TH.TypeGraph.Expand (expandType)
-import Language.Haskell.TH.TypeGraph.TypeGraph (allPathStarts)
-import Language.Haskell.TH.TypeGraph.TypeInfo (typeVertex)
+import Language.Haskell.TH.TypeGraph.TypeGraph (allPathStarts, tgvSimple)
 import Language.Haskell.TH.TypeGraph.Vertex (TGVSimple)
 
 derivePaths :: [TypeQ] -> TypeQ -> Q [Dec]
@@ -41,7 +39,7 @@ allDecs :: forall m. (TypeGraphM m) => m [Dec]
 allDecs = execWriterT $ allPathStarts >>= mapM_ doNode
 
 doType :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => Type -> m ()
-doType t = expandType t >>= typeVertex >>= doNode
+doType t = tgvSimple t >>= doNode
 
 doNode :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TGVSimple -> m ()
 doNode v = do
