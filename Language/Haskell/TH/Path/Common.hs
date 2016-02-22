@@ -124,19 +124,21 @@ instance HasName a => HasCon (HopCon a) where asCon = ConE . asName . unHopCon
 instance HasName a => HasConQ (HopCon a) where asConQ = conE . asName . unHopCon
 
 -- Temporary
-instance HasName TGVSimple where
-    asName x = case asType x of
-                 ConT name -> name
-                 _ -> case minView (view syns x) of
-                        Just (name, _) -> name
-                        Nothing -> error $ "HasName " ++ pprint (asType x)
 instance HasName TGVSimple' where
-    asName = asName . snd
--- Temporary
-instance HasName TGV where
-    asName = asName . view vsimple
+    asName (v, s) =
+        case asType s of
+          ConT name -> name
+          _ -> case minView (view syns s) of
+                 Just (name, _) -> name
+                 Nothing -> mkName ("S" ++ show v)
 instance HasName TGV' where
-    asName = asName . snd
+    asName (v, t) =
+        let s = view vsimple t in
+        case asType s of
+          ConT name -> name
+          _ -> case minView (view syns s) of
+                 Just (name, _) -> name
+                 Nothing -> mkName ("T" ++ show v)
 
 instance HasType TGVSimple' where asType = asType . snd
 instance HasType TGV' where asType = asType . snd
