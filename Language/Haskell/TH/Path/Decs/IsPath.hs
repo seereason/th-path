@@ -61,7 +61,8 @@ makePeekCon (ModelType s) (ModelType g) = PeekCon (mkName ("Peek_" ++ nameBase (
 peekDecs :: forall m. (MonadWriter [Dec] m, ContextM m, MonadReaders TypeInfo m, MonadReaders TypeGraph m) =>
             TGVSimple' -> m ()
 peekDecs v =
-    do (pnc :: [ClauseQ]) <- peekClauses v
+    do t <- tgv Nothing v
+       (pnc :: [ClauseQ]) <- peekClauses v
        (cons :: [ConQ]) <- peekCons
        (hcons :: [ConQ]) <- hopCons
        runQ (instanceD (cxt []) (appT (conT ''IsPathStart) (asTypeQ v))
@@ -70,7 +71,7 @@ peekDecs v =
                               [] -> [clause [wildP] (normalB [| [] |]) []]
                               _ -> pnc),
                 dataInstD (cxt []) ''Hop [asTypeQ v] (case hcons of
-                                                        [] -> [normalC (asName (makeHopCon v (mkTGV (asTGVSimple v)))) []]
+                                                        [] -> [normalC (asName (makeHopCon v t)) []]
                                                         _ -> hcons) [''Eq, ''Show]
                ]) >>= tell . (: [])
     where
