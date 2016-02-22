@@ -12,6 +12,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE TupleSections #-}
+{-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeSynonymInstances #-}
 module Language.Haskell.TH.Path.Decs.ToLens (toLensDecs) where
 
@@ -41,7 +42,7 @@ import Language.Haskell.TH.Path.Order (lens_omat, Order, Path_OMap(..))
 import Language.Haskell.TH.Path.View (viewInstanceType, viewLens)
 import Language.Haskell.TH.Syntax as TH (VarStrictType)
 import Language.Haskell.TH.TypeGraph.Expand (E(E), expandType)
-import Language.Haskell.TH.TypeGraph.TypeGraph (goalReachableSimple, HasTGV(asTGV), HasTGVSimple(asTGVSimple), MaybePair, pathKeys, simplify, tgv, tgvSimple, TypeGraph)
+import Language.Haskell.TH.TypeGraph.TypeGraph (goalReachableSimple, HasTGV(asTGV), HasTGVSimple(asTGVSimple), pathKeys, simplify, tgv, tgvSimple, TypeGraph)
 import Language.Haskell.TH.TypeGraph.TypeInfo (fieldVertex)
 import Language.Haskell.TH.TypeGraph.Vertex (etype, TGV', TGVSimple, TGVSimple', TypeGraphVertex(bestType), vsimple)
 
@@ -49,7 +50,7 @@ toLensDecs :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TGVSimple' -> m (
 toLensDecs v =
     pathKeys v >>= Set.mapM_ (toLensDecs' v)
 
-toLensDecs' :: forall m s. (TypeGraphM m, MonadWriter [Dec] m, HasTGVSimple s, Data s, Ord s, Ppr s, TypeGraphVertex s, HasName s, HasTypeQ s, HasType s, MaybePair s TGVSimple) => s -> s -> m ()
+toLensDecs' :: forall m s. (TypeGraphM m, MonadWriter [Dec] m, s ~TGVSimple') => s -> s -> m ()
 toLensDecs' key gkey = do
   ptyp <- pathType (pure (bestType gkey)) key
   tlc <- execWriterT $ evalStateT (toLensClauses key gkey) mempty
@@ -62,7 +63,7 @@ toLensDecs' key gkey = do
                 ] ]) >>= tell
 
 
-toLensClauses :: forall m s. (TypeGraphM m, MonadWriter [ClauseQ] m, HasTGVSimple s, Ord s, Data s, Ppr s, HasType s, HasTypeQ s, TypeGraphVertex s, HasName s, MaybePair s TGVSimple) =>
+toLensClauses :: forall m s. (TypeGraphM m, MonadWriter [ClauseQ] m, s ~ TGVSimple') =>
                        s -- ^ the type whose clauses we are generating
                     -> s -- ^ the goal type key
                     -> StateT (Set Name) m ()
@@ -125,7 +126,7 @@ toLensClauses key gkey =
 -- 'Language.Haskell.TH.Clause' (a function with a typically incomplete
 -- pattern) to the toLens' method we are building to handle the new
 -- pattern.
-doClause :: forall m s. (TypeGraphM m, MonadWriter [ClauseQ] m, MaybePair s TGVSimple, HasTGVSimple s, Ord s, Data s) =>
+doClause :: forall m s. (TypeGraphM m, MonadWriter [ClauseQ] m, s ~ TGVSimple') =>
             s-> Type -> (PatQ -> PatQ) -> ExpQ -> m ()
 doClause gkey typ pfunc lns = do
   v <- runQ (newName "v")
@@ -135,7 +136,7 @@ doClause gkey typ pfunc lns = do
       lns' = bool lns [|$lns . toLens $(varE v)|] (key /= gkey)
   when ok $ tell [clause [pfunc pat] (normalB lns') []]
 
-doName :: forall m s. (TypeGraphM m, MonadWriter [ClauseQ] m, MaybePair s TGVSimple, HasTGVSimple s, TypeGraphVertex s, Data s, Ord s, Ppr s, HasTypeQ s, HasType s, HasName s) =>
+doName :: forall m s. (TypeGraphM m, MonadWriter [ClauseQ] m, s ~ TGVSimple') =>
           Name -> s-> StateT (Set Name) m ()
 doName tname gkey =
     -- If encounter a named type and the stack is empty we
