@@ -27,33 +27,19 @@ import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.TypeGraph.Expand (ExpandMap)
 import Language.Haskell.TH.TypeGraph.Vertex (TGVSimple)
 
-instance (Monad m, MonadStates InstMap m) => MonadStates InstMap (StateT (Set Name) m) where
+instance (Monad m, MonadStates InstMap m) => MonadStates InstMap (StateT (Set s) m) where
     getPoly = Monad.lift getPoly
     putPoly = Monad.lift . putPoly
 
-instance (Monad m, MonadStates ExpandMap m) => MonadStates ExpandMap (StateT (Set Name) m) where
+instance (Monad m, MonadStates ExpandMap m) => MonadStates ExpandMap (StateT (Set s) m) where
     getPoly = Monad.lift getPoly
     putPoly = Monad.lift . putPoly
 
-instance (Monad m, MonadStates String m) => MonadStates String (StateT (Set Name) m) where
+instance (Monad m, MonadStates String m) => MonadStates String (StateT (Set s) m) where
     getPoly = Monad.lift getPoly
     putPoly = Monad.lift . putPoly
 
-instance (Monad m, MonadStates InstMap m) => MonadStates InstMap (StateT (Set TGVSimple) m) where
-    getPoly = Monad.lift getPoly
-    putPoly = Monad.lift . putPoly
-
-instance (Monad m, MonadStates ExpandMap m) => MonadStates ExpandMap (StateT (Set TGVSimple) m) where
-    getPoly = Monad.lift getPoly
-    putPoly = Monad.lift . putPoly
-
-instance (Monad m, MonadStates String m) => MonadStates String (StateT (Set TGVSimple) m) where
-    getPoly = Monad.lift getPoly
-    putPoly = Monad.lift . putPoly
-
-instance ContextM m => ContextM (StateT (Set Name) m)
-instance ContextM m => ContextM (StateT (Set TGVSimple) m)
-
+instance ContextM m => ContextM (StateT (Set a) m)
 instance ContextM m => ContextM (ReaderT t m)
 
 instance (Monoid w, ContextM m) => ContextM (WriterT w m)
