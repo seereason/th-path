@@ -21,11 +21,9 @@ import Control.Monad.States (MonadStates(getPoly, putPoly))
 import Control.Monad.Trans as Monad (lift)
 import Control.Monad.Writer (WriterT)
 import Data.Set.Extra as Set (Set)
-import Language.Haskell.TH
 import Language.Haskell.TH.Context (ContextM, InstMap)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.TypeGraph.Expand (ExpandMap)
-import Language.Haskell.TH.TypeGraph.Vertex (TGVSimple)
 
 instance (Monad m, MonadStates InstMap m) => MonadStates InstMap (StateT (Set s) m) where
     getPoly = Monad.lift getPoly

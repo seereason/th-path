@@ -44,8 +44,8 @@ class View a where
 #if !__GHCJS__
 -- | Determine whether there is a 'View' instance for a type and if so
 -- return @ViewType a@.
-viewInstanceType :: (DsMonad m, MonadStates ExpandMap m) => E Type -> m (Maybe Type)
-viewInstanceType (E typ) =
+viewInstanceType :: (DsMonad m, MonadStates ExpandMap m) => Type -> m (Maybe Type)
+viewInstanceType typ =
     do prim <- unlifted typ
        arity <- typeArity typ
        case arity == 0 && not prim of

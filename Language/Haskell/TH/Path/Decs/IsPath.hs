@@ -38,9 +38,9 @@ import Language.Haskell.TH.Path.Core (IsPathStart(Peek, peek, Hop), IsPath(..), 
 import Language.Haskell.TH.Path.Order (Order, Path_OMap(..))
 import Language.Haskell.TH.Path.View (viewInstanceType)
 import Language.Haskell.TH.Syntax as TH (Quasi(qReify))
-import Language.Haskell.TH.TypeGraph.TypeGraph (HasTGVSimple(asTGVSimple), lensKeys, pathKeys, simplify, tgv, tgvSimple, TypeGraph)
+import Language.Haskell.TH.TypeGraph.TypeGraph (lensKeys, pathKeys, simplify, tgv, tgvSimple, TypeGraph)
 import Language.Haskell.TH.TypeGraph.TypeInfo (TypeInfo)
-import Language.Haskell.TH.TypeGraph.Vertex (bestName, etype, mkTGV, TGV', TGVSimple', TypeGraphVertex)
+import Language.Haskell.TH.TypeGraph.Vertex (TGV', TGVSimple')
 
 newtype PeekType = PeekType {unPeekType :: Name} deriving (Eq, Ord, Show) -- e.g. Peek_AbbrevPairs
 newtype PeekCon = PeekCon {unPeekCon :: Name} deriving (Eq, Ord, Show) -- e.g. Peek_AbbrevPairs_Markup
@@ -78,29 +78,22 @@ peekDecs v =
       peekCons :: m [ConQ]
       peekCons = (concat . List.map doPair . toList) <$> (pathKeys v)
       doPair :: TGVSimple' -> [ConQ]
-      doPair g =
-          case (bestName v, bestName g) of
-            (Just vn, Just gn) ->
-                [normalC (asName (makePeekCon (ModelType vn) (ModelType gn)))
-                         [(,) <$> notStrict <*> [t|Path $(asTypeQ v) $(asTypeQ g)|],
-                          (,) <$> notStrict <*> [t|Maybe $(asTypeQ g)|] ]]
-            _ -> []
+      doPair g = [normalC (asName (makePeekCon (ModelType (asName v)) (ModelType (asName g))))
+                          [(,) <$> notStrict <*> [t|Path $(asTypeQ v) $(asTypeQ g)|],
+                           (,) <$> notStrict <*> [t|Maybe $(asTypeQ g)|] ]]
       hopCons :: m [ConQ]
       hopCons = (concat . List.map doHopPair . toList) <$> (lensKeys v)
       doHopPair :: TGV' -> [ConQ]
       doHopPair g =
-          case (bestName v, bestName g) of
-            (Just vn, Just gn) ->
-                [normalC (asName (makeHopCon v g))
-                         [(,) <$> notStrict <*> [t|$(asTypeQ (bestPathTypeName v)) $(asTypeQ g)|]]]
-            _ -> []
+          [normalC (asName (makeHopCon v g))
+                   [(,) <$> notStrict <*> [t|$(asTypeQ (bestPathTypeName v)) $(asTypeQ g)|]]]
 
 peekClauses :: forall m s. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, s ~ TGVSimple') =>
                s -> m [ClauseQ]
 peekClauses v =
   do selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [asType v]
      simplePath <- (not . null) <$> reifyInstancesWithContext ''SinkType [asType v]
-     viewType <- viewInstanceType (view etype (asTGVSimple v))
+     viewType <- viewInstanceType (asType v)
      x <- runQ $ newName "x"
      case asType v of
        _ | selfPath -> return []
@@ -228,15 +221,12 @@ forestOfConc x v (w, ppat, pcon) =
                                _ -> [])
                    (pathsOf $x (undefined :: Proxy $(asTypeQ w)) :: [$(asTypeQ (makePathType (ModelType vn))) $(asTypeQ w)]) :: Forest (Peek $(asTypeQ v)) |]
 
-doGoal :: (TypeGraphVertex s, HasTypeQ s) => s -> s -> ExpQ -> s -> [MatchQ]
-doGoal v w pcon g = do
-  case (bestName v, bestName w, bestName g) of
-    (Just vn, Just wn, Just gn) ->
-        [newName "z" >>= \z ->
-         newName "q" >>= \q ->
-         match (conP (asName (makePeekCon (ModelType wn) (ModelType gn))) [varP q, varP z])
-               (normalB [|$(asConQ (makePeekCon (ModelType vn) (ModelType gn)))
-                           (($pcon :: Path $(asTypeQ w) $(asTypeQ g) ->
-                                      Path $(asTypeQ v) $(asTypeQ g)) $(varE q)) $(varE z)|])
-               []]
-    _ -> []
+doGoal :: (HasTypeQ s, HasName s) => s -> s -> ExpQ -> s -> [Q Match]
+doGoal v w pcon g =
+    [newName "z" >>= \z ->
+     newName "q" >>= \q ->
+     match (conP (asName (makePeekCon (ModelType (asName w)) (ModelType (asName g)))) [varP q, varP z])
+           (normalB [|$(asConQ (makePeekCon (ModelType (asName v)) (ModelType (asName g))))
+                       (($pcon :: Path $(asTypeQ w) $(asTypeQ g) ->
+                                  Path $(asTypeQ v) $(asTypeQ g)) $(varE q)) $(varE z)|])
+           []]

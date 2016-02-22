@@ -25,7 +25,6 @@ import Control.Monad.States (MonadStates(getPoly), modifyPoly)
 import Control.Monad.Trans as Monad (lift)
 import Control.Monad.Writer (execWriterT, MonadWriter, tell)
 import Data.Bool (bool)
-import Data.Data (Data)
 import Data.List as List (map)
 import Data.Map as Map (Map)
 import Data.Maybe (fromJust, isJust)
@@ -41,10 +40,9 @@ import Language.Haskell.TH.Path.Graph (TypeGraphM)
 import Language.Haskell.TH.Path.Order (lens_omat, Order, Path_OMap(..))
 import Language.Haskell.TH.Path.View (viewInstanceType, viewLens)
 import Language.Haskell.TH.Syntax as TH (VarStrictType)
-import Language.Haskell.TH.TypeGraph.Expand (E(E), expandType)
-import Language.Haskell.TH.TypeGraph.TypeGraph (goalReachableSimple, HasTGV(asTGV), HasTGVSimple(asTGVSimple), pathKeys, simplify, tgv, tgvSimple, TypeGraph)
-import Language.Haskell.TH.TypeGraph.TypeInfo (fieldVertex)
-import Language.Haskell.TH.TypeGraph.Vertex (etype, TGV', TGVSimple, TGVSimple', TypeGraphVertex(bestType), vsimple)
+import Language.Haskell.TH.TypeGraph.Expand (E(E))
+import Language.Haskell.TH.TypeGraph.TypeGraph (goalReachableSimple, HasTGVSimple(asTGVSimple), pathKeys, simplify, tgv, tgvSimple, TypeGraph)
+import Language.Haskell.TH.TypeGraph.Vertex (etype, TGV', TGVSimple', TypeGraphVertex(bestType))
 
 toLensDecs :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TGVSimple' -> m ()
 toLensDecs v =
@@ -79,9 +77,9 @@ toLensClauses key gkey =
   --   return $ r ++ [clause [varP x] (normalB [|error ("toLens' (" ++ $(lift (pprint' key)) ++ ") -> (" ++ $(lift (pprint' gkey)) ++ ") - unmatched: " ++ show $(varE x))|]) []]
   do ptyp <- pathType (pure (bestType gkey)) key
      let v = key
-     selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [let (E typ) = view etype (asTGVSimple v) in typ]
-     simplePath <- (not . null) <$> reifyInstancesWithContext ''SinkType [let (E typ) = view etype (asTGVSimple v) in typ]
-     viewType <- viewInstanceType (view etype (asTGVSimple v))
+     selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [asType v]
+     simplePath <- (not . null) <$> reifyInstancesWithContext ''SinkType [asType v]
+     viewType <- viewInstanceType (asType v)
      case asType v of
        _ | selfPath -> return ()
          | simplePath -> return () -- Simple paths only work if we are at the goal type, and that case is handled above.
@@ -120,7 +118,7 @@ toLensClauses key gkey =
            | t3 == ConT ''Either ->
                do doClause gkey ltyp (\p -> [p|Path_Left $p|]) [|_Left|]
                   doClause gkey rtyp (\p -> [p|Path_Right $p|]) [|_Right|]
-       _ -> tell [ clause [wildP] (normalB [|(error $ $(litE (stringL ("Need to find lens for field type: " ++ pprint (view etype (asTGVSimple key)))))) :: Traversal' $(asTypeQ key) $(pure (bestType gkey))|]) [] ]
+       _ -> tell [ clause [wildP] (normalB [|(error $ $(litE (stringL ("Need to find lens for field type: " ++ pprint (asType key))))) :: Traversal' $(asTypeQ key) $(pure (bestType gkey))|]) [] ]
 
 -- | Given a function pfunc that modifies a pattern, add a
 -- 'Language.Haskell.TH.Clause' (a function with a typically incomplete

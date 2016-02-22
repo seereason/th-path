@@ -24,10 +24,10 @@ import Language.Haskell.TH.Context (ContextM)
 import Language.Haskell.TH.Lift (lift)
 import Language.Haskell.TH.Path.Core (IsPath(pathsOf, Path), ToLens(toLens), IsPathEnd(idPath))
 import Language.Haskell.TH.Path.View (viewInstanceType)
-import Language.Haskell.TH.TypeGraph.Expand (expandType)
+import Language.Haskell.TH.TypeGraph.Expand (E(E), expandType)
 import Language.Haskell.TH.TypeGraph.TypeGraph
 import Language.Haskell.TH.TypeGraph.TypeInfo
-import Language.Haskell.TH.TypeGraph.Vertex (bestName, TGV)
+import Language.Haskell.TH.TypeGraph.Vertex (TGV)
 import Language.Haskell.TH.PprLib (text, hang)
 
 {-
@@ -116,7 +116,7 @@ editor tname value =
         Just pvType <- runQ $ lookupTypeName ("PV_" ++ nameBase tname)
         root <- runQ [| Node ($(conE leRootCon) idPath $value) [] |]
         -- Now generate the traversal of value.
-        t <- expandType (ConT tname)
+        E t <- expandType (ConT tname)
         viewType <- viewInstanceType t
         case viewType of
           -- This arc is a view, so there is only one PV value:

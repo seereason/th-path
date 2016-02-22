@@ -19,7 +19,6 @@ module Language.Haskell.TH.Path.Decs.PathType
     , pathTypeDecs
     ) where
 
-import Control.Lens hiding (cons, Strict)
 import Control.Monad.Readers (MonadReaders)
 import Control.Monad.Writer (MonadWriter, tell)
 import Data.Data (Data, Typeable)
@@ -32,18 +31,17 @@ import Language.Haskell.TH
 import Language.Haskell.TH.Context (ContextM, reifyInstancesWithContext)
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.Path.Common (allPathTypeNames, asConQ, asName, asType, asTypeQ, bestPathTypeName, HasName, ModelType(ModelType),
+import Language.Haskell.TH.Path.Common (allPathTypeNames, asConQ, asName, asType, asTypeQ, bestPathTypeName, ModelType(ModelType),
                                         makeFieldCon, makePathCon, makePathType)
 import Language.Haskell.TH.Path.Core (IsPathEnd(idPath), SelfPath, SinkType,
                                       Path_List, Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
 import Language.Haskell.TH.Path.Order (Order, Path_OMap(..))
 import Language.Haskell.TH.Path.View (viewInstanceType)
 import Language.Haskell.TH.Syntax as TH (VarStrictType)
-import Language.Haskell.TH.TypeGraph.Expand (E(E), expandType)
 import Language.Haskell.TH.TypeGraph.Prelude (pprint')
 import Language.Haskell.TH.TypeGraph.TypeGraph (HasTGVSimple(asTGVSimple), reachableFromSimple, simplify, tgv, tgvSimple, TypeGraph)
-import Language.Haskell.TH.TypeGraph.TypeInfo (fieldVertex, TypeInfo)
-import Language.Haskell.TH.TypeGraph.Vertex (etype, TGVSimple, TGVSimple', TypeGraphVertex, typeNames, vsimple)
+import Language.Haskell.TH.TypeGraph.TypeInfo (TypeInfo)
+import Language.Haskell.TH.TypeGraph.Vertex (TGVSimple', typeNames)
 
 -- | Given a type, compute the corresponding path type.
 pathType :: forall m s. (MonadReaders TypeGraph m, MonadReaders TypeInfo m, ContextM m, s ~ TGVSimple') =>
@@ -51,9 +49,9 @@ pathType :: forall m s. (MonadReaders TypeGraph m, MonadReaders TypeInfo m, Cont
          -> s -- ^ The type to convert to a path type
          -> m Type
 pathType gtyp key = do
-  selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [let (E typ) = view etype (asTGVSimple key) in typ]
-  simplePath <- (not . null) <$> reifyInstancesWithContext ''SinkType [let (E typ) = view etype (asTGVSimple key) in typ]
-  viewType <- viewInstanceType (view etype (asTGVSimple key))
+  selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [asType key]
+  simplePath <- (not . null) <$> reifyInstancesWithContext ''SinkType [asType key]
+  viewType <- viewInstanceType (asType key)
   case asType (asTGVSimple key) of
     _ | selfPath -> return $ asType (asTGVSimple key)
       | simplePath -> runQ [t|$(asTypeQ (bestPathTypeName key)) $gtyp|]
@@ -94,9 +92,9 @@ pathType gtyp key = do
 pathTypeDecs :: forall m s. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m, s ~ TGVSimple') => s -> m ()
 pathTypeDecs v = do
   -- generate the data Path_* declarations
-  selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [let (E typ) = view etype (asTGVSimple v) in typ]
-  simplePath <- (not . null) <$> reifyInstancesWithContext ''SinkType [let (E typ) = view etype (asTGVSimple v) in typ]
-  viewType <- viewInstanceType (view etype (asTGVSimple v))
+  selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [asType v]
+  simplePath <- (not . null) <$> reifyInstancesWithContext ''SinkType [asType v]
+  viewType <- viewInstanceType (asType v)
   let pname = bestPathTypeName v
       psyns = Set.delete pname (allPathTypeNames v)
   a <- runQ $ newName "a"

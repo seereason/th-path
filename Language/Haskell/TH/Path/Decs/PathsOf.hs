@@ -23,7 +23,6 @@ import Control.Monad.Readers (MonadReaders)
 import Control.Monad.State (evalStateT, StateT)
 import Control.Monad.States (getPoly, modifyPoly, MonadStates)
 import Control.Monad.Writer (MonadWriter, tell)
-import Data.Data (Data)
 import Data.List as List (concatMap, map)
 import Data.Map as Map (lookup, Map, toList)
 import Data.Maybe (isJust)
@@ -32,16 +31,16 @@ import Data.Set.Extra as Set (insert, mapM_, member, Set)
 import Language.Haskell.TH
 import Language.Haskell.TH.Context (ContextM, reifyInstancesWithContext)
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.Path.Common (asConQ, asType, asTypeQ, bestTypeName, HasName, HasType, HasTypeQ, makePathCon, makePathType, ModelType(ModelType))
+import Language.Haskell.TH.Path.Common (asConQ, asType, asTypeQ, bestTypeName, HasName(asName), HasType, HasTypeQ, makePathCon, makePathType, ModelType(ModelType))
 import Language.Haskell.TH.Path.Core (IsPathEnd(idPath), IsPath(..), ToLens(..), SelfPath, SinkType, Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
 import Language.Haskell.TH.Path.Decs.PathType (pathType)
 import Language.Haskell.TH.Path.Instances ()
 import Language.Haskell.TH.Path.Order (Order, Path_OMap(..), toPairs)
 import Language.Haskell.TH.Path.View (viewInstanceType)
 import Language.Haskell.TH.Syntax as TH (Quasi(qReify))
-import Language.Haskell.TH.TypeGraph.TypeGraph (allPathKeys, HasTGVSimple(asTGVSimple), pathKeys, tgvSimple, tgvSimple', TypeGraph)
+import Language.Haskell.TH.TypeGraph.TypeGraph (allPathKeys, HasTGVSimple, pathKeys, tgvSimple', TypeGraph)
 import Language.Haskell.TH.TypeGraph.TypeInfo (TypeInfo)
-import Language.Haskell.TH.TypeGraph.Vertex (bestName, etype, TGVSimple, TGVSimple', TypeGraphVertex(bestType))
+import Language.Haskell.TH.TypeGraph.Vertex (TGVSimple', TypeGraphVertex(bestType))
 
 pathDecs :: forall m s. (ContextM m, ContextM (StateT (Set s) m), MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m, s ~ TGVSimple') => s -> m ()
 pathDecs v =
@@ -78,7 +77,7 @@ pathsOfExprs key gkey s a =
      -- ptyp <- pathType (pure (bestType gkey)) key
      selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [asType key]
      simplePath <- (not . null) <$> reifyInstancesWithContext ''SinkType [asType key]
-     viewType <- viewInstanceType (view etype (asTGVSimple key))
+     viewType <- viewInstanceType (asType key)
      case asType key of
        _ | key == gkey -> runQ [| [idPath] |]
          | selfPath -> runQ [| [] |]
@@ -162,19 +161,17 @@ pathsOfExprs key gkey s a =
         fIsPath <- mapM (\(_, ftype) -> testIsPath ftype gkey) binds
         let ns = map snd (zip binds ([1..] :: [Int]))
         ps <- runQ $ mapM (\n -> newName ("p" ++ show n)) ns
-        let Just tname = bestName key
         let doField (_, False, _, _) = []
             doField (_, True, n, p) =
-                [ [| map $(asConQ (makePathCon (makePathType (ModelType tname)) (show n)))
+                [ [| map $(asConQ (makePathCon (makePathType (ModelType (asName key))) (show n)))
                          (pathsOf $(varE p) $a) |] ]
         runQ $ match (conP cname (map varP ps)) (normalB (listE (concatMap doField (zip4 binds fIsPath ns ps)))) []
       doCon (RecC cname vbinds) = do
         fIsPath <- mapM (\(_, _, ftype) -> testIsPath ftype gkey) vbinds
         let ns = map snd (zip vbinds ([1..] :: [Int]))
-        let Just tname = bestName key
         let doField (_, False, _) = []
             doField ((fname, _, _), _, _) =
-                [ [| map $(asConQ (makePathCon (makePathType (ModelType tname)) (nameBase fname)))
+                [ [| map $(asConQ (makePathCon (makePathType (ModelType (asName key))) (nameBase fname)))
                          (pathsOf ($(varE fname) $s) $a) |] ]
         runQ $ match (recP cname []) (normalB [|mconcat $(listE (concatMap doField (zip3 vbinds fIsPath ns)))|]) []
 

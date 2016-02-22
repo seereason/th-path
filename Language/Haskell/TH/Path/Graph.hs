@@ -45,7 +45,7 @@ import Language.Haskell.TH.Path.Instances ()
 import Language.Haskell.TH.Path.Order (Order)
 import Language.Haskell.TH.Path.View (viewInstanceType, viewTypes)
 import Language.Haskell.TH.TypeGraph.Edges ({-cut, cutEdgesM,-} cutEdges, cutM, dissolveM, GraphEdges, isolate, linkM, simpleEdges, typeGraphEdges)
-import Language.Haskell.TH.TypeGraph.Expand (E(E), unE, ExpandMap, expandType)
+import Language.Haskell.TH.TypeGraph.Expand (E(E, _unE), unE, ExpandMap, expandType)
 import Language.Haskell.TH.TypeGraph.Free (freeTypeVars)
 import Language.Haskell.TH.TypeGraph.Prelude ({-OverTypes(overTypes),-} unlifted)
 import Language.Haskell.TH.TypeGraph.TypeGraph (graphFromMap, makeTypeGraph, TypeGraph)
@@ -90,7 +90,7 @@ runTypeGraphT' :: ContextM m => ReaderT TypeGraph (ReaderT TypeInfo m) a -> [Typ
 runTypeGraphT' action st = do
   vt <- viewTypes -- Every instance of ViewType
   let st' = st ++ Set.toList vt
-  ti <- makeTypeInfo (\t -> maybe mempty singleton <$> (expandType t >>= viewInstanceType)) st'
+  ti <- makeTypeInfo (\t -> maybe mempty singleton <$> (expandType t >>= viewInstanceType . _unE)) st'
   runReaderT (pathGraphEdges >>= makeTypeGraph >>= runReaderT action) ti
 
 -- | Build a graph of the subtype relation, omitting any types whose
@@ -116,10 +116,8 @@ pathGraphEdges =
 
       viewEdges :: TGV -> m (Maybe (Set TGV))
       viewEdges v =
-          do -- Get the type of this node
-             let (typ :: E Type) = view (vsimple . etype) v
-             -- Is there an instance of View a b where a matches v?
-             vit <- viewInstanceType typ
+          do -- Is there an instance of View a b where a matches v?
+             vit <- viewInstanceType (asType v)
              -- If so, unify typ with a and apply the resulting bindings to b.
              maybe (return Nothing) (\t -> expandType t >>= typeVertex' >>= return . Just . singleton) vit
 
