@@ -40,15 +40,14 @@ import Language.Haskell.TH.Path.Graph (TypeGraphM)
 import Language.Haskell.TH.Path.Order (lens_omat, Order, Path_OMap(..))
 import Language.Haskell.TH.Path.View (viewInstanceType, viewLens)
 import Language.Haskell.TH.Syntax as TH (VarStrictType)
-import Language.Haskell.TH.TypeGraph.Expand (E(E))
-import Language.Haskell.TH.TypeGraph.TypeGraph (goalReachableSimple, HasTGVSimple(asTGVSimple), pathKeys, simplify, tgv, tgvSimple, TypeGraph)
-import Language.Haskell.TH.TypeGraph.Vertex (etype, TGV', TGVSimple', TypeGraphVertex(bestType))
+import Language.Haskell.TH.TypeGraph.TypeGraph (goalReachableSimple, pathKeys, simplify, tgv, tgvSimple, TypeGraph)
+import Language.Haskell.TH.TypeGraph.Vertex (TGV, TGVSimple, TypeGraphVertex(bestType))
 
-toLensDecs :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TGVSimple' -> m ()
+toLensDecs :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TGVSimple -> m ()
 toLensDecs v =
     pathKeys v >>= Set.mapM_ (toLensDecs' v)
 
-toLensDecs' :: forall m s. (TypeGraphM m, MonadWriter [Dec] m, s ~TGVSimple') => s -> s -> m ()
+toLensDecs' :: forall m s. (TypeGraphM m, MonadWriter [Dec] m, s ~TGVSimple) => s -> s -> m ()
 toLensDecs' key gkey = do
   ptyp <- pathType (pure (bestType gkey)) key
   tlc <- execWriterT $ evalStateT (toLensClauses key gkey) mempty
@@ -61,7 +60,7 @@ toLensDecs' key gkey = do
                 ] ]) >>= tell
 
 
-toLensClauses :: forall m s. (TypeGraphM m, MonadWriter [ClauseQ] m, s ~ TGVSimple') =>
+toLensClauses :: forall m s. (TypeGraphM m, MonadWriter [ClauseQ] m, s ~ TGVSimple) =>
                        s -- ^ the type whose clauses we are generating
                     -> s -- ^ the goal type key
                     -> StateT (Set Name) m ()
@@ -124,7 +123,7 @@ toLensClauses key gkey =
 -- 'Language.Haskell.TH.Clause' (a function with a typically incomplete
 -- pattern) to the toLens' method we are building to handle the new
 -- pattern.
-doClause :: forall m s. (TypeGraphM m, MonadWriter [ClauseQ] m, s ~ TGVSimple') =>
+doClause :: forall m s. (TypeGraphM m, MonadWriter [ClauseQ] m, s ~ TGVSimple) =>
             s-> Type -> (PatQ -> PatQ) -> ExpQ -> m ()
 doClause gkey typ pfunc lns = do
   v <- runQ (newName "v")
@@ -134,7 +133,7 @@ doClause gkey typ pfunc lns = do
       lns' = bool lns [|$lns . toLens $(varE v)|] (key /= gkey)
   when ok $ tell [clause [pfunc pat] (normalB lns') []]
 
-doName :: forall m s. (TypeGraphM m, MonadWriter [ClauseQ] m, s ~ TGVSimple') =>
+doName :: forall m s. (TypeGraphM m, MonadWriter [ClauseQ] m, s ~ TGVSimple) =>
           Name -> s-> StateT (Set Name) m ()
 doName tname gkey =
     -- If encounter a named type and the stack is empty we
@@ -174,7 +173,7 @@ doName tname gkey =
             -- of some piece of the field value.
             doField :: Name -> VarStrictType -> StateT (Set Name) m [(Con, [ClauseQ])]
             doField cname (fn, _, ft) = do
-                    fkey <- (tgvSimple ft :: StateT (Set Name) m s) >>= tgv (Just (tname, cname, Right fn)) :: StateT (Set Name) m TGV'
+                    fkey <- (tgvSimple ft :: StateT (Set Name) m s) >>= tgv (Just (tname, cname, Right fn)) :: StateT (Set Name) m TGV
                     skey <- simplify fkey
                     ok <- goalReachableSimple gkey skey  -- is the goal type reachable from here?
                     case ok of

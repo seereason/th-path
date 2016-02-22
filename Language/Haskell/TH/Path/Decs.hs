@@ -29,7 +29,7 @@ import Language.Haskell.TH.Path.Decs.ToLens (toLensDecs)
 import Language.Haskell.TH.Path.Graph (runTypeGraphT, TypeGraphM)
 import Language.Haskell.TH.Path.Instances ()
 import Language.Haskell.TH.TypeGraph.TypeGraph (allPathStarts, tgvSimple)
-import Language.Haskell.TH.TypeGraph.Vertex (TGVSimple')
+import Language.Haskell.TH.TypeGraph.Vertex (TGVSimple)
 
 derivePaths :: [TypeQ] -> TypeQ -> Q [Dec]
 derivePaths topTypes thisType =
@@ -41,7 +41,7 @@ allDecs = execWriterT $ allPathStarts >>= mapM_ doNode
 doType :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => Type -> m ()
 doType t = tgvSimple t >>= doNode
 
-doNode :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TGVSimple' -> m ()
+doNode :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TGVSimple -> m ()
 doNode v = do
   lensDecs v      -- generate lenses using makeClassyFor
   pathTypeDecs v  -- generate Path types and the IsPathEnd instances

@@ -42,7 +42,7 @@ import Language.Haskell.TH.Path.Instances ()
 import Language.Haskell.TH.TypeGraph.Expand (E, unE)
 import Language.Haskell.TH.TypeGraph.TypeGraph (HasTGV(asTGV))
 import Language.Haskell.TH.TypeGraph.Vertex (etype, field, syns,
-                                             TGV, TGVSimple, TGV', TGVSimple', TypeGraphVertex, typeNames, vsimple)
+                                             TGV', TGVSimple', TGV, TGVSimple, TypeGraphVertex, typeNames, vsimple)
 
 -- Naming conventions
 
@@ -120,14 +120,14 @@ instance HasName a => HasCon (HopCon a) where asCon = ConE . asName . unHopCon
 instance HasName a => HasConQ (HopCon a) where asConQ = conE . asName . unHopCon
 
 -- Temporary
-instance HasName TGVSimple' where
+instance HasName TGVSimple where
     asName (v, s) =
         case asType s of
           ConT name -> name
           _ -> case minView (view syns s) of
                  Just (name, _) -> name
                  Nothing -> mkName ("S" ++ show v)
-instance HasName TGV' where
+instance HasName TGV where
     asName (v, t) =
         let s = view vsimple t in
         case asType s of
@@ -136,23 +136,23 @@ instance HasName TGV' where
                  Just (name, _) -> name
                  Nothing -> mkName ("T" ++ show v)
 
-instance HasType TGVSimple' where asType = asType . snd
-instance HasType TGV' where asType = asType . snd
-instance HasType TGVSimple where asType = asType . view etype
-instance HasType TGV where asType = asType . view vsimple
+instance HasType TGVSimple where asType = asType . snd
+instance HasType TGV where asType = asType . snd
+instance HasType TGVSimple' where asType = asType . view etype
+instance HasType TGV' where asType = asType . view vsimple
 instance HasType (E Type) where asType = view unE
 instance HasType Type where asType = id
-instance HasTypeQ TGVSimple' where asTypeQ = asTypeQ . snd
-instance HasTypeQ TGV' where asTypeQ = asTypeQ . snd
-instance HasTypeQ TGVSimple where asTypeQ = pure . asType
-instance HasTypeQ TGV where asTypeQ = pure . asType
+instance HasTypeQ TGVSimple where asTypeQ = asTypeQ . snd
+instance HasTypeQ TGV where asTypeQ = asTypeQ . snd
+instance HasTypeQ TGVSimple' where asTypeQ = pure . asType
+instance HasTypeQ TGV' where asTypeQ = pure . asType
 instance HasTypeQ (E Type) where asTypeQ = pure . asType
 instance HasTypeQ Type where asTypeQ = pure
 
 makePathType :: HasName a => ModelType a -> PathType Name
 makePathType (ModelType a) = PathType (mkName ("Path_" ++ nameBase (asName a)))
 
-makeHopCon :: TGVSimple' -> TGV' -> HopCon Name
+makeHopCon :: TGVSimple -> TGV -> HopCon Name
 makeHopCon s a =
     HopCon (mkName ("Hop_" ++
                     (nameBase (asName s)) ++
@@ -165,7 +165,7 @@ makePathCon :: HasName a => PathType a -> String -> PathCon Name
 makePathCon (PathType p) a = PathCon $ mkName $ nameBase (asName p) ++ "_" ++ a
 
 -- | Path type constructor for the field described by key in the parent type named tname.
-makeFieldCon :: TGV' -> Maybe (PathCon Name)
+makeFieldCon :: TGV -> Maybe (PathCon Name)
 makeFieldCon key =
     case asTGV key ^. field of
       Nothing -> Nothing

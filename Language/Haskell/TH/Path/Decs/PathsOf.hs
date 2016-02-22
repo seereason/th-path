@@ -40,9 +40,9 @@ import Language.Haskell.TH.Path.View (viewInstanceType)
 import Language.Haskell.TH.Syntax as TH (Quasi(qReify))
 import Language.Haskell.TH.TypeGraph.TypeGraph (allPathKeys, HasTGVSimple, pathKeys, tgvSimple', TypeGraph)
 import Language.Haskell.TH.TypeGraph.TypeInfo (TypeInfo)
-import Language.Haskell.TH.TypeGraph.Vertex (TGVSimple', TypeGraphVertex(bestType))
+import Language.Haskell.TH.TypeGraph.Vertex (TGVSimple, TypeGraphVertex(bestType))
 
-pathDecs :: forall m s. (ContextM m, ContextM (StateT (Set s) m), MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m, s ~ TGVSimple') => s -> m ()
+pathDecs :: forall m s. (ContextM m, ContextM (StateT (Set s) m), MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m, s ~ TGVSimple) => s -> m ()
 pathDecs v =
     pathKeys v >>= Set.mapM_ (pathDecs' v)
 
@@ -50,7 +50,7 @@ pathDecs v =
 -- corresponding Path instance.  Each clause matches some possible value
 -- of the path type, and returns a lens that extracts the value the
 -- path type value specifies.
-pathDecs' :: forall m s. (ContextM m, ContextM (StateT (Set s) m), MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m, s ~ TGVSimple') =>
+pathDecs' :: forall m s. (ContextM m, ContextM (StateT (Set s) m), MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m, s ~ TGVSimple) =>
              s -> s -> m ()
 pathDecs' key gkey = do
   ptyp <- pathType (pure (bestType gkey)) key
@@ -66,7 +66,7 @@ pathDecs' key gkey = do
 
 -- | Build an expression whose value is a list of paths from type S to
 -- type A
-pathsOfExprs :: forall m s. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadStates (Set s) m, s ~ TGVSimple') =>
+pathsOfExprs :: forall m s. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadStates (Set s) m, s ~ TGVSimple) =>
                 s -- ^ the type whose clauses we are generating
              -> s -- ^ the goal type key
              -> ExpQ -- ^ S
@@ -193,7 +193,7 @@ doClause vtyp gkey s a toPath toVal asList = do
 -- | See if there is a path from typ to gkey.  We need to avoid
 -- building expressions for non-existant paths because they will cause
 -- "no Path instance" errors.
-testIsPath :: (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, s ~ TGVSimple') => Type -> s -> m Bool
+testIsPath :: (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, s ~ TGVSimple) => Type -> s -> m Bool
 testIsPath typ gkey = do
   mkey <- tgvSimple' typ
   case mkey of

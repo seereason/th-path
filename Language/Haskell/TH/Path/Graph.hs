@@ -50,7 +50,7 @@ import Language.Haskell.TH.TypeGraph.Free (freeTypeVars)
 import Language.Haskell.TH.TypeGraph.Prelude ({-OverTypes(overTypes),-} unlifted)
 import Language.Haskell.TH.TypeGraph.TypeGraph (graphFromMap, makeTypeGraph, TypeGraph)
 import Language.Haskell.TH.TypeGraph.TypeInfo (makeTypeInfo, startTypes, TypeInfo, typeVertex, typeVertex')
-import Language.Haskell.TH.TypeGraph.Vertex (etype, TGV(TGV, _vsimple), vsimple, TGVSimple(TGVSimple, _etype))
+import Language.Haskell.TH.TypeGraph.Vertex (etype, TGV'(TGV', _vsimple), vsimple, TGVSimple'(TGVSimple', _etype))
 import Prelude hiding (any, concat, concatMap, elem, exp, foldr, mapM_, null, or)
 
 data S = S { _expanded :: ExpandMap
@@ -98,7 +98,7 @@ runTypeGraphT' action st = do
 -- may also want to eliminate nodes that are not on a path from a
 -- start type to a goal type, though eventually goal types will be
 -- eliminated - all types will be goal types.)
-pathGraphEdges :: forall m. (MonadReaders TypeInfo m, ContextM m) => m (GraphEdges TGV)
+pathGraphEdges :: forall m. (MonadReaders TypeInfo m, ContextM m) => m (GraphEdges TGV')
 pathGraphEdges =
     typeGraphEdges >>= execStateT finalizeEdges
     where
@@ -114,7 +114,7 @@ pathGraphEdges =
         _modify "unreachable" isolateUnreachable
         -- get >>= runQ . runIO . putStr . show . hang (text "final edges of the type graph:") 2 . ppr
 
-      viewEdges :: TGV -> m (Maybe (Set TGV))
+      viewEdges :: TGV' -> m (Maybe (Set TGV'))
       viewEdges v =
           do -- Is there an instance of View a b where a matches v?
              vit <- viewInstanceType (asType v)
@@ -123,26 +123,26 @@ pathGraphEdges =
 
       -- Dissolve any higher order types (* -> *) and any types
       -- involving unbound type variables (ReadOnly a).
-      higherOrder :: TGV -> m Bool
+      higherOrder :: TGV' -> m Bool
       higherOrder v = let t1 k = {-trace ("Kind of " ++ pprint v ++ " is " ++ show k)-} (return k) in
                       (/= Right StarT) <$> runQ (inferKind (asType v) >>= t1)
-      hasFreeVars :: TGV -> m Bool
+      hasFreeVars :: TGV' -> m Bool
       hasFreeVars v = (/= Set.empty) <$> runQ (freeTypeVars (asType v))
       -- Primitive (unlifted) types can not be used as parameters to a
       -- type class, which makes them unusable in this system.
-      isUnlifted :: TGV -> m Bool
+      isUnlifted :: TGV' -> m Bool
       isUnlifted v = unlifted (view (vsimple . etype . unE) v)
 
-      isMapKey :: TGV -> TGV -> Bool
-      isMapKey (TGV {_vsimple = TGVSimple {_etype = E (AppT a@(AppT (ConT name) _) _b)}}) a' |
+      isMapKey :: TGV' -> TGV' -> Bool
+      isMapKey (TGV' {_vsimple = TGVSimple' {_etype = E (AppT a@(AppT (ConT name) _) _b)}}) a' |
           (name == ''Order || name == ''Map) && a == view (vsimple . etype . unE) a' = True
       isMapKey _ _ = False
 
-      isolateUnreachable :: GraphEdges TGV -> m (GraphEdges TGV)
+      isolateUnreachable :: GraphEdges TGV' -> m (GraphEdges TGV')
       isolateUnreachable es = do
         st <- askPoly >>= return . view startTypes >>= mapM expandType >>= mapM typeVertex
         let (g, vf, kf) = graphFromMap (simpleEdges es)
-        let keep :: Set TGVSimple
+        let keep :: Set TGVSimple'
             keep = Set.map (\(_, key, _) -> key) $ Set.map vf $ Set.fromList $ concatMap (reachable g) (mapMaybe kf st)
             -- Discard any nodes whose simplified version is not in keep
             victims = Set.fromList $ List.filter (\ v -> not (Set.member (view vsimple v) keep)) (Map.keys es)
@@ -154,7 +154,7 @@ pathGraphEdges =
             es'' = Map.filterWithKey (\k _ -> not (Set.member k victims)) es'
         return es''
 
-      _modify :: String -> (GraphEdges TGV -> m (GraphEdges TGV)) -> StateT (GraphEdges TGV) m ()
+      _modify :: String -> (GraphEdges TGV' -> m (GraphEdges TGV')) -> StateT (GraphEdges TGV') m ()
       _modify _s f = do
         old <- get
         new <- lift $ f old
@@ -174,23 +174,23 @@ pathGraphEdges =
 -- | Remove any vertices that are labelled with primitive types, and then
 -- apply the hints obtained from the
 -- a new graph which incorporates the information from the hints.
-pruneTypeGraph :: forall m. (MonadReaders TypeInfo m, ContextM m) => (GraphEdges TGV) -> m (GraphEdges TGV)
+pruneTypeGraph :: forall m. (MonadReaders TypeInfo m, ContextM m) => (GraphEdges TGV') -> m (GraphEdges TGV')
 pruneTypeGraph edges =
   doSink edges >>= doHide
   -- execStateT (get >>= mapM_ doHide . Map.keys) edges >>=
   -- execStateT (get >>= mapM_ doView . Map.keys)
     where
-      doSink :: (GraphEdges TGV) -> m (GraphEdges TGV)
+      doSink :: (GraphEdges TGV') -> m (GraphEdges TGV')
       doSink es =
-          execStateT (do victims <- getPoly >>= \(x :: GraphEdges TGV) -> filterM (sink . view (vsimple . etype)) (Map.keys x) >>= return . Set.fromList
-                         modifyPoly (Map.mapWithKey (\k s -> if Set.member k victims then Set.empty else s) :: GraphEdges TGV -> GraphEdges TGV)) es
+          execStateT (do victims <- getPoly >>= \(x :: GraphEdges TGV') -> filterM (sink . view (vsimple . etype)) (Map.keys x) >>= return . Set.fromList
+                         modifyPoly (Map.mapWithKey (\k s -> if Set.member k victims then Set.empty else s) :: GraphEdges TGV' -> GraphEdges TGV')) es
 
       sink (E typ) = (not . null) <$> lift (reifyInstancesWithContext ''SinkType [typ])
 
-      doHide :: (GraphEdges TGV) -> m (GraphEdges TGV)
+      doHide :: (GraphEdges TGV') -> m (GraphEdges TGV')
       doHide es =
-          execStateT (do victims <- getPoly >>= \(x :: GraphEdges TGV) -> filterM (hidden . view (vsimple . etype)) (Map.keys x) >>= return . Set.fromList
-                         modifyPoly (Map.mapWithKey (\_ s -> Set.difference s victims) :: GraphEdges TGV -> GraphEdges TGV)
-                         modifyPoly (Map.filterWithKey (\k _ -> not (Set.member k victims)) :: GraphEdges TGV -> GraphEdges TGV)) es
+          execStateT (do victims <- getPoly >>= \(x :: GraphEdges TGV') -> filterM (hidden . view (vsimple . etype)) (Map.keys x) >>= return . Set.fromList
+                         modifyPoly (Map.mapWithKey (\_ s -> Set.difference s victims) :: GraphEdges TGV' -> GraphEdges TGV')
+                         modifyPoly (Map.filterWithKey (\k _ -> not (Set.member k victims)) :: GraphEdges TGV' -> GraphEdges TGV')) es
 
       hidden (E typ) = (not . null) <$> lift (reifyInstancesWithContext ''HideType [typ])

@@ -27,7 +27,6 @@ import Language.Haskell.TH.Path.View (viewInstanceType)
 import Language.Haskell.TH.TypeGraph.Expand (E(E), expandType)
 import Language.Haskell.TH.TypeGraph.TypeGraph
 import Language.Haskell.TH.TypeGraph.TypeInfo
-import Language.Haskell.TH.TypeGraph.Vertex (TGV)
 import Language.Haskell.TH.PprLib (text, hang)
 
 {-
@@ -97,24 +96,12 @@ editor tname value =
       -- type, return a lambda expression that returns the
       -- corresponding list of PV_ values.
       doType :: TypeQ -> ExpQ -> m Exp
-      doType typ value = do
-        typ' <- runQ typ
-        value' <- runQ value
-        -- trace ("doType " ++ show typ' ++ " " ++ show value') (return ())
-        g <- askPoly :: m TypeGraph
-        let (_, keyFunction, vertexFunction) = view graph g
-        -- Find the vertex key corresponding to typ
-        k <- runQ typ >>= typeGraphVertex :: m TGV
-        -- Find the vertex corresponding to k
-        let Just v = vertexFunction k
+      doType typ expr = do
         -- Find the vertex keys adjacent to k
-        let g@(_, _, ks) = keyFunction v
-        -- trace (show (hang (text "vertex Report:") 2 (ppr g))) (return ())
-        -- trace ("bestNames: " ++ show (map bestName ks)) (return ())
         -- The root node represents the original value
         Just leRootCon <- runQ $ lookupValueName ("PV_" ++ nameBase tname ++ "_" ++ nameBase tname)
         Just pvType <- runQ $ lookupTypeName ("PV_" ++ nameBase tname)
-        root <- runQ [| Node ($(conE leRootCon) idPath $value) [] |]
+        root <- runQ [| Node ($(conE leRootCon) idPath $expr) [] |]
         -- Now generate the traversal of value.
         E t <- expandType (ConT tname)
         viewType <- viewInstanceType t
@@ -124,9 +111,9 @@ editor tname value =
           Just ktype@(ConT kname) ->
               do Just leCon <- runQ $ lookupValueName ("PV_" ++ nameBase tname ++ "_" ++ nameBase kname)
                  runQ [| $(pure root) {subForest = map (\path ->
-                                                            let [x] = toListOf (toLens path) $value :: [$(pure ktype)] in
+                                                            let [x] = toListOf (toLens path) $expr :: [$(pure ktype)] in
                                                             Node ($(conE leCon) path x) [])
-                                                       (pathsOf $value (undefined :: Proxy $(conT kname)) :: [Path $(conT tname) $(conT kname)]) :: [Tree $(conT pvType)]} |]
+                                                       (pathsOf $expr (undefined :: Proxy $(conT kname)) :: [Path $(conT tname) $(conT kname)]) :: [Tree $(conT pvType)]} |]
           _ -> runQ [| root :: Tree $(conT pvType) |]
 {-
         case ks of

@@ -41,10 +41,10 @@ import Language.Haskell.TH.Syntax as TH (VarStrictType)
 import Language.Haskell.TH.TypeGraph.Prelude (pprint')
 import Language.Haskell.TH.TypeGraph.TypeGraph (HasTGVSimple(asTGVSimple), reachableFromSimple, simplify, tgv, tgvSimple, TypeGraph)
 import Language.Haskell.TH.TypeGraph.TypeInfo (TypeInfo)
-import Language.Haskell.TH.TypeGraph.Vertex (TGVSimple', typeNames)
+import Language.Haskell.TH.TypeGraph.Vertex (TGVSimple, typeNames)
 
 -- | Given a type, compute the corresponding path type.
-pathType :: forall m s. (MonadReaders TypeGraph m, MonadReaders TypeInfo m, ContextM m, s ~ TGVSimple') =>
+pathType :: forall m s. (MonadReaders TypeGraph m, MonadReaders TypeInfo m, ContextM m, s ~ TGVSimple) =>
             TypeQ
          -> s -- ^ The type to convert to a path type
          -> m Type
@@ -89,7 +89,7 @@ pathType gtyp key = do
                     intercalate "\n  " ("reachable from:" : List.map pprint' (Foldable.toList ks))
 
 
-pathTypeDecs :: forall m s. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m, s ~ TGVSimple') => s -> m ()
+pathTypeDecs :: forall m s. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m, s ~ TGVSimple) => s -> m ()
 pathTypeDecs v = do
   -- generate the data Path_* declarations
   selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [asType v]
@@ -106,7 +106,7 @@ pathTypeDecs v = do
       | isJust viewType -> viewPath v (fromJust viewType)
       | otherwise -> doNames v
 
-doSimplePath :: forall m s. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m, s ~ TGVSimple') =>
+doSimplePath :: forall m s. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m, s ~ TGVSimple) =>
                 s -> m ()
 doSimplePath v = do
   let pname = bestPathTypeName v
@@ -115,7 +115,7 @@ doSimplePath v = do
   runQ (dataD (pure []) (asName pname) [PlainTV a] [normalC (asName pname) []] supers) >>= tell . (: [])
   runQ [d|instance IsPathEnd ($(asTypeQ pname) a) where idPath = $(asConQ pname)|] >>= tell
 
-viewPath :: forall m s. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m, s ~ TGVSimple') => s -> Type -> m ()
+viewPath :: forall m s. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m, s ~ TGVSimple) => s -> Type -> m ()
 viewPath v styp = do
   let pname = bestPathTypeName v
   skey <- tgvSimple styp :: m s
@@ -130,7 +130,7 @@ viewPath v styp = do
           ] supers) >>= tell . (: [])
   runQ [d|instance IsPathEnd ($(asTypeQ pname) a) where idPath = $(asConQ pname)|] >>= tell
 
-doNames :: forall m s. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m, s ~ TGVSimple') => s -> m ()
+doNames :: forall m s. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m, s ~ TGVSimple) => s -> m ()
 doNames v = mapM_ (\tname -> runQ (reify tname) >>= doInfo) (typeNames v)
     where
       doInfo (TyConI dec) =

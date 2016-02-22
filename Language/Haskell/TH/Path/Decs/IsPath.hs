@@ -40,7 +40,7 @@ import Language.Haskell.TH.Path.View (viewInstanceType)
 import Language.Haskell.TH.Syntax as TH (Quasi(qReify))
 import Language.Haskell.TH.TypeGraph.TypeGraph (lensKeys, pathKeys, simplify, tgv, tgvSimple, TypeGraph)
 import Language.Haskell.TH.TypeGraph.TypeInfo (TypeInfo)
-import Language.Haskell.TH.TypeGraph.Vertex (TGV', TGVSimple')
+import Language.Haskell.TH.TypeGraph.Vertex (TGV, TGVSimple)
 
 newtype PeekType = PeekType {unPeekType :: Name} deriving (Eq, Ord, Show) -- e.g. Peek_AbbrevPairs
 newtype PeekCon = PeekCon {unPeekCon :: Name} deriving (Eq, Ord, Show) -- e.g. Peek_AbbrevPairs_Markup
@@ -59,7 +59,7 @@ makePeekCon :: (HasName s, HasName g) => ModelType s -> ModelType g -> PeekCon
 makePeekCon (ModelType s) (ModelType g) = PeekCon (mkName ("Peek_" ++ nameBase (asName s) ++ "_" ++ nameBase (asName g)))
 
 peekDecs :: forall m. (MonadWriter [Dec] m, ContextM m, MonadReaders TypeInfo m, MonadReaders TypeGraph m) =>
-            TGVSimple' -> m ()
+            TGVSimple -> m ()
 peekDecs v =
     do t <- tgv Nothing v
        (pnc :: [ClauseQ]) <- peekClauses v
@@ -77,18 +77,18 @@ peekDecs v =
     where
       peekCons :: m [ConQ]
       peekCons = (concat . List.map doPair . toList) <$> (pathKeys v)
-      doPair :: TGVSimple' -> [ConQ]
+      doPair :: TGVSimple -> [ConQ]
       doPair g = [normalC (asName (makePeekCon (ModelType (asName v)) (ModelType (asName g))))
                           [(,) <$> notStrict <*> [t|Path $(asTypeQ v) $(asTypeQ g)|],
                            (,) <$> notStrict <*> [t|Maybe $(asTypeQ g)|] ]]
       hopCons :: m [ConQ]
       hopCons = (concat . List.map doHopPair . toList) <$> (lensKeys v)
-      doHopPair :: TGV' -> [ConQ]
+      doHopPair :: TGV -> [ConQ]
       doHopPair g =
           [normalC (asName (makeHopCon v g))
                    [(,) <$> notStrict <*> [t|$(asTypeQ (bestPathTypeName v)) $(asTypeQ g)|]]]
 
-peekClauses :: forall m s. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, s ~ TGVSimple') =>
+peekClauses :: forall m s. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, s ~ TGVSimple) =>
                s -> m [ClauseQ]
 peekClauses v =
   do selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [asType v]
@@ -181,7 +181,7 @@ peekClauses v =
              let pcname = maybe (error $ "Not a field: " ++ show f) id (makeFieldCon f)
              return (w, conP (asName pcname) [wildP], asConQ pcname)
 
-doPeekNodesOfOrder :: forall m s a. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, s ~ TGVSimple', HasName a) =>
+doPeekNodesOfOrder :: forall m s a. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, s ~ TGVSimple, HasName a) =>
                       s -> Type -> PathCon a -> m [ClauseQ]
 doPeekNodesOfOrder v wtyp pcname =
   do x <- runQ $ newName "x"
@@ -190,7 +190,7 @@ doPeekNodesOfOrder v wtyp pcname =
      (: []) <$> forestOfAlt (varE x) v (varP x, [(w, conP (asName pcname) [varP k, wildP], [|$(asConQ pcname) $(varE k)|])])
 
 doPeekNodesOfMap :: forall m s a. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m,
-                                   HasName a, s ~ TGVSimple') =>
+                                   HasName a, s ~ TGVSimple) =>
                     s -> Type -> PathCon a -> m [ClauseQ]
 doPeekNodesOfMap v wtyp pcname =
   do x <- runQ $ newName "x"
@@ -198,12 +198,12 @@ doPeekNodesOfMap v wtyp pcname =
      k <- runQ $ newName "k"
      (: []) <$> forestOfAlt (varE x) v (varP x, [(w, conP (asName pcname) [varP k, wildP], [|$(asConQ pcname) $(varE k)|])])
 
-forestOfAlt :: forall m s. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, s ~ TGVSimple') =>  ExpQ -> s -> (PatQ, [(s, PatQ, ExpQ)]) -> m ClauseQ
+forestOfAlt :: forall m s. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, s ~ TGVSimple) =>  ExpQ -> s -> (PatQ, [(s, PatQ, ExpQ)]) -> m ClauseQ
 forestOfAlt x v (xpat, concs) =
     do fs <- mapM (forestOfConc x v) concs
        return $ clause [xpat] (normalB [| concat $(listE fs) |]) []
 
-forestOfConc :: forall m s. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, s ~ TGVSimple') =>  ExpQ -> s -> (s, PatQ, ExpQ) -> m ExpQ
+forestOfConc :: forall m s. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, s ~ TGVSimple) =>  ExpQ -> s -> (s, PatQ, ExpQ) -> m ExpQ
 forestOfConc x v (w, ppat, pcon) =
     do gs <- pathKeys w
        p <- runQ $ newName "p"
