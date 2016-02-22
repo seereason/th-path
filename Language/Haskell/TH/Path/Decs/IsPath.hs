@@ -171,14 +171,14 @@ peekClauses v =
       doNamedField tname cname ((fname, _, ftype), _fpos) =
           do f <- (tgvSimple ftype :: m s) >>= tgv (Just (tname, cname, Right fname))
              w <- simplify f
-             let Just pcname = makeFieldCon f
+             let pcname = maybe (error $ "Not a field: " ++ show f) id (makeFieldCon f)
              return (w, conP (asName pcname) [wildP], asConQ pcname)
 
       doAnonField :: Name -> Name -> ((Strict, Type), Int) -> m (s, PatQ, ExpQ)
       doAnonField tname cname ((_, ftype), fpos) =
           do f <- (tgvSimple ftype :: m s) >>= tgv (Just (tname, cname, Left fpos))
              w <- simplify f
-             let Just pcname = makeFieldCon f
+             let pcname = maybe (error $ "Not a field: " ++ show f) id (makeFieldCon f)
              return (w, conP (asName pcname) [wildP], asConQ pcname)
 
 doPeekNodesOfOrder :: forall m s a. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, s ~ TGVSimple', HasName a) =>
