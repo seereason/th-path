@@ -38,9 +38,9 @@ import Language.Haskell.TH.Path.Order (Order, Path_OMap(..))
 import Language.Haskell.TH.Path.View (viewInstanceType)
 import Language.Haskell.TH.Syntax as TH (Quasi(qReify))
 import Language.Haskell.TH.TypeGraph.Expand (expandType)
-import Language.Haskell.TH.TypeGraph.TypeGraph (lensKeys, pathKeys, tgvSimple, TypeGraph)
+import Language.Haskell.TH.TypeGraph.TypeGraph (HasTGVSimple(asTGVSimple), lensKeys, MaybePair, pathKeys, simplify, tgvSimple, TypeGraph)
 import Language.Haskell.TH.TypeGraph.TypeInfo (fieldVertex, TypeInfo)
-import Language.Haskell.TH.TypeGraph.Vertex (bestName, etype, mkTGV, TGV', TGVSimple, TGVSimple', vsimple)
+import Language.Haskell.TH.TypeGraph.Vertex (bestName, etype, mkTGV, TGV', TGVSimple, TGVSimple', TypeGraphVertex, vsimple)
 
 newtype PeekType = PeekType {unPeekType :: Name} deriving (Eq, Ord, Show) -- e.g. Peek_AbbrevPairs
 newtype PeekCon = PeekCon {unPeekCon :: Name} deriving (Eq, Ord, Show) -- e.g. Peek_AbbrevPairs_Markup
@@ -58,8 +58,8 @@ instance HasConQ PeekCon where asConQ = conE . unPeekCon
 makePeekCon :: (HasName s, HasName g) => ModelType s -> ModelType g -> PeekCon
 makePeekCon (ModelType s) (ModelType g) = PeekCon (mkName ("Peek_" ++ nameBase (asName s) ++ "_" ++ nameBase (asName g)))
 
-peekDecs :: forall m. (MonadWriter [Dec] m, ContextM m, MonadReaders TypeInfo m, MonadReaders TypeGraph m) =>
-            TGVSimple -> m ()
+peekDecs :: forall m s. (MonadWriter [Dec] m, ContextM m, MonadReaders TypeInfo m, MonadReaders TypeGraph m, MaybePair s TGVSimple, HasTGVSimple s, Ord s, HasType s, HasTypeQ s, TypeGraphVertex s, HasName s) =>
+            s -> m ()
 peekDecs v =
     do (pnc :: [ClauseQ]) <- peekClauses v
        (cons :: [ConQ]) <- peekCons
@@ -70,13 +70,13 @@ peekDecs v =
                               [] -> [clause [wildP] (normalB [| [] |]) []]
                               _ -> pnc),
                 dataInstD (cxt []) ''Hop [asTypeQ v] (case hcons of
-                                                        [] -> [normalC (asName (makeHopCon v (mkTGV v))) []]
+                                                        [] -> [normalC (asName (makeHopCon v (mkTGV (asTGVSimple v)))) []]
                                                         _ -> hcons) [''Eq, ''Show]
                ]) >>= tell . (: [])
     where
       peekCons :: m [ConQ]
       peekCons = (concat . List.map doPair . toList) <$> (pathKeys v)
-      doPair :: TGVSimple' -> [ConQ]
+      doPair :: s -> [ConQ]
       doPair g =
           case (bestName v, bestName g) of
             (Just vn, Just gn) ->
@@ -94,12 +94,13 @@ peekDecs v =
                          [(,) <$> notStrict <*> [t|$(asTypeQ (bestPathTypeName v)) $(asTypeQ g)|]]]
             _ -> []
 
-peekClauses :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) =>
-               TGVSimple -> m [ClauseQ]
+peekClauses :: forall m s. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m,
+                            TypeGraphVertex s, HasName s, HasType s, HasTGVSimple s, MaybePair s TGVSimple, Ord s, HasTypeQ s) =>
+               s -> m [ClauseQ]
 peekClauses v =
   do selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [asType v]
      simplePath <- (not . null) <$> reifyInstancesWithContext ''SinkType [asType v]
-     viewType <- viewInstanceType (view etype v)
+     viewType <- viewInstanceType (view etype (asTGVSimple v))
      x <- runQ $ newName "x"
      case asType v of
        _ | selfPath -> return []
@@ -173,42 +174,44 @@ peekClauses v =
         return [c]
 #endif
 
-      doNamedField :: Name -> ((Name, Strict, Type), Int) -> m (TGVSimple, PatQ, ExpQ)
+      doNamedField :: Name -> ((Name, Strict, Type), Int) -> m (s, PatQ, ExpQ)
       doNamedField tname ((fname, _, ftype), _fpos) =
           do f <- expandType ftype >>= fieldVertex (tname, undefined, Right fname)
-             let w = view vsimple f
+             w <- simplify f
              let Just pcname = makeFieldCon f
              return (w, conP (asName pcname) [wildP], asConQ pcname)
 
-      doAnonField :: Name -> ((Strict, Type), Int) -> m (TGVSimple, PatQ, ExpQ)
+      doAnonField :: Name -> ((Strict, Type), Int) -> m (s, PatQ, ExpQ)
       doAnonField tname ((_, ftype), fpos) =
           do f <- expandType ftype >>= fieldVertex (tname, undefined, Left fpos)
-             let w = view vsimple f
+             w <- simplify f
              let Just pcname = makeFieldCon f
              return (w, conP (asName pcname) [wildP], asConQ pcname)
 
-doPeekNodesOfOrder :: forall m a. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, HasName a) =>
-                      TGVSimple -> Type -> PathCon a -> m [ClauseQ]
+doPeekNodesOfOrder :: forall m s a. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m,
+                                     HasName a, HasTGVSimple s, MaybePair s TGVSimple, TypeGraphVertex s, HasName s, Ord s, HasTypeQ s) =>
+                      s -> Type -> PathCon a -> m [ClauseQ]
 doPeekNodesOfOrder v wtyp pcname =
   do x <- runQ $ newName "x"
      w <- tgvSimple wtyp
      k <- runQ $ newName "k"
      (: []) <$> forestOfAlt (varE x) v (varP x, [(w, conP (asName pcname) [varP k, wildP], [|$(asConQ pcname) $(varE k)|])])
 
-doPeekNodesOfMap :: forall m a. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, HasName a) =>
-                    TGVSimple -> Type -> PathCon a -> m [ClauseQ]
+doPeekNodesOfMap :: forall m s a. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m,
+                                   HasName a, HasTGVSimple s, MaybePair s TGVSimple, TypeGraphVertex s, HasName s, Ord s, HasTypeQ s) =>
+                    s -> Type -> PathCon a -> m [ClauseQ]
 doPeekNodesOfMap v wtyp pcname =
   do x <- runQ $ newName "x"
      w <- tgvSimple wtyp
      k <- runQ $ newName "k"
      (: []) <$> forestOfAlt (varE x) v (varP x, [(w, conP (asName pcname) [varP k, wildP], [|$(asConQ pcname) $(varE k)|])])
 
-forestOfAlt :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) =>  ExpQ -> TGVSimple -> (PatQ, [(TGVSimple, PatQ, ExpQ)]) -> m ClauseQ
+forestOfAlt :: forall m s. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, TypeGraphVertex s, HasName s, Ord s, HasTypeQ s, MaybePair s TGVSimple, HasTGVSimple s) =>  ExpQ -> s -> (PatQ, [(s, PatQ, ExpQ)]) -> m ClauseQ
 forestOfAlt x v (xpat, concs) =
     do fs <- mapM (forestOfConc x v) concs
        return $ clause [xpat] (normalB [| concat $(listE fs) |]) []
 
-forestOfConc :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) =>  ExpQ -> TGVSimple -> (TGVSimple, PatQ, ExpQ) -> m ExpQ
+forestOfConc :: forall m s. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, TypeGraphVertex s, HasName s, Ord s, HasTypeQ s, MaybePair s TGVSimple, HasTGVSimple s) =>  ExpQ -> s -> (s, PatQ, ExpQ) -> m ExpQ
 forestOfConc x v (w, ppat, pcon) =
     do gs <- pathKeys w
        p <- runQ $ newName "p"
@@ -226,7 +229,7 @@ forestOfConc x v (w, ppat, pcon) =
                                _ -> [])
                    (pathsOf $x (undefined :: Proxy $(asTypeQ w)) :: [$(asTypeQ (makePathType (ModelType vn))) $(asTypeQ w)]) :: Forest (Peek $(asTypeQ v)) |]
 
-doGoal :: TGVSimple -> TGVSimple -> ExpQ -> TGVSimple' -> [MatchQ]
+doGoal :: (TypeGraphVertex s, HasTypeQ s) => s -> s -> ExpQ -> s -> [MatchQ]
 doGoal v w pcon g = do
   case (bestName v, bestName w, bestName g) of
     (Just vn, Just wn, Just gn) ->

@@ -31,7 +31,7 @@ import Language.Haskell.TH
 import Language.Haskell.TH.Context (ContextM, reifyInstancesWithContext)
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.Path.Common (allPathTypeNames, asConQ, asName, asType, asTypeQ, bestPathTypeName, ModelType(ModelType),
+import Language.Haskell.TH.Path.Common (allPathTypeNames, asConQ, asName, asType, asTypeQ, bestPathTypeName, HasName, ModelType(ModelType),
                                         makeFieldCon, makePathCon, makePathType)
 import Language.Haskell.TH.Path.Core (IsPathEnd(idPath), SelfPath, SinkType,
                                       Path_List, Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
@@ -40,62 +40,62 @@ import Language.Haskell.TH.Path.View (viewInstanceType)
 import Language.Haskell.TH.Syntax as TH (VarStrictType)
 import Language.Haskell.TH.TypeGraph.Expand (E(E), expandType)
 import Language.Haskell.TH.TypeGraph.Prelude (pprint')
-import Language.Haskell.TH.TypeGraph.TypeGraph (reachableFromSimple, tgvSimple, TypeGraph)
+import Language.Haskell.TH.TypeGraph.TypeGraph (HasTGVSimple(asTGVSimple), reachableFromSimple, tgvSimple, TypeGraph, MaybePair)
 import Language.Haskell.TH.TypeGraph.TypeInfo (fieldVertex, TypeInfo)
-import Language.Haskell.TH.TypeGraph.Vertex (etype, TGVSimple, typeNames, vsimple)
+import Language.Haskell.TH.TypeGraph.Vertex (etype, TGVSimple, TypeGraphVertex, typeNames, vsimple)
 
 -- | Given a type, compute the corresponding path type.
-pathType :: forall m. (MonadReaders TypeGraph m, MonadReaders TypeInfo m, ContextM m) =>
+pathType :: forall m s. (MonadReaders TypeGraph m, MonadReaders TypeInfo m, ContextM m, HasTGVSimple s, TypeGraphVertex s, MaybePair s TGVSimple, HasName s, Ord s, Data s, Ppr s) =>
             TypeQ
-         -> TGVSimple -- ^ The type to convert to a path type
+         -> s -- ^ The type to convert to a path type
          -> m Type
 pathType gtyp key = do
-  selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [let (E typ) = view etype key in typ]
-  simplePath <- (not . null) <$> reifyInstancesWithContext ''SinkType [let (E typ) = view etype key in typ]
-  viewType <- viewInstanceType (view etype key)
-  case asType key of
-    _ | selfPath -> return $ asType key
+  selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [let (E typ) = view etype (asTGVSimple key) in typ]
+  simplePath <- (not . null) <$> reifyInstancesWithContext ''SinkType [let (E typ) = view etype (asTGVSimple key) in typ]
+  viewType <- viewInstanceType (view etype (asTGVSimple key))
+  case asType (asTGVSimple key) of
+    _ | selfPath -> return $ asType (asTGVSimple key)
       | simplePath -> runQ [t|$(asTypeQ (bestPathTypeName key)) $gtyp|]
       | isJust viewType -> runQ [t|$(asTypeQ (bestPathTypeName key)) $gtyp|]
     ConT tname ->
         runQ $ [t|$(asTypeQ (makePathType (ModelType tname))) $gtyp|]
     AppT (AppT mtyp ityp) etyp
         | mtyp == ConT ''Order ->
-            do ipath <- tgvSimple ityp >>= pathType gtyp
-               epath <- tgvSimple etyp >>= pathType gtyp
+            do ipath <- (tgvSimple ityp :: m s) >>= pathType gtyp
+               epath <- (tgvSimple etyp :: m s) >>= pathType gtyp
                runQ [t|Path_OMap $(return ipath) $(return epath)|]
     AppT ListT etyp ->
-        do epath <- tgvSimple etyp >>= pathType gtyp
+        do epath <- (tgvSimple etyp :: m s) >>= pathType gtyp
            runQ [t|Path_List $(return epath)|]
     AppT (AppT t3 ktyp) vtyp
         | t3 == ConT ''Map ->
-            do kpath <- tgvSimple ktyp >>= pathType gtyp
-               vpath <- tgvSimple vtyp >>= pathType gtyp
+            do kpath <- (tgvSimple ktyp :: m s) >>= pathType gtyp
+               vpath <- (tgvSimple vtyp :: m s) >>= pathType gtyp
                runQ [t| Path_Map $(return kpath) $(return vpath)|]
     AppT (AppT (TupleT 2) ftyp) styp ->
-        do fpath <- tgvSimple ftyp >>= pathType gtyp
-           spath <- tgvSimple styp >>= pathType gtyp
+        do fpath <- (tgvSimple ftyp :: m s) >>= pathType gtyp
+           spath <- (tgvSimple styp :: m s) >>= pathType gtyp
            runQ [t| Path_Pair $(return fpath) $(return spath) |]
     AppT t1 vtyp
         | t1 == ConT ''Maybe ->
-            do epath <- tgvSimple vtyp >>= pathType gtyp
+            do epath <- (tgvSimple vtyp :: m s) >>= pathType gtyp
                runQ [t|Path_Maybe $(return epath)|]
     AppT (AppT t3 ltyp) rtyp
         | t3 == ConT ''Either ->
-            do lpath <- tgvSimple ltyp >>= pathType gtyp
-               rpath <- tgvSimple rtyp >>= pathType gtyp
+            do lpath <- (tgvSimple ltyp :: m s) >>= pathType gtyp
+               rpath <- (tgvSimple rtyp :: m s) >>= pathType gtyp
                runQ [t| Path_Either $(return lpath) $(return rpath)|]
     _ -> do ks <- reachableFromSimple key
             error $ "pathType otherf: " ++ pprint' key ++ "\n" ++
                     intercalate "\n  " ("reachable from:" : List.map pprint' (Foldable.toList ks))
 
 
-pathTypeDecs :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) => TGVSimple -> m ()
+pathTypeDecs :: forall m s. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m, HasTGVSimple s, TypeGraphVertex s, HasName s, MaybePair s TGVSimple, Data s, Ord s, Ppr s) => s -> m ()
 pathTypeDecs v = do
   -- generate the data Path_* declarations
-  selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [let (E typ) = view etype v in typ]
-  simplePath <- (not . null) <$> reifyInstancesWithContext ''SinkType [let (E typ) = view etype v in typ]
-  viewType <- viewInstanceType (view etype v)
+  selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [let (E typ) = view etype (asTGVSimple v) in typ]
+  simplePath <- (not . null) <$> reifyInstancesWithContext ''SinkType [let (E typ) = view etype (asTGVSimple v) in typ]
+  viewType <- viewInstanceType (view etype (asTGVSimple v))
   let pname = bestPathTypeName v
       psyns = Set.delete pname (allPathTypeNames v)
   a <- runQ $ newName "a"
@@ -107,8 +107,8 @@ pathTypeDecs v = do
       | isJust viewType -> viewPath v (fromJust viewType)
       | otherwise -> doNames v
 
-doSimplePath :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) =>
-                TGVSimple -> m ()
+doSimplePath :: forall m s. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m, TypeGraphVertex s, HasName s, MaybePair s TGVSimple) =>
+                s -> m ()
 doSimplePath v = do
   let pname = bestPathTypeName v
   a <- runQ $ newName "a"
@@ -116,10 +116,10 @@ doSimplePath v = do
   runQ (dataD (pure []) (asName pname) [PlainTV a] [normalC (asName pname) []] supers) >>= tell . (: [])
   runQ [d|instance IsPathEnd ($(asTypeQ pname) a) where idPath = $(asConQ pname)|] >>= tell
 
-viewPath :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) => TGVSimple -> Type -> m ()
+viewPath :: forall m s. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m, TypeGraphVertex s, MaybePair s TGVSimple, HasName s, Data s, Ord s, Ppr s, HasTGVSimple s) => s -> Type -> m ()
 viewPath v styp = do
   let pname = bestPathTypeName v
-  skey <- tgvSimple styp
+  skey <- tgvSimple styp :: m s
   a <- runQ $ newName "a"
   ptype <- pathType (varT a) skey
   -- data Path_MaybeImageFile a =
@@ -131,7 +131,7 @@ viewPath v styp = do
           ] supers) >>= tell . (: [])
   runQ [d|instance IsPathEnd ($(asTypeQ pname) a) where idPath = $(asConQ pname)|] >>= tell
 
-doNames :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) => TGVSimple -> m ()
+doNames :: forall m s. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m, HasName s, MaybePair s TGVSimple, Data s, Ord s, TypeGraphVertex s, Ppr s, HasTGVSimple s) => s -> m ()
 doNames v = mapM_ (\tname -> runQ (reify tname) >>= doInfo) (typeNames v)
     where
       doInfo (TyConI dec) =
@@ -143,7 +143,7 @@ doNames v = mapM_ (\tname -> runQ (reify tname) >>= doInfo) (typeNames v)
       -- If we have a type synonym, we can create a path type synonym
       doDec (TySynD _ _ typ') =
           do a <- runQ $ newName "a"
-             key' <- tgvSimple typ'
+             key' <- tgvSimple typ' :: m s
              ptype <- pathType (varT a) key'
              mapM (\pname -> runQ (tySynD (asName pname) [PlainTV a] (pure ptype))) (toList . Set.map makePathType . Set.map ModelType . typeNames $ v) >>= tell
       doDec (NewtypeD _ tname _ con _) = doDataD tname [con]

@@ -24,6 +24,7 @@ import Control.Monad.States (MonadStates(getPoly), modifyPoly)
 import Control.Monad.Trans as Monad (lift)
 import Control.Monad.Writer (execWriterT, MonadWriter, tell)
 import Data.Bool (bool)
+import Data.Data (Data)
 import Data.List as List (map)
 import Data.Map as Map (Map)
 import Data.Maybe (fromJust, isJust)
@@ -32,7 +33,7 @@ import Language.Haskell.TH
 import Language.Haskell.TH.Context (reifyInstancesWithContext)
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.Path.Common (asName, asType, asTypeQ, makeFieldCon)
+import Language.Haskell.TH.Path.Common (HasName(asName), HasType(asType), HasTypeQ(asTypeQ), makeFieldCon)
 import Language.Haskell.TH.Path.Core (mat, S, A, ToLens(toLens), SelfPath, SinkType, Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
 import Language.Haskell.TH.Path.Decs.PathType (pathType)
 import Language.Haskell.TH.Path.Graph (TypeGraphM)
@@ -40,7 +41,7 @@ import Language.Haskell.TH.Path.Order (lens_omat, Order, Path_OMap(..))
 import Language.Haskell.TH.Path.View (viewInstanceType, viewLens)
 import Language.Haskell.TH.Syntax as TH (VarStrictType)
 import Language.Haskell.TH.TypeGraph.Expand (E(E), expandType)
-import Language.Haskell.TH.TypeGraph.TypeGraph (goalReachableSimple, pathKeys, tgvSimple, TypeGraph)
+import Language.Haskell.TH.TypeGraph.TypeGraph (goalReachableSimple, HasTGV(asTGV), HasTGVSimple(asTGVSimple), MaybePair, pathKeys, simplify, tgvSimple, TypeGraph)
 import Language.Haskell.TH.TypeGraph.TypeInfo (fieldVertex)
 import Language.Haskell.TH.TypeGraph.Vertex (etype, TGVSimple, TGVSimple', TypeGraphVertex(bestType), vsimple)
 
@@ -48,7 +49,7 @@ toLensDecs :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TGVSimple -> m ()
 toLensDecs v =
     pathKeys v >>= Set.mapM_ (toLensDecs' v)
 
-toLensDecs' :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TGVSimple -> TGVSimple' -> m ()
+toLensDecs' :: forall m s. (TypeGraphM m, MonadWriter [Dec] m, HasTGVSimple s, Data s, Ord s, Ppr s, TypeGraphVertex s, HasName s, HasTypeQ s, HasType s, MaybePair s TGVSimple) => s -> s -> m ()
 toLensDecs' key gkey = do
   ptyp <- pathType (pure (bestType gkey)) key
   tlc <- execWriterT $ evalStateT (toLensClauses key gkey) mempty
@@ -61,12 +62,12 @@ toLensDecs' key gkey = do
                 ] ]) >>= tell
 
 
-toLensClauses :: forall m. (TypeGraphM m, MonadWriter [ClauseQ] m) =>
-                       TGVSimple -- ^ the type whose clauses we are generating
-                    -> TGVSimple' -- ^ the goal type key
+toLensClauses :: forall m s. (TypeGraphM m, MonadWriter [ClauseQ] m, HasTGVSimple s, Ord s, Data s, Ppr s, HasType s, HasTypeQ s, TypeGraphVertex s, HasName s, MaybePair s TGVSimple) =>
+                       s -- ^ the type whose clauses we are generating
+                    -> s -- ^ the goal type key
                     -> StateT (Set Name) m ()
 toLensClauses key gkey
-    | key == snd gkey =
+    | key == gkey =
         tell [clause [wildP] (normalB [|id|]) []]
 toLensClauses key gkey =
   -- Use this to raise errors when the path patterns aren't exhaustive.
@@ -77,9 +78,9 @@ toLensClauses key gkey =
   --   return $ r ++ [clause [varP x] (normalB [|error ("toLens' (" ++ $(lift (pprint' key)) ++ ") -> (" ++ $(lift (pprint' gkey)) ++ ") - unmatched: " ++ show $(varE x))|]) []]
   do ptyp <- pathType (pure (bestType gkey)) key
      let v = key
-     selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [let (E typ) = view etype v in typ]
-     simplePath <- (not . null) <$> reifyInstancesWithContext ''SinkType [let (E typ) = view etype v in typ]
-     viewType <- viewInstanceType (view etype v)
+     selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [let (E typ) = view etype (asTGVSimple v) in typ]
+     simplePath <- (not . null) <$> reifyInstancesWithContext ''SinkType [let (E typ) = view etype (asTGVSimple v) in typ]
+     viewType <- viewInstanceType (view etype (asTGVSimple v))
      case asType v of
        _ | selfPath -> return ()
          | simplePath -> return () -- Simple paths only work if we are at the goal type, and that case is handled above.
@@ -93,7 +94,7 @@ toLensClauses key gkey =
              -- value we have.
              let (AppT (ConT pname) _gtyp) = ptyp
              lkey <- tgvSimple ltyp
-             doClause gkey ltyp (\p -> conP (mkName (nameBase pname ++ "_View")) [if lkey == snd gkey then wildP else p]) (pure lns)
+             doClause gkey ltyp (\p -> conP (mkName (nameBase pname ++ "_View")) [if lkey == gkey then wildP else p]) (pure lns)
        ConT tname ->
            getPoly >>= \s -> if Set.member tname s
                              then return ()
@@ -118,24 +119,24 @@ toLensClauses key gkey =
            | t3 == ConT ''Either ->
                do doClause gkey ltyp (\p -> [p|Path_Left $p|]) [|_Left|]
                   doClause gkey rtyp (\p -> [p|Path_Right $p|]) [|_Right|]
-       _ -> tell [ clause [wildP] (normalB [|(error $ $(litE (stringL ("Need to find lens for field type: " ++ pprint (view etype key))))) :: Traversal' $(asTypeQ key) $(pure (bestType gkey))|]) [] ]
+       _ -> tell [ clause [wildP] (normalB [|(error $ $(litE (stringL ("Need to find lens for field type: " ++ pprint (view etype (asTGVSimple key)))))) :: Traversal' $(asTypeQ key) $(pure (bestType gkey))|]) [] ]
 
 -- | Given a function pfunc that modifies a pattern, add a
 -- 'Language.Haskell.TH.Clause' (a function with a typically incomplete
 -- pattern) to the toLens' method we are building to handle the new
 -- pattern.
-doClause :: forall m. (TypeGraphM m, MonadWriter [ClauseQ] m) =>
-            TGVSimple' -> Type -> (PatQ -> PatQ) -> ExpQ -> m ()
+doClause :: forall m s. (TypeGraphM m, MonadWriter [ClauseQ] m, MaybePair s TGVSimple, HasTGVSimple s, Ord s, Data s) =>
+            s-> Type -> (PatQ -> PatQ) -> ExpQ -> m ()
 doClause gkey typ pfunc lns = do
   v <- runQ (newName "v")
   key <- tgvSimple typ
-  ok <- goalReachableSimple (snd gkey) key
-  let pat = bool wildP (varP v) (key /= snd gkey)
-      lns' = bool lns [|$lns . toLens $(varE v)|] (key /= snd gkey)
+  ok <- goalReachableSimple gkey key
+  let pat = bool wildP (varP v) (key /= gkey)
+      lns' = bool lns [|$lns . toLens $(varE v)|] (key /= gkey)
   when ok $ tell [clause [pfunc pat] (normalB lns') []]
 
-doName :: forall m. (TypeGraphM m, MonadWriter [ClauseQ] m) =>
-          Name -> TGVSimple' -> StateT (Set Name) m ()
+doName :: forall m s. (TypeGraphM m, MonadWriter [ClauseQ] m, MaybePair s TGVSimple, HasTGVSimple s, TypeGraphVertex s, Data s, Ord s, Ppr s, HasTypeQ s, HasType s, HasName s) =>
+          Name -> s-> StateT (Set Name) m ()
 doName tname gkey =
     -- If encounter a named type and the stack is empty we
     -- need to build the clauses for its declaration.
@@ -150,7 +151,7 @@ doName tname gkey =
                    -- path type synonym instead of the path type of the
                    -- alias type.
                   key' <- tgvSimple typ'
-                  ok <- goalReachableSimple (snd gkey) key'
+                  ok <- goalReachableSimple gkey key'
                   case ok of
                     False -> return ()
                     True -> toLensClauses key' gkey
@@ -175,7 +176,8 @@ doName tname gkey =
             doField :: Name -> VarStrictType -> StateT (Set Name) m [(Con, [ClauseQ])]
             doField cname (fn, _, ft) = do
                     fkey <- expandType ft >>= fieldVertex (tname, cname, Right fn)
-                    ok <- goalReachableSimple (snd gkey) (view vsimple fkey)  -- is the goal type reachable from here?
+                    skey <- simplify fkey
+                    ok <- goalReachableSimple gkey skey  -- is the goal type reachable from here?
                     case ok of
                       False -> return []  -- Goal type isn't reachable, return empty clause list
                       True ->
@@ -190,7 +192,7 @@ doName tname gkey =
                              con <- runQ $ normalC (asName pcname) [strictType notStrict (return ptype')]
                              -- These are the field's clauses.  Each pattern gets wrapped with the field path constructor,
                              -- and each field lens gets composed with the lens produced for the field's type.
-                             let goal = view (vsimple . etype) fkey == view etype (snd gkey)
+                             let goal = view (vsimple . etype) fkey == view etype (asTGVSimple gkey)
                              clauses' <- List.mapM (Monad.lift .
                                                     mapClause (\ pat -> conP (asName pcname) [pat])
                                                               (\ lns ->
