@@ -27,9 +27,9 @@ import Language.Haskell.TH.Path.Common (fieldLensNamePair)
 import Language.Haskell.TH.Path.Graph (TypeGraphM)
 import Language.Haskell.TH.Syntax as TH (Quasi(qReify))
 import Language.Haskell.TH.TypeGraph.Lens (lensNamePairs)
-import Language.Haskell.TH.TypeGraph.Vertex (TGVSimple, typeNames)
+import Language.Haskell.TH.TypeGraph.Vertex (TGVSimple', typeNames)
 
-lensDecs :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TGVSimple -> m ()
+lensDecs :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TGVSimple' -> m ()
 lensDecs v =
     mapM makePathLens (toList (typeNames v)) >>= tell . concat
 

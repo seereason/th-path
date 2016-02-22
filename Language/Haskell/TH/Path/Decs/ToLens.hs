@@ -41,11 +41,11 @@ import Language.Haskell.TH.Path.Order (lens_omat, Order, Path_OMap(..))
 import Language.Haskell.TH.Path.View (viewInstanceType, viewLens)
 import Language.Haskell.TH.Syntax as TH (VarStrictType)
 import Language.Haskell.TH.TypeGraph.Expand (E(E), expandType)
-import Language.Haskell.TH.TypeGraph.TypeGraph (goalReachableSimple, HasTGV(asTGV), HasTGVSimple(asTGVSimple), MaybePair, pathKeys, simplify, tgvSimple, TypeGraph)
+import Language.Haskell.TH.TypeGraph.TypeGraph (goalReachableSimple, HasTGV(asTGV), HasTGVSimple(asTGVSimple), MaybePair, pathKeys, simplify, tgv, tgvSimple, TypeGraph)
 import Language.Haskell.TH.TypeGraph.TypeInfo (fieldVertex)
-import Language.Haskell.TH.TypeGraph.Vertex (etype, TGVSimple, TGVSimple', TypeGraphVertex(bestType), vsimple)
+import Language.Haskell.TH.TypeGraph.Vertex (etype, TGV', TGVSimple, TGVSimple', TypeGraphVertex(bestType), vsimple)
 
-toLensDecs :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TGVSimple -> m ()
+toLensDecs :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TGVSimple' -> m ()
 toLensDecs v =
     pathKeys v >>= Set.mapM_ (toLensDecs' v)
 
@@ -175,7 +175,7 @@ doName tname gkey =
             -- of some piece of the field value.
             doField :: Name -> VarStrictType -> StateT (Set Name) m [(Con, [ClauseQ])]
             doField cname (fn, _, ft) = do
-                    fkey <- expandType ft >>= fieldVertex (tname, cname, Right fn)
+                    fkey <- (tgvSimple ft :: StateT (Set Name) m s) >>= tgv (Just (tname, cname, Right fn)) :: StateT (Set Name) m TGV'
                     skey <- simplify fkey
                     ok <- goalReachableSimple gkey skey  -- is the goal type reachable from here?
                     case ok of
@@ -187,12 +187,12 @@ doName tname gkey =
                              -- goal type.
                              clauses <- runQ (newName "_x") >>= \x -> return [clause [varP x] (normalB [|toLens $(varE x)|]) []]
                              let Just pcname = makeFieldCon fkey
-                             ptype' <- pathType (pure (bestType gkey)) (view vsimple fkey)
+                             ptype' <- pathType (pure (bestType gkey)) skey
                              -- This is the new constructor for this field
                              con <- runQ $ normalC (asName pcname) [strictType notStrict (return ptype')]
                              -- These are the field's clauses.  Each pattern gets wrapped with the field path constructor,
                              -- and each field lens gets composed with the lens produced for the field's type.
-                             let goal = view (vsimple . etype) fkey == view etype (asTGVSimple gkey)
+                             let goal = skey == gkey
                              clauses' <- List.mapM (Monad.lift .
                                                     mapClause (\ pat -> conP (asName pcname) [pat])
                                                               (\ lns ->

@@ -40,7 +40,7 @@ import Language.Haskell.TH.Path.View (viewInstanceType)
 import Language.Haskell.TH.Syntax as TH (VarStrictType)
 import Language.Haskell.TH.TypeGraph.Expand (E(E), expandType)
 import Language.Haskell.TH.TypeGraph.Prelude (pprint')
-import Language.Haskell.TH.TypeGraph.TypeGraph (HasTGVSimple(asTGVSimple), reachableFromSimple, simplify, tgvSimple, TypeGraph, MaybePair)
+import Language.Haskell.TH.TypeGraph.TypeGraph (HasTGVSimple(asTGVSimple), reachableFromSimple, simplify, tgv, tgvSimple, TypeGraph, MaybePair)
 import Language.Haskell.TH.TypeGraph.TypeInfo (fieldVertex, TypeInfo)
 import Language.Haskell.TH.TypeGraph.Vertex (etype, TGVSimple, TypeGraphVertex, typeNames, vsimple)
 
@@ -182,7 +182,7 @@ doNames v = mapM_ (\tname -> runQ (reify tname) >>= doInfo) (typeNames v)
       -- of some piece of the field value.  FIXME: This exact code is in PathTypes.hs
       doField :: (DsMonad m, MonadReaders TypeGraph m) => Name -> Name -> Name -> VarStrictType -> m [Con]
       doField a tname cname (fname', _, ftype) =
-          do key' <- expandType ftype >>= fieldVertex (tname, cname, Right fname')
+          do key' <- (tgvSimple ftype :: m s) >>= tgv (Just (tname, cname, Right fname'))
              skey' <- simplify key' :: m s
              let Just pcname = makeFieldCon key'
              ptype <- case ftype of
