@@ -38,7 +38,7 @@ import Language.Haskell.TH.Path.Instances ()
 import Language.Haskell.TH.Path.Order (Order, Path_OMap(..), toPairs)
 import Language.Haskell.TH.Path.View (viewInstanceType)
 import Language.Haskell.TH.Syntax as TH (Quasi(qReify))
-import Language.Haskell.TH.TypeGraph.TypeGraph (allPathKeys, HasTGVSimple(asTGVSimple), MaybePair, pathKeys, tgvSimple, TypeGraph)
+import Language.Haskell.TH.TypeGraph.TypeGraph (allPathKeys, HasTGVSimple(asTGVSimple), MaybePair, pathKeys, tgvSimple, tgvSimple', TypeGraph)
 import Language.Haskell.TH.TypeGraph.TypeInfo (TypeInfo)
 import Language.Haskell.TH.TypeGraph.Vertex (bestName, etype, TGVSimple, TGVSimple', TypeGraphVertex(bestType))
 
@@ -197,5 +197,7 @@ doClause vtyp gkey s a toPath toVal asList = do
 -- "no Path instance" errors.
 testIsPath :: (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, HasType s, Ord s, MaybePair s TGVSimple, HasTGVSimple s, TypeGraphVertex s, HasTypeQ s, HasName s) => Type -> s -> m Bool
 testIsPath typ gkey = do
-  key <- tgvSimple typ
-  (maybe False (Set.member gkey) . Map.lookup key) <$> allPathKeys
+  mkey <- tgvSimple' typ
+  case mkey of
+    Nothing -> pure False
+    Just key -> (maybe False (Set.member gkey) . Map.lookup key) <$> allPathKeys
