@@ -38,7 +38,7 @@ import Language.Haskell.TH.Path.Order (Order, Path_OMap(..))
 import Language.Haskell.TH.Path.View (viewInstanceType)
 import Language.Haskell.TH.Syntax as TH (Quasi(qReify))
 import Language.Haskell.TH.TypeGraph.Expand (expandType)
-import Language.Haskell.TH.TypeGraph.TypeGraph (HasTGVSimple(asTGVSimple), lensKeys, MaybePair, pathKeys, simplify, tgvSimple, TypeGraph)
+import Language.Haskell.TH.TypeGraph.TypeGraph (HasTGVSimple(asTGVSimple), lensKeys, MaybePair, pathKeys, simplify, tgv, tgvSimple, TypeGraph)
 import Language.Haskell.TH.TypeGraph.TypeInfo (fieldVertex, TypeInfo)
 import Language.Haskell.TH.TypeGraph.Vertex (bestName, etype, mkTGV, TGV', TGVSimple, TGVSimple', TypeGraphVertex, vsimple)
 
@@ -154,14 +154,14 @@ peekClauses v =
 
       -- Each constructor turns into a clause of the peek function
       doCon tname x (RecC cname vsts) = do
-        flds <- mapM (doNamedField tname) (zip vsts [1..])
+        flds <- mapM (doNamedField tname cname) (zip vsts [1..])
         c <- forestOfAlt (varE x) v (asP x (recP cname []), flds)
         return [c]
       doCon tname x (NormalC cname sts) = do
 #if 1
         pure []
 #else
-        flds <- mapM (doAnonField tname) (zip sts [1..])
+        flds <- mapM (doAnonField tname cname) (zip sts [1..])
         c <- forestOfAlt (varE x) v (asP x (recP cname []), flds)
         return [c]
 #endif
@@ -169,21 +169,21 @@ peekClauses v =
 #if 1
         pure []
 #else
-        flds <- mapM (doAnonField tname) (zip [lhs, rhs] [1..])
+        flds <- mapM (doAnonField tname cname) (zip [lhs, rhs] [1..])
         c <- forestOfAlt (varE x) v (asP x (infixP wildP cname wildP), flds)
         return [c]
 #endif
 
-      doNamedField :: Name -> ((Name, Strict, Type), Int) -> m (s, PatQ, ExpQ)
-      doNamedField tname ((fname, _, ftype), _fpos) =
-          do f <- expandType ftype >>= fieldVertex (tname, undefined, Right fname)
+      doNamedField :: Name -> Name -> ((Name, Strict, Type), Int) -> m (s, PatQ, ExpQ)
+      doNamedField tname cname ((fname, _, ftype), _fpos) =
+          do f <- (tgvSimple ftype :: m s) >>= tgv (Just (tname, cname, Right fname))
              w <- simplify f
              let Just pcname = makeFieldCon f
              return (w, conP (asName pcname) [wildP], asConQ pcname)
 
-      doAnonField :: Name -> ((Strict, Type), Int) -> m (s, PatQ, ExpQ)
-      doAnonField tname ((_, ftype), fpos) =
-          do f <- expandType ftype >>= fieldVertex (tname, undefined, Left fpos)
+      doAnonField :: Name -> Name -> ((Strict, Type), Int) -> m (s, PatQ, ExpQ)
+      doAnonField tname cname ((_, ftype), fpos) =
+          do f <- (tgvSimple ftype :: m s) >>= tgv (Just (tname, cname, Left fpos))
              w <- simplify f
              let Just pcname = makeFieldCon f
              return (w, conP (asName pcname) [wildP], asConQ pcname)
