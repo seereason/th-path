@@ -21,9 +21,9 @@ module Language.Haskell.TH.Path.Decs
 import Control.Monad.Writer (MonadWriter, execWriterT)
 import Language.Haskell.TH
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.Path.Decs.IsPath (peekDecs)
+import Language.Haskell.TH.Path.Decs.HasPaths (pathDecs)
+import Language.Haskell.TH.Path.Decs.IsPathStart (peekDecs)
 import Language.Haskell.TH.Path.Decs.Lens (lensDecs)
-import Language.Haskell.TH.Path.Decs.PathsOf (pathDecs)
 import Language.Haskell.TH.Path.Decs.PathType (pathTypeDecs)
 import Language.Haskell.TH.Path.Decs.ToLens (toLensDecs)
 import Language.Haskell.TH.Path.Graph (runTypeGraphT, TypeGraphM)
@@ -44,7 +44,7 @@ doType t = tgvSimple t >>= doNode
 doNode :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TGVSimple -> m ()
 doNode v = do
   lensDecs v      -- generate lenses using makeClassyFor
-  pathTypeDecs v  -- generate Path types and the IsPathEnd instances
+  pathTypeDecs v  -- generate Path types and the HasIdPath instances
   toLensDecs v    -- generate ToLens instances
-  pathDecs v      -- generate IsPath instances
+  pathDecs v      -- generate HasPaths instances
   peekDecs v      -- generate IsPathStart instances

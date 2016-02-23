@@ -15,7 +15,7 @@
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeSynonymInstances #-}
-module Language.Haskell.TH.Path.Decs.PathsOf (pathDecs) where
+module Language.Haskell.TH.Path.Decs.HasPaths (pathDecs) where
 
 import Control.Lens hiding (cons, Strict)
 import Control.Monad (when)

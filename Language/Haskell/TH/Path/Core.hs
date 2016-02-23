@@ -99,7 +99,7 @@ class HasIdPath p where
 
 -- | If a path type @s@ is the beginning of a path we can reach other
 -- path types from it.
-class {-IsPathEnd s =>-} IsPathStart s where
+class IsPathStart s where
     data Peek s
     -- ^ 'Peek' is a type function that maps a type to the union of
     -- all paths that start at that type, and (maybe) the value found
@@ -140,7 +140,7 @@ instance (ToLens f, ToLens g, A f ~ S g {-, B f ~ T g-}) => ToLens (f :.: g) whe
 -- eponymously named @Path_Pair@, but that is the identity
 -- constructor, so it can not represent a path from @(Int, Int)@ to
 -- @Int@.
-class (HasIdPath (Path s a), ToLens (Path s a), S (Path s a) ~ s, A (Path s a) ~ a) => HasPaths s a where
+class (IsPathStart s, HasIdPath (Path s a), ToLens (Path s a), S (Path s a) ~ s, A (Path s a) ~ a) => HasPaths s a where
     type Path s a
     -- ^ Each instance defines this type function which returns the
     -- path type.  Each value of this type represents a different way
