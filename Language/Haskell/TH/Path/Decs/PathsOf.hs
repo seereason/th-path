@@ -89,9 +89,9 @@ pathsOfExprs key gkey s a =
                 let pcname = makePathCon (makePathType tname) "View"
                 -- Get the value as transformed by the view lens
                 if vIsPath
-                then runQ [| let p = $(asConQ pcname) idPath :: Path $(asTypeQ key) $(pure vtyp) in
-                             List.map (\s' -> $(asConQ pcname) (pathsOf s' $a :: [Path $(pure vtyp) $(asTypeQ gkey)]))
-                                      (toListOf (toLens p) $s :: [$(pure vtyp)]) |]
+                then runQ [| let p = $(asConQ pcname) idPath :: Path $(asTypeQ key) $(pure vtyp)
+                                 [s'] = toListOf (toLens p) $s :: [$(pure vtyp)] in
+                             List.map $(asConQ pcname) (pathsOf s' $a :: [Path $(pure vtyp) $(asTypeQ gkey)]) |]
                 else runQ [| [] |]
        ConT tname ->
            doName tname
