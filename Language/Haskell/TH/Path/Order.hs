@@ -54,7 +54,7 @@ import Data.SafeCopy (SafeCopy(..), base, contain, deriveSafeCopy, safeGet, safe
 import Data.Typeable (Typeable)
 import GHC.Generics (Generic)
 import Language.Haskell.TH
-import Language.Haskell.TH.Path.Core (IsPathEnd(idPath))
+import Language.Haskell.TH.Path.Core (HasIdPath(idPath))
 import Prelude hiding (init)
 import Web.Routes.TH (derivePathInfo)
 
@@ -227,7 +227,7 @@ view' :: (Ord k, Enum k) => k -> Order k v -> v
 view' i m = maybe (error "Order.view'") fst (view i m)
 
 data Path_OMap k a = Path_OMap | Path_At k a deriving (Eq, Ord, Read, Show, Typeable, Data)
-instance IsPathEnd (Path_OMap k a) where idPath = Path_OMap
+instance HasIdPath (Path_OMap k a) where idPath = Path_OMap
 
 #if !__GHCJS__
 -- | Given the name of a type such as AbbrevPair, generate declarations

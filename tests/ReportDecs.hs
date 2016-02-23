@@ -801,106 +801,106 @@ class HasUserId c
           lens_UserId__unUserId :: forall . Lens' c Integer
           lens_UserId__unUserId = (.) lens_userId lens_UserId__unUserId
           {-# INLINE lens_UserId__unUserId #-}
-instance IsPath String String
+instance HasPaths String String
     where type Path String String = Path_String String
           pathsOf s a = [idPath]
-instance IsPath String JSONText
+instance HasPaths String JSONText
     where type Path String JSONText = Path_String JSONText
           pathsOf s a = let {p = Path_String_View idPath :: Path ([Char])
                                                                  JSONText;
                              [s'] = toListOf (toLens p) s :: [JSONText]}
                          in map Path_String_View (pathsOf s' a :: [Path JSONText JSONText])
-instance IsPath Int64 Int64
+instance HasPaths Int64 Int64
     where type Path Int64 Int64 = Path_Int64 Int64
           pathsOf s a = [idPath]
-instance IsPath Bool String
+instance HasPaths Bool String
     where type Path Bool String = Path_Bool String
           pathsOf s a = let {p = Path_Bool_View idPath :: Path Bool ([Char]);
                              [s'] = toListOf (toLens p) s :: [[Char]]}
                          in map Path_Bool_View (pathsOf s' a :: [Path ([Char]) ([Char])])
-instance IsPath Bool Bool
+instance HasPaths Bool Bool
     where type Path Bool Bool = Path_Bool Bool
           pathsOf s a = [idPath]
-instance IsPath Bool JSONText
+instance HasPaths Bool JSONText
     where type Path Bool JSONText = Path_Bool JSONText
           pathsOf s a = let {p = Path_Bool_View idPath :: Path Bool ([Char]);
                              [s'] = toListOf (toLens p) s :: [[Char]]}
                          in map Path_Bool_View (pathsOf s' a :: [Path ([Char]) JSONText])
-instance IsPath Double String
+instance HasPaths Double String
     where type Path Double String = Path_Double String
           pathsOf s a = let {p = Path_Double_View idPath :: Path Double
                                                                  ([Char]);
                              [s'] = toListOf (toLens p) s :: [[Char]]}
                          in map Path_Double_View (pathsOf s' a :: [Path ([Char]) ([Char])])
-instance IsPath Double Double
+instance HasPaths Double Double
     where type Path Double Double = Path_Double Double
           pathsOf s a = [idPath]
-instance IsPath Double JSONText
+instance HasPaths Double JSONText
     where type Path Double JSONText = Path_Double JSONText
           pathsOf s a = let {p = Path_Double_View idPath :: Path Double
                                                                  ([Char]);
                              [s'] = toListOf (toLens p) s :: [[Char]]}
                          in map Path_Double_View (pathsOf s' a :: [Path ([Char]) JSONText])
-instance IsPath Int Int
+instance HasPaths Int Int
     where type Path Int Int = Path_Int Int
           pathsOf s a = [idPath]
-instance IsPath Dimension Dimension
+instance HasPaths Dimension Dimension
     where type Path Dimension Dimension = Path_Dimension Dimension
           pathsOf s a = [idPath]
-instance IsPath Dimension JSONText
+instance HasPaths Dimension JSONText
     where type Path Dimension JSONText = Path_Dimension JSONText
           pathsOf s a = let {p = Path_Dimension_View idPath :: Path Dimension
                                                                     JSONText;
                              [s'] = toListOf (toLens p) s :: [JSONText]}
                          in map Path_Dimension_View (pathsOf s' a :: [Path JSONText
                                                                            JSONText])
-instance IsPath ImageCrop ImageCrop
+instance HasPaths ImageCrop ImageCrop
     where type Path ImageCrop ImageCrop = Path_ImageCrop ImageCrop
           pathsOf s a = [idPath]
-instance IsPath ImageSize String
+instance HasPaths ImageSize String
     where type Path ImageSize String = Path_ImageSize String
           pathsOf s a = case s of
                             (ImageSize {}) -> mconcat [map Path_ImageSize_size (pathsOf (size s) a)]
-instance IsPath ImageSize Double
+instance HasPaths ImageSize Double
     where type Path ImageSize Double = Path_ImageSize Double
           pathsOf s a = case s of
                             (ImageSize {}) -> mconcat [map Path_ImageSize_size (pathsOf (size s) a)]
-instance IsPath ImageSize Dimension
+instance HasPaths ImageSize Dimension
     where type Path ImageSize Dimension = Path_ImageSize Dimension
           pathsOf s a = case s of
                             (ImageSize {}) -> mconcat [map Path_ImageSize_dim (pathsOf (dim s) a)]
-instance IsPath ImageSize ImageSize
+instance HasPaths ImageSize ImageSize
     where type Path ImageSize ImageSize = Path_ImageSize ImageSize
           pathsOf s a = [idPath]
-instance IsPath ImageSize Units
+instance HasPaths ImageSize Units
     where type Path ImageSize Units = Path_ImageSize Units
           pathsOf s a = case s of
                             (ImageSize {}) -> mconcat [map Path_ImageSize_units (pathsOf (units s) a)]
-instance IsPath ImageSize JSONText
+instance HasPaths ImageSize JSONText
     where type Path ImageSize JSONText = Path_ImageSize JSONText
           pathsOf s a = case s of
                             (ImageSize {}) -> mconcat [map Path_ImageSize_dim (pathsOf (dim s) a),
                                                        map Path_ImageSize_size (pathsOf (size s) a),
                                                        map Path_ImageSize_units (pathsOf (units s) a)]
-instance IsPath Units Units
+instance HasPaths Units Units
     where type Path Units Units = Path_Units Units
           pathsOf s a = [idPath]
-instance IsPath Units JSONText
+instance HasPaths Units JSONText
     where type Path Units JSONText = Path_Units JSONText
           pathsOf s a = let {p = Path_Units_View idPath :: Path Units
                                                                 JSONText;
                              [s'] = toListOf (toLens p) s :: [JSONText]}
                          in map Path_Units_View (pathsOf s' a :: [Path JSONText JSONText])
-instance IsPath ImageFile ImageFile
+instance HasPaths ImageFile ImageFile
     where type Path ImageFile ImageFile = Path_ImageFile ImageFile
           pathsOf s a = [idPath]
-instance IsPath Integer Integer
+instance HasPaths Integer Integer
     where type Path Integer Integer = Path_Integer Integer
           pathsOf s a = [idPath]
-instance IsPath JSONText JSONText
+instance HasPaths JSONText JSONText
     where type Path JSONText JSONText = Path_JSONText JSONText
           pathsOf s a = [idPath]
-instance IsPath Markup JSONText
+instance HasPaths Markup JSONText
     where type Path Markup JSONText = Path_Markup JSONText
           pathsOf s a = case s of
                             (Markdown {}) -> mconcat [map Path_Markup_markdownText (pathsOf (markdownText s) a)]
@@ -908,10 +908,10 @@ instance IsPath Markup JSONText
                             LaTeX p1 -> []
                             Pandoc p1 -> []
                             Markup p1 -> []
-instance IsPath Markup Markup
+instance HasPaths Markup Markup
     where type Path Markup Markup = Path_Markup Markup
           pathsOf s a = [idPath]
-instance IsPath Markup Text
+instance HasPaths Markup Text
     where type Path Markup Text = Path_Markup Text
           pathsOf s a = case s of
                             (Markdown {}) -> mconcat [map Path_Markup_markdownText (pathsOf (markdownText s) a)]
@@ -919,74 +919,74 @@ instance IsPath Markup Text
                             LaTeX p1 -> []
                             Pandoc p1 -> []
                             Markup p1 -> []
-instance IsPath Permissions JSONText
+instance HasPaths Permissions JSONText
     where type Path Permissions JSONText = Path_Permissions JSONText
           pathsOf s a = case s of
                             (Permissions {}) -> mconcat [map Path_Permissions_writers (pathsOf (writers s) a),
                                                          map Path_Permissions_readers (pathsOf (readers s) a)]
-instance IsPath Permissions Permissions
+instance HasPaths Permissions Permissions
     where type Path Permissions
                     Permissions = Path_Permissions Permissions
           pathsOf s a = [idPath]
-instance IsPath Permissions UserIds
+instance HasPaths Permissions UserIds
     where type Path Permissions UserIds = Path_Permissions UserIds
           pathsOf s a = case s of
                             (Permissions {}) -> mconcat [map Path_Permissions_writers (pathsOf (writers s) a),
                                                          map Path_Permissions_readers (pathsOf (readers s) a)]
-instance IsPath Permissions Text
+instance HasPaths Permissions Text
     where type Path Permissions Text = Path_Permissions Text
           pathsOf s a = case s of
                             (Permissions {}) -> mconcat [map Path_Permissions_writers (pathsOf (writers s) a),
                                                          map Path_Permissions_readers (pathsOf (readers s) a)]
-instance IsPath Permissions UserId
+instance HasPaths Permissions UserId
     where type Path Permissions UserId = Path_Permissions UserId
           pathsOf s a = case s of
                             (Permissions {}) -> mconcat [map Path_Permissions_owner (pathsOf (owner s) a)]
-instance IsPath UserIds JSONText
+instance HasPaths UserIds JSONText
     where type Path UserIds JSONText = Path_UserIds JSONText
           pathsOf s a = let {p = Path_UserIds_View idPath :: Path ([UserId])
                                                                   Text;
                              [s'] = toListOf (toLens p) s :: [Text]}
                          in map Path_UserIds_View (pathsOf s' a :: [Path Text JSONText])
-instance IsPath UserIds UserIds
+instance HasPaths UserIds UserIds
     where type Path UserIds UserIds = Path_UserIds UserIds
           pathsOf s a = [idPath]
-instance IsPath UserIds Text
+instance HasPaths UserIds Text
     where type Path UserIds Text = Path_UserIds Text
           pathsOf s a = let {p = Path_UserIds_View idPath :: Path ([UserId])
                                                                   Text;
                              [s'] = toListOf (toLens p) s :: [Text]}
                          in map Path_UserIds_View (pathsOf s' a :: [Path Text Text])
-instance IsPath AbbrevPair JSONText
+instance HasPaths AbbrevPair JSONText
     where type Path AbbrevPair
                     JSONText = Path_Pair (Path_CIString JSONText)
                                          (Path_Markup JSONText)
           pathsOf s a = concatMap (\pv -> map ((\_ -> Path_First) pv) (pathsOf (fst pv) a :: [Path CIString
                                                                                                    JSONText])) ((: []) s) <> concatMap (\pv -> map ((\_ -> Path_Second) pv) (pathsOf (snd pv) a :: [Path Markup
                                                                                                                                                                                                          JSONText])) ((: []) s)
-instance IsPath AbbrevPair Markup
+instance HasPaths AbbrevPair Markup
     where type Path AbbrevPair
                     Markup = Path_Pair (Path_CIString Markup) (Path_Markup Markup)
           pathsOf s a = [] <> concatMap (\pv -> map ((\_ -> Path_Second) pv) (pathsOf (snd pv) a :: [Path Markup
                                                                                                           Markup])) ((: []) s)
-instance IsPath AbbrevPair AbbrevPair
+instance HasPaths AbbrevPair AbbrevPair
     where type Path AbbrevPair
                     AbbrevPair = Path_Pair (Path_CIString AbbrevPair)
                                            (Path_Markup AbbrevPair)
           pathsOf s a = [idPath]
-instance IsPath AbbrevPair CIString
+instance HasPaths AbbrevPair CIString
     where type Path AbbrevPair
                     CIString = Path_Pair (Path_CIString CIString)
                                          (Path_Markup CIString)
           pathsOf s a = concatMap (\pv -> map ((\_ -> Path_First) pv) (pathsOf (fst pv) a :: [Path CIString
                                                                                                    CIString])) ((: []) s) <> []
-instance IsPath AbbrevPair Text
+instance HasPaths AbbrevPair Text
     where type Path AbbrevPair Text = Path_Pair (Path_CIString Text)
                                                 (Path_Markup Text)
           pathsOf s a = concatMap (\pv -> map ((\_ -> Path_First) pv) (pathsOf (fst pv) a :: [Path CIString
                                                                                                    Text])) ((: []) s) <> concatMap (\pv -> map ((\_ -> Path_Second) pv) (pathsOf (snd pv) a :: [Path Markup
                                                                                                                                                                                                      Text])) ((: []) s)
-instance IsPath AbbrevPairs JSONText
+instance HasPaths AbbrevPairs JSONText
     where type Path AbbrevPairs JSONText = Path_OMap AbbrevPairID
                                                      (Path_Pair (Path_CIString JSONText)
                                                                 (Path_Markup JSONText))
@@ -998,7 +998,7 @@ instance IsPath AbbrevPairs JSONText
                                                                                                                          [(AbbrevPairID,
                                                                                                                            (CIString,
                                                                                                                             Markup))]) s)
-instance IsPath AbbrevPairs Markup
+instance HasPaths AbbrevPairs Markup
     where type Path AbbrevPairs Markup = Path_OMap AbbrevPairID
                                                    (Path_Pair (Path_CIString Markup)
                                                               (Path_Markup Markup))
@@ -1010,7 +1010,7 @@ instance IsPath AbbrevPairs Markup
                                                                                                                        [(AbbrevPairID,
                                                                                                                          (CIString,
                                                                                                                           Markup))]) s)
-instance IsPath AbbrevPairs AbbrevPair
+instance HasPaths AbbrevPairs AbbrevPair
     where type Path AbbrevPairs AbbrevPair = Path_OMap AbbrevPairID
                                                        (Path_Pair (Path_CIString AbbrevPair)
                                                                   (Path_Markup AbbrevPair))
@@ -1023,12 +1023,12 @@ instance IsPath AbbrevPairs AbbrevPair
                                                                                                                            [(AbbrevPairID,
                                                                                                                              (CIString,
                                                                                                                               Markup))]) s)
-instance IsPath AbbrevPairs AbbrevPairs
+instance HasPaths AbbrevPairs AbbrevPairs
     where type Path AbbrevPairs AbbrevPairs = Path_OMap AbbrevPairID
                                                         (Path_Pair (Path_CIString AbbrevPairs)
                                                                    (Path_Markup AbbrevPairs))
           pathsOf s a = [idPath]
-instance IsPath AbbrevPairs CIString
+instance HasPaths AbbrevPairs CIString
     where type Path AbbrevPairs CIString = Path_OMap AbbrevPairID
                                                      (Path_Pair (Path_CIString CIString)
                                                                 (Path_Markup CIString))
@@ -1040,7 +1040,7 @@ instance IsPath AbbrevPairs CIString
                                                                                                                          [(AbbrevPairID,
                                                                                                                            (CIString,
                                                                                                                             Markup))]) s)
-instance IsPath AbbrevPairs Text
+instance HasPaths AbbrevPairs Text
     where type Path AbbrevPairs Text = Path_OMap AbbrevPairID
                                                  (Path_Pair (Path_CIString Text) (Path_Markup Text))
           pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ((CIString,
@@ -1051,25 +1051,25 @@ instance IsPath AbbrevPairs Text
                                                                                                                      [(AbbrevPairID,
                                                                                                                        (CIString,
                                                                                                                         Markup))]) s)
-instance IsPath Author JSONText
+instance HasPaths Author JSONText
     where type Path Author JSONText = Path_Author JSONText
           pathsOf s a = case s of
                             (Author {}) -> mconcat [map Path_Author_authorName (pathsOf (authorName s) a),
                                                     map Path_Author_authorCredentials (pathsOf (authorCredentials s) a)]
-instance IsPath Author Markup
+instance HasPaths Author Markup
     where type Path Author Markup = Path_Author Markup
           pathsOf s a = case s of
                             (Author {}) -> mconcat [map Path_Author_authorName (pathsOf (authorName s) a),
                                                     map Path_Author_authorCredentials (pathsOf (authorCredentials s) a)]
-instance IsPath Author Author
+instance HasPaths Author Author
     where type Path Author Author = Path_Author Author
           pathsOf s a = [idPath]
-instance IsPath Author Text
+instance HasPaths Author Text
     where type Path Author Text = Path_Author Text
           pathsOf s a = case s of
                             (Author {}) -> mconcat [map Path_Author_authorName (pathsOf (authorName s) a),
                                                     map Path_Author_authorCredentials (pathsOf (authorCredentials s) a)]
-instance IsPath Authors JSONText
+instance HasPaths Authors JSONText
     where type Path Authors JSONText = Path_OMap AuthorID
                                                  (Path_Author JSONText)
           pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path Author
@@ -1077,7 +1077,7 @@ instance IsPath Authors JSONText
                                                                                                                                Author ->
                                                                                                                          [(AuthorID,
                                                                                                                            Author)]) s)
-instance IsPath Authors Markup
+instance HasPaths Authors Markup
     where type Path Authors Markup = Path_OMap AuthorID
                                                (Path_Author Markup)
           pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path Author
@@ -1085,7 +1085,7 @@ instance IsPath Authors Markup
                                                                                                                              Author ->
                                                                                                                        [(AuthorID,
                                                                                                                          Author)]) s)
-instance IsPath Authors Author
+instance HasPaths Authors Author
     where type Path Authors Author = Path_OMap AuthorID
                                                (Path_Author Author)
           pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path Author
@@ -1093,11 +1093,11 @@ instance IsPath Authors Author
                                                                                                                              Author ->
                                                                                                                        [(AuthorID,
                                                                                                                          Author)]) s)
-instance IsPath Authors Authors
+instance HasPaths Authors Authors
     where type Path Authors Authors = Path_OMap AuthorID
                                                 (Path_Author Authors)
           pathsOf s a = [idPath]
-instance IsPath Authors Text
+instance HasPaths Authors Text
     where type Path Authors Text = Path_OMap AuthorID
                                              (Path_Author Text)
           pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path Author
@@ -1105,45 +1105,45 @@ instance IsPath Authors Text
                                                                                                                            Author ->
                                                                                                                      [(AuthorID,
                                                                                                                        Author)]) s)
-instance IsPath Branding JSONText
+instance HasPaths Branding JSONText
     where type Path Branding JSONText = Path_Branding JSONText
           pathsOf s a = let {p = Path_Branding_View idPath :: Path Branding
                                                                    Text;
                              [s'] = toListOf (toLens p) s :: [Text]}
                          in map Path_Branding_View (pathsOf s' a :: [Path Text JSONText])
-instance IsPath Branding Branding
+instance HasPaths Branding Branding
     where type Path Branding Branding = Path_Branding Branding
           pathsOf s a = [idPath]
-instance IsPath Branding Text
+instance HasPaths Branding Text
     where type Path Branding Text = Path_Branding Text
           pathsOf s a = let {p = Path_Branding_View idPath :: Path Branding
                                                                    Text;
                              [s'] = toListOf (toLens p) s :: [Text]}
                          in map Path_Branding_View (pathsOf s' a :: [Path Text Text])
-instance IsPath MarkupPair JSONText
+instance HasPaths MarkupPair JSONText
     where type Path MarkupPair
                     JSONText = Path_Pair (Path_Markup JSONText) (Path_Markup JSONText)
           pathsOf s a = concatMap (\pv -> map ((\_ -> Path_First) pv) (pathsOf (fst pv) a :: [Path Markup
                                                                                                    JSONText])) ((: []) s) <> concatMap (\pv -> map ((\_ -> Path_Second) pv) (pathsOf (snd pv) a :: [Path Markup
                                                                                                                                                                                                          JSONText])) ((: []) s)
-instance IsPath MarkupPair Markup
+instance HasPaths MarkupPair Markup
     where type Path MarkupPair Markup = Path_Pair (Path_Markup Markup)
                                                   (Path_Markup Markup)
           pathsOf s a = concatMap (\pv -> map ((\_ -> Path_First) pv) (pathsOf (fst pv) a :: [Path Markup
                                                                                                    Markup])) ((: []) s) <> concatMap (\pv -> map ((\_ -> Path_Second) pv) (pathsOf (snd pv) a :: [Path Markup
                                                                                                                                                                                                        Markup])) ((: []) s)
-instance IsPath MarkupPair MarkupPair
+instance HasPaths MarkupPair MarkupPair
     where type Path MarkupPair
                     MarkupPair = Path_Pair (Path_Markup MarkupPair)
                                            (Path_Markup MarkupPair)
           pathsOf s a = [idPath]
-instance IsPath MarkupPair Text
+instance HasPaths MarkupPair Text
     where type Path MarkupPair Text = Path_Pair (Path_Markup Text)
                                                 (Path_Markup Text)
           pathsOf s a = concatMap (\pv -> map ((\_ -> Path_First) pv) (pathsOf (fst pv) a :: [Path Markup
                                                                                                    Text])) ((: []) s) <> concatMap (\pv -> map ((\_ -> Path_Second) pv) (pathsOf (snd pv) a :: [Path Markup
                                                                                                                                                                                                      Text])) ((: []) s)
-instance IsPath MarkupPairs JSONText
+instance HasPaths MarkupPairs JSONText
     where type Path MarkupPairs JSONText = Path_OMap MarkupPairID
                                                      (Path_Pair (Path_Markup JSONText)
                                                                 (Path_Markup JSONText))
@@ -1155,7 +1155,7 @@ instance IsPath MarkupPairs JSONText
                                                                                                                          [(MarkupPairID,
                                                                                                                            (Markup,
                                                                                                                             Markup))]) s)
-instance IsPath MarkupPairs Markup
+instance HasPaths MarkupPairs Markup
     where type Path MarkupPairs Markup = Path_OMap MarkupPairID
                                                    (Path_Pair (Path_Markup Markup)
                                                               (Path_Markup Markup))
@@ -1167,7 +1167,7 @@ instance IsPath MarkupPairs Markup
                                                                                                                        [(MarkupPairID,
                                                                                                                          (Markup,
                                                                                                                           Markup))]) s)
-instance IsPath MarkupPairs MarkupPair
+instance HasPaths MarkupPairs MarkupPair
     where type Path MarkupPairs MarkupPair = Path_OMap MarkupPairID
                                                        (Path_Pair (Path_Markup MarkupPair)
                                                                   (Path_Markup MarkupPair))
@@ -1180,12 +1180,12 @@ instance IsPath MarkupPairs MarkupPair
                                                                                                                            [(MarkupPairID,
                                                                                                                              (Markup,
                                                                                                                               Markup))]) s)
-instance IsPath MarkupPairs MarkupPairs
+instance HasPaths MarkupPairs MarkupPairs
     where type Path MarkupPairs MarkupPairs = Path_OMap MarkupPairID
                                                         (Path_Pair (Path_Markup MarkupPairs)
                                                                    (Path_Markup MarkupPairs))
           pathsOf s a = [idPath]
-instance IsPath MarkupPairs Text
+instance HasPaths MarkupPairs Text
     where type Path MarkupPairs Text = Path_OMap MarkupPairID
                                                  (Path_Pair (Path_Markup Text) (Path_Markup Text))
           pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ((Markup,
@@ -1196,7 +1196,7 @@ instance IsPath MarkupPairs Text
                                                                                                                      [(MarkupPairID,
                                                                                                                        (Markup,
                                                                                                                         Markup))]) s)
-instance IsPath Markups JSONText
+instance HasPaths Markups JSONText
     where type Path Markups JSONText = Path_OMap MarkupID
                                                  (Path_Markup JSONText)
           pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path Markup
@@ -1204,7 +1204,7 @@ instance IsPath Markups JSONText
                                                                                                                                Markup ->
                                                                                                                          [(MarkupID,
                                                                                                                            Markup)]) s)
-instance IsPath Markups Markup
+instance HasPaths Markups Markup
     where type Path Markups Markup = Path_OMap MarkupID
                                                (Path_Markup Markup)
           pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path Markup
@@ -1212,11 +1212,11 @@ instance IsPath Markups Markup
                                                                                                                              Markup ->
                                                                                                                        [(MarkupID,
                                                                                                                          Markup)]) s)
-instance IsPath Markups Markups
+instance HasPaths Markups Markups
     where type Path Markups Markups = Path_OMap MarkupID
                                                 (Path_Markup Markups)
           pathsOf s a = [idPath]
-instance IsPath Markups Text
+instance HasPaths Markups Text
     where type Path Markups Text = Path_OMap MarkupID
                                              (Path_Markup Text)
           pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path Markup
@@ -1224,7 +1224,7 @@ instance IsPath Markups Text
                                                                                                                            Markup ->
                                                                                                                      [(MarkupID,
                                                                                                                        Markup)]) s)
-instance IsPath MaybeReportIntendedUse String
+instance HasPaths MaybeReportIntendedUse String
     where type Path MaybeReportIntendedUse
                     String = Path_MaybeReportIntendedUse String
           pathsOf s a = let {p = Path_MaybeReportIntendedUse_View idPath :: Path (Maybe ReportIntendedUse)
@@ -1232,7 +1232,7 @@ instance IsPath MaybeReportIntendedUse String
                              [s'] = toListOf (toLens p) s :: [[Char]]}
                          in map Path_MaybeReportIntendedUse_View (pathsOf s' a :: [Path ([Char])
                                                                                         ([Char])])
-instance IsPath MaybeReportIntendedUse JSONText
+instance HasPaths MaybeReportIntendedUse JSONText
     where type Path MaybeReportIntendedUse
                     JSONText = Path_MaybeReportIntendedUse JSONText
           pathsOf s a = let {p = Path_MaybeReportIntendedUse_View idPath :: Path (Maybe ReportIntendedUse)
@@ -1240,117 +1240,117 @@ instance IsPath MaybeReportIntendedUse JSONText
                              [s'] = toListOf (toLens p) s :: [[Char]]}
                          in map Path_MaybeReportIntendedUse_View (pathsOf s' a :: [Path ([Char])
                                                                                         JSONText])
-instance IsPath MaybeReportIntendedUse MaybeReportIntendedUse
+instance HasPaths MaybeReportIntendedUse MaybeReportIntendedUse
     where type Path MaybeReportIntendedUse
                     MaybeReportIntendedUse = Path_MaybeReportIntendedUse MaybeReportIntendedUse
           pathsOf s a = [idPath]
-instance IsPath Report String
+instance HasPaths Report String
     where type Path Report String = Path_Report String
           pathsOf s a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [s'] = toListOf (toLens p) s :: [ReportView]}
                          in map Path_Report_View (pathsOf s' a :: [Path ReportView
                                                                         ([Char])])
-instance IsPath Report Int64
+instance HasPaths Report Int64
     where type Path Report Int64 = Path_Report Int64
           pathsOf s a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [s'] = toListOf (toLens p) s :: [ReportView]}
                          in map Path_Report_View (pathsOf s' a :: [Path ReportView Int64])
-instance IsPath Report Bool
+instance HasPaths Report Bool
     where type Path Report Bool = Path_Report Bool
           pathsOf s a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [s'] = toListOf (toLens p) s :: [ReportView]}
                          in map Path_Report_View (pathsOf s' a :: [Path ReportView Bool])
-instance IsPath Report Double
+instance HasPaths Report Double
     where type Path Report Double = Path_Report Double
           pathsOf s a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [s'] = toListOf (toLens p) s :: [ReportView]}
                          in map Path_Report_View (pathsOf s' a :: [Path ReportView Double])
-instance IsPath Report Int
+instance HasPaths Report Int
     where type Path Report Int = Path_Report Int
           pathsOf s a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [s'] = toListOf (toLens p) s :: [ReportView]}
                          in map Path_Report_View (pathsOf s' a :: [Path ReportView Int])
-instance IsPath Report Dimension
+instance HasPaths Report Dimension
     where type Path Report Dimension = Path_Report Dimension
           pathsOf s a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [s'] = toListOf (toLens p) s :: [ReportView]}
                          in map Path_Report_View (pathsOf s' a :: [Path ReportView
                                                                         Dimension])
-instance IsPath Report ImageCrop
+instance HasPaths Report ImageCrop
     where type Path Report ImageCrop = Path_Report ImageCrop
           pathsOf s a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [s'] = toListOf (toLens p) s :: [ReportView]}
                          in map Path_Report_View (pathsOf s' a :: [Path ReportView
                                                                         ImageCrop])
-instance IsPath Report ImageSize
+instance HasPaths Report ImageSize
     where type Path Report ImageSize = Path_Report ImageSize
           pathsOf s a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [s'] = toListOf (toLens p) s :: [ReportView]}
                          in map Path_Report_View (pathsOf s' a :: [Path ReportView
                                                                         ImageSize])
-instance IsPath Report Units
+instance HasPaths Report Units
     where type Path Report Units = Path_Report Units
           pathsOf s a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [s'] = toListOf (toLens p) s :: [ReportView]}
                          in map Path_Report_View (pathsOf s' a :: [Path ReportView Units])
-instance IsPath Report ImageFile
+instance HasPaths Report ImageFile
     where type Path Report ImageFile = Path_Report ImageFile
           pathsOf s a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [s'] = toListOf (toLens p) s :: [ReportView]}
                          in map Path_Report_View (pathsOf s' a :: [Path ReportView
                                                                         ImageFile])
-instance IsPath Report Integer
+instance HasPaths Report Integer
     where type Path Report Integer = Path_Report Integer
           pathsOf s a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [s'] = toListOf (toLens p) s :: [ReportView]}
                          in map Path_Report_View (pathsOf s' a :: [Path ReportView
                                                                         Integer])
-instance IsPath Report JSONText
+instance HasPaths Report JSONText
     where type Path Report JSONText = Path_Report JSONText
           pathsOf s a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [s'] = toListOf (toLens p) s :: [ReportView]}
                          in map Path_Report_View (pathsOf s' a :: [Path ReportView
                                                                         JSONText])
-instance IsPath Report Markup
+instance HasPaths Report Markup
     where type Path Report Markup = Path_Report Markup
           pathsOf s a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [s'] = toListOf (toLens p) s :: [ReportView]}
                          in map Path_Report_View (pathsOf s' a :: [Path ReportView Markup])
-instance IsPath Report Permissions
+instance HasPaths Report Permissions
     where type Path Report Permissions = Path_Report Permissions
           pathsOf s a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [s'] = toListOf (toLens p) s :: [ReportView]}
                          in map Path_Report_View (pathsOf s' a :: [Path ReportView
                                                                         Permissions])
-instance IsPath Report UserIds
+instance HasPaths Report UserIds
     where type Path Report UserIds = Path_Report UserIds
           pathsOf s a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [s'] = toListOf (toLens p) s :: [ReportView]}
                          in map Path_Report_View (pathsOf s' a :: [Path ReportView
                                                                         ([UserId])])
-instance IsPath Report AbbrevPair
+instance HasPaths Report AbbrevPair
     where type Path Report AbbrevPair = Path_Report AbbrevPair
           pathsOf s a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [s'] = toListOf (toLens p) s :: [ReportView]}
                          in map Path_Report_View (pathsOf s' a :: [Path ReportView
                                                                         ((CIString, Markup))])
-instance IsPath Report AbbrevPairs
+instance HasPaths Report AbbrevPairs
     where type Path Report AbbrevPairs = Path_Report AbbrevPairs
           pathsOf s a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
@@ -1359,34 +1359,34 @@ instance IsPath Report AbbrevPairs
                                                                         (Order AbbrevPairID
                                                                                ((CIString,
                                                                                  Markup)))])
-instance IsPath Report Author
+instance HasPaths Report Author
     where type Path Report Author = Path_Report Author
           pathsOf s a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [s'] = toListOf (toLens p) s :: [ReportView]}
                          in map Path_Report_View (pathsOf s' a :: [Path ReportView Author])
-instance IsPath Report Authors
+instance HasPaths Report Authors
     where type Path Report Authors = Path_Report Authors
           pathsOf s a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [s'] = toListOf (toLens p) s :: [ReportView]}
                          in map Path_Report_View (pathsOf s' a :: [Path ReportView
                                                                         (Order AuthorID Author)])
-instance IsPath Report Branding
+instance HasPaths Report Branding
     where type Path Report Branding = Path_Report Branding
           pathsOf s a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [s'] = toListOf (toLens p) s :: [ReportView]}
                          in map Path_Report_View (pathsOf s' a :: [Path ReportView
                                                                         Branding])
-instance IsPath Report MarkupPair
+instance HasPaths Report MarkupPair
     where type Path Report MarkupPair = Path_Report MarkupPair
           pathsOf s a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [s'] = toListOf (toLens p) s :: [ReportView]}
                          in map Path_Report_View (pathsOf s' a :: [Path ReportView
                                                                         ((Markup, Markup))])
-instance IsPath Report MarkupPairs
+instance HasPaths Report MarkupPairs
     where type Path Report MarkupPairs = Path_Report MarkupPairs
           pathsOf s a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
@@ -1394,14 +1394,14 @@ instance IsPath Report MarkupPairs
                          in map Path_Report_View (pathsOf s' a :: [Path ReportView
                                                                         (Order MarkupPairID
                                                                                ((Markup, Markup)))])
-instance IsPath Report Markups
+instance HasPaths Report Markups
     where type Path Report Markups = Path_Report Markups
           pathsOf s a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [s'] = toListOf (toLens p) s :: [ReportView]}
                          in map Path_Report_View (pathsOf s' a :: [Path ReportView
                                                                         (Order MarkupID Markup)])
-instance IsPath Report MaybeReportIntendedUse
+instance HasPaths Report MaybeReportIntendedUse
     where type Path Report
                     MaybeReportIntendedUse = Path_Report MaybeReportIntendedUse
           pathsOf s a = let {p = Path_Report_View idPath :: Path Report
@@ -1409,17 +1409,17 @@ instance IsPath Report MaybeReportIntendedUse
                              [s'] = toListOf (toLens p) s :: [ReportView]}
                          in map Path_Report_View (pathsOf s' a :: [Path ReportView
                                                                         (Maybe ReportIntendedUse)])
-instance IsPath Report Report
+instance HasPaths Report Report
     where type Path Report Report = Path_Report Report
           pathsOf s a = [idPath]
-instance IsPath Report ReportElem
+instance HasPaths Report ReportElem
     where type Path Report ReportElem = Path_Report ReportElem
           pathsOf s a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [s'] = toListOf (toLens p) s :: [ReportView]}
                          in map Path_Report_View (pathsOf s' a :: [Path ReportView
                                                                         ReportElem])
-instance IsPath Report ReportElems
+instance HasPaths Report ReportElems
     where type Path Report ReportElems = Path_Report ReportElems
           pathsOf s a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
@@ -1427,28 +1427,28 @@ instance IsPath Report ReportElems
                          in map Path_Report_View (pathsOf s' a :: [Path ReportView
                                                                         (Order ReportElemID
                                                                                ReportElem)])
-instance IsPath Report ReportFlags
+instance HasPaths Report ReportFlags
     where type Path Report ReportFlags = Path_Report ReportFlags
           pathsOf s a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [s'] = toListOf (toLens p) s :: [ReportView]}
                          in map Path_Report_View (pathsOf s' a :: [Path ReportView
                                                                         ReportFlags])
-instance IsPath Report ReportStandard
+instance HasPaths Report ReportStandard
     where type Path Report ReportStandard = Path_Report ReportStandard
           pathsOf s a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [s'] = toListOf (toLens p) s :: [ReportView]}
                          in map Path_Report_View (pathsOf s' a :: [Path ReportView
                                                                         ReportStandard])
-instance IsPath Report ReportStatus
+instance HasPaths Report ReportStatus
     where type Path Report ReportStatus = Path_Report ReportStatus
           pathsOf s a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [s'] = toListOf (toLens p) s :: [ReportView]}
                          in map Path_Report_View (pathsOf s' a :: [Path ReportView
                                                                         ReportStatus])
-instance IsPath Report ReportValueApproachInfo
+instance HasPaths Report ReportValueApproachInfo
     where type Path Report
                     ReportValueApproachInfo = Path_Report ReportValueApproachInfo
           pathsOf s a = let {p = Path_Report_View idPath :: Path Report
@@ -1456,7 +1456,7 @@ instance IsPath Report ReportValueApproachInfo
                              [s'] = toListOf (toLens p) s :: [ReportView]}
                          in map Path_Report_View (pathsOf s' a :: [Path ReportView
                                                                         ReportValueApproachInfo])
-instance IsPath Report ReportValueTypeInfo
+instance HasPaths Report ReportValueTypeInfo
     where type Path Report
                     ReportValueTypeInfo = Path_Report ReportValueTypeInfo
           pathsOf s a = let {p = Path_Report_View idPath :: Path Report
@@ -1464,14 +1464,14 @@ instance IsPath Report ReportValueTypeInfo
                              [s'] = toListOf (toLens p) s :: [ReportView]}
                          in map Path_Report_View (pathsOf s' a :: [Path ReportView
                                                                         ReportValueTypeInfo])
-instance IsPath Report EUI
+instance HasPaths Report EUI
     where type Path Report EUI = Path_Report EUI
           pathsOf s a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [s'] = toListOf (toLens p) s :: [ReportView]}
                          in map Path_Report_View (pathsOf s' a :: [Path ReportView
                                                                         (Either URI ImageFile)])
-instance IsPath Report MEUI
+instance HasPaths Report MEUI
     where type Path Report MEUI = Path_Report MEUI
           pathsOf s a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
@@ -1479,21 +1479,21 @@ instance IsPath Report MEUI
                          in map Path_Report_View (pathsOf s' a :: [Path ReportView
                                                                         (Maybe (Either URI
                                                                                        ImageFile))])
-instance IsPath Report MaybeImageFile
+instance HasPaths Report MaybeImageFile
     where type Path Report MaybeImageFile = Path_Report MaybeImageFile
           pathsOf s a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [s'] = toListOf (toLens p) s :: [ReportView]}
                          in map Path_Report_View (pathsOf s' a :: [Path ReportView
                                                                         (Maybe ImageFile)])
-instance IsPath Report ReportImage
+instance HasPaths Report ReportImage
     where type Path Report ReportImage = Path_Report ReportImage
           pathsOf s a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [s'] = toListOf (toLens p) s :: [ReportView]}
                          in map Path_Report_View (pathsOf s' a :: [Path ReportView
                                                                         ReportImage])
-instance IsPath Report ReportImages
+instance HasPaths Report ReportImages
     where type Path Report ReportImages = Path_Report ReportImages
           pathsOf s a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
@@ -1501,7 +1501,7 @@ instance IsPath Report ReportImages
                          in map Path_Report_View (pathsOf s' a :: [Path ReportView
                                                                         (Order ReportImageID
                                                                                ReportImage)])
-instance IsPath Report ReadOnlyFilePath
+instance HasPaths Report ReadOnlyFilePath
     where type Path Report
                     ReadOnlyFilePath = Path_Report ReadOnlyFilePath
           pathsOf s a = let {p = Path_Report_View idPath :: Path Report
@@ -1509,7 +1509,7 @@ instance IsPath Report ReadOnlyFilePath
                              [s'] = toListOf (toLens p) s :: [ReportView]}
                          in map Path_Report_View (pathsOf s' a :: [Path ReportView
                                                                         (ReadOnly ([Char]))])
-instance IsPath Report ReportImageView
+instance HasPaths Report ReportImageView
     where type Path Report
                     ReportImageView = Path_Report ReportImageView
           pathsOf s a = let {p = Path_Report_View idPath :: Path Report
@@ -1517,14 +1517,14 @@ instance IsPath Report ReportImageView
                              [s'] = toListOf (toLens p) s :: [ReportView]}
                          in map Path_Report_View (pathsOf s' a :: [Path ReportView
                                                                         ReportImageView])
-instance IsPath Report ReportView
+instance HasPaths Report ReportView
     where type Path Report ReportView = Path_Report ReportView
           pathsOf s a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [s'] = toListOf (toLens p) s :: [ReportView]}
                          in map Path_Report_View (pathsOf s' a :: [Path ReportView
                                                                         ReportView])
-instance IsPath Report SaneSizeImageSize
+instance HasPaths Report SaneSizeImageSize
     where type Path Report
                     SaneSizeImageSize = Path_Report SaneSizeImageSize
           pathsOf s a = let {p = Path_Report_View idPath :: Path Report
@@ -1532,185 +1532,185 @@ instance IsPath Report SaneSizeImageSize
                              [s'] = toListOf (toLens p) s :: [ReportView]}
                          in map Path_Report_View (pathsOf s' a :: [Path ReportView
                                                                         (SaneSize ImageSize)])
-instance IsPath Report Item
+instance HasPaths Report Item
     where type Path Report Item = Path_Report Item
           pathsOf s a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [s'] = toListOf (toLens p) s :: [ReportView]}
                          in map Path_Report_View (pathsOf s' a :: [Path ReportView Item])
-instance IsPath Report MIM
+instance HasPaths Report MIM
     where type Path Report MIM = Path_Report MIM
           pathsOf s a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [s'] = toListOf (toLens p) s :: [ReportView]}
                          in map Path_Report_View (pathsOf s' a :: [Path ReportView
                                                                         (Map ItemFieldName Markup)])
-instance IsPath Report CIString
+instance HasPaths Report CIString
     where type Path Report CIString = Path_Report CIString
           pathsOf s a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [s'] = toListOf (toLens p) s :: [ReportView]}
                          in map Path_Report_View (pathsOf s' a :: [Path ReportView
                                                                         CIString])
-instance IsPath Report URI
+instance HasPaths Report URI
     where type Path Report URI = Path_Report URI
           pathsOf s a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [s'] = toListOf (toLens p) s :: [ReportView]}
                          in map Path_Report_View (pathsOf s' a :: [Path ReportView URI])
-instance IsPath Report Text
+instance HasPaths Report Text
     where type Path Report Text = Path_Report Text
           pathsOf s a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [s'] = toListOf (toLens p) s :: [ReportView]}
                          in map Path_Report_View (pathsOf s' a :: [Path ReportView Text])
-instance IsPath Report UserId
+instance HasPaths Report UserId
     where type Path Report UserId = Path_Report UserId
           pathsOf s a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [s'] = toListOf (toLens p) s :: [ReportView]}
                          in map Path_Report_View (pathsOf s' a :: [Path ReportView UserId])
-instance IsPath Report UUID
+instance HasPaths Report UUID
     where type Path Report UUID = Path_Report UUID
           pathsOf s a = let {p = Path_Report_View idPath :: Path Report
                                                                  ReportView;
                              [s'] = toListOf (toLens p) s :: [ReportView]}
                          in map Path_Report_View (pathsOf s' a :: [Path ReportView UUID])
-instance IsPath ReportElem String
+instance HasPaths ReportElem String
     where type Path ReportElem String = Path_ReportElem String
           pathsOf s a = case s of
                             (ReportItem {}) -> mconcat [map Path_ReportElem_elemItem (pathsOf (elemItem s) a)]
                             (ReportParagraph {}) -> mconcat []
                             ReportUndecided -> []
-instance IsPath ReportElem Bool
+instance HasPaths ReportElem Bool
     where type Path ReportElem Bool = Path_ReportElem Bool
           pathsOf s a = case s of
                             (ReportItem {}) -> mconcat [map Path_ReportElem_elemItem (pathsOf (elemItem s) a)]
                             (ReportParagraph {}) -> mconcat []
                             ReportUndecided -> []
-instance IsPath ReportElem Double
+instance HasPaths ReportElem Double
     where type Path ReportElem Double = Path_ReportElem Double
           pathsOf s a = case s of
                             (ReportItem {}) -> mconcat [map Path_ReportElem_elemItem (pathsOf (elemItem s) a)]
                             (ReportParagraph {}) -> mconcat []
                             ReportUndecided -> []
-instance IsPath ReportElem Dimension
+instance HasPaths ReportElem Dimension
     where type Path ReportElem Dimension = Path_ReportElem Dimension
           pathsOf s a = case s of
                             (ReportItem {}) -> mconcat [map Path_ReportElem_elemItem (pathsOf (elemItem s) a)]
                             (ReportParagraph {}) -> mconcat []
                             ReportUndecided -> []
-instance IsPath ReportElem ImageCrop
+instance HasPaths ReportElem ImageCrop
     where type Path ReportElem ImageCrop = Path_ReportElem ImageCrop
           pathsOf s a = case s of
                             (ReportItem {}) -> mconcat [map Path_ReportElem_elemItem (pathsOf (elemItem s) a)]
                             (ReportParagraph {}) -> mconcat []
                             ReportUndecided -> []
-instance IsPath ReportElem ImageSize
+instance HasPaths ReportElem ImageSize
     where type Path ReportElem ImageSize = Path_ReportElem ImageSize
           pathsOf s a = case s of
                             (ReportItem {}) -> mconcat [map Path_ReportElem_elemItem (pathsOf (elemItem s) a)]
                             (ReportParagraph {}) -> mconcat []
                             ReportUndecided -> []
-instance IsPath ReportElem Units
+instance HasPaths ReportElem Units
     where type Path ReportElem Units = Path_ReportElem Units
           pathsOf s a = case s of
                             (ReportItem {}) -> mconcat [map Path_ReportElem_elemItem (pathsOf (elemItem s) a)]
                             (ReportParagraph {}) -> mconcat []
                             ReportUndecided -> []
-instance IsPath ReportElem ImageFile
+instance HasPaths ReportElem ImageFile
     where type Path ReportElem ImageFile = Path_ReportElem ImageFile
           pathsOf s a = case s of
                             (ReportItem {}) -> mconcat [map Path_ReportElem_elemItem (pathsOf (elemItem s) a)]
                             (ReportParagraph {}) -> mconcat []
                             ReportUndecided -> []
-instance IsPath ReportElem JSONText
+instance HasPaths ReportElem JSONText
     where type Path ReportElem JSONText = Path_ReportElem JSONText
           pathsOf s a = case s of
                             (ReportItem {}) -> mconcat [map Path_ReportElem_elemItem (pathsOf (elemItem s) a)]
                             (ReportParagraph {}) -> mconcat [map Path_ReportElem_elemText (pathsOf (elemText s) a)]
                             ReportUndecided -> []
-instance IsPath ReportElem Markup
+instance HasPaths ReportElem Markup
     where type Path ReportElem Markup = Path_ReportElem Markup
           pathsOf s a = case s of
                             (ReportItem {}) -> mconcat [map Path_ReportElem_elemItem (pathsOf (elemItem s) a)]
                             (ReportParagraph {}) -> mconcat [map Path_ReportElem_elemText (pathsOf (elemText s) a)]
                             ReportUndecided -> []
-instance IsPath ReportElem ReportElem
+instance HasPaths ReportElem ReportElem
     where type Path ReportElem ReportElem = Path_ReportElem ReportElem
           pathsOf s a = [idPath]
-instance IsPath ReportElem EUI
+instance HasPaths ReportElem EUI
     where type Path ReportElem EUI = Path_ReportElem EUI
           pathsOf s a = case s of
                             (ReportItem {}) -> mconcat [map Path_ReportElem_elemItem (pathsOf (elemItem s) a)]
                             (ReportParagraph {}) -> mconcat []
                             ReportUndecided -> []
-instance IsPath ReportElem MEUI
+instance HasPaths ReportElem MEUI
     where type Path ReportElem MEUI = Path_ReportElem MEUI
           pathsOf s a = case s of
                             (ReportItem {}) -> mconcat [map Path_ReportElem_elemItem (pathsOf (elemItem s) a)]
                             (ReportParagraph {}) -> mconcat []
                             ReportUndecided -> []
-instance IsPath ReportElem MaybeImageFile
+instance HasPaths ReportElem MaybeImageFile
     where type Path ReportElem
                     MaybeImageFile = Path_ReportElem MaybeImageFile
           pathsOf s a = case s of
                             (ReportItem {}) -> mconcat [map Path_ReportElem_elemItem (pathsOf (elemItem s) a)]
                             (ReportParagraph {}) -> mconcat []
                             ReportUndecided -> []
-instance IsPath ReportElem ReportImage
+instance HasPaths ReportElem ReportImage
     where type Path ReportElem
                     ReportImage = Path_ReportElem ReportImage
           pathsOf s a = case s of
                             (ReportItem {}) -> mconcat [map Path_ReportElem_elemItem (pathsOf (elemItem s) a)]
                             (ReportParagraph {}) -> mconcat []
                             ReportUndecided -> []
-instance IsPath ReportElem ReportImages
+instance HasPaths ReportElem ReportImages
     where type Path ReportElem
                     ReportImages = Path_ReportElem ReportImages
           pathsOf s a = case s of
                             (ReportItem {}) -> mconcat [map Path_ReportElem_elemItem (pathsOf (elemItem s) a)]
                             (ReportParagraph {}) -> mconcat []
                             ReportUndecided -> []
-instance IsPath ReportElem ReportImageView
+instance HasPaths ReportElem ReportImageView
     where type Path ReportElem
                     ReportImageView = Path_ReportElem ReportImageView
           pathsOf s a = case s of
                             (ReportItem {}) -> mconcat [map Path_ReportElem_elemItem (pathsOf (elemItem s) a)]
                             (ReportParagraph {}) -> mconcat []
                             ReportUndecided -> []
-instance IsPath ReportElem SaneSizeImageSize
+instance HasPaths ReportElem SaneSizeImageSize
     where type Path ReportElem
                     SaneSizeImageSize = Path_ReportElem SaneSizeImageSize
           pathsOf s a = case s of
                             (ReportItem {}) -> mconcat [map Path_ReportElem_elemItem (pathsOf (elemItem s) a)]
                             (ReportParagraph {}) -> mconcat []
                             ReportUndecided -> []
-instance IsPath ReportElem Item
+instance HasPaths ReportElem Item
     where type Path ReportElem Item = Path_ReportElem Item
           pathsOf s a = case s of
                             (ReportItem {}) -> mconcat [map Path_ReportElem_elemItem (pathsOf (elemItem s) a)]
                             (ReportParagraph {}) -> mconcat []
                             ReportUndecided -> []
-instance IsPath ReportElem MIM
+instance HasPaths ReportElem MIM
     where type Path ReportElem MIM = Path_ReportElem MIM
           pathsOf s a = case s of
                             (ReportItem {}) -> mconcat [map Path_ReportElem_elemItem (pathsOf (elemItem s) a)]
                             (ReportParagraph {}) -> mconcat []
                             ReportUndecided -> []
-instance IsPath ReportElem URI
+instance HasPaths ReportElem URI
     where type Path ReportElem URI = Path_ReportElem URI
           pathsOf s a = case s of
                             (ReportItem {}) -> mconcat [map Path_ReportElem_elemItem (pathsOf (elemItem s) a)]
                             (ReportParagraph {}) -> mconcat []
                             ReportUndecided -> []
-instance IsPath ReportElem Text
+instance HasPaths ReportElem Text
     where type Path ReportElem Text = Path_ReportElem Text
           pathsOf s a = case s of
                             (ReportItem {}) -> mconcat [map Path_ReportElem_elemItem (pathsOf (elemItem s) a)]
                             (ReportParagraph {}) -> mconcat [map Path_ReportElem_elemText (pathsOf (elemText s) a)]
                             ReportUndecided -> []
-instance IsPath ReportElems String
+instance HasPaths ReportElems String
     where type Path ReportElems String = Path_OMap ReportElemID
                                                    (Path_ReportElem String)
           pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportElem
@@ -1718,7 +1718,7 @@ instance IsPath ReportElems String
                                                                                                                                ReportElem ->
                                                                                                                          [(ReportElemID,
                                                                                                                            ReportElem)]) s)
-instance IsPath ReportElems Bool
+instance HasPaths ReportElems Bool
     where type Path ReportElems Bool = Path_OMap ReportElemID
                                                  (Path_ReportElem Bool)
           pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportElem
@@ -1726,7 +1726,7 @@ instance IsPath ReportElems Bool
                                                                                                                            ReportElem ->
                                                                                                                      [(ReportElemID,
                                                                                                                        ReportElem)]) s)
-instance IsPath ReportElems Double
+instance HasPaths ReportElems Double
     where type Path ReportElems Double = Path_OMap ReportElemID
                                                    (Path_ReportElem Double)
           pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportElem
@@ -1734,7 +1734,7 @@ instance IsPath ReportElems Double
                                                                                                                              ReportElem ->
                                                                                                                        [(ReportElemID,
                                                                                                                          ReportElem)]) s)
-instance IsPath ReportElems Dimension
+instance HasPaths ReportElems Dimension
     where type Path ReportElems Dimension = Path_OMap ReportElemID
                                                       (Path_ReportElem Dimension)
           pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportElem
@@ -1742,7 +1742,7 @@ instance IsPath ReportElems Dimension
                                                                                                                                 ReportElem ->
                                                                                                                           [(ReportElemID,
                                                                                                                             ReportElem)]) s)
-instance IsPath ReportElems ImageCrop
+instance HasPaths ReportElems ImageCrop
     where type Path ReportElems ImageCrop = Path_OMap ReportElemID
                                                       (Path_ReportElem ImageCrop)
           pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportElem
@@ -1750,7 +1750,7 @@ instance IsPath ReportElems ImageCrop
                                                                                                                                 ReportElem ->
                                                                                                                           [(ReportElemID,
                                                                                                                             ReportElem)]) s)
-instance IsPath ReportElems ImageSize
+instance HasPaths ReportElems ImageSize
     where type Path ReportElems ImageSize = Path_OMap ReportElemID
                                                       (Path_ReportElem ImageSize)
           pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportElem
@@ -1758,7 +1758,7 @@ instance IsPath ReportElems ImageSize
                                                                                                                                 ReportElem ->
                                                                                                                           [(ReportElemID,
                                                                                                                             ReportElem)]) s)
-instance IsPath ReportElems Units
+instance HasPaths ReportElems Units
     where type Path ReportElems Units = Path_OMap ReportElemID
                                                   (Path_ReportElem Units)
           pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportElem
@@ -1766,7 +1766,7 @@ instance IsPath ReportElems Units
                                                                                                                             ReportElem ->
                                                                                                                       [(ReportElemID,
                                                                                                                         ReportElem)]) s)
-instance IsPath ReportElems ImageFile
+instance HasPaths ReportElems ImageFile
     where type Path ReportElems ImageFile = Path_OMap ReportElemID
                                                       (Path_ReportElem ImageFile)
           pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportElem
@@ -1774,7 +1774,7 @@ instance IsPath ReportElems ImageFile
                                                                                                                                 ReportElem ->
                                                                                                                           [(ReportElemID,
                                                                                                                             ReportElem)]) s)
-instance IsPath ReportElems JSONText
+instance HasPaths ReportElems JSONText
     where type Path ReportElems JSONText = Path_OMap ReportElemID
                                                      (Path_ReportElem JSONText)
           pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportElem
@@ -1782,7 +1782,7 @@ instance IsPath ReportElems JSONText
                                                                                                                                ReportElem ->
                                                                                                                          [(ReportElemID,
                                                                                                                            ReportElem)]) s)
-instance IsPath ReportElems Markup
+instance HasPaths ReportElems Markup
     where type Path ReportElems Markup = Path_OMap ReportElemID
                                                    (Path_ReportElem Markup)
           pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportElem
@@ -1790,7 +1790,7 @@ instance IsPath ReportElems Markup
                                                                                                                              ReportElem ->
                                                                                                                        [(ReportElemID,
                                                                                                                          ReportElem)]) s)
-instance IsPath ReportElems ReportElem
+instance HasPaths ReportElems ReportElem
     where type Path ReportElems ReportElem = Path_OMap ReportElemID
                                                        (Path_ReportElem ReportElem)
           pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportElem
@@ -1798,11 +1798,11 @@ instance IsPath ReportElems ReportElem
                                                                                                                                  ReportElem ->
                                                                                                                            [(ReportElemID,
                                                                                                                              ReportElem)]) s)
-instance IsPath ReportElems ReportElems
+instance HasPaths ReportElems ReportElems
     where type Path ReportElems ReportElems = Path_OMap ReportElemID
                                                         (Path_ReportElem ReportElems)
           pathsOf s a = [idPath]
-instance IsPath ReportElems EUI
+instance HasPaths ReportElems EUI
     where type Path ReportElems EUI = Path_OMap ReportElemID
                                                 (Path_ReportElem EUI)
           pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportElem
@@ -1811,7 +1811,7 @@ instance IsPath ReportElems EUI
                                                                                                                                          ReportElem ->
                                                                                                                                    [(ReportElemID,
                                                                                                                                      ReportElem)]) s)
-instance IsPath ReportElems MEUI
+instance HasPaths ReportElems MEUI
     where type Path ReportElems MEUI = Path_OMap ReportElemID
                                                  (Path_ReportElem MEUI)
           pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportElem
@@ -1820,7 +1820,7 @@ instance IsPath ReportElems MEUI
                                                                                                                                                  ReportElem ->
                                                                                                                                            [(ReportElemID,
                                                                                                                                              ReportElem)]) s)
-instance IsPath ReportElems MaybeImageFile
+instance HasPaths ReportElems MaybeImageFile
     where type Path ReportElems MaybeImageFile = Path_OMap ReportElemID
                                                            (Path_ReportElem MaybeImageFile)
           pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportElem
@@ -1828,7 +1828,7 @@ instance IsPath ReportElems MaybeImageFile
                                                                                                                                         ReportElem ->
                                                                                                                                   [(ReportElemID,
                                                                                                                                     ReportElem)]) s)
-instance IsPath ReportElems ReportImage
+instance HasPaths ReportElems ReportImage
     where type Path ReportElems ReportImage = Path_OMap ReportElemID
                                                         (Path_ReportElem ReportImage)
           pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportElem
@@ -1836,7 +1836,7 @@ instance IsPath ReportElems ReportImage
                                                                                                                                   ReportElem ->
                                                                                                                             [(ReportElemID,
                                                                                                                               ReportElem)]) s)
-instance IsPath ReportElems ReportImages
+instance HasPaths ReportElems ReportImages
     where type Path ReportElems ReportImages = Path_OMap ReportElemID
                                                          (Path_ReportElem ReportImages)
           pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportElem
@@ -1845,7 +1845,7 @@ instance IsPath ReportElems ReportImages
                                                                                                                                           ReportElem ->
                                                                                                                                     [(ReportElemID,
                                                                                                                                       ReportElem)]) s)
-instance IsPath ReportElems ReportImageView
+instance HasPaths ReportElems ReportImageView
     where type Path ReportElems
                     ReportImageView = Path_OMap ReportElemID
                                                 (Path_ReportElem ReportImageView)
@@ -1854,7 +1854,7 @@ instance IsPath ReportElems ReportImageView
                                                                                                                                       ReportElem ->
                                                                                                                                 [(ReportElemID,
                                                                                                                                   ReportElem)]) s)
-instance IsPath ReportElems SaneSizeImageSize
+instance HasPaths ReportElems SaneSizeImageSize
     where type Path ReportElems
                     SaneSizeImageSize = Path_OMap ReportElemID
                                                   (Path_ReportElem SaneSizeImageSize)
@@ -1863,7 +1863,7 @@ instance IsPath ReportElems SaneSizeImageSize
                                                                                                                                            ReportElem ->
                                                                                                                                      [(ReportElemID,
                                                                                                                                        ReportElem)]) s)
-instance IsPath ReportElems Item
+instance HasPaths ReportElems Item
     where type Path ReportElems Item = Path_OMap ReportElemID
                                                  (Path_ReportElem Item)
           pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportElem
@@ -1871,7 +1871,7 @@ instance IsPath ReportElems Item
                                                                                                                            ReportElem ->
                                                                                                                      [(ReportElemID,
                                                                                                                        ReportElem)]) s)
-instance IsPath ReportElems MIM
+instance HasPaths ReportElems MIM
     where type Path ReportElems MIM = Path_OMap ReportElemID
                                                 (Path_ReportElem MIM)
           pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportElem
@@ -1880,7 +1880,7 @@ instance IsPath ReportElems MIM
                                                                                                                                    ReportElem ->
                                                                                                                              [(ReportElemID,
                                                                                                                                ReportElem)]) s)
-instance IsPath ReportElems URI
+instance HasPaths ReportElems URI
     where type Path ReportElems URI = Path_OMap ReportElemID
                                                 (Path_ReportElem URI)
           pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportElem
@@ -1888,7 +1888,7 @@ instance IsPath ReportElems URI
                                                                                                                           ReportElem ->
                                                                                                                     [(ReportElemID,
                                                                                                                       ReportElem)]) s)
-instance IsPath ReportElems Text
+instance HasPaths ReportElems Text
     where type Path ReportElems Text = Path_OMap ReportElemID
                                                  (Path_ReportElem Text)
           pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportElem
@@ -1896,23 +1896,23 @@ instance IsPath ReportElems Text
                                                                                                                            ReportElem ->
                                                                                                                      [(ReportElemID,
                                                                                                                        ReportElem)]) s)
-instance IsPath ReportFlags String
+instance HasPaths ReportFlags String
     where type Path ReportFlags String = Path_ReportFlags String
           pathsOf s a = case s of
                             (ReportFlags {}) -> mconcat [map Path_ReportFlags_hideEmptyItemFields (pathsOf (hideEmptyItemFields s) a)]
-instance IsPath ReportFlags Bool
+instance HasPaths ReportFlags Bool
     where type Path ReportFlags Bool = Path_ReportFlags Bool
           pathsOf s a = case s of
                             (ReportFlags {}) -> mconcat [map Path_ReportFlags_hideEmptyItemFields (pathsOf (hideEmptyItemFields s) a)]
-instance IsPath ReportFlags JSONText
+instance HasPaths ReportFlags JSONText
     where type Path ReportFlags JSONText = Path_ReportFlags JSONText
           pathsOf s a = case s of
                             (ReportFlags {}) -> mconcat [map Path_ReportFlags_hideEmptyItemFields (pathsOf (hideEmptyItemFields s) a)]
-instance IsPath ReportFlags ReportFlags
+instance HasPaths ReportFlags ReportFlags
     where type Path ReportFlags
                     ReportFlags = Path_ReportFlags ReportFlags
           pathsOf s a = [idPath]
-instance IsPath ReportIntendedUse String
+instance HasPaths ReportIntendedUse String
     where type Path ReportIntendedUse
                     String = Path_ReportIntendedUse String
           pathsOf s a = let {p = Path_ReportIntendedUse_View idPath :: Path ReportIntendedUse
@@ -1920,7 +1920,7 @@ instance IsPath ReportIntendedUse String
                              [s'] = toListOf (toLens p) s :: [[Char]]}
                          in map Path_ReportIntendedUse_View (pathsOf s' a :: [Path ([Char])
                                                                                    ([Char])])
-instance IsPath ReportIntendedUse JSONText
+instance HasPaths ReportIntendedUse JSONText
     where type Path ReportIntendedUse
                     JSONText = Path_ReportIntendedUse JSONText
           pathsOf s a = let {p = Path_ReportIntendedUse_View idPath :: Path ReportIntendedUse
@@ -1928,129 +1928,129 @@ instance IsPath ReportIntendedUse JSONText
                              [s'] = toListOf (toLens p) s :: [[Char]]}
                          in map Path_ReportIntendedUse_View (pathsOf s' a :: [Path ([Char])
                                                                                    JSONText])
-instance IsPath ReportIntendedUse ReportIntendedUse
+instance HasPaths ReportIntendedUse ReportIntendedUse
     where type Path ReportIntendedUse
                     ReportIntendedUse = Path_ReportIntendedUse ReportIntendedUse
           pathsOf s a = [idPath]
-instance IsPath ReportStandard Int
+instance HasPaths ReportStandard Int
     where type Path ReportStandard Int = Path_ReportStandard Int
           pathsOf s a = case s of
                             (ReportStandard {}) -> mconcat [map Path_ReportStandard_unReportStandard (pathsOf (unReportStandard s) a)]
-instance IsPath ReportStandard ReportStandard
+instance HasPaths ReportStandard ReportStandard
     where type Path ReportStandard
                     ReportStandard = Path_ReportStandard ReportStandard
           pathsOf s a = [idPath]
-instance IsPath ReportStatus String
+instance HasPaths ReportStatus String
     where type Path ReportStatus String = Path_ReportStatus String
           pathsOf s a = let {p = Path_ReportStatus_View idPath :: Path ReportStatus
                                                                        ([Char]);
                              [s'] = toListOf (toLens p) s :: [[Char]]}
                          in map Path_ReportStatus_View (pathsOf s' a :: [Path ([Char])
                                                                               ([Char])])
-instance IsPath ReportStatus JSONText
+instance HasPaths ReportStatus JSONText
     where type Path ReportStatus JSONText = Path_ReportStatus JSONText
           pathsOf s a = let {p = Path_ReportStatus_View idPath :: Path ReportStatus
                                                                        ([Char]);
                              [s'] = toListOf (toLens p) s :: [[Char]]}
                          in map Path_ReportStatus_View (pathsOf s' a :: [Path ([Char])
                                                                               JSONText])
-instance IsPath ReportStatus ReportStatus
+instance HasPaths ReportStatus ReportStatus
     where type Path ReportStatus
                     ReportStatus = Path_ReportStatus ReportStatus
           pathsOf s a = [idPath]
-instance IsPath ReportValueApproachInfo JSONText
+instance HasPaths ReportValueApproachInfo JSONText
     where type Path ReportValueApproachInfo
                     JSONText = Path_ReportValueApproachInfo JSONText
           pathsOf s a = case s of
                             (ReportValueApproachInfo {}) -> mconcat [map Path_ReportValueApproachInfo_reportValueApproachName (pathsOf (reportValueApproachName s) a),
                                                                      map Path_ReportValueApproachInfo_reportValueApproachDescription (pathsOf (reportValueApproachDescription s) a)]
-instance IsPath ReportValueApproachInfo Markup
+instance HasPaths ReportValueApproachInfo Markup
     where type Path ReportValueApproachInfo
                     Markup = Path_ReportValueApproachInfo Markup
           pathsOf s a = case s of
                             (ReportValueApproachInfo {}) -> mconcat [map Path_ReportValueApproachInfo_reportValueApproachName (pathsOf (reportValueApproachName s) a),
                                                                      map Path_ReportValueApproachInfo_reportValueApproachDescription (pathsOf (reportValueApproachDescription s) a)]
-instance IsPath ReportValueApproachInfo ReportValueApproachInfo
+instance HasPaths ReportValueApproachInfo ReportValueApproachInfo
     where type Path ReportValueApproachInfo
                     ReportValueApproachInfo = Path_ReportValueApproachInfo ReportValueApproachInfo
           pathsOf s a = [idPath]
-instance IsPath ReportValueApproachInfo Text
+instance HasPaths ReportValueApproachInfo Text
     where type Path ReportValueApproachInfo
                     Text = Path_ReportValueApproachInfo Text
           pathsOf s a = case s of
                             (ReportValueApproachInfo {}) -> mconcat [map Path_ReportValueApproachInfo_reportValueApproachName (pathsOf (reportValueApproachName s) a),
                                                                      map Path_ReportValueApproachInfo_reportValueApproachDescription (pathsOf (reportValueApproachDescription s) a)]
-instance IsPath ReportValueTypeInfo JSONText
+instance HasPaths ReportValueTypeInfo JSONText
     where type Path ReportValueTypeInfo
                     JSONText = Path_ReportValueTypeInfo JSONText
           pathsOf s a = case s of
                             (ReportValueTypeInfo {}) -> mconcat [map Path_ReportValueTypeInfo_reportValueTypeName (pathsOf (reportValueTypeName s) a),
                                                                  map Path_ReportValueTypeInfo_reportValueTypeDescription (pathsOf (reportValueTypeDescription s) a),
                                                                  map Path_ReportValueTypeInfo_reportValueTypeDefinition (pathsOf (reportValueTypeDefinition s) a)]
-instance IsPath ReportValueTypeInfo Markup
+instance HasPaths ReportValueTypeInfo Markup
     where type Path ReportValueTypeInfo
                     Markup = Path_ReportValueTypeInfo Markup
           pathsOf s a = case s of
                             (ReportValueTypeInfo {}) -> mconcat [map Path_ReportValueTypeInfo_reportValueTypeName (pathsOf (reportValueTypeName s) a),
                                                                  map Path_ReportValueTypeInfo_reportValueTypeDescription (pathsOf (reportValueTypeDescription s) a),
                                                                  map Path_ReportValueTypeInfo_reportValueTypeDefinition (pathsOf (reportValueTypeDefinition s) a)]
-instance IsPath ReportValueTypeInfo ReportValueTypeInfo
+instance HasPaths ReportValueTypeInfo ReportValueTypeInfo
     where type Path ReportValueTypeInfo
                     ReportValueTypeInfo = Path_ReportValueTypeInfo ReportValueTypeInfo
           pathsOf s a = [idPath]
-instance IsPath ReportValueTypeInfo Text
+instance HasPaths ReportValueTypeInfo Text
     where type Path ReportValueTypeInfo
                     Text = Path_ReportValueTypeInfo Text
           pathsOf s a = case s of
                             (ReportValueTypeInfo {}) -> mconcat [map Path_ReportValueTypeInfo_reportValueTypeName (pathsOf (reportValueTypeName s) a),
                                                                  map Path_ReportValueTypeInfo_reportValueTypeDescription (pathsOf (reportValueTypeDescription s) a),
                                                                  map Path_ReportValueTypeInfo_reportValueTypeDefinition (pathsOf (reportValueTypeDefinition s) a)]
-instance IsPath EUI ImageFile
+instance HasPaths EUI ImageFile
     where type Path EUI ImageFile = Path_Either (Path_URI ImageFile)
                                                 (Path_ImageFile ImageFile)
           pathsOf s a = [] <> concatMap (\pv -> map ((\_ -> Path_Right) pv) (pathsOf (id pv) a :: [Path ImageFile
                                                                                                         ImageFile])) (either (const []) (: []) s)
-instance IsPath EUI EUI
+instance HasPaths EUI EUI
     where type Path EUI EUI = Path_Either (Path_URI EUI)
                                           (Path_ImageFile EUI)
           pathsOf s a = [idPath]
-instance IsPath EUI URI
+instance HasPaths EUI URI
     where type Path EUI URI = Path_Either (Path_URI URI)
                                           (Path_ImageFile URI)
           pathsOf s a = concatMap (\pv -> map ((\_ -> Path_Left) pv) (pathsOf (id pv) a :: [Path URI
                                                                                                  URI])) (either (: []) (const []) s) <> []
-instance IsPath MEUI ImageFile
+instance HasPaths MEUI ImageFile
     where type Path MEUI
                     ImageFile = Path_Maybe (Path_Either (Path_URI ImageFile)
                                                         (Path_ImageFile ImageFile))
           pathsOf s a = concatMap (\pv -> map ((\_ -> Path_Just) pv) (pathsOf (id pv) a :: [Path (Either URI
                                                                                                          ImageFile)
                                                                                                  ImageFile])) (maybe [] (: []) s)
-instance IsPath MEUI EUI
+instance HasPaths MEUI EUI
     where type Path MEUI EUI = Path_Maybe (Path_Either (Path_URI EUI)
                                                        (Path_ImageFile EUI))
           pathsOf s a = concatMap (\pv -> map ((\_ -> Path_Just) pv) (pathsOf (id pv) a :: [Path (Either URI
                                                                                                          ImageFile)
                                                                                                  (Either URI
                                                                                                          ImageFile)])) (maybe [] (: []) s)
-instance IsPath MEUI MEUI
+instance HasPaths MEUI MEUI
     where type Path MEUI MEUI = Path_Maybe (Path_Either (Path_URI MEUI)
                                                         (Path_ImageFile MEUI))
           pathsOf s a = [idPath]
-instance IsPath MEUI URI
+instance HasPaths MEUI URI
     where type Path MEUI URI = Path_Maybe (Path_Either (Path_URI URI)
                                                        (Path_ImageFile URI))
           pathsOf s a = concatMap (\pv -> map ((\_ -> Path_Just) pv) (pathsOf (id pv) a :: [Path (Either URI
                                                                                                          ImageFile)
                                                                                                  URI])) (maybe [] (: []) s)
-instance IsPath MaybeImageFile String
+instance HasPaths MaybeImageFile String
     where type Path MaybeImageFile String = Path_MaybeImageFile String
           pathsOf s a = let {p = Path_MaybeImageFile_View idPath :: Path (Maybe ImageFile)
                                                                          ([Char]);
                              [s'] = toListOf (toLens p) s :: [[Char]]}
                          in map Path_MaybeImageFile_View (pathsOf s' a :: [Path ([Char])
                                                                                 ([Char])])
-instance IsPath MaybeImageFile JSONText
+instance HasPaths MaybeImageFile JSONText
     where type Path MaybeImageFile
                     JSONText = Path_MaybeImageFile JSONText
           pathsOf s a = let {p = Path_MaybeImageFile_View idPath :: Path (Maybe ImageFile)
@@ -2058,81 +2058,81 @@ instance IsPath MaybeImageFile JSONText
                              [s'] = toListOf (toLens p) s :: [[Char]]}
                          in map Path_MaybeImageFile_View (pathsOf s' a :: [Path ([Char])
                                                                                 JSONText])
-instance IsPath MaybeImageFile MaybeImageFile
+instance HasPaths MaybeImageFile MaybeImageFile
     where type Path MaybeImageFile
                     MaybeImageFile = Path_MaybeImageFile MaybeImageFile
           pathsOf s a = [idPath]
-instance IsPath ReportImage String
+instance HasPaths ReportImage String
     where type Path ReportImage String = Path_ReportImage String
           pathsOf s a = let {p = Path_ReportImage_View idPath :: Path ReportImage
                                                                       ReportImageView;
                              [s'] = toListOf (toLens p) s :: [ReportImageView]}
                          in map Path_ReportImage_View (pathsOf s' a :: [Path ReportImageView
                                                                              ([Char])])
-instance IsPath ReportImage Bool
+instance HasPaths ReportImage Bool
     where type Path ReportImage Bool = Path_ReportImage Bool
           pathsOf s a = let {p = Path_ReportImage_View idPath :: Path ReportImage
                                                                       ReportImageView;
                              [s'] = toListOf (toLens p) s :: [ReportImageView]}
                          in map Path_ReportImage_View (pathsOf s' a :: [Path ReportImageView
                                                                              Bool])
-instance IsPath ReportImage Double
+instance HasPaths ReportImage Double
     where type Path ReportImage Double = Path_ReportImage Double
           pathsOf s a = let {p = Path_ReportImage_View idPath :: Path ReportImage
                                                                       ReportImageView;
                              [s'] = toListOf (toLens p) s :: [ReportImageView]}
                          in map Path_ReportImage_View (pathsOf s' a :: [Path ReportImageView
                                                                              Double])
-instance IsPath ReportImage Dimension
+instance HasPaths ReportImage Dimension
     where type Path ReportImage Dimension = Path_ReportImage Dimension
           pathsOf s a = let {p = Path_ReportImage_View idPath :: Path ReportImage
                                                                       ReportImageView;
                              [s'] = toListOf (toLens p) s :: [ReportImageView]}
                          in map Path_ReportImage_View (pathsOf s' a :: [Path ReportImageView
                                                                              Dimension])
-instance IsPath ReportImage ImageCrop
+instance HasPaths ReportImage ImageCrop
     where type Path ReportImage ImageCrop = Path_ReportImage ImageCrop
           pathsOf s a = let {p = Path_ReportImage_View idPath :: Path ReportImage
                                                                       ReportImageView;
                              [s'] = toListOf (toLens p) s :: [ReportImageView]}
                          in map Path_ReportImage_View (pathsOf s' a :: [Path ReportImageView
                                                                              ImageCrop])
-instance IsPath ReportImage ImageSize
+instance HasPaths ReportImage ImageSize
     where type Path ReportImage ImageSize = Path_ReportImage ImageSize
           pathsOf s a = let {p = Path_ReportImage_View idPath :: Path ReportImage
                                                                       ReportImageView;
                              [s'] = toListOf (toLens p) s :: [ReportImageView]}
                          in map Path_ReportImage_View (pathsOf s' a :: [Path ReportImageView
                                                                              ImageSize])
-instance IsPath ReportImage Units
+instance HasPaths ReportImage Units
     where type Path ReportImage Units = Path_ReportImage Units
           pathsOf s a = let {p = Path_ReportImage_View idPath :: Path ReportImage
                                                                       ReportImageView;
                              [s'] = toListOf (toLens p) s :: [ReportImageView]}
                          in map Path_ReportImage_View (pathsOf s' a :: [Path ReportImageView
                                                                              Units])
-instance IsPath ReportImage ImageFile
+instance HasPaths ReportImage ImageFile
     where type Path ReportImage ImageFile = Path_ReportImage ImageFile
           pathsOf s a = let {p = Path_ReportImage_View idPath :: Path ReportImage
                                                                       ReportImageView;
                              [s'] = toListOf (toLens p) s :: [ReportImageView]}
                          in map Path_ReportImage_View (pathsOf s' a :: [Path ReportImageView
                                                                              ImageFile])
-instance IsPath ReportImage JSONText
+instance HasPaths ReportImage JSONText
     where type Path ReportImage JSONText = Path_ReportImage JSONText
           pathsOf s a = let {p = Path_ReportImage_View idPath :: Path ReportImage
                                                                       ReportImageView;
                              [s'] = toListOf (toLens p) s :: [ReportImageView]}
                          in map Path_ReportImage_View (pathsOf s' a :: [Path ReportImageView
                                                                              JSONText])
-instance IsPath ReportImage Markup
+instance HasPaths ReportImage Markup
     where type Path ReportImage Markup = Path_ReportImage Markup
           pathsOf s a = let {p = Path_ReportImage_View idPath :: Path ReportImage
                                                                       ReportImageView;
                              [s'] = toListOf (toLens p) s :: [ReportImageView]}
                          in map Path_ReportImage_View (pathsOf s' a :: [Path ReportImageView
                                                                              Markup])
-instance IsPath ReportImage EUI
+instance HasPaths ReportImage EUI
     where type Path ReportImage EUI = Path_ReportImage EUI
           pathsOf s a = let {p = Path_ReportImage_View idPath :: Path ReportImage
                                                                       ReportImageView;
@@ -2140,7 +2140,7 @@ instance IsPath ReportImage EUI
                          in map Path_ReportImage_View (pathsOf s' a :: [Path ReportImageView
                                                                              (Either URI
                                                                                      ImageFile)])
-instance IsPath ReportImage MEUI
+instance HasPaths ReportImage MEUI
     where type Path ReportImage MEUI = Path_ReportImage MEUI
           pathsOf s a = let {p = Path_ReportImage_View idPath :: Path ReportImage
                                                                       ReportImageView;
@@ -2148,7 +2148,7 @@ instance IsPath ReportImage MEUI
                          in map Path_ReportImage_View (pathsOf s' a :: [Path ReportImageView
                                                                              (Maybe (Either URI
                                                                                             ImageFile))])
-instance IsPath ReportImage MaybeImageFile
+instance HasPaths ReportImage MaybeImageFile
     where type Path ReportImage
                     MaybeImageFile = Path_ReportImage MaybeImageFile
           pathsOf s a = let {p = Path_ReportImage_View idPath :: Path ReportImage
@@ -2156,11 +2156,11 @@ instance IsPath ReportImage MaybeImageFile
                              [s'] = toListOf (toLens p) s :: [ReportImageView]}
                          in map Path_ReportImage_View (pathsOf s' a :: [Path ReportImageView
                                                                              (Maybe ImageFile)])
-instance IsPath ReportImage ReportImage
+instance HasPaths ReportImage ReportImage
     where type Path ReportImage
                     ReportImage = Path_ReportImage ReportImage
           pathsOf s a = [idPath]
-instance IsPath ReportImage ReportImageView
+instance HasPaths ReportImage ReportImageView
     where type Path ReportImage
                     ReportImageView = Path_ReportImage ReportImageView
           pathsOf s a = let {p = Path_ReportImage_View idPath :: Path ReportImage
@@ -2168,7 +2168,7 @@ instance IsPath ReportImage ReportImageView
                              [s'] = toListOf (toLens p) s :: [ReportImageView]}
                          in map Path_ReportImage_View (pathsOf s' a :: [Path ReportImageView
                                                                              ReportImageView])
-instance IsPath ReportImage SaneSizeImageSize
+instance HasPaths ReportImage SaneSizeImageSize
     where type Path ReportImage
                     SaneSizeImageSize = Path_ReportImage SaneSizeImageSize
           pathsOf s a = let {p = Path_ReportImage_View idPath :: Path ReportImage
@@ -2176,21 +2176,21 @@ instance IsPath ReportImage SaneSizeImageSize
                              [s'] = toListOf (toLens p) s :: [ReportImageView]}
                          in map Path_ReportImage_View (pathsOf s' a :: [Path ReportImageView
                                                                              (SaneSize ImageSize)])
-instance IsPath ReportImage URI
+instance HasPaths ReportImage URI
     where type Path ReportImage URI = Path_ReportImage URI
           pathsOf s a = let {p = Path_ReportImage_View idPath :: Path ReportImage
                                                                       ReportImageView;
                              [s'] = toListOf (toLens p) s :: [ReportImageView]}
                          in map Path_ReportImage_View (pathsOf s' a :: [Path ReportImageView
                                                                              URI])
-instance IsPath ReportImage Text
+instance HasPaths ReportImage Text
     where type Path ReportImage Text = Path_ReportImage Text
           pathsOf s a = let {p = Path_ReportImage_View idPath :: Path ReportImage
                                                                       ReportImageView;
                              [s'] = toListOf (toLens p) s :: [ReportImageView]}
                          in map Path_ReportImage_View (pathsOf s' a :: [Path ReportImageView
                                                                              Text])
-instance IsPath ReportImages String
+instance HasPaths ReportImages String
     where type Path ReportImages String = Path_OMap ReportImageID
                                                     (Path_ReportImage String)
           pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportImage
@@ -2198,7 +2198,7 @@ instance IsPath ReportImages String
                                                                                                                                ReportImage ->
                                                                                                                          [(ReportImageID,
                                                                                                                            ReportImage)]) s)
-instance IsPath ReportImages Bool
+instance HasPaths ReportImages Bool
     where type Path ReportImages Bool = Path_OMap ReportImageID
                                                   (Path_ReportImage Bool)
           pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportImage
@@ -2206,7 +2206,7 @@ instance IsPath ReportImages Bool
                                                                                                                            ReportImage ->
                                                                                                                      [(ReportImageID,
                                                                                                                        ReportImage)]) s)
-instance IsPath ReportImages Double
+instance HasPaths ReportImages Double
     where type Path ReportImages Double = Path_OMap ReportImageID
                                                     (Path_ReportImage Double)
           pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportImage
@@ -2214,7 +2214,7 @@ instance IsPath ReportImages Double
                                                                                                                              ReportImage ->
                                                                                                                        [(ReportImageID,
                                                                                                                          ReportImage)]) s)
-instance IsPath ReportImages Dimension
+instance HasPaths ReportImages Dimension
     where type Path ReportImages Dimension = Path_OMap ReportImageID
                                                        (Path_ReportImage Dimension)
           pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportImage
@@ -2222,7 +2222,7 @@ instance IsPath ReportImages Dimension
                                                                                                                                 ReportImage ->
                                                                                                                           [(ReportImageID,
                                                                                                                             ReportImage)]) s)
-instance IsPath ReportImages ImageCrop
+instance HasPaths ReportImages ImageCrop
     where type Path ReportImages ImageCrop = Path_OMap ReportImageID
                                                        (Path_ReportImage ImageCrop)
           pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportImage
@@ -2230,7 +2230,7 @@ instance IsPath ReportImages ImageCrop
                                                                                                                                 ReportImage ->
                                                                                                                           [(ReportImageID,
                                                                                                                             ReportImage)]) s)
-instance IsPath ReportImages ImageSize
+instance HasPaths ReportImages ImageSize
     where type Path ReportImages ImageSize = Path_OMap ReportImageID
                                                        (Path_ReportImage ImageSize)
           pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportImage
@@ -2238,7 +2238,7 @@ instance IsPath ReportImages ImageSize
                                                                                                                                 ReportImage ->
                                                                                                                           [(ReportImageID,
                                                                                                                             ReportImage)]) s)
-instance IsPath ReportImages Units
+instance HasPaths ReportImages Units
     where type Path ReportImages Units = Path_OMap ReportImageID
                                                    (Path_ReportImage Units)
           pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportImage
@@ -2246,7 +2246,7 @@ instance IsPath ReportImages Units
                                                                                                                             ReportImage ->
                                                                                                                       [(ReportImageID,
                                                                                                                         ReportImage)]) s)
-instance IsPath ReportImages ImageFile
+instance HasPaths ReportImages ImageFile
     where type Path ReportImages ImageFile = Path_OMap ReportImageID
                                                        (Path_ReportImage ImageFile)
           pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportImage
@@ -2254,7 +2254,7 @@ instance IsPath ReportImages ImageFile
                                                                                                                                 ReportImage ->
                                                                                                                           [(ReportImageID,
                                                                                                                             ReportImage)]) s)
-instance IsPath ReportImages JSONText
+instance HasPaths ReportImages JSONText
     where type Path ReportImages JSONText = Path_OMap ReportImageID
                                                       (Path_ReportImage JSONText)
           pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportImage
@@ -2262,7 +2262,7 @@ instance IsPath ReportImages JSONText
                                                                                                                                ReportImage ->
                                                                                                                          [(ReportImageID,
                                                                                                                            ReportImage)]) s)
-instance IsPath ReportImages Markup
+instance HasPaths ReportImages Markup
     where type Path ReportImages Markup = Path_OMap ReportImageID
                                                     (Path_ReportImage Markup)
           pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportImage
@@ -2270,7 +2270,7 @@ instance IsPath ReportImages Markup
                                                                                                                              ReportImage ->
                                                                                                                        [(ReportImageID,
                                                                                                                          ReportImage)]) s)
-instance IsPath ReportImages EUI
+instance HasPaths ReportImages EUI
     where type Path ReportImages EUI = Path_OMap ReportImageID
                                                  (Path_ReportImage EUI)
           pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportImage
@@ -2279,7 +2279,7 @@ instance IsPath ReportImages EUI
                                                                                                                                          ReportImage ->
                                                                                                                                    [(ReportImageID,
                                                                                                                                      ReportImage)]) s)
-instance IsPath ReportImages MEUI
+instance HasPaths ReportImages MEUI
     where type Path ReportImages MEUI = Path_OMap ReportImageID
                                                   (Path_ReportImage MEUI)
           pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportImage
@@ -2288,7 +2288,7 @@ instance IsPath ReportImages MEUI
                                                                                                                                                  ReportImage ->
                                                                                                                                            [(ReportImageID,
                                                                                                                                              ReportImage)]) s)
-instance IsPath ReportImages MaybeImageFile
+instance HasPaths ReportImages MaybeImageFile
     where type Path ReportImages
                     MaybeImageFile = Path_OMap ReportImageID
                                                (Path_ReportImage MaybeImageFile)
@@ -2297,7 +2297,7 @@ instance IsPath ReportImages MaybeImageFile
                                                                                                                                         ReportImage ->
                                                                                                                                   [(ReportImageID,
                                                                                                                                     ReportImage)]) s)
-instance IsPath ReportImages ReportImage
+instance HasPaths ReportImages ReportImage
     where type Path ReportImages ReportImage = Path_OMap ReportImageID
                                                          (Path_ReportImage ReportImage)
           pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportImage
@@ -2305,11 +2305,11 @@ instance IsPath ReportImages ReportImage
                                                                                                                                   ReportImage ->
                                                                                                                             [(ReportImageID,
                                                                                                                               ReportImage)]) s)
-instance IsPath ReportImages ReportImages
+instance HasPaths ReportImages ReportImages
     where type Path ReportImages ReportImages = Path_OMap ReportImageID
                                                           (Path_ReportImage ReportImages)
           pathsOf s a = [idPath]
-instance IsPath ReportImages ReportImageView
+instance HasPaths ReportImages ReportImageView
     where type Path ReportImages
                     ReportImageView = Path_OMap ReportImageID
                                                 (Path_ReportImage ReportImageView)
@@ -2318,7 +2318,7 @@ instance IsPath ReportImages ReportImageView
                                                                                                                                       ReportImage ->
                                                                                                                                 [(ReportImageID,
                                                                                                                                   ReportImage)]) s)
-instance IsPath ReportImages SaneSizeImageSize
+instance HasPaths ReportImages SaneSizeImageSize
     where type Path ReportImages
                     SaneSizeImageSize = Path_OMap ReportImageID
                                                   (Path_ReportImage SaneSizeImageSize)
@@ -2327,7 +2327,7 @@ instance IsPath ReportImages SaneSizeImageSize
                                                                                                                                            ReportImage ->
                                                                                                                                      [(ReportImageID,
                                                                                                                                        ReportImage)]) s)
-instance IsPath ReportImages URI
+instance HasPaths ReportImages URI
     where type Path ReportImages URI = Path_OMap ReportImageID
                                                  (Path_ReportImage URI)
           pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportImage
@@ -2335,7 +2335,7 @@ instance IsPath ReportImages URI
                                                                                                                           ReportImage ->
                                                                                                                     [(ReportImageID,
                                                                                                                       ReportImage)]) s)
-instance IsPath ReportImages Text
+instance HasPaths ReportImages Text
     where type Path ReportImages Text = Path_OMap ReportImageID
                                                   (Path_ReportImage Text)
           pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv) a :: [Path ReportImage
@@ -2343,7 +2343,7 @@ instance IsPath ReportImages Text
                                                                                                                            ReportImage ->
                                                                                                                      [(ReportImageID,
                                                                                                                        ReportImage)]) s)
-instance IsPath ReadOnlyFilePath String
+instance HasPaths ReadOnlyFilePath String
     where type Path ReadOnlyFilePath
                     String = Path_ReadOnlyFilePath String
           pathsOf s a = let {p = Path_ReadOnlyFilePath_View idPath :: Path (ReadOnly ([Char]))
@@ -2351,7 +2351,7 @@ instance IsPath ReadOnlyFilePath String
                              [s'] = toListOf (toLens p) s :: [[Char]]}
                          in map Path_ReadOnlyFilePath_View (pathsOf s' a :: [Path ([Char])
                                                                                   ([Char])])
-instance IsPath ReadOnlyFilePath JSONText
+instance HasPaths ReadOnlyFilePath JSONText
     where type Path ReadOnlyFilePath
                     JSONText = Path_ReadOnlyFilePath JSONText
           pathsOf s a = let {p = Path_ReadOnlyFilePath_View idPath :: Path (ReadOnly ([Char]))
@@ -2359,11 +2359,11 @@ instance IsPath ReadOnlyFilePath JSONText
                              [s'] = toListOf (toLens p) s :: [[Char]]}
                          in map Path_ReadOnlyFilePath_View (pathsOf s' a :: [Path ([Char])
                                                                                   JSONText])
-instance IsPath ReadOnlyFilePath ReadOnlyFilePath
+instance HasPaths ReadOnlyFilePath ReadOnlyFilePath
     where type Path ReadOnlyFilePath
                     ReadOnlyFilePath = Path_ReadOnlyFilePath ReadOnlyFilePath
           pathsOf s a = [idPath]
-instance IsPath ReportImageView String
+instance HasPaths ReportImageView String
     where type Path ReportImageView
                     String = Path_ReportImageView String
           pathsOf s a = case s of
@@ -2373,40 +2373,40 @@ instance IsPath ReportImageView String
                                                              map Path_ReportImageView__picPrinterDeprecated (pathsOf (_picPrinterDeprecated s) a),
                                                              map Path_ReportImageView__picMustEnlarge (pathsOf (_picMustEnlarge s) a),
                                                              map Path_ReportImageView__picEnlargedDeprecated (pathsOf (_picEnlargedDeprecated s) a)]
-instance IsPath ReportImageView Bool
+instance HasPaths ReportImageView Bool
     where type Path ReportImageView Bool = Path_ReportImageView Bool
           pathsOf s a = case s of
                             (ReportImageView {}) -> mconcat [map Path_ReportImageView__picMustEnlarge (pathsOf (_picMustEnlarge s) a)]
-instance IsPath ReportImageView Double
+instance HasPaths ReportImageView Double
     where type Path ReportImageView
                     Double = Path_ReportImageView Double
           pathsOf s a = case s of
                             (ReportImageView {}) -> mconcat [map Path_ReportImageView__picSize (pathsOf (_picSize s) a)]
-instance IsPath ReportImageView Dimension
+instance HasPaths ReportImageView Dimension
     where type Path ReportImageView
                     Dimension = Path_ReportImageView Dimension
           pathsOf s a = case s of
                             (ReportImageView {}) -> mconcat [map Path_ReportImageView__picSize (pathsOf (_picSize s) a)]
-instance IsPath ReportImageView ImageCrop
+instance HasPaths ReportImageView ImageCrop
     where type Path ReportImageView
                     ImageCrop = Path_ReportImageView ImageCrop
           pathsOf s a = case s of
                             (ReportImageView {}) -> mconcat [map Path_ReportImageView__picCrop (pathsOf (_picCrop s) a)]
-instance IsPath ReportImageView ImageSize
+instance HasPaths ReportImageView ImageSize
     where type Path ReportImageView
                     ImageSize = Path_ReportImageView ImageSize
           pathsOf s a = case s of
                             (ReportImageView {}) -> mconcat [map Path_ReportImageView__picSize (pathsOf (_picSize s) a)]
-instance IsPath ReportImageView Units
+instance HasPaths ReportImageView Units
     where type Path ReportImageView Units = Path_ReportImageView Units
           pathsOf s a = case s of
                             (ReportImageView {}) -> mconcat [map Path_ReportImageView__picSize (pathsOf (_picSize s) a)]
-instance IsPath ReportImageView ImageFile
+instance HasPaths ReportImageView ImageFile
     where type Path ReportImageView
                     ImageFile = Path_ReportImageView ImageFile
           pathsOf s a = case s of
                             (ReportImageView {}) -> mconcat [map Path_ReportImageView__picOriginal (pathsOf (_picOriginal s) a)]
-instance IsPath ReportImageView JSONText
+instance HasPaths ReportImageView JSONText
     where type Path ReportImageView
                     JSONText = Path_ReportImageView JSONText
           pathsOf s a = case s of
@@ -2417,20 +2417,20 @@ instance IsPath ReportImageView JSONText
                                                              map Path_ReportImageView__picPrinterDeprecated (pathsOf (_picPrinterDeprecated s) a),
                                                              map Path_ReportImageView__picMustEnlarge (pathsOf (_picMustEnlarge s) a),
                                                              map Path_ReportImageView__picEnlargedDeprecated (pathsOf (_picEnlargedDeprecated s) a)]
-instance IsPath ReportImageView Markup
+instance HasPaths ReportImageView Markup
     where type Path ReportImageView
                     Markup = Path_ReportImageView Markup
           pathsOf s a = case s of
                             (ReportImageView {}) -> mconcat [map Path_ReportImageView__picCaption (pathsOf (_picCaption s) a)]
-instance IsPath ReportImageView EUI
+instance HasPaths ReportImageView EUI
     where type Path ReportImageView EUI = Path_ReportImageView EUI
           pathsOf s a = case s of
                             (ReportImageView {}) -> mconcat [map Path_ReportImageView__picOriginal (pathsOf (_picOriginal s) a)]
-instance IsPath ReportImageView MEUI
+instance HasPaths ReportImageView MEUI
     where type Path ReportImageView MEUI = Path_ReportImageView MEUI
           pathsOf s a = case s of
                             (ReportImageView {}) -> mconcat [map Path_ReportImageView__picOriginal (pathsOf (_picOriginal s) a)]
-instance IsPath ReportImageView MaybeImageFile
+instance HasPaths ReportImageView MaybeImageFile
     where type Path ReportImageView
                     MaybeImageFile = Path_ReportImageView MaybeImageFile
           pathsOf s a = case s of
@@ -2438,24 +2438,24 @@ instance IsPath ReportImageView MaybeImageFile
                                                              map Path_ReportImageView__picThumbDeprecated (pathsOf (_picThumbDeprecated s) a),
                                                              map Path_ReportImageView__picPrinterDeprecated (pathsOf (_picPrinterDeprecated s) a),
                                                              map Path_ReportImageView__picEnlargedDeprecated (pathsOf (_picEnlargedDeprecated s) a)]
-instance IsPath ReportImageView ReportImageView
+instance HasPaths ReportImageView ReportImageView
     where type Path ReportImageView
                     ReportImageView = Path_ReportImageView ReportImageView
           pathsOf s a = [idPath]
-instance IsPath ReportImageView SaneSizeImageSize
+instance HasPaths ReportImageView SaneSizeImageSize
     where type Path ReportImageView
                     SaneSizeImageSize = Path_ReportImageView SaneSizeImageSize
           pathsOf s a = case s of
                             (ReportImageView {}) -> mconcat [map Path_ReportImageView__picSize (pathsOf (_picSize s) a)]
-instance IsPath ReportImageView URI
+instance HasPaths ReportImageView URI
     where type Path ReportImageView URI = Path_ReportImageView URI
           pathsOf s a = case s of
                             (ReportImageView {}) -> mconcat [map Path_ReportImageView__picOriginal (pathsOf (_picOriginal s) a)]
-instance IsPath ReportImageView Text
+instance HasPaths ReportImageView Text
     where type Path ReportImageView Text = Path_ReportImageView Text
           pathsOf s a = case s of
                             (ReportImageView {}) -> mconcat [map Path_ReportImageView__picCaption (pathsOf (_picCaption s) a)]
-instance IsPath ReportView String
+instance HasPaths ReportView String
     where type Path ReportView String = Path_ReportView String
           pathsOf s a = case s of
                             (ReportView {}) -> mconcat [map Path_ReportView__reportFolder (pathsOf (_reportFolder s) a),
@@ -2466,11 +2466,11 @@ instance IsPath ReportView String
                                                         map Path_ReportView__reportFlags (pathsOf (_reportFlags s) a),
                                                         map Path_ReportView__reportOrderByItemName (pathsOf (_reportOrderByItemName s) a),
                                                         map Path_ReportView__reportDisplayItemName (pathsOf (_reportDisplayItemName s) a)]
-instance IsPath ReportView Int64
+instance HasPaths ReportView Int64
     where type Path ReportView Int64 = Path_ReportView Int64
           pathsOf s a = case s of
                             (ReportView {}) -> mconcat [map Path_ReportView__reportCreated (pathsOf (_reportCreated s) a)]
-instance IsPath ReportView Bool
+instance HasPaths ReportView Bool
     where type Path ReportView Bool = Path_ReportView Bool
           pathsOf s a = case s of
                             (ReportView {}) -> mconcat [map Path_ReportView__reportBody (pathsOf (_reportBody s) a),
@@ -2478,39 +2478,39 @@ instance IsPath ReportView Bool
                                                         map Path_ReportView__reportFlags (pathsOf (_reportFlags s) a),
                                                         map Path_ReportView__reportOrderByItemName (pathsOf (_reportOrderByItemName s) a),
                                                         map Path_ReportView__reportDisplayItemName (pathsOf (_reportDisplayItemName s) a)]
-instance IsPath ReportView Double
+instance HasPaths ReportView Double
     where type Path ReportView Double = Path_ReportView Double
           pathsOf s a = case s of
                             (ReportView {}) -> mconcat [map Path_ReportView__reportBody (pathsOf (_reportBody s) a)]
-instance IsPath ReportView Int
+instance HasPaths ReportView Int
     where type Path ReportView Int = Path_ReportView Int
           pathsOf s a = case s of
                             (ReportView {}) -> mconcat [map Path_ReportView__reportStandardsVersion (pathsOf (_reportStandardsVersion s) a)]
-instance IsPath ReportView Dimension
+instance HasPaths ReportView Dimension
     where type Path ReportView Dimension = Path_ReportView Dimension
           pathsOf s a = case s of
                             (ReportView {}) -> mconcat [map Path_ReportView__reportBody (pathsOf (_reportBody s) a)]
-instance IsPath ReportView ImageCrop
+instance HasPaths ReportView ImageCrop
     where type Path ReportView ImageCrop = Path_ReportView ImageCrop
           pathsOf s a = case s of
                             (ReportView {}) -> mconcat [map Path_ReportView__reportBody (pathsOf (_reportBody s) a)]
-instance IsPath ReportView ImageSize
+instance HasPaths ReportView ImageSize
     where type Path ReportView ImageSize = Path_ReportView ImageSize
           pathsOf s a = case s of
                             (ReportView {}) -> mconcat [map Path_ReportView__reportBody (pathsOf (_reportBody s) a)]
-instance IsPath ReportView Units
+instance HasPaths ReportView Units
     where type Path ReportView Units = Path_ReportView Units
           pathsOf s a = case s of
                             (ReportView {}) -> mconcat [map Path_ReportView__reportBody (pathsOf (_reportBody s) a)]
-instance IsPath ReportView ImageFile
+instance HasPaths ReportView ImageFile
     where type Path ReportView ImageFile = Path_ReportView ImageFile
           pathsOf s a = case s of
                             (ReportView {}) -> mconcat [map Path_ReportView__reportBody (pathsOf (_reportBody s) a)]
-instance IsPath ReportView Integer
+instance HasPaths ReportView Integer
     where type Path ReportView Integer = Path_ReportView Integer
           pathsOf s a = case s of
                             (ReportView {}) -> mconcat [map Path_ReportView__reportRevision (pathsOf (_reportRevision s) a)]
-instance IsPath ReportView JSONText
+instance HasPaths ReportView JSONText
     where type Path ReportView JSONText = Path_ReportView JSONText
           pathsOf s a = case s of
                             (ReportView {}) -> mconcat [map Path_ReportView__reportFolder (pathsOf (_reportFolder s) a),
@@ -2554,7 +2554,7 @@ instance IsPath ReportView JSONText
                                                         map Path_ReportView__reportFlags (pathsOf (_reportFlags s) a),
                                                         map Path_ReportView__reportOrderByItemName (pathsOf (_reportOrderByItemName s) a),
                                                         map Path_ReportView__reportDisplayItemName (pathsOf (_reportDisplayItemName s) a)]
-instance IsPath ReportView Markup
+instance HasPaths ReportView Markup
     where type Path ReportView Markup = Path_ReportView Markup
           pathsOf s a = case s of
                             (ReportView {}) -> mconcat [map Path_ReportView__reportName (pathsOf (_reportName s) a),
@@ -2589,149 +2589,149 @@ instance IsPath ReportView Markup
                                                         map Path_ReportView__reportCertification (pathsOf (_reportCertification s) a),
                                                         map Path_ReportView__reportLimitingConditions (pathsOf (_reportLimitingConditions s) a),
                                                         map Path_ReportView__reportPrivacyPolicy (pathsOf (_reportPrivacyPolicy s) a)]
-instance IsPath ReportView Permissions
+instance HasPaths ReportView Permissions
     where type Path ReportView
                     Permissions = Path_ReportView Permissions
           pathsOf s a = case s of
                             (ReportView {}) -> mconcat [map Path_ReportView__reportPerms (pathsOf (_reportPerms s) a)]
-instance IsPath ReportView UserIds
+instance HasPaths ReportView UserIds
     where type Path ReportView UserIds = Path_ReportView UserIds
           pathsOf s a = case s of
                             (ReportView {}) -> mconcat [map Path_ReportView__reportPerms (pathsOf (_reportPerms s) a)]
-instance IsPath ReportView AbbrevPair
+instance HasPaths ReportView AbbrevPair
     where type Path ReportView AbbrevPair = Path_ReportView AbbrevPair
           pathsOf s a = case s of
                             (ReportView {}) -> mconcat [map Path_ReportView__reportAbbrevs (pathsOf (_reportAbbrevs s) a)]
-instance IsPath ReportView AbbrevPairs
+instance HasPaths ReportView AbbrevPairs
     where type Path ReportView
                     AbbrevPairs = Path_ReportView AbbrevPairs
           pathsOf s a = case s of
                             (ReportView {}) -> mconcat [map Path_ReportView__reportAbbrevs (pathsOf (_reportAbbrevs s) a)]
-instance IsPath ReportView Author
+instance HasPaths ReportView Author
     where type Path ReportView Author = Path_ReportView Author
           pathsOf s a = case s of
                             (ReportView {}) -> mconcat [map Path_ReportView__reportAuthors (pathsOf (_reportAuthors s) a)]
-instance IsPath ReportView Authors
+instance HasPaths ReportView Authors
     where type Path ReportView Authors = Path_ReportView Authors
           pathsOf s a = case s of
                             (ReportView {}) -> mconcat [map Path_ReportView__reportAuthors (pathsOf (_reportAuthors s) a)]
-instance IsPath ReportView Branding
+instance HasPaths ReportView Branding
     where type Path ReportView Branding = Path_ReportView Branding
           pathsOf s a = case s of
                             (ReportView {}) -> mconcat [map Path_ReportView__reportBranding (pathsOf (_reportBranding s) a)]
-instance IsPath ReportView MarkupPair
+instance HasPaths ReportView MarkupPair
     where type Path ReportView MarkupPair = Path_ReportView MarkupPair
           pathsOf s a = case s of
                             (ReportView {}) -> mconcat [map Path_ReportView__reportGlossary (pathsOf (_reportGlossary s) a),
                                                         map Path_ReportView__reportSources (pathsOf (_reportSources s) a)]
-instance IsPath ReportView MarkupPairs
+instance HasPaths ReportView MarkupPairs
     where type Path ReportView
                     MarkupPairs = Path_ReportView MarkupPairs
           pathsOf s a = case s of
                             (ReportView {}) -> mconcat [map Path_ReportView__reportGlossary (pathsOf (_reportGlossary s) a),
                                                         map Path_ReportView__reportSources (pathsOf (_reportSources s) a)]
-instance IsPath ReportView Markups
+instance HasPaths ReportView Markups
     where type Path ReportView Markups = Path_ReportView Markups
           pathsOf s a = case s of
                             (ReportView {}) -> mconcat [map Path_ReportView__reportCertification (pathsOf (_reportCertification s) a),
                                                         map Path_ReportView__reportLimitingConditions (pathsOf (_reportLimitingConditions s) a)]
-instance IsPath ReportView MaybeReportIntendedUse
+instance HasPaths ReportView MaybeReportIntendedUse
     where type Path ReportView
                     MaybeReportIntendedUse = Path_ReportView MaybeReportIntendedUse
           pathsOf s a = case s of
                             (ReportView {}) -> mconcat [map Path_ReportView__reportIntendedUse (pathsOf (_reportIntendedUse s) a)]
-instance IsPath ReportView ReportElem
+instance HasPaths ReportView ReportElem
     where type Path ReportView ReportElem = Path_ReportView ReportElem
           pathsOf s a = case s of
                             (ReportView {}) -> mconcat [map Path_ReportView__reportBody (pathsOf (_reportBody s) a)]
-instance IsPath ReportView ReportElems
+instance HasPaths ReportView ReportElems
     where type Path ReportView
                     ReportElems = Path_ReportView ReportElems
           pathsOf s a = case s of
                             (ReportView {}) -> mconcat [map Path_ReportView__reportBody (pathsOf (_reportBody s) a)]
-instance IsPath ReportView ReportFlags
+instance HasPaths ReportView ReportFlags
     where type Path ReportView
                     ReportFlags = Path_ReportView ReportFlags
           pathsOf s a = case s of
                             (ReportView {}) -> mconcat [map Path_ReportView__reportFlags (pathsOf (_reportFlags s) a)]
-instance IsPath ReportView ReportStandard
+instance HasPaths ReportView ReportStandard
     where type Path ReportView
                     ReportStandard = Path_ReportView ReportStandard
           pathsOf s a = case s of
                             (ReportView {}) -> mconcat [map Path_ReportView__reportStandardsVersion (pathsOf (_reportStandardsVersion s) a)]
-instance IsPath ReportView ReportStatus
+instance HasPaths ReportView ReportStatus
     where type Path ReportView
                     ReportStatus = Path_ReportView ReportStatus
           pathsOf s a = case s of
                             (ReportView {}) -> mconcat [map Path_ReportView__reportStatus (pathsOf (_reportStatus s) a)]
-instance IsPath ReportView ReportValueApproachInfo
+instance HasPaths ReportView ReportValueApproachInfo
     where type Path ReportView
                     ReportValueApproachInfo = Path_ReportView ReportValueApproachInfo
           pathsOf s a = case s of
                             (ReportView {}) -> mconcat [map Path_ReportView__reportValueApproachInfo (pathsOf (_reportValueApproachInfo s) a)]
-instance IsPath ReportView ReportValueTypeInfo
+instance HasPaths ReportView ReportValueTypeInfo
     where type Path ReportView
                     ReportValueTypeInfo = Path_ReportView ReportValueTypeInfo
           pathsOf s a = case s of
                             (ReportView {}) -> mconcat [map Path_ReportView__reportValueTypeInfo (pathsOf (_reportValueTypeInfo s) a)]
-instance IsPath ReportView EUI
+instance HasPaths ReportView EUI
     where type Path ReportView EUI = Path_ReportView EUI
           pathsOf s a = case s of
                             (ReportView {}) -> mconcat [map Path_ReportView__reportBody (pathsOf (_reportBody s) a)]
-instance IsPath ReportView MEUI
+instance HasPaths ReportView MEUI
     where type Path ReportView MEUI = Path_ReportView MEUI
           pathsOf s a = case s of
                             (ReportView {}) -> mconcat [map Path_ReportView__reportBody (pathsOf (_reportBody s) a)]
-instance IsPath ReportView MaybeImageFile
+instance HasPaths ReportView MaybeImageFile
     where type Path ReportView
                     MaybeImageFile = Path_ReportView MaybeImageFile
           pathsOf s a = case s of
                             (ReportView {}) -> mconcat [map Path_ReportView__reportBody (pathsOf (_reportBody s) a)]
-instance IsPath ReportView ReportImage
+instance HasPaths ReportView ReportImage
     where type Path ReportView
                     ReportImage = Path_ReportView ReportImage
           pathsOf s a = case s of
                             (ReportView {}) -> mconcat [map Path_ReportView__reportBody (pathsOf (_reportBody s) a)]
-instance IsPath ReportView ReportImages
+instance HasPaths ReportView ReportImages
     where type Path ReportView
                     ReportImages = Path_ReportView ReportImages
           pathsOf s a = case s of
                             (ReportView {}) -> mconcat [map Path_ReportView__reportBody (pathsOf (_reportBody s) a)]
-instance IsPath ReportView ReadOnlyFilePath
+instance HasPaths ReportView ReadOnlyFilePath
     where type Path ReportView
                     ReadOnlyFilePath = Path_ReportView ReadOnlyFilePath
           pathsOf s a = case s of
                             (ReportView {}) -> mconcat [map Path_ReportView__reportFolder (pathsOf (_reportFolder s) a)]
-instance IsPath ReportView ReportImageView
+instance HasPaths ReportView ReportImageView
     where type Path ReportView
                     ReportImageView = Path_ReportView ReportImageView
           pathsOf s a = case s of
                             (ReportView {}) -> mconcat [map Path_ReportView__reportBody (pathsOf (_reportBody s) a)]
-instance IsPath ReportView ReportView
+instance HasPaths ReportView ReportView
     where type Path ReportView ReportView = Path_ReportView ReportView
           pathsOf s a = [idPath]
-instance IsPath ReportView SaneSizeImageSize
+instance HasPaths ReportView SaneSizeImageSize
     where type Path ReportView
                     SaneSizeImageSize = Path_ReportView SaneSizeImageSize
           pathsOf s a = case s of
                             (ReportView {}) -> mconcat [map Path_ReportView__reportBody (pathsOf (_reportBody s) a)]
-instance IsPath ReportView Item
+instance HasPaths ReportView Item
     where type Path ReportView Item = Path_ReportView Item
           pathsOf s a = case s of
                             (ReportView {}) -> mconcat [map Path_ReportView__reportBody (pathsOf (_reportBody s) a)]
-instance IsPath ReportView MIM
+instance HasPaths ReportView MIM
     where type Path ReportView MIM = Path_ReportView MIM
           pathsOf s a = case s of
                             (ReportView {}) -> mconcat [map Path_ReportView__reportBody (pathsOf (_reportBody s) a)]
-instance IsPath ReportView CIString
+instance HasPaths ReportView CIString
     where type Path ReportView CIString = Path_ReportView CIString
           pathsOf s a = case s of
                             (ReportView {}) -> mconcat [map Path_ReportView__reportAbbrevs (pathsOf (_reportAbbrevs s) a)]
-instance IsPath ReportView URI
+instance HasPaths ReportView URI
     where type Path ReportView URI = Path_ReportView URI
           pathsOf s a = case s of
                             (ReportView {}) -> mconcat [map Path_ReportView__reportBody (pathsOf (_reportBody s) a)]
-instance IsPath ReportView Text
+instance HasPaths ReportView Text
     where type Path ReportView Text = Path_ReportView Text
           pathsOf s a = case s of
                             (ReportView {}) -> mconcat [map Path_ReportView__reportName (pathsOf (_reportName s) a),
@@ -2768,15 +2768,15 @@ instance IsPath ReportView Text
                                                         map Path_ReportView__reportPrivacyPolicy (pathsOf (_reportPrivacyPolicy s) a),
                                                         map Path_ReportView__reportPerms (pathsOf (_reportPerms s) a),
                                                         map Path_ReportView__reportBranding (pathsOf (_reportBranding s) a)]
-instance IsPath ReportView UserId
+instance HasPaths ReportView UserId
     where type Path ReportView UserId = Path_ReportView UserId
           pathsOf s a = case s of
                             (ReportView {}) -> mconcat [map Path_ReportView__reportPerms (pathsOf (_reportPerms s) a)]
-instance IsPath ReportView UUID
+instance HasPaths ReportView UUID
     where type Path ReportView UUID = Path_ReportView UUID
           pathsOf s a = case s of
                             (ReportView {}) -> mconcat [map Path_ReportView__reportUUID (pathsOf (_reportUUID s) a)]
-instance IsPath SaneSizeImageSize String
+instance HasPaths SaneSizeImageSize String
     where type Path SaneSizeImageSize
                     String = Path_SaneSizeImageSize String
           pathsOf s a = let {p = Path_SaneSizeImageSize_View idPath :: Path (SaneSize ImageSize)
@@ -2784,7 +2784,7 @@ instance IsPath SaneSizeImageSize String
                              [s'] = toListOf (toLens p) s :: [ImageSize]}
                          in map Path_SaneSizeImageSize_View (pathsOf s' a :: [Path ImageSize
                                                                                    ([Char])])
-instance IsPath SaneSizeImageSize Double
+instance HasPaths SaneSizeImageSize Double
     where type Path SaneSizeImageSize
                     Double = Path_SaneSizeImageSize Double
           pathsOf s a = let {p = Path_SaneSizeImageSize_View idPath :: Path (SaneSize ImageSize)
@@ -2792,7 +2792,7 @@ instance IsPath SaneSizeImageSize Double
                              [s'] = toListOf (toLens p) s :: [ImageSize]}
                          in map Path_SaneSizeImageSize_View (pathsOf s' a :: [Path ImageSize
                                                                                    Double])
-instance IsPath SaneSizeImageSize Dimension
+instance HasPaths SaneSizeImageSize Dimension
     where type Path SaneSizeImageSize
                     Dimension = Path_SaneSizeImageSize Dimension
           pathsOf s a = let {p = Path_SaneSizeImageSize_View idPath :: Path (SaneSize ImageSize)
@@ -2800,7 +2800,7 @@ instance IsPath SaneSizeImageSize Dimension
                              [s'] = toListOf (toLens p) s :: [ImageSize]}
                          in map Path_SaneSizeImageSize_View (pathsOf s' a :: [Path ImageSize
                                                                                    Dimension])
-instance IsPath SaneSizeImageSize ImageSize
+instance HasPaths SaneSizeImageSize ImageSize
     where type Path SaneSizeImageSize
                     ImageSize = Path_SaneSizeImageSize ImageSize
           pathsOf s a = let {p = Path_SaneSizeImageSize_View idPath :: Path (SaneSize ImageSize)
@@ -2808,7 +2808,7 @@ instance IsPath SaneSizeImageSize ImageSize
                              [s'] = toListOf (toLens p) s :: [ImageSize]}
                          in map Path_SaneSizeImageSize_View (pathsOf s' a :: [Path ImageSize
                                                                                    ImageSize])
-instance IsPath SaneSizeImageSize Units
+instance HasPaths SaneSizeImageSize Units
     where type Path SaneSizeImageSize
                     Units = Path_SaneSizeImageSize Units
           pathsOf s a = let {p = Path_SaneSizeImageSize_View idPath :: Path (SaneSize ImageSize)
@@ -2816,7 +2816,7 @@ instance IsPath SaneSizeImageSize Units
                              [s'] = toListOf (toLens p) s :: [ImageSize]}
                          in map Path_SaneSizeImageSize_View (pathsOf s' a :: [Path ImageSize
                                                                                    Units])
-instance IsPath SaneSizeImageSize JSONText
+instance HasPaths SaneSizeImageSize JSONText
     where type Path SaneSizeImageSize
                     JSONText = Path_SaneSizeImageSize JSONText
           pathsOf s a = let {p = Path_SaneSizeImageSize_View idPath :: Path (SaneSize ImageSize)
@@ -2824,595 +2824,595 @@ instance IsPath SaneSizeImageSize JSONText
                              [s'] = toListOf (toLens p) s :: [ImageSize]}
                          in map Path_SaneSizeImageSize_View (pathsOf s' a :: [Path ImageSize
                                                                                    JSONText])
-instance IsPath SaneSizeImageSize SaneSizeImageSize
+instance HasPaths SaneSizeImageSize SaneSizeImageSize
     where type Path SaneSizeImageSize
                     SaneSizeImageSize = Path_SaneSizeImageSize SaneSizeImageSize
           pathsOf s a = [idPath]
-instance IsPath Item String
+instance HasPaths Item String
     where type Path Item String = Path_Item String
           pathsOf s a = case s of
                             (Item {}) -> mconcat [map Path_Item_images (pathsOf (images s) a)]
-instance IsPath Item Bool
+instance HasPaths Item Bool
     where type Path Item Bool = Path_Item Bool
           pathsOf s a = case s of
                             (Item {}) -> mconcat [map Path_Item_images (pathsOf (images s) a)]
-instance IsPath Item Double
+instance HasPaths Item Double
     where type Path Item Double = Path_Item Double
           pathsOf s a = case s of
                             (Item {}) -> mconcat [map Path_Item_images (pathsOf (images s) a)]
-instance IsPath Item Dimension
+instance HasPaths Item Dimension
     where type Path Item Dimension = Path_Item Dimension
           pathsOf s a = case s of
                             (Item {}) -> mconcat [map Path_Item_images (pathsOf (images s) a)]
-instance IsPath Item ImageCrop
+instance HasPaths Item ImageCrop
     where type Path Item ImageCrop = Path_Item ImageCrop
           pathsOf s a = case s of
                             (Item {}) -> mconcat [map Path_Item_images (pathsOf (images s) a)]
-instance IsPath Item ImageSize
+instance HasPaths Item ImageSize
     where type Path Item ImageSize = Path_Item ImageSize
           pathsOf s a = case s of
                             (Item {}) -> mconcat [map Path_Item_images (pathsOf (images s) a)]
-instance IsPath Item Units
+instance HasPaths Item Units
     where type Path Item Units = Path_Item Units
           pathsOf s a = case s of
                             (Item {}) -> mconcat [map Path_Item_images (pathsOf (images s) a)]
-instance IsPath Item ImageFile
+instance HasPaths Item ImageFile
     where type Path Item ImageFile = Path_Item ImageFile
           pathsOf s a = case s of
                             (Item {}) -> mconcat [map Path_Item_images (pathsOf (images s) a)]
-instance IsPath Item JSONText
+instance HasPaths Item JSONText
     where type Path Item JSONText = Path_Item JSONText
           pathsOf s a = case s of
                             (Item {}) -> mconcat [map Path_Item_itemName (pathsOf (itemName s) a),
                                                   map Path_Item_fields (pathsOf (fields s) a),
                                                   map Path_Item_images (pathsOf (images s) a)]
-instance IsPath Item Markup
+instance HasPaths Item Markup
     where type Path Item Markup = Path_Item Markup
           pathsOf s a = case s of
                             (Item {}) -> mconcat [map Path_Item_fields (pathsOf (fields s) a),
                                                   map Path_Item_images (pathsOf (images s) a)]
-instance IsPath Item EUI
+instance HasPaths Item EUI
     where type Path Item EUI = Path_Item EUI
           pathsOf s a = case s of
                             (Item {}) -> mconcat [map Path_Item_images (pathsOf (images s) a)]
-instance IsPath Item MEUI
+instance HasPaths Item MEUI
     where type Path Item MEUI = Path_Item MEUI
           pathsOf s a = case s of
                             (Item {}) -> mconcat [map Path_Item_images (pathsOf (images s) a)]
-instance IsPath Item MaybeImageFile
+instance HasPaths Item MaybeImageFile
     where type Path Item MaybeImageFile = Path_Item MaybeImageFile
           pathsOf s a = case s of
                             (Item {}) -> mconcat [map Path_Item_images (pathsOf (images s) a)]
-instance IsPath Item ReportImage
+instance HasPaths Item ReportImage
     where type Path Item ReportImage = Path_Item ReportImage
           pathsOf s a = case s of
                             (Item {}) -> mconcat [map Path_Item_images (pathsOf (images s) a)]
-instance IsPath Item ReportImages
+instance HasPaths Item ReportImages
     where type Path Item ReportImages = Path_Item ReportImages
           pathsOf s a = case s of
                             (Item {}) -> mconcat [map Path_Item_images (pathsOf (images s) a)]
-instance IsPath Item ReportImageView
+instance HasPaths Item ReportImageView
     where type Path Item ReportImageView = Path_Item ReportImageView
           pathsOf s a = case s of
                             (Item {}) -> mconcat [map Path_Item_images (pathsOf (images s) a)]
-instance IsPath Item SaneSizeImageSize
+instance HasPaths Item SaneSizeImageSize
     where type Path Item
                     SaneSizeImageSize = Path_Item SaneSizeImageSize
           pathsOf s a = case s of
                             (Item {}) -> mconcat [map Path_Item_images (pathsOf (images s) a)]
-instance IsPath Item Item
+instance HasPaths Item Item
     where type Path Item Item = Path_Item Item
           pathsOf s a = [idPath]
-instance IsPath Item MIM
+instance HasPaths Item MIM
     where type Path Item MIM = Path_Item MIM
           pathsOf s a = case s of
                             (Item {}) -> mconcat [map Path_Item_fields (pathsOf (fields s) a)]
-instance IsPath Item URI
+instance HasPaths Item URI
     where type Path Item URI = Path_Item URI
           pathsOf s a = case s of
                             (Item {}) -> mconcat [map Path_Item_images (pathsOf (images s) a)]
-instance IsPath Item Text
+instance HasPaths Item Text
     where type Path Item Text = Path_Item Text
           pathsOf s a = case s of
                             (Item {}) -> mconcat [map Path_Item_itemName (pathsOf (itemName s) a),
                                                   map Path_Item_fields (pathsOf (fields s) a),
                                                   map Path_Item_images (pathsOf (images s) a)]
-instance IsPath MIM JSONText
+instance HasPaths MIM JSONText
     where type Path MIM JSONText = Path_Map ItemFieldName
                                             (Path_Markup JSONText)
           pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Markup
                                                                                                   JSONText])) (toList s)
-instance IsPath MIM Markup
+instance HasPaths MIM Markup
     where type Path MIM Markup = Path_Map ItemFieldName
                                           (Path_Markup Markup)
           pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Markup
                                                                                                   Markup])) (toList s)
-instance IsPath MIM MIM
+instance HasPaths MIM MIM
     where type Path MIM MIM = Path_Map ItemFieldName (Path_Markup MIM)
           pathsOf s a = [idPath]
-instance IsPath MIM Text
+instance HasPaths MIM Text
     where type Path MIM Text = Path_Map ItemFieldName
                                         (Path_Markup Text)
           pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Markup
                                                                                                   Text])) (toList s)
-instance IsPath MRR String
+instance HasPaths MRR String
     where type Path MRR String = Path_Map ReportID (Path_Report String)
           pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   ([Char])])) (toList s)
-instance IsPath MRR Int64
+instance HasPaths MRR Int64
     where type Path MRR Int64 = Path_Map ReportID (Path_Report Int64)
           pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   Int64])) (toList s)
-instance IsPath MRR Bool
+instance HasPaths MRR Bool
     where type Path MRR Bool = Path_Map ReportID (Path_Report Bool)
           pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   Bool])) (toList s)
-instance IsPath MRR Double
+instance HasPaths MRR Double
     where type Path MRR Double = Path_Map ReportID (Path_Report Double)
           pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   Double])) (toList s)
-instance IsPath MRR Int
+instance HasPaths MRR Int
     where type Path MRR Int = Path_Map ReportID (Path_Report Int)
           pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   Int])) (toList s)
-instance IsPath MRR Dimension
+instance HasPaths MRR Dimension
     where type Path MRR Dimension = Path_Map ReportID
                                              (Path_Report Dimension)
           pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   Dimension])) (toList s)
-instance IsPath MRR ImageCrop
+instance HasPaths MRR ImageCrop
     where type Path MRR ImageCrop = Path_Map ReportID
                                              (Path_Report ImageCrop)
           pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   ImageCrop])) (toList s)
-instance IsPath MRR ImageSize
+instance HasPaths MRR ImageSize
     where type Path MRR ImageSize = Path_Map ReportID
                                              (Path_Report ImageSize)
           pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   ImageSize])) (toList s)
-instance IsPath MRR Units
+instance HasPaths MRR Units
     where type Path MRR Units = Path_Map ReportID (Path_Report Units)
           pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   Units])) (toList s)
-instance IsPath MRR ImageFile
+instance HasPaths MRR ImageFile
     where type Path MRR ImageFile = Path_Map ReportID
                                              (Path_Report ImageFile)
           pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   ImageFile])) (toList s)
-instance IsPath MRR Integer
+instance HasPaths MRR Integer
     where type Path MRR Integer = Path_Map ReportID
                                            (Path_Report Integer)
           pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   Integer])) (toList s)
-instance IsPath MRR JSONText
+instance HasPaths MRR JSONText
     where type Path MRR JSONText = Path_Map ReportID
                                             (Path_Report JSONText)
           pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   JSONText])) (toList s)
-instance IsPath MRR Markup
+instance HasPaths MRR Markup
     where type Path MRR Markup = Path_Map ReportID (Path_Report Markup)
           pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   Markup])) (toList s)
-instance IsPath MRR Permissions
+instance HasPaths MRR Permissions
     where type Path MRR Permissions = Path_Map ReportID
                                                (Path_Report Permissions)
           pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   Permissions])) (toList s)
-instance IsPath MRR UserIds
+instance HasPaths MRR UserIds
     where type Path MRR UserIds = Path_Map ReportID
                                            (Path_Report UserIds)
           pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   ([UserId])])) (toList s)
-instance IsPath MRR AbbrevPair
+instance HasPaths MRR AbbrevPair
     where type Path MRR AbbrevPair = Path_Map ReportID
                                               (Path_Report AbbrevPair)
           pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   ((CIString,
                                                                                                     Markup))])) (toList s)
-instance IsPath MRR AbbrevPairs
+instance HasPaths MRR AbbrevPairs
     where type Path MRR AbbrevPairs = Path_Map ReportID
                                                (Path_Report AbbrevPairs)
           pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   (Order AbbrevPairID
                                                                                                          ((CIString,
                                                                                                            Markup)))])) (toList s)
-instance IsPath MRR Author
+instance HasPaths MRR Author
     where type Path MRR Author = Path_Map ReportID (Path_Report Author)
           pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   Author])) (toList s)
-instance IsPath MRR Authors
+instance HasPaths MRR Authors
     where type Path MRR Authors = Path_Map ReportID
                                            (Path_Report Authors)
           pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   (Order AuthorID
                                                                                                          Author)])) (toList s)
-instance IsPath MRR Branding
+instance HasPaths MRR Branding
     where type Path MRR Branding = Path_Map ReportID
                                             (Path_Report Branding)
           pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   Branding])) (toList s)
-instance IsPath MRR MarkupPair
+instance HasPaths MRR MarkupPair
     where type Path MRR MarkupPair = Path_Map ReportID
                                               (Path_Report MarkupPair)
           pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   ((Markup,
                                                                                                     Markup))])) (toList s)
-instance IsPath MRR MarkupPairs
+instance HasPaths MRR MarkupPairs
     where type Path MRR MarkupPairs = Path_Map ReportID
                                                (Path_Report MarkupPairs)
           pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   (Order MarkupPairID
                                                                                                          ((Markup,
                                                                                                            Markup)))])) (toList s)
-instance IsPath MRR Markups
+instance HasPaths MRR Markups
     where type Path MRR Markups = Path_Map ReportID
                                            (Path_Report Markups)
           pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   (Order MarkupID
                                                                                                          Markup)])) (toList s)
-instance IsPath MRR MaybeReportIntendedUse
+instance HasPaths MRR MaybeReportIntendedUse
     where type Path MRR MaybeReportIntendedUse = Path_Map ReportID
                                                           (Path_Report MaybeReportIntendedUse)
           pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   (Maybe ReportIntendedUse)])) (toList s)
-instance IsPath MRR Report
+instance HasPaths MRR Report
     where type Path MRR Report = Path_Map ReportID (Path_Report Report)
           pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   Report])) (toList s)
-instance IsPath MRR ReportElem
+instance HasPaths MRR ReportElem
     where type Path MRR ReportElem = Path_Map ReportID
                                               (Path_Report ReportElem)
           pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   ReportElem])) (toList s)
-instance IsPath MRR ReportElems
+instance HasPaths MRR ReportElems
     where type Path MRR ReportElems = Path_Map ReportID
                                                (Path_Report ReportElems)
           pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   (Order ReportElemID
                                                                                                          ReportElem)])) (toList s)
-instance IsPath MRR ReportFlags
+instance HasPaths MRR ReportFlags
     where type Path MRR ReportFlags = Path_Map ReportID
                                                (Path_Report ReportFlags)
           pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   ReportFlags])) (toList s)
-instance IsPath MRR ReportStandard
+instance HasPaths MRR ReportStandard
     where type Path MRR ReportStandard = Path_Map ReportID
                                                   (Path_Report ReportStandard)
           pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   ReportStandard])) (toList s)
-instance IsPath MRR ReportStatus
+instance HasPaths MRR ReportStatus
     where type Path MRR ReportStatus = Path_Map ReportID
                                                 (Path_Report ReportStatus)
           pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   ReportStatus])) (toList s)
-instance IsPath MRR ReportValueApproachInfo
+instance HasPaths MRR ReportValueApproachInfo
     where type Path MRR ReportValueApproachInfo = Path_Map ReportID
                                                            (Path_Report ReportValueApproachInfo)
           pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   ReportValueApproachInfo])) (toList s)
-instance IsPath MRR ReportValueTypeInfo
+instance HasPaths MRR ReportValueTypeInfo
     where type Path MRR ReportValueTypeInfo = Path_Map ReportID
                                                        (Path_Report ReportValueTypeInfo)
           pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   ReportValueTypeInfo])) (toList s)
-instance IsPath MRR EUI
+instance HasPaths MRR EUI
     where type Path MRR EUI = Path_Map ReportID (Path_Report EUI)
           pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   (Either URI
                                                                                                           ImageFile)])) (toList s)
-instance IsPath MRR MEUI
+instance HasPaths MRR MEUI
     where type Path MRR MEUI = Path_Map ReportID (Path_Report MEUI)
           pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   (Maybe (Either URI
                                                                                                                  ImageFile))])) (toList s)
-instance IsPath MRR MaybeImageFile
+instance HasPaths MRR MaybeImageFile
     where type Path MRR MaybeImageFile = Path_Map ReportID
                                                   (Path_Report MaybeImageFile)
           pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   (Maybe ImageFile)])) (toList s)
-instance IsPath MRR ReportImage
+instance HasPaths MRR ReportImage
     where type Path MRR ReportImage = Path_Map ReportID
                                                (Path_Report ReportImage)
           pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   ReportImage])) (toList s)
-instance IsPath MRR ReportImages
+instance HasPaths MRR ReportImages
     where type Path MRR ReportImages = Path_Map ReportID
                                                 (Path_Report ReportImages)
           pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   (Order ReportImageID
                                                                                                          ReportImage)])) (toList s)
-instance IsPath MRR ReadOnlyFilePath
+instance HasPaths MRR ReadOnlyFilePath
     where type Path MRR ReadOnlyFilePath = Path_Map ReportID
                                                     (Path_Report ReadOnlyFilePath)
           pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   (ReadOnly ([Char]))])) (toList s)
-instance IsPath MRR ReportImageView
+instance HasPaths MRR ReportImageView
     where type Path MRR ReportImageView = Path_Map ReportID
                                                    (Path_Report ReportImageView)
           pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   ReportImageView])) (toList s)
-instance IsPath MRR ReportView
+instance HasPaths MRR ReportView
     where type Path MRR ReportView = Path_Map ReportID
                                               (Path_Report ReportView)
           pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   ReportView])) (toList s)
-instance IsPath MRR SaneSizeImageSize
+instance HasPaths MRR SaneSizeImageSize
     where type Path MRR SaneSizeImageSize = Path_Map ReportID
                                                      (Path_Report SaneSizeImageSize)
           pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   (SaneSize ImageSize)])) (toList s)
-instance IsPath MRR Item
+instance HasPaths MRR Item
     where type Path MRR Item = Path_Map ReportID (Path_Report Item)
           pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   Item])) (toList s)
-instance IsPath MRR MIM
+instance HasPaths MRR MIM
     where type Path MRR MIM = Path_Map ReportID (Path_Report MIM)
           pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   (Map ItemFieldName
                                                                                                        Markup)])) (toList s)
-instance IsPath MRR MRR
+instance HasPaths MRR MRR
     where type Path MRR MRR = Path_Map ReportID (Path_Report MRR)
           pathsOf s a = [idPath]
-instance IsPath MRR CIString
+instance HasPaths MRR CIString
     where type Path MRR CIString = Path_Map ReportID
                                             (Path_Report CIString)
           pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   CIString])) (toList s)
-instance IsPath MRR URI
+instance HasPaths MRR URI
     where type Path MRR URI = Path_Map ReportID (Path_Report URI)
           pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   URI])) (toList s)
-instance IsPath MRR Text
+instance HasPaths MRR Text
     where type Path MRR Text = Path_Map ReportID (Path_Report Text)
           pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   Text])) (toList s)
-instance IsPath MRR UserId
+instance HasPaths MRR UserId
     where type Path MRR UserId = Path_Map ReportID (Path_Report UserId)
           pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   UserId])) (toList s)
-instance IsPath MRR UUID
+instance HasPaths MRR UUID
     where type Path MRR UUID = Path_Map ReportID (Path_Report UUID)
           pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv) a :: [Path Report
                                                                                                   UUID])) (toList s)
-instance IsPath ReportMap String
+instance HasPaths ReportMap String
     where type Path ReportMap String = Path_ReportMap String
           pathsOf s a = case s of
                             (ReportMap {}) -> mconcat [map Path_ReportMap_unReportMap (pathsOf (unReportMap s) a)]
-instance IsPath ReportMap Int64
+instance HasPaths ReportMap Int64
     where type Path ReportMap Int64 = Path_ReportMap Int64
           pathsOf s a = case s of
                             (ReportMap {}) -> mconcat [map Path_ReportMap_unReportMap (pathsOf (unReportMap s) a)]
-instance IsPath ReportMap Bool
+instance HasPaths ReportMap Bool
     where type Path ReportMap Bool = Path_ReportMap Bool
           pathsOf s a = case s of
                             (ReportMap {}) -> mconcat [map Path_ReportMap_unReportMap (pathsOf (unReportMap s) a)]
-instance IsPath ReportMap Double
+instance HasPaths ReportMap Double
     where type Path ReportMap Double = Path_ReportMap Double
           pathsOf s a = case s of
                             (ReportMap {}) -> mconcat [map Path_ReportMap_unReportMap (pathsOf (unReportMap s) a)]
-instance IsPath ReportMap Int
+instance HasPaths ReportMap Int
     where type Path ReportMap Int = Path_ReportMap Int
           pathsOf s a = case s of
                             (ReportMap {}) -> mconcat [map Path_ReportMap_unReportMap (pathsOf (unReportMap s) a)]
-instance IsPath ReportMap Dimension
+instance HasPaths ReportMap Dimension
     where type Path ReportMap Dimension = Path_ReportMap Dimension
           pathsOf s a = case s of
                             (ReportMap {}) -> mconcat [map Path_ReportMap_unReportMap (pathsOf (unReportMap s) a)]
-instance IsPath ReportMap ImageCrop
+instance HasPaths ReportMap ImageCrop
     where type Path ReportMap ImageCrop = Path_ReportMap ImageCrop
           pathsOf s a = case s of
                             (ReportMap {}) -> mconcat [map Path_ReportMap_unReportMap (pathsOf (unReportMap s) a)]
-instance IsPath ReportMap ImageSize
+instance HasPaths ReportMap ImageSize
     where type Path ReportMap ImageSize = Path_ReportMap ImageSize
           pathsOf s a = case s of
                             (ReportMap {}) -> mconcat [map Path_ReportMap_unReportMap (pathsOf (unReportMap s) a)]
-instance IsPath ReportMap Units
+instance HasPaths ReportMap Units
     where type Path ReportMap Units = Path_ReportMap Units
           pathsOf s a = case s of
                             (ReportMap {}) -> mconcat [map Path_ReportMap_unReportMap (pathsOf (unReportMap s) a)]
-instance IsPath ReportMap ImageFile
+instance HasPaths ReportMap ImageFile
     where type Path ReportMap ImageFile = Path_ReportMap ImageFile
           pathsOf s a = case s of
                             (ReportMap {}) -> mconcat [map Path_ReportMap_unReportMap (pathsOf (unReportMap s) a)]
-instance IsPath ReportMap Integer
+instance HasPaths ReportMap Integer
     where type Path ReportMap Integer = Path_ReportMap Integer
           pathsOf s a = case s of
                             (ReportMap {}) -> mconcat [map Path_ReportMap_unReportMap (pathsOf (unReportMap s) a)]
-instance IsPath ReportMap JSONText
+instance HasPaths ReportMap JSONText
     where type Path ReportMap JSONText = Path_ReportMap JSONText
           pathsOf s a = case s of
                             (ReportMap {}) -> mconcat [map Path_ReportMap_unReportMap (pathsOf (unReportMap s) a)]
-instance IsPath ReportMap Markup
+instance HasPaths ReportMap Markup
     where type Path ReportMap Markup = Path_ReportMap Markup
           pathsOf s a = case s of
                             (ReportMap {}) -> mconcat [map Path_ReportMap_unReportMap (pathsOf (unReportMap s) a)]
-instance IsPath ReportMap Permissions
+instance HasPaths ReportMap Permissions
     where type Path ReportMap Permissions = Path_ReportMap Permissions
           pathsOf s a = case s of
                             (ReportMap {}) -> mconcat [map Path_ReportMap_unReportMap (pathsOf (unReportMap s) a)]
-instance IsPath ReportMap UserIds
+instance HasPaths ReportMap UserIds
     where type Path ReportMap UserIds = Path_ReportMap UserIds
           pathsOf s a = case s of
                             (ReportMap {}) -> mconcat [map Path_ReportMap_unReportMap (pathsOf (unReportMap s) a)]
-instance IsPath ReportMap AbbrevPair
+instance HasPaths ReportMap AbbrevPair
     where type Path ReportMap AbbrevPair = Path_ReportMap AbbrevPair
           pathsOf s a = case s of
                             (ReportMap {}) -> mconcat [map Path_ReportMap_unReportMap (pathsOf (unReportMap s) a)]
-instance IsPath ReportMap AbbrevPairs
+instance HasPaths ReportMap AbbrevPairs
     where type Path ReportMap AbbrevPairs = Path_ReportMap AbbrevPairs
           pathsOf s a = case s of
                             (ReportMap {}) -> mconcat [map Path_ReportMap_unReportMap (pathsOf (unReportMap s) a)]
-instance IsPath ReportMap Author
+instance HasPaths ReportMap Author
     where type Path ReportMap Author = Path_ReportMap Author
           pathsOf s a = case s of
                             (ReportMap {}) -> mconcat [map Path_ReportMap_unReportMap (pathsOf (unReportMap s) a)]
-instance IsPath ReportMap Authors
+instance HasPaths ReportMap Authors
     where type Path ReportMap Authors = Path_ReportMap Authors
           pathsOf s a = case s of
                             (ReportMap {}) -> mconcat [map Path_ReportMap_unReportMap (pathsOf (unReportMap s) a)]
-instance IsPath ReportMap Branding
+instance HasPaths ReportMap Branding
     where type Path ReportMap Branding = Path_ReportMap Branding
           pathsOf s a = case s of
                             (ReportMap {}) -> mconcat [map Path_ReportMap_unReportMap (pathsOf (unReportMap s) a)]
-instance IsPath ReportMap MarkupPair
+instance HasPaths ReportMap MarkupPair
     where type Path ReportMap MarkupPair = Path_ReportMap MarkupPair
           pathsOf s a = case s of
                             (ReportMap {}) -> mconcat [map Path_ReportMap_unReportMap (pathsOf (unReportMap s) a)]
-instance IsPath ReportMap MarkupPairs
+instance HasPaths ReportMap MarkupPairs
     where type Path ReportMap MarkupPairs = Path_ReportMap MarkupPairs
           pathsOf s a = case s of
                             (ReportMap {}) -> mconcat [map Path_ReportMap_unReportMap (pathsOf (unReportMap s) a)]
-instance IsPath ReportMap Markups
+instance HasPaths ReportMap Markups
     where type Path ReportMap Markups = Path_ReportMap Markups
           pathsOf s a = case s of
                             (ReportMap {}) -> mconcat [map Path_ReportMap_unReportMap (pathsOf (unReportMap s) a)]
-instance IsPath ReportMap MaybeReportIntendedUse
+instance HasPaths ReportMap MaybeReportIntendedUse
     where type Path ReportMap
                     MaybeReportIntendedUse = Path_ReportMap MaybeReportIntendedUse
           pathsOf s a = case s of
                             (ReportMap {}) -> mconcat [map Path_ReportMap_unReportMap (pathsOf (unReportMap s) a)]
-instance IsPath ReportMap Report
+instance HasPaths ReportMap Report
     where type Path ReportMap Report = Path_ReportMap Report
           pathsOf s a = case s of
                             (ReportMap {}) -> mconcat [map Path_ReportMap_unReportMap (pathsOf (unReportMap s) a)]
-instance IsPath ReportMap ReportElem
+instance HasPaths ReportMap ReportElem
     where type Path ReportMap ReportElem = Path_ReportMap ReportElem
           pathsOf s a = case s of
                             (ReportMap {}) -> mconcat [map Path_ReportMap_unReportMap (pathsOf (unReportMap s) a)]
-instance IsPath ReportMap ReportElems
+instance HasPaths ReportMap ReportElems
     where type Path ReportMap ReportElems = Path_ReportMap ReportElems
           pathsOf s a = case s of
                             (ReportMap {}) -> mconcat [map Path_ReportMap_unReportMap (pathsOf (unReportMap s) a)]
-instance IsPath ReportMap ReportFlags
+instance HasPaths ReportMap ReportFlags
     where type Path ReportMap ReportFlags = Path_ReportMap ReportFlags
           pathsOf s a = case s of
                             (ReportMap {}) -> mconcat [map Path_ReportMap_unReportMap (pathsOf (unReportMap s) a)]
-instance IsPath ReportMap ReportStandard
+instance HasPaths ReportMap ReportStandard
     where type Path ReportMap
                     ReportStandard = Path_ReportMap ReportStandard
           pathsOf s a = case s of
                             (ReportMap {}) -> mconcat [map Path_ReportMap_unReportMap (pathsOf (unReportMap s) a)]
-instance IsPath ReportMap ReportStatus
+instance HasPaths ReportMap ReportStatus
     where type Path ReportMap
                     ReportStatus = Path_ReportMap ReportStatus
           pathsOf s a = case s of
                             (ReportMap {}) -> mconcat [map Path_ReportMap_unReportMap (pathsOf (unReportMap s) a)]
-instance IsPath ReportMap ReportValueApproachInfo
+instance HasPaths ReportMap ReportValueApproachInfo
     where type Path ReportMap
                     ReportValueApproachInfo = Path_ReportMap ReportValueApproachInfo
           pathsOf s a = case s of
                             (ReportMap {}) -> mconcat [map Path_ReportMap_unReportMap (pathsOf (unReportMap s) a)]
-instance IsPath ReportMap ReportValueTypeInfo
+instance HasPaths ReportMap ReportValueTypeInfo
     where type Path ReportMap
                     ReportValueTypeInfo = Path_ReportMap ReportValueTypeInfo
           pathsOf s a = case s of
                             (ReportMap {}) -> mconcat [map Path_ReportMap_unReportMap (pathsOf (unReportMap s) a)]
-instance IsPath ReportMap EUI
+instance HasPaths ReportMap EUI
     where type Path ReportMap EUI = Path_ReportMap EUI
           pathsOf s a = case s of
                             (ReportMap {}) -> mconcat [map Path_ReportMap_unReportMap (pathsOf (unReportMap s) a)]
-instance IsPath ReportMap MEUI
+instance HasPaths ReportMap MEUI
     where type Path ReportMap MEUI = Path_ReportMap MEUI
           pathsOf s a = case s of
                             (ReportMap {}) -> mconcat [map Path_ReportMap_unReportMap (pathsOf (unReportMap s) a)]
-instance IsPath ReportMap MaybeImageFile
+instance HasPaths ReportMap MaybeImageFile
     where type Path ReportMap
                     MaybeImageFile = Path_ReportMap MaybeImageFile
           pathsOf s a = case s of
                             (ReportMap {}) -> mconcat [map Path_ReportMap_unReportMap (pathsOf (unReportMap s) a)]
-instance IsPath ReportMap ReportImage
+instance HasPaths ReportMap ReportImage
     where type Path ReportMap ReportImage = Path_ReportMap ReportImage
           pathsOf s a = case s of
                             (ReportMap {}) -> mconcat [map Path_ReportMap_unReportMap (pathsOf (unReportMap s) a)]
-instance IsPath ReportMap ReportImages
+instance HasPaths ReportMap ReportImages
     where type Path ReportMap
                     ReportImages = Path_ReportMap ReportImages
           pathsOf s a = case s of
                             (ReportMap {}) -> mconcat [map Path_ReportMap_unReportMap (pathsOf (unReportMap s) a)]
-instance IsPath ReportMap ReadOnlyFilePath
+instance HasPaths ReportMap ReadOnlyFilePath
     where type Path ReportMap
                     ReadOnlyFilePath = Path_ReportMap ReadOnlyFilePath
           pathsOf s a = case s of
                             (ReportMap {}) -> mconcat [map Path_ReportMap_unReportMap (pathsOf (unReportMap s) a)]
-instance IsPath ReportMap ReportImageView
+instance HasPaths ReportMap ReportImageView
     where type Path ReportMap
                     ReportImageView = Path_ReportMap ReportImageView
           pathsOf s a = case s of
                             (ReportMap {}) -> mconcat [map Path_ReportMap_unReportMap (pathsOf (unReportMap s) a)]
-instance IsPath ReportMap ReportView
+instance HasPaths ReportMap ReportView
     where type Path ReportMap ReportView = Path_ReportMap ReportView
           pathsOf s a = case s of
                             (ReportMap {}) -> mconcat [map Path_ReportMap_unReportMap (pathsOf (unReportMap s) a)]
-instance IsPath ReportMap SaneSizeImageSize
+instance HasPaths ReportMap SaneSizeImageSize
     where type Path ReportMap
                     SaneSizeImageSize = Path_ReportMap SaneSizeImageSize
           pathsOf s a = case s of
                             (ReportMap {}) -> mconcat [map Path_ReportMap_unReportMap (pathsOf (unReportMap s) a)]
-instance IsPath ReportMap Item
+instance HasPaths ReportMap Item
     where type Path ReportMap Item = Path_ReportMap Item
           pathsOf s a = case s of
                             (ReportMap {}) -> mconcat [map Path_ReportMap_unReportMap (pathsOf (unReportMap s) a)]
-instance IsPath ReportMap MIM
+instance HasPaths ReportMap MIM
     where type Path ReportMap MIM = Path_ReportMap MIM
           pathsOf s a = case s of
                             (ReportMap {}) -> mconcat [map Path_ReportMap_unReportMap (pathsOf (unReportMap s) a)]
-instance IsPath ReportMap MRR
+instance HasPaths ReportMap MRR
     where type Path ReportMap MRR = Path_ReportMap MRR
           pathsOf s a = case s of
                             (ReportMap {}) -> mconcat [map Path_ReportMap_unReportMap (pathsOf (unReportMap s) a)]
-instance IsPath ReportMap ReportMap
+instance HasPaths ReportMap ReportMap
     where type Path ReportMap ReportMap = Path_ReportMap ReportMap
           pathsOf s a = [idPath]
-instance IsPath ReportMap CIString
+instance HasPaths ReportMap CIString
     where type Path ReportMap CIString = Path_ReportMap CIString
           pathsOf s a = case s of
                             (ReportMap {}) -> mconcat [map Path_ReportMap_unReportMap (pathsOf (unReportMap s) a)]
-instance IsPath ReportMap URI
+instance HasPaths ReportMap URI
     where type Path ReportMap URI = Path_ReportMap URI
           pathsOf s a = case s of
                             (ReportMap {}) -> mconcat [map Path_ReportMap_unReportMap (pathsOf (unReportMap s) a)]
-instance IsPath ReportMap Text
+instance HasPaths ReportMap Text
     where type Path ReportMap Text = Path_ReportMap Text
           pathsOf s a = case s of
                             (ReportMap {}) -> mconcat [map Path_ReportMap_unReportMap (pathsOf (unReportMap s) a)]
-instance IsPath ReportMap UserId
+instance HasPaths ReportMap UserId
     where type Path ReportMap UserId = Path_ReportMap UserId
           pathsOf s a = case s of
                             (ReportMap {}) -> mconcat [map Path_ReportMap_unReportMap (pathsOf (unReportMap s) a)]
-instance IsPath ReportMap UUID
+instance HasPaths ReportMap UUID
     where type Path ReportMap UUID = Path_ReportMap UUID
           pathsOf s a = case s of
                             (ReportMap {}) -> mconcat [map Path_ReportMap_unReportMap (pathsOf (unReportMap s) a)]
-instance IsPath CIString JSONText
+instance HasPaths CIString JSONText
     where type Path CIString JSONText = Path_CIString JSONText
           pathsOf s a = let {p = Path_CIString_View idPath :: Path CIString
                                                                    Text;
                              [s'] = toListOf (toLens p) s :: [Text]}
                          in map Path_CIString_View (pathsOf s' a :: [Path Text JSONText])
-instance IsPath CIString CIString
+instance HasPaths CIString CIString
     where type Path CIString CIString = Path_CIString CIString
           pathsOf s a = [idPath]
-instance IsPath CIString Text
+instance HasPaths CIString Text
     where type Path CIString Text = Path_CIString Text
           pathsOf s a = let {p = Path_CIString_View idPath :: Path CIString
                                                                    Text;
                              [s'] = toListOf (toLens p) s :: [Text]}
                          in map Path_CIString_View (pathsOf s' a :: [Path Text Text])
-instance IsPath URI URI
+instance HasPaths URI URI
     where type Path URI URI = Path_URI URI
           pathsOf s a = [idPath]
-instance IsPath Text JSONText
+instance HasPaths Text JSONText
     where type Path Text JSONText = Path_Text JSONText
           pathsOf s a = let {p = Path_Text_View idPath :: Path Text JSONText;
                              [s'] = toListOf (toLens p) s :: [JSONText]}
                          in map Path_Text_View (pathsOf s' a :: [Path JSONText JSONText])
-instance IsPath Text Text
+instance HasPaths Text Text
     where type Path Text Text = Path_Text Text
           pathsOf s a = [idPath]
-instance IsPath UserId UserId
+instance HasPaths UserId UserId
     where type Path UserId UserId = Path_UserId UserId
           pathsOf s a = [idPath]
-instance IsPath UUID UUID
+instance HasPaths UUID UUID
     where type Path UUID UUID = Path_UUID UUID
           pathsOf s a = [idPath]
 instance HasAuthor Author
@@ -7983,83 +7983,83 @@ instance HasUserId UserId
     where lens_userId = id
           lens_UserId__unUserId = iso (\(UserId x) -> x) UserId
           {-# INLINE lens_UserId__unUserId #-}
-instance IsPathEnd (Path_Author a)
+instance HasIdPath (Path_Author a)
     where idPath = Path_Author
-instance IsPathEnd (Path_Bool a)
+instance HasIdPath (Path_Bool a)
     where idPath = Path_Bool
-instance IsPathEnd (Path_Branding a)
+instance HasIdPath (Path_Branding a)
     where idPath = Path_Branding
-instance IsPathEnd (Path_CIString a)
+instance HasIdPath (Path_CIString a)
     where idPath = Path_CIString
-instance IsPathEnd (Path_Dimension a)
+instance HasIdPath (Path_Dimension a)
     where idPath = Path_Dimension
-instance IsPathEnd (Path_Double a)
+instance HasIdPath (Path_Double a)
     where idPath = Path_Double
-instance IsPathEnd (Path_ImageCrop a)
+instance HasIdPath (Path_ImageCrop a)
     where idPath = Path_ImageCrop
-instance IsPathEnd (Path_ImageFile a)
+instance HasIdPath (Path_ImageFile a)
     where idPath = Path_ImageFile
-instance IsPathEnd (Path_ImageSize a)
+instance HasIdPath (Path_ImageSize a)
     where idPath = Path_ImageSize
-instance IsPathEnd (Path_Int a)
+instance HasIdPath (Path_Int a)
     where idPath = Path_Int
-instance IsPathEnd (Path_Int64 a)
+instance HasIdPath (Path_Int64 a)
     where idPath = Path_Int64
-instance IsPathEnd (Path_Integer a)
+instance HasIdPath (Path_Integer a)
     where idPath = Path_Integer
-instance IsPathEnd (Path_Item a)
+instance HasIdPath (Path_Item a)
     where idPath = Path_Item
-instance IsPathEnd (Path_JSONText a)
+instance HasIdPath (Path_JSONText a)
     where idPath = Path_JSONText
-instance IsPathEnd (Path_Markup a)
+instance HasIdPath (Path_Markup a)
     where idPath = Path_Markup
-instance IsPathEnd (Path_MaybeImageFile a)
+instance HasIdPath (Path_MaybeImageFile a)
     where idPath = Path_MaybeImageFile
-instance IsPathEnd (Path_MaybeReportIntendedUse a)
+instance HasIdPath (Path_MaybeReportIntendedUse a)
     where idPath = Path_MaybeReportIntendedUse
-instance IsPathEnd (Path_Permissions a)
+instance HasIdPath (Path_Permissions a)
     where idPath = Path_Permissions
-instance IsPathEnd (Path_ReadOnlyFilePath a)
+instance HasIdPath (Path_ReadOnlyFilePath a)
     where idPath = Path_ReadOnlyFilePath
-instance IsPathEnd (Path_Report a)
+instance HasIdPath (Path_Report a)
     where idPath = Path_Report
-instance IsPathEnd (Path_ReportElem a)
+instance HasIdPath (Path_ReportElem a)
     where idPath = Path_ReportElem
-instance IsPathEnd (Path_ReportFlags a)
+instance HasIdPath (Path_ReportFlags a)
     where idPath = Path_ReportFlags
-instance IsPathEnd (Path_ReportImage a)
+instance HasIdPath (Path_ReportImage a)
     where idPath = Path_ReportImage
-instance IsPathEnd (Path_ReportImageView a)
+instance HasIdPath (Path_ReportImageView a)
     where idPath = Path_ReportImageView
-instance IsPathEnd (Path_ReportIntendedUse a)
+instance HasIdPath (Path_ReportIntendedUse a)
     where idPath = Path_ReportIntendedUse
-instance IsPathEnd (Path_ReportMap a)
+instance HasIdPath (Path_ReportMap a)
     where idPath = Path_ReportMap
-instance IsPathEnd (Path_ReportStandard a)
+instance HasIdPath (Path_ReportStandard a)
     where idPath = Path_ReportStandard
-instance IsPathEnd (Path_ReportStatus a)
+instance HasIdPath (Path_ReportStatus a)
     where idPath = Path_ReportStatus
-instance IsPathEnd (Path_ReportValueApproachInfo a)
+instance HasIdPath (Path_ReportValueApproachInfo a)
     where idPath = Path_ReportValueApproachInfo
-instance IsPathEnd (Path_ReportValueTypeInfo a)
+instance HasIdPath (Path_ReportValueTypeInfo a)
     where idPath = Path_ReportValueTypeInfo
-instance IsPathEnd (Path_ReportView a)
+instance HasIdPath (Path_ReportView a)
     where idPath = Path_ReportView
-instance IsPathEnd (Path_SaneSizeImageSize a)
+instance HasIdPath (Path_SaneSizeImageSize a)
     where idPath = Path_SaneSizeImageSize
-instance IsPathEnd (Path_String a)
+instance HasIdPath (Path_String a)
     where idPath = Path_String
-instance IsPathEnd (Path_Text a)
+instance HasIdPath (Path_Text a)
     where idPath = Path_Text
-instance IsPathEnd (Path_URI a)
+instance HasIdPath (Path_URI a)
     where idPath = Path_URI
-instance IsPathEnd (Path_UUID a)
+instance HasIdPath (Path_UUID a)
     where idPath = Path_UUID
-instance IsPathEnd (Path_Units a)
+instance HasIdPath (Path_Units a)
     where idPath = Path_Units
-instance IsPathEnd (Path_UserId a)
+instance HasIdPath (Path_UserId a)
     where idPath = Path_UserId
-instance IsPathEnd (Path_UserIds a)
+instance HasIdPath (Path_UserIds a)
     where idPath = Path_UserIds
 instance IsPathStart (Either URI ImageFile)
     where data Peek (Either URI ImageFile)

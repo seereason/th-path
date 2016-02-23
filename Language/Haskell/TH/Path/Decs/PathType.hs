@@ -33,7 +33,7 @@ import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Common (allPathTypeNames, asConQ, asName, asType, asTypeQ, bestPathTypeName, ModelType(ModelType),
                                         makeFieldCon, makePathCon, makePathType)
-import Language.Haskell.TH.Path.Core (IsPathEnd(idPath), SelfPath, SinkType,
+import Language.Haskell.TH.Path.Core (HasIdPath(idPath), SelfPath, SinkType,
                                       Path_List, Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
 import Language.Haskell.TH.Path.Order (Order, Path_OMap(..))
 import Language.Haskell.TH.Path.View (viewInstanceType)
@@ -113,7 +113,7 @@ doSimplePath v = do
   a <- runQ $ newName "a"
   -- e.g. data Path_Int a = Path_Int deriving (Eq, Ord, Read, Show, Typeable, Data)
   runQ (dataD (pure []) (asName pname) [PlainTV a] [normalC (asName pname) []] supers) >>= tell . (: [])
-  runQ [d|instance IsPathEnd ($(asTypeQ pname) a) where idPath = $(asConQ pname)|] >>= tell
+  runQ [d|instance HasIdPath ($(asTypeQ pname) a) where idPath = $(asConQ pname)|] >>= tell
 
 viewPath :: forall m s. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m, s ~ TGVSimple) => s -> Type -> m ()
 viewPath v styp = do
@@ -128,7 +128,7 @@ viewPath v styp = do
           [ normalC (asName (makePathCon pname "View")) [strictType notStrict (pure ptype)]
           , normalC (asName pname) []
           ] supers) >>= tell . (: [])
-  runQ [d|instance IsPathEnd ($(asTypeQ pname) a) where idPath = $(asConQ pname)|] >>= tell
+  runQ [d|instance HasIdPath ($(asTypeQ pname) a) where idPath = $(asConQ pname)|] >>= tell
 
 doNames :: forall m s. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m, s ~ TGVSimple) => s -> m ()
 doNames v = mapM_ (\tname -> runQ (reify tname) >>= doInfo) (typeNames v)
@@ -168,7 +168,7 @@ doNames v = mapM_ (\tname -> runQ (reify tname) >>= doInfo) (typeNames v)
                               --    deriving (Eq, Ord, Read, Show, Typeable, Data)
                               do runQ (dataD (cxt []) (asName pname) [PlainTV a] (List.map return (pcons ++ [NormalC (asName pname) []])) supers) >>= tell . (: []))
                          (Set.map makePathType . Set.map ModelType . typeNames $ v)
-                   mapM_ (\pname -> runQ [d|instance IsPathEnd ($(asTypeQ pname) a) where idPath = $(asConQ pname)|] >>= tell) (Set.map makePathType . Set.map ModelType . typeNames $ v)
+                   mapM_ (\pname -> runQ [d|instance HasIdPath ($(asTypeQ pname) a) where idPath = $(asConQ pname)|] >>= tell) (Set.map makePathType . Set.map ModelType . typeNames $ v)
 
       doCon :: (DsMonad m, MonadReaders TypeGraph m) => Name -> Name -> Con -> m [Con]
       doCon a tname (ForallC _ _ con) = doCon a tname con

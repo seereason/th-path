@@ -32,7 +32,7 @@ import Language.Haskell.TH
 import Language.Haskell.TH.Context (ContextM, reifyInstancesWithContext)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Common (asConQ, asType, asTypeQ, bestTypeName, HasName(asName), HasType, HasTypeQ, makePathCon, makePathType, ModelType(ModelType))
-import Language.Haskell.TH.Path.Core (IsPathEnd(idPath), IsPath(..), ToLens(..), SelfPath, SinkType, Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
+import Language.Haskell.TH.Path.Core (HasIdPath(idPath), HasPaths(..), ToLens(..), SelfPath, SinkType, Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
 import Language.Haskell.TH.Path.Decs.PathType (pathType)
 import Language.Haskell.TH.Path.Instances ()
 import Language.Haskell.TH.Path.Order (Order, Path_OMap(..), toPairs)
@@ -59,7 +59,7 @@ pathDecs' key gkey = do
   poe <- evalStateT (pathsOfExprs key gkey (varE s) (varE a)) (mempty :: Set s)
   when (poe /= ListE []) $
        (runQ $ sequence
-            [ instanceD (pure []) [t|IsPath $(pure (bestType key)) $(pure (bestType gkey))|]
+            [ instanceD (pure []) [t|HasPaths $(pure (bestType key)) $(pure (bestType gkey))|]
                 [ tySynInstD ''Path (tySynEqn [pure (bestType key), pure (bestType gkey)] (pure ptyp))
                 , funD 'pathsOf [clause [varP s, varP a] (normalB (pure poe)) []]
                 ]]) >>= tell

@@ -33,7 +33,7 @@ import Language.Haskell.TH.Path.Common (HasConQ(asConQ), HasCon(asCon), HasName(
                                         bestPathTypeName, bestTypeName,
                                         makeFieldCon, makePathCon, makePathType, makeHopCon,
                                         ModelType(ModelType), PathCon, PathCon(PathCon))
-import Language.Haskell.TH.Path.Core (IsPathStart(Peek, peek, Hop), IsPath(..), ToLens(toLens), SelfPath, SinkType,
+import Language.Haskell.TH.Path.Core (IsPathStart(Peek, peek, Hop), HasPaths(..), ToLens(toLens), SelfPath, SinkType,
                                       Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..), forestMap)
 import Language.Haskell.TH.Path.Order (Order, Path_OMap(..))
 import Language.Haskell.TH.Path.View (viewInstanceType)
@@ -210,7 +210,9 @@ forestOfConc x v (w, ppat, pcon) =
                    (\path -> case path of
                                $(asP p ppat) ->
                                    map (\w' -> let wf = (peek w' :: Forest (Peek $(asTypeQ w))) in
-                                               Node ($(asConQ (makePeekCon (ModelType (asName v)) (ModelType (asName w)))) $(varE p) (if null wf then Just w' else Nothing))
+                                               Node ($(asConQ (makePeekCon (ModelType (asName v)) (ModelType (asName w))))
+                                                          $(varE p)
+                                                          (if null wf then Just w' else Nothing))
                                                    -- Build a function with type such as Peek_AbbrevPair -> Peek_AbbrevPairs, so we
                                                    -- can lift the forest of type AbbrevPair to be a forest of type AbbrevPairs.
                                                    (forestMap (\wp -> $(caseE [|wp|] (concatMap (doGoal v w pcon) (Foldable.toList gs)))) wf))
