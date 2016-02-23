@@ -187,7 +187,7 @@ $(deriveSafeCopy 0 'base ''Path_Maybe)
 #endif
 
 idLens :: Lens' a a
-idLens = iso id id
+idLens = id
 
 dummyLens :: b -> Lens' a b
 dummyLens v = lens (const v) const
@@ -257,10 +257,10 @@ lens_mapPair lensAC lensBD =
       s (a, b) (c, d) = (set lensAC c a, set lensBD d b)
 
 lens_mapFirst :: Lens' a b -> Lens' (a, c) (b, c)
-lens_mapFirst l = lens_mapPair l (iso id id)
+lens_mapFirst l = lens_mapPair l id
 
 lens_mapSecond :: Lens' b c -> Lens' (a, b) (a, c)
-lens_mapSecond l = lens_mapPair (iso id id) l
+lens_mapSecond l = lens_mapPair id l
 
 -- | Create a list lens from an element lens.  For the setter, extra
 -- elements in the C list cause an error (unless elens is an iso.)
@@ -302,7 +302,7 @@ _lens_Monoid_Maybe_Tests = [ [i 1,2,3] == ((set lens_Monoid_Maybe (Just [1,2,3])
         i = id
 
 textLens :: Lens' Text Text
-textLens = iso id id
+textLens = id
 
 class IsText a where
     textLens' :: Lens' a Text
