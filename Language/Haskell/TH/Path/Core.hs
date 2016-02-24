@@ -97,8 +97,10 @@ class HasIdPath p where
     idPath :: p -- ^ The identity value for path type @p@.  Obeys the law
                 -- @toLens idPath == iso id id@.
 
--- | If a path type @s@ is the beginning of a path we can reach other
--- path types from it.
+-- | If there are paths that begin from type @s@, the 'peek' function
+-- returns all the paths starting from a particular value of type @s@,
+-- along with the value found at the end of that path.  The 'Peek'
+-- type is constructed to be able to represent this result.
 class IsPathStart s where
     data Peek s
     -- ^ 'Peek' is a type function that maps a type to the union of
@@ -149,9 +151,11 @@ class (IsPathStart s, HasIdPath (Path s a), ToLens (Path s a), S (Path s a) ~ s,
     -- would have distinct values for those two fields, and the lenses
     -- returned by 'toLens would access those two fields.
     pathsOf :: s -> Proxy a -> [Path s a]
-    -- ^ Build the paths corresponding to a particular @s@ and @a@.
-    -- This function will freak out if called with types for which
-    -- there is no instance @HasPaths s a@.
+    -- ^ Build the paths corresponding to a particular @s@ value and a
+    -- particular @a@ type.  Returns a list because there may be
+    -- several @a@ reachable from this @s@.  This function will freak
+    -- out if called with types for which there is no instance
+    -- @HasPaths s a@.
 
 -- | 'Path' instances can be customized by declaring types to be
 -- instances of this class and the ones that follow.  If a type is an

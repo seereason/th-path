@@ -42,7 +42,8 @@ import Language.Haskell.TH.TypeGraph.TypeGraph (allPathKeys, HasTGVSimple, pathK
 import Language.Haskell.TH.TypeGraph.TypeInfo (TypeInfo)
 import Language.Haskell.TH.TypeGraph.Vertex (TGVSimple, TypeGraphVertex(bestType))
 
-pathDecs :: forall m s. (ContextM m, ContextM (StateT (Set s) m), MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m, s ~ TGVSimple) => s -> m ()
+pathDecs :: (ContextM m, ContextM (StateT (Set TGVSimple) m), MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) =>
+            TGVSimple -> m ()
 pathDecs v =
     pathKeys v >>= Set.mapM_ (pathDecs' v)
 
@@ -50,8 +51,8 @@ pathDecs v =
 -- corresponding Path instance.  Each clause matches some possible value
 -- of the path type, and returns a lens that extracts the value the
 -- path type value specifies.
-pathDecs' :: forall m s. (ContextM m, ContextM (StateT (Set s) m), MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m, s ~ TGVSimple) =>
-             s -> s -> m ()
+pathDecs' :: (ContextM m, ContextM (StateT (Set TGVSimple) m), MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) =>
+             TGVSimple -> TGVSimple -> m ()
 pathDecs' key gkey = do
   ptyp <- pathType (pure (bestType gkey)) key
   s <- runQ (newName "s")
@@ -66,9 +67,9 @@ pathDecs' key gkey = do
 
 -- | Build an expression whose value is a list of paths from type S to
 -- type A
-pathsOfExprs :: forall m s. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadStates (Set s) m, s ~ TGVSimple) =>
-                s -- ^ the type whose clauses we are generating
-             -> s -- ^ the goal type key
+pathsOfExprs :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadStates (Set TGVSimple) m) =>
+                TGVSimple -- ^ the type whose clauses we are generating
+             -> TGVSimple -- ^ the goal type key
              -> ExpQ -- ^ S
              -> ExpQ -- ^ Proxy A
              -> m Exp
