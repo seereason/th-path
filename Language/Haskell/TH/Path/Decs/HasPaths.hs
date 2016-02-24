@@ -20,14 +20,12 @@ module Language.Haskell.TH.Path.Decs.HasPaths (pathDecs) where
 import Control.Lens hiding (cons, Strict)
 import Control.Monad (when)
 import Control.Monad.Readers (MonadReaders)
-import Control.Monad.State (evalStateT, StateT)
-import Control.Monad.States (getPoly, modifyPoly, MonadStates)
 import Control.Monad.Writer (MonadWriter, tell)
 import Data.List as List (concatMap, map)
 import Data.Map as Map (lookup, Map, toList)
 import Data.Maybe (isJust)
 import Data.Monoid ((<>))
-import Data.Set.Extra as Set (insert, mapM_, member, Set)
+import Data.Set.Extra as Set (mapM_, member)
 import Language.Haskell.TH
 import Language.Haskell.TH.Context (ContextM, reifyInstancesWithContext)
 import Language.Haskell.TH.Instances ()
@@ -78,21 +76,20 @@ pathsOfExprs key gkey s a =
      -- ptyp <- pathType (pure (bestType gkey)) key
      selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [asType key]
      simplePath <- (not . null) <$> reifyInstancesWithContext ''SinkType [asType key]
-     viewType <- viewInstanceType (asType key)
+     viewTypeMaybe <- viewInstanceType (asType key)
      case asType key of
        _ | key == gkey -> runQ [| [idPath] |]
          | selfPath -> runQ [| [] |]
          | simplePath -> runQ [| [] |]
-         | isJust viewType ->
-             do let Just vtyp = viewType
-                vIsPath <- testIsPath vtyp gkey
+         | isJust viewTypeMaybe ->
+             do let Just viewtyp = viewTypeMaybe
+                vIsPath <- testIsPath viewtyp gkey
                 let tname = bestTypeName key
                 let pcname = makePathCon (makePathType tname) "View"
                 -- Get the value as transformed by the view lens
                 if vIsPath
-                then runQ [| let p = $(asConQ pcname) idPath :: Path $(asTypeQ key) $(pure vtyp)
-                                 [s'] = toListOf (toLens p) $s :: [$(pure vtyp)] in
-                             List.map $(asConQ pcname) (pathsOf s' $a :: [Path $(pure vtyp) $(asTypeQ gkey)]) |]
+                then runQ [| concatMap (\s' ->  List.map $(asConQ pcname) (pathsOf s' $a :: [Path $(pure viewtyp) $(asTypeQ gkey)]))
+                                       (toListOf (toLens ($(asConQ pcname) idPath :: Path $(asTypeQ key) $(pure viewtyp))) $s :: [$(pure viewtyp)]) |]
                 else runQ [| [] |]
        ConT tname ->
            doName tname

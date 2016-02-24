@@ -35,7 +35,7 @@ import Data.Tree (Tree(Node), Forest)
 import Data.UserId (UserId(UserId))
 import Data.UUID (UUID)
 import Data.UUID.Orphans ()
-import Language.Haskell.TH.Path.Core (IsPath(Path, pathsOf), ToLens (A, S, toLens), IsPathStart(Peek, peek, Hop), IsPathEnd(idPath),
+import Language.Haskell.TH.Path.Core (HasPaths(Path, pathsOf), ToLens (A, S, toLens), IsPathStart(Peek, peek, Hop), HasIdPath(idPath),
                                       Path_Either(Path_Left, Path_Right), Path_Map(Path_Look),
                                       Path_Maybe(Path_Just), Path_Pair(Path_First, Path_Second), forestMap, mat)
 import Language.Haskell.TH.Path.Order (lens_omat, Order, Path_OMap(Path_At), toPairs)
@@ -806,41 +806,38 @@ instance HasPaths String String
           pathsOf s a = [idPath]
 instance HasPaths String JSONText
     where type Path String JSONText = Path_String JSONText
-          pathsOf s a = let {p = Path_String_View idPath :: Path ([Char])
-                                                                 JSONText;
-                             [s'] = toListOf (toLens p) s :: [JSONText]}
-                         in map Path_String_View (pathsOf s' a :: [Path JSONText JSONText])
+          pathsOf s a = concatMap (\s' -> map Path_String_View (pathsOf s' a :: [Path JSONText
+                                                                                      JSONText])) (toListOf (toLens (Path_String_View idPath :: Path ([Char])
+                                                                                                                                                     JSONText)) s :: [JSONText])
 instance HasPaths Int64 Int64
     where type Path Int64 Int64 = Path_Int64 Int64
           pathsOf s a = [idPath]
 instance HasPaths Bool String
     where type Path Bool String = Path_Bool String
-          pathsOf s a = let {p = Path_Bool_View idPath :: Path Bool ([Char]);
-                             [s'] = toListOf (toLens p) s :: [[Char]]}
-                         in map Path_Bool_View (pathsOf s' a :: [Path ([Char]) ([Char])])
+          pathsOf s a = concatMap (\s' -> map Path_Bool_View (pathsOf s' a :: [Path ([Char])
+                                                                                    ([Char])])) (toListOf (toLens (Path_Bool_View idPath :: Path Bool
+                                                                                                                                                 ([Char]))) s :: [[Char]])
 instance HasPaths Bool Bool
     where type Path Bool Bool = Path_Bool Bool
           pathsOf s a = [idPath]
 instance HasPaths Bool JSONText
     where type Path Bool JSONText = Path_Bool JSONText
-          pathsOf s a = let {p = Path_Bool_View idPath :: Path Bool ([Char]);
-                             [s'] = toListOf (toLens p) s :: [[Char]]}
-                         in map Path_Bool_View (pathsOf s' a :: [Path ([Char]) JSONText])
+          pathsOf s a = concatMap (\s' -> map Path_Bool_View (pathsOf s' a :: [Path ([Char])
+                                                                                    JSONText])) (toListOf (toLens (Path_Bool_View idPath :: Path Bool
+                                                                                                                                                 ([Char]))) s :: [[Char]])
 instance HasPaths Double String
     where type Path Double String = Path_Double String
-          pathsOf s a = let {p = Path_Double_View idPath :: Path Double
-                                                                 ([Char]);
-                             [s'] = toListOf (toLens p) s :: [[Char]]}
-                         in map Path_Double_View (pathsOf s' a :: [Path ([Char]) ([Char])])
+          pathsOf s a = concatMap (\s' -> map Path_Double_View (pathsOf s' a :: [Path ([Char])
+                                                                                      ([Char])])) (toListOf (toLens (Path_Double_View idPath :: Path Double
+                                                                                                                                                     ([Char]))) s :: [[Char]])
 instance HasPaths Double Double
     where type Path Double Double = Path_Double Double
           pathsOf s a = [idPath]
 instance HasPaths Double JSONText
     where type Path Double JSONText = Path_Double JSONText
-          pathsOf s a = let {p = Path_Double_View idPath :: Path Double
-                                                                 ([Char]);
-                             [s'] = toListOf (toLens p) s :: [[Char]]}
-                         in map Path_Double_View (pathsOf s' a :: [Path ([Char]) JSONText])
+          pathsOf s a = concatMap (\s' -> map Path_Double_View (pathsOf s' a :: [Path ([Char])
+                                                                                      JSONText])) (toListOf (toLens (Path_Double_View idPath :: Path Double
+                                                                                                                                                     ([Char]))) s :: [[Char]])
 instance HasPaths Int Int
     where type Path Int Int = Path_Int Int
           pathsOf s a = [idPath]
@@ -849,11 +846,9 @@ instance HasPaths Dimension Dimension
           pathsOf s a = [idPath]
 instance HasPaths Dimension JSONText
     where type Path Dimension JSONText = Path_Dimension JSONText
-          pathsOf s a = let {p = Path_Dimension_View idPath :: Path Dimension
-                                                                    JSONText;
-                             [s'] = toListOf (toLens p) s :: [JSONText]}
-                         in map Path_Dimension_View (pathsOf s' a :: [Path JSONText
-                                                                           JSONText])
+          pathsOf s a = concatMap (\s' -> map Path_Dimension_View (pathsOf s' a :: [Path JSONText
+                                                                                         JSONText])) (toListOf (toLens (Path_Dimension_View idPath :: Path Dimension
+                                                                                                                                                           JSONText)) s :: [JSONText])
 instance HasPaths ImageCrop ImageCrop
     where type Path ImageCrop ImageCrop = Path_ImageCrop ImageCrop
           pathsOf s a = [idPath]
@@ -887,10 +882,9 @@ instance HasPaths Units Units
           pathsOf s a = [idPath]
 instance HasPaths Units JSONText
     where type Path Units JSONText = Path_Units JSONText
-          pathsOf s a = let {p = Path_Units_View idPath :: Path Units
-                                                                JSONText;
-                             [s'] = toListOf (toLens p) s :: [JSONText]}
-                         in map Path_Units_View (pathsOf s' a :: [Path JSONText JSONText])
+          pathsOf s a = concatMap (\s' -> map Path_Units_View (pathsOf s' a :: [Path JSONText
+                                                                                     JSONText])) (toListOf (toLens (Path_Units_View idPath :: Path Units
+                                                                                                                                                   JSONText)) s :: [JSONText])
 instance HasPaths ImageFile ImageFile
     where type Path ImageFile ImageFile = Path_ImageFile ImageFile
           pathsOf s a = [idPath]
@@ -944,19 +938,17 @@ instance HasPaths Permissions UserId
                             (Permissions {}) -> mconcat [map Path_Permissions_owner (pathsOf (owner s) a)]
 instance HasPaths UserIds JSONText
     where type Path UserIds JSONText = Path_UserIds JSONText
-          pathsOf s a = let {p = Path_UserIds_View idPath :: Path ([UserId])
-                                                                  Text;
-                             [s'] = toListOf (toLens p) s :: [Text]}
-                         in map Path_UserIds_View (pathsOf s' a :: [Path Text JSONText])
+          pathsOf s a = concatMap (\s' -> map Path_UserIds_View (pathsOf s' a :: [Path Text
+                                                                                       JSONText])) (toListOf (toLens (Path_UserIds_View idPath :: Path ([UserId])
+                                                                                                                                                       Text)) s :: [Text])
 instance HasPaths UserIds UserIds
     where type Path UserIds UserIds = Path_UserIds UserIds
           pathsOf s a = [idPath]
 instance HasPaths UserIds Text
     where type Path UserIds Text = Path_UserIds Text
-          pathsOf s a = let {p = Path_UserIds_View idPath :: Path ([UserId])
-                                                                  Text;
-                             [s'] = toListOf (toLens p) s :: [Text]}
-                         in map Path_UserIds_View (pathsOf s' a :: [Path Text Text])
+          pathsOf s a = concatMap (\s' -> map Path_UserIds_View (pathsOf s' a :: [Path Text
+                                                                                       Text])) (toListOf (toLens (Path_UserIds_View idPath :: Path ([UserId])
+                                                                                                                                                   Text)) s :: [Text])
 instance HasPaths AbbrevPair JSONText
     where type Path AbbrevPair
                     JSONText = Path_Pair (Path_CIString JSONText)
@@ -1107,19 +1099,17 @@ instance HasPaths Authors Text
                                                                                                                        Author)]) s)
 instance HasPaths Branding JSONText
     where type Path Branding JSONText = Path_Branding JSONText
-          pathsOf s a = let {p = Path_Branding_View idPath :: Path Branding
-                                                                   Text;
-                             [s'] = toListOf (toLens p) s :: [Text]}
-                         in map Path_Branding_View (pathsOf s' a :: [Path Text JSONText])
+          pathsOf s a = concatMap (\s' -> map Path_Branding_View (pathsOf s' a :: [Path Text
+                                                                                        JSONText])) (toListOf (toLens (Path_Branding_View idPath :: Path Branding
+                                                                                                                                                         Text)) s :: [Text])
 instance HasPaths Branding Branding
     where type Path Branding Branding = Path_Branding Branding
           pathsOf s a = [idPath]
 instance HasPaths Branding Text
     where type Path Branding Text = Path_Branding Text
-          pathsOf s a = let {p = Path_Branding_View idPath :: Path Branding
-                                                                   Text;
-                             [s'] = toListOf (toLens p) s :: [Text]}
-                         in map Path_Branding_View (pathsOf s' a :: [Path Text Text])
+          pathsOf s a = concatMap (\s' -> map Path_Branding_View (pathsOf s' a :: [Path Text
+                                                                                        Text])) (toListOf (toLens (Path_Branding_View idPath :: Path Branding
+                                                                                                                                                     Text)) s :: [Text])
 instance HasPaths MarkupPair JSONText
     where type Path MarkupPair
                     JSONText = Path_Pair (Path_Markup JSONText) (Path_Markup JSONText)
@@ -1227,355 +1217,276 @@ instance HasPaths Markups Text
 instance HasPaths MaybeReportIntendedUse String
     where type Path MaybeReportIntendedUse
                     String = Path_MaybeReportIntendedUse String
-          pathsOf s a = let {p = Path_MaybeReportIntendedUse_View idPath :: Path (Maybe ReportIntendedUse)
-                                                                                 ([Char]);
-                             [s'] = toListOf (toLens p) s :: [[Char]]}
-                         in map Path_MaybeReportIntendedUse_View (pathsOf s' a :: [Path ([Char])
-                                                                                        ([Char])])
+          pathsOf s a = concatMap (\s' -> map Path_MaybeReportIntendedUse_View (pathsOf s' a :: [Path ([Char])
+                                                                                                      ([Char])])) (toListOf (toLens (Path_MaybeReportIntendedUse_View idPath :: Path (Maybe ReportIntendedUse)
+                                                                                                                                                                                     ([Char]))) s :: [[Char]])
 instance HasPaths MaybeReportIntendedUse JSONText
     where type Path MaybeReportIntendedUse
                     JSONText = Path_MaybeReportIntendedUse JSONText
-          pathsOf s a = let {p = Path_MaybeReportIntendedUse_View idPath :: Path (Maybe ReportIntendedUse)
-                                                                                 ([Char]);
-                             [s'] = toListOf (toLens p) s :: [[Char]]}
-                         in map Path_MaybeReportIntendedUse_View (pathsOf s' a :: [Path ([Char])
-                                                                                        JSONText])
+          pathsOf s a = concatMap (\s' -> map Path_MaybeReportIntendedUse_View (pathsOf s' a :: [Path ([Char])
+                                                                                                      JSONText])) (toListOf (toLens (Path_MaybeReportIntendedUse_View idPath :: Path (Maybe ReportIntendedUse)
+                                                                                                                                                                                     ([Char]))) s :: [[Char]])
 instance HasPaths MaybeReportIntendedUse MaybeReportIntendedUse
     where type Path MaybeReportIntendedUse
                     MaybeReportIntendedUse = Path_MaybeReportIntendedUse MaybeReportIntendedUse
           pathsOf s a = [idPath]
 instance HasPaths Report String
     where type Path Report String = Path_Report String
-          pathsOf s a = let {p = Path_Report_View idPath :: Path Report
-                                                                 ReportView;
-                             [s'] = toListOf (toLens p) s :: [ReportView]}
-                         in map Path_Report_View (pathsOf s' a :: [Path ReportView
-                                                                        ([Char])])
+          pathsOf s a = concatMap (\s' -> map Path_Report_View (pathsOf s' a :: [Path ReportView
+                                                                                      ([Char])])) (toListOf (toLens (Path_Report_View idPath :: Path Report
+                                                                                                                                                     ReportView)) s :: [ReportView])
 instance HasPaths Report Int64
     where type Path Report Int64 = Path_Report Int64
-          pathsOf s a = let {p = Path_Report_View idPath :: Path Report
-                                                                 ReportView;
-                             [s'] = toListOf (toLens p) s :: [ReportView]}
-                         in map Path_Report_View (pathsOf s' a :: [Path ReportView Int64])
+          pathsOf s a = concatMap (\s' -> map Path_Report_View (pathsOf s' a :: [Path ReportView
+                                                                                      Int64])) (toListOf (toLens (Path_Report_View idPath :: Path Report
+                                                                                                                                                  ReportView)) s :: [ReportView])
 instance HasPaths Report Bool
     where type Path Report Bool = Path_Report Bool
-          pathsOf s a = let {p = Path_Report_View idPath :: Path Report
-                                                                 ReportView;
-                             [s'] = toListOf (toLens p) s :: [ReportView]}
-                         in map Path_Report_View (pathsOf s' a :: [Path ReportView Bool])
+          pathsOf s a = concatMap (\s' -> map Path_Report_View (pathsOf s' a :: [Path ReportView
+                                                                                      Bool])) (toListOf (toLens (Path_Report_View idPath :: Path Report
+                                                                                                                                                 ReportView)) s :: [ReportView])
 instance HasPaths Report Double
     where type Path Report Double = Path_Report Double
-          pathsOf s a = let {p = Path_Report_View idPath :: Path Report
-                                                                 ReportView;
-                             [s'] = toListOf (toLens p) s :: [ReportView]}
-                         in map Path_Report_View (pathsOf s' a :: [Path ReportView Double])
+          pathsOf s a = concatMap (\s' -> map Path_Report_View (pathsOf s' a :: [Path ReportView
+                                                                                      Double])) (toListOf (toLens (Path_Report_View idPath :: Path Report
+                                                                                                                                                   ReportView)) s :: [ReportView])
 instance HasPaths Report Int
     where type Path Report Int = Path_Report Int
-          pathsOf s a = let {p = Path_Report_View idPath :: Path Report
-                                                                 ReportView;
-                             [s'] = toListOf (toLens p) s :: [ReportView]}
-                         in map Path_Report_View (pathsOf s' a :: [Path ReportView Int])
+          pathsOf s a = concatMap (\s' -> map Path_Report_View (pathsOf s' a :: [Path ReportView
+                                                                                      Int])) (toListOf (toLens (Path_Report_View idPath :: Path Report
+                                                                                                                                                ReportView)) s :: [ReportView])
 instance HasPaths Report Dimension
     where type Path Report Dimension = Path_Report Dimension
-          pathsOf s a = let {p = Path_Report_View idPath :: Path Report
-                                                                 ReportView;
-                             [s'] = toListOf (toLens p) s :: [ReportView]}
-                         in map Path_Report_View (pathsOf s' a :: [Path ReportView
-                                                                        Dimension])
+          pathsOf s a = concatMap (\s' -> map Path_Report_View (pathsOf s' a :: [Path ReportView
+                                                                                      Dimension])) (toListOf (toLens (Path_Report_View idPath :: Path Report
+                                                                                                                                                      ReportView)) s :: [ReportView])
 instance HasPaths Report ImageCrop
     where type Path Report ImageCrop = Path_Report ImageCrop
-          pathsOf s a = let {p = Path_Report_View idPath :: Path Report
-                                                                 ReportView;
-                             [s'] = toListOf (toLens p) s :: [ReportView]}
-                         in map Path_Report_View (pathsOf s' a :: [Path ReportView
-                                                                        ImageCrop])
+          pathsOf s a = concatMap (\s' -> map Path_Report_View (pathsOf s' a :: [Path ReportView
+                                                                                      ImageCrop])) (toListOf (toLens (Path_Report_View idPath :: Path Report
+                                                                                                                                                      ReportView)) s :: [ReportView])
 instance HasPaths Report ImageSize
     where type Path Report ImageSize = Path_Report ImageSize
-          pathsOf s a = let {p = Path_Report_View idPath :: Path Report
-                                                                 ReportView;
-                             [s'] = toListOf (toLens p) s :: [ReportView]}
-                         in map Path_Report_View (pathsOf s' a :: [Path ReportView
-                                                                        ImageSize])
+          pathsOf s a = concatMap (\s' -> map Path_Report_View (pathsOf s' a :: [Path ReportView
+                                                                                      ImageSize])) (toListOf (toLens (Path_Report_View idPath :: Path Report
+                                                                                                                                                      ReportView)) s :: [ReportView])
 instance HasPaths Report Units
     where type Path Report Units = Path_Report Units
-          pathsOf s a = let {p = Path_Report_View idPath :: Path Report
-                                                                 ReportView;
-                             [s'] = toListOf (toLens p) s :: [ReportView]}
-                         in map Path_Report_View (pathsOf s' a :: [Path ReportView Units])
+          pathsOf s a = concatMap (\s' -> map Path_Report_View (pathsOf s' a :: [Path ReportView
+                                                                                      Units])) (toListOf (toLens (Path_Report_View idPath :: Path Report
+                                                                                                                                                  ReportView)) s :: [ReportView])
 instance HasPaths Report ImageFile
     where type Path Report ImageFile = Path_Report ImageFile
-          pathsOf s a = let {p = Path_Report_View idPath :: Path Report
-                                                                 ReportView;
-                             [s'] = toListOf (toLens p) s :: [ReportView]}
-                         in map Path_Report_View (pathsOf s' a :: [Path ReportView
-                                                                        ImageFile])
+          pathsOf s a = concatMap (\s' -> map Path_Report_View (pathsOf s' a :: [Path ReportView
+                                                                                      ImageFile])) (toListOf (toLens (Path_Report_View idPath :: Path Report
+                                                                                                                                                      ReportView)) s :: [ReportView])
 instance HasPaths Report Integer
     where type Path Report Integer = Path_Report Integer
-          pathsOf s a = let {p = Path_Report_View idPath :: Path Report
-                                                                 ReportView;
-                             [s'] = toListOf (toLens p) s :: [ReportView]}
-                         in map Path_Report_View (pathsOf s' a :: [Path ReportView
-                                                                        Integer])
+          pathsOf s a = concatMap (\s' -> map Path_Report_View (pathsOf s' a :: [Path ReportView
+                                                                                      Integer])) (toListOf (toLens (Path_Report_View idPath :: Path Report
+                                                                                                                                                    ReportView)) s :: [ReportView])
 instance HasPaths Report JSONText
     where type Path Report JSONText = Path_Report JSONText
-          pathsOf s a = let {p = Path_Report_View idPath :: Path Report
-                                                                 ReportView;
-                             [s'] = toListOf (toLens p) s :: [ReportView]}
-                         in map Path_Report_View (pathsOf s' a :: [Path ReportView
-                                                                        JSONText])
+          pathsOf s a = concatMap (\s' -> map Path_Report_View (pathsOf s' a :: [Path ReportView
+                                                                                      JSONText])) (toListOf (toLens (Path_Report_View idPath :: Path Report
+                                                                                                                                                     ReportView)) s :: [ReportView])
 instance HasPaths Report Markup
     where type Path Report Markup = Path_Report Markup
-          pathsOf s a = let {p = Path_Report_View idPath :: Path Report
-                                                                 ReportView;
-                             [s'] = toListOf (toLens p) s :: [ReportView]}
-                         in map Path_Report_View (pathsOf s' a :: [Path ReportView Markup])
+          pathsOf s a = concatMap (\s' -> map Path_Report_View (pathsOf s' a :: [Path ReportView
+                                                                                      Markup])) (toListOf (toLens (Path_Report_View idPath :: Path Report
+                                                                                                                                                   ReportView)) s :: [ReportView])
 instance HasPaths Report Permissions
     where type Path Report Permissions = Path_Report Permissions
-          pathsOf s a = let {p = Path_Report_View idPath :: Path Report
-                                                                 ReportView;
-                             [s'] = toListOf (toLens p) s :: [ReportView]}
-                         in map Path_Report_View (pathsOf s' a :: [Path ReportView
-                                                                        Permissions])
+          pathsOf s a = concatMap (\s' -> map Path_Report_View (pathsOf s' a :: [Path ReportView
+                                                                                      Permissions])) (toListOf (toLens (Path_Report_View idPath :: Path Report
+                                                                                                                                                        ReportView)) s :: [ReportView])
 instance HasPaths Report UserIds
     where type Path Report UserIds = Path_Report UserIds
-          pathsOf s a = let {p = Path_Report_View idPath :: Path Report
-                                                                 ReportView;
-                             [s'] = toListOf (toLens p) s :: [ReportView]}
-                         in map Path_Report_View (pathsOf s' a :: [Path ReportView
-                                                                        ([UserId])])
+          pathsOf s a = concatMap (\s' -> map Path_Report_View (pathsOf s' a :: [Path ReportView
+                                                                                      ([UserId])])) (toListOf (toLens (Path_Report_View idPath :: Path Report
+                                                                                                                                                       ReportView)) s :: [ReportView])
 instance HasPaths Report AbbrevPair
     where type Path Report AbbrevPair = Path_Report AbbrevPair
-          pathsOf s a = let {p = Path_Report_View idPath :: Path Report
-                                                                 ReportView;
-                             [s'] = toListOf (toLens p) s :: [ReportView]}
-                         in map Path_Report_View (pathsOf s' a :: [Path ReportView
-                                                                        ((CIString, Markup))])
+          pathsOf s a = concatMap (\s' -> map Path_Report_View (pathsOf s' a :: [Path ReportView
+                                                                                      ((CIString,
+                                                                                        Markup))])) (toListOf (toLens (Path_Report_View idPath :: Path Report
+                                                                                                                                                       ReportView)) s :: [ReportView])
 instance HasPaths Report AbbrevPairs
     where type Path Report AbbrevPairs = Path_Report AbbrevPairs
-          pathsOf s a = let {p = Path_Report_View idPath :: Path Report
-                                                                 ReportView;
-                             [s'] = toListOf (toLens p) s :: [ReportView]}
-                         in map Path_Report_View (pathsOf s' a :: [Path ReportView
-                                                                        (Order AbbrevPairID
-                                                                               ((CIString,
-                                                                                 Markup)))])
+          pathsOf s a = concatMap (\s' -> map Path_Report_View (pathsOf s' a :: [Path ReportView
+                                                                                      (Order AbbrevPairID
+                                                                                             ((CIString,
+                                                                                               Markup)))])) (toListOf (toLens (Path_Report_View idPath :: Path Report
+                                                                                                                                                               ReportView)) s :: [ReportView])
 instance HasPaths Report Author
     where type Path Report Author = Path_Report Author
-          pathsOf s a = let {p = Path_Report_View idPath :: Path Report
-                                                                 ReportView;
-                             [s'] = toListOf (toLens p) s :: [ReportView]}
-                         in map Path_Report_View (pathsOf s' a :: [Path ReportView Author])
+          pathsOf s a = concatMap (\s' -> map Path_Report_View (pathsOf s' a :: [Path ReportView
+                                                                                      Author])) (toListOf (toLens (Path_Report_View idPath :: Path Report
+                                                                                                                                                   ReportView)) s :: [ReportView])
 instance HasPaths Report Authors
     where type Path Report Authors = Path_Report Authors
-          pathsOf s a = let {p = Path_Report_View idPath :: Path Report
-                                                                 ReportView;
-                             [s'] = toListOf (toLens p) s :: [ReportView]}
-                         in map Path_Report_View (pathsOf s' a :: [Path ReportView
-                                                                        (Order AuthorID Author)])
+          pathsOf s a = concatMap (\s' -> map Path_Report_View (pathsOf s' a :: [Path ReportView
+                                                                                      (Order AuthorID
+                                                                                             Author)])) (toListOf (toLens (Path_Report_View idPath :: Path Report
+                                                                                                                                                           ReportView)) s :: [ReportView])
 instance HasPaths Report Branding
     where type Path Report Branding = Path_Report Branding
-          pathsOf s a = let {p = Path_Report_View idPath :: Path Report
-                                                                 ReportView;
-                             [s'] = toListOf (toLens p) s :: [ReportView]}
-                         in map Path_Report_View (pathsOf s' a :: [Path ReportView
-                                                                        Branding])
+          pathsOf s a = concatMap (\s' -> map Path_Report_View (pathsOf s' a :: [Path ReportView
+                                                                                      Branding])) (toListOf (toLens (Path_Report_View idPath :: Path Report
+                                                                                                                                                     ReportView)) s :: [ReportView])
 instance HasPaths Report MarkupPair
     where type Path Report MarkupPair = Path_Report MarkupPair
-          pathsOf s a = let {p = Path_Report_View idPath :: Path Report
-                                                                 ReportView;
-                             [s'] = toListOf (toLens p) s :: [ReportView]}
-                         in map Path_Report_View (pathsOf s' a :: [Path ReportView
-                                                                        ((Markup, Markup))])
+          pathsOf s a = concatMap (\s' -> map Path_Report_View (pathsOf s' a :: [Path ReportView
+                                                                                      ((Markup,
+                                                                                        Markup))])) (toListOf (toLens (Path_Report_View idPath :: Path Report
+                                                                                                                                                       ReportView)) s :: [ReportView])
 instance HasPaths Report MarkupPairs
     where type Path Report MarkupPairs = Path_Report MarkupPairs
-          pathsOf s a = let {p = Path_Report_View idPath :: Path Report
-                                                                 ReportView;
-                             [s'] = toListOf (toLens p) s :: [ReportView]}
-                         in map Path_Report_View (pathsOf s' a :: [Path ReportView
-                                                                        (Order MarkupPairID
-                                                                               ((Markup, Markup)))])
+          pathsOf s a = concatMap (\s' -> map Path_Report_View (pathsOf s' a :: [Path ReportView
+                                                                                      (Order MarkupPairID
+                                                                                             ((Markup,
+                                                                                               Markup)))])) (toListOf (toLens (Path_Report_View idPath :: Path Report
+                                                                                                                                                               ReportView)) s :: [ReportView])
 instance HasPaths Report Markups
     where type Path Report Markups = Path_Report Markups
-          pathsOf s a = let {p = Path_Report_View idPath :: Path Report
-                                                                 ReportView;
-                             [s'] = toListOf (toLens p) s :: [ReportView]}
-                         in map Path_Report_View (pathsOf s' a :: [Path ReportView
-                                                                        (Order MarkupID Markup)])
+          pathsOf s a = concatMap (\s' -> map Path_Report_View (pathsOf s' a :: [Path ReportView
+                                                                                      (Order MarkupID
+                                                                                             Markup)])) (toListOf (toLens (Path_Report_View idPath :: Path Report
+                                                                                                                                                           ReportView)) s :: [ReportView])
 instance HasPaths Report MaybeReportIntendedUse
     where type Path Report
                     MaybeReportIntendedUse = Path_Report MaybeReportIntendedUse
-          pathsOf s a = let {p = Path_Report_View idPath :: Path Report
-                                                                 ReportView;
-                             [s'] = toListOf (toLens p) s :: [ReportView]}
-                         in map Path_Report_View (pathsOf s' a :: [Path ReportView
-                                                                        (Maybe ReportIntendedUse)])
+          pathsOf s a = concatMap (\s' -> map Path_Report_View (pathsOf s' a :: [Path ReportView
+                                                                                      (Maybe ReportIntendedUse)])) (toListOf (toLens (Path_Report_View idPath :: Path Report
+                                                                                                                                                                      ReportView)) s :: [ReportView])
 instance HasPaths Report Report
     where type Path Report Report = Path_Report Report
           pathsOf s a = [idPath]
 instance HasPaths Report ReportElem
     where type Path Report ReportElem = Path_Report ReportElem
-          pathsOf s a = let {p = Path_Report_View idPath :: Path Report
-                                                                 ReportView;
-                             [s'] = toListOf (toLens p) s :: [ReportView]}
-                         in map Path_Report_View (pathsOf s' a :: [Path ReportView
-                                                                        ReportElem])
+          pathsOf s a = concatMap (\s' -> map Path_Report_View (pathsOf s' a :: [Path ReportView
+                                                                                      ReportElem])) (toListOf (toLens (Path_Report_View idPath :: Path Report
+                                                                                                                                                       ReportView)) s :: [ReportView])
 instance HasPaths Report ReportElems
     where type Path Report ReportElems = Path_Report ReportElems
-          pathsOf s a = let {p = Path_Report_View idPath :: Path Report
-                                                                 ReportView;
-                             [s'] = toListOf (toLens p) s :: [ReportView]}
-                         in map Path_Report_View (pathsOf s' a :: [Path ReportView
-                                                                        (Order ReportElemID
-                                                                               ReportElem)])
+          pathsOf s a = concatMap (\s' -> map Path_Report_View (pathsOf s' a :: [Path ReportView
+                                                                                      (Order ReportElemID
+                                                                                             ReportElem)])) (toListOf (toLens (Path_Report_View idPath :: Path Report
+                                                                                                                                                               ReportView)) s :: [ReportView])
 instance HasPaths Report ReportFlags
     where type Path Report ReportFlags = Path_Report ReportFlags
-          pathsOf s a = let {p = Path_Report_View idPath :: Path Report
-                                                                 ReportView;
-                             [s'] = toListOf (toLens p) s :: [ReportView]}
-                         in map Path_Report_View (pathsOf s' a :: [Path ReportView
-                                                                        ReportFlags])
+          pathsOf s a = concatMap (\s' -> map Path_Report_View (pathsOf s' a :: [Path ReportView
+                                                                                      ReportFlags])) (toListOf (toLens (Path_Report_View idPath :: Path Report
+                                                                                                                                                        ReportView)) s :: [ReportView])
 instance HasPaths Report ReportStandard
     where type Path Report ReportStandard = Path_Report ReportStandard
-          pathsOf s a = let {p = Path_Report_View idPath :: Path Report
-                                                                 ReportView;
-                             [s'] = toListOf (toLens p) s :: [ReportView]}
-                         in map Path_Report_View (pathsOf s' a :: [Path ReportView
-                                                                        ReportStandard])
+          pathsOf s a = concatMap (\s' -> map Path_Report_View (pathsOf s' a :: [Path ReportView
+                                                                                      ReportStandard])) (toListOf (toLens (Path_Report_View idPath :: Path Report
+                                                                                                                                                           ReportView)) s :: [ReportView])
 instance HasPaths Report ReportStatus
     where type Path Report ReportStatus = Path_Report ReportStatus
-          pathsOf s a = let {p = Path_Report_View idPath :: Path Report
-                                                                 ReportView;
-                             [s'] = toListOf (toLens p) s :: [ReportView]}
-                         in map Path_Report_View (pathsOf s' a :: [Path ReportView
-                                                                        ReportStatus])
+          pathsOf s a = concatMap (\s' -> map Path_Report_View (pathsOf s' a :: [Path ReportView
+                                                                                      ReportStatus])) (toListOf (toLens (Path_Report_View idPath :: Path Report
+                                                                                                                                                         ReportView)) s :: [ReportView])
 instance HasPaths Report ReportValueApproachInfo
     where type Path Report
                     ReportValueApproachInfo = Path_Report ReportValueApproachInfo
-          pathsOf s a = let {p = Path_Report_View idPath :: Path Report
-                                                                 ReportView;
-                             [s'] = toListOf (toLens p) s :: [ReportView]}
-                         in map Path_Report_View (pathsOf s' a :: [Path ReportView
-                                                                        ReportValueApproachInfo])
+          pathsOf s a = concatMap (\s' -> map Path_Report_View (pathsOf s' a :: [Path ReportView
+                                                                                      ReportValueApproachInfo])) (toListOf (toLens (Path_Report_View idPath :: Path Report
+                                                                                                                                                                    ReportView)) s :: [ReportView])
 instance HasPaths Report ReportValueTypeInfo
     where type Path Report
                     ReportValueTypeInfo = Path_Report ReportValueTypeInfo
-          pathsOf s a = let {p = Path_Report_View idPath :: Path Report
-                                                                 ReportView;
-                             [s'] = toListOf (toLens p) s :: [ReportView]}
-                         in map Path_Report_View (pathsOf s' a :: [Path ReportView
-                                                                        ReportValueTypeInfo])
+          pathsOf s a = concatMap (\s' -> map Path_Report_View (pathsOf s' a :: [Path ReportView
+                                                                                      ReportValueTypeInfo])) (toListOf (toLens (Path_Report_View idPath :: Path Report
+                                                                                                                                                                ReportView)) s :: [ReportView])
 instance HasPaths Report EUI
     where type Path Report EUI = Path_Report EUI
-          pathsOf s a = let {p = Path_Report_View idPath :: Path Report
-                                                                 ReportView;
-                             [s'] = toListOf (toLens p) s :: [ReportView]}
-                         in map Path_Report_View (pathsOf s' a :: [Path ReportView
-                                                                        (Either URI ImageFile)])
+          pathsOf s a = concatMap (\s' -> map Path_Report_View (pathsOf s' a :: [Path ReportView
+                                                                                      (Either URI
+                                                                                              ImageFile)])) (toListOf (toLens (Path_Report_View idPath :: Path Report
+                                                                                                                                                               ReportView)) s :: [ReportView])
 instance HasPaths Report MEUI
     where type Path Report MEUI = Path_Report MEUI
-          pathsOf s a = let {p = Path_Report_View idPath :: Path Report
-                                                                 ReportView;
-                             [s'] = toListOf (toLens p) s :: [ReportView]}
-                         in map Path_Report_View (pathsOf s' a :: [Path ReportView
-                                                                        (Maybe (Either URI
-                                                                                       ImageFile))])
+          pathsOf s a = concatMap (\s' -> map Path_Report_View (pathsOf s' a :: [Path ReportView
+                                                                                      (Maybe (Either URI
+                                                                                                     ImageFile))])) (toListOf (toLens (Path_Report_View idPath :: Path Report
+                                                                                                                                                                       ReportView)) s :: [ReportView])
 instance HasPaths Report MaybeImageFile
     where type Path Report MaybeImageFile = Path_Report MaybeImageFile
-          pathsOf s a = let {p = Path_Report_View idPath :: Path Report
-                                                                 ReportView;
-                             [s'] = toListOf (toLens p) s :: [ReportView]}
-                         in map Path_Report_View (pathsOf s' a :: [Path ReportView
-                                                                        (Maybe ImageFile)])
+          pathsOf s a = concatMap (\s' -> map Path_Report_View (pathsOf s' a :: [Path ReportView
+                                                                                      (Maybe ImageFile)])) (toListOf (toLens (Path_Report_View idPath :: Path Report
+                                                                                                                                                              ReportView)) s :: [ReportView])
 instance HasPaths Report ReportImage
     where type Path Report ReportImage = Path_Report ReportImage
-          pathsOf s a = let {p = Path_Report_View idPath :: Path Report
-                                                                 ReportView;
-                             [s'] = toListOf (toLens p) s :: [ReportView]}
-                         in map Path_Report_View (pathsOf s' a :: [Path ReportView
-                                                                        ReportImage])
+          pathsOf s a = concatMap (\s' -> map Path_Report_View (pathsOf s' a :: [Path ReportView
+                                                                                      ReportImage])) (toListOf (toLens (Path_Report_View idPath :: Path Report
+                                                                                                                                                        ReportView)) s :: [ReportView])
 instance HasPaths Report ReportImages
     where type Path Report ReportImages = Path_Report ReportImages
-          pathsOf s a = let {p = Path_Report_View idPath :: Path Report
-                                                                 ReportView;
-                             [s'] = toListOf (toLens p) s :: [ReportView]}
-                         in map Path_Report_View (pathsOf s' a :: [Path ReportView
-                                                                        (Order ReportImageID
-                                                                               ReportImage)])
+          pathsOf s a = concatMap (\s' -> map Path_Report_View (pathsOf s' a :: [Path ReportView
+                                                                                      (Order ReportImageID
+                                                                                             ReportImage)])) (toListOf (toLens (Path_Report_View idPath :: Path Report
+                                                                                                                                                                ReportView)) s :: [ReportView])
 instance HasPaths Report ReadOnlyFilePath
     where type Path Report
                     ReadOnlyFilePath = Path_Report ReadOnlyFilePath
-          pathsOf s a = let {p = Path_Report_View idPath :: Path Report
-                                                                 ReportView;
-                             [s'] = toListOf (toLens p) s :: [ReportView]}
-                         in map Path_Report_View (pathsOf s' a :: [Path ReportView
-                                                                        (ReadOnly ([Char]))])
+          pathsOf s a = concatMap (\s' -> map Path_Report_View (pathsOf s' a :: [Path ReportView
+                                                                                      (ReadOnly ([Char]))])) (toListOf (toLens (Path_Report_View idPath :: Path Report
+                                                                                                                                                                ReportView)) s :: [ReportView])
 instance HasPaths Report ReportImageView
     where type Path Report
                     ReportImageView = Path_Report ReportImageView
-          pathsOf s a = let {p = Path_Report_View idPath :: Path Report
-                                                                 ReportView;
-                             [s'] = toListOf (toLens p) s :: [ReportView]}
-                         in map Path_Report_View (pathsOf s' a :: [Path ReportView
-                                                                        ReportImageView])
+          pathsOf s a = concatMap (\s' -> map Path_Report_View (pathsOf s' a :: [Path ReportView
+                                                                                      ReportImageView])) (toListOf (toLens (Path_Report_View idPath :: Path Report
+                                                                                                                                                            ReportView)) s :: [ReportView])
 instance HasPaths Report ReportView
     where type Path Report ReportView = Path_Report ReportView
-          pathsOf s a = let {p = Path_Report_View idPath :: Path Report
-                                                                 ReportView;
-                             [s'] = toListOf (toLens p) s :: [ReportView]}
-                         in map Path_Report_View (pathsOf s' a :: [Path ReportView
-                                                                        ReportView])
+          pathsOf s a = concatMap (\s' -> map Path_Report_View (pathsOf s' a :: [Path ReportView
+                                                                                      ReportView])) (toListOf (toLens (Path_Report_View idPath :: Path Report
+                                                                                                                                                       ReportView)) s :: [ReportView])
 instance HasPaths Report SaneSizeImageSize
     where type Path Report
                     SaneSizeImageSize = Path_Report SaneSizeImageSize
-          pathsOf s a = let {p = Path_Report_View idPath :: Path Report
-                                                                 ReportView;
-                             [s'] = toListOf (toLens p) s :: [ReportView]}
-                         in map Path_Report_View (pathsOf s' a :: [Path ReportView
-                                                                        (SaneSize ImageSize)])
+          pathsOf s a = concatMap (\s' -> map Path_Report_View (pathsOf s' a :: [Path ReportView
+                                                                                      (SaneSize ImageSize)])) (toListOf (toLens (Path_Report_View idPath :: Path Report
+                                                                                                                                                                 ReportView)) s :: [ReportView])
 instance HasPaths Report Item
     where type Path Report Item = Path_Report Item
-          pathsOf s a = let {p = Path_Report_View idPath :: Path Report
-                                                                 ReportView;
-                             [s'] = toListOf (toLens p) s :: [ReportView]}
-                         in map Path_Report_View (pathsOf s' a :: [Path ReportView Item])
+          pathsOf s a = concatMap (\s' -> map Path_Report_View (pathsOf s' a :: [Path ReportView
+                                                                                      Item])) (toListOf (toLens (Path_Report_View idPath :: Path Report
+                                                                                                                                                 ReportView)) s :: [ReportView])
 instance HasPaths Report MIM
     where type Path Report MIM = Path_Report MIM
-          pathsOf s a = let {p = Path_Report_View idPath :: Path Report
-                                                                 ReportView;
-                             [s'] = toListOf (toLens p) s :: [ReportView]}
-                         in map Path_Report_View (pathsOf s' a :: [Path ReportView
-                                                                        (Map ItemFieldName Markup)])
+          pathsOf s a = concatMap (\s' -> map Path_Report_View (pathsOf s' a :: [Path ReportView
+                                                                                      (Map ItemFieldName
+                                                                                           Markup)])) (toListOf (toLens (Path_Report_View idPath :: Path Report
+                                                                                                                                                         ReportView)) s :: [ReportView])
 instance HasPaths Report CIString
     where type Path Report CIString = Path_Report CIString
-          pathsOf s a = let {p = Path_Report_View idPath :: Path Report
-                                                                 ReportView;
-                             [s'] = toListOf (toLens p) s :: [ReportView]}
-                         in map Path_Report_View (pathsOf s' a :: [Path ReportView
-                                                                        CIString])
+          pathsOf s a = concatMap (\s' -> map Path_Report_View (pathsOf s' a :: [Path ReportView
+                                                                                      CIString])) (toListOf (toLens (Path_Report_View idPath :: Path Report
+                                                                                                                                                     ReportView)) s :: [ReportView])
 instance HasPaths Report URI
     where type Path Report URI = Path_Report URI
-          pathsOf s a = let {p = Path_Report_View idPath :: Path Report
-                                                                 ReportView;
-                             [s'] = toListOf (toLens p) s :: [ReportView]}
-                         in map Path_Report_View (pathsOf s' a :: [Path ReportView URI])
+          pathsOf s a = concatMap (\s' -> map Path_Report_View (pathsOf s' a :: [Path ReportView
+                                                                                      URI])) (toListOf (toLens (Path_Report_View idPath :: Path Report
+                                                                                                                                                ReportView)) s :: [ReportView])
 instance HasPaths Report Text
     where type Path Report Text = Path_Report Text
-          pathsOf s a = let {p = Path_Report_View idPath :: Path Report
-                                                                 ReportView;
-                             [s'] = toListOf (toLens p) s :: [ReportView]}
-                         in map Path_Report_View (pathsOf s' a :: [Path ReportView Text])
+          pathsOf s a = concatMap (\s' -> map Path_Report_View (pathsOf s' a :: [Path ReportView
+                                                                                      Text])) (toListOf (toLens (Path_Report_View idPath :: Path Report
+                                                                                                                                                 ReportView)) s :: [ReportView])
 instance HasPaths Report UserId
     where type Path Report UserId = Path_Report UserId
-          pathsOf s a = let {p = Path_Report_View idPath :: Path Report
-                                                                 ReportView;
-                             [s'] = toListOf (toLens p) s :: [ReportView]}
-                         in map Path_Report_View (pathsOf s' a :: [Path ReportView UserId])
+          pathsOf s a = concatMap (\s' -> map Path_Report_View (pathsOf s' a :: [Path ReportView
+                                                                                      UserId])) (toListOf (toLens (Path_Report_View idPath :: Path Report
+                                                                                                                                                   ReportView)) s :: [ReportView])
 instance HasPaths Report UUID
     where type Path Report UUID = Path_Report UUID
-          pathsOf s a = let {p = Path_Report_View idPath :: Path Report
-                                                                 ReportView;
-                             [s'] = toListOf (toLens p) s :: [ReportView]}
-                         in map Path_Report_View (pathsOf s' a :: [Path ReportView UUID])
+          pathsOf s a = concatMap (\s' -> map Path_Report_View (pathsOf s' a :: [Path ReportView
+                                                                                      UUID])) (toListOf (toLens (Path_Report_View idPath :: Path Report
+                                                                                                                                                 ReportView)) s :: [ReportView])
 instance HasPaths ReportElem String
     where type Path ReportElem String = Path_ReportElem String
           pathsOf s a = case s of
@@ -1915,19 +1826,15 @@ instance HasPaths ReportFlags ReportFlags
 instance HasPaths ReportIntendedUse String
     where type Path ReportIntendedUse
                     String = Path_ReportIntendedUse String
-          pathsOf s a = let {p = Path_ReportIntendedUse_View idPath :: Path ReportIntendedUse
-                                                                            ([Char]);
-                             [s'] = toListOf (toLens p) s :: [[Char]]}
-                         in map Path_ReportIntendedUse_View (pathsOf s' a :: [Path ([Char])
-                                                                                   ([Char])])
+          pathsOf s a = concatMap (\s' -> map Path_ReportIntendedUse_View (pathsOf s' a :: [Path ([Char])
+                                                                                                 ([Char])])) (toListOf (toLens (Path_ReportIntendedUse_View idPath :: Path ReportIntendedUse
+                                                                                                                                                                           ([Char]))) s :: [[Char]])
 instance HasPaths ReportIntendedUse JSONText
     where type Path ReportIntendedUse
                     JSONText = Path_ReportIntendedUse JSONText
-          pathsOf s a = let {p = Path_ReportIntendedUse_View idPath :: Path ReportIntendedUse
-                                                                            ([Char]);
-                             [s'] = toListOf (toLens p) s :: [[Char]]}
-                         in map Path_ReportIntendedUse_View (pathsOf s' a :: [Path ([Char])
-                                                                                   JSONText])
+          pathsOf s a = concatMap (\s' -> map Path_ReportIntendedUse_View (pathsOf s' a :: [Path ([Char])
+                                                                                                 JSONText])) (toListOf (toLens (Path_ReportIntendedUse_View idPath :: Path ReportIntendedUse
+                                                                                                                                                                           ([Char]))) s :: [[Char]])
 instance HasPaths ReportIntendedUse ReportIntendedUse
     where type Path ReportIntendedUse
                     ReportIntendedUse = Path_ReportIntendedUse ReportIntendedUse
@@ -1942,18 +1849,14 @@ instance HasPaths ReportStandard ReportStandard
           pathsOf s a = [idPath]
 instance HasPaths ReportStatus String
     where type Path ReportStatus String = Path_ReportStatus String
-          pathsOf s a = let {p = Path_ReportStatus_View idPath :: Path ReportStatus
-                                                                       ([Char]);
-                             [s'] = toListOf (toLens p) s :: [[Char]]}
-                         in map Path_ReportStatus_View (pathsOf s' a :: [Path ([Char])
-                                                                              ([Char])])
+          pathsOf s a = concatMap (\s' -> map Path_ReportStatus_View (pathsOf s' a :: [Path ([Char])
+                                                                                            ([Char])])) (toListOf (toLens (Path_ReportStatus_View idPath :: Path ReportStatus
+                                                                                                                                                                 ([Char]))) s :: [[Char]])
 instance HasPaths ReportStatus JSONText
     where type Path ReportStatus JSONText = Path_ReportStatus JSONText
-          pathsOf s a = let {p = Path_ReportStatus_View idPath :: Path ReportStatus
-                                                                       ([Char]);
-                             [s'] = toListOf (toLens p) s :: [[Char]]}
-                         in map Path_ReportStatus_View (pathsOf s' a :: [Path ([Char])
-                                                                              JSONText])
+          pathsOf s a = concatMap (\s' -> map Path_ReportStatus_View (pathsOf s' a :: [Path ([Char])
+                                                                                            JSONText])) (toListOf (toLens (Path_ReportStatus_View idPath :: Path ReportStatus
+                                                                                                                                                                 ([Char]))) s :: [[Char]])
 instance HasPaths ReportStatus ReportStatus
     where type Path ReportStatus
                     ReportStatus = Path_ReportStatus ReportStatus
@@ -2045,117 +1948,87 @@ instance HasPaths MEUI URI
                                                                                                  URI])) (maybe [] (: []) s)
 instance HasPaths MaybeImageFile String
     where type Path MaybeImageFile String = Path_MaybeImageFile String
-          pathsOf s a = let {p = Path_MaybeImageFile_View idPath :: Path (Maybe ImageFile)
-                                                                         ([Char]);
-                             [s'] = toListOf (toLens p) s :: [[Char]]}
-                         in map Path_MaybeImageFile_View (pathsOf s' a :: [Path ([Char])
-                                                                                ([Char])])
+          pathsOf s a = concatMap (\s' -> map Path_MaybeImageFile_View (pathsOf s' a :: [Path ([Char])
+                                                                                              ([Char])])) (toListOf (toLens (Path_MaybeImageFile_View idPath :: Path (Maybe ImageFile)
+                                                                                                                                                                     ([Char]))) s :: [[Char]])
 instance HasPaths MaybeImageFile JSONText
     where type Path MaybeImageFile
                     JSONText = Path_MaybeImageFile JSONText
-          pathsOf s a = let {p = Path_MaybeImageFile_View idPath :: Path (Maybe ImageFile)
-                                                                         ([Char]);
-                             [s'] = toListOf (toLens p) s :: [[Char]]}
-                         in map Path_MaybeImageFile_View (pathsOf s' a :: [Path ([Char])
-                                                                                JSONText])
+          pathsOf s a = concatMap (\s' -> map Path_MaybeImageFile_View (pathsOf s' a :: [Path ([Char])
+                                                                                              JSONText])) (toListOf (toLens (Path_MaybeImageFile_View idPath :: Path (Maybe ImageFile)
+                                                                                                                                                                     ([Char]))) s :: [[Char]])
 instance HasPaths MaybeImageFile MaybeImageFile
     where type Path MaybeImageFile
                     MaybeImageFile = Path_MaybeImageFile MaybeImageFile
           pathsOf s a = [idPath]
 instance HasPaths ReportImage String
     where type Path ReportImage String = Path_ReportImage String
-          pathsOf s a = let {p = Path_ReportImage_View idPath :: Path ReportImage
-                                                                      ReportImageView;
-                             [s'] = toListOf (toLens p) s :: [ReportImageView]}
-                         in map Path_ReportImage_View (pathsOf s' a :: [Path ReportImageView
-                                                                             ([Char])])
+          pathsOf s a = concatMap (\s' -> map Path_ReportImage_View (pathsOf s' a :: [Path ReportImageView
+                                                                                           ([Char])])) (toListOf (toLens (Path_ReportImage_View idPath :: Path ReportImage
+                                                                                                                                                               ReportImageView)) s :: [ReportImageView])
 instance HasPaths ReportImage Bool
     where type Path ReportImage Bool = Path_ReportImage Bool
-          pathsOf s a = let {p = Path_ReportImage_View idPath :: Path ReportImage
-                                                                      ReportImageView;
-                             [s'] = toListOf (toLens p) s :: [ReportImageView]}
-                         in map Path_ReportImage_View (pathsOf s' a :: [Path ReportImageView
-                                                                             Bool])
+          pathsOf s a = concatMap (\s' -> map Path_ReportImage_View (pathsOf s' a :: [Path ReportImageView
+                                                                                           Bool])) (toListOf (toLens (Path_ReportImage_View idPath :: Path ReportImage
+                                                                                                                                                           ReportImageView)) s :: [ReportImageView])
 instance HasPaths ReportImage Double
     where type Path ReportImage Double = Path_ReportImage Double
-          pathsOf s a = let {p = Path_ReportImage_View idPath :: Path ReportImage
-                                                                      ReportImageView;
-                             [s'] = toListOf (toLens p) s :: [ReportImageView]}
-                         in map Path_ReportImage_View (pathsOf s' a :: [Path ReportImageView
-                                                                             Double])
+          pathsOf s a = concatMap (\s' -> map Path_ReportImage_View (pathsOf s' a :: [Path ReportImageView
+                                                                                           Double])) (toListOf (toLens (Path_ReportImage_View idPath :: Path ReportImage
+                                                                                                                                                             ReportImageView)) s :: [ReportImageView])
 instance HasPaths ReportImage Dimension
     where type Path ReportImage Dimension = Path_ReportImage Dimension
-          pathsOf s a = let {p = Path_ReportImage_View idPath :: Path ReportImage
-                                                                      ReportImageView;
-                             [s'] = toListOf (toLens p) s :: [ReportImageView]}
-                         in map Path_ReportImage_View (pathsOf s' a :: [Path ReportImageView
-                                                                             Dimension])
+          pathsOf s a = concatMap (\s' -> map Path_ReportImage_View (pathsOf s' a :: [Path ReportImageView
+                                                                                           Dimension])) (toListOf (toLens (Path_ReportImage_View idPath :: Path ReportImage
+                                                                                                                                                                ReportImageView)) s :: [ReportImageView])
 instance HasPaths ReportImage ImageCrop
     where type Path ReportImage ImageCrop = Path_ReportImage ImageCrop
-          pathsOf s a = let {p = Path_ReportImage_View idPath :: Path ReportImage
-                                                                      ReportImageView;
-                             [s'] = toListOf (toLens p) s :: [ReportImageView]}
-                         in map Path_ReportImage_View (pathsOf s' a :: [Path ReportImageView
-                                                                             ImageCrop])
+          pathsOf s a = concatMap (\s' -> map Path_ReportImage_View (pathsOf s' a :: [Path ReportImageView
+                                                                                           ImageCrop])) (toListOf (toLens (Path_ReportImage_View idPath :: Path ReportImage
+                                                                                                                                                                ReportImageView)) s :: [ReportImageView])
 instance HasPaths ReportImage ImageSize
     where type Path ReportImage ImageSize = Path_ReportImage ImageSize
-          pathsOf s a = let {p = Path_ReportImage_View idPath :: Path ReportImage
-                                                                      ReportImageView;
-                             [s'] = toListOf (toLens p) s :: [ReportImageView]}
-                         in map Path_ReportImage_View (pathsOf s' a :: [Path ReportImageView
-                                                                             ImageSize])
+          pathsOf s a = concatMap (\s' -> map Path_ReportImage_View (pathsOf s' a :: [Path ReportImageView
+                                                                                           ImageSize])) (toListOf (toLens (Path_ReportImage_View idPath :: Path ReportImage
+                                                                                                                                                                ReportImageView)) s :: [ReportImageView])
 instance HasPaths ReportImage Units
     where type Path ReportImage Units = Path_ReportImage Units
-          pathsOf s a = let {p = Path_ReportImage_View idPath :: Path ReportImage
-                                                                      ReportImageView;
-                             [s'] = toListOf (toLens p) s :: [ReportImageView]}
-                         in map Path_ReportImage_View (pathsOf s' a :: [Path ReportImageView
-                                                                             Units])
+          pathsOf s a = concatMap (\s' -> map Path_ReportImage_View (pathsOf s' a :: [Path ReportImageView
+                                                                                           Units])) (toListOf (toLens (Path_ReportImage_View idPath :: Path ReportImage
+                                                                                                                                                            ReportImageView)) s :: [ReportImageView])
 instance HasPaths ReportImage ImageFile
     where type Path ReportImage ImageFile = Path_ReportImage ImageFile
-          pathsOf s a = let {p = Path_ReportImage_View idPath :: Path ReportImage
-                                                                      ReportImageView;
-                             [s'] = toListOf (toLens p) s :: [ReportImageView]}
-                         in map Path_ReportImage_View (pathsOf s' a :: [Path ReportImageView
-                                                                             ImageFile])
+          pathsOf s a = concatMap (\s' -> map Path_ReportImage_View (pathsOf s' a :: [Path ReportImageView
+                                                                                           ImageFile])) (toListOf (toLens (Path_ReportImage_View idPath :: Path ReportImage
+                                                                                                                                                                ReportImageView)) s :: [ReportImageView])
 instance HasPaths ReportImage JSONText
     where type Path ReportImage JSONText = Path_ReportImage JSONText
-          pathsOf s a = let {p = Path_ReportImage_View idPath :: Path ReportImage
-                                                                      ReportImageView;
-                             [s'] = toListOf (toLens p) s :: [ReportImageView]}
-                         in map Path_ReportImage_View (pathsOf s' a :: [Path ReportImageView
-                                                                             JSONText])
+          pathsOf s a = concatMap (\s' -> map Path_ReportImage_View (pathsOf s' a :: [Path ReportImageView
+                                                                                           JSONText])) (toListOf (toLens (Path_ReportImage_View idPath :: Path ReportImage
+                                                                                                                                                               ReportImageView)) s :: [ReportImageView])
 instance HasPaths ReportImage Markup
     where type Path ReportImage Markup = Path_ReportImage Markup
-          pathsOf s a = let {p = Path_ReportImage_View idPath :: Path ReportImage
-                                                                      ReportImageView;
-                             [s'] = toListOf (toLens p) s :: [ReportImageView]}
-                         in map Path_ReportImage_View (pathsOf s' a :: [Path ReportImageView
-                                                                             Markup])
+          pathsOf s a = concatMap (\s' -> map Path_ReportImage_View (pathsOf s' a :: [Path ReportImageView
+                                                                                           Markup])) (toListOf (toLens (Path_ReportImage_View idPath :: Path ReportImage
+                                                                                                                                                             ReportImageView)) s :: [ReportImageView])
 instance HasPaths ReportImage EUI
     where type Path ReportImage EUI = Path_ReportImage EUI
-          pathsOf s a = let {p = Path_ReportImage_View idPath :: Path ReportImage
-                                                                      ReportImageView;
-                             [s'] = toListOf (toLens p) s :: [ReportImageView]}
-                         in map Path_ReportImage_View (pathsOf s' a :: [Path ReportImageView
-                                                                             (Either URI
-                                                                                     ImageFile)])
+          pathsOf s a = concatMap (\s' -> map Path_ReportImage_View (pathsOf s' a :: [Path ReportImageView
+                                                                                           (Either URI
+                                                                                                   ImageFile)])) (toListOf (toLens (Path_ReportImage_View idPath :: Path ReportImage
+                                                                                                                                                                         ReportImageView)) s :: [ReportImageView])
 instance HasPaths ReportImage MEUI
     where type Path ReportImage MEUI = Path_ReportImage MEUI
-          pathsOf s a = let {p = Path_ReportImage_View idPath :: Path ReportImage
-                                                                      ReportImageView;
-                             [s'] = toListOf (toLens p) s :: [ReportImageView]}
-                         in map Path_ReportImage_View (pathsOf s' a :: [Path ReportImageView
-                                                                             (Maybe (Either URI
-                                                                                            ImageFile))])
+          pathsOf s a = concatMap (\s' -> map Path_ReportImage_View (pathsOf s' a :: [Path ReportImageView
+                                                                                           (Maybe (Either URI
+                                                                                                          ImageFile))])) (toListOf (toLens (Path_ReportImage_View idPath :: Path ReportImage
+                                                                                                                                                                                 ReportImageView)) s :: [ReportImageView])
 instance HasPaths ReportImage MaybeImageFile
     where type Path ReportImage
                     MaybeImageFile = Path_ReportImage MaybeImageFile
-          pathsOf s a = let {p = Path_ReportImage_View idPath :: Path ReportImage
-                                                                      ReportImageView;
-                             [s'] = toListOf (toLens p) s :: [ReportImageView]}
-                         in map Path_ReportImage_View (pathsOf s' a :: [Path ReportImageView
-                                                                             (Maybe ImageFile)])
+          pathsOf s a = concatMap (\s' -> map Path_ReportImage_View (pathsOf s' a :: [Path ReportImageView
+                                                                                           (Maybe ImageFile)])) (toListOf (toLens (Path_ReportImage_View idPath :: Path ReportImage
+                                                                                                                                                                        ReportImageView)) s :: [ReportImageView])
 instance HasPaths ReportImage ReportImage
     where type Path ReportImage
                     ReportImage = Path_ReportImage ReportImage
@@ -2163,33 +2036,25 @@ instance HasPaths ReportImage ReportImage
 instance HasPaths ReportImage ReportImageView
     where type Path ReportImage
                     ReportImageView = Path_ReportImage ReportImageView
-          pathsOf s a = let {p = Path_ReportImage_View idPath :: Path ReportImage
-                                                                      ReportImageView;
-                             [s'] = toListOf (toLens p) s :: [ReportImageView]}
-                         in map Path_ReportImage_View (pathsOf s' a :: [Path ReportImageView
-                                                                             ReportImageView])
+          pathsOf s a = concatMap (\s' -> map Path_ReportImage_View (pathsOf s' a :: [Path ReportImageView
+                                                                                           ReportImageView])) (toListOf (toLens (Path_ReportImage_View idPath :: Path ReportImage
+                                                                                                                                                                      ReportImageView)) s :: [ReportImageView])
 instance HasPaths ReportImage SaneSizeImageSize
     where type Path ReportImage
                     SaneSizeImageSize = Path_ReportImage SaneSizeImageSize
-          pathsOf s a = let {p = Path_ReportImage_View idPath :: Path ReportImage
-                                                                      ReportImageView;
-                             [s'] = toListOf (toLens p) s :: [ReportImageView]}
-                         in map Path_ReportImage_View (pathsOf s' a :: [Path ReportImageView
-                                                                             (SaneSize ImageSize)])
+          pathsOf s a = concatMap (\s' -> map Path_ReportImage_View (pathsOf s' a :: [Path ReportImageView
+                                                                                           (SaneSize ImageSize)])) (toListOf (toLens (Path_ReportImage_View idPath :: Path ReportImage
+                                                                                                                                                                           ReportImageView)) s :: [ReportImageView])
 instance HasPaths ReportImage URI
     where type Path ReportImage URI = Path_ReportImage URI
-          pathsOf s a = let {p = Path_ReportImage_View idPath :: Path ReportImage
-                                                                      ReportImageView;
-                             [s'] = toListOf (toLens p) s :: [ReportImageView]}
-                         in map Path_ReportImage_View (pathsOf s' a :: [Path ReportImageView
-                                                                             URI])
+          pathsOf s a = concatMap (\s' -> map Path_ReportImage_View (pathsOf s' a :: [Path ReportImageView
+                                                                                           URI])) (toListOf (toLens (Path_ReportImage_View idPath :: Path ReportImage
+                                                                                                                                                          ReportImageView)) s :: [ReportImageView])
 instance HasPaths ReportImage Text
     where type Path ReportImage Text = Path_ReportImage Text
-          pathsOf s a = let {p = Path_ReportImage_View idPath :: Path ReportImage
-                                                                      ReportImageView;
-                             [s'] = toListOf (toLens p) s :: [ReportImageView]}
-                         in map Path_ReportImage_View (pathsOf s' a :: [Path ReportImageView
-                                                                             Text])
+          pathsOf s a = concatMap (\s' -> map Path_ReportImage_View (pathsOf s' a :: [Path ReportImageView
+                                                                                           Text])) (toListOf (toLens (Path_ReportImage_View idPath :: Path ReportImage
+                                                                                                                                                           ReportImageView)) s :: [ReportImageView])
 instance HasPaths ReportImages String
     where type Path ReportImages String = Path_OMap ReportImageID
                                                     (Path_ReportImage String)
@@ -2346,19 +2211,15 @@ instance HasPaths ReportImages Text
 instance HasPaths ReadOnlyFilePath String
     where type Path ReadOnlyFilePath
                     String = Path_ReadOnlyFilePath String
-          pathsOf s a = let {p = Path_ReadOnlyFilePath_View idPath :: Path (ReadOnly ([Char]))
-                                                                           ([Char]);
-                             [s'] = toListOf (toLens p) s :: [[Char]]}
-                         in map Path_ReadOnlyFilePath_View (pathsOf s' a :: [Path ([Char])
-                                                                                  ([Char])])
+          pathsOf s a = concatMap (\s' -> map Path_ReadOnlyFilePath_View (pathsOf s' a :: [Path ([Char])
+                                                                                                ([Char])])) (toListOf (toLens (Path_ReadOnlyFilePath_View idPath :: Path (ReadOnly ([Char]))
+                                                                                                                                                                         ([Char]))) s :: [[Char]])
 instance HasPaths ReadOnlyFilePath JSONText
     where type Path ReadOnlyFilePath
                     JSONText = Path_ReadOnlyFilePath JSONText
-          pathsOf s a = let {p = Path_ReadOnlyFilePath_View idPath :: Path (ReadOnly ([Char]))
-                                                                           ([Char]);
-                             [s'] = toListOf (toLens p) s :: [[Char]]}
-                         in map Path_ReadOnlyFilePath_View (pathsOf s' a :: [Path ([Char])
-                                                                                  JSONText])
+          pathsOf s a = concatMap (\s' -> map Path_ReadOnlyFilePath_View (pathsOf s' a :: [Path ([Char])
+                                                                                                JSONText])) (toListOf (toLens (Path_ReadOnlyFilePath_View idPath :: Path (ReadOnly ([Char]))
+                                                                                                                                                                         ([Char]))) s :: [[Char]])
 instance HasPaths ReadOnlyFilePath ReadOnlyFilePath
     where type Path ReadOnlyFilePath
                     ReadOnlyFilePath = Path_ReadOnlyFilePath ReadOnlyFilePath
@@ -2779,51 +2640,39 @@ instance HasPaths ReportView UUID
 instance HasPaths SaneSizeImageSize String
     where type Path SaneSizeImageSize
                     String = Path_SaneSizeImageSize String
-          pathsOf s a = let {p = Path_SaneSizeImageSize_View idPath :: Path (SaneSize ImageSize)
-                                                                            ImageSize;
-                             [s'] = toListOf (toLens p) s :: [ImageSize]}
-                         in map Path_SaneSizeImageSize_View (pathsOf s' a :: [Path ImageSize
-                                                                                   ([Char])])
+          pathsOf s a = concatMap (\s' -> map Path_SaneSizeImageSize_View (pathsOf s' a :: [Path ImageSize
+                                                                                                 ([Char])])) (toListOf (toLens (Path_SaneSizeImageSize_View idPath :: Path (SaneSize ImageSize)
+                                                                                                                                                                           ImageSize)) s :: [ImageSize])
 instance HasPaths SaneSizeImageSize Double
     where type Path SaneSizeImageSize
                     Double = Path_SaneSizeImageSize Double
-          pathsOf s a = let {p = Path_SaneSizeImageSize_View idPath :: Path (SaneSize ImageSize)
-                                                                            ImageSize;
-                             [s'] = toListOf (toLens p) s :: [ImageSize]}
-                         in map Path_SaneSizeImageSize_View (pathsOf s' a :: [Path ImageSize
-                                                                                   Double])
+          pathsOf s a = concatMap (\s' -> map Path_SaneSizeImageSize_View (pathsOf s' a :: [Path ImageSize
+                                                                                                 Double])) (toListOf (toLens (Path_SaneSizeImageSize_View idPath :: Path (SaneSize ImageSize)
+                                                                                                                                                                         ImageSize)) s :: [ImageSize])
 instance HasPaths SaneSizeImageSize Dimension
     where type Path SaneSizeImageSize
                     Dimension = Path_SaneSizeImageSize Dimension
-          pathsOf s a = let {p = Path_SaneSizeImageSize_View idPath :: Path (SaneSize ImageSize)
-                                                                            ImageSize;
-                             [s'] = toListOf (toLens p) s :: [ImageSize]}
-                         in map Path_SaneSizeImageSize_View (pathsOf s' a :: [Path ImageSize
-                                                                                   Dimension])
+          pathsOf s a = concatMap (\s' -> map Path_SaneSizeImageSize_View (pathsOf s' a :: [Path ImageSize
+                                                                                                 Dimension])) (toListOf (toLens (Path_SaneSizeImageSize_View idPath :: Path (SaneSize ImageSize)
+                                                                                                                                                                            ImageSize)) s :: [ImageSize])
 instance HasPaths SaneSizeImageSize ImageSize
     where type Path SaneSizeImageSize
                     ImageSize = Path_SaneSizeImageSize ImageSize
-          pathsOf s a = let {p = Path_SaneSizeImageSize_View idPath :: Path (SaneSize ImageSize)
-                                                                            ImageSize;
-                             [s'] = toListOf (toLens p) s :: [ImageSize]}
-                         in map Path_SaneSizeImageSize_View (pathsOf s' a :: [Path ImageSize
-                                                                                   ImageSize])
+          pathsOf s a = concatMap (\s' -> map Path_SaneSizeImageSize_View (pathsOf s' a :: [Path ImageSize
+                                                                                                 ImageSize])) (toListOf (toLens (Path_SaneSizeImageSize_View idPath :: Path (SaneSize ImageSize)
+                                                                                                                                                                            ImageSize)) s :: [ImageSize])
 instance HasPaths SaneSizeImageSize Units
     where type Path SaneSizeImageSize
                     Units = Path_SaneSizeImageSize Units
-          pathsOf s a = let {p = Path_SaneSizeImageSize_View idPath :: Path (SaneSize ImageSize)
-                                                                            ImageSize;
-                             [s'] = toListOf (toLens p) s :: [ImageSize]}
-                         in map Path_SaneSizeImageSize_View (pathsOf s' a :: [Path ImageSize
-                                                                                   Units])
+          pathsOf s a = concatMap (\s' -> map Path_SaneSizeImageSize_View (pathsOf s' a :: [Path ImageSize
+                                                                                                 Units])) (toListOf (toLens (Path_SaneSizeImageSize_View idPath :: Path (SaneSize ImageSize)
+                                                                                                                                                                        ImageSize)) s :: [ImageSize])
 instance HasPaths SaneSizeImageSize JSONText
     where type Path SaneSizeImageSize
                     JSONText = Path_SaneSizeImageSize JSONText
-          pathsOf s a = let {p = Path_SaneSizeImageSize_View idPath :: Path (SaneSize ImageSize)
-                                                                            ImageSize;
-                             [s'] = toListOf (toLens p) s :: [ImageSize]}
-                         in map Path_SaneSizeImageSize_View (pathsOf s' a :: [Path ImageSize
-                                                                                   JSONText])
+          pathsOf s a = concatMap (\s' -> map Path_SaneSizeImageSize_View (pathsOf s' a :: [Path ImageSize
+                                                                                                 JSONText])) (toListOf (toLens (Path_SaneSizeImageSize_View idPath :: Path (SaneSize ImageSize)
+                                                                                                                                                                           ImageSize)) s :: [ImageSize])
 instance HasPaths SaneSizeImageSize SaneSizeImageSize
     where type Path SaneSizeImageSize
                     SaneSizeImageSize = Path_SaneSizeImageSize SaneSizeImageSize
@@ -3385,27 +3234,25 @@ instance HasPaths ReportMap UUID
                             (ReportMap {}) -> mconcat [map Path_ReportMap_unReportMap (pathsOf (unReportMap s) a)]
 instance HasPaths CIString JSONText
     where type Path CIString JSONText = Path_CIString JSONText
-          pathsOf s a = let {p = Path_CIString_View idPath :: Path CIString
-                                                                   Text;
-                             [s'] = toListOf (toLens p) s :: [Text]}
-                         in map Path_CIString_View (pathsOf s' a :: [Path Text JSONText])
+          pathsOf s a = concatMap (\s' -> map Path_CIString_View (pathsOf s' a :: [Path Text
+                                                                                        JSONText])) (toListOf (toLens (Path_CIString_View idPath :: Path CIString
+                                                                                                                                                         Text)) s :: [Text])
 instance HasPaths CIString CIString
     where type Path CIString CIString = Path_CIString CIString
           pathsOf s a = [idPath]
 instance HasPaths CIString Text
     where type Path CIString Text = Path_CIString Text
-          pathsOf s a = let {p = Path_CIString_View idPath :: Path CIString
-                                                                   Text;
-                             [s'] = toListOf (toLens p) s :: [Text]}
-                         in map Path_CIString_View (pathsOf s' a :: [Path Text Text])
+          pathsOf s a = concatMap (\s' -> map Path_CIString_View (pathsOf s' a :: [Path Text
+                                                                                        Text])) (toListOf (toLens (Path_CIString_View idPath :: Path CIString
+                                                                                                                                                     Text)) s :: [Text])
 instance HasPaths URI URI
     where type Path URI URI = Path_URI URI
           pathsOf s a = [idPath]
 instance HasPaths Text JSONText
     where type Path Text JSONText = Path_Text JSONText
-          pathsOf s a = let {p = Path_Text_View idPath :: Path Text JSONText;
-                             [s'] = toListOf (toLens p) s :: [JSONText]}
-                         in map Path_Text_View (pathsOf s' a :: [Path JSONText JSONText])
+          pathsOf s a = concatMap (\s' -> map Path_Text_View (pathsOf s' a :: [Path JSONText
+                                                                                    JSONText])) (toListOf (toLens (Path_Text_View idPath :: Path Text
+                                                                                                                                                 JSONText)) s :: [JSONText])
 instance HasPaths Text Text
     where type Path Text Text = Path_Text Text
           pathsOf s a = [idPath]
