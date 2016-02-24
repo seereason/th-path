@@ -98,7 +98,7 @@ pathsOfExprs key gkey s a =
           | tname == ''Map =
                do vIsPath <- testIsPath vtyp gkey
                   if vIsPath
-                  then (doClause vtyp gkey s a
+                  then (doClause (asType key) vtyp gkey s a
                                          [|Path_Look . fst|]
                                          [|snd|]
                                          [|Map.toList|])
@@ -109,7 +109,7 @@ pathsOfExprs key gkey s a =
                -- there is a path from the element type to the goal.
                do vIsPath <- testIsPath vtyp gkey
                   if vIsPath
-                  then doClause vtyp gkey s a
+                  then doClause (asType key) vtyp gkey s a
                                          [|Path_At . fst|]
                                          [|snd|]
                                          [|toPairs :: Order $(pure ityp) $(pure vtyp) -> [($(pure ityp), $(pure vtyp))]|]
@@ -119,17 +119,17 @@ pathsOfExprs key gkey s a =
           | tname == ''Either =
               do lIsPath <- testIsPath ltyp gkey
                  rIsPath <- testIsPath rtyp gkey
-                 lexp <- if lIsPath then doClause ltyp gkey s a [|\_ -> Path_Left|] [|id|] [|\s -> case s of Left a -> [a]; Right _ -> []|] else runQ [| [] |]
-                 rexp <- if rIsPath then doClause rtyp gkey s a [|\_ -> Path_Right|] [|id|] [|\s -> case s of Left _ -> []; Right a -> [a]|] else runQ [| [] |]
+                 lexp <- if lIsPath then doClause (asType key) ltyp gkey s a [|\_ -> Path_Left|] [|id|] [|\s -> case s of Left a -> [a]; Right _ -> []|] else runQ [| [] |]
+                 rexp <- if rIsPath then doClause (asType key) rtyp gkey s a [|\_ -> Path_Right|] [|id|] [|\s -> case s of Left _ -> []; Right a -> [a]|] else runQ [| [] |]
                  runQ [| $(pure lexp) <> $(pure rexp) |]
       doType (ConT tname) [etyp]
           | tname == ''Maybe =
-              doClause etyp gkey s a [|\_ -> Path_Just|] [|id|] [|\s -> case s of Nothing -> []; Just a -> [a]|]
+              doClause (asType key) etyp gkey s a [|\_ -> Path_Just|] [|id|] [|\s -> case s of Nothing -> []; Just a -> [a]|]
       doType (TupleT 2) [ftyp, styp] =
           do fIsPath <- testIsPath ftyp gkey
              sIsPath <- testIsPath styp gkey
-             fexp <- if fIsPath then doClause ftyp gkey s a [|\_ -> Path_First|] [|fst|] [|(: [])|] else runQ [| [] |]
-             sexp <- if sIsPath then doClause styp gkey s a [|\_ -> Path_Second|] [|snd|] [|(: [])|] else runQ [| [] |]
+             fexp <- if fIsPath then doClause (asType key) ftyp gkey s a [|\_ -> Path_First|] [|fst|] [|(: [])|] else runQ [| [] |]
+             sexp <- if sIsPath then doClause (asType key) styp gkey s a [|\_ -> Path_Second|] [|snd|] [|(: [])|] else runQ [| [] |]
              runQ [| $(pure fexp) <> $(pure sexp) |]
       doType (ConT tname) tps = doName tname tps
 
@@ -184,17 +184,18 @@ instance HasName TyVarBndr where
     asName (PlainTV x) = x
     asName (KindedTV x _) = x
 
-doClause :: forall m s. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, HasType s, Ord s, HasTGVSimple s, TypeGraphVertex s, HasTypeQ s, HasName s) =>
+doClause :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) =>
             Type
-         -> s
+         -> Type
+         -> TGVSimple
          -> ExpQ -- ^ S
          -> ExpQ -- ^ Proxy A
          -> ExpQ -- ^ Build a path
          -> ExpQ -- ^ Build a value
          -> ExpQ -- ^ The list of values we will turn into paths
          -> m Exp
-doClause vtyp gkey s a toPath toVal asList = do
-  runQ [| List.concatMap (\pv -> List.map ($toPath pv) (pathsOf ($toVal pv) $a {-:: [Path $(pure vtyp) $(asTypeQ gkey)]-})) ($asList $s) |]
+doClause typ vtyp gkey s a toPath toVal asList = do
+  runQ [| List.concatMap (\pv -> (List.map ($toPath pv) (pathsOf (($toVal pv) :: $(pure vtyp)) $a :: [Path $(pure vtyp) $(asTypeQ gkey)])) :: [Path $(pure typ) $(asTypeQ gkey)]) ($asList $s) |]
 
 -- | See if there is a path from typ to gkey.  We need to avoid
 -- building expressions for non-existant paths because they will cause
