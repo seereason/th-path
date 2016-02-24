@@ -42,7 +42,7 @@ import Language.Haskell.TH.TypeGraph.TypeGraph (allPathKeys, HasTGVSimple, pathK
 import Language.Haskell.TH.TypeGraph.TypeInfo (TypeInfo)
 import Language.Haskell.TH.TypeGraph.Vertex (TGVSimple, TypeGraphVertex(bestType))
 
-pathDecs :: (ContextM m, ContextM (StateT (Set TGVSimple) m), MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) =>
+pathDecs :: (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) =>
             TGVSimple -> m ()
 pathDecs v =
     pathKeys v >>= Set.mapM_ (pathDecs' v)
@@ -51,13 +51,13 @@ pathDecs v =
 -- corresponding Path instance.  Each clause matches some possible value
 -- of the path type, and returns a lens that extracts the value the
 -- path type value specifies.
-pathDecs' :: (ContextM m, ContextM (StateT (Set TGVSimple) m), MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) =>
+pathDecs' :: (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) =>
              TGVSimple -> TGVSimple -> m ()
 pathDecs' key gkey = do
   ptyp <- pathType (pure (bestType gkey)) key
   s <- runQ (newName "s")
   a <- runQ (newName "a")
-  poe <- evalStateT (pathsOfExprs key gkey (varE s) (varE a)) (mempty :: Set s)
+  poe <- pathsOfExprs key gkey (varE s) (varE a)
   when (poe /= ListE []) $
        (runQ $ sequence
             [ instanceD (pure []) [t|HasPaths $(pure (bestType key)) $(pure (bestType gkey))|]
@@ -67,7 +67,7 @@ pathDecs' key gkey = do
 
 -- | Build an expression whose value is a list of paths from type S to
 -- type A
-pathsOfExprs :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadStates (Set TGVSimple) m) =>
+pathsOfExprs :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) =>
                 TGVSimple -- ^ the type whose clauses we are generating
              -> TGVSimple -- ^ the goal type key
              -> ExpQ -- ^ S
@@ -139,11 +139,7 @@ pathsOfExprs key gkey s a =
        _ -> runQ [|error $ "pathsOfExpr - unexpected type" {-++ pprint (asTGVSimple key)-}|]
     where
       doName :: Name -> m Exp
-      doName tname = do
-        ns <- getPoly
-        case Set.member key ns of
-          True -> runQ [| [] |]
-          False -> modifyPoly (Set.insert key) >> qReify tname >>= doInfo
+      doName tname = qReify tname >>= doInfo
       doInfo :: Info -> m Exp
       doInfo (TyConI dec) = doDec dec
       doInfo _ = runQ [| [] |]
