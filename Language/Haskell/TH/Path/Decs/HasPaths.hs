@@ -89,8 +89,12 @@ pathsOfExprs key gkey s a =
                 let pcname = makePathCon (makePathType tname) "View"
                 -- Get the value as transformed by the view lens
                 if vIsPath
+#if 1
                 then runQ [| concatMap (\s' ->  List.map $(asConQ pcname) (pathsOf s' $a :: [Path $(pure viewtyp) $(asTypeQ gkey)]))
                                        (toListOf (toLens ($(asConQ pcname) idPath :: Path $(asTypeQ key) $(pure viewtyp))) $s :: [$(pure viewtyp)]) |]
+#else
+                then doClause (asType key) viewtyp gkey s a [|\s' -> map (\a -> ($(asConQ pcname), a)) (toListOf (toLens ($(asConQ pcname) idPath)) s')|]
+#endif
                 else runQ [| [] |]
        typ -> doType typ []
     where
@@ -98,10 +102,7 @@ pathsOfExprs key gkey s a =
           | tname == ''Map =
                do vIsPath <- testIsPath vtyp gkey
                   if vIsPath
-                  then (doClause (asType key) vtyp gkey s a
-                                         [|Path_Look . fst|]
-                                         [|snd|]
-                                         [|Map.toList|])
+                  then (doClause (asType key) vtyp gkey s a [|map (\(i, v) -> (Path_Look i, v)) . Map.toList|])
                   else runQ [| [] |]
       doType (ConT tname) [ityp, vtyp]
           | tname == ''Order =
@@ -109,27 +110,24 @@ pathsOfExprs key gkey s a =
                -- there is a path from the element type to the goal.
                do vIsPath <- testIsPath vtyp gkey
                   if vIsPath
-                  then doClause (asType key) vtyp gkey s a
-                                         [|Path_At . fst|]
-                                         [|snd|]
-                                         [|toPairs :: Order $(pure ityp) $(pure vtyp) -> [($(pure ityp), $(pure vtyp))]|]
+                  then doClause (asType key) vtyp gkey s a [|map (\(i, v) -> (Path_At i, v)) . toPairs|]
                   else runQ [| [] |]
 
       doType (ConT tname) [ltyp, rtyp]
           | tname == ''Either =
               do lIsPath <- testIsPath ltyp gkey
                  rIsPath <- testIsPath rtyp gkey
-                 lexp <- if lIsPath then doClause (asType key) ltyp gkey s a [|\_ -> Path_Left|] [|id|] [|\s -> case s of Left a -> [a]; Right _ -> []|] else runQ [| [] |]
-                 rexp <- if rIsPath then doClause (asType key) rtyp gkey s a [|\_ -> Path_Right|] [|id|] [|\s -> case s of Left _ -> []; Right a -> [a]|] else runQ [| [] |]
+                 lexp <- if lIsPath then doClause (asType key) ltyp gkey s a [|\s -> case s of Left a -> [(Path_Left, a)]; Right _ -> []|] else runQ [| [] |]
+                 rexp <- if rIsPath then doClause (asType key) rtyp gkey s a [|\s -> case s of Left _ -> []; Right a -> [(Path_Right, a)]|] else runQ [| [] |]
                  runQ [| $(pure lexp) <> $(pure rexp) |]
       doType (ConT tname) [etyp]
           | tname == ''Maybe =
-              doClause (asType key) etyp gkey s a [|\_ -> Path_Just|] [|id|] [|\s -> case s of Nothing -> []; Just a -> [a]|]
+              doClause (asType key) etyp gkey s a [|\s -> case s of Nothing -> []; Just a -> [(Path_Just, a)]|]
       doType (TupleT 2) [ftyp, styp] =
           do fIsPath <- testIsPath ftyp gkey
              sIsPath <- testIsPath styp gkey
-             fexp <- if fIsPath then doClause (asType key) ftyp gkey s a [|\_ -> Path_First|] [|fst|] [|(: [])|] else runQ [| [] |]
-             sexp <- if sIsPath then doClause (asType key) styp gkey s a [|\_ -> Path_Second|] [|snd|] [|(: [])|] else runQ [| [] |]
+             fexp <- if fIsPath then doClause (asType key) ftyp gkey s a [|\x -> [(Path_First, fst x)]|] else runQ [| [] |]
+             sexp <- if sIsPath then doClause (asType key) styp gkey s a [|\x -> [(Path_Second, snd x)]|] else runQ [| [] |]
              runQ [| $(pure fexp) <> $(pure sexp) |]
       doType (ConT tname) tps = doName tname tps
 
@@ -190,12 +188,11 @@ doClause :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeIn
          -> TGVSimple
          -> ExpQ -- ^ S
          -> ExpQ -- ^ Proxy A
-         -> ExpQ -- ^ Build a path
-         -> ExpQ -- ^ Build a value
-         -> ExpQ -- ^ The list of values we will turn into paths
+         -> ExpQ -- ^ The list of (path, value) pairs we will turn into paths
          -> m Exp
-doClause typ vtyp gkey s a toPath toVal asList = do
-  runQ [| List.concatMap (\pv -> (List.map ($toPath pv) (pathsOf (($toVal pv) :: $(pure vtyp)) $a :: [Path $(pure vtyp) $(asTypeQ gkey)])) :: [Path $(pure typ) $(asTypeQ gkey)]) ($asList $s) |]
+doClause styp atyp gkey s a asList = do
+  runQ [| List.concatMap (\(p, a') -> (List.map p (pathsOf (a' :: $(pure atyp)) $a :: [Path $(pure atyp) $(asTypeQ gkey)])) :: [Path $(pure styp) $(asTypeQ gkey)])
+                         (($asList $s) :: [(Path $(pure atyp) $(asTypeQ gkey) -> Path $(pure styp) $(asTypeQ gkey), $(pure atyp))]) |]
 
 -- | See if there is a path from typ to gkey.  We need to avoid
 -- building expressions for non-existant paths because they will cause

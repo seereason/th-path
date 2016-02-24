@@ -953,20 +953,41 @@ instance HasPaths AbbrevPair JSONText
     where type Path AbbrevPair
                     JSONText = Path_Pair (Path_CIString JSONText)
                                          (Path_Markup JSONText)
-          pathsOf s a = concatMap (\pv -> map ((\_ -> Path_First) pv) (pathsOf (fst pv :: CIString) a :: [Path CIString
-                                                                                                               JSONText]) :: [Path ((CIString,
-                                                                                                                                     Markup))
-                                                                                                                                   JSONText]) ((: []) s) <> concatMap (\pv -> map ((\_ -> Path_Second) pv) (pathsOf (snd pv :: Markup) a :: [Path Markup
-                                                                                                                                                                                                                                                  JSONText]) :: [Path ((CIString,
-                                                                                                                                                                                                                                                                        Markup))
-                                                                                                                                                                                                                                                                      JSONText]) ((: []) s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: CIString) a :: [Path CIString
+                                                                                       JSONText]) :: [Path ((CIString,
+                                                                                                             Markup))
+                                                                                                           JSONText]) ((\x -> [(Path_First,
+                                                                                                                                fst x)]) s :: [(Path CIString
+                                                                                                                                                     JSONText ->
+                                                                                                                                                Path ((CIString,
+                                                                                                                                                       Markup))
+                                                                                                                                                     JSONText,
+                                                                                                                                                CIString)]) <> concatMap (\(p,
+                                                                                                                                                                            a') -> map p (pathsOf (a' :: Markup) a :: [Path Markup
+                                                                                                                                                                                                                            JSONText]) :: [Path ((CIString,
+                                                                                                                                                                                                                                                  Markup))
+                                                                                                                                                                                                                                                JSONText]) ((\x -> [(Path_Second,
+                                                                                                                                                                                                                                                                     snd x)]) s :: [(Path Markup
+                                                                                                                                                                                                                                                                                          JSONText ->
+                                                                                                                                                                                                                                                                                     Path ((CIString,
+                                                                                                                                                                                                                                                                                            Markup))
+                                                                                                                                                                                                                                                                                          JSONText,
+                                                                                                                                                                                                                                                                                     Markup)])
 instance HasPaths AbbrevPair Markup
     where type Path AbbrevPair
                     Markup = Path_Pair (Path_CIString Markup) (Path_Markup Markup)
-          pathsOf s a = [] <> concatMap (\pv -> map ((\_ -> Path_Second) pv) (pathsOf (snd pv :: Markup) a :: [Path Markup
-                                                                                                                    Markup]) :: [Path ((CIString,
-                                                                                                                                        Markup))
-                                                                                                                                      Markup]) ((: []) s)
+          pathsOf s a = [] <> concatMap (\(p,
+                                           a') -> map p (pathsOf (a' :: Markup) a :: [Path Markup
+                                                                                           Markup]) :: [Path ((CIString,
+                                                                                                               Markup))
+                                                                                                             Markup]) ((\x -> [(Path_Second,
+                                                                                                                                snd x)]) s :: [(Path Markup
+                                                                                                                                                     Markup ->
+                                                                                                                                                Path ((CIString,
+                                                                                                                                                       Markup))
+                                                                                                                                                     Markup,
+                                                                                                                                                Markup)])
 instance HasPaths AbbrevPair AbbrevPair
     where type Path AbbrevPair
                     AbbrevPair = Path_Pair (Path_CIString AbbrevPair)
@@ -976,70 +997,111 @@ instance HasPaths AbbrevPair CIString
     where type Path AbbrevPair
                     CIString = Path_Pair (Path_CIString CIString)
                                          (Path_Markup CIString)
-          pathsOf s a = concatMap (\pv -> map ((\_ -> Path_First) pv) (pathsOf (fst pv :: CIString) a :: [Path CIString
-                                                                                                               CIString]) :: [Path ((CIString,
-                                                                                                                                     Markup))
-                                                                                                                                   CIString]) ((: []) s) <> []
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: CIString) a :: [Path CIString
+                                                                                       CIString]) :: [Path ((CIString,
+                                                                                                             Markup))
+                                                                                                           CIString]) ((\x -> [(Path_First,
+                                                                                                                                fst x)]) s :: [(Path CIString
+                                                                                                                                                     CIString ->
+                                                                                                                                                Path ((CIString,
+                                                                                                                                                       Markup))
+                                                                                                                                                     CIString,
+                                                                                                                                                CIString)]) <> []
 instance HasPaths AbbrevPair Text
     where type Path AbbrevPair Text = Path_Pair (Path_CIString Text)
                                                 (Path_Markup Text)
-          pathsOf s a = concatMap (\pv -> map ((\_ -> Path_First) pv) (pathsOf (fst pv :: CIString) a :: [Path CIString
-                                                                                                               Text]) :: [Path ((CIString,
-                                                                                                                                 Markup))
-                                                                                                                               Text]) ((: []) s) <> concatMap (\pv -> map ((\_ -> Path_Second) pv) (pathsOf (snd pv :: Markup) a :: [Path Markup
-                                                                                                                                                                                                                                          Text]) :: [Path ((CIString,
-                                                                                                                                                                                                                                                            Markup))
-                                                                                                                                                                                                                                                          Text]) ((: []) s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: CIString) a :: [Path CIString
+                                                                                       Text]) :: [Path ((CIString,
+                                                                                                         Markup))
+                                                                                                       Text]) ((\x -> [(Path_First,
+                                                                                                                        fst x)]) s :: [(Path CIString
+                                                                                                                                             Text ->
+                                                                                                                                        Path ((CIString,
+                                                                                                                                               Markup))
+                                                                                                                                             Text,
+                                                                                                                                        CIString)]) <> concatMap (\(p,
+                                                                                                                                                                    a') -> map p (pathsOf (a' :: Markup) a :: [Path Markup
+                                                                                                                                                                                                                    Text]) :: [Path ((CIString,
+                                                                                                                                                                                                                                      Markup))
+                                                                                                                                                                                                                                    Text]) ((\x -> [(Path_Second,
+                                                                                                                                                                                                                                                     snd x)]) s :: [(Path Markup
+                                                                                                                                                                                                                                                                          Text ->
+                                                                                                                                                                                                                                                                     Path ((CIString,
+                                                                                                                                                                                                                                                                            Markup))
+                                                                                                                                                                                                                                                                          Text,
+                                                                                                                                                                                                                                                                     Markup)])
 instance HasPaths AbbrevPairs JSONText
     where type Path AbbrevPairs JSONText = Path_OMap AbbrevPairID
                                                      (Path_Pair (Path_CIString JSONText)
                                                                 (Path_Markup JSONText))
-          pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv :: (CIString,
-                                                                                        Markup)) a :: [Path ((CIString,
-                                                                                                              Markup))
-                                                                                                            JSONText]) :: [Path (Order AbbrevPairID
-                                                                                                                                       ((CIString,
-                                                                                                                                         Markup)))
-                                                                                                                                JSONText]) ((toPairs :: Order AbbrevPairID
-                                                                                                                                                              ((CIString,
-                                                                                                                                                                Markup)) ->
-                                                                                                                                                        [(AbbrevPairID,
-                                                                                                                                                          (CIString,
-                                                                                                                                                           Markup))]) s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: (CIString,
+                                                                   Markup)) a :: [Path ((CIString,
+                                                                                         Markup))
+                                                                                       JSONText]) :: [Path (Order AbbrevPairID
+                                                                                                                  ((CIString,
+                                                                                                                    Markup)))
+                                                                                                           JSONText]) ((map (\(i,
+                                                                                                                               v) -> (Path_At i,
+                                                                                                                                      v)) . toPairs) s :: [(Path ((CIString,
+                                                                                                                                                                   Markup))
+                                                                                                                                                                 JSONText ->
+                                                                                                                                                            Path (Order AbbrevPairID
+                                                                                                                                                                        ((CIString,
+                                                                                                                                                                          Markup)))
+                                                                                                                                                                 JSONText,
+                                                                                                                                                            (CIString,
+                                                                                                                                                             Markup))])
 instance HasPaths AbbrevPairs Markup
     where type Path AbbrevPairs Markup = Path_OMap AbbrevPairID
                                                    (Path_Pair (Path_CIString Markup)
                                                               (Path_Markup Markup))
-          pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv :: (CIString,
-                                                                                        Markup)) a :: [Path ((CIString,
-                                                                                                              Markup))
-                                                                                                            Markup]) :: [Path (Order AbbrevPairID
-                                                                                                                                     ((CIString,
-                                                                                                                                       Markup)))
-                                                                                                                              Markup]) ((toPairs :: Order AbbrevPairID
-                                                                                                                                                          ((CIString,
-                                                                                                                                                            Markup)) ->
-                                                                                                                                                    [(AbbrevPairID,
-                                                                                                                                                      (CIString,
-                                                                                                                                                       Markup))]) s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: (CIString,
+                                                                   Markup)) a :: [Path ((CIString,
+                                                                                         Markup))
+                                                                                       Markup]) :: [Path (Order AbbrevPairID
+                                                                                                                ((CIString,
+                                                                                                                  Markup)))
+                                                                                                         Markup]) ((map (\(i,
+                                                                                                                           v) -> (Path_At i,
+                                                                                                                                  v)) . toPairs) s :: [(Path ((CIString,
+                                                                                                                                                               Markup))
+                                                                                                                                                             Markup ->
+                                                                                                                                                        Path (Order AbbrevPairID
+                                                                                                                                                                    ((CIString,
+                                                                                                                                                                      Markup)))
+                                                                                                                                                             Markup,
+                                                                                                                                                        (CIString,
+                                                                                                                                                         Markup))])
 instance HasPaths AbbrevPairs AbbrevPair
     where type Path AbbrevPairs AbbrevPair = Path_OMap AbbrevPairID
                                                        (Path_Pair (Path_CIString AbbrevPair)
                                                                   (Path_Markup AbbrevPair))
-          pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv :: (CIString,
-                                                                                        Markup)) a :: [Path ((CIString,
-                                                                                                              Markup))
-                                                                                                            ((CIString,
-                                                                                                              Markup))]) :: [Path (Order AbbrevPairID
-                                                                                                                                         ((CIString,
-                                                                                                                                           Markup)))
-                                                                                                                                  ((CIString,
-                                                                                                                                    Markup))]) ((toPairs :: Order AbbrevPairID
-                                                                                                                                                                  ((CIString,
-                                                                                                                                                                    Markup)) ->
-                                                                                                                                                            [(AbbrevPairID,
-                                                                                                                                                              (CIString,
-                                                                                                                                                               Markup))]) s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: (CIString,
+                                                                   Markup)) a :: [Path ((CIString,
+                                                                                         Markup))
+                                                                                       ((CIString,
+                                                                                         Markup))]) :: [Path (Order AbbrevPairID
+                                                                                                                    ((CIString,
+                                                                                                                      Markup)))
+                                                                                                             ((CIString,
+                                                                                                               Markup))]) ((map (\(i,
+                                                                                                                                   v) -> (Path_At i,
+                                                                                                                                          v)) . toPairs) s :: [(Path ((CIString,
+                                                                                                                                                                       Markup))
+                                                                                                                                                                     ((CIString,
+                                                                                                                                                                       Markup)) ->
+                                                                                                                                                                Path (Order AbbrevPairID
+                                                                                                                                                                            ((CIString,
+                                                                                                                                                                              Markup)))
+                                                                                                                                                                     ((CIString,
+                                                                                                                                                                       Markup)),
+                                                                                                                                                                (CIString,
+                                                                                                                                                                 Markup))])
 instance HasPaths AbbrevPairs AbbrevPairs
     where type Path AbbrevPairs AbbrevPairs = Path_OMap AbbrevPairID
                                                         (Path_Pair (Path_CIString AbbrevPairs)
@@ -1049,33 +1111,45 @@ instance HasPaths AbbrevPairs CIString
     where type Path AbbrevPairs CIString = Path_OMap AbbrevPairID
                                                      (Path_Pair (Path_CIString CIString)
                                                                 (Path_Markup CIString))
-          pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv :: (CIString,
-                                                                                        Markup)) a :: [Path ((CIString,
-                                                                                                              Markup))
-                                                                                                            CIString]) :: [Path (Order AbbrevPairID
-                                                                                                                                       ((CIString,
-                                                                                                                                         Markup)))
-                                                                                                                                CIString]) ((toPairs :: Order AbbrevPairID
-                                                                                                                                                              ((CIString,
-                                                                                                                                                                Markup)) ->
-                                                                                                                                                        [(AbbrevPairID,
-                                                                                                                                                          (CIString,
-                                                                                                                                                           Markup))]) s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: (CIString,
+                                                                   Markup)) a :: [Path ((CIString,
+                                                                                         Markup))
+                                                                                       CIString]) :: [Path (Order AbbrevPairID
+                                                                                                                  ((CIString,
+                                                                                                                    Markup)))
+                                                                                                           CIString]) ((map (\(i,
+                                                                                                                               v) -> (Path_At i,
+                                                                                                                                      v)) . toPairs) s :: [(Path ((CIString,
+                                                                                                                                                                   Markup))
+                                                                                                                                                                 CIString ->
+                                                                                                                                                            Path (Order AbbrevPairID
+                                                                                                                                                                        ((CIString,
+                                                                                                                                                                          Markup)))
+                                                                                                                                                                 CIString,
+                                                                                                                                                            (CIString,
+                                                                                                                                                             Markup))])
 instance HasPaths AbbrevPairs Text
     where type Path AbbrevPairs Text = Path_OMap AbbrevPairID
                                                  (Path_Pair (Path_CIString Text) (Path_Markup Text))
-          pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv :: (CIString,
-                                                                                        Markup)) a :: [Path ((CIString,
-                                                                                                              Markup))
-                                                                                                            Text]) :: [Path (Order AbbrevPairID
-                                                                                                                                   ((CIString,
-                                                                                                                                     Markup)))
-                                                                                                                            Text]) ((toPairs :: Order AbbrevPairID
-                                                                                                                                                      ((CIString,
-                                                                                                                                                        Markup)) ->
-                                                                                                                                                [(AbbrevPairID,
-                                                                                                                                                  (CIString,
-                                                                                                                                                   Markup))]) s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: (CIString,
+                                                                   Markup)) a :: [Path ((CIString,
+                                                                                         Markup))
+                                                                                       Text]) :: [Path (Order AbbrevPairID
+                                                                                                              ((CIString,
+                                                                                                                Markup)))
+                                                                                                       Text]) ((map (\(i,
+                                                                                                                       v) -> (Path_At i,
+                                                                                                                              v)) . toPairs) s :: [(Path ((CIString,
+                                                                                                                                                           Markup))
+                                                                                                                                                         Text ->
+                                                                                                                                                    Path (Order AbbrevPairID
+                                                                                                                                                                ((CIString,
+                                                                                                                                                                  Markup)))
+                                                                                                                                                         Text,
+                                                                                                                                                    (CIString,
+                                                                                                                                                     Markup))])
 instance HasPaths Author JSONText
     where type Path Author JSONText = Path_Author JSONText
           pathsOf s a = case s of
@@ -1097,33 +1171,48 @@ instance HasPaths Author Text
 instance HasPaths Authors JSONText
     where type Path Authors JSONText = Path_OMap AuthorID
                                                  (Path_Author JSONText)
-          pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv :: Author) a :: [Path Author
-                                                                                                          JSONText]) :: [Path (Order AuthorID
-                                                                                                                                     Author)
-                                                                                                                              JSONText]) ((toPairs :: Order AuthorID
-                                                                                                                                                            Author ->
-                                                                                                                                                      [(AuthorID,
-                                                                                                                                                        Author)]) s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: Author) a :: [Path Author
+                                                                                     JSONText]) :: [Path (Order AuthorID
+                                                                                                                Author)
+                                                                                                         JSONText]) ((map (\(i,
+                                                                                                                             v) -> (Path_At i,
+                                                                                                                                    v)) . toPairs) s :: [(Path Author
+                                                                                                                                                               JSONText ->
+                                                                                                                                                          Path (Order AuthorID
+                                                                                                                                                                      Author)
+                                                                                                                                                               JSONText,
+                                                                                                                                                          Author)])
 instance HasPaths Authors Markup
     where type Path Authors Markup = Path_OMap AuthorID
                                                (Path_Author Markup)
-          pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv :: Author) a :: [Path Author
-                                                                                                          Markup]) :: [Path (Order AuthorID
-                                                                                                                                   Author)
-                                                                                                                            Markup]) ((toPairs :: Order AuthorID
-                                                                                                                                                        Author ->
-                                                                                                                                                  [(AuthorID,
-                                                                                                                                                    Author)]) s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: Author) a :: [Path Author
+                                                                                     Markup]) :: [Path (Order AuthorID
+                                                                                                              Author)
+                                                                                                       Markup]) ((map (\(i,
+                                                                                                                         v) -> (Path_At i,
+                                                                                                                                v)) . toPairs) s :: [(Path Author
+                                                                                                                                                           Markup ->
+                                                                                                                                                      Path (Order AuthorID
+                                                                                                                                                                  Author)
+                                                                                                                                                           Markup,
+                                                                                                                                                      Author)])
 instance HasPaths Authors Author
     where type Path Authors Author = Path_OMap AuthorID
                                                (Path_Author Author)
-          pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv :: Author) a :: [Path Author
-                                                                                                          Author]) :: [Path (Order AuthorID
-                                                                                                                                   Author)
-                                                                                                                            Author]) ((toPairs :: Order AuthorID
-                                                                                                                                                        Author ->
-                                                                                                                                                  [(AuthorID,
-                                                                                                                                                    Author)]) s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: Author) a :: [Path Author
+                                                                                     Author]) :: [Path (Order AuthorID
+                                                                                                              Author)
+                                                                                                       Author]) ((map (\(i,
+                                                                                                                         v) -> (Path_At i,
+                                                                                                                                v)) . toPairs) s :: [(Path Author
+                                                                                                                                                           Author ->
+                                                                                                                                                      Path (Order AuthorID
+                                                                                                                                                                  Author)
+                                                                                                                                                           Author,
+                                                                                                                                                      Author)])
 instance HasPaths Authors Authors
     where type Path Authors Authors = Path_OMap AuthorID
                                                 (Path_Author Authors)
@@ -1131,13 +1220,18 @@ instance HasPaths Authors Authors
 instance HasPaths Authors Text
     where type Path Authors Text = Path_OMap AuthorID
                                              (Path_Author Text)
-          pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv :: Author) a :: [Path Author
-                                                                                                          Text]) :: [Path (Order AuthorID
-                                                                                                                                 Author)
-                                                                                                                          Text]) ((toPairs :: Order AuthorID
-                                                                                                                                                    Author ->
-                                                                                                                                              [(AuthorID,
-                                                                                                                                                Author)]) s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: Author) a :: [Path Author
+                                                                                     Text]) :: [Path (Order AuthorID
+                                                                                                            Author)
+                                                                                                     Text]) ((map (\(i,
+                                                                                                                     v) -> (Path_At i,
+                                                                                                                            v)) . toPairs) s :: [(Path Author
+                                                                                                                                                       Text ->
+                                                                                                                                                  Path (Order AuthorID
+                                                                                                                                                              Author)
+                                                                                                                                                       Text,
+                                                                                                                                                  Author)])
 instance HasPaths Branding JSONText
     where type Path Branding JSONText = Path_Branding JSONText
           pathsOf s a = concatMap (\s' -> map Path_Branding_View (pathsOf s' a :: [Path Text
@@ -1154,23 +1248,51 @@ instance HasPaths Branding Text
 instance HasPaths MarkupPair JSONText
     where type Path MarkupPair
                     JSONText = Path_Pair (Path_Markup JSONText) (Path_Markup JSONText)
-          pathsOf s a = concatMap (\pv -> map ((\_ -> Path_First) pv) (pathsOf (fst pv :: Markup) a :: [Path Markup
-                                                                                                             JSONText]) :: [Path ((Markup,
-                                                                                                                                   Markup))
-                                                                                                                                 JSONText]) ((: []) s) <> concatMap (\pv -> map ((\_ -> Path_Second) pv) (pathsOf (snd pv :: Markup) a :: [Path Markup
-                                                                                                                                                                                                                                                JSONText]) :: [Path ((Markup,
-                                                                                                                                                                                                                                                                      Markup))
-                                                                                                                                                                                                                                                                    JSONText]) ((: []) s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: Markup) a :: [Path Markup
+                                                                                     JSONText]) :: [Path ((Markup,
+                                                                                                           Markup))
+                                                                                                         JSONText]) ((\x -> [(Path_First,
+                                                                                                                              fst x)]) s :: [(Path Markup
+                                                                                                                                                   JSONText ->
+                                                                                                                                              Path ((Markup,
+                                                                                                                                                     Markup))
+                                                                                                                                                   JSONText,
+                                                                                                                                              Markup)]) <> concatMap (\(p,
+                                                                                                                                                                        a') -> map p (pathsOf (a' :: Markup) a :: [Path Markup
+                                                                                                                                                                                                                        JSONText]) :: [Path ((Markup,
+                                                                                                                                                                                                                                              Markup))
+                                                                                                                                                                                                                                            JSONText]) ((\x -> [(Path_Second,
+                                                                                                                                                                                                                                                                 snd x)]) s :: [(Path Markup
+                                                                                                                                                                                                                                                                                      JSONText ->
+                                                                                                                                                                                                                                                                                 Path ((Markup,
+                                                                                                                                                                                                                                                                                        Markup))
+                                                                                                                                                                                                                                                                                      JSONText,
+                                                                                                                                                                                                                                                                                 Markup)])
 instance HasPaths MarkupPair Markup
     where type Path MarkupPair Markup = Path_Pair (Path_Markup Markup)
                                                   (Path_Markup Markup)
-          pathsOf s a = concatMap (\pv -> map ((\_ -> Path_First) pv) (pathsOf (fst pv :: Markup) a :: [Path Markup
-                                                                                                             Markup]) :: [Path ((Markup,
-                                                                                                                                 Markup))
-                                                                                                                               Markup]) ((: []) s) <> concatMap (\pv -> map ((\_ -> Path_Second) pv) (pathsOf (snd pv :: Markup) a :: [Path Markup
-                                                                                                                                                                                                                                            Markup]) :: [Path ((Markup,
-                                                                                                                                                                                                                                                                Markup))
-                                                                                                                                                                                                                                                              Markup]) ((: []) s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: Markup) a :: [Path Markup
+                                                                                     Markup]) :: [Path ((Markup,
+                                                                                                         Markup))
+                                                                                                       Markup]) ((\x -> [(Path_First,
+                                                                                                                          fst x)]) s :: [(Path Markup
+                                                                                                                                               Markup ->
+                                                                                                                                          Path ((Markup,
+                                                                                                                                                 Markup))
+                                                                                                                                               Markup,
+                                                                                                                                          Markup)]) <> concatMap (\(p,
+                                                                                                                                                                    a') -> map p (pathsOf (a' :: Markup) a :: [Path Markup
+                                                                                                                                                                                                                    Markup]) :: [Path ((Markup,
+                                                                                                                                                                                                                                        Markup))
+                                                                                                                                                                                                                                      Markup]) ((\x -> [(Path_Second,
+                                                                                                                                                                                                                                                         snd x)]) s :: [(Path Markup
+                                                                                                                                                                                                                                                                              Markup ->
+                                                                                                                                                                                                                                                                         Path ((Markup,
+                                                                                                                                                                                                                                                                                Markup))
+                                                                                                                                                                                                                                                                              Markup,
+                                                                                                                                                                                                                                                                         Markup)])
 instance HasPaths MarkupPair MarkupPair
     where type Path MarkupPair
                     MarkupPair = Path_Pair (Path_Markup MarkupPair)
@@ -1179,63 +1301,94 @@ instance HasPaths MarkupPair MarkupPair
 instance HasPaths MarkupPair Text
     where type Path MarkupPair Text = Path_Pair (Path_Markup Text)
                                                 (Path_Markup Text)
-          pathsOf s a = concatMap (\pv -> map ((\_ -> Path_First) pv) (pathsOf (fst pv :: Markup) a :: [Path Markup
-                                                                                                             Text]) :: [Path ((Markup,
-                                                                                                                               Markup))
-                                                                                                                             Text]) ((: []) s) <> concatMap (\pv -> map ((\_ -> Path_Second) pv) (pathsOf (snd pv :: Markup) a :: [Path Markup
-                                                                                                                                                                                                                                        Text]) :: [Path ((Markup,
-                                                                                                                                                                                                                                                          Markup))
-                                                                                                                                                                                                                                                        Text]) ((: []) s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: Markup) a :: [Path Markup
+                                                                                     Text]) :: [Path ((Markup,
+                                                                                                       Markup))
+                                                                                                     Text]) ((\x -> [(Path_First,
+                                                                                                                      fst x)]) s :: [(Path Markup
+                                                                                                                                           Text ->
+                                                                                                                                      Path ((Markup,
+                                                                                                                                             Markup))
+                                                                                                                                           Text,
+                                                                                                                                      Markup)]) <> concatMap (\(p,
+                                                                                                                                                                a') -> map p (pathsOf (a' :: Markup) a :: [Path Markup
+                                                                                                                                                                                                                Text]) :: [Path ((Markup,
+                                                                                                                                                                                                                                  Markup))
+                                                                                                                                                                                                                                Text]) ((\x -> [(Path_Second,
+                                                                                                                                                                                                                                                 snd x)]) s :: [(Path Markup
+                                                                                                                                                                                                                                                                      Text ->
+                                                                                                                                                                                                                                                                 Path ((Markup,
+                                                                                                                                                                                                                                                                        Markup))
+                                                                                                                                                                                                                                                                      Text,
+                                                                                                                                                                                                                                                                 Markup)])
 instance HasPaths MarkupPairs JSONText
     where type Path MarkupPairs JSONText = Path_OMap MarkupPairID
                                                      (Path_Pair (Path_Markup JSONText)
                                                                 (Path_Markup JSONText))
-          pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv :: (Markup,
-                                                                                        Markup)) a :: [Path ((Markup,
-                                                                                                              Markup))
-                                                                                                            JSONText]) :: [Path (Order MarkupPairID
-                                                                                                                                       ((Markup,
-                                                                                                                                         Markup)))
-                                                                                                                                JSONText]) ((toPairs :: Order MarkupPairID
-                                                                                                                                                              ((Markup,
-                                                                                                                                                                Markup)) ->
-                                                                                                                                                        [(MarkupPairID,
-                                                                                                                                                          (Markup,
-                                                                                                                                                           Markup))]) s)
+          pathsOf s a = concatMap (\(p, a') -> map p (pathsOf (a' :: (Markup,
+                                                                      Markup)) a :: [Path ((Markup,
+                                                                                            Markup))
+                                                                                          JSONText]) :: [Path (Order MarkupPairID
+                                                                                                                     ((Markup,
+                                                                                                                       Markup)))
+                                                                                                              JSONText]) ((map (\(i,
+                                                                                                                                  v) -> (Path_At i,
+                                                                                                                                         v)) . toPairs) s :: [(Path ((Markup,
+                                                                                                                                                                      Markup))
+                                                                                                                                                                    JSONText ->
+                                                                                                                                                               Path (Order MarkupPairID
+                                                                                                                                                                           ((Markup,
+                                                                                                                                                                             Markup)))
+                                                                                                                                                                    JSONText,
+                                                                                                                                                               (Markup,
+                                                                                                                                                                Markup))])
 instance HasPaths MarkupPairs Markup
     where type Path MarkupPairs Markup = Path_OMap MarkupPairID
                                                    (Path_Pair (Path_Markup Markup)
                                                               (Path_Markup Markup))
-          pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv :: (Markup,
-                                                                                        Markup)) a :: [Path ((Markup,
-                                                                                                              Markup))
-                                                                                                            Markup]) :: [Path (Order MarkupPairID
-                                                                                                                                     ((Markup,
-                                                                                                                                       Markup)))
-                                                                                                                              Markup]) ((toPairs :: Order MarkupPairID
-                                                                                                                                                          ((Markup,
-                                                                                                                                                            Markup)) ->
-                                                                                                                                                    [(MarkupPairID,
-                                                                                                                                                      (Markup,
-                                                                                                                                                       Markup))]) s)
+          pathsOf s a = concatMap (\(p, a') -> map p (pathsOf (a' :: (Markup,
+                                                                      Markup)) a :: [Path ((Markup,
+                                                                                            Markup))
+                                                                                          Markup]) :: [Path (Order MarkupPairID
+                                                                                                                   ((Markup,
+                                                                                                                     Markup)))
+                                                                                                            Markup]) ((map (\(i,
+                                                                                                                              v) -> (Path_At i,
+                                                                                                                                     v)) . toPairs) s :: [(Path ((Markup,
+                                                                                                                                                                  Markup))
+                                                                                                                                                                Markup ->
+                                                                                                                                                           Path (Order MarkupPairID
+                                                                                                                                                                       ((Markup,
+                                                                                                                                                                         Markup)))
+                                                                                                                                                                Markup,
+                                                                                                                                                           (Markup,
+                                                                                                                                                            Markup))])
 instance HasPaths MarkupPairs MarkupPair
     where type Path MarkupPairs MarkupPair = Path_OMap MarkupPairID
                                                        (Path_Pair (Path_Markup MarkupPair)
                                                                   (Path_Markup MarkupPair))
-          pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv :: (Markup,
-                                                                                        Markup)) a :: [Path ((Markup,
-                                                                                                              Markup))
-                                                                                                            ((Markup,
-                                                                                                              Markup))]) :: [Path (Order MarkupPairID
-                                                                                                                                         ((Markup,
-                                                                                                                                           Markup)))
-                                                                                                                                  ((Markup,
-                                                                                                                                    Markup))]) ((toPairs :: Order MarkupPairID
-                                                                                                                                                                  ((Markup,
-                                                                                                                                                                    Markup)) ->
-                                                                                                                                                            [(MarkupPairID,
-                                                                                                                                                              (Markup,
-                                                                                                                                                               Markup))]) s)
+          pathsOf s a = concatMap (\(p, a') -> map p (pathsOf (a' :: (Markup,
+                                                                      Markup)) a :: [Path ((Markup,
+                                                                                            Markup))
+                                                                                          ((Markup,
+                                                                                            Markup))]) :: [Path (Order MarkupPairID
+                                                                                                                       ((Markup,
+                                                                                                                         Markup)))
+                                                                                                                ((Markup,
+                                                                                                                  Markup))]) ((map (\(i,
+                                                                                                                                      v) -> (Path_At i,
+                                                                                                                                             v)) . toPairs) s :: [(Path ((Markup,
+                                                                                                                                                                          Markup))
+                                                                                                                                                                        ((Markup,
+                                                                                                                                                                          Markup)) ->
+                                                                                                                                                                   Path (Order MarkupPairID
+                                                                                                                                                                               ((Markup,
+                                                                                                                                                                                 Markup)))
+                                                                                                                                                                        ((Markup,
+                                                                                                                                                                          Markup)),
+                                                                                                                                                                   (Markup,
+                                                                                                                                                                    Markup))])
 instance HasPaths MarkupPairs MarkupPairs
     where type Path MarkupPairs MarkupPairs = Path_OMap MarkupPairID
                                                         (Path_Pair (Path_Markup MarkupPairs)
@@ -1244,38 +1397,53 @@ instance HasPaths MarkupPairs MarkupPairs
 instance HasPaths MarkupPairs Text
     where type Path MarkupPairs Text = Path_OMap MarkupPairID
                                                  (Path_Pair (Path_Markup Text) (Path_Markup Text))
-          pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv :: (Markup,
-                                                                                        Markup)) a :: [Path ((Markup,
-                                                                                                              Markup))
-                                                                                                            Text]) :: [Path (Order MarkupPairID
-                                                                                                                                   ((Markup,
-                                                                                                                                     Markup)))
-                                                                                                                            Text]) ((toPairs :: Order MarkupPairID
-                                                                                                                                                      ((Markup,
-                                                                                                                                                        Markup)) ->
-                                                                                                                                                [(MarkupPairID,
-                                                                                                                                                  (Markup,
-                                                                                                                                                   Markup))]) s)
+          pathsOf s a = concatMap (\(p, a') -> map p (pathsOf (a' :: (Markup,
+                                                                      Markup)) a :: [Path ((Markup,
+                                                                                            Markup))
+                                                                                          Text]) :: [Path (Order MarkupPairID
+                                                                                                                 ((Markup,
+                                                                                                                   Markup)))
+                                                                                                          Text]) ((map (\(i,
+                                                                                                                          v) -> (Path_At i,
+                                                                                                                                 v)) . toPairs) s :: [(Path ((Markup,
+                                                                                                                                                              Markup))
+                                                                                                                                                            Text ->
+                                                                                                                                                       Path (Order MarkupPairID
+                                                                                                                                                                   ((Markup,
+                                                                                                                                                                     Markup)))
+                                                                                                                                                            Text,
+                                                                                                                                                       (Markup,
+                                                                                                                                                        Markup))])
 instance HasPaths Markups JSONText
     where type Path Markups JSONText = Path_OMap MarkupID
                                                  (Path_Markup JSONText)
-          pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv :: Markup) a :: [Path Markup
-                                                                                                          JSONText]) :: [Path (Order MarkupID
-                                                                                                                                     Markup)
-                                                                                                                              JSONText]) ((toPairs :: Order MarkupID
-                                                                                                                                                            Markup ->
-                                                                                                                                                      [(MarkupID,
-                                                                                                                                                        Markup)]) s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: Markup) a :: [Path Markup
+                                                                                     JSONText]) :: [Path (Order MarkupID
+                                                                                                                Markup)
+                                                                                                         JSONText]) ((map (\(i,
+                                                                                                                             v) -> (Path_At i,
+                                                                                                                                    v)) . toPairs) s :: [(Path Markup
+                                                                                                                                                               JSONText ->
+                                                                                                                                                          Path (Order MarkupID
+                                                                                                                                                                      Markup)
+                                                                                                                                                               JSONText,
+                                                                                                                                                          Markup)])
 instance HasPaths Markups Markup
     where type Path Markups Markup = Path_OMap MarkupID
                                                (Path_Markup Markup)
-          pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv :: Markup) a :: [Path Markup
-                                                                                                          Markup]) :: [Path (Order MarkupID
-                                                                                                                                   Markup)
-                                                                                                                            Markup]) ((toPairs :: Order MarkupID
-                                                                                                                                                        Markup ->
-                                                                                                                                                  [(MarkupID,
-                                                                                                                                                    Markup)]) s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: Markup) a :: [Path Markup
+                                                                                     Markup]) :: [Path (Order MarkupID
+                                                                                                              Markup)
+                                                                                                       Markup]) ((map (\(i,
+                                                                                                                         v) -> (Path_At i,
+                                                                                                                                v)) . toPairs) s :: [(Path Markup
+                                                                                                                                                           Markup ->
+                                                                                                                                                      Path (Order MarkupID
+                                                                                                                                                                  Markup)
+                                                                                                                                                           Markup,
+                                                                                                                                                      Markup)])
 instance HasPaths Markups Markups
     where type Path Markups Markups = Path_OMap MarkupID
                                                 (Path_Markup Markups)
@@ -1283,13 +1451,18 @@ instance HasPaths Markups Markups
 instance HasPaths Markups Text
     where type Path Markups Text = Path_OMap MarkupID
                                              (Path_Markup Text)
-          pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv :: Markup) a :: [Path Markup
-                                                                                                          Text]) :: [Path (Order MarkupID
-                                                                                                                                 Markup)
-                                                                                                                          Text]) ((toPairs :: Order MarkupID
-                                                                                                                                                    Markup ->
-                                                                                                                                              [(MarkupID,
-                                                                                                                                                Markup)]) s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: Markup) a :: [Path Markup
+                                                                                     Text]) :: [Path (Order MarkupID
+                                                                                                            Markup)
+                                                                                                     Text]) ((map (\(i,
+                                                                                                                     v) -> (Path_At i,
+                                                                                                                            v)) . toPairs) s :: [(Path Markup
+                                                                                                                                                       Text ->
+                                                                                                                                                  Path (Order MarkupID
+                                                                                                                                                              Markup)
+                                                                                                                                                       Text,
+                                                                                                                                                  Markup)])
 instance HasPaths MaybeReportIntendedUse String
     where type Path MaybeReportIntendedUse
                     String = Path_MaybeReportIntendedUse String
@@ -1700,113 +1873,168 @@ instance HasPaths ReportElem Text
 instance HasPaths ReportElems String
     where type Path ReportElems String = Path_OMap ReportElemID
                                                    (Path_ReportElem String)
-          pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv :: ReportElem) a :: [Path ReportElem
-                                                                                                              ([Char])]) :: [Path (Order ReportElemID
-                                                                                                                                         ReportElem)
-                                                                                                                                  ([Char])]) ((toPairs :: Order ReportElemID
-                                                                                                                                                                ReportElem ->
-                                                                                                                                                          [(ReportElemID,
-                                                                                                                                                            ReportElem)]) s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: ReportElem) a :: [Path ReportElem
+                                                                                         ([Char])]) :: [Path (Order ReportElemID
+                                                                                                                    ReportElem)
+                                                                                                             ([Char])]) ((map (\(i,
+                                                                                                                                 v) -> (Path_At i,
+                                                                                                                                        v)) . toPairs) s :: [(Path ReportElem
+                                                                                                                                                                   ([Char]) ->
+                                                                                                                                                              Path (Order ReportElemID
+                                                                                                                                                                          ReportElem)
+                                                                                                                                                                   ([Char]),
+                                                                                                                                                              ReportElem)])
 instance HasPaths ReportElems Bool
     where type Path ReportElems Bool = Path_OMap ReportElemID
                                                  (Path_ReportElem Bool)
-          pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv :: ReportElem) a :: [Path ReportElem
-                                                                                                              Bool]) :: [Path (Order ReportElemID
-                                                                                                                                     ReportElem)
-                                                                                                                              Bool]) ((toPairs :: Order ReportElemID
-                                                                                                                                                        ReportElem ->
-                                                                                                                                                  [(ReportElemID,
-                                                                                                                                                    ReportElem)]) s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: ReportElem) a :: [Path ReportElem
+                                                                                         Bool]) :: [Path (Order ReportElemID
+                                                                                                                ReportElem)
+                                                                                                         Bool]) ((map (\(i,
+                                                                                                                         v) -> (Path_At i,
+                                                                                                                                v)) . toPairs) s :: [(Path ReportElem
+                                                                                                                                                           Bool ->
+                                                                                                                                                      Path (Order ReportElemID
+                                                                                                                                                                  ReportElem)
+                                                                                                                                                           Bool,
+                                                                                                                                                      ReportElem)])
 instance HasPaths ReportElems Double
     where type Path ReportElems Double = Path_OMap ReportElemID
                                                    (Path_ReportElem Double)
-          pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv :: ReportElem) a :: [Path ReportElem
-                                                                                                              Double]) :: [Path (Order ReportElemID
-                                                                                                                                       ReportElem)
-                                                                                                                                Double]) ((toPairs :: Order ReportElemID
-                                                                                                                                                            ReportElem ->
-                                                                                                                                                      [(ReportElemID,
-                                                                                                                                                        ReportElem)]) s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: ReportElem) a :: [Path ReportElem
+                                                                                         Double]) :: [Path (Order ReportElemID
+                                                                                                                  ReportElem)
+                                                                                                           Double]) ((map (\(i,
+                                                                                                                             v) -> (Path_At i,
+                                                                                                                                    v)) . toPairs) s :: [(Path ReportElem
+                                                                                                                                                               Double ->
+                                                                                                                                                          Path (Order ReportElemID
+                                                                                                                                                                      ReportElem)
+                                                                                                                                                               Double,
+                                                                                                                                                          ReportElem)])
 instance HasPaths ReportElems Dimension
     where type Path ReportElems Dimension = Path_OMap ReportElemID
                                                       (Path_ReportElem Dimension)
-          pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv :: ReportElem) a :: [Path ReportElem
-                                                                                                              Dimension]) :: [Path (Order ReportElemID
-                                                                                                                                          ReportElem)
-                                                                                                                                   Dimension]) ((toPairs :: Order ReportElemID
-                                                                                                                                                                  ReportElem ->
-                                                                                                                                                            [(ReportElemID,
-                                                                                                                                                              ReportElem)]) s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: ReportElem) a :: [Path ReportElem
+                                                                                         Dimension]) :: [Path (Order ReportElemID
+                                                                                                                     ReportElem)
+                                                                                                              Dimension]) ((map (\(i,
+                                                                                                                                   v) -> (Path_At i,
+                                                                                                                                          v)) . toPairs) s :: [(Path ReportElem
+                                                                                                                                                                     Dimension ->
+                                                                                                                                                                Path (Order ReportElemID
+                                                                                                                                                                            ReportElem)
+                                                                                                                                                                     Dimension,
+                                                                                                                                                                ReportElem)])
 instance HasPaths ReportElems ImageCrop
     where type Path ReportElems ImageCrop = Path_OMap ReportElemID
                                                       (Path_ReportElem ImageCrop)
-          pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv :: ReportElem) a :: [Path ReportElem
-                                                                                                              ImageCrop]) :: [Path (Order ReportElemID
-                                                                                                                                          ReportElem)
-                                                                                                                                   ImageCrop]) ((toPairs :: Order ReportElemID
-                                                                                                                                                                  ReportElem ->
-                                                                                                                                                            [(ReportElemID,
-                                                                                                                                                              ReportElem)]) s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: ReportElem) a :: [Path ReportElem
+                                                                                         ImageCrop]) :: [Path (Order ReportElemID
+                                                                                                                     ReportElem)
+                                                                                                              ImageCrop]) ((map (\(i,
+                                                                                                                                   v) -> (Path_At i,
+                                                                                                                                          v)) . toPairs) s :: [(Path ReportElem
+                                                                                                                                                                     ImageCrop ->
+                                                                                                                                                                Path (Order ReportElemID
+                                                                                                                                                                            ReportElem)
+                                                                                                                                                                     ImageCrop,
+                                                                                                                                                                ReportElem)])
 instance HasPaths ReportElems ImageSize
     where type Path ReportElems ImageSize = Path_OMap ReportElemID
                                                       (Path_ReportElem ImageSize)
-          pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv :: ReportElem) a :: [Path ReportElem
-                                                                                                              ImageSize]) :: [Path (Order ReportElemID
-                                                                                                                                          ReportElem)
-                                                                                                                                   ImageSize]) ((toPairs :: Order ReportElemID
-                                                                                                                                                                  ReportElem ->
-                                                                                                                                                            [(ReportElemID,
-                                                                                                                                                              ReportElem)]) s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: ReportElem) a :: [Path ReportElem
+                                                                                         ImageSize]) :: [Path (Order ReportElemID
+                                                                                                                     ReportElem)
+                                                                                                              ImageSize]) ((map (\(i,
+                                                                                                                                   v) -> (Path_At i,
+                                                                                                                                          v)) . toPairs) s :: [(Path ReportElem
+                                                                                                                                                                     ImageSize ->
+                                                                                                                                                                Path (Order ReportElemID
+                                                                                                                                                                            ReportElem)
+                                                                                                                                                                     ImageSize,
+                                                                                                                                                                ReportElem)])
 instance HasPaths ReportElems Units
     where type Path ReportElems Units = Path_OMap ReportElemID
                                                   (Path_ReportElem Units)
-          pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv :: ReportElem) a :: [Path ReportElem
-                                                                                                              Units]) :: [Path (Order ReportElemID
-                                                                                                                                      ReportElem)
-                                                                                                                               Units]) ((toPairs :: Order ReportElemID
-                                                                                                                                                          ReportElem ->
-                                                                                                                                                    [(ReportElemID,
-                                                                                                                                                      ReportElem)]) s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: ReportElem) a :: [Path ReportElem
+                                                                                         Units]) :: [Path (Order ReportElemID
+                                                                                                                 ReportElem)
+                                                                                                          Units]) ((map (\(i,
+                                                                                                                           v) -> (Path_At i,
+                                                                                                                                  v)) . toPairs) s :: [(Path ReportElem
+                                                                                                                                                             Units ->
+                                                                                                                                                        Path (Order ReportElemID
+                                                                                                                                                                    ReportElem)
+                                                                                                                                                             Units,
+                                                                                                                                                        ReportElem)])
 instance HasPaths ReportElems ImageFile
     where type Path ReportElems ImageFile = Path_OMap ReportElemID
                                                       (Path_ReportElem ImageFile)
-          pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv :: ReportElem) a :: [Path ReportElem
-                                                                                                              ImageFile]) :: [Path (Order ReportElemID
-                                                                                                                                          ReportElem)
-                                                                                                                                   ImageFile]) ((toPairs :: Order ReportElemID
-                                                                                                                                                                  ReportElem ->
-                                                                                                                                                            [(ReportElemID,
-                                                                                                                                                              ReportElem)]) s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: ReportElem) a :: [Path ReportElem
+                                                                                         ImageFile]) :: [Path (Order ReportElemID
+                                                                                                                     ReportElem)
+                                                                                                              ImageFile]) ((map (\(i,
+                                                                                                                                   v) -> (Path_At i,
+                                                                                                                                          v)) . toPairs) s :: [(Path ReportElem
+                                                                                                                                                                     ImageFile ->
+                                                                                                                                                                Path (Order ReportElemID
+                                                                                                                                                                            ReportElem)
+                                                                                                                                                                     ImageFile,
+                                                                                                                                                                ReportElem)])
 instance HasPaths ReportElems JSONText
     where type Path ReportElems JSONText = Path_OMap ReportElemID
                                                      (Path_ReportElem JSONText)
-          pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv :: ReportElem) a :: [Path ReportElem
-                                                                                                              JSONText]) :: [Path (Order ReportElemID
-                                                                                                                                         ReportElem)
-                                                                                                                                  JSONText]) ((toPairs :: Order ReportElemID
-                                                                                                                                                                ReportElem ->
-                                                                                                                                                          [(ReportElemID,
-                                                                                                                                                            ReportElem)]) s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: ReportElem) a :: [Path ReportElem
+                                                                                         JSONText]) :: [Path (Order ReportElemID
+                                                                                                                    ReportElem)
+                                                                                                             JSONText]) ((map (\(i,
+                                                                                                                                 v) -> (Path_At i,
+                                                                                                                                        v)) . toPairs) s :: [(Path ReportElem
+                                                                                                                                                                   JSONText ->
+                                                                                                                                                              Path (Order ReportElemID
+                                                                                                                                                                          ReportElem)
+                                                                                                                                                                   JSONText,
+                                                                                                                                                              ReportElem)])
 instance HasPaths ReportElems Markup
     where type Path ReportElems Markup = Path_OMap ReportElemID
                                                    (Path_ReportElem Markup)
-          pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv :: ReportElem) a :: [Path ReportElem
-                                                                                                              Markup]) :: [Path (Order ReportElemID
-                                                                                                                                       ReportElem)
-                                                                                                                                Markup]) ((toPairs :: Order ReportElemID
-                                                                                                                                                            ReportElem ->
-                                                                                                                                                      [(ReportElemID,
-                                                                                                                                                        ReportElem)]) s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: ReportElem) a :: [Path ReportElem
+                                                                                         Markup]) :: [Path (Order ReportElemID
+                                                                                                                  ReportElem)
+                                                                                                           Markup]) ((map (\(i,
+                                                                                                                             v) -> (Path_At i,
+                                                                                                                                    v)) . toPairs) s :: [(Path ReportElem
+                                                                                                                                                               Markup ->
+                                                                                                                                                          Path (Order ReportElemID
+                                                                                                                                                                      ReportElem)
+                                                                                                                                                               Markup,
+                                                                                                                                                          ReportElem)])
 instance HasPaths ReportElems ReportElem
     where type Path ReportElems ReportElem = Path_OMap ReportElemID
                                                        (Path_ReportElem ReportElem)
-          pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv :: ReportElem) a :: [Path ReportElem
-                                                                                                              ReportElem]) :: [Path (Order ReportElemID
-                                                                                                                                           ReportElem)
-                                                                                                                                    ReportElem]) ((toPairs :: Order ReportElemID
-                                                                                                                                                                    ReportElem ->
-                                                                                                                                                              [(ReportElemID,
-                                                                                                                                                                ReportElem)]) s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: ReportElem) a :: [Path ReportElem
+                                                                                         ReportElem]) :: [Path (Order ReportElemID
+                                                                                                                      ReportElem)
+                                                                                                               ReportElem]) ((map (\(i,
+                                                                                                                                     v) -> (Path_At i,
+                                                                                                                                            v)) . toPairs) s :: [(Path ReportElem
+                                                                                                                                                                       ReportElem ->
+                                                                                                                                                                  Path (Order ReportElemID
+                                                                                                                                                                              ReportElem)
+                                                                                                                                                                       ReportElem,
+                                                                                                                                                                  ReportElem)])
 instance HasPaths ReportElems ReportElems
     where type Path ReportElems ReportElems = Path_OMap ReportElemID
                                                         (Path_ReportElem ReportElems)
@@ -1814,123 +2042,186 @@ instance HasPaths ReportElems ReportElems
 instance HasPaths ReportElems EUI
     where type Path ReportElems EUI = Path_OMap ReportElemID
                                                 (Path_ReportElem EUI)
-          pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv :: ReportElem) a :: [Path ReportElem
-                                                                                                              (Either URI
-                                                                                                                      ImageFile)]) :: [Path (Order ReportElemID
-                                                                                                                                                   ReportElem)
-                                                                                                                                            (Either URI
-                                                                                                                                                    ImageFile)]) ((toPairs :: Order ReportElemID
-                                                                                                                                                                                    ReportElem ->
-                                                                                                                                                                              [(ReportElemID,
-                                                                                                                                                                                ReportElem)]) s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: ReportElem) a :: [Path ReportElem
+                                                                                         (Either URI
+                                                                                                 ImageFile)]) :: [Path (Order ReportElemID
+                                                                                                                              ReportElem)
+                                                                                                                       (Either URI
+                                                                                                                               ImageFile)]) ((map (\(i,
+                                                                                                                                                     v) -> (Path_At i,
+                                                                                                                                                            v)) . toPairs) s :: [(Path ReportElem
+                                                                                                                                                                                       (Either URI
+                                                                                                                                                                                               ImageFile) ->
+                                                                                                                                                                                  Path (Order ReportElemID
+                                                                                                                                                                                              ReportElem)
+                                                                                                                                                                                       (Either URI
+                                                                                                                                                                                               ImageFile),
+                                                                                                                                                                                  ReportElem)])
 instance HasPaths ReportElems MEUI
     where type Path ReportElems MEUI = Path_OMap ReportElemID
                                                  (Path_ReportElem MEUI)
-          pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv :: ReportElem) a :: [Path ReportElem
-                                                                                                              (Maybe (Either URI
-                                                                                                                             ImageFile))]) :: [Path (Order ReportElemID
-                                                                                                                                                           ReportElem)
-                                                                                                                                                    (Maybe (Either URI
-                                                                                                                                                                   ImageFile))]) ((toPairs :: Order ReportElemID
-                                                                                                                                                                                                    ReportElem ->
-                                                                                                                                                                                              [(ReportElemID,
-                                                                                                                                                                                                ReportElem)]) s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: ReportElem) a :: [Path ReportElem
+                                                                                         (Maybe (Either URI
+                                                                                                        ImageFile))]) :: [Path (Order ReportElemID
+                                                                                                                                      ReportElem)
+                                                                                                                               (Maybe (Either URI
+                                                                                                                                              ImageFile))]) ((map (\(i,
+                                                                                                                                                                     v) -> (Path_At i,
+                                                                                                                                                                            v)) . toPairs) s :: [(Path ReportElem
+                                                                                                                                                                                                       (Maybe (Either URI
+                                                                                                                                                                                                                      ImageFile)) ->
+                                                                                                                                                                                                  Path (Order ReportElemID
+                                                                                                                                                                                                              ReportElem)
+                                                                                                                                                                                                       (Maybe (Either URI
+                                                                                                                                                                                                                      ImageFile)),
+                                                                                                                                                                                                  ReportElem)])
 instance HasPaths ReportElems MaybeImageFile
     where type Path ReportElems MaybeImageFile = Path_OMap ReportElemID
                                                            (Path_ReportElem MaybeImageFile)
-          pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv :: ReportElem) a :: [Path ReportElem
-                                                                                                              (Maybe ImageFile)]) :: [Path (Order ReportElemID
-                                                                                                                                                  ReportElem)
-                                                                                                                                           (Maybe ImageFile)]) ((toPairs :: Order ReportElemID
-                                                                                                                                                                                  ReportElem ->
-                                                                                                                                                                            [(ReportElemID,
-                                                                                                                                                                              ReportElem)]) s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: ReportElem) a :: [Path ReportElem
+                                                                                         (Maybe ImageFile)]) :: [Path (Order ReportElemID
+                                                                                                                             ReportElem)
+                                                                                                                      (Maybe ImageFile)]) ((map (\(i,
+                                                                                                                                                   v) -> (Path_At i,
+                                                                                                                                                          v)) . toPairs) s :: [(Path ReportElem
+                                                                                                                                                                                     (Maybe ImageFile) ->
+                                                                                                                                                                                Path (Order ReportElemID
+                                                                                                                                                                                            ReportElem)
+                                                                                                                                                                                     (Maybe ImageFile),
+                                                                                                                                                                                ReportElem)])
 instance HasPaths ReportElems ReportImage
     where type Path ReportElems ReportImage = Path_OMap ReportElemID
                                                         (Path_ReportElem ReportImage)
-          pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv :: ReportElem) a :: [Path ReportElem
-                                                                                                              ReportImage]) :: [Path (Order ReportElemID
-                                                                                                                                            ReportElem)
-                                                                                                                                     ReportImage]) ((toPairs :: Order ReportElemID
-                                                                                                                                                                      ReportElem ->
-                                                                                                                                                                [(ReportElemID,
-                                                                                                                                                                  ReportElem)]) s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: ReportElem) a :: [Path ReportElem
+                                                                                         ReportImage]) :: [Path (Order ReportElemID
+                                                                                                                       ReportElem)
+                                                                                                                ReportImage]) ((map (\(i,
+                                                                                                                                       v) -> (Path_At i,
+                                                                                                                                              v)) . toPairs) s :: [(Path ReportElem
+                                                                                                                                                                         ReportImage ->
+                                                                                                                                                                    Path (Order ReportElemID
+                                                                                                                                                                                ReportElem)
+                                                                                                                                                                         ReportImage,
+                                                                                                                                                                    ReportElem)])
 instance HasPaths ReportElems ReportImages
     where type Path ReportElems ReportImages = Path_OMap ReportElemID
                                                          (Path_ReportElem ReportImages)
-          pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv :: ReportElem) a :: [Path ReportElem
-                                                                                                              (Order ReportImageID
-                                                                                                                     ReportImage)]) :: [Path (Order ReportElemID
-                                                                                                                                                    ReportElem)
-                                                                                                                                             (Order ReportImageID
-                                                                                                                                                    ReportImage)]) ((toPairs :: Order ReportElemID
-                                                                                                                                                                                      ReportElem ->
-                                                                                                                                                                                [(ReportElemID,
-                                                                                                                                                                                  ReportElem)]) s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: ReportElem) a :: [Path ReportElem
+                                                                                         (Order ReportImageID
+                                                                                                ReportImage)]) :: [Path (Order ReportElemID
+                                                                                                                               ReportElem)
+                                                                                                                        (Order ReportImageID
+                                                                                                                               ReportImage)]) ((map (\(i,
+                                                                                                                                                       v) -> (Path_At i,
+                                                                                                                                                              v)) . toPairs) s :: [(Path ReportElem
+                                                                                                                                                                                         (Order ReportImageID
+                                                                                                                                                                                                ReportImage) ->
+                                                                                                                                                                                    Path (Order ReportElemID
+                                                                                                                                                                                                ReportElem)
+                                                                                                                                                                                         (Order ReportImageID
+                                                                                                                                                                                                ReportImage),
+                                                                                                                                                                                    ReportElem)])
 instance HasPaths ReportElems ReportImageView
     where type Path ReportElems
                     ReportImageView = Path_OMap ReportElemID
                                                 (Path_ReportElem ReportImageView)
-          pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv :: ReportElem) a :: [Path ReportElem
-                                                                                                              ReportImageView]) :: [Path (Order ReportElemID
-                                                                                                                                                ReportElem)
-                                                                                                                                         ReportImageView]) ((toPairs :: Order ReportElemID
-                                                                                                                                                                              ReportElem ->
-                                                                                                                                                                        [(ReportElemID,
-                                                                                                                                                                          ReportElem)]) s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: ReportElem) a :: [Path ReportElem
+                                                                                         ReportImageView]) :: [Path (Order ReportElemID
+                                                                                                                           ReportElem)
+                                                                                                                    ReportImageView]) ((map (\(i,
+                                                                                                                                               v) -> (Path_At i,
+                                                                                                                                                      v)) . toPairs) s :: [(Path ReportElem
+                                                                                                                                                                                 ReportImageView ->
+                                                                                                                                                                            Path (Order ReportElemID
+                                                                                                                                                                                        ReportElem)
+                                                                                                                                                                                 ReportImageView,
+                                                                                                                                                                            ReportElem)])
 instance HasPaths ReportElems SaneSizeImageSize
     where type Path ReportElems
                     SaneSizeImageSize = Path_OMap ReportElemID
                                                   (Path_ReportElem SaneSizeImageSize)
-          pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv :: ReportElem) a :: [Path ReportElem
-                                                                                                              (SaneSize ImageSize)]) :: [Path (Order ReportElemID
-                                                                                                                                                     ReportElem)
-                                                                                                                                              (SaneSize ImageSize)]) ((toPairs :: Order ReportElemID
-                                                                                                                                                                                        ReportElem ->
-                                                                                                                                                                                  [(ReportElemID,
-                                                                                                                                                                                    ReportElem)]) s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: ReportElem) a :: [Path ReportElem
+                                                                                         (SaneSize ImageSize)]) :: [Path (Order ReportElemID
+                                                                                                                                ReportElem)
+                                                                                                                         (SaneSize ImageSize)]) ((map (\(i,
+                                                                                                                                                         v) -> (Path_At i,
+                                                                                                                                                                v)) . toPairs) s :: [(Path ReportElem
+                                                                                                                                                                                           (SaneSize ImageSize) ->
+                                                                                                                                                                                      Path (Order ReportElemID
+                                                                                                                                                                                                  ReportElem)
+                                                                                                                                                                                           (SaneSize ImageSize),
+                                                                                                                                                                                      ReportElem)])
 instance HasPaths ReportElems Item
     where type Path ReportElems Item = Path_OMap ReportElemID
                                                  (Path_ReportElem Item)
-          pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv :: ReportElem) a :: [Path ReportElem
-                                                                                                              Item]) :: [Path (Order ReportElemID
-                                                                                                                                     ReportElem)
-                                                                                                                              Item]) ((toPairs :: Order ReportElemID
-                                                                                                                                                        ReportElem ->
-                                                                                                                                                  [(ReportElemID,
-                                                                                                                                                    ReportElem)]) s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: ReportElem) a :: [Path ReportElem
+                                                                                         Item]) :: [Path (Order ReportElemID
+                                                                                                                ReportElem)
+                                                                                                         Item]) ((map (\(i,
+                                                                                                                         v) -> (Path_At i,
+                                                                                                                                v)) . toPairs) s :: [(Path ReportElem
+                                                                                                                                                           Item ->
+                                                                                                                                                      Path (Order ReportElemID
+                                                                                                                                                                  ReportElem)
+                                                                                                                                                           Item,
+                                                                                                                                                      ReportElem)])
 instance HasPaths ReportElems MIM
     where type Path ReportElems MIM = Path_OMap ReportElemID
                                                 (Path_ReportElem MIM)
-          pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv :: ReportElem) a :: [Path ReportElem
-                                                                                                              (Map ItemFieldName
-                                                                                                                   Markup)]) :: [Path (Order ReportElemID
-                                                                                                                                             ReportElem)
-                                                                                                                                      (Map ItemFieldName
-                                                                                                                                           Markup)]) ((toPairs :: Order ReportElemID
-                                                                                                                                                                        ReportElem ->
-                                                                                                                                                                  [(ReportElemID,
-                                                                                                                                                                    ReportElem)]) s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: ReportElem) a :: [Path ReportElem
+                                                                                         (Map ItemFieldName
+                                                                                              Markup)]) :: [Path (Order ReportElemID
+                                                                                                                        ReportElem)
+                                                                                                                 (Map ItemFieldName
+                                                                                                                      Markup)]) ((map (\(i,
+                                                                                                                                         v) -> (Path_At i,
+                                                                                                                                                v)) . toPairs) s :: [(Path ReportElem
+                                                                                                                                                                           (Map ItemFieldName
+                                                                                                                                                                                Markup) ->
+                                                                                                                                                                      Path (Order ReportElemID
+                                                                                                                                                                                  ReportElem)
+                                                                                                                                                                           (Map ItemFieldName
+                                                                                                                                                                                Markup),
+                                                                                                                                                                      ReportElem)])
 instance HasPaths ReportElems URI
     where type Path ReportElems URI = Path_OMap ReportElemID
                                                 (Path_ReportElem URI)
-          pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv :: ReportElem) a :: [Path ReportElem
-                                                                                                              URI]) :: [Path (Order ReportElemID
-                                                                                                                                    ReportElem)
-                                                                                                                             URI]) ((toPairs :: Order ReportElemID
-                                                                                                                                                      ReportElem ->
-                                                                                                                                                [(ReportElemID,
-                                                                                                                                                  ReportElem)]) s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: ReportElem) a :: [Path ReportElem
+                                                                                         URI]) :: [Path (Order ReportElemID
+                                                                                                               ReportElem)
+                                                                                                        URI]) ((map (\(i,
+                                                                                                                       v) -> (Path_At i,
+                                                                                                                              v)) . toPairs) s :: [(Path ReportElem
+                                                                                                                                                         URI ->
+                                                                                                                                                    Path (Order ReportElemID
+                                                                                                                                                                ReportElem)
+                                                                                                                                                         URI,
+                                                                                                                                                    ReportElem)])
 instance HasPaths ReportElems Text
     where type Path ReportElems Text = Path_OMap ReportElemID
                                                  (Path_ReportElem Text)
-          pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv :: ReportElem) a :: [Path ReportElem
-                                                                                                              Text]) :: [Path (Order ReportElemID
-                                                                                                                                     ReportElem)
-                                                                                                                              Text]) ((toPairs :: Order ReportElemID
-                                                                                                                                                        ReportElem ->
-                                                                                                                                                  [(ReportElemID,
-                                                                                                                                                    ReportElem)]) s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: ReportElem) a :: [Path ReportElem
+                                                                                         Text]) :: [Path (Order ReportElemID
+                                                                                                                ReportElem)
+                                                                                                         Text]) ((map (\(i,
+                                                                                                                         v) -> (Path_At i,
+                                                                                                                                v)) . toPairs) s :: [(Path ReportElem
+                                                                                                                                                           Text ->
+                                                                                                                                                      Path (Order ReportElemID
+                                                                                                                                                                  ReportElem)
+                                                                                                                                                           Text,
+                                                                                                                                                      ReportElem)])
 instance HasPaths ReportFlags String
     where type Path ReportFlags String = Path_ReportFlags String
           pathsOf s a = case s of
@@ -2035,12 +2326,19 @@ instance HasPaths ReportValueTypeInfo Text
 instance HasPaths EUI ImageFile
     where type Path EUI ImageFile = Path_Either (Path_URI ImageFile)
                                                 (Path_ImageFile ImageFile)
-          pathsOf s a = [] <> concatMap (\pv -> map ((\_ -> Path_Right) pv) (pathsOf (id pv :: ImageFile) a :: [Path ImageFile
-                                                                                                                     ImageFile]) :: [Path (Either URI
-                                                                                                                                                  ImageFile)
-                                                                                                                                          ImageFile]) ((\s -> case s of
-                                                                                                                                                                  Left _ -> []
-                                                                                                                                                                  Right a -> [a]) s)
+          pathsOf s a = [] <> concatMap (\(p,
+                                           a') -> map p (pathsOf (a' :: ImageFile) a :: [Path ImageFile
+                                                                                              ImageFile]) :: [Path (Either URI
+                                                                                                                           ImageFile)
+                                                                                                                   ImageFile]) ((\s -> case s of
+                                                                                                                                           Left _ -> []
+                                                                                                                                           Right a -> [(Path_Right,
+                                                                                                                                                        a)]) s :: [(Path ImageFile
+                                                                                                                                                                         ImageFile ->
+                                                                                                                                                                    Path (Either URI
+                                                                                                                                                                                 ImageFile)
+                                                                                                                                                                         ImageFile,
+                                                                                                                                                                    ImageFile)])
 instance HasPaths EUI EUI
     where type Path EUI EUI = Path_Either (Path_URI EUI)
                                           (Path_ImageFile EUI)
@@ -2048,37 +2346,64 @@ instance HasPaths EUI EUI
 instance HasPaths EUI URI
     where type Path EUI URI = Path_Either (Path_URI URI)
                                           (Path_ImageFile URI)
-          pathsOf s a = concatMap (\pv -> map ((\_ -> Path_Left) pv) (pathsOf (id pv :: URI) a :: [Path URI
-                                                                                                        URI]) :: [Path (Either URI
-                                                                                                                               ImageFile)
-                                                                                                                       URI]) ((\s -> case s of
-                                                                                                                                         Left a -> [a]
-                                                                                                                                         Right _ -> []) s) <> []
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: URI) a :: [Path URI
+                                                                                  URI]) :: [Path (Either URI
+                                                                                                         ImageFile)
+                                                                                                 URI]) ((\s -> case s of
+                                                                                                                   Left a -> [(Path_Left,
+                                                                                                                               a)]
+                                                                                                                   Right _ -> []) s :: [(Path URI
+                                                                                                                                              URI ->
+                                                                                                                                         Path (Either URI
+                                                                                                                                                      ImageFile)
+                                                                                                                                              URI,
+                                                                                                                                         URI)]) <> []
 instance HasPaths MEUI ImageFile
     where type Path MEUI
                     ImageFile = Path_Maybe (Path_Either (Path_URI ImageFile)
                                                         (Path_ImageFile ImageFile))
-          pathsOf s a = concatMap (\pv -> map ((\_ -> Path_Just) pv) (pathsOf (id pv :: Either URI
-                                                                                               ImageFile) a :: [Path (Either URI
-                                                                                                                             ImageFile)
-                                                                                                                     ImageFile]) :: [Path (Maybe (Either URI
-                                                                                                                                                         ImageFile))
-                                                                                                                                          ImageFile]) ((\s -> case s of
-                                                                                                                                                                  Nothing -> []
-                                                                                                                                                                  Just a -> [a]) s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: Either URI
+                                                                         ImageFile) a :: [Path (Either URI
+                                                                                                       ImageFile)
+                                                                                               ImageFile]) :: [Path (Maybe (Either URI
+                                                                                                                                   ImageFile))
+                                                                                                                    ImageFile]) ((\s -> case s of
+                                                                                                                                            Nothing -> []
+                                                                                                                                            Just a -> [(Path_Just,
+                                                                                                                                                        a)]) s :: [(Path (Either URI
+                                                                                                                                                                                 ImageFile)
+                                                                                                                                                                         ImageFile ->
+                                                                                                                                                                    Path (Maybe (Either URI
+                                                                                                                                                                                        ImageFile))
+                                                                                                                                                                         ImageFile,
+                                                                                                                                                                    Either URI
+                                                                                                                                                                           ImageFile)])
 instance HasPaths MEUI EUI
     where type Path MEUI EUI = Path_Maybe (Path_Either (Path_URI EUI)
                                                        (Path_ImageFile EUI))
-          pathsOf s a = concatMap (\pv -> map ((\_ -> Path_Just) pv) (pathsOf (id pv :: Either URI
-                                                                                               ImageFile) a :: [Path (Either URI
-                                                                                                                             ImageFile)
-                                                                                                                     (Either URI
-                                                                                                                             ImageFile)]) :: [Path (Maybe (Either URI
-                                                                                                                                                                  ImageFile))
-                                                                                                                                                   (Either URI
-                                                                                                                                                           ImageFile)]) ((\s -> case s of
-                                                                                                                                                                                    Nothing -> []
-                                                                                                                                                                                    Just a -> [a]) s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: Either URI
+                                                                         ImageFile) a :: [Path (Either URI
+                                                                                                       ImageFile)
+                                                                                               (Either URI
+                                                                                                       ImageFile)]) :: [Path (Maybe (Either URI
+                                                                                                                                            ImageFile))
+                                                                                                                             (Either URI
+                                                                                                                                     ImageFile)]) ((\s -> case s of
+                                                                                                                                                              Nothing -> []
+                                                                                                                                                              Just a -> [(Path_Just,
+                                                                                                                                                                          a)]) s :: [(Path (Either URI
+                                                                                                                                                                                                   ImageFile)
+                                                                                                                                                                                           (Either URI
+                                                                                                                                                                                                   ImageFile) ->
+                                                                                                                                                                                      Path (Maybe (Either URI
+                                                                                                                                                                                                          ImageFile))
+                                                                                                                                                                                           (Either URI
+                                                                                                                                                                                                   ImageFile),
+                                                                                                                                                                                      Either URI
+                                                                                                                                                                                             ImageFile)])
 instance HasPaths MEUI MEUI
     where type Path MEUI MEUI = Path_Maybe (Path_Either (Path_URI MEUI)
                                                         (Path_ImageFile MEUI))
@@ -2086,14 +2411,23 @@ instance HasPaths MEUI MEUI
 instance HasPaths MEUI URI
     where type Path MEUI URI = Path_Maybe (Path_Either (Path_URI URI)
                                                        (Path_ImageFile URI))
-          pathsOf s a = concatMap (\pv -> map ((\_ -> Path_Just) pv) (pathsOf (id pv :: Either URI
-                                                                                               ImageFile) a :: [Path (Either URI
-                                                                                                                             ImageFile)
-                                                                                                                     URI]) :: [Path (Maybe (Either URI
-                                                                                                                                                   ImageFile))
-                                                                                                                                    URI]) ((\s -> case s of
-                                                                                                                                                      Nothing -> []
-                                                                                                                                                      Just a -> [a]) s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: Either URI
+                                                                         ImageFile) a :: [Path (Either URI
+                                                                                                       ImageFile)
+                                                                                               URI]) :: [Path (Maybe (Either URI
+                                                                                                                             ImageFile))
+                                                                                                              URI]) ((\s -> case s of
+                                                                                                                                Nothing -> []
+                                                                                                                                Just a -> [(Path_Just,
+                                                                                                                                            a)]) s :: [(Path (Either URI
+                                                                                                                                                                     ImageFile)
+                                                                                                                                                             URI ->
+                                                                                                                                                        Path (Maybe (Either URI
+                                                                                                                                                                            ImageFile))
+                                                                                                                                                             URI,
+                                                                                                                                                        Either URI
+                                                                                                                                                               ImageFile)])
 instance HasPaths MaybeImageFile String
     where type Path MaybeImageFile String = Path_MaybeImageFile String
           pathsOf s a = concatMap (\s' -> map Path_MaybeImageFile_View (pathsOf s' a :: [Path ([Char])
@@ -2206,148 +2540,222 @@ instance HasPaths ReportImage Text
 instance HasPaths ReportImages String
     where type Path ReportImages String = Path_OMap ReportImageID
                                                     (Path_ReportImage String)
-          pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv :: ReportImage) a :: [Path ReportImage
-                                                                                                               ([Char])]) :: [Path (Order ReportImageID
-                                                                                                                                          ReportImage)
-                                                                                                                                   ([Char])]) ((toPairs :: Order ReportImageID
-                                                                                                                                                                 ReportImage ->
-                                                                                                                                                           [(ReportImageID,
-                                                                                                                                                             ReportImage)]) s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: ReportImage) a :: [Path ReportImage
+                                                                                          ([Char])]) :: [Path (Order ReportImageID
+                                                                                                                     ReportImage)
+                                                                                                              ([Char])]) ((map (\(i,
+                                                                                                                                  v) -> (Path_At i,
+                                                                                                                                         v)) . toPairs) s :: [(Path ReportImage
+                                                                                                                                                                    ([Char]) ->
+                                                                                                                                                               Path (Order ReportImageID
+                                                                                                                                                                           ReportImage)
+                                                                                                                                                                    ([Char]),
+                                                                                                                                                               ReportImage)])
 instance HasPaths ReportImages Bool
     where type Path ReportImages Bool = Path_OMap ReportImageID
                                                   (Path_ReportImage Bool)
-          pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv :: ReportImage) a :: [Path ReportImage
-                                                                                                               Bool]) :: [Path (Order ReportImageID
-                                                                                                                                      ReportImage)
-                                                                                                                               Bool]) ((toPairs :: Order ReportImageID
-                                                                                                                                                         ReportImage ->
-                                                                                                                                                   [(ReportImageID,
-                                                                                                                                                     ReportImage)]) s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: ReportImage) a :: [Path ReportImage
+                                                                                          Bool]) :: [Path (Order ReportImageID
+                                                                                                                 ReportImage)
+                                                                                                          Bool]) ((map (\(i,
+                                                                                                                          v) -> (Path_At i,
+                                                                                                                                 v)) . toPairs) s :: [(Path ReportImage
+                                                                                                                                                            Bool ->
+                                                                                                                                                       Path (Order ReportImageID
+                                                                                                                                                                   ReportImage)
+                                                                                                                                                            Bool,
+                                                                                                                                                       ReportImage)])
 instance HasPaths ReportImages Double
     where type Path ReportImages Double = Path_OMap ReportImageID
                                                     (Path_ReportImage Double)
-          pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv :: ReportImage) a :: [Path ReportImage
-                                                                                                               Double]) :: [Path (Order ReportImageID
-                                                                                                                                        ReportImage)
-                                                                                                                                 Double]) ((toPairs :: Order ReportImageID
-                                                                                                                                                             ReportImage ->
-                                                                                                                                                       [(ReportImageID,
-                                                                                                                                                         ReportImage)]) s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: ReportImage) a :: [Path ReportImage
+                                                                                          Double]) :: [Path (Order ReportImageID
+                                                                                                                   ReportImage)
+                                                                                                            Double]) ((map (\(i,
+                                                                                                                              v) -> (Path_At i,
+                                                                                                                                     v)) . toPairs) s :: [(Path ReportImage
+                                                                                                                                                                Double ->
+                                                                                                                                                           Path (Order ReportImageID
+                                                                                                                                                                       ReportImage)
+                                                                                                                                                                Double,
+                                                                                                                                                           ReportImage)])
 instance HasPaths ReportImages Dimension
     where type Path ReportImages Dimension = Path_OMap ReportImageID
                                                        (Path_ReportImage Dimension)
-          pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv :: ReportImage) a :: [Path ReportImage
-                                                                                                               Dimension]) :: [Path (Order ReportImageID
-                                                                                                                                           ReportImage)
-                                                                                                                                    Dimension]) ((toPairs :: Order ReportImageID
-                                                                                                                                                                   ReportImage ->
-                                                                                                                                                             [(ReportImageID,
-                                                                                                                                                               ReportImage)]) s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: ReportImage) a :: [Path ReportImage
+                                                                                          Dimension]) :: [Path (Order ReportImageID
+                                                                                                                      ReportImage)
+                                                                                                               Dimension]) ((map (\(i,
+                                                                                                                                    v) -> (Path_At i,
+                                                                                                                                           v)) . toPairs) s :: [(Path ReportImage
+                                                                                                                                                                      Dimension ->
+                                                                                                                                                                 Path (Order ReportImageID
+                                                                                                                                                                             ReportImage)
+                                                                                                                                                                      Dimension,
+                                                                                                                                                                 ReportImage)])
 instance HasPaths ReportImages ImageCrop
     where type Path ReportImages ImageCrop = Path_OMap ReportImageID
                                                        (Path_ReportImage ImageCrop)
-          pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv :: ReportImage) a :: [Path ReportImage
-                                                                                                               ImageCrop]) :: [Path (Order ReportImageID
-                                                                                                                                           ReportImage)
-                                                                                                                                    ImageCrop]) ((toPairs :: Order ReportImageID
-                                                                                                                                                                   ReportImage ->
-                                                                                                                                                             [(ReportImageID,
-                                                                                                                                                               ReportImage)]) s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: ReportImage) a :: [Path ReportImage
+                                                                                          ImageCrop]) :: [Path (Order ReportImageID
+                                                                                                                      ReportImage)
+                                                                                                               ImageCrop]) ((map (\(i,
+                                                                                                                                    v) -> (Path_At i,
+                                                                                                                                           v)) . toPairs) s :: [(Path ReportImage
+                                                                                                                                                                      ImageCrop ->
+                                                                                                                                                                 Path (Order ReportImageID
+                                                                                                                                                                             ReportImage)
+                                                                                                                                                                      ImageCrop,
+                                                                                                                                                                 ReportImage)])
 instance HasPaths ReportImages ImageSize
     where type Path ReportImages ImageSize = Path_OMap ReportImageID
                                                        (Path_ReportImage ImageSize)
-          pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv :: ReportImage) a :: [Path ReportImage
-                                                                                                               ImageSize]) :: [Path (Order ReportImageID
-                                                                                                                                           ReportImage)
-                                                                                                                                    ImageSize]) ((toPairs :: Order ReportImageID
-                                                                                                                                                                   ReportImage ->
-                                                                                                                                                             [(ReportImageID,
-                                                                                                                                                               ReportImage)]) s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: ReportImage) a :: [Path ReportImage
+                                                                                          ImageSize]) :: [Path (Order ReportImageID
+                                                                                                                      ReportImage)
+                                                                                                               ImageSize]) ((map (\(i,
+                                                                                                                                    v) -> (Path_At i,
+                                                                                                                                           v)) . toPairs) s :: [(Path ReportImage
+                                                                                                                                                                      ImageSize ->
+                                                                                                                                                                 Path (Order ReportImageID
+                                                                                                                                                                             ReportImage)
+                                                                                                                                                                      ImageSize,
+                                                                                                                                                                 ReportImage)])
 instance HasPaths ReportImages Units
     where type Path ReportImages Units = Path_OMap ReportImageID
                                                    (Path_ReportImage Units)
-          pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv :: ReportImage) a :: [Path ReportImage
-                                                                                                               Units]) :: [Path (Order ReportImageID
-                                                                                                                                       ReportImage)
-                                                                                                                                Units]) ((toPairs :: Order ReportImageID
-                                                                                                                                                           ReportImage ->
-                                                                                                                                                     [(ReportImageID,
-                                                                                                                                                       ReportImage)]) s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: ReportImage) a :: [Path ReportImage
+                                                                                          Units]) :: [Path (Order ReportImageID
+                                                                                                                  ReportImage)
+                                                                                                           Units]) ((map (\(i,
+                                                                                                                            v) -> (Path_At i,
+                                                                                                                                   v)) . toPairs) s :: [(Path ReportImage
+                                                                                                                                                              Units ->
+                                                                                                                                                         Path (Order ReportImageID
+                                                                                                                                                                     ReportImage)
+                                                                                                                                                              Units,
+                                                                                                                                                         ReportImage)])
 instance HasPaths ReportImages ImageFile
     where type Path ReportImages ImageFile = Path_OMap ReportImageID
                                                        (Path_ReportImage ImageFile)
-          pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv :: ReportImage) a :: [Path ReportImage
-                                                                                                               ImageFile]) :: [Path (Order ReportImageID
-                                                                                                                                           ReportImage)
-                                                                                                                                    ImageFile]) ((toPairs :: Order ReportImageID
-                                                                                                                                                                   ReportImage ->
-                                                                                                                                                             [(ReportImageID,
-                                                                                                                                                               ReportImage)]) s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: ReportImage) a :: [Path ReportImage
+                                                                                          ImageFile]) :: [Path (Order ReportImageID
+                                                                                                                      ReportImage)
+                                                                                                               ImageFile]) ((map (\(i,
+                                                                                                                                    v) -> (Path_At i,
+                                                                                                                                           v)) . toPairs) s :: [(Path ReportImage
+                                                                                                                                                                      ImageFile ->
+                                                                                                                                                                 Path (Order ReportImageID
+                                                                                                                                                                             ReportImage)
+                                                                                                                                                                      ImageFile,
+                                                                                                                                                                 ReportImage)])
 instance HasPaths ReportImages JSONText
     where type Path ReportImages JSONText = Path_OMap ReportImageID
                                                       (Path_ReportImage JSONText)
-          pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv :: ReportImage) a :: [Path ReportImage
-                                                                                                               JSONText]) :: [Path (Order ReportImageID
-                                                                                                                                          ReportImage)
-                                                                                                                                   JSONText]) ((toPairs :: Order ReportImageID
-                                                                                                                                                                 ReportImage ->
-                                                                                                                                                           [(ReportImageID,
-                                                                                                                                                             ReportImage)]) s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: ReportImage) a :: [Path ReportImage
+                                                                                          JSONText]) :: [Path (Order ReportImageID
+                                                                                                                     ReportImage)
+                                                                                                              JSONText]) ((map (\(i,
+                                                                                                                                  v) -> (Path_At i,
+                                                                                                                                         v)) . toPairs) s :: [(Path ReportImage
+                                                                                                                                                                    JSONText ->
+                                                                                                                                                               Path (Order ReportImageID
+                                                                                                                                                                           ReportImage)
+                                                                                                                                                                    JSONText,
+                                                                                                                                                               ReportImage)])
 instance HasPaths ReportImages Markup
     where type Path ReportImages Markup = Path_OMap ReportImageID
                                                     (Path_ReportImage Markup)
-          pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv :: ReportImage) a :: [Path ReportImage
-                                                                                                               Markup]) :: [Path (Order ReportImageID
-                                                                                                                                        ReportImage)
-                                                                                                                                 Markup]) ((toPairs :: Order ReportImageID
-                                                                                                                                                             ReportImage ->
-                                                                                                                                                       [(ReportImageID,
-                                                                                                                                                         ReportImage)]) s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: ReportImage) a :: [Path ReportImage
+                                                                                          Markup]) :: [Path (Order ReportImageID
+                                                                                                                   ReportImage)
+                                                                                                            Markup]) ((map (\(i,
+                                                                                                                              v) -> (Path_At i,
+                                                                                                                                     v)) . toPairs) s :: [(Path ReportImage
+                                                                                                                                                                Markup ->
+                                                                                                                                                           Path (Order ReportImageID
+                                                                                                                                                                       ReportImage)
+                                                                                                                                                                Markup,
+                                                                                                                                                           ReportImage)])
 instance HasPaths ReportImages EUI
     where type Path ReportImages EUI = Path_OMap ReportImageID
                                                  (Path_ReportImage EUI)
-          pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv :: ReportImage) a :: [Path ReportImage
-                                                                                                               (Either URI
-                                                                                                                       ImageFile)]) :: [Path (Order ReportImageID
-                                                                                                                                                    ReportImage)
-                                                                                                                                             (Either URI
-                                                                                                                                                     ImageFile)]) ((toPairs :: Order ReportImageID
-                                                                                                                                                                                     ReportImage ->
-                                                                                                                                                                               [(ReportImageID,
-                                                                                                                                                                                 ReportImage)]) s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: ReportImage) a :: [Path ReportImage
+                                                                                          (Either URI
+                                                                                                  ImageFile)]) :: [Path (Order ReportImageID
+                                                                                                                               ReportImage)
+                                                                                                                        (Either URI
+                                                                                                                                ImageFile)]) ((map (\(i,
+                                                                                                                                                      v) -> (Path_At i,
+                                                                                                                                                             v)) . toPairs) s :: [(Path ReportImage
+                                                                                                                                                                                        (Either URI
+                                                                                                                                                                                                ImageFile) ->
+                                                                                                                                                                                   Path (Order ReportImageID
+                                                                                                                                                                                               ReportImage)
+                                                                                                                                                                                        (Either URI
+                                                                                                                                                                                                ImageFile),
+                                                                                                                                                                                   ReportImage)])
 instance HasPaths ReportImages MEUI
     where type Path ReportImages MEUI = Path_OMap ReportImageID
                                                   (Path_ReportImage MEUI)
-          pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv :: ReportImage) a :: [Path ReportImage
-                                                                                                               (Maybe (Either URI
-                                                                                                                              ImageFile))]) :: [Path (Order ReportImageID
-                                                                                                                                                            ReportImage)
-                                                                                                                                                     (Maybe (Either URI
-                                                                                                                                                                    ImageFile))]) ((toPairs :: Order ReportImageID
-                                                                                                                                                                                                     ReportImage ->
-                                                                                                                                                                                               [(ReportImageID,
-                                                                                                                                                                                                 ReportImage)]) s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: ReportImage) a :: [Path ReportImage
+                                                                                          (Maybe (Either URI
+                                                                                                         ImageFile))]) :: [Path (Order ReportImageID
+                                                                                                                                       ReportImage)
+                                                                                                                                (Maybe (Either URI
+                                                                                                                                               ImageFile))]) ((map (\(i,
+                                                                                                                                                                      v) -> (Path_At i,
+                                                                                                                                                                             v)) . toPairs) s :: [(Path ReportImage
+                                                                                                                                                                                                        (Maybe (Either URI
+                                                                                                                                                                                                                       ImageFile)) ->
+                                                                                                                                                                                                   Path (Order ReportImageID
+                                                                                                                                                                                                               ReportImage)
+                                                                                                                                                                                                        (Maybe (Either URI
+                                                                                                                                                                                                                       ImageFile)),
+                                                                                                                                                                                                   ReportImage)])
 instance HasPaths ReportImages MaybeImageFile
     where type Path ReportImages
                     MaybeImageFile = Path_OMap ReportImageID
                                                (Path_ReportImage MaybeImageFile)
-          pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv :: ReportImage) a :: [Path ReportImage
-                                                                                                               (Maybe ImageFile)]) :: [Path (Order ReportImageID
-                                                                                                                                                   ReportImage)
-                                                                                                                                            (Maybe ImageFile)]) ((toPairs :: Order ReportImageID
-                                                                                                                                                                                   ReportImage ->
-                                                                                                                                                                             [(ReportImageID,
-                                                                                                                                                                               ReportImage)]) s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: ReportImage) a :: [Path ReportImage
+                                                                                          (Maybe ImageFile)]) :: [Path (Order ReportImageID
+                                                                                                                              ReportImage)
+                                                                                                                       (Maybe ImageFile)]) ((map (\(i,
+                                                                                                                                                    v) -> (Path_At i,
+                                                                                                                                                           v)) . toPairs) s :: [(Path ReportImage
+                                                                                                                                                                                      (Maybe ImageFile) ->
+                                                                                                                                                                                 Path (Order ReportImageID
+                                                                                                                                                                                             ReportImage)
+                                                                                                                                                                                      (Maybe ImageFile),
+                                                                                                                                                                                 ReportImage)])
 instance HasPaths ReportImages ReportImage
     where type Path ReportImages ReportImage = Path_OMap ReportImageID
                                                          (Path_ReportImage ReportImage)
-          pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv :: ReportImage) a :: [Path ReportImage
-                                                                                                               ReportImage]) :: [Path (Order ReportImageID
-                                                                                                                                             ReportImage)
-                                                                                                                                      ReportImage]) ((toPairs :: Order ReportImageID
-                                                                                                                                                                       ReportImage ->
-                                                                                                                                                                 [(ReportImageID,
-                                                                                                                                                                   ReportImage)]) s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: ReportImage) a :: [Path ReportImage
+                                                                                          ReportImage]) :: [Path (Order ReportImageID
+                                                                                                                        ReportImage)
+                                                                                                                 ReportImage]) ((map (\(i,
+                                                                                                                                        v) -> (Path_At i,
+                                                                                                                                               v)) . toPairs) s :: [(Path ReportImage
+                                                                                                                                                                          ReportImage ->
+                                                                                                                                                                     Path (Order ReportImageID
+                                                                                                                                                                                 ReportImage)
+                                                                                                                                                                          ReportImage,
+                                                                                                                                                                     ReportImage)])
 instance HasPaths ReportImages ReportImages
     where type Path ReportImages ReportImages = Path_OMap ReportImageID
                                                           (Path_ReportImage ReportImages)
@@ -2356,44 +2764,64 @@ instance HasPaths ReportImages ReportImageView
     where type Path ReportImages
                     ReportImageView = Path_OMap ReportImageID
                                                 (Path_ReportImage ReportImageView)
-          pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv :: ReportImage) a :: [Path ReportImage
-                                                                                                               ReportImageView]) :: [Path (Order ReportImageID
-                                                                                                                                                 ReportImage)
-                                                                                                                                          ReportImageView]) ((toPairs :: Order ReportImageID
-                                                                                                                                                                               ReportImage ->
-                                                                                                                                                                         [(ReportImageID,
-                                                                                                                                                                           ReportImage)]) s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: ReportImage) a :: [Path ReportImage
+                                                                                          ReportImageView]) :: [Path (Order ReportImageID
+                                                                                                                            ReportImage)
+                                                                                                                     ReportImageView]) ((map (\(i,
+                                                                                                                                                v) -> (Path_At i,
+                                                                                                                                                       v)) . toPairs) s :: [(Path ReportImage
+                                                                                                                                                                                  ReportImageView ->
+                                                                                                                                                                             Path (Order ReportImageID
+                                                                                                                                                                                         ReportImage)
+                                                                                                                                                                                  ReportImageView,
+                                                                                                                                                                             ReportImage)])
 instance HasPaths ReportImages SaneSizeImageSize
     where type Path ReportImages
                     SaneSizeImageSize = Path_OMap ReportImageID
                                                   (Path_ReportImage SaneSizeImageSize)
-          pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv :: ReportImage) a :: [Path ReportImage
-                                                                                                               (SaneSize ImageSize)]) :: [Path (Order ReportImageID
-                                                                                                                                                      ReportImage)
-                                                                                                                                               (SaneSize ImageSize)]) ((toPairs :: Order ReportImageID
-                                                                                                                                                                                         ReportImage ->
-                                                                                                                                                                                   [(ReportImageID,
-                                                                                                                                                                                     ReportImage)]) s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: ReportImage) a :: [Path ReportImage
+                                                                                          (SaneSize ImageSize)]) :: [Path (Order ReportImageID
+                                                                                                                                 ReportImage)
+                                                                                                                          (SaneSize ImageSize)]) ((map (\(i,
+                                                                                                                                                          v) -> (Path_At i,
+                                                                                                                                                                 v)) . toPairs) s :: [(Path ReportImage
+                                                                                                                                                                                            (SaneSize ImageSize) ->
+                                                                                                                                                                                       Path (Order ReportImageID
+                                                                                                                                                                                                   ReportImage)
+                                                                                                                                                                                            (SaneSize ImageSize),
+                                                                                                                                                                                       ReportImage)])
 instance HasPaths ReportImages URI
     where type Path ReportImages URI = Path_OMap ReportImageID
                                                  (Path_ReportImage URI)
-          pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv :: ReportImage) a :: [Path ReportImage
-                                                                                                               URI]) :: [Path (Order ReportImageID
-                                                                                                                                     ReportImage)
-                                                                                                                              URI]) ((toPairs :: Order ReportImageID
-                                                                                                                                                       ReportImage ->
-                                                                                                                                                 [(ReportImageID,
-                                                                                                                                                   ReportImage)]) s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: ReportImage) a :: [Path ReportImage
+                                                                                          URI]) :: [Path (Order ReportImageID
+                                                                                                                ReportImage)
+                                                                                                         URI]) ((map (\(i,
+                                                                                                                        v) -> (Path_At i,
+                                                                                                                               v)) . toPairs) s :: [(Path ReportImage
+                                                                                                                                                          URI ->
+                                                                                                                                                     Path (Order ReportImageID
+                                                                                                                                                                 ReportImage)
+                                                                                                                                                          URI,
+                                                                                                                                                     ReportImage)])
 instance HasPaths ReportImages Text
     where type Path ReportImages Text = Path_OMap ReportImageID
                                                   (Path_ReportImage Text)
-          pathsOf s a = concatMap (\pv -> map ((Path_At . fst) pv) (pathsOf (snd pv :: ReportImage) a :: [Path ReportImage
-                                                                                                               Text]) :: [Path (Order ReportImageID
-                                                                                                                                      ReportImage)
-                                                                                                                               Text]) ((toPairs :: Order ReportImageID
-                                                                                                                                                         ReportImage ->
-                                                                                                                                                   [(ReportImageID,
-                                                                                                                                                     ReportImage)]) s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: ReportImage) a :: [Path ReportImage
+                                                                                          Text]) :: [Path (Order ReportImageID
+                                                                                                                 ReportImage)
+                                                                                                          Text]) ((map (\(i,
+                                                                                                                          v) -> (Path_At i,
+                                                                                                                                 v)) . toPairs) s :: [(Path ReportImage
+                                                                                                                                                            Text ->
+                                                                                                                                                       Path (Order ReportImageID
+                                                                                                                                                                   ReportImage)
+                                                                                                                                                            Text,
+                                                                                                                                                       ReportImage)])
 instance HasPaths ReadOnlyFilePath String
     where type Path ReadOnlyFilePath
                     String = Path_ReadOnlyFilePath String
@@ -2955,375 +3383,809 @@ instance HasPaths Item Text
 instance HasPaths MIM JSONText
     where type Path MIM JSONText = Path_Map ItemFieldName
                                             (Path_Markup JSONText)
-          pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv :: Markup) a :: [Path Markup
-                                                                                                            JSONText]) :: [Path (Map ItemFieldName
-                                                                                                                                     Markup)
-                                                                                                                                JSONText]) (toList s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: Markup) a :: [Path Markup
+                                                                                     JSONText]) :: [Path (Map ItemFieldName
+                                                                                                              Markup)
+                                                                                                         JSONText]) ((map (\(i,
+                                                                                                                             v) -> (Path_Look i,
+                                                                                                                                    v)) . toList) s :: [(Path Markup
+                                                                                                                                                              JSONText ->
+                                                                                                                                                         Path (Map ItemFieldName
+                                                                                                                                                                   Markup)
+                                                                                                                                                              JSONText,
+                                                                                                                                                         Markup)])
 instance HasPaths MIM Markup
     where type Path MIM Markup = Path_Map ItemFieldName
                                           (Path_Markup Markup)
-          pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv :: Markup) a :: [Path Markup
-                                                                                                            Markup]) :: [Path (Map ItemFieldName
-                                                                                                                                   Markup)
-                                                                                                                              Markup]) (toList s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: Markup) a :: [Path Markup
+                                                                                     Markup]) :: [Path (Map ItemFieldName
+                                                                                                            Markup)
+                                                                                                       Markup]) ((map (\(i,
+                                                                                                                         v) -> (Path_Look i,
+                                                                                                                                v)) . toList) s :: [(Path Markup
+                                                                                                                                                          Markup ->
+                                                                                                                                                     Path (Map ItemFieldName
+                                                                                                                                                               Markup)
+                                                                                                                                                          Markup,
+                                                                                                                                                     Markup)])
 instance HasPaths MIM MIM
     where type Path MIM MIM = Path_Map ItemFieldName (Path_Markup MIM)
           pathsOf s a = [idPath]
 instance HasPaths MIM Text
     where type Path MIM Text = Path_Map ItemFieldName
                                         (Path_Markup Text)
-          pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv :: Markup) a :: [Path Markup
-                                                                                                            Text]) :: [Path (Map ItemFieldName
-                                                                                                                                 Markup)
-                                                                                                                            Text]) (toList s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: Markup) a :: [Path Markup
+                                                                                     Text]) :: [Path (Map ItemFieldName
+                                                                                                          Markup)
+                                                                                                     Text]) ((map (\(i,
+                                                                                                                     v) -> (Path_Look i,
+                                                                                                                            v)) . toList) s :: [(Path Markup
+                                                                                                                                                      Text ->
+                                                                                                                                                 Path (Map ItemFieldName
+                                                                                                                                                           Markup)
+                                                                                                                                                      Text,
+                                                                                                                                                 Markup)])
 instance HasPaths MRR String
     where type Path MRR String = Path_Map ReportID (Path_Report String)
-          pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv :: Report) a :: [Path Report
-                                                                                                            ([Char])]) :: [Path (Map ReportID
-                                                                                                                                     Report)
-                                                                                                                                ([Char])]) (toList s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: Report) a :: [Path Report
+                                                                                     ([Char])]) :: [Path (Map ReportID
+                                                                                                              Report)
+                                                                                                         ([Char])]) ((map (\(i,
+                                                                                                                             v) -> (Path_Look i,
+                                                                                                                                    v)) . toList) s :: [(Path Report
+                                                                                                                                                              ([Char]) ->
+                                                                                                                                                         Path (Map ReportID
+                                                                                                                                                                   Report)
+                                                                                                                                                              ([Char]),
+                                                                                                                                                         Report)])
 instance HasPaths MRR Int64
     where type Path MRR Int64 = Path_Map ReportID (Path_Report Int64)
-          pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv :: Report) a :: [Path Report
-                                                                                                            Int64]) :: [Path (Map ReportID
-                                                                                                                                  Report)
-                                                                                                                             Int64]) (toList s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: Report) a :: [Path Report
+                                                                                     Int64]) :: [Path (Map ReportID
+                                                                                                           Report)
+                                                                                                      Int64]) ((map (\(i,
+                                                                                                                       v) -> (Path_Look i,
+                                                                                                                              v)) . toList) s :: [(Path Report
+                                                                                                                                                        Int64 ->
+                                                                                                                                                   Path (Map ReportID
+                                                                                                                                                             Report)
+                                                                                                                                                        Int64,
+                                                                                                                                                   Report)])
 instance HasPaths MRR Bool
     where type Path MRR Bool = Path_Map ReportID (Path_Report Bool)
-          pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv :: Report) a :: [Path Report
-                                                                                                            Bool]) :: [Path (Map ReportID
-                                                                                                                                 Report)
-                                                                                                                            Bool]) (toList s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: Report) a :: [Path Report
+                                                                                     Bool]) :: [Path (Map ReportID
+                                                                                                          Report)
+                                                                                                     Bool]) ((map (\(i,
+                                                                                                                     v) -> (Path_Look i,
+                                                                                                                            v)) . toList) s :: [(Path Report
+                                                                                                                                                      Bool ->
+                                                                                                                                                 Path (Map ReportID
+                                                                                                                                                           Report)
+                                                                                                                                                      Bool,
+                                                                                                                                                 Report)])
 instance HasPaths MRR Double
     where type Path MRR Double = Path_Map ReportID (Path_Report Double)
-          pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv :: Report) a :: [Path Report
-                                                                                                            Double]) :: [Path (Map ReportID
-                                                                                                                                   Report)
-                                                                                                                              Double]) (toList s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: Report) a :: [Path Report
+                                                                                     Double]) :: [Path (Map ReportID
+                                                                                                            Report)
+                                                                                                       Double]) ((map (\(i,
+                                                                                                                         v) -> (Path_Look i,
+                                                                                                                                v)) . toList) s :: [(Path Report
+                                                                                                                                                          Double ->
+                                                                                                                                                     Path (Map ReportID
+                                                                                                                                                               Report)
+                                                                                                                                                          Double,
+                                                                                                                                                     Report)])
 instance HasPaths MRR Int
     where type Path MRR Int = Path_Map ReportID (Path_Report Int)
-          pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv :: Report) a :: [Path Report
-                                                                                                            Int]) :: [Path (Map ReportID
-                                                                                                                                Report)
-                                                                                                                           Int]) (toList s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: Report) a :: [Path Report
+                                                                                     Int]) :: [Path (Map ReportID
+                                                                                                         Report)
+                                                                                                    Int]) ((map (\(i,
+                                                                                                                   v) -> (Path_Look i,
+                                                                                                                          v)) . toList) s :: [(Path Report
+                                                                                                                                                    Int ->
+                                                                                                                                               Path (Map ReportID
+                                                                                                                                                         Report)
+                                                                                                                                                    Int,
+                                                                                                                                               Report)])
 instance HasPaths MRR Dimension
     where type Path MRR Dimension = Path_Map ReportID
                                              (Path_Report Dimension)
-          pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv :: Report) a :: [Path Report
-                                                                                                            Dimension]) :: [Path (Map ReportID
-                                                                                                                                      Report)
-                                                                                                                                 Dimension]) (toList s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: Report) a :: [Path Report
+                                                                                     Dimension]) :: [Path (Map ReportID
+                                                                                                               Report)
+                                                                                                          Dimension]) ((map (\(i,
+                                                                                                                               v) -> (Path_Look i,
+                                                                                                                                      v)) . toList) s :: [(Path Report
+                                                                                                                                                                Dimension ->
+                                                                                                                                                           Path (Map ReportID
+                                                                                                                                                                     Report)
+                                                                                                                                                                Dimension,
+                                                                                                                                                           Report)])
 instance HasPaths MRR ImageCrop
     where type Path MRR ImageCrop = Path_Map ReportID
                                              (Path_Report ImageCrop)
-          pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv :: Report) a :: [Path Report
-                                                                                                            ImageCrop]) :: [Path (Map ReportID
-                                                                                                                                      Report)
-                                                                                                                                 ImageCrop]) (toList s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: Report) a :: [Path Report
+                                                                                     ImageCrop]) :: [Path (Map ReportID
+                                                                                                               Report)
+                                                                                                          ImageCrop]) ((map (\(i,
+                                                                                                                               v) -> (Path_Look i,
+                                                                                                                                      v)) . toList) s :: [(Path Report
+                                                                                                                                                                ImageCrop ->
+                                                                                                                                                           Path (Map ReportID
+                                                                                                                                                                     Report)
+                                                                                                                                                                ImageCrop,
+                                                                                                                                                           Report)])
 instance HasPaths MRR ImageSize
     where type Path MRR ImageSize = Path_Map ReportID
                                              (Path_Report ImageSize)
-          pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv :: Report) a :: [Path Report
-                                                                                                            ImageSize]) :: [Path (Map ReportID
-                                                                                                                                      Report)
-                                                                                                                                 ImageSize]) (toList s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: Report) a :: [Path Report
+                                                                                     ImageSize]) :: [Path (Map ReportID
+                                                                                                               Report)
+                                                                                                          ImageSize]) ((map (\(i,
+                                                                                                                               v) -> (Path_Look i,
+                                                                                                                                      v)) . toList) s :: [(Path Report
+                                                                                                                                                                ImageSize ->
+                                                                                                                                                           Path (Map ReportID
+                                                                                                                                                                     Report)
+                                                                                                                                                                ImageSize,
+                                                                                                                                                           Report)])
 instance HasPaths MRR Units
     where type Path MRR Units = Path_Map ReportID (Path_Report Units)
-          pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv :: Report) a :: [Path Report
-                                                                                                            Units]) :: [Path (Map ReportID
-                                                                                                                                  Report)
-                                                                                                                             Units]) (toList s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: Report) a :: [Path Report
+                                                                                     Units]) :: [Path (Map ReportID
+                                                                                                           Report)
+                                                                                                      Units]) ((map (\(i,
+                                                                                                                       v) -> (Path_Look i,
+                                                                                                                              v)) . toList) s :: [(Path Report
+                                                                                                                                                        Units ->
+                                                                                                                                                   Path (Map ReportID
+                                                                                                                                                             Report)
+                                                                                                                                                        Units,
+                                                                                                                                                   Report)])
 instance HasPaths MRR ImageFile
     where type Path MRR ImageFile = Path_Map ReportID
                                              (Path_Report ImageFile)
-          pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv :: Report) a :: [Path Report
-                                                                                                            ImageFile]) :: [Path (Map ReportID
-                                                                                                                                      Report)
-                                                                                                                                 ImageFile]) (toList s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: Report) a :: [Path Report
+                                                                                     ImageFile]) :: [Path (Map ReportID
+                                                                                                               Report)
+                                                                                                          ImageFile]) ((map (\(i,
+                                                                                                                               v) -> (Path_Look i,
+                                                                                                                                      v)) . toList) s :: [(Path Report
+                                                                                                                                                                ImageFile ->
+                                                                                                                                                           Path (Map ReportID
+                                                                                                                                                                     Report)
+                                                                                                                                                                ImageFile,
+                                                                                                                                                           Report)])
 instance HasPaths MRR Integer
     where type Path MRR Integer = Path_Map ReportID
                                            (Path_Report Integer)
-          pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv :: Report) a :: [Path Report
-                                                                                                            Integer]) :: [Path (Map ReportID
-                                                                                                                                    Report)
-                                                                                                                               Integer]) (toList s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: Report) a :: [Path Report
+                                                                                     Integer]) :: [Path (Map ReportID
+                                                                                                             Report)
+                                                                                                        Integer]) ((map (\(i,
+                                                                                                                           v) -> (Path_Look i,
+                                                                                                                                  v)) . toList) s :: [(Path Report
+                                                                                                                                                            Integer ->
+                                                                                                                                                       Path (Map ReportID
+                                                                                                                                                                 Report)
+                                                                                                                                                            Integer,
+                                                                                                                                                       Report)])
 instance HasPaths MRR JSONText
     where type Path MRR JSONText = Path_Map ReportID
                                             (Path_Report JSONText)
-          pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv :: Report) a :: [Path Report
-                                                                                                            JSONText]) :: [Path (Map ReportID
-                                                                                                                                     Report)
-                                                                                                                                JSONText]) (toList s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: Report) a :: [Path Report
+                                                                                     JSONText]) :: [Path (Map ReportID
+                                                                                                              Report)
+                                                                                                         JSONText]) ((map (\(i,
+                                                                                                                             v) -> (Path_Look i,
+                                                                                                                                    v)) . toList) s :: [(Path Report
+                                                                                                                                                              JSONText ->
+                                                                                                                                                         Path (Map ReportID
+                                                                                                                                                                   Report)
+                                                                                                                                                              JSONText,
+                                                                                                                                                         Report)])
 instance HasPaths MRR Markup
     where type Path MRR Markup = Path_Map ReportID (Path_Report Markup)
-          pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv :: Report) a :: [Path Report
-                                                                                                            Markup]) :: [Path (Map ReportID
-                                                                                                                                   Report)
-                                                                                                                              Markup]) (toList s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: Report) a :: [Path Report
+                                                                                     Markup]) :: [Path (Map ReportID
+                                                                                                            Report)
+                                                                                                       Markup]) ((map (\(i,
+                                                                                                                         v) -> (Path_Look i,
+                                                                                                                                v)) . toList) s :: [(Path Report
+                                                                                                                                                          Markup ->
+                                                                                                                                                     Path (Map ReportID
+                                                                                                                                                               Report)
+                                                                                                                                                          Markup,
+                                                                                                                                                     Report)])
 instance HasPaths MRR Permissions
     where type Path MRR Permissions = Path_Map ReportID
                                                (Path_Report Permissions)
-          pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv :: Report) a :: [Path Report
-                                                                                                            Permissions]) :: [Path (Map ReportID
-                                                                                                                                        Report)
-                                                                                                                                   Permissions]) (toList s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: Report) a :: [Path Report
+                                                                                     Permissions]) :: [Path (Map ReportID
+                                                                                                                 Report)
+                                                                                                            Permissions]) ((map (\(i,
+                                                                                                                                   v) -> (Path_Look i,
+                                                                                                                                          v)) . toList) s :: [(Path Report
+                                                                                                                                                                    Permissions ->
+                                                                                                                                                               Path (Map ReportID
+                                                                                                                                                                         Report)
+                                                                                                                                                                    Permissions,
+                                                                                                                                                               Report)])
 instance HasPaths MRR UserIds
     where type Path MRR UserIds = Path_Map ReportID
                                            (Path_Report UserIds)
-          pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv :: Report) a :: [Path Report
-                                                                                                            ([UserId])]) :: [Path (Map ReportID
-                                                                                                                                       Report)
-                                                                                                                                  ([UserId])]) (toList s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: Report) a :: [Path Report
+                                                                                     ([UserId])]) :: [Path (Map ReportID
+                                                                                                                Report)
+                                                                                                           ([UserId])]) ((map (\(i,
+                                                                                                                                 v) -> (Path_Look i,
+                                                                                                                                        v)) . toList) s :: [(Path Report
+                                                                                                                                                                  ([UserId]) ->
+                                                                                                                                                             Path (Map ReportID
+                                                                                                                                                                       Report)
+                                                                                                                                                                  ([UserId]),
+                                                                                                                                                             Report)])
 instance HasPaths MRR AbbrevPair
     where type Path MRR AbbrevPair = Path_Map ReportID
                                               (Path_Report AbbrevPair)
-          pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv :: Report) a :: [Path Report
-                                                                                                            ((CIString,
-                                                                                                              Markup))]) :: [Path (Map ReportID
-                                                                                                                                       Report)
-                                                                                                                                  ((CIString,
-                                                                                                                                    Markup))]) (toList s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: Report) a :: [Path Report
+                                                                                     ((CIString,
+                                                                                       Markup))]) :: [Path (Map ReportID
+                                                                                                                Report)
+                                                                                                           ((CIString,
+                                                                                                             Markup))]) ((map (\(i,
+                                                                                                                                 v) -> (Path_Look i,
+                                                                                                                                        v)) . toList) s :: [(Path Report
+                                                                                                                                                                  ((CIString,
+                                                                                                                                                                    Markup)) ->
+                                                                                                                                                             Path (Map ReportID
+                                                                                                                                                                       Report)
+                                                                                                                                                                  ((CIString,
+                                                                                                                                                                    Markup)),
+                                                                                                                                                             Report)])
 instance HasPaths MRR AbbrevPairs
     where type Path MRR AbbrevPairs = Path_Map ReportID
                                                (Path_Report AbbrevPairs)
-          pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv :: Report) a :: [Path Report
-                                                                                                            (Order AbbrevPairID
-                                                                                                                   ((CIString,
-                                                                                                                     Markup)))]) :: [Path (Map ReportID
-                                                                                                                                               Report)
-                                                                                                                                          (Order AbbrevPairID
-                                                                                                                                                 ((CIString,
-                                                                                                                                                   Markup)))]) (toList s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: Report) a :: [Path Report
+                                                                                     (Order AbbrevPairID
+                                                                                            ((CIString,
+                                                                                              Markup)))]) :: [Path (Map ReportID
+                                                                                                                        Report)
+                                                                                                                   (Order AbbrevPairID
+                                                                                                                          ((CIString,
+                                                                                                                            Markup)))]) ((map (\(i,
+                                                                                                                                                 v) -> (Path_Look i,
+                                                                                                                                                        v)) . toList) s :: [(Path Report
+                                                                                                                                                                                  (Order AbbrevPairID
+                                                                                                                                                                                         ((CIString,
+                                                                                                                                                                                           Markup))) ->
+                                                                                                                                                                             Path (Map ReportID
+                                                                                                                                                                                       Report)
+                                                                                                                                                                                  (Order AbbrevPairID
+                                                                                                                                                                                         ((CIString,
+                                                                                                                                                                                           Markup))),
+                                                                                                                                                                             Report)])
 instance HasPaths MRR Author
     where type Path MRR Author = Path_Map ReportID (Path_Report Author)
-          pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv :: Report) a :: [Path Report
-                                                                                                            Author]) :: [Path (Map ReportID
-                                                                                                                                   Report)
-                                                                                                                              Author]) (toList s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: Report) a :: [Path Report
+                                                                                     Author]) :: [Path (Map ReportID
+                                                                                                            Report)
+                                                                                                       Author]) ((map (\(i,
+                                                                                                                         v) -> (Path_Look i,
+                                                                                                                                v)) . toList) s :: [(Path Report
+                                                                                                                                                          Author ->
+                                                                                                                                                     Path (Map ReportID
+                                                                                                                                                               Report)
+                                                                                                                                                          Author,
+                                                                                                                                                     Report)])
 instance HasPaths MRR Authors
     where type Path MRR Authors = Path_Map ReportID
                                            (Path_Report Authors)
-          pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv :: Report) a :: [Path Report
-                                                                                                            (Order AuthorID
-                                                                                                                   Author)]) :: [Path (Map ReportID
-                                                                                                                                           Report)
-                                                                                                                                      (Order AuthorID
-                                                                                                                                             Author)]) (toList s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: Report) a :: [Path Report
+                                                                                     (Order AuthorID
+                                                                                            Author)]) :: [Path (Map ReportID
+                                                                                                                    Report)
+                                                                                                               (Order AuthorID
+                                                                                                                      Author)]) ((map (\(i,
+                                                                                                                                         v) -> (Path_Look i,
+                                                                                                                                                v)) . toList) s :: [(Path Report
+                                                                                                                                                                          (Order AuthorID
+                                                                                                                                                                                 Author) ->
+                                                                                                                                                                     Path (Map ReportID
+                                                                                                                                                                               Report)
+                                                                                                                                                                          (Order AuthorID
+                                                                                                                                                                                 Author),
+                                                                                                                                                                     Report)])
 instance HasPaths MRR Branding
     where type Path MRR Branding = Path_Map ReportID
                                             (Path_Report Branding)
-          pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv :: Report) a :: [Path Report
-                                                                                                            Branding]) :: [Path (Map ReportID
-                                                                                                                                     Report)
-                                                                                                                                Branding]) (toList s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: Report) a :: [Path Report
+                                                                                     Branding]) :: [Path (Map ReportID
+                                                                                                              Report)
+                                                                                                         Branding]) ((map (\(i,
+                                                                                                                             v) -> (Path_Look i,
+                                                                                                                                    v)) . toList) s :: [(Path Report
+                                                                                                                                                              Branding ->
+                                                                                                                                                         Path (Map ReportID
+                                                                                                                                                                   Report)
+                                                                                                                                                              Branding,
+                                                                                                                                                         Report)])
 instance HasPaths MRR MarkupPair
     where type Path MRR MarkupPair = Path_Map ReportID
                                               (Path_Report MarkupPair)
-          pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv :: Report) a :: [Path Report
-                                                                                                            ((Markup,
-                                                                                                              Markup))]) :: [Path (Map ReportID
-                                                                                                                                       Report)
-                                                                                                                                  ((Markup,
-                                                                                                                                    Markup))]) (toList s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: Report) a :: [Path Report
+                                                                                     ((Markup,
+                                                                                       Markup))]) :: [Path (Map ReportID
+                                                                                                                Report)
+                                                                                                           ((Markup,
+                                                                                                             Markup))]) ((map (\(i,
+                                                                                                                                 v) -> (Path_Look i,
+                                                                                                                                        v)) . toList) s :: [(Path Report
+                                                                                                                                                                  ((Markup,
+                                                                                                                                                                    Markup)) ->
+                                                                                                                                                             Path (Map ReportID
+                                                                                                                                                                       Report)
+                                                                                                                                                                  ((Markup,
+                                                                                                                                                                    Markup)),
+                                                                                                                                                             Report)])
 instance HasPaths MRR MarkupPairs
     where type Path MRR MarkupPairs = Path_Map ReportID
                                                (Path_Report MarkupPairs)
-          pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv :: Report) a :: [Path Report
-                                                                                                            (Order MarkupPairID
-                                                                                                                   ((Markup,
-                                                                                                                     Markup)))]) :: [Path (Map ReportID
-                                                                                                                                               Report)
-                                                                                                                                          (Order MarkupPairID
-                                                                                                                                                 ((Markup,
-                                                                                                                                                   Markup)))]) (toList s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: Report) a :: [Path Report
+                                                                                     (Order MarkupPairID
+                                                                                            ((Markup,
+                                                                                              Markup)))]) :: [Path (Map ReportID
+                                                                                                                        Report)
+                                                                                                                   (Order MarkupPairID
+                                                                                                                          ((Markup,
+                                                                                                                            Markup)))]) ((map (\(i,
+                                                                                                                                                 v) -> (Path_Look i,
+                                                                                                                                                        v)) . toList) s :: [(Path Report
+                                                                                                                                                                                  (Order MarkupPairID
+                                                                                                                                                                                         ((Markup,
+                                                                                                                                                                                           Markup))) ->
+                                                                                                                                                                             Path (Map ReportID
+                                                                                                                                                                                       Report)
+                                                                                                                                                                                  (Order MarkupPairID
+                                                                                                                                                                                         ((Markup,
+                                                                                                                                                                                           Markup))),
+                                                                                                                                                                             Report)])
 instance HasPaths MRR Markups
     where type Path MRR Markups = Path_Map ReportID
                                            (Path_Report Markups)
-          pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv :: Report) a :: [Path Report
-                                                                                                            (Order MarkupID
-                                                                                                                   Markup)]) :: [Path (Map ReportID
-                                                                                                                                           Report)
-                                                                                                                                      (Order MarkupID
-                                                                                                                                             Markup)]) (toList s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: Report) a :: [Path Report
+                                                                                     (Order MarkupID
+                                                                                            Markup)]) :: [Path (Map ReportID
+                                                                                                                    Report)
+                                                                                                               (Order MarkupID
+                                                                                                                      Markup)]) ((map (\(i,
+                                                                                                                                         v) -> (Path_Look i,
+                                                                                                                                                v)) . toList) s :: [(Path Report
+                                                                                                                                                                          (Order MarkupID
+                                                                                                                                                                                 Markup) ->
+                                                                                                                                                                     Path (Map ReportID
+                                                                                                                                                                               Report)
+                                                                                                                                                                          (Order MarkupID
+                                                                                                                                                                                 Markup),
+                                                                                                                                                                     Report)])
 instance HasPaths MRR MaybeReportIntendedUse
     where type Path MRR MaybeReportIntendedUse = Path_Map ReportID
                                                           (Path_Report MaybeReportIntendedUse)
-          pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv :: Report) a :: [Path Report
-                                                                                                            (Maybe ReportIntendedUse)]) :: [Path (Map ReportID
-                                                                                                                                                      Report)
-                                                                                                                                                 (Maybe ReportIntendedUse)]) (toList s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: Report) a :: [Path Report
+                                                                                     (Maybe ReportIntendedUse)]) :: [Path (Map ReportID
+                                                                                                                               Report)
+                                                                                                                          (Maybe ReportIntendedUse)]) ((map (\(i,
+                                                                                                                                                               v) -> (Path_Look i,
+                                                                                                                                                                      v)) . toList) s :: [(Path Report
+                                                                                                                                                                                                (Maybe ReportIntendedUse) ->
+                                                                                                                                                                                           Path (Map ReportID
+                                                                                                                                                                                                     Report)
+                                                                                                                                                                                                (Maybe ReportIntendedUse),
+                                                                                                                                                                                           Report)])
 instance HasPaths MRR Report
     where type Path MRR Report = Path_Map ReportID (Path_Report Report)
-          pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv :: Report) a :: [Path Report
-                                                                                                            Report]) :: [Path (Map ReportID
-                                                                                                                                   Report)
-                                                                                                                              Report]) (toList s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: Report) a :: [Path Report
+                                                                                     Report]) :: [Path (Map ReportID
+                                                                                                            Report)
+                                                                                                       Report]) ((map (\(i,
+                                                                                                                         v) -> (Path_Look i,
+                                                                                                                                v)) . toList) s :: [(Path Report
+                                                                                                                                                          Report ->
+                                                                                                                                                     Path (Map ReportID
+                                                                                                                                                               Report)
+                                                                                                                                                          Report,
+                                                                                                                                                     Report)])
 instance HasPaths MRR ReportElem
     where type Path MRR ReportElem = Path_Map ReportID
                                               (Path_Report ReportElem)
-          pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv :: Report) a :: [Path Report
-                                                                                                            ReportElem]) :: [Path (Map ReportID
-                                                                                                                                       Report)
-                                                                                                                                  ReportElem]) (toList s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: Report) a :: [Path Report
+                                                                                     ReportElem]) :: [Path (Map ReportID
+                                                                                                                Report)
+                                                                                                           ReportElem]) ((map (\(i,
+                                                                                                                                 v) -> (Path_Look i,
+                                                                                                                                        v)) . toList) s :: [(Path Report
+                                                                                                                                                                  ReportElem ->
+                                                                                                                                                             Path (Map ReportID
+                                                                                                                                                                       Report)
+                                                                                                                                                                  ReportElem,
+                                                                                                                                                             Report)])
 instance HasPaths MRR ReportElems
     where type Path MRR ReportElems = Path_Map ReportID
                                                (Path_Report ReportElems)
-          pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv :: Report) a :: [Path Report
-                                                                                                            (Order ReportElemID
-                                                                                                                   ReportElem)]) :: [Path (Map ReportID
-                                                                                                                                               Report)
-                                                                                                                                          (Order ReportElemID
-                                                                                                                                                 ReportElem)]) (toList s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: Report) a :: [Path Report
+                                                                                     (Order ReportElemID
+                                                                                            ReportElem)]) :: [Path (Map ReportID
+                                                                                                                        Report)
+                                                                                                                   (Order ReportElemID
+                                                                                                                          ReportElem)]) ((map (\(i,
+                                                                                                                                                 v) -> (Path_Look i,
+                                                                                                                                                        v)) . toList) s :: [(Path Report
+                                                                                                                                                                                  (Order ReportElemID
+                                                                                                                                                                                         ReportElem) ->
+                                                                                                                                                                             Path (Map ReportID
+                                                                                                                                                                                       Report)
+                                                                                                                                                                                  (Order ReportElemID
+                                                                                                                                                                                         ReportElem),
+                                                                                                                                                                             Report)])
 instance HasPaths MRR ReportFlags
     where type Path MRR ReportFlags = Path_Map ReportID
                                                (Path_Report ReportFlags)
-          pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv :: Report) a :: [Path Report
-                                                                                                            ReportFlags]) :: [Path (Map ReportID
-                                                                                                                                        Report)
-                                                                                                                                   ReportFlags]) (toList s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: Report) a :: [Path Report
+                                                                                     ReportFlags]) :: [Path (Map ReportID
+                                                                                                                 Report)
+                                                                                                            ReportFlags]) ((map (\(i,
+                                                                                                                                   v) -> (Path_Look i,
+                                                                                                                                          v)) . toList) s :: [(Path Report
+                                                                                                                                                                    ReportFlags ->
+                                                                                                                                                               Path (Map ReportID
+                                                                                                                                                                         Report)
+                                                                                                                                                                    ReportFlags,
+                                                                                                                                                               Report)])
 instance HasPaths MRR ReportStandard
     where type Path MRR ReportStandard = Path_Map ReportID
                                                   (Path_Report ReportStandard)
-          pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv :: Report) a :: [Path Report
-                                                                                                            ReportStandard]) :: [Path (Map ReportID
-                                                                                                                                           Report)
-                                                                                                                                      ReportStandard]) (toList s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: Report) a :: [Path Report
+                                                                                     ReportStandard]) :: [Path (Map ReportID
+                                                                                                                    Report)
+                                                                                                               ReportStandard]) ((map (\(i,
+                                                                                                                                         v) -> (Path_Look i,
+                                                                                                                                                v)) . toList) s :: [(Path Report
+                                                                                                                                                                          ReportStandard ->
+                                                                                                                                                                     Path (Map ReportID
+                                                                                                                                                                               Report)
+                                                                                                                                                                          ReportStandard,
+                                                                                                                                                                     Report)])
 instance HasPaths MRR ReportStatus
     where type Path MRR ReportStatus = Path_Map ReportID
                                                 (Path_Report ReportStatus)
-          pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv :: Report) a :: [Path Report
-                                                                                                            ReportStatus]) :: [Path (Map ReportID
-                                                                                                                                         Report)
-                                                                                                                                    ReportStatus]) (toList s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: Report) a :: [Path Report
+                                                                                     ReportStatus]) :: [Path (Map ReportID
+                                                                                                                  Report)
+                                                                                                             ReportStatus]) ((map (\(i,
+                                                                                                                                     v) -> (Path_Look i,
+                                                                                                                                            v)) . toList) s :: [(Path Report
+                                                                                                                                                                      ReportStatus ->
+                                                                                                                                                                 Path (Map ReportID
+                                                                                                                                                                           Report)
+                                                                                                                                                                      ReportStatus,
+                                                                                                                                                                 Report)])
 instance HasPaths MRR ReportValueApproachInfo
     where type Path MRR ReportValueApproachInfo = Path_Map ReportID
                                                            (Path_Report ReportValueApproachInfo)
-          pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv :: Report) a :: [Path Report
-                                                                                                            ReportValueApproachInfo]) :: [Path (Map ReportID
-                                                                                                                                                    Report)
-                                                                                                                                               ReportValueApproachInfo]) (toList s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: Report) a :: [Path Report
+                                                                                     ReportValueApproachInfo]) :: [Path (Map ReportID
+                                                                                                                             Report)
+                                                                                                                        ReportValueApproachInfo]) ((map (\(i,
+                                                                                                                                                           v) -> (Path_Look i,
+                                                                                                                                                                  v)) . toList) s :: [(Path Report
+                                                                                                                                                                                            ReportValueApproachInfo ->
+                                                                                                                                                                                       Path (Map ReportID
+                                                                                                                                                                                                 Report)
+                                                                                                                                                                                            ReportValueApproachInfo,
+                                                                                                                                                                                       Report)])
 instance HasPaths MRR ReportValueTypeInfo
     where type Path MRR ReportValueTypeInfo = Path_Map ReportID
                                                        (Path_Report ReportValueTypeInfo)
-          pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv :: Report) a :: [Path Report
-                                                                                                            ReportValueTypeInfo]) :: [Path (Map ReportID
-                                                                                                                                                Report)
-                                                                                                                                           ReportValueTypeInfo]) (toList s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: Report) a :: [Path Report
+                                                                                     ReportValueTypeInfo]) :: [Path (Map ReportID
+                                                                                                                         Report)
+                                                                                                                    ReportValueTypeInfo]) ((map (\(i,
+                                                                                                                                                   v) -> (Path_Look i,
+                                                                                                                                                          v)) . toList) s :: [(Path Report
+                                                                                                                                                                                    ReportValueTypeInfo ->
+                                                                                                                                                                               Path (Map ReportID
+                                                                                                                                                                                         Report)
+                                                                                                                                                                                    ReportValueTypeInfo,
+                                                                                                                                                                               Report)])
 instance HasPaths MRR EUI
     where type Path MRR EUI = Path_Map ReportID (Path_Report EUI)
-          pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv :: Report) a :: [Path Report
-                                                                                                            (Either URI
-                                                                                                                    ImageFile)]) :: [Path (Map ReportID
-                                                                                                                                               Report)
-                                                                                                                                          (Either URI
-                                                                                                                                                  ImageFile)]) (toList s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: Report) a :: [Path Report
+                                                                                     (Either URI
+                                                                                             ImageFile)]) :: [Path (Map ReportID
+                                                                                                                        Report)
+                                                                                                                   (Either URI
+                                                                                                                           ImageFile)]) ((map (\(i,
+                                                                                                                                                 v) -> (Path_Look i,
+                                                                                                                                                        v)) . toList) s :: [(Path Report
+                                                                                                                                                                                  (Either URI
+                                                                                                                                                                                          ImageFile) ->
+                                                                                                                                                                             Path (Map ReportID
+                                                                                                                                                                                       Report)
+                                                                                                                                                                                  (Either URI
+                                                                                                                                                                                          ImageFile),
+                                                                                                                                                                             Report)])
 instance HasPaths MRR MEUI
     where type Path MRR MEUI = Path_Map ReportID (Path_Report MEUI)
-          pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv :: Report) a :: [Path Report
-                                                                                                            (Maybe (Either URI
-                                                                                                                           ImageFile))]) :: [Path (Map ReportID
-                                                                                                                                                       Report)
-                                                                                                                                                  (Maybe (Either URI
-                                                                                                                                                                 ImageFile))]) (toList s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: Report) a :: [Path Report
+                                                                                     (Maybe (Either URI
+                                                                                                    ImageFile))]) :: [Path (Map ReportID
+                                                                                                                                Report)
+                                                                                                                           (Maybe (Either URI
+                                                                                                                                          ImageFile))]) ((map (\(i,
+                                                                                                                                                                 v) -> (Path_Look i,
+                                                                                                                                                                        v)) . toList) s :: [(Path Report
+                                                                                                                                                                                                  (Maybe (Either URI
+                                                                                                                                                                                                                 ImageFile)) ->
+                                                                                                                                                                                             Path (Map ReportID
+                                                                                                                                                                                                       Report)
+                                                                                                                                                                                                  (Maybe (Either URI
+                                                                                                                                                                                                                 ImageFile)),
+                                                                                                                                                                                             Report)])
 instance HasPaths MRR MaybeImageFile
     where type Path MRR MaybeImageFile = Path_Map ReportID
                                                   (Path_Report MaybeImageFile)
-          pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv :: Report) a :: [Path Report
-                                                                                                            (Maybe ImageFile)]) :: [Path (Map ReportID
-                                                                                                                                              Report)
-                                                                                                                                         (Maybe ImageFile)]) (toList s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: Report) a :: [Path Report
+                                                                                     (Maybe ImageFile)]) :: [Path (Map ReportID
+                                                                                                                       Report)
+                                                                                                                  (Maybe ImageFile)]) ((map (\(i,
+                                                                                                                                               v) -> (Path_Look i,
+                                                                                                                                                      v)) . toList) s :: [(Path Report
+                                                                                                                                                                                (Maybe ImageFile) ->
+                                                                                                                                                                           Path (Map ReportID
+                                                                                                                                                                                     Report)
+                                                                                                                                                                                (Maybe ImageFile),
+                                                                                                                                                                           Report)])
 instance HasPaths MRR ReportImage
     where type Path MRR ReportImage = Path_Map ReportID
                                                (Path_Report ReportImage)
-          pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv :: Report) a :: [Path Report
-                                                                                                            ReportImage]) :: [Path (Map ReportID
-                                                                                                                                        Report)
-                                                                                                                                   ReportImage]) (toList s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: Report) a :: [Path Report
+                                                                                     ReportImage]) :: [Path (Map ReportID
+                                                                                                                 Report)
+                                                                                                            ReportImage]) ((map (\(i,
+                                                                                                                                   v) -> (Path_Look i,
+                                                                                                                                          v)) . toList) s :: [(Path Report
+                                                                                                                                                                    ReportImage ->
+                                                                                                                                                               Path (Map ReportID
+                                                                                                                                                                         Report)
+                                                                                                                                                                    ReportImage,
+                                                                                                                                                               Report)])
 instance HasPaths MRR ReportImages
     where type Path MRR ReportImages = Path_Map ReportID
                                                 (Path_Report ReportImages)
-          pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv :: Report) a :: [Path Report
-                                                                                                            (Order ReportImageID
-                                                                                                                   ReportImage)]) :: [Path (Map ReportID
-                                                                                                                                                Report)
-                                                                                                                                           (Order ReportImageID
-                                                                                                                                                  ReportImage)]) (toList s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: Report) a :: [Path Report
+                                                                                     (Order ReportImageID
+                                                                                            ReportImage)]) :: [Path (Map ReportID
+                                                                                                                         Report)
+                                                                                                                    (Order ReportImageID
+                                                                                                                           ReportImage)]) ((map (\(i,
+                                                                                                                                                   v) -> (Path_Look i,
+                                                                                                                                                          v)) . toList) s :: [(Path Report
+                                                                                                                                                                                    (Order ReportImageID
+                                                                                                                                                                                           ReportImage) ->
+                                                                                                                                                                               Path (Map ReportID
+                                                                                                                                                                                         Report)
+                                                                                                                                                                                    (Order ReportImageID
+                                                                                                                                                                                           ReportImage),
+                                                                                                                                                                               Report)])
 instance HasPaths MRR ReadOnlyFilePath
     where type Path MRR ReadOnlyFilePath = Path_Map ReportID
                                                     (Path_Report ReadOnlyFilePath)
-          pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv :: Report) a :: [Path Report
-                                                                                                            (ReadOnly ([Char]))]) :: [Path (Map ReportID
-                                                                                                                                                Report)
-                                                                                                                                           (ReadOnly ([Char]))]) (toList s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: Report) a :: [Path Report
+                                                                                     (ReadOnly ([Char]))]) :: [Path (Map ReportID
+                                                                                                                         Report)
+                                                                                                                    (ReadOnly ([Char]))]) ((map (\(i,
+                                                                                                                                                   v) -> (Path_Look i,
+                                                                                                                                                          v)) . toList) s :: [(Path Report
+                                                                                                                                                                                    (ReadOnly ([Char])) ->
+                                                                                                                                                                               Path (Map ReportID
+                                                                                                                                                                                         Report)
+                                                                                                                                                                                    (ReadOnly ([Char])),
+                                                                                                                                                                               Report)])
 instance HasPaths MRR ReportImageView
     where type Path MRR ReportImageView = Path_Map ReportID
                                                    (Path_Report ReportImageView)
-          pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv :: Report) a :: [Path Report
-                                                                                                            ReportImageView]) :: [Path (Map ReportID
-                                                                                                                                            Report)
-                                                                                                                                       ReportImageView]) (toList s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: Report) a :: [Path Report
+                                                                                     ReportImageView]) :: [Path (Map ReportID
+                                                                                                                     Report)
+                                                                                                                ReportImageView]) ((map (\(i,
+                                                                                                                                           v) -> (Path_Look i,
+                                                                                                                                                  v)) . toList) s :: [(Path Report
+                                                                                                                                                                            ReportImageView ->
+                                                                                                                                                                       Path (Map ReportID
+                                                                                                                                                                                 Report)
+                                                                                                                                                                            ReportImageView,
+                                                                                                                                                                       Report)])
 instance HasPaths MRR ReportView
     where type Path MRR ReportView = Path_Map ReportID
                                               (Path_Report ReportView)
-          pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv :: Report) a :: [Path Report
-                                                                                                            ReportView]) :: [Path (Map ReportID
-                                                                                                                                       Report)
-                                                                                                                                  ReportView]) (toList s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: Report) a :: [Path Report
+                                                                                     ReportView]) :: [Path (Map ReportID
+                                                                                                                Report)
+                                                                                                           ReportView]) ((map (\(i,
+                                                                                                                                 v) -> (Path_Look i,
+                                                                                                                                        v)) . toList) s :: [(Path Report
+                                                                                                                                                                  ReportView ->
+                                                                                                                                                             Path (Map ReportID
+                                                                                                                                                                       Report)
+                                                                                                                                                                  ReportView,
+                                                                                                                                                             Report)])
 instance HasPaths MRR SaneSizeImageSize
     where type Path MRR SaneSizeImageSize = Path_Map ReportID
                                                      (Path_Report SaneSizeImageSize)
-          pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv :: Report) a :: [Path Report
-                                                                                                            (SaneSize ImageSize)]) :: [Path (Map ReportID
-                                                                                                                                                 Report)
-                                                                                                                                            (SaneSize ImageSize)]) (toList s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: Report) a :: [Path Report
+                                                                                     (SaneSize ImageSize)]) :: [Path (Map ReportID
+                                                                                                                          Report)
+                                                                                                                     (SaneSize ImageSize)]) ((map (\(i,
+                                                                                                                                                     v) -> (Path_Look i,
+                                                                                                                                                            v)) . toList) s :: [(Path Report
+                                                                                                                                                                                      (SaneSize ImageSize) ->
+                                                                                                                                                                                 Path (Map ReportID
+                                                                                                                                                                                           Report)
+                                                                                                                                                                                      (SaneSize ImageSize),
+                                                                                                                                                                                 Report)])
 instance HasPaths MRR Item
     where type Path MRR Item = Path_Map ReportID (Path_Report Item)
-          pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv :: Report) a :: [Path Report
-                                                                                                            Item]) :: [Path (Map ReportID
-                                                                                                                                 Report)
-                                                                                                                            Item]) (toList s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: Report) a :: [Path Report
+                                                                                     Item]) :: [Path (Map ReportID
+                                                                                                          Report)
+                                                                                                     Item]) ((map (\(i,
+                                                                                                                     v) -> (Path_Look i,
+                                                                                                                            v)) . toList) s :: [(Path Report
+                                                                                                                                                      Item ->
+                                                                                                                                                 Path (Map ReportID
+                                                                                                                                                           Report)
+                                                                                                                                                      Item,
+                                                                                                                                                 Report)])
 instance HasPaths MRR MIM
     where type Path MRR MIM = Path_Map ReportID (Path_Report MIM)
-          pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv :: Report) a :: [Path Report
-                                                                                                            (Map ItemFieldName
-                                                                                                                 Markup)]) :: [Path (Map ReportID
-                                                                                                                                         Report)
-                                                                                                                                    (Map ItemFieldName
-                                                                                                                                         Markup)]) (toList s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: Report) a :: [Path Report
+                                                                                     (Map ItemFieldName
+                                                                                          Markup)]) :: [Path (Map ReportID
+                                                                                                                  Report)
+                                                                                                             (Map ItemFieldName
+                                                                                                                  Markup)]) ((map (\(i,
+                                                                                                                                     v) -> (Path_Look i,
+                                                                                                                                            v)) . toList) s :: [(Path Report
+                                                                                                                                                                      (Map ItemFieldName
+                                                                                                                                                                           Markup) ->
+                                                                                                                                                                 Path (Map ReportID
+                                                                                                                                                                           Report)
+                                                                                                                                                                      (Map ItemFieldName
+                                                                                                                                                                           Markup),
+                                                                                                                                                                 Report)])
 instance HasPaths MRR MRR
     where type Path MRR MRR = Path_Map ReportID (Path_Report MRR)
           pathsOf s a = [idPath]
 instance HasPaths MRR CIString
     where type Path MRR CIString = Path_Map ReportID
                                             (Path_Report CIString)
-          pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv :: Report) a :: [Path Report
-                                                                                                            CIString]) :: [Path (Map ReportID
-                                                                                                                                     Report)
-                                                                                                                                CIString]) (toList s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: Report) a :: [Path Report
+                                                                                     CIString]) :: [Path (Map ReportID
+                                                                                                              Report)
+                                                                                                         CIString]) ((map (\(i,
+                                                                                                                             v) -> (Path_Look i,
+                                                                                                                                    v)) . toList) s :: [(Path Report
+                                                                                                                                                              CIString ->
+                                                                                                                                                         Path (Map ReportID
+                                                                                                                                                                   Report)
+                                                                                                                                                              CIString,
+                                                                                                                                                         Report)])
 instance HasPaths MRR URI
     where type Path MRR URI = Path_Map ReportID (Path_Report URI)
-          pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv :: Report) a :: [Path Report
-                                                                                                            URI]) :: [Path (Map ReportID
-                                                                                                                                Report)
-                                                                                                                           URI]) (toList s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: Report) a :: [Path Report
+                                                                                     URI]) :: [Path (Map ReportID
+                                                                                                         Report)
+                                                                                                    URI]) ((map (\(i,
+                                                                                                                   v) -> (Path_Look i,
+                                                                                                                          v)) . toList) s :: [(Path Report
+                                                                                                                                                    URI ->
+                                                                                                                                               Path (Map ReportID
+                                                                                                                                                         Report)
+                                                                                                                                                    URI,
+                                                                                                                                               Report)])
 instance HasPaths MRR Text
     where type Path MRR Text = Path_Map ReportID (Path_Report Text)
-          pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv :: Report) a :: [Path Report
-                                                                                                            Text]) :: [Path (Map ReportID
-                                                                                                                                 Report)
-                                                                                                                            Text]) (toList s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: Report) a :: [Path Report
+                                                                                     Text]) :: [Path (Map ReportID
+                                                                                                          Report)
+                                                                                                     Text]) ((map (\(i,
+                                                                                                                     v) -> (Path_Look i,
+                                                                                                                            v)) . toList) s :: [(Path Report
+                                                                                                                                                      Text ->
+                                                                                                                                                 Path (Map ReportID
+                                                                                                                                                           Report)
+                                                                                                                                                      Text,
+                                                                                                                                                 Report)])
 instance HasPaths MRR UserId
     where type Path MRR UserId = Path_Map ReportID (Path_Report UserId)
-          pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv :: Report) a :: [Path Report
-                                                                                                            UserId]) :: [Path (Map ReportID
-                                                                                                                                   Report)
-                                                                                                                              UserId]) (toList s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: Report) a :: [Path Report
+                                                                                     UserId]) :: [Path (Map ReportID
+                                                                                                            Report)
+                                                                                                       UserId]) ((map (\(i,
+                                                                                                                         v) -> (Path_Look i,
+                                                                                                                                v)) . toList) s :: [(Path Report
+                                                                                                                                                          UserId ->
+                                                                                                                                                     Path (Map ReportID
+                                                                                                                                                               Report)
+                                                                                                                                                          UserId,
+                                                                                                                                                     Report)])
 instance HasPaths MRR UUID
     where type Path MRR UUID = Path_Map ReportID (Path_Report UUID)
-          pathsOf s a = concatMap (\pv -> map ((Path_Look . fst) pv) (pathsOf (snd pv :: Report) a :: [Path Report
-                                                                                                            UUID]) :: [Path (Map ReportID
-                                                                                                                                 Report)
-                                                                                                                            UUID]) (toList s)
+          pathsOf s a = concatMap (\(p,
+                                     a') -> map p (pathsOf (a' :: Report) a :: [Path Report
+                                                                                     UUID]) :: [Path (Map ReportID
+                                                                                                          Report)
+                                                                                                     UUID]) ((map (\(i,
+                                                                                                                     v) -> (Path_Look i,
+                                                                                                                            v)) . toList) s :: [(Path Report
+                                                                                                                                                      UUID ->
+                                                                                                                                                 Path (Map ReportID
+                                                                                                                                                           Report)
+                                                                                                                                                      UUID,
+                                                                                                                                                 Report)])
 instance HasPaths ReportMap String
     where type Path ReportMap String = Path_ReportMap String
           pathsOf s a = case s of
