@@ -21,8 +21,9 @@ import Control.Lens hiding (cons, Strict)
 import Control.Monad.Readers (MonadReaders)
 import Control.Monad.Writer (MonadWriter, tell)
 import Data.Foldable as Foldable
+import Data.Generics (everywhere, mkT)
 import Data.List as List (map)
-import Data.Map as Map (Map)
+import Data.Map as Map (fromList, lookup, Map)
 import Data.Maybe (fromJust, isJust)
 import Data.Proxy
 import Data.Tree (Tree(Node), Forest)
@@ -51,6 +52,10 @@ instance HasTypeQ PeekType where asTypeQ = conT . unPeekType
 instance HasName PeekCon where asName = unPeekCon
 instance HasCon PeekCon where asCon = ConE . unPeekCon
 instance HasConQ PeekCon where asConQ = conE . unPeekCon
+
+instance HasName TyVarBndr where
+    asName (PlainTV x) = x
+    asName (KindedTV x _) = x
 
 -- makePeekType :: ModelType -> PeekType
 -- makePeekType (ModelType s) = PeekType (mkName ("Peek_" ++ nameBase s))
@@ -104,78 +109,95 @@ peekClauses v =
                 w <- tgvSimple wtyp >>= tgv Nothing
                 let PathCon pcon = makePathCon (makePathType tname) "View"
                 (: []) <$> forestOfAlt (varE x) v (varP x, [(w, conP pcon [wildP], conE pcon)])
-       ConT tname -> doName tname
-       AppT (AppT mtyp _ityp) vtyp
-           | mtyp == ConT ''Order ->
-               doPeekNodesOfOrder v vtyp (PathCon 'Path_At)
-       AppT ListT _etyp -> error "list" {- return [clause [wildP] (normalB [|error "list"|]) []]-}
-       AppT (AppT t3 _ktyp) vtyp
-           | t3 == ConT ''Map ->
-               doPeekNodesOfMap v vtyp (PathCon 'Path_Look)
-       AppT (AppT (TupleT 2) ftyp) styp ->
-           do f <- tgvSimple ftyp >>= tgv Nothing -- (Just (''(,), '(,), Left 1))
-              s <- tgvSimple styp >>= tgv Nothing -- (Just (''(,), '(,), Left 2))
-              (: []) <$> forestOfAlt (varE x) v (varP x, [(f, conP 'Path_First [wildP], [|Path_First|]), (s, conP 'Path_Second [wildP], [|Path_Second|])])
-       AppT t1 etyp
-           | t1 == ConT ''Maybe ->
-               do e <- tgvSimple etyp >>= tgv Nothing -- (Just (''Maybe, 'Just, Left 1))
-                  (: []) <$> forestOfAlt (varE x) v (varP x, [(e, conP 'Path_Just [wildP], [|Path_Just|])])
-       AppT (AppT t3 ltyp) rtyp
-           | t3 == ConT ''Either ->
-               do l <- tgvSimple ltyp >>= tgv Nothing -- (Just (''Either, 'Left, Left 1))
-                  r <- tgvSimple rtyp >>= tgv Nothing -- (Just (''Either, 'Right, Left 1))
-                  mapM (forestOfAlt (varE x) v) [(asP x (conP 'Left [wildP]), [(l, conP 'Path_Left [wildP], [|Path_Left|])]),
-                                                 (asP x (conP 'Right [wildP]), [(r, conP 'Path_Right [wildP], [|Path_Right|])])]
-       _ -> return []
+       typ -> doType typ []
     where
-      doName :: Name -> m [ClauseQ]
-      doName tname = qReify tname >>= doInfo
-      doInfo :: Info -> m [ClauseQ]
-      doInfo (TyConI dec) = doDec dec
-      doInfo _ = return []
-      doDec :: Dec -> m [ClauseQ]
-      doDec (NewtypeD _cx tname _binds con _supers) = runQ (newName "x") >>= doCons tname [con]
-      doDec (DataD _cx tname _binds cons _supers) = runQ (newName "x") >>= doCons tname cons
-      doDec dec = error $ "Unexpected dec: " ++ pprint dec
+      doType (AppT t1 t2) tps = doType t1 (t2 : tps)
+      doType (ConT tname) [_ityp, vtyp]
+          | tname == ''Order =
+              doPeekNodesOfOrder v vtyp (PathCon 'Path_At)
+      doType ListT [_etyp] = error "list" {- return [clause [wildP] (normalB [|error "list"|]) []]-}
+      doType (ConT tname) [_ktyp, vtyp]
+          | tname == ''Map =
+              doPeekNodesOfMap v vtyp (PathCon 'Path_Look)
+      doType (TupleT 2) [ftyp, styp] =
+          do x <- runQ $ newName "x"
+             f <- tgvSimple ftyp >>= tgv Nothing -- (Just (''(,), '(,), Left 1))
+             s <- tgvSimple styp >>= tgv Nothing -- (Just (''(,), '(,), Left 2))
+             (: []) <$> forestOfAlt (varE x) v (varP x, [(f, conP 'Path_First [wildP], [|Path_First|]), (s, conP 'Path_Second [wildP], [|Path_Second|])])
+      doType (ConT tname) [etyp]
+          | tname == ''Maybe =
+              do x <- runQ $ newName "x"
+                 e <- tgvSimple etyp >>= tgv Nothing -- (Just (''Maybe, 'Just, Left 1))
+                 (: []) <$> forestOfAlt (varE x) v (varP x, [(e, conP 'Path_Just [wildP], [|Path_Just|])])
+      doType (ConT tname) [ltyp, rtyp]
+          | tname == ''Either =
+              do x <- runQ $ newName "x"
+                 l <- tgvSimple ltyp >>= tgv Nothing -- (Just (''Either, 'Left, Left 1))
+                 r <- tgvSimple rtyp >>= tgv Nothing -- (Just (''Either, 'Right, Left 1))
+                 mapM (forestOfAlt (varE x) v) [(asP x (conP 'Left [wildP]), [(l, conP 'Path_Left [wildP], [|Path_Left|])]),
+                                                (asP x (conP 'Right [wildP]), [(r, conP 'Path_Right [wildP], [|Path_Right|])])]
+      doType (ConT tname) tps = doName tps tname
+      doType _ _ = return []
 
-      doCons :: Name -> [Con] -> Name -> m [ClauseQ]
-      doCons _tname [] _x = error "No constructors"
-      doCons tname cons x = concat <$> mapM (doCon tname x) cons
+      doName :: [Type] -> Name -> m [ClauseQ]
+      doName tps tname = qReify tname >>= doInfo tps
+      doInfo :: [Type] -> Info -> m [ClauseQ]
+      doInfo tps (TyConI dec) = doDec tps dec
+      doInfo _ _ = return []
+      doDec :: [Type] -> Dec -> m [ClauseQ]
+      doDec tps (NewtypeD cx tname binds con supers) = doDec tps (DataD cx tname binds [con] supers)
+      doDec tps (DataD _cx tname binds cons _supers)
+          | length tps /= length binds =
+              error $ "Arity mismatch: binds: " ++ show binds ++ ", types: " ++ show tps
+      doDec tps (DataD _cx tname binds cons _supers) = do
+        let bindings = Map.fromList (zip (map asName binds) tps)
+        runQ (newName "x") >>= doCons bindings tname cons
+      doDec tps dec = error $ "Unexpected dec: " ++ pprint dec
 
-      doCon :: Name -> Name -> Con -> m [ClauseQ]
-      doCon tname x (ForallC _ _ con) = doCon tname x con
+      doCons :: Map Name Type -> Name -> [Con] -> Name -> m [ClauseQ]
+      doCons bindings _tname [] _x = error "No constructors"
+      doCons bindings tname cons x = concat <$> mapM (doCon bindings tname x) cons
+
+      doCon :: Map Name Type -> Name -> Name -> Con -> m [ClauseQ]
+      doCon bindings tname x (ForallC _ _ con) = doCon bindings tname x con
 
       -- Each constructor turns into a clause of the peek function
-      doCon tname x (RecC cname vsts) = do
-        flds <- mapM (doNamedField tname cname) (zip vsts [1..])
+      doCon bindings tname x (RecC cname vsts) = do
+        flds <- mapM (doNamedField bindings tname cname) (zip vsts [1..])
         c <- forestOfAlt (varE x) v (asP x (recP cname []), flds)
         return [c]
-      doCon tname x (NormalC cname sts) = do
+      doCon bindings tname x (NormalC cname sts) = do
 #if 1
         pure []
 #else
-        flds <- mapM (doAnonField tname cname) (zip sts [1..])
+        flds <- mapM (doAnonField bindings tname cname) (zip sts [1..])
         c <- forestOfAlt (varE x) v (asP x (recP cname []), flds)
         return [c]
 #endif
-      doCon tname x (InfixC lhs cname rhs) = do
+      doCon bindings tname x (InfixC lhs cname rhs) = do
 #if 1
         pure []
 #else
-        flds <- mapM (doAnonField tname cname) (zip [lhs, rhs] [1..])
+        flds <- mapM (doAnonField bindings tname cname) (zip [lhs, rhs] [1..])
         c <- forestOfAlt (varE x) v (asP x (infixP wildP cname wildP), flds)
         return [c]
 #endif
 
-      doNamedField :: Name -> Name -> ((Name, Strict, Type), Int) -> m (TGV, PatQ, ExpQ)
-      doNamedField tname cname ((fname, _, ftype), _fpos) =
-          do f <- tgvSimple ftype >>= tgv (Just (tname, cname, Right fname))
+      doNamedField :: Map Name Type -> Name -> Name -> ((Name, Strict, Type), Int) -> m (TGV, PatQ, ExpQ)
+      doNamedField bindings tname cname ((fname, _, ftype), _fpos) =
+          do let subst t@(VarT name) = maybe t id (Map.lookup name bindings)
+                 subst t = t
+             let ftype' = (everywhere (mkT subst) ftype)
+             f <- tgvSimple ftype' >>= tgv (Just (tname, cname, Right fname))
              let pcname = maybe (error $ "Not a field: " ++ show f) id (makeFieldCon f)
              return (f, conP (asName pcname) [wildP], asConQ pcname)
 
-      doAnonField :: Name -> Name -> ((Strict, Type), Int) -> m (TGV, PatQ, ExpQ)
-      doAnonField tname cname ((_, ftype), fpos) =
-          do f <- tgvSimple ftype >>= tgv (Just (tname, cname, Left fpos))
+      doAnonField :: Map Name Type -> Name -> Name -> ((Strict, Type), Int) -> m (TGV, PatQ, ExpQ)
+      doAnonField bindings tname cname ((_, ftype), fpos) =
+          do let subst t@(VarT name) = maybe t id (Map.lookup name bindings)
+                 subst t = t
+             let ftype' = (everywhere (mkT subst) ftype)
+             f <- tgvSimple ftype' >>= tgv (Just (tname, cname, Left fpos))
              let pcname = maybe (error $ "Not a field: " ++ show f) id (makeFieldCon f)
              return (f, conP (asName pcname) [wildP], asConQ pcname)
 
