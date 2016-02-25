@@ -80,7 +80,7 @@ import Language.Haskell.TH
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Syntax (qReify)
-import Language.Haskell.TH.TypeGraph.Prelude (pprint')
+import Language.Haskell.TH.TypeGraph.Prelude (pprint1)
 import Prelude hiding (exp)
 import Safe (readMay)
 import Web.Routes.TH (derivePathInfo)
@@ -350,7 +350,7 @@ pathTypeNames = do
     where
       doTySyn (AppT x _) = doTySyn x
       doTySyn (ConT pathTypeName) = pathTypeName
-      doTySyn x = error $ "Unexpected type in pathTypeNames: " ++ pprint' x ++ " (" ++ show x ++ ")"
+      doTySyn x = error $ "Unexpected type in pathTypeNames: " ++ pprint1 x ++ " (" ++ show x ++ ")"
 
 -- primitivePathTypeNames :: Set Name
 -- primitivePathTypeNames = Set.fromList [''Path_Pair, ''Path_List, ''Path_Either, ''Path_Map, ''Path_OMap, ''Path_Maybe]

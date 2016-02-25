@@ -54,8 +54,7 @@ import System.FilePath ((</>))
 --import Data.ListLike as LL (hPutStr, ListLikeIO, readFile, writeFile)
 --import GHC.IO.Exception (ioe_description)
 import Data.List (sort)
-import Language.Haskell.TH.Ppr (pprint)
-import Language.Haskell.TH.TypeGraph.Prelude (friendlyNames)
+import Language.Haskell.TH.TypeGraph.Prelude (friendlyNames, pprintW)
 import Prelude hiding (readFile)
 --import System.Directory (removeFile)
 --import qualified System.IO as IO
@@ -73,7 +72,7 @@ decs = $(do let regular path = runIO $ isRegularFile <$> getSymbolicLinkStatus p
                         mapM_ (addDependentFile)
             mapM_ dir ["Language/Haskell/TH/Path", "Language/Haskell/TH/Path/Decs"]
             decs' <- startTypes >>= runTypeGraphT allDecs -- >>= lift
-            let code = (unlines . map (pprint . friendlyNames) . sort) decs'
+            let code = (unlines . map (pprintW . friendlyNames) . sort) decs'
             let hdr = UTF8.toString $(embedFile "tests/ReportHead.hs")
                 old = UTF8.toString $(embedFile "tests/ReportDecs.hs")
                 new = hdr <> code

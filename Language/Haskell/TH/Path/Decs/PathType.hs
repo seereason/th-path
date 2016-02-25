@@ -38,7 +38,7 @@ import Language.Haskell.TH.Path.Core (HasIdPath(idPath), SelfPath, SinkType,
 import Language.Haskell.TH.Path.Order (Order, Path_OMap(..))
 import Language.Haskell.TH.Path.View (viewInstanceType)
 import Language.Haskell.TH.Syntax as TH (VarStrictType)
-import Language.Haskell.TH.TypeGraph.Prelude (pprint')
+import Language.Haskell.TH.TypeGraph.Prelude (pprint1)
 import Language.Haskell.TH.TypeGraph.TypeGraph (HasTGVSimple(asTGVSimple), reachableFromSimple, tgv, tgvSimple, TypeGraph)
 import Language.Haskell.TH.TypeGraph.TypeInfo (TypeInfo)
 import Language.Haskell.TH.TypeGraph.Vertex (TGVSimple, typeNames)
@@ -85,8 +85,8 @@ pathType gtyp key = do
                rpath <- tgvSimple rtyp >>= pathType gtyp
                runQ [t| Path_Either $(return lpath) $(return rpath)|]
     _ -> do ks <- reachableFromSimple key
-            error $ "pathType otherf: " ++ pprint' key ++ "\n" ++
-                    intercalate "\n  " ("reachable from:" : List.map pprint' (Foldable.toList ks))
+            error $ "pathType otherf: " ++ pprint1 key ++ "\n" ++
+                    intercalate "\n  " ("reachable from:" : List.map pprint1 (Foldable.toList ks))
 
 
 pathTypeDecs :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) => TGVSimple -> m ()
@@ -134,10 +134,10 @@ doNames :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInf
 doNames v = mapM_ (\tname -> runQ (reify tname) >>= doInfo) (typeNames v)
     where
       doInfo (TyConI dec) =
-          -- tell [d| z = $(litE (stringL ("doDec " ++ pprint' dec))) |] >>
+          -- tell [d| z = $(litE (stringL ("doDec " ++ pprint1 dec))) |] >>
           doDec dec
       doInfo (FamilyI dec _insts) = doDec dec
-      doInfo info = error $ "pathTypeDecs - unexpected Info: " ++ pprint' info ++ "\n  " ++ show info
+      doInfo info = error $ "pathTypeDecs - unexpected Info: " ++ pprint1 info ++ "\n  " ++ show info
       doDec :: Dec -> m ()
       -- If we have a type synonym, we can create a path type synonym
       doDec (TySynD _ _ typ') =
