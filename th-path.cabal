@@ -93,8 +93,8 @@ library
       Language.Haskell.TH.TypeGraph.Vertex
   else
     Build-Depends:
-      th-context >= 0.23,
-      th-typegraph >= 0.31
+      th-context >= 0.23.1,
+      th-typegraph >= 0.33.1
 
 -- test-suite th-path-tests
 --   type:             exitcode-stdio-1.0
