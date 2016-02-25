@@ -101,6 +101,9 @@ class HasConQ a where asConQ :: a -> ExpQ
 class HasName a where asName :: a -> Name
 
 instance HasName Name where asName = id
+instance HasName TyVarBndr where
+    asName (PlainTV x) = x
+    asName (KindedTV x _) = x
 instance HasName a => HasName (ModelType a) where asName = asName . unModelType
 instance HasName a => HasType (ModelType a) where asType = ConT . asName . unModelType
 instance HasName a => HasTypeQ (ModelType a) where asTypeQ = conT . asName . unModelType

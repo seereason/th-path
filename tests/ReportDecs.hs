@@ -807,42 +807,42 @@ instance HasPaths String String
 instance HasPaths String JSONText
     where type Path String JSONText = Path_String JSONText
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: JSONText) a)) ((\s' -> map (\a -> (Path_String_View,
-                                                                                                     a)) (toListOf (toLens (Path_String_View (idPath :: Path JSONText
-                                                                                                                                                             JSONText))) s')) s)
+                                     a') -> map p (pathsOf (a' :: JSONText) a)) ((\s' -> map (\a' -> (Path_String_View,
+                                                                                                      a')) (toListOf (toLens (Path_String_View (idPath :: Path JSONText
+                                                                                                                                                               JSONText))) s')) s)
 instance HasPaths Int64 Int64
     where type Path Int64 Int64 = Path_Int64 Int64
           pathsOf s a = [idPath]
 instance HasPaths Bool String
     where type Path Bool String = Path_Bool String
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: [Char]) a)) ((\s' -> map (\a -> (Path_Bool_View,
-                                                                                                   a)) (toListOf (toLens (Path_Bool_View (idPath :: Path ([Char])
-                                                                                                                                                         ([Char])))) s')) s)
+                                     a') -> map p (pathsOf (a' :: [Char]) a)) ((\s' -> map (\a' -> (Path_Bool_View,
+                                                                                                    a')) (toListOf (toLens (Path_Bool_View (idPath :: Path ([Char])
+                                                                                                                                                           ([Char])))) s')) s)
 instance HasPaths Bool Bool
     where type Path Bool Bool = Path_Bool Bool
           pathsOf s a = [idPath]
 instance HasPaths Bool JSONText
     where type Path Bool JSONText = Path_Bool JSONText
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: [Char]) a)) ((\s' -> map (\a -> (Path_Bool_View,
-                                                                                                   a)) (toListOf (toLens (Path_Bool_View (idPath :: Path ([Char])
-                                                                                                                                                         ([Char])))) s')) s)
+                                     a') -> map p (pathsOf (a' :: [Char]) a)) ((\s' -> map (\a' -> (Path_Bool_View,
+                                                                                                    a')) (toListOf (toLens (Path_Bool_View (idPath :: Path ([Char])
+                                                                                                                                                           ([Char])))) s')) s)
 instance HasPaths Double String
     where type Path Double String = Path_Double String
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: [Char]) a)) ((\s' -> map (\a -> (Path_Double_View,
-                                                                                                   a)) (toListOf (toLens (Path_Double_View (idPath :: Path ([Char])
-                                                                                                                                                           ([Char])))) s')) s)
+                                     a') -> map p (pathsOf (a' :: [Char]) a)) ((\s' -> map (\a' -> (Path_Double_View,
+                                                                                                    a')) (toListOf (toLens (Path_Double_View (idPath :: Path ([Char])
+                                                                                                                                                             ([Char])))) s')) s)
 instance HasPaths Double Double
     where type Path Double Double = Path_Double Double
           pathsOf s a = [idPath]
 instance HasPaths Double JSONText
     where type Path Double JSONText = Path_Double JSONText
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: [Char]) a)) ((\s' -> map (\a -> (Path_Double_View,
-                                                                                                   a)) (toListOf (toLens (Path_Double_View (idPath :: Path ([Char])
-                                                                                                                                                           ([Char])))) s')) s)
+                                     a') -> map p (pathsOf (a' :: [Char]) a)) ((\s' -> map (\a' -> (Path_Double_View,
+                                                                                                    a')) (toListOf (toLens (Path_Double_View (idPath :: Path ([Char])
+                                                                                                                                                             ([Char])))) s')) s)
 instance HasPaths Int Int
     where type Path Int Int = Path_Int Int
           pathsOf s a = [idPath]
@@ -852,9 +852,9 @@ instance HasPaths Dimension Dimension
 instance HasPaths Dimension JSONText
     where type Path Dimension JSONText = Path_Dimension JSONText
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: JSONText) a)) ((\s' -> map (\a -> (Path_Dimension_View,
-                                                                                                     a)) (toListOf (toLens (Path_Dimension_View (idPath :: Path JSONText
-                                                                                                                                                                JSONText))) s')) s)
+                                     a') -> map p (pathsOf (a' :: JSONText) a)) ((\s' -> map (\a' -> (Path_Dimension_View,
+                                                                                                      a')) (toListOf (toLens (Path_Dimension_View (idPath :: Path JSONText
+                                                                                                                                                                  JSONText))) s')) s)
 instance HasPaths ImageCrop ImageCrop
     where type Path ImageCrop ImageCrop = Path_ImageCrop ImageCrop
           pathsOf s a = [idPath]
@@ -911,9 +911,9 @@ instance HasPaths Units Units
 instance HasPaths Units JSONText
     where type Path Units JSONText = Path_Units JSONText
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: JSONText) a)) ((\s' -> map (\a -> (Path_Units_View,
-                                                                                                     a)) (toListOf (toLens (Path_Units_View (idPath :: Path JSONText
-                                                                                                                                                            JSONText))) s')) s)
+                                     a') -> map p (pathsOf (a' :: JSONText) a)) ((\s' -> map (\a' -> (Path_Units_View,
+                                                                                                      a')) (toListOf (toLens (Path_Units_View (idPath :: Path JSONText
+                                                                                                                                                              JSONText))) s')) s)
 instance HasPaths ImageFile ImageFile
     where type Path ImageFile ImageFile = Path_ImageFile ImageFile
           pathsOf s a = [idPath]
@@ -995,18 +995,18 @@ instance HasPaths Permissions UserId
 instance HasPaths UserIds JSONText
     where type Path UserIds JSONText = Path_UserIds JSONText
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: Text) a)) ((\s' -> map (\a -> (Path_UserIds_View,
-                                                                                                 a)) (toListOf (toLens (Path_UserIds_View (idPath :: Path Text
-                                                                                                                                                          Text))) s')) s)
+                                     a') -> map p (pathsOf (a' :: Text) a)) ((\s' -> map (\a' -> (Path_UserIds_View,
+                                                                                                  a')) (toListOf (toLens (Path_UserIds_View (idPath :: Path Text
+                                                                                                                                                            Text))) s')) s)
 instance HasPaths UserIds UserIds
     where type Path UserIds UserIds = Path_UserIds UserIds
           pathsOf s a = [idPath]
 instance HasPaths UserIds Text
     where type Path UserIds Text = Path_UserIds Text
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: Text) a)) ((\s' -> map (\a -> (Path_UserIds_View,
-                                                                                                 a)) (toListOf (toLens (Path_UserIds_View (idPath :: Path Text
-                                                                                                                                                          Text))) s')) s)
+                                     a') -> map p (pathsOf (a' :: Text) a)) ((\s' -> map (\a' -> (Path_UserIds_View,
+                                                                                                  a')) (toListOf (toLens (Path_UserIds_View (idPath :: Path Text
+                                                                                                                                                            Text))) s')) s)
 instance HasPaths AbbrevPair JSONText
     where type Path AbbrevPair
                     JSONText = Path_Pair (Path_CIString JSONText)
@@ -1156,18 +1156,18 @@ instance HasPaths Authors Text
 instance HasPaths Branding JSONText
     where type Path Branding JSONText = Path_Branding JSONText
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: Text) a)) ((\s' -> map (\a -> (Path_Branding_View,
-                                                                                                 a)) (toListOf (toLens (Path_Branding_View (idPath :: Path Text
-                                                                                                                                                           Text))) s')) s)
+                                     a') -> map p (pathsOf (a' :: Text) a)) ((\s' -> map (\a' -> (Path_Branding_View,
+                                                                                                  a')) (toListOf (toLens (Path_Branding_View (idPath :: Path Text
+                                                                                                                                                             Text))) s')) s)
 instance HasPaths Branding Branding
     where type Path Branding Branding = Path_Branding Branding
           pathsOf s a = [idPath]
 instance HasPaths Branding Text
     where type Path Branding Text = Path_Branding Text
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: Text) a)) ((\s' -> map (\a -> (Path_Branding_View,
-                                                                                                 a)) (toListOf (toLens (Path_Branding_View (idPath :: Path Text
-                                                                                                                                                           Text))) s')) s)
+                                     a') -> map p (pathsOf (a' :: Text) a)) ((\s' -> map (\a' -> (Path_Branding_View,
+                                                                                                  a')) (toListOf (toLens (Path_Branding_View (idPath :: Path Text
+                                                                                                                                                             Text))) s')) s)
 instance HasPaths MarkupPair JSONText
     where type Path MarkupPair
                     JSONText = Path_Pair (Path_Markup JSONText) (Path_Markup JSONText)
@@ -1262,16 +1262,16 @@ instance HasPaths MaybeReportIntendedUse String
     where type Path MaybeReportIntendedUse
                     String = Path_MaybeReportIntendedUse String
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: [Char]) a)) ((\s' -> map (\a -> (Path_MaybeReportIntendedUse_View,
-                                                                                                   a)) (toListOf (toLens (Path_MaybeReportIntendedUse_View (idPath :: Path ([Char])
-                                                                                                                                                                           ([Char])))) s')) s)
+                                     a') -> map p (pathsOf (a' :: [Char]) a)) ((\s' -> map (\a' -> (Path_MaybeReportIntendedUse_View,
+                                                                                                    a')) (toListOf (toLens (Path_MaybeReportIntendedUse_View (idPath :: Path ([Char])
+                                                                                                                                                                             ([Char])))) s')) s)
 instance HasPaths MaybeReportIntendedUse JSONText
     where type Path MaybeReportIntendedUse
                     JSONText = Path_MaybeReportIntendedUse JSONText
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: [Char]) a)) ((\s' -> map (\a -> (Path_MaybeReportIntendedUse_View,
-                                                                                                   a)) (toListOf (toLens (Path_MaybeReportIntendedUse_View (idPath :: Path ([Char])
-                                                                                                                                                                           ([Char])))) s')) s)
+                                     a') -> map p (pathsOf (a' :: [Char]) a)) ((\s' -> map (\a' -> (Path_MaybeReportIntendedUse_View,
+                                                                                                    a')) (toListOf (toLens (Path_MaybeReportIntendedUse_View (idPath :: Path ([Char])
+                                                                                                                                                                             ([Char])))) s')) s)
 instance HasPaths MaybeReportIntendedUse MaybeReportIntendedUse
     where type Path MaybeReportIntendedUse
                     MaybeReportIntendedUse = Path_MaybeReportIntendedUse MaybeReportIntendedUse
@@ -1279,294 +1279,294 @@ instance HasPaths MaybeReportIntendedUse MaybeReportIntendedUse
 instance HasPaths Report String
     where type Path Report String = Path_Report String
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a -> (Path_Report_View,
-                                                                                                       a)) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
-                                                                                                                                                               ReportView))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a' -> (Path_Report_View,
+                                                                                                        a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
+                                                                                                                                                                 ReportView))) s')) s)
 instance HasPaths Report Int64
     where type Path Report Int64 = Path_Report Int64
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a -> (Path_Report_View,
-                                                                                                       a)) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
-                                                                                                                                                               ReportView))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a' -> (Path_Report_View,
+                                                                                                        a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
+                                                                                                                                                                 ReportView))) s')) s)
 instance HasPaths Report Bool
     where type Path Report Bool = Path_Report Bool
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a -> (Path_Report_View,
-                                                                                                       a)) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
-                                                                                                                                                               ReportView))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a' -> (Path_Report_View,
+                                                                                                        a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
+                                                                                                                                                                 ReportView))) s')) s)
 instance HasPaths Report Double
     where type Path Report Double = Path_Report Double
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a -> (Path_Report_View,
-                                                                                                       a)) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
-                                                                                                                                                               ReportView))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a' -> (Path_Report_View,
+                                                                                                        a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
+                                                                                                                                                                 ReportView))) s')) s)
 instance HasPaths Report Int
     where type Path Report Int = Path_Report Int
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a -> (Path_Report_View,
-                                                                                                       a)) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
-                                                                                                                                                               ReportView))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a' -> (Path_Report_View,
+                                                                                                        a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
+                                                                                                                                                                 ReportView))) s')) s)
 instance HasPaths Report Dimension
     where type Path Report Dimension = Path_Report Dimension
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a -> (Path_Report_View,
-                                                                                                       a)) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
-                                                                                                                                                               ReportView))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a' -> (Path_Report_View,
+                                                                                                        a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
+                                                                                                                                                                 ReportView))) s')) s)
 instance HasPaths Report ImageCrop
     where type Path Report ImageCrop = Path_Report ImageCrop
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a -> (Path_Report_View,
-                                                                                                       a)) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
-                                                                                                                                                               ReportView))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a' -> (Path_Report_View,
+                                                                                                        a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
+                                                                                                                                                                 ReportView))) s')) s)
 instance HasPaths Report ImageSize
     where type Path Report ImageSize = Path_Report ImageSize
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a -> (Path_Report_View,
-                                                                                                       a)) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
-                                                                                                                                                               ReportView))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a' -> (Path_Report_View,
+                                                                                                        a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
+                                                                                                                                                                 ReportView))) s')) s)
 instance HasPaths Report Units
     where type Path Report Units = Path_Report Units
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a -> (Path_Report_View,
-                                                                                                       a)) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
-                                                                                                                                                               ReportView))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a' -> (Path_Report_View,
+                                                                                                        a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
+                                                                                                                                                                 ReportView))) s')) s)
 instance HasPaths Report ImageFile
     where type Path Report ImageFile = Path_Report ImageFile
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a -> (Path_Report_View,
-                                                                                                       a)) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
-                                                                                                                                                               ReportView))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a' -> (Path_Report_View,
+                                                                                                        a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
+                                                                                                                                                                 ReportView))) s')) s)
 instance HasPaths Report Integer
     where type Path Report Integer = Path_Report Integer
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a -> (Path_Report_View,
-                                                                                                       a)) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
-                                                                                                                                                               ReportView))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a' -> (Path_Report_View,
+                                                                                                        a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
+                                                                                                                                                                 ReportView))) s')) s)
 instance HasPaths Report JSONText
     where type Path Report JSONText = Path_Report JSONText
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a -> (Path_Report_View,
-                                                                                                       a)) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
-                                                                                                                                                               ReportView))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a' -> (Path_Report_View,
+                                                                                                        a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
+                                                                                                                                                                 ReportView))) s')) s)
 instance HasPaths Report Markup
     where type Path Report Markup = Path_Report Markup
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a -> (Path_Report_View,
-                                                                                                       a)) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
-                                                                                                                                                               ReportView))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a' -> (Path_Report_View,
+                                                                                                        a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
+                                                                                                                                                                 ReportView))) s')) s)
 instance HasPaths Report Permissions
     where type Path Report Permissions = Path_Report Permissions
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a -> (Path_Report_View,
-                                                                                                       a)) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
-                                                                                                                                                               ReportView))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a' -> (Path_Report_View,
+                                                                                                        a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
+                                                                                                                                                                 ReportView))) s')) s)
 instance HasPaths Report UserIds
     where type Path Report UserIds = Path_Report UserIds
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a -> (Path_Report_View,
-                                                                                                       a)) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
-                                                                                                                                                               ReportView))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a' -> (Path_Report_View,
+                                                                                                        a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
+                                                                                                                                                                 ReportView))) s')) s)
 instance HasPaths Report AbbrevPair
     where type Path Report AbbrevPair = Path_Report AbbrevPair
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a -> (Path_Report_View,
-                                                                                                       a)) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
-                                                                                                                                                               ReportView))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a' -> (Path_Report_View,
+                                                                                                        a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
+                                                                                                                                                                 ReportView))) s')) s)
 instance HasPaths Report AbbrevPairs
     where type Path Report AbbrevPairs = Path_Report AbbrevPairs
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a -> (Path_Report_View,
-                                                                                                       a)) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
-                                                                                                                                                               ReportView))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a' -> (Path_Report_View,
+                                                                                                        a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
+                                                                                                                                                                 ReportView))) s')) s)
 instance HasPaths Report Author
     where type Path Report Author = Path_Report Author
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a -> (Path_Report_View,
-                                                                                                       a)) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
-                                                                                                                                                               ReportView))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a' -> (Path_Report_View,
+                                                                                                        a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
+                                                                                                                                                                 ReportView))) s')) s)
 instance HasPaths Report Authors
     where type Path Report Authors = Path_Report Authors
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a -> (Path_Report_View,
-                                                                                                       a)) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
-                                                                                                                                                               ReportView))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a' -> (Path_Report_View,
+                                                                                                        a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
+                                                                                                                                                                 ReportView))) s')) s)
 instance HasPaths Report Branding
     where type Path Report Branding = Path_Report Branding
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a -> (Path_Report_View,
-                                                                                                       a)) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
-                                                                                                                                                               ReportView))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a' -> (Path_Report_View,
+                                                                                                        a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
+                                                                                                                                                                 ReportView))) s')) s)
 instance HasPaths Report MarkupPair
     where type Path Report MarkupPair = Path_Report MarkupPair
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a -> (Path_Report_View,
-                                                                                                       a)) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
-                                                                                                                                                               ReportView))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a' -> (Path_Report_View,
+                                                                                                        a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
+                                                                                                                                                                 ReportView))) s')) s)
 instance HasPaths Report MarkupPairs
     where type Path Report MarkupPairs = Path_Report MarkupPairs
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a -> (Path_Report_View,
-                                                                                                       a)) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
-                                                                                                                                                               ReportView))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a' -> (Path_Report_View,
+                                                                                                        a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
+                                                                                                                                                                 ReportView))) s')) s)
 instance HasPaths Report Markups
     where type Path Report Markups = Path_Report Markups
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a -> (Path_Report_View,
-                                                                                                       a)) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
-                                                                                                                                                               ReportView))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a' -> (Path_Report_View,
+                                                                                                        a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
+                                                                                                                                                                 ReportView))) s')) s)
 instance HasPaths Report MaybeReportIntendedUse
     where type Path Report
                     MaybeReportIntendedUse = Path_Report MaybeReportIntendedUse
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a -> (Path_Report_View,
-                                                                                                       a)) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
-                                                                                                                                                               ReportView))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a' -> (Path_Report_View,
+                                                                                                        a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
+                                                                                                                                                                 ReportView))) s')) s)
 instance HasPaths Report Report
     where type Path Report Report = Path_Report Report
           pathsOf s a = [idPath]
 instance HasPaths Report ReportElem
     where type Path Report ReportElem = Path_Report ReportElem
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a -> (Path_Report_View,
-                                                                                                       a)) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
-                                                                                                                                                               ReportView))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a' -> (Path_Report_View,
+                                                                                                        a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
+                                                                                                                                                                 ReportView))) s')) s)
 instance HasPaths Report ReportElems
     where type Path Report ReportElems = Path_Report ReportElems
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a -> (Path_Report_View,
-                                                                                                       a)) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
-                                                                                                                                                               ReportView))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a' -> (Path_Report_View,
+                                                                                                        a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
+                                                                                                                                                                 ReportView))) s')) s)
 instance HasPaths Report ReportFlags
     where type Path Report ReportFlags = Path_Report ReportFlags
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a -> (Path_Report_View,
-                                                                                                       a)) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
-                                                                                                                                                               ReportView))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a' -> (Path_Report_View,
+                                                                                                        a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
+                                                                                                                                                                 ReportView))) s')) s)
 instance HasPaths Report ReportStandard
     where type Path Report ReportStandard = Path_Report ReportStandard
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a -> (Path_Report_View,
-                                                                                                       a)) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
-                                                                                                                                                               ReportView))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a' -> (Path_Report_View,
+                                                                                                        a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
+                                                                                                                                                                 ReportView))) s')) s)
 instance HasPaths Report ReportStatus
     where type Path Report ReportStatus = Path_Report ReportStatus
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a -> (Path_Report_View,
-                                                                                                       a)) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
-                                                                                                                                                               ReportView))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a' -> (Path_Report_View,
+                                                                                                        a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
+                                                                                                                                                                 ReportView))) s')) s)
 instance HasPaths Report ReportValueApproachInfo
     where type Path Report
                     ReportValueApproachInfo = Path_Report ReportValueApproachInfo
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a -> (Path_Report_View,
-                                                                                                       a)) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
-                                                                                                                                                               ReportView))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a' -> (Path_Report_View,
+                                                                                                        a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
+                                                                                                                                                                 ReportView))) s')) s)
 instance HasPaths Report ReportValueTypeInfo
     where type Path Report
                     ReportValueTypeInfo = Path_Report ReportValueTypeInfo
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a -> (Path_Report_View,
-                                                                                                       a)) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
-                                                                                                                                                               ReportView))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a' -> (Path_Report_View,
+                                                                                                        a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
+                                                                                                                                                                 ReportView))) s')) s)
 instance HasPaths Report EUI
     where type Path Report EUI = Path_Report EUI
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a -> (Path_Report_View,
-                                                                                                       a)) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
-                                                                                                                                                               ReportView))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a' -> (Path_Report_View,
+                                                                                                        a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
+                                                                                                                                                                 ReportView))) s')) s)
 instance HasPaths Report MEUI
     where type Path Report MEUI = Path_Report MEUI
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a -> (Path_Report_View,
-                                                                                                       a)) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
-                                                                                                                                                               ReportView))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a' -> (Path_Report_View,
+                                                                                                        a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
+                                                                                                                                                                 ReportView))) s')) s)
 instance HasPaths Report MaybeImageFile
     where type Path Report MaybeImageFile = Path_Report MaybeImageFile
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a -> (Path_Report_View,
-                                                                                                       a)) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
-                                                                                                                                                               ReportView))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a' -> (Path_Report_View,
+                                                                                                        a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
+                                                                                                                                                                 ReportView))) s')) s)
 instance HasPaths Report ReportImage
     where type Path Report ReportImage = Path_Report ReportImage
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a -> (Path_Report_View,
-                                                                                                       a)) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
-                                                                                                                                                               ReportView))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a' -> (Path_Report_View,
+                                                                                                        a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
+                                                                                                                                                                 ReportView))) s')) s)
 instance HasPaths Report ReportImages
     where type Path Report ReportImages = Path_Report ReportImages
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a -> (Path_Report_View,
-                                                                                                       a)) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
-                                                                                                                                                               ReportView))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a' -> (Path_Report_View,
+                                                                                                        a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
+                                                                                                                                                                 ReportView))) s')) s)
 instance HasPaths Report ReadOnlyFilePath
     where type Path Report
                     ReadOnlyFilePath = Path_Report ReadOnlyFilePath
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a -> (Path_Report_View,
-                                                                                                       a)) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
-                                                                                                                                                               ReportView))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a' -> (Path_Report_View,
+                                                                                                        a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
+                                                                                                                                                                 ReportView))) s')) s)
 instance HasPaths Report ReportImageView
     where type Path Report
                     ReportImageView = Path_Report ReportImageView
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a -> (Path_Report_View,
-                                                                                                       a)) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
-                                                                                                                                                               ReportView))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a' -> (Path_Report_View,
+                                                                                                        a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
+                                                                                                                                                                 ReportView))) s')) s)
 instance HasPaths Report ReportView
     where type Path Report ReportView = Path_Report ReportView
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a -> (Path_Report_View,
-                                                                                                       a)) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
-                                                                                                                                                               ReportView))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a' -> (Path_Report_View,
+                                                                                                        a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
+                                                                                                                                                                 ReportView))) s')) s)
 instance HasPaths Report SaneSizeImageSize
     where type Path Report
                     SaneSizeImageSize = Path_Report SaneSizeImageSize
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a -> (Path_Report_View,
-                                                                                                       a)) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
-                                                                                                                                                               ReportView))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a' -> (Path_Report_View,
+                                                                                                        a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
+                                                                                                                                                                 ReportView))) s')) s)
 instance HasPaths Report Item
     where type Path Report Item = Path_Report Item
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a -> (Path_Report_View,
-                                                                                                       a)) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
-                                                                                                                                                               ReportView))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a' -> (Path_Report_View,
+                                                                                                        a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
+                                                                                                                                                                 ReportView))) s')) s)
 instance HasPaths Report MIM
     where type Path Report MIM = Path_Report MIM
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a -> (Path_Report_View,
-                                                                                                       a)) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
-                                                                                                                                                               ReportView))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a' -> (Path_Report_View,
+                                                                                                        a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
+                                                                                                                                                                 ReportView))) s')) s)
 instance HasPaths Report CIString
     where type Path Report CIString = Path_Report CIString
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a -> (Path_Report_View,
-                                                                                                       a)) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
-                                                                                                                                                               ReportView))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a' -> (Path_Report_View,
+                                                                                                        a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
+                                                                                                                                                                 ReportView))) s')) s)
 instance HasPaths Report URI
     where type Path Report URI = Path_Report URI
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a -> (Path_Report_View,
-                                                                                                       a)) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
-                                                                                                                                                               ReportView))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a' -> (Path_Report_View,
+                                                                                                        a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
+                                                                                                                                                                 ReportView))) s')) s)
 instance HasPaths Report Text
     where type Path Report Text = Path_Report Text
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a -> (Path_Report_View,
-                                                                                                       a)) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
-                                                                                                                                                               ReportView))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a' -> (Path_Report_View,
+                                                                                                        a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
+                                                                                                                                                                 ReportView))) s')) s)
 instance HasPaths Report UserId
     where type Path Report UserId = Path_Report UserId
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a -> (Path_Report_View,
-                                                                                                       a)) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
-                                                                                                                                                               ReportView))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a' -> (Path_Report_View,
+                                                                                                        a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
+                                                                                                                                                                 ReportView))) s')) s)
 instance HasPaths Report UUID
     where type Path Report UUID = Path_Report UUID
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a -> (Path_Report_View,
-                                                                                                       a)) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
-                                                                                                                                                               ReportView))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ReportView) a)) ((\s' -> map (\a' -> (Path_Report_View,
+                                                                                                        a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView
+                                                                                                                                                                 ReportView))) s')) s)
 instance HasPaths ReportElem String
     where type Path ReportElem String = Path_ReportElem String
           pathsOf s a = case s of
@@ -1935,16 +1935,16 @@ instance HasPaths ReportIntendedUse String
     where type Path ReportIntendedUse
                     String = Path_ReportIntendedUse String
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: [Char]) a)) ((\s' -> map (\a -> (Path_ReportIntendedUse_View,
-                                                                                                   a)) (toListOf (toLens (Path_ReportIntendedUse_View (idPath :: Path ([Char])
-                                                                                                                                                                      ([Char])))) s')) s)
+                                     a') -> map p (pathsOf (a' :: [Char]) a)) ((\s' -> map (\a' -> (Path_ReportIntendedUse_View,
+                                                                                                    a')) (toListOf (toLens (Path_ReportIntendedUse_View (idPath :: Path ([Char])
+                                                                                                                                                                        ([Char])))) s')) s)
 instance HasPaths ReportIntendedUse JSONText
     where type Path ReportIntendedUse
                     JSONText = Path_ReportIntendedUse JSONText
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: [Char]) a)) ((\s' -> map (\a -> (Path_ReportIntendedUse_View,
-                                                                                                   a)) (toListOf (toLens (Path_ReportIntendedUse_View (idPath :: Path ([Char])
-                                                                                                                                                                      ([Char])))) s')) s)
+                                     a') -> map p (pathsOf (a' :: [Char]) a)) ((\s' -> map (\a' -> (Path_ReportIntendedUse_View,
+                                                                                                    a')) (toListOf (toLens (Path_ReportIntendedUse_View (idPath :: Path ([Char])
+                                                                                                                                                                        ([Char])))) s')) s)
 instance HasPaths ReportIntendedUse ReportIntendedUse
     where type Path ReportIntendedUse
                     ReportIntendedUse = Path_ReportIntendedUse ReportIntendedUse
@@ -1962,15 +1962,15 @@ instance HasPaths ReportStandard ReportStandard
 instance HasPaths ReportStatus String
     where type Path ReportStatus String = Path_ReportStatus String
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: [Char]) a)) ((\s' -> map (\a -> (Path_ReportStatus_View,
-                                                                                                   a)) (toListOf (toLens (Path_ReportStatus_View (idPath :: Path ([Char])
-                                                                                                                                                                 ([Char])))) s')) s)
+                                     a') -> map p (pathsOf (a' :: [Char]) a)) ((\s' -> map (\a' -> (Path_ReportStatus_View,
+                                                                                                    a')) (toListOf (toLens (Path_ReportStatus_View (idPath :: Path ([Char])
+                                                                                                                                                                   ([Char])))) s')) s)
 instance HasPaths ReportStatus JSONText
     where type Path ReportStatus JSONText = Path_ReportStatus JSONText
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: [Char]) a)) ((\s' -> map (\a -> (Path_ReportStatus_View,
-                                                                                                   a)) (toListOf (toLens (Path_ReportStatus_View (idPath :: Path ([Char])
-                                                                                                                                                                 ([Char])))) s')) s)
+                                     a') -> map p (pathsOf (a' :: [Char]) a)) ((\s' -> map (\a' -> (Path_ReportStatus_View,
+                                                                                                    a')) (toListOf (toLens (Path_ReportStatus_View (idPath :: Path ([Char])
+                                                                                                                                                                   ([Char])))) s')) s)
 instance HasPaths ReportStatus ReportStatus
     where type Path ReportStatus
                     ReportStatus = Path_ReportStatus ReportStatus
@@ -2056,10 +2056,10 @@ instance HasPaths EUI ImageFile
     where type Path EUI ImageFile = Path_Either (Path_URI ImageFile)
                                                 (Path_ImageFile ImageFile)
           pathsOf s a = [] <> concatMap (\(p,
-                                           a') -> map p (pathsOf (a' :: ImageFile) a)) ((\s -> case s of
-                                                                                                   Left _ -> []
-                                                                                                   Right a -> [(Path_Right,
-                                                                                                                a)]) s)
+                                           a') -> map p (pathsOf (a' :: ImageFile) a)) ((\s' -> case s' of
+                                                                                                    Left _ -> []
+                                                                                                    Right a' -> [(Path_Right,
+                                                                                                                  a')]) s)
 instance HasPaths EUI EUI
     where type Path EUI EUI = Path_Either (Path_URI EUI)
                                           (Path_ImageFile EUI)
@@ -2068,29 +2068,29 @@ instance HasPaths EUI URI
     where type Path EUI URI = Path_Either (Path_URI URI)
                                           (Path_ImageFile URI)
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: URI) a)) ((\s -> case s of
-                                                                                       Left a -> [(Path_Left,
-                                                                                                   a)]
-                                                                                       Right _ -> []) s) <> []
+                                     a') -> map p (pathsOf (a' :: URI) a)) ((\s' -> case s' of
+                                                                                        Left a' -> [(Path_Left,
+                                                                                                     a')]
+                                                                                        Right _ -> []) s) <> []
 instance HasPaths MEUI ImageFile
     where type Path MEUI
                     ImageFile = Path_Maybe (Path_Either (Path_URI ImageFile)
                                                         (Path_ImageFile ImageFile))
           pathsOf s a = concatMap (\(p,
                                      a') -> map p (pathsOf (a' :: Either URI
-                                                                         ImageFile) a)) ((\s -> case s of
-                                                                                                    Nothing -> []
-                                                                                                    Just a -> [(Path_Just,
-                                                                                                                a)]) s)
+                                                                         ImageFile) a)) ((\s' -> case s' of
+                                                                                                     Nothing -> []
+                                                                                                     Just a' -> [(Path_Just,
+                                                                                                                  a')]) s)
 instance HasPaths MEUI EUI
     where type Path MEUI EUI = Path_Maybe (Path_Either (Path_URI EUI)
                                                        (Path_ImageFile EUI))
           pathsOf s a = concatMap (\(p,
                                      a') -> map p (pathsOf (a' :: Either URI
-                                                                         ImageFile) a)) ((\s -> case s of
-                                                                                                    Nothing -> []
-                                                                                                    Just a -> [(Path_Just,
-                                                                                                                a)]) s)
+                                                                         ImageFile) a)) ((\s' -> case s' of
+                                                                                                     Nothing -> []
+                                                                                                     Just a' -> [(Path_Just,
+                                                                                                                  a')]) s)
 instance HasPaths MEUI MEUI
     where type Path MEUI MEUI = Path_Maybe (Path_Either (Path_URI MEUI)
                                                         (Path_ImageFile MEUI))
@@ -2100,23 +2100,23 @@ instance HasPaths MEUI URI
                                                        (Path_ImageFile URI))
           pathsOf s a = concatMap (\(p,
                                      a') -> map p (pathsOf (a' :: Either URI
-                                                                         ImageFile) a)) ((\s -> case s of
-                                                                                                    Nothing -> []
-                                                                                                    Just a -> [(Path_Just,
-                                                                                                                a)]) s)
+                                                                         ImageFile) a)) ((\s' -> case s' of
+                                                                                                     Nothing -> []
+                                                                                                     Just a' -> [(Path_Just,
+                                                                                                                  a')]) s)
 instance HasPaths MaybeImageFile String
     where type Path MaybeImageFile String = Path_MaybeImageFile String
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: [Char]) a)) ((\s' -> map (\a -> (Path_MaybeImageFile_View,
-                                                                                                   a)) (toListOf (toLens (Path_MaybeImageFile_View (idPath :: Path ([Char])
-                                                                                                                                                                   ([Char])))) s')) s)
+                                     a') -> map p (pathsOf (a' :: [Char]) a)) ((\s' -> map (\a' -> (Path_MaybeImageFile_View,
+                                                                                                    a')) (toListOf (toLens (Path_MaybeImageFile_View (idPath :: Path ([Char])
+                                                                                                                                                                     ([Char])))) s')) s)
 instance HasPaths MaybeImageFile JSONText
     where type Path MaybeImageFile
                     JSONText = Path_MaybeImageFile JSONText
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: [Char]) a)) ((\s' -> map (\a -> (Path_MaybeImageFile_View,
-                                                                                                   a)) (toListOf (toLens (Path_MaybeImageFile_View (idPath :: Path ([Char])
-                                                                                                                                                                   ([Char])))) s')) s)
+                                     a') -> map p (pathsOf (a' :: [Char]) a)) ((\s' -> map (\a' -> (Path_MaybeImageFile_View,
+                                                                                                    a')) (toListOf (toLens (Path_MaybeImageFile_View (idPath :: Path ([Char])
+                                                                                                                                                                     ([Char])))) s')) s)
 instance HasPaths MaybeImageFile MaybeImageFile
     where type Path MaybeImageFile
                     MaybeImageFile = Path_MaybeImageFile MaybeImageFile
@@ -2124,82 +2124,82 @@ instance HasPaths MaybeImageFile MaybeImageFile
 instance HasPaths ReportImage String
     where type Path ReportImage String = Path_ReportImage String
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ReportImageView) a)) ((\s' -> map (\a -> (Path_ReportImage_View,
-                                                                                                            a)) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView
-                                                                                                                                                                         ReportImageView))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ReportImageView) a)) ((\s' -> map (\a' -> (Path_ReportImage_View,
+                                                                                                             a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView
+                                                                                                                                                                           ReportImageView))) s')) s)
 instance HasPaths ReportImage Bool
     where type Path ReportImage Bool = Path_ReportImage Bool
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ReportImageView) a)) ((\s' -> map (\a -> (Path_ReportImage_View,
-                                                                                                            a)) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView
-                                                                                                                                                                         ReportImageView))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ReportImageView) a)) ((\s' -> map (\a' -> (Path_ReportImage_View,
+                                                                                                             a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView
+                                                                                                                                                                           ReportImageView))) s')) s)
 instance HasPaths ReportImage Double
     where type Path ReportImage Double = Path_ReportImage Double
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ReportImageView) a)) ((\s' -> map (\a -> (Path_ReportImage_View,
-                                                                                                            a)) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView
-                                                                                                                                                                         ReportImageView))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ReportImageView) a)) ((\s' -> map (\a' -> (Path_ReportImage_View,
+                                                                                                             a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView
+                                                                                                                                                                           ReportImageView))) s')) s)
 instance HasPaths ReportImage Dimension
     where type Path ReportImage Dimension = Path_ReportImage Dimension
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ReportImageView) a)) ((\s' -> map (\a -> (Path_ReportImage_View,
-                                                                                                            a)) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView
-                                                                                                                                                                         ReportImageView))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ReportImageView) a)) ((\s' -> map (\a' -> (Path_ReportImage_View,
+                                                                                                             a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView
+                                                                                                                                                                           ReportImageView))) s')) s)
 instance HasPaths ReportImage ImageCrop
     where type Path ReportImage ImageCrop = Path_ReportImage ImageCrop
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ReportImageView) a)) ((\s' -> map (\a -> (Path_ReportImage_View,
-                                                                                                            a)) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView
-                                                                                                                                                                         ReportImageView))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ReportImageView) a)) ((\s' -> map (\a' -> (Path_ReportImage_View,
+                                                                                                             a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView
+                                                                                                                                                                           ReportImageView))) s')) s)
 instance HasPaths ReportImage ImageSize
     where type Path ReportImage ImageSize = Path_ReportImage ImageSize
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ReportImageView) a)) ((\s' -> map (\a -> (Path_ReportImage_View,
-                                                                                                            a)) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView
-                                                                                                                                                                         ReportImageView))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ReportImageView) a)) ((\s' -> map (\a' -> (Path_ReportImage_View,
+                                                                                                             a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView
+                                                                                                                                                                           ReportImageView))) s')) s)
 instance HasPaths ReportImage Units
     where type Path ReportImage Units = Path_ReportImage Units
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ReportImageView) a)) ((\s' -> map (\a -> (Path_ReportImage_View,
-                                                                                                            a)) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView
-                                                                                                                                                                         ReportImageView))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ReportImageView) a)) ((\s' -> map (\a' -> (Path_ReportImage_View,
+                                                                                                             a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView
+                                                                                                                                                                           ReportImageView))) s')) s)
 instance HasPaths ReportImage ImageFile
     where type Path ReportImage ImageFile = Path_ReportImage ImageFile
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ReportImageView) a)) ((\s' -> map (\a -> (Path_ReportImage_View,
-                                                                                                            a)) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView
-                                                                                                                                                                         ReportImageView))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ReportImageView) a)) ((\s' -> map (\a' -> (Path_ReportImage_View,
+                                                                                                             a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView
+                                                                                                                                                                           ReportImageView))) s')) s)
 instance HasPaths ReportImage JSONText
     where type Path ReportImage JSONText = Path_ReportImage JSONText
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ReportImageView) a)) ((\s' -> map (\a -> (Path_ReportImage_View,
-                                                                                                            a)) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView
-                                                                                                                                                                         ReportImageView))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ReportImageView) a)) ((\s' -> map (\a' -> (Path_ReportImage_View,
+                                                                                                             a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView
+                                                                                                                                                                           ReportImageView))) s')) s)
 instance HasPaths ReportImage Markup
     where type Path ReportImage Markup = Path_ReportImage Markup
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ReportImageView) a)) ((\s' -> map (\a -> (Path_ReportImage_View,
-                                                                                                            a)) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView
-                                                                                                                                                                         ReportImageView))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ReportImageView) a)) ((\s' -> map (\a' -> (Path_ReportImage_View,
+                                                                                                             a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView
+                                                                                                                                                                           ReportImageView))) s')) s)
 instance HasPaths ReportImage EUI
     where type Path ReportImage EUI = Path_ReportImage EUI
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ReportImageView) a)) ((\s' -> map (\a -> (Path_ReportImage_View,
-                                                                                                            a)) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView
-                                                                                                                                                                         ReportImageView))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ReportImageView) a)) ((\s' -> map (\a' -> (Path_ReportImage_View,
+                                                                                                             a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView
+                                                                                                                                                                           ReportImageView))) s')) s)
 instance HasPaths ReportImage MEUI
     where type Path ReportImage MEUI = Path_ReportImage MEUI
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ReportImageView) a)) ((\s' -> map (\a -> (Path_ReportImage_View,
-                                                                                                            a)) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView
-                                                                                                                                                                         ReportImageView))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ReportImageView) a)) ((\s' -> map (\a' -> (Path_ReportImage_View,
+                                                                                                             a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView
+                                                                                                                                                                           ReportImageView))) s')) s)
 instance HasPaths ReportImage MaybeImageFile
     where type Path ReportImage
                     MaybeImageFile = Path_ReportImage MaybeImageFile
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ReportImageView) a)) ((\s' -> map (\a -> (Path_ReportImage_View,
-                                                                                                            a)) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView
-                                                                                                                                                                         ReportImageView))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ReportImageView) a)) ((\s' -> map (\a' -> (Path_ReportImage_View,
+                                                                                                             a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView
+                                                                                                                                                                           ReportImageView))) s')) s)
 instance HasPaths ReportImage ReportImage
     where type Path ReportImage
                     ReportImage = Path_ReportImage ReportImage
@@ -2208,28 +2208,28 @@ instance HasPaths ReportImage ReportImageView
     where type Path ReportImage
                     ReportImageView = Path_ReportImage ReportImageView
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ReportImageView) a)) ((\s' -> map (\a -> (Path_ReportImage_View,
-                                                                                                            a)) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView
-                                                                                                                                                                         ReportImageView))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ReportImageView) a)) ((\s' -> map (\a' -> (Path_ReportImage_View,
+                                                                                                             a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView
+                                                                                                                                                                           ReportImageView))) s')) s)
 instance HasPaths ReportImage SaneSizeImageSize
     where type Path ReportImage
                     SaneSizeImageSize = Path_ReportImage SaneSizeImageSize
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ReportImageView) a)) ((\s' -> map (\a -> (Path_ReportImage_View,
-                                                                                                            a)) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView
-                                                                                                                                                                         ReportImageView))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ReportImageView) a)) ((\s' -> map (\a' -> (Path_ReportImage_View,
+                                                                                                             a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView
+                                                                                                                                                                           ReportImageView))) s')) s)
 instance HasPaths ReportImage URI
     where type Path ReportImage URI = Path_ReportImage URI
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ReportImageView) a)) ((\s' -> map (\a -> (Path_ReportImage_View,
-                                                                                                            a)) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView
-                                                                                                                                                                         ReportImageView))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ReportImageView) a)) ((\s' -> map (\a' -> (Path_ReportImage_View,
+                                                                                                             a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView
+                                                                                                                                                                           ReportImageView))) s')) s)
 instance HasPaths ReportImage Text
     where type Path ReportImage Text = Path_ReportImage Text
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ReportImageView) a)) ((\s' -> map (\a -> (Path_ReportImage_View,
-                                                                                                            a)) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView
-                                                                                                                                                                         ReportImageView))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ReportImageView) a)) ((\s' -> map (\a' -> (Path_ReportImage_View,
+                                                                                                             a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView
+                                                                                                                                                                           ReportImageView))) s')) s)
 instance HasPaths ReportImages String
     where type Path ReportImages String = Path_OMap ReportImageID
                                                     (Path_ReportImage String)
@@ -2367,16 +2367,16 @@ instance HasPaths ReadOnlyFilePath String
     where type Path ReadOnlyFilePath
                     String = Path_ReadOnlyFilePath String
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: [Char]) a)) ((\s' -> map (\a -> (Path_ReadOnlyFilePath_View,
-                                                                                                   a)) (toListOf (toLens (Path_ReadOnlyFilePath_View (idPath :: Path ([Char])
-                                                                                                                                                                     ([Char])))) s')) s)
+                                     a') -> map p (pathsOf (a' :: [Char]) a)) ((\s' -> map (\a' -> (Path_ReadOnlyFilePath_View,
+                                                                                                    a')) (toListOf (toLens (Path_ReadOnlyFilePath_View (idPath :: Path ([Char])
+                                                                                                                                                                       ([Char])))) s')) s)
 instance HasPaths ReadOnlyFilePath JSONText
     where type Path ReadOnlyFilePath
                     JSONText = Path_ReadOnlyFilePath JSONText
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: [Char]) a)) ((\s' -> map (\a -> (Path_ReadOnlyFilePath_View,
-                                                                                                   a)) (toListOf (toLens (Path_ReadOnlyFilePath_View (idPath :: Path ([Char])
-                                                                                                                                                                     ([Char])))) s')) s)
+                                     a') -> map p (pathsOf (a' :: [Char]) a)) ((\s' -> map (\a' -> (Path_ReadOnlyFilePath_View,
+                                                                                                    a')) (toListOf (toLens (Path_ReadOnlyFilePath_View (idPath :: Path ([Char])
+                                                                                                                                                                       ([Char])))) s')) s)
 instance HasPaths ReadOnlyFilePath ReadOnlyFilePath
     where type Path ReadOnlyFilePath
                     ReadOnlyFilePath = Path_ReadOnlyFilePath ReadOnlyFilePath
@@ -5210,44 +5210,44 @@ instance HasPaths SaneSizeImageSize String
     where type Path SaneSizeImageSize
                     String = Path_SaneSizeImageSize String
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ImageSize) a)) ((\s' -> map (\a -> (Path_SaneSizeImageSize_View,
-                                                                                                      a)) (toListOf (toLens (Path_SaneSizeImageSize_View (idPath :: Path ImageSize
-                                                                                                                                                                         ImageSize))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ImageSize) a)) ((\s' -> map (\a' -> (Path_SaneSizeImageSize_View,
+                                                                                                       a')) (toListOf (toLens (Path_SaneSizeImageSize_View (idPath :: Path ImageSize
+                                                                                                                                                                           ImageSize))) s')) s)
 instance HasPaths SaneSizeImageSize Double
     where type Path SaneSizeImageSize
                     Double = Path_SaneSizeImageSize Double
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ImageSize) a)) ((\s' -> map (\a -> (Path_SaneSizeImageSize_View,
-                                                                                                      a)) (toListOf (toLens (Path_SaneSizeImageSize_View (idPath :: Path ImageSize
-                                                                                                                                                                         ImageSize))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ImageSize) a)) ((\s' -> map (\a' -> (Path_SaneSizeImageSize_View,
+                                                                                                       a')) (toListOf (toLens (Path_SaneSizeImageSize_View (idPath :: Path ImageSize
+                                                                                                                                                                           ImageSize))) s')) s)
 instance HasPaths SaneSizeImageSize Dimension
     where type Path SaneSizeImageSize
                     Dimension = Path_SaneSizeImageSize Dimension
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ImageSize) a)) ((\s' -> map (\a -> (Path_SaneSizeImageSize_View,
-                                                                                                      a)) (toListOf (toLens (Path_SaneSizeImageSize_View (idPath :: Path ImageSize
-                                                                                                                                                                         ImageSize))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ImageSize) a)) ((\s' -> map (\a' -> (Path_SaneSizeImageSize_View,
+                                                                                                       a')) (toListOf (toLens (Path_SaneSizeImageSize_View (idPath :: Path ImageSize
+                                                                                                                                                                           ImageSize))) s')) s)
 instance HasPaths SaneSizeImageSize ImageSize
     where type Path SaneSizeImageSize
                     ImageSize = Path_SaneSizeImageSize ImageSize
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ImageSize) a)) ((\s' -> map (\a -> (Path_SaneSizeImageSize_View,
-                                                                                                      a)) (toListOf (toLens (Path_SaneSizeImageSize_View (idPath :: Path ImageSize
-                                                                                                                                                                         ImageSize))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ImageSize) a)) ((\s' -> map (\a' -> (Path_SaneSizeImageSize_View,
+                                                                                                       a')) (toListOf (toLens (Path_SaneSizeImageSize_View (idPath :: Path ImageSize
+                                                                                                                                                                           ImageSize))) s')) s)
 instance HasPaths SaneSizeImageSize Units
     where type Path SaneSizeImageSize
                     Units = Path_SaneSizeImageSize Units
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ImageSize) a)) ((\s' -> map (\a -> (Path_SaneSizeImageSize_View,
-                                                                                                      a)) (toListOf (toLens (Path_SaneSizeImageSize_View (idPath :: Path ImageSize
-                                                                                                                                                                         ImageSize))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ImageSize) a)) ((\s' -> map (\a' -> (Path_SaneSizeImageSize_View,
+                                                                                                       a')) (toListOf (toLens (Path_SaneSizeImageSize_View (idPath :: Path ImageSize
+                                                                                                                                                                           ImageSize))) s')) s)
 instance HasPaths SaneSizeImageSize JSONText
     where type Path SaneSizeImageSize
                     JSONText = Path_SaneSizeImageSize JSONText
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: ImageSize) a)) ((\s' -> map (\a -> (Path_SaneSizeImageSize_View,
-                                                                                                      a)) (toListOf (toLens (Path_SaneSizeImageSize_View (idPath :: Path ImageSize
-                                                                                                                                                                         ImageSize))) s')) s)
+                                     a') -> map p (pathsOf (a' :: ImageSize) a)) ((\s' -> map (\a' -> (Path_SaneSizeImageSize_View,
+                                                                                                       a')) (toListOf (toLens (Path_SaneSizeImageSize_View (idPath :: Path ImageSize
+                                                                                                                                                                           ImageSize))) s')) s)
 instance HasPaths SaneSizeImageSize SaneSizeImageSize
     where type Path SaneSizeImageSize
                     SaneSizeImageSize = Path_SaneSizeImageSize SaneSizeImageSize
@@ -6082,27 +6082,27 @@ instance HasPaths ReportMap UUID
 instance HasPaths CIString JSONText
     where type Path CIString JSONText = Path_CIString JSONText
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: Text) a)) ((\s' -> map (\a -> (Path_CIString_View,
-                                                                                                 a)) (toListOf (toLens (Path_CIString_View (idPath :: Path Text
-                                                                                                                                                           Text))) s')) s)
+                                     a') -> map p (pathsOf (a' :: Text) a)) ((\s' -> map (\a' -> (Path_CIString_View,
+                                                                                                  a')) (toListOf (toLens (Path_CIString_View (idPath :: Path Text
+                                                                                                                                                             Text))) s')) s)
 instance HasPaths CIString CIString
     where type Path CIString CIString = Path_CIString CIString
           pathsOf s a = [idPath]
 instance HasPaths CIString Text
     where type Path CIString Text = Path_CIString Text
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: Text) a)) ((\s' -> map (\a -> (Path_CIString_View,
-                                                                                                 a)) (toListOf (toLens (Path_CIString_View (idPath :: Path Text
-                                                                                                                                                           Text))) s')) s)
+                                     a') -> map p (pathsOf (a' :: Text) a)) ((\s' -> map (\a' -> (Path_CIString_View,
+                                                                                                  a')) (toListOf (toLens (Path_CIString_View (idPath :: Path Text
+                                                                                                                                                             Text))) s')) s)
 instance HasPaths URI URI
     where type Path URI URI = Path_URI URI
           pathsOf s a = [idPath]
 instance HasPaths Text JSONText
     where type Path Text JSONText = Path_Text JSONText
           pathsOf s a = concatMap (\(p,
-                                     a') -> map p (pathsOf (a' :: JSONText) a)) ((\s' -> map (\a -> (Path_Text_View,
-                                                                                                     a)) (toListOf (toLens (Path_Text_View (idPath :: Path JSONText
-                                                                                                                                                           JSONText))) s')) s)
+                                     a') -> map p (pathsOf (a' :: JSONText) a)) ((\s' -> map (\a' -> (Path_Text_View,
+                                                                                                      a')) (toListOf (toLens (Path_Text_View (idPath :: Path JSONText
+                                                                                                                                                             JSONText))) s')) s)
 instance HasPaths Text Text
     where type Path Text Text = Path_Text Text
           pathsOf s a = [idPath]

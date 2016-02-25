@@ -53,10 +53,6 @@ instance HasName PeekCon where asName = unPeekCon
 instance HasCon PeekCon where asCon = ConE . unPeekCon
 instance HasConQ PeekCon where asConQ = conE . unPeekCon
 
-instance HasName TyVarBndr where
-    asName (PlainTV x) = x
-    asName (KindedTV x _) = x
-
 -- makePeekType :: ModelType -> PeekType
 -- makePeekType (ModelType s) = PeekType (mkName ("Peek_" ++ nameBase s))
 
@@ -146,16 +142,16 @@ peekClauses v =
       doInfo _ _ = return []
       doDec :: [Type] -> Dec -> m [ClauseQ]
       doDec tps (NewtypeD cx tname binds con supers) = doDec tps (DataD cx tname binds [con] supers)
-      doDec tps (DataD _cx tname binds cons _supers)
+      doDec tps (DataD _cx _tname binds _cons _supers)
           | length tps /= length binds =
               error $ "Arity mismatch: binds: " ++ show binds ++ ", types: " ++ show tps
       doDec tps (DataD _cx tname binds cons _supers) = do
         let bindings = Map.fromList (zip (map asName binds) tps)
         runQ (newName "x") >>= doCons bindings tname cons
-      doDec tps dec = error $ "Unexpected dec: " ++ pprint dec
+      doDec _tps dec = error $ "Unexpected dec: " ++ pprint dec
 
       doCons :: Map Name Type -> Name -> [Con] -> Name -> m [ClauseQ]
-      doCons bindings _tname [] _x = error "No constructors"
+      doCons _bindings _tname [] _x = error "No constructors"
       doCons bindings tname cons x = concat <$> mapM (doCon bindings tname x) cons
 
       doCon :: Map Name Type -> Name -> Name -> Con -> m [ClauseQ]

@@ -39,14 +39,14 @@ import Language.Haskell.TH.Path.Order (Order, Path_OMap(..))
 import Language.Haskell.TH.Path.View (viewInstanceType)
 import Language.Haskell.TH.Syntax as TH (VarStrictType)
 import Language.Haskell.TH.TypeGraph.Prelude (pprint')
-import Language.Haskell.TH.TypeGraph.TypeGraph (HasTGVSimple(asTGVSimple), reachableFromSimple, simplify, tgv, tgvSimple, TypeGraph)
+import Language.Haskell.TH.TypeGraph.TypeGraph (HasTGVSimple(asTGVSimple), reachableFromSimple, tgv, tgvSimple, TypeGraph)
 import Language.Haskell.TH.TypeGraph.TypeInfo (TypeInfo)
 import Language.Haskell.TH.TypeGraph.Vertex (TGVSimple, typeNames)
 
 -- | Given a type, compute the corresponding path type.
-pathType :: forall m s. (MonadReaders TypeGraph m, MonadReaders TypeInfo m, ContextM m, s ~ TGVSimple) =>
+pathType :: forall m. (MonadReaders TypeGraph m, MonadReaders TypeInfo m, ContextM m) =>
             TypeQ
-         -> s -- ^ The type to convert to a path type
+         -> TGVSimple -- ^ The type to convert to a path type
          -> m Type
 pathType gtyp key = do
   selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [asType key]
@@ -60,36 +60,36 @@ pathType gtyp key = do
         runQ $ [t|$(asTypeQ (makePathType (ModelType tname))) $gtyp|]
     AppT (AppT mtyp ityp) etyp
         | mtyp == ConT ''Order ->
-            do ipath <- (tgvSimple ityp :: m s) >>= pathType gtyp
-               epath <- (tgvSimple etyp :: m s) >>= pathType gtyp
+            do ipath <- tgvSimple ityp >>= pathType gtyp
+               epath <- tgvSimple etyp >>= pathType gtyp
                runQ [t|Path_OMap $(return ipath) $(return epath)|]
     AppT ListT etyp ->
-        do epath <- (tgvSimple etyp :: m s) >>= pathType gtyp
+        do epath <- tgvSimple etyp >>= pathType gtyp
            runQ [t|Path_List $(return epath)|]
     AppT (AppT t3 ktyp) vtyp
         | t3 == ConT ''Map ->
-            do kpath <- (tgvSimple ktyp :: m s) >>= pathType gtyp
-               vpath <- (tgvSimple vtyp :: m s) >>= pathType gtyp
+            do kpath <- tgvSimple ktyp >>= pathType gtyp
+               vpath <- tgvSimple vtyp >>= pathType gtyp
                runQ [t| Path_Map $(return kpath) $(return vpath)|]
     AppT (AppT (TupleT 2) ftyp) styp ->
-        do fpath <- (tgvSimple ftyp :: m s) >>= pathType gtyp
-           spath <- (tgvSimple styp :: m s) >>= pathType gtyp
+        do fpath <- tgvSimple ftyp >>= pathType gtyp
+           spath <- tgvSimple styp >>= pathType gtyp
            runQ [t| Path_Pair $(return fpath) $(return spath) |]
     AppT t1 vtyp
         | t1 == ConT ''Maybe ->
-            do epath <- (tgvSimple vtyp :: m s) >>= pathType gtyp
+            do epath <- tgvSimple vtyp >>= pathType gtyp
                runQ [t|Path_Maybe $(return epath)|]
     AppT (AppT t3 ltyp) rtyp
         | t3 == ConT ''Either ->
-            do lpath <- (tgvSimple ltyp :: m s) >>= pathType gtyp
-               rpath <- (tgvSimple rtyp :: m s) >>= pathType gtyp
+            do lpath <- tgvSimple ltyp >>= pathType gtyp
+               rpath <- tgvSimple rtyp >>= pathType gtyp
                runQ [t| Path_Either $(return lpath) $(return rpath)|]
     _ -> do ks <- reachableFromSimple key
             error $ "pathType otherf: " ++ pprint' key ++ "\n" ++
                     intercalate "\n  " ("reachable from:" : List.map pprint' (Foldable.toList ks))
 
 
-pathTypeDecs :: forall m s. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m, s ~ TGVSimple) => s -> m ()
+pathTypeDecs :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) => TGVSimple -> m ()
 pathTypeDecs v = do
   -- generate the data Path_* declarations
   selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [asType v]
@@ -106,8 +106,8 @@ pathTypeDecs v = do
       | isJust viewType -> viewPath v (fromJust viewType)
       | otherwise -> doNames v
 
-doSimplePath :: forall m s. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m, s ~ TGVSimple) =>
-                s -> m ()
+doSimplePath :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) =>
+                TGVSimple -> m ()
 doSimplePath v = do
   let pname = bestPathTypeName v
   a <- runQ $ newName "a"
@@ -115,10 +115,10 @@ doSimplePath v = do
   runQ (dataD (pure []) (asName pname) [PlainTV a] [normalC (asName pname) []] supers) >>= tell . (: [])
   runQ [d|instance HasIdPath ($(asTypeQ pname) a) where idPath = $(asConQ pname)|] >>= tell
 
-viewPath :: forall m s. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m, s ~ TGVSimple) => s -> Type -> m ()
+viewPath :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) => TGVSimple -> Type -> m ()
 viewPath v styp = do
   let pname = bestPathTypeName v
-  skey <- tgvSimple styp :: m s
+  skey <- tgvSimple styp
   a <- runQ $ newName "a"
   ptype <- pathType (varT a) skey
   -- data Path_MaybeImageFile a =
@@ -130,7 +130,7 @@ viewPath v styp = do
           ] supers) >>= tell . (: [])
   runQ [d|instance HasIdPath ($(asTypeQ pname) a) where idPath = $(asConQ pname)|] >>= tell
 
-doNames :: forall m s. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m, s ~ TGVSimple) => s -> m ()
+doNames :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) => TGVSimple -> m ()
 doNames v = mapM_ (\tname -> runQ (reify tname) >>= doInfo) (typeNames v)
     where
       doInfo (TyConI dec) =
@@ -142,7 +142,7 @@ doNames v = mapM_ (\tname -> runQ (reify tname) >>= doInfo) (typeNames v)
       -- If we have a type synonym, we can create a path type synonym
       doDec (TySynD _ _ typ') =
           do a <- runQ $ newName "a"
-             key' <- tgvSimple typ' :: m s
+             key' <- tgvSimple typ'
              ptype <- pathType (varT a) key'
              mapM (\pname -> runQ (tySynD (asName pname) [PlainTV a] (pure ptype))) (toList . Set.map makePathType . Set.map ModelType . typeNames $ v) >>= tell
       doDec (NewtypeD _ tname _ con _) = doDataD tname [con]
@@ -150,26 +150,19 @@ doNames v = mapM_ (\tname -> runQ (reify tname) >>= doInfo) (typeNames v)
       doDec (FamilyD _flavour _name _tvbs _mkind) = return ()
       doDec dec = error $ "doName - unexpected Dec: " ++ pprint dec ++ "\n  " ++ show dec
 
+      -- Is this a type declaration with fields we understand?
+      isRecC :: Con -> Bool
+      isRecC (RecC {}) = True
+      isRecC _ = False
+
       doDataD :: Name -> [Con] -> m ()
-      doDataD _tname cons | badCons cons = doSimplePath v
-      doDataD tname cons =
-          do a <- runQ $ newName "a"
-             mapM (doCon a tname) cons >>= makeDecs a . concat
+      doDataD tname cons
+          | any isRecC cons =
+              do a <- runQ $ newName "a"
+                 mapM (doCon a tname) cons >>= makeDecs a . concat
+      doDataD _tname _cons = doSimplePath v
 
-      makeDecs :: Name -> [Con] -> m ()
-      makeDecs _a [] = return ()
-      makeDecs a pcons =
-                do mapM_ (\pname ->
-                              -- data Path_Permissions a =
-                              --      Path_Permissions_owner (Path_UserId a) |
-                              --      Path_Permissions_writers (Path_UserIds a) |
-                              --      Path_Permissions_readers (Path_UserIds a) |
-                              --      Path_Permissions
-                              --    deriving (Eq, Ord, Read, Show, Typeable, Data)
-                              do runQ (dataD (cxt []) (asName pname) [PlainTV a] (List.map return (pcons ++ [NormalC (asName pname) []])) supers) >>= tell . (: []))
-                         (Set.map makePathType . Set.map ModelType . typeNames $ v)
-                   mapM_ (\pname -> runQ [d|instance HasIdPath ($(asTypeQ pname) a) where idPath = $(asConQ pname)|] >>= tell) (Set.map makePathType . Set.map ModelType . typeNames $ v)
-
+      -- Build the constructors of the path type
       doCon :: (DsMonad m, MonadReaders TypeGraph m) => Name -> Name -> Con -> m [Con]
       doCon a tname (ForallC _ _ con) = doCon a tname con
       doCon _ _ (NormalC _ _) = return []
@@ -181,8 +174,8 @@ doNames v = mapM_ (\tname -> runQ (reify tname) >>= doInfo) (typeNames v)
       -- of some piece of the field value.  FIXME: This exact code is in PathTypes.hs
       doField :: (DsMonad m, MonadReaders TypeGraph m) => Name -> Name -> Name -> VarStrictType -> m [Con]
       doField a tname cname (fname', _, ftype) =
-          do key' <- (tgvSimple ftype :: m s) >>= tgv (Just (tname, cname, Right fname'))
-             skey' <- simplify key' :: m s
+          do skey' <- tgvSimple ftype
+             key' <- tgv (Just (tname, cname, Right fname')) skey'
              let Just pcname = makeFieldCon key'
              ptype <- case ftype of
                         ConT ftname -> runQ $ appT (asTypeQ (makePathType (ModelType ftname))) (varT a)
@@ -197,13 +190,19 @@ doNames v = mapM_ (\tname -> runQ (reify tname) >>= doInfo) (typeNames v)
                -- clauses to match expressions wrapped in this new constructor.
                _ -> (: []) <$> runQ (normalC (asName pcname) [strictType notStrict (return ptype)])
 
--- | Is this a type declaration with fields we understand?
-badCons :: [Con] -> Bool
-badCons (ForallC _ _ con : more) = badCons (con : more)
-badCons (RecC _ _ : _more) = False -- If we see *any* named fields we are ok
-badCons (NormalC _ _ : more) = badCons more
-badCons (InfixC _ _ _ : more) = badCons more
-badCons [] = True -- We didn't see any named fields, we are ok
+      makeDecs :: Name -> [Con] -> m ()
+      makeDecs _a [] = return ()
+      makeDecs a pcons =
+                do mapM_ (\pname ->
+                              -- data Path_Permissions a =
+                              --      Path_Permissions_owner (Path_UserId a) |
+                              --      Path_Permissions_writers (Path_UserIds a) |
+                              --      Path_Permissions_readers (Path_UserIds a) |
+                              --      Path_Permissions
+                              --    deriving (Eq, Ord, Read, Show, Typeable, Data)
+                              do runQ (dataD (cxt []) (asName pname) [PlainTV a] (List.map return (pcons ++ [NormalC (asName pname) []])) supers) >>= tell . (: []))
+                         (Set.map makePathType . Set.map ModelType . typeNames $ v)
+                   mapM_ (\pname -> runQ [d|instance HasIdPath ($(asTypeQ pname) a) where idPath = $(asConQ pname)|] >>= tell) (Set.map makePathType . Set.map ModelType . typeNames $ v)
 
 supers :: [Name]
 supers = [''Eq, ''Ord, ''Read, ''Show, ''Typeable, ''Data]
