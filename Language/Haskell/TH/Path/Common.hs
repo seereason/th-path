@@ -89,10 +89,10 @@ instance Clauses a => Clauses [a] where
 -- Conversions
 
 -- | Model as in Model-View-Controller.
-newtype HasName a => ModelType a = ModelType {unModelType :: a} deriving (Eq, Ord, Show) -- e.g. AbbrevPair
-newtype HasName a => PathType a = PathType {unPathType :: a} deriving (Eq, Ord, Show) -- e.g. Path_AbbrevPair
-newtype HasName a => PathCon a = PathCon {unPathCon :: a} deriving (Eq, Ord, Show) -- e.g. Path_UserIds_View
-newtype HasName a => HopCon a = HopCon {unHopCon :: a} deriving (Eq, Ord, Show) -- e.g. Hop_AbbrevPairs_Markup
+newtype ModelType a = ModelType {unModelType :: a} deriving (Eq, Ord, Show) -- e.g. AbbrevPair
+newtype PathType a = PathType {unPathType :: a} deriving (Eq, Ord, Show) -- e.g. Path_AbbrevPair
+newtype PathCon a = PathCon {unPathCon :: a} deriving (Eq, Ord, Show) -- e.g. Path_UserIds_View
+newtype HopCon a = HopCon {unHopCon :: a} deriving (Eq, Ord, Show) -- e.g. Hop_AbbrevPairs_Markup
 
 class HasTypeQ a where asTypeQ :: a -> TypeQ
 class HasType a where asType :: a -> Type
