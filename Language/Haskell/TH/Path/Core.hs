@@ -19,7 +19,7 @@ module Language.Haskell.TH.Path.Core
       -- * Type classes and associated types
     , HasPaths(pathsOf, Path)
     , HasIdPath(idPath)
-    , IsPathStart(Peek, peek, Hop)
+    , IsPathStart(Peek, peek, hop)
     , ToLens(S, A, toLens)
     , (:.:)(..)
 
@@ -111,7 +111,10 @@ class IsPathStart s where
     -- 'Peek' that can be reached from it.  The order of the nodes in
     -- the forest reflects the order the elements were encountered
     -- during the traversal.
-    data Hop s
+    hop :: s -> [Tree (Peek s)]
+    -- ^ This signature is exactly the same as peek, but the list
+    -- indicates that no recurive peek calls are made, so only one
+    -- layer of the forest is returned
 
 class ToLens p where
     type S p
