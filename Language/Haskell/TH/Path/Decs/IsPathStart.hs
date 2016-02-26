@@ -20,9 +20,10 @@ module Language.Haskell.TH.Path.Decs.IsPathStart (peekDecs) where
 import Control.Lens hiding (cons, Strict)
 import Control.Monad.Readers (MonadReaders)
 import Control.Monad.Writer (execWriterT, MonadWriter, tell)
+import Data.Char (isUpper, toUpper)
 import Data.Foldable as Foldable
 import Data.Generics (everywhere, mkT)
-import Data.List as List (map)
+import Data.List as List (groupBy, map)
 import Data.Map as Map (fromList, lookup, Map)
 import Data.Maybe (fromJust, isJust)
 import Data.Proxy
@@ -42,7 +43,7 @@ import Language.Haskell.TH.Syntax as TH (Quasi(qReify))
 import Language.Haskell.TH.TypeGraph.Prelude (pprint1)
 import Language.Haskell.TH.TypeGraph.TypeGraph (pathKeys, pathKeys', tgv, tgvSimple, TypeGraph)
 import Language.Haskell.TH.TypeGraph.TypeInfo (TypeInfo)
-import Language.Haskell.TH.TypeGraph.Vertex (TGV, TGVSimple)
+import Language.Haskell.TH.TypeGraph.Vertex (TGV, field, TGVSimple)
 
 newtype PeekType = PeekType {unPeekType :: Name} deriving (Eq, Ord, Show) -- e.g. Peek_AbbrevPairs
 newtype PeekCon = PeekCon {unPeekCon :: Name} deriving (Eq, Ord, Show) -- e.g. Peek_AbbrevPairs_Markup
@@ -260,7 +261,7 @@ describeConc x v xpat (w, ppat, pcon) =
        ppat' <- runQ ppat
        pcon' <- runQ pcon
        let PeekCon n = makePeekCon (ModelType (asName v)) (ModelType (asName w))
-       tell [DescClause $ clause [conP n [asP p ppat, varP x]] (normalB (lift ("ppat=" ++ pprint1 ppat' ++ ", pcon=" ++ pprint1 pcon'))) []]
+       tell [DescClause $ clause [conP n [asP p ppat, varP x]] (normalB (lift (toDescription w))) []]
 
 doGoal :: TGVSimple -> TGV -> ExpQ -> TGVSimple -> [Q Match]
 doGoal v w pcon g =
@@ -271,3 +272,24 @@ doGoal v w pcon g =
                        (($pcon :: Path $(asTypeQ w) $(asTypeQ g) ->
                                   Path $(asTypeQ v) $(asTypeQ g)) $(varE q)) $(varE z)|])
            []]
+
+toDescription :: TGV -> String
+toDescription w =
+    camelWords $
+    case view (_2 . field) w of
+      Just (_, _, Right fname) -> nameBase fname
+      Just (_, _, Left fpos) -> nameBase (asName w) ++ "[" ++ show fpos ++ "]"
+      Nothing -> nameBase (asName w)
+
+-- | Convert a camel case string (no whitespace) into a natural
+-- language looking phrase:
+--   camelWords3 "aCamelCaseFOObar123" -> "A Camel Case FOObar123"
+camelWords :: String -> String
+camelWords s =
+    case groupBy (\ a b -> isUpper a == isUpper b) (dropWhile (== '_') s) of -- "aCamelCaseFOObar123"
+      (x : xs) -> concat $ capitalize x : map (\ (c : cs) -> if isUpper c then ' ' : c : cs else c : cs) xs
+      [] -> ""
+
+capitalize :: String -> String
+capitalize [] = []
+capitalize (c:cs) = (toUpper c) : cs
