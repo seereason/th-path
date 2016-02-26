@@ -30,10 +30,11 @@ import Data.Tree (Tree(Node), Forest)
 import Language.Haskell.TH
 import Language.Haskell.TH.Context (ContextM, reifyInstancesWithContext)
 import Language.Haskell.TH.Instances ()
+import Language.Haskell.TH.Lift (lift)
 import Language.Haskell.TH.Path.Common (HasConQ(asConQ), HasCon(asCon), HasName(asName), HasType(asType), HasTypeQ(asTypeQ),
                                         bestTypeName, makeFieldCon, makePathCon, makePathType,
                                         ModelType(ModelType), PathCon, PathCon(PathCon))
-import Language.Haskell.TH.Path.Core (IsPathStart(Peek, peek, hop), HasPaths(..), ToLens(toLens), SelfPath, SinkType,
+import Language.Haskell.TH.Path.Core (IsPathStart(Peek, peek, hop, describe), HasPaths(..), ToLens(toLens), SelfPath, SinkType,
                                       Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..), forestMap)
 import Language.Haskell.TH.Path.Order (Order, Path_OMap(..))
 import Language.Haskell.TH.Path.View (viewInstanceType)
@@ -55,13 +56,15 @@ instance HasConQ PeekCon where asConQ = conE . unPeekCon
 data ClauseType
     = PeekClause ClauseQ
     | HopClause ClauseQ
+    | DescClause ClauseQ
 
-partitionClauses :: [ClauseType] -> ([ClauseQ], [ClauseQ])
+partitionClauses :: [ClauseType] -> ([ClauseQ], [ClauseQ], [ClauseQ])
 partitionClauses xs =
-    foldr f ([], []) xs
+    foldr f ([], [], []) xs
         where
-          f (PeekClause c) (pcs, hcs) = (c : pcs, hcs)
-          f (HopClause c) (pcs, hcs) = (pcs, c : hcs)
+          f (PeekClause c) (pcs, hcs, dcs) = (c : pcs, hcs, dcs)
+          f (HopClause c) (pcs, hcs, dcs) = (pcs, c : hcs, dcs)
+          f (DescClause c) (pcs, hcs, dcs) = (pcs, hcs, c : dcs)
 
 makePeekCon :: (HasName s, HasName g) => ModelType s -> ModelType g -> PeekCon
 makePeekCon (ModelType s) (ModelType g) = PeekCon (mkName ("Peek_" ++ nameBase (asName s) ++ "_" ++ nameBase (asName g)))
@@ -70,7 +73,7 @@ peekDecs :: forall m. (MonadWriter [Dec] m, ContextM m, MonadReaders TypeInfo m,
             TGVSimple -> m ()
 peekDecs v =
     do (clauses :: [ClauseType]) <- execWriterT (peekClauses v)
-       let (pcs, hcs) = partitionClauses clauses
+       let (pcs, hcs, dcs) = partitionClauses clauses
        (cons :: [ConQ]) <- peekCons
        runQ (instanceD (cxt []) (appT (conT ''IsPathStart) (asTypeQ v))
                [dataInstD (cxt []) ''Peek [asTypeQ v] cons [''Eq, ''Show],
@@ -79,7 +82,10 @@ peekDecs v =
                               _ -> pcs),
                 funD 'hop (case hcs of
                               [] -> [clause [wildP] (normalB [| [] |]) []]
-                              _ -> hcs)
+                              _ -> hcs),
+                funD 'describe (case dcs of
+                                  [] -> [clause [wildP] (normalB [| [] |]) []]
+                                  _ -> dcs)
                ]) >>= tell . (: [])
     where
       peekCons :: m [ConQ]
@@ -218,6 +224,7 @@ forestOfAlt x v (xpat, concs) =
        pfs <- mapM (forestOfConc False x v) concs
        tell [PeekClause $ clause [xpat] (normalB [| concat $(listE pfs) |]) [],
              HopClause $ clause [xpat] (normalB [| concat $(listE hfs) |]) []]
+       mapM_ (describeConc x v xpat) concs
 
 forestOfConc :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) =>
                 Bool -> ExpQ -> TGVSimple -> (TGV, PatQ, ExpQ) -> m ExpQ
@@ -242,6 +249,17 @@ forestOfConc hop x v (w, ppat, pcon) =
                                        (toListOf (toLens $(varE p)) $x :: [$(asTypeQ w)])
                                _ -> [])
                    (pathsOf $x (undefined :: Proxy $(asTypeQ w)) :: [$(asTypeQ (makePathType (ModelType (asName v)))) $(asTypeQ w)]) :: Forest (Peek $(asTypeQ v)) |]
+
+describeConc :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [ClauseType] m) =>
+                ExpQ -> TGVSimple -> PatQ -> (TGV, PatQ, ExpQ) -> m ()
+describeConc x v xpat (w, ppat, pcon) =
+    do gs <- pathKeys' w
+       p <- runQ $ newName "p"
+       x <- runQ $ newName "x"
+       ppat' <- runQ ppat
+       pcon' <- runQ pcon
+       let PeekCon n = makePeekCon (ModelType (asName v)) (ModelType (asName w))
+       tell [DescClause $ clause [conP n [asP p ppat, varP x]] (normalB (lift ("ppat=" ++ show ppat' ++ ", pcon=" ++ show pcon'))) []]
 
 doGoal :: TGVSimple -> TGV -> ExpQ -> TGVSimple -> [Q Match]
 doGoal v w pcon g =
