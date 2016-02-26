@@ -25,7 +25,7 @@ import Data.Foldable as Foldable
 import Data.Generics (everywhere, mkT)
 import Data.List as List (groupBy, map)
 import Data.Map as Map (fromList, lookup, Map)
-import Data.Maybe (fromJust, isJust)
+import Data.Maybe (fromJust, fromMaybe, isJust)
 import Data.Proxy
 import Data.Tree (Tree(Node), Forest)
 import Language.Haskell.TH
@@ -35,7 +35,8 @@ import Language.Haskell.TH.Lift (lift)
 import Language.Haskell.TH.Path.Common (HasConQ(asConQ), HasCon(asCon), HasName(asName), HasType(asType), HasTypeQ(asTypeQ),
                                         bestTypeName, makeFieldCon, makePathCon, makePathType,
                                         ModelType(ModelType), PathCon, PathCon(PathCon))
-import Language.Haskell.TH.Path.Core (IsPathStart(Peek, peek, hop, describe), HasPaths(..), ToLens(toLens), SelfPath, SinkType,
+import Language.Haskell.TH.Path.Core (IsPathStart(Peek, peek, hop, describe'), HasPaths(..), ToLens(toLens),
+                                      SelfPath, SinkType, Describe(describe),
                                       Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..), forestMap)
 import Language.Haskell.TH.Path.Order (Order, Path_OMap(..))
 import Language.Haskell.TH.Path.View (viewInstanceType)
@@ -85,9 +86,9 @@ peekDecs v =
                 funD 'hop (case hcs of
                               [] -> [clause [wildP] (normalB [| [] |]) []]
                               _ -> hcs),
-                funD 'describe (case dcs of
-                                  [] -> [clause [wildP] (normalB [| [] |]) []]
-                                  _ -> dcs)
+                funD 'describe' (case dcs of
+                                   [] -> [clause [wildP] (normalB [| [] |]) []]
+                                   _ -> dcs)
                ]) >>= tell . (: [])
     where
       peekCons :: m [ConQ]
@@ -260,8 +261,12 @@ describeConc x v xpat (w, ppat, pcon) =
        x <- runQ $ newName "x"
        ppat' <- runQ ppat
        pcon' <- runQ pcon
+       hasDescribeInstance <- (not . null) <$> reifyInstancesWithContext ''Describe [asType w]
        let PeekCon n = makePeekCon (ModelType (asName v)) (ModelType (asName w))
-       tell [DescClause $ clause [conP n [asP p ppat, varP x]] (normalB (lift (toDescription w))) []]
+       tell [DescClause $ clause [conP n [asP p ppat, varP x]] (normalB (case hasDescribeInstance of
+                                                                           True -> [|fromMaybe $(lift (toDescription w))
+                                                                                               (describe (Proxy :: Proxy $(asTypeQ w)) $(lift (view (_2 . field) w)))|]
+                                                                           False -> lift (toDescription w))) []]
 
 doGoal :: TGVSimple -> TGV -> ExpQ -> TGVSimple -> [Q Match]
 doGoal v w pcon g =

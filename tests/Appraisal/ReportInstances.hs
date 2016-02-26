@@ -23,11 +23,12 @@ import Data.UUID.Types as UUID (UUID)
 import Control.Lens
 import Data.Generics (Data, Typeable)
 import Data.Int (Int64)
+import Data.Proxy (Proxy(Proxy))
 import Data.Text as T (Text)
 import Data.UserId (UserId(..))
 import Data.Word (Word32)
 import Language.Haskell.TH
-import Language.Haskell.TH.Path.Core (lens_mrs, lens_UserIds_Text, readOnlyLens, readShowLens, SinkType)
+import Language.Haskell.TH.Path.Core (lens_mrs, lens_UserIds_Text, readOnlyLens, readShowLens, SinkType, Describe(describe))
 import Language.Haskell.TH.Path.View (View(ViewType, viewLens))
 import Text.LaTeX (LaTeX)
 import Text.Pandoc (Pandoc, Meta)
@@ -127,6 +128,11 @@ data ReportView
              , _reportStandardsVersion :: ReportStandard
              }
     deriving (Read, Show, Eq, Ord, Typeable, Data)
+
+instance Describe Markup where
+    describe Proxy loc
+        | loc == Just ('ReportView, 'ReportView, Right '_reportLetterOfTransmittal) = Just "Letter of Transmittal"
+        | otherwise = Nothing
 
 instance View Report where
     type ViewType Report = ReportView

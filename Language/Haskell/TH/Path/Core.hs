@@ -19,7 +19,7 @@ module Language.Haskell.TH.Path.Core
       -- * Type classes and associated types
     , HasPaths(pathsOf, Path)
     , HasIdPath(idPath)
-    , IsPathStart(Peek, peek, hop, describe)
+    , IsPathStart(Peek, peek, hop, describe')
     , ToLens(S, A, toLens)
     , (:.:)(..)
 
@@ -27,6 +27,7 @@ module Language.Haskell.TH.Path.Core
     , SinkType
     , HideType
     , SelfPath
+    , Describe(describe)
 
     -- * Basic Path Types
     , Path_Pair(..)
@@ -115,7 +116,7 @@ class IsPathStart s where
     -- ^ This signature is exactly the same as peek, but the list
     -- indicates that no recurive peek calls are made, so only one
     -- layer of the forest is returned
-    describe :: Peek s -> String
+    describe' :: Peek s -> String
 
 class ToLens p where
     type S p
@@ -176,6 +177,11 @@ class HideType a
 -- record could be used directly to reference the object that contains
 -- it.
 class SelfPath a
+
+-- | Override the default description of a type @a@, based on the
+-- constructor and field of the parent type in which it is embedded.
+class Describe a where
+    describe :: Proxy a -> Maybe (Name, Name, Either Int Name) -> Maybe String
 
 -- Primitive path types
 
