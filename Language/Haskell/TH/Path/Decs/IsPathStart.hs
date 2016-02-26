@@ -39,6 +39,7 @@ import Language.Haskell.TH.Path.Core (IsPathStart(Peek, peek, hop, describe), Ha
 import Language.Haskell.TH.Path.Order (Order, Path_OMap(..))
 import Language.Haskell.TH.Path.View (viewInstanceType)
 import Language.Haskell.TH.Syntax as TH (Quasi(qReify))
+import Language.Haskell.TH.TypeGraph.Prelude (pprint1)
 import Language.Haskell.TH.TypeGraph.TypeGraph (pathKeys, pathKeys', tgv, tgvSimple, TypeGraph)
 import Language.Haskell.TH.TypeGraph.TypeInfo (TypeInfo)
 import Language.Haskell.TH.TypeGraph.Vertex (TGV, TGVSimple)
@@ -259,7 +260,7 @@ describeConc x v xpat (w, ppat, pcon) =
        ppat' <- runQ ppat
        pcon' <- runQ pcon
        let PeekCon n = makePeekCon (ModelType (asName v)) (ModelType (asName w))
-       tell [DescClause $ clause [conP n [asP p ppat, varP x]] (normalB (lift ("ppat=" ++ show ppat' ++ ", pcon=" ++ show pcon'))) []]
+       tell [DescClause $ clause [conP n [asP p ppat, varP x]] (normalB (lift ("ppat=" ++ pprint1 ppat' ++ ", pcon=" ++ pprint1 pcon'))) []]
 
 doGoal :: TGVSimple -> TGV -> ExpQ -> TGVSimple -> [Q Match]
 doGoal v w pcon g =
