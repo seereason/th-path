@@ -5,6 +5,7 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeSynonymInstances #-}
+{-# OPTIONS_GHC -dshow-passes #-}
 module Appraisal.ReportTH where
 
 --import Appraisal.File (URI)
