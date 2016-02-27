@@ -43,7 +43,6 @@ import Data.UUID (fromString, UUID)
 import Debug.Trace
 import Editor (editor)
 import Language.Haskell.TH
-import Language.Haskell.TH.Context (ContextM)
 import Language.Haskell.TH.Path.Core
 import Language.Haskell.TH.Path.Graph (runTypeGraphT)
 import Language.Haskell.TH.Path.Order (Path_OMap(..), fromPairs)

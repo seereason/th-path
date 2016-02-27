@@ -20,9 +20,9 @@ import Data.Proxy
 import Data.Tree
 import Debug.Trace (trace)
 import Language.Haskell.TH
-import Language.Haskell.TH.Context (ContextM)
 import Language.Haskell.TH.Lift (lift)
 import Language.Haskell.TH.Path.Core (HasPaths(pathsOf, Path), ToLens(toLens), HasIdPath(idPath))
+import Language.Haskell.TH.Path.Graph (TypeGraphM)
 import Language.Haskell.TH.Path.View (viewInstanceType)
 import Language.Haskell.TH.TypeGraph.Expand (E(E), expandType)
 import Language.Haskell.TH.TypeGraph.TypeGraph
@@ -31,7 +31,7 @@ import Language.Haskell.TH.PprLib (text, hang)
 
 {-
 -- | This is what the output of editor should look like.
-doReport :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) =>
+doReport :: forall m. (TypeGraphM m) =>
             Report -> m (Tree PV_Report)
 doReport r =
     Node (PV_Report_Report idPath r) <$> doReportView
@@ -85,7 +85,7 @@ doReport r =
 -- the node corresponding to the named type.  Generate a function
 -- (lambda expression) that takes a value of that type and outputs the
 -- corresponding list of PV_ values.
-editor :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) =>
+editor :: forall m. TypeGraphM m =>
           Name -- ^ The name of the type to edit
        -> ExpQ -- ^ An expression of that type
        -> m Exp
@@ -138,9 +138,9 @@ editor tname value =
 
 class Editor a where
     type EditType a
-    leList :: (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => a -> m Exp {-a -> [EditType a]-}
+    leList :: TypeGraphM m => a -> m Exp {-a -> [EditType a]-}
 
-editor :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => Name -> m [Dec]
+editor :: forall m. TypeGraphM m => Name -> m [Dec]
 editor name = do
   Just pvName <- (runQ . lookupTypeName) ("PV_" ++ nameBase name)
   -- The vertex of the type we are starting from

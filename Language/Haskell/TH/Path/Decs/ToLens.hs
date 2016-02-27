@@ -19,7 +19,6 @@ module Language.Haskell.TH.Path.Decs.ToLens (toLensDecs) where
 import Control.Lens hiding (cons, Strict)
 import Control.Monad (when)
 import Control.Monad as List ( mapM )
-import Control.Monad.Readers (MonadReaders)
 import Control.Monad.State (evalStateT, StateT)
 import Control.Monad.States (MonadStates(getPoly), modifyPoly)
 import Control.Monad.Trans as Monad (lift)
@@ -31,7 +30,6 @@ import Data.Maybe (fromJust, isJust)
 import Data.Set.Extra as Set (insert, mapM_, member, Set)
 import Language.Haskell.TH
 import Language.Haskell.TH.Context (reifyInstancesWithContext)
-import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Common (HasName(asName), HasType(asType), HasTypeQ(asTypeQ), makeFieldCon)
 import Language.Haskell.TH.Path.Core (mat, S, A, ToLens(toLens), SelfPath, SinkType, Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
@@ -40,7 +38,7 @@ import Language.Haskell.TH.Path.Graph (TypeGraphM)
 import Language.Haskell.TH.Path.Order (lens_omat, Order, Path_OMap(..))
 import Language.Haskell.TH.Path.View (viewInstanceType, viewLens)
 import Language.Haskell.TH.Syntax as TH (VarStrictType)
-import Language.Haskell.TH.TypeGraph.TypeGraph (goalReachableSimple, pathKeys, simplify, tgv, tgvSimple, TypeGraph)
+import Language.Haskell.TH.TypeGraph.TypeGraph (goalReachableSimple, pathKeys, simplify, tgv, tgvSimple)
 import Language.Haskell.TH.TypeGraph.Vertex (TGV, TGVSimple, TypeGraphVertex(bestType))
 
 toLensDecs :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TGVSimple -> m ()
@@ -133,8 +131,8 @@ doClause gkey typ pfunc lns = do
       lns' = bool lns [|$lns . toLens $(varE v)|] (key /= gkey)
   when ok $ tell [clause [pfunc pat] (normalB lns') []]
 
-doName :: forall m s. (TypeGraphM m, MonadWriter [ClauseQ] m, s ~ TGVSimple) =>
-          Name -> s-> StateT (Set Name) m ()
+doName :: forall m. (TypeGraphM m, MonadWriter [ClauseQ] m) =>
+          Name -> TGVSimple -> StateT (Set Name) m ()
 doName tname gkey =
     -- If encounter a named type and the stack is empty we
     -- need to build the clauses for its declaration.
@@ -173,7 +171,7 @@ doName tname gkey =
             -- of some piece of the field value.
             doField :: Name -> VarStrictType -> StateT (Set Name) m [(Con, [ClauseQ])]
             doField cname (fn, _, ft) = do
-                    fkey <- (tgvSimple ft :: StateT (Set Name) m s) >>= tgv (Just (tname, cname, Right fn)) :: StateT (Set Name) m TGV
+                    fkey <- (tgvSimple ft :: StateT (Set Name) m TGVSimple) >>= tgv (Just (tname, cname, Right fn)) :: StateT (Set Name) m TGV
                     skey <- simplify fkey
                     ok <- goalReachableSimple gkey skey  -- is the goal type reachable from here?
                     case ok of
@@ -201,6 +199,6 @@ doName tname gkey =
 
 
             -- Apply arity 1 functions to the clause pattern and expression
-            mapClause :: (DsMonad m, MonadReaders TypeGraph m) => (PatQ -> PatQ) -> (ExpQ -> ExpQ) -> ClauseQ -> m ClauseQ
+            mapClause :: (PatQ -> PatQ) -> (ExpQ -> ExpQ) -> ClauseQ -> m ClauseQ
             mapClause patf lnsf clauseq =
                 runQ clauseq >>= \(Clause [pat] (NormalB lns) xs) -> return $ clause [patf (pure pat)] (normalB (lnsf (pure lns))) (List.map pure xs)

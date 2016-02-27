@@ -19,7 +19,6 @@ module Language.Haskell.TH.Path.Decs.PathType
     , pathTypeDecs
     ) where
 
-import Control.Monad.Readers (MonadReaders)
 import Control.Monad.Writer (MonadWriter, tell)
 import Data.Data (Data, Typeable)
 import Data.Foldable as Foldable
@@ -28,23 +27,22 @@ import Data.Map as Map (Map)
 import Data.Maybe (fromJust, isJust)
 import Data.Set.Extra as Set (delete, map)
 import Language.Haskell.TH
-import Language.Haskell.TH.Context (ContextM, reifyInstancesWithContext)
-import Language.Haskell.TH.Desugar (DsMonad)
+import Language.Haskell.TH.Context (reifyInstancesWithContext)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Common (allPathTypeNames, asConQ, asName, asType, asTypeQ, bestPathTypeName, ModelType(ModelType),
                                         makeFieldCon, makePathCon, makePathType)
 import Language.Haskell.TH.Path.Core (HasIdPath(idPath), SelfPath, SinkType,
                                       Path_List, Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
+import Language.Haskell.TH.Path.Graph (TypeGraphM)
 import Language.Haskell.TH.Path.Order (Order, Path_OMap(..))
 import Language.Haskell.TH.Path.View (viewInstanceType)
 import Language.Haskell.TH.Syntax as TH (VarStrictType)
 import Language.Haskell.TH.TypeGraph.Prelude (pprint1)
-import Language.Haskell.TH.TypeGraph.TypeGraph (HasTGVSimple(asTGVSimple), reachableFromSimple, tgv, tgvSimple, TypeGraph)
-import Language.Haskell.TH.TypeGraph.TypeInfo (TypeInfo)
+import Language.Haskell.TH.TypeGraph.TypeGraph (HasTGVSimple(asTGVSimple), reachableFromSimple, tgv, tgvSimple)
 import Language.Haskell.TH.TypeGraph.Vertex (TGVSimple, typeNames)
 
 -- | Given a type, compute the corresponding path type.
-pathType :: forall m. (MonadReaders TypeGraph m, MonadReaders TypeInfo m, ContextM m) =>
+pathType :: forall m. TypeGraphM m =>
             TypeQ
          -> TGVSimple -- ^ The type to convert to a path type
          -> m Type
@@ -89,7 +87,7 @@ pathType gtyp key = do
                     intercalate "\n  " ("reachable from:" : List.map pprint1 (Foldable.toList ks))
 
 
-pathTypeDecs :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) => TGVSimple -> m ()
+pathTypeDecs :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TGVSimple -> m ()
 pathTypeDecs v = do
   -- generate the data Path_* declarations
   selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [asType v]
@@ -106,7 +104,7 @@ pathTypeDecs v = do
       | isJust viewType -> viewPath v (fromJust viewType)
       | otherwise -> doNames v
 
-doSimplePath :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) =>
+doSimplePath :: forall m. (TypeGraphM m, MonadWriter [Dec] m) =>
                 TGVSimple -> m ()
 doSimplePath v = do
   let pname = bestPathTypeName v
@@ -115,7 +113,7 @@ doSimplePath v = do
   runQ (dataD (pure []) (asName pname) [PlainTV a] [normalC (asName pname) []] supers) >>= tell . (: [])
   runQ [d|instance HasIdPath ($(asTypeQ pname) a) where idPath = $(asConQ pname)|] >>= tell
 
-viewPath :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) => TGVSimple -> Type -> m ()
+viewPath :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TGVSimple -> Type -> m ()
 viewPath v styp = do
   let pname = bestPathTypeName v
   skey <- tgvSimple styp
@@ -130,7 +128,7 @@ viewPath v styp = do
           ] supers) >>= tell . (: [])
   runQ [d|instance HasIdPath ($(asTypeQ pname) a) where idPath = $(asConQ pname)|] >>= tell
 
-doNames :: forall m. (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m, MonadWriter [Dec] m) => TGVSimple -> m ()
+doNames :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TGVSimple -> m ()
 doNames v = mapM_ (\tname -> runQ (reify tname) >>= doInfo) (typeNames v)
     where
       doInfo (TyConI dec) =
@@ -163,7 +161,7 @@ doNames v = mapM_ (\tname -> runQ (reify tname) >>= doInfo) (typeNames v)
       doDataD _tname _cons = doSimplePath v
 
       -- Build the constructors of the path type
-      doCon :: (DsMonad m, MonadReaders TypeGraph m) => Name -> Name -> Con -> m [Con]
+      doCon :: Name -> Name -> Con -> m [Con]
       doCon a tname (ForallC _ _ con) = doCon a tname con
       doCon _ _ (NormalC _ _) = return []
       doCon _ _ (InfixC _ _ _) = return []
@@ -172,7 +170,7 @@ doNames v = mapM_ (\tname -> runQ (reify tname) >>= doInfo) (typeNames v)
       -- Each field of the original type turns into zero or more (Con, Clause)
       -- pairs, each of which may or may not have a field representing the path type
       -- of some piece of the field value.  FIXME: This exact code is in PathTypes.hs
-      doField :: (DsMonad m, MonadReaders TypeGraph m) => Name -> Name -> Name -> VarStrictType -> m [Con]
+      doField :: Name -> Name -> Name -> VarStrictType -> m [Con]
       doField a tname cname (fname', _, ftype) =
           do skey' <- tgvSimple ftype
              key' <- tgv (Just (tname, cname, Right fname')) skey'
