@@ -31,6 +31,7 @@ module Language.Haskell.TH.Path.Common
     , makeHopCon
     , makePathCon
     , makeFieldCon
+    , uncurry3
     ) where
 
 import Control.Lens hiding (cons, Strict)
@@ -174,3 +175,6 @@ makeFieldCon key =
       Nothing -> Nothing
       Just (tname, _, Right fname) -> Just $ makePathCon (makePathType (ModelType tname)) (nameBase fname)
       Just (tname, _, Left fpos) -> Just $ makePathCon (makePathType (ModelType tname)) (show fpos)
+
+uncurry3 :: (a -> b -> c -> d) -> (a, b, c) -> d
+uncurry3 f (a, b, c) = f a b c
