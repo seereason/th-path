@@ -21,10 +21,8 @@ import Control.Lens hiding (cons, Strict)
 import Control.Monad.Writer (execWriterT, MonadWriter, tell)
 import Data.Char (isUpper, toUpper)
 import Data.Foldable as Foldable
-import Data.Generics (Data, everywhere, mkT)
 import Data.List as List (groupBy, map)
-import Data.Map as Map (fromList, lookup, Map)
-import Data.Maybe (fromMaybe, isJust)
+import Data.Maybe (fromMaybe)
 import Data.Proxy
 import Data.Tree (Tree(Node), Forest)
 import Language.Haskell.TH
@@ -35,14 +33,11 @@ import Language.Haskell.TH.Path.Common (HasConQ(asConQ), HasCon(asCon), HasName(
                                         makeFieldCon, makePathCon, makePathType,
                                         ModelType(ModelType), tells)
 import Language.Haskell.TH.Path.Core (IsPathStart(Peek, peek, hop, describe'), HasPaths(..), ToLens(toLens),
-                                      SelfPath, SinkType, Describe(describe),
-                                      Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..), forestMap)
+                                      Describe(describe), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..), forestMap)
 import Language.Haskell.TH.Path.Graph (TypeGraphM)
-import Language.Haskell.TH.Path.Order (Order, Path_OMap(..))
-import Language.Haskell.TH.Path.View (viewInstanceType)
-import Language.Haskell.TH.Syntax as TH (Quasi(qReify))
--- import Language.Haskell.TH.TypeGraph.Prelude (pprint1)
-import Language.Haskell.TH.TypeGraph.TypeGraph (pathKeys, pathKeys', tgv, tgvSimple)
+import Language.Haskell.TH.Path.Order (Path_OMap(..))
+import Language.Haskell.TH.Path.Traverse (Control(..), doTGVSimple)
+import Language.Haskell.TH.TypeGraph.TypeGraph (pathKeys, pathKeys')
 import Language.Haskell.TH.TypeGraph.Vertex (TGV, field, TGVSimple)
 
 newtype PeekType = PeekType {unPeekType :: Name} deriving (Eq, Ord, Show) -- e.g. Peek_AbbrevPairs
@@ -96,20 +91,7 @@ peekDecs v =
                           [(,) <$> notStrict <*> [t|Path $(asTypeQ v) $(asTypeQ g)|],
                            (,) <$> notStrict <*> [t|Maybe $(asTypeQ g)|] ]]
 
-data Control m r
-    = Control
-      { _doView :: TGVSimple -> TGV -> m [(PatQ, [(TGV, PatQ, ExpQ)])]
-      , _doOrder :: TGVSimple -> TGV -> m [(PatQ, [(TGV, PatQ, ExpQ)])]
-      , _doMap :: TGVSimple -> TGV -> m [(PatQ, [(TGV, PatQ, ExpQ)])]
-      , _doPair :: TGVSimple -> TGV -> TGV -> m [(PatQ, [(TGV, PatQ, ExpQ)])]
-      , _doMaybe :: TGVSimple -> TGV -> m [(PatQ, [(TGV, PatQ, ExpQ)])]
-      , _doEither :: TGVSimple -> TGV -> TGV -> m [(PatQ, [(TGV, PatQ, ExpQ)])]
-      , _doField :: TGVSimple -> TGV -> m (TGV, PatQ, ExpQ)
-      , _doConc :: TGVSimple -> Name -> (TGV, PatQ, ExpQ) -> m r
-      , _doAlt :: TGVSimple -> Name -> PatQ -> [r] -> m ()
-      }
-
-isPathControl :: (TypeGraphM m, MonadWriter [ClauseType] m) => Control m (ExpQ, ExpQ)
+isPathControl :: (TypeGraphM m, MonadWriter [ClauseType] m) => Control m (TGV, PatQ, ExpQ) (ExpQ, ExpQ)
 isPathControl =
     Control { _doView =
                 \v w ->
@@ -163,121 +145,6 @@ isPathControl =
 peekClauses :: forall m conc alt. (TypeGraphM m, MonadWriter [ClauseType] m, conc ~ (TGV, PatQ, ExpQ), alt ~ (PatQ, [conc])) =>
                TGVSimple -> m ()
 peekClauses v = doTGVSimple isPathControl v
-
-doTGVSimple :: forall m r conc alt. (Quasi m, TypeGraphM m, conc ~ (TGV, PatQ, ExpQ), alt ~ (PatQ, [conc])) => Control m r -> TGVSimple -> m ()
-doTGVSimple control v =
-  do selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [asType v]
-     simplePath <- (not . null) <$> reifyInstancesWithContext ''SinkType [asType v]
-     viewTypeMaybe <- viewInstanceType (asType v)
-     case asType v of
-       _ | selfPath -> pure ()
-         | simplePath -> pure ()
-         | isJust viewTypeMaybe ->
-             do let Just viewtyp = viewTypeMaybe
-                w <- tgvSimple viewtyp >>= tgv Nothing
-                _doView control v w >>= mapM_ doAlt
-       typ -> doType typ []
-    where
-      doType (AppT t1 t2) tps = doType t1 (t2 : tps)
-      doType (ConT tname) [_ityp, vtyp] | tname == ''Order = tgvSimple vtyp >>= tgv Nothing >>= _doOrder control v >>= mapM_ doAlt
-      doType (ConT tname) [_ktyp, vtyp] | tname == ''Map = tgvSimple vtyp >>= tgv Nothing >>= _doMap control v >>= mapM_ doAlt
-      doType (TupleT 2) [ftyp, styp] = do
-        f <- tgvSimple ftyp >>= tgv Nothing -- (Just (''(,), '(,), Left 1))
-        s <- tgvSimple styp >>= tgv Nothing -- (Just (''(,), '(,), Left 2))
-        _doPair control v f s >>= mapM_ doAlt
-      doType (ConT tname) [etyp] | tname == ''Maybe = tgvSimple etyp >>= tgv Nothing >>= _doMaybe control v >>= mapM_ doAlt
-      doType (ConT tname) [ltyp, rtyp]
-          | tname == ''Either =
-              do l <- tgvSimple ltyp >>= tgv Nothing -- (Just (''Either, 'Left, Left 1))
-                 r <- tgvSimple rtyp >>= tgv Nothing -- (Just (''Either, 'Right, Left 1))
-                 _doEither control v l r >>= mapM_ doAlt
-      doType (ConT tname) tps = doName tps tname
-      doType ListT [_etyp] = error "list" {- tell [clause [wildP] (normalB [|error "list"|]) []]-}
-      doType _ _ = return ()
-
-      doName :: [Type] -> Name -> m ()
-      doName tps tname = qReify tname >>= doInfo tps
-      doInfo :: [Type] -> Info -> m ()
-      doInfo tps (TyConI dec) = doDec tps dec
-      doInfo _ _ = pure ()
-      doDec :: [Type] -> Dec -> m ()
-      doDec tps (NewtypeD cx tname binds con supers) = doDec tps (DataD cx tname binds [con] supers)
-      doDec tps (DataD _cx _tname binds _cons _supers)
-          | length tps /= length binds =
-              error $ "Arity mismatch: binds: " ++ show binds ++ ", types: " ++ show tps
-      doDec tps (DataD _cx tname binds cons _supers) = do
-        let bindings = Map.fromList (zip (map asName binds) tps)
-            subst = substG bindings
-        doCons subst tname cons
-      doDec _tps dec = error $ "Unexpected dec: " ++ pprint dec
-
-      doCons :: (Type -> Type) -> Name -> [Con] -> m ()
-      doCons _subst _tname [] = error "No constructors"
-      doCons subst tname cons = mapM_ (doCon subst tname) cons
-
-      doCon :: (Type -> Type) -> Name -> Con -> m ()
-      doCon subst tname (ForallC _ _ con) = doCon subst tname con
-      doCon subst tname (RecC cname vsts) = do
-        flds <- mapM (doNamedField subst tname cname) (zip vsts [1..])
-        doAlt (recP cname [], flds)
-      doCon _subst _tname (NormalC _cname _sts) = do
-#if 1
-        pure ()
-#else
-        flds <- mapM (doAnonField bindings tname cname) (zip sts [1..])
-        doAlt (recP cname [], flds)
-#endif
-      doCon _bindings _tname (InfixC _lhs _cname _rhs) = do
-#if 1
-        pure ()
-#else
-        flds <- mapM (doAnonField bindings tname cname) (zip [lhs, rhs] [1..])
-        c <- doAlt (infixP wildP cname wildP, flds)
-        return [c]
-#endif
-
-      doNamedField :: (Type -> Type) -> Name -> Name -> ((Name, Strict, Type), Int) -> m conc
-      doNamedField subst tname cname ((fname, _, ftype), _fpos) =
-          do let ftype' = subst ftype
-             f <- tgvSimple ftype' >>= tgv (Just (tname, cname, Right fname))
-             _doField control v f
-
-      doAnonField :: (Type -> Type) -> Name -> Name -> ((Strict, Type), Int) -> m conc
-      doAnonField subst tname cname ((_, ftype), fpos) =
-          do let ftype' = subst ftype
-             f <- tgvSimple ftype' >>= tgv (Just (tname, cname, Left fpos))
-             _doField control v f
-
-      doAlt :: alt -> m ()
-      doAlt (xpat, concs) = do
-        s <- runQ $ newName "s"
-        mapM (_doConc control v s) concs >>= _doAlt control v s xpat
-#if 0
-          where
-            finishAlt :: Name -> PatQ -> [(ExpQ, ExpQ)] -> m ()
-            finishAlt s xpat rs = do
-                let (hfs, pfs) = unzip rs
-                tell [PeekClause $ clause [asP s xpat] (normalB [| $(concatMapQ pfs) :: Forest (Peek $(asTypeQ v)) |]) [],
-                      HopClause $ clause [asP s xpat] (normalB [| $(concatMapQ hfs) :: Forest (Peek $(asTypeQ v)) |]) []]
-
-      -- Build an expression that returns a Forest (Peek s) for paths
-      -- that have a hop from v to w.
-      doConc :: Name -> conc -> m (ExpQ, ExpQ)
-      doConc s conc@(w, ppat, pcon) =
-          do describeConc v conc
-             p <- runQ $ newName "p"
-             hf <- doHop v w p pcon >>= liftPeek p
-             pf <- doPeek v w p pcon >>= liftPeek p
-             return (hf, pf)
-          where
-            liftPeek p node =
-                return [| concatMap
-                         (\path -> case path of
-                                     $(asP p ppat) ->
-                                        map $node (toListOf (toLens $(varE p)) $(varE s) :: [$(asTypeQ w)])
-                                     _ -> [])
-                         (pathsOf $(varE s) (undefined :: Proxy $(asTypeQ w)) {-:: [$(asTypeQ (makePathType (ModelType (asName v)))) $(asTypeQ w)]-}) |]
-#endif
 
 concatMapQ :: [ExpQ] -> ExpQ
 concatMapQ [] = [|mempty|]
@@ -341,10 +208,3 @@ camelWords s =
 capitalize :: String -> String
 capitalize [] = []
 capitalize (c:cs) = (toUpper c) : cs
-
-substG :: Data a => Map Name Type -> a -> a
-substG bindings typ = everywhere (mkT (subst1 bindings)) typ
-
-subst1 :: Map Name Type -> Type -> Type
-subst1 bindings t@(VarT name) = maybe t id (Map.lookup name bindings)
-subst1 _ t = t
