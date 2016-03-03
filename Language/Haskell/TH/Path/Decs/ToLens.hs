@@ -31,7 +31,7 @@ import Data.Set.Extra as Set (insert, mapM_, member, Set)
 import Language.Haskell.TH
 import Language.Haskell.TH.Context (reifyInstancesWithContext)
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.Path.Common (HasName(asName), HasType(asType), HasTypeQ(asTypeQ), makeFieldCon)
+import Language.Haskell.TH.Path.Common (fieldLensNameOld, HasName(asName), HasType(asType), HasTypeQ(asTypeQ), makeFieldCon)
 import Language.Haskell.TH.Path.Core (mat, S, A, ToLens(toLens), SelfPath, SinkType, Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
 import Language.Haskell.TH.Path.Decs.PathType (pathType)
 import Language.Haskell.TH.Path.Graph (TypeGraphM)
@@ -192,8 +192,8 @@ doName tname gkey =
                              clauses' <- List.mapM (Monad.lift .
                                                     mapClause (\ pat -> conP (asName pcname) [pat])
                                                               (\ lns ->
-                                                                   let hop = [|\f x -> fmap (\y -> $(recUpdE [|x|] [fieldExp fn [|y|]])) (f $(appE (varE fn) [|x|]))|] in
-                                                                   -- let hop = varE (fieldLensNameOld tname fn) in
+                                                                   -- let hop = [|\f x -> fmap (\y -> $(recUpdE [|x|] [fieldExp fn [|y|]])) (f $(appE (varE fn) [|x|]))|] in
+                                                                   let hop = varE (fieldLensNameOld tname fn) in
                                                                    if goal then hop else [|$hop . $lns|])) clauses
                              return [(con, clauses')]
 

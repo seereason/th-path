@@ -18,6 +18,7 @@ module Language.Haskell.TH.Path.Common
     , allPathTypeNames
     , bestTypeName
     , clauses
+    , fieldLensNameOld
     , fieldLensNamePair
     , HasTypeQ(asTypeQ)
     , HasType(asType)
