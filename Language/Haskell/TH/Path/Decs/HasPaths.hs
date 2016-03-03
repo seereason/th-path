@@ -28,7 +28,7 @@ import Data.Set.Extra as Set (mapM_, member)
 import Language.Haskell.TH
 import Language.Haskell.TH.Context (reifyInstancesWithContext)
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.Path.Common (asConQ, asType, asTypeQ, bestTypeName, HasName(asName), makePathCon, makePathType, ModelType(ModelType))
+import Language.Haskell.TH.Path.Common (asConQ, asType, asTypeQ, bestTypeName, HasName(asName), makePathCon, makePathType, mconcatQ, ModelType(ModelType), tells)
 import Language.Haskell.TH.Path.Core (HasIdPath(idPath), HasPaths(..), ToLens(..), SelfPath, SinkType, Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
 import Language.Haskell.TH.Path.Decs.PathType (pathType)
 import Language.Haskell.TH.Path.Graph (TypeGraphM)
@@ -53,23 +53,22 @@ pathDecs' v gkey = do
   ptyp <- pathType (pure (bestType gkey)) v
   s <- runQ (newName "s")
   g <- runQ (newName "g")
-  poe <- execWriterT (pathsOfExprs v gkey s g)
-  when (not (null poe)) $
-       (runQ $ sequence
-            [ instanceD (pure []) [t|HasPaths $(pure (bestType v)) $(pure (bestType gkey))|]
+  poc <- execWriterT (pathsOfClauses v gkey s g)
+  when (not (null poc))
+       (tells [ instanceD (pure []) [t|HasPaths $(pure (bestType v)) $(pure (bestType gkey))|]
                 [ tySynInstD ''Path (tySynEqn [pure (bestType v), pure (bestType gkey)] (pure ptyp))
-                , funD 'pathsOf poe {-[clause [varP s, varP g] (normalB (pure poe)) []]-}
-                ]]) >>= tell
+                , funD 'pathsOf poc
+                ]])
 
 -- | Build an expression whose value is a list of paths from type S to
 -- type A
-pathsOfExprs :: forall m alt conc. (TypeGraphM m, MonadWriter [ClauseQ] m, conc ~ (Type, ExpQ), alt ~ (PatQ, [conc])) =>
-                TGVSimple -- ^ the type whose clauses we are generating
-             -> TGVSimple -- ^ the goal type key
-             -> Name -- ^ s
-             -> Name -- ^ g
-             -> m ()
-pathsOfExprs v gkey s g =
+pathsOfClauses :: forall m alt conc. (TypeGraphM m, MonadWriter [ClauseQ] m, conc ~ (Type, ExpQ), alt ~ (PatQ, [conc])) =>
+                  TGVSimple -- ^ the type whose clauses we are generating
+               -> TGVSimple -- ^ the goal type key
+               -> Name -- ^ s
+               -> Name -- ^ g
+               -> m ()
+pathsOfClauses v gkey s g =
   do -- the corresponding path type - first type parameter of ToLens
      -- ptyp <- pathType (pure (bestType gkey)) v
      selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [asType v]
@@ -208,8 +207,3 @@ testIsPath typ gkey = do
   case mkey of
     Nothing -> pure False
     Just v -> (maybe False (Set.member gkey) . Map.lookup v) <$> allPathKeys
-
-mconcatQ :: [ExpQ] -> ExpQ
-mconcatQ [] = [| mempty |]
-mconcatQ [x] = x
-mconcatQ xs = [|mconcat $(listE xs)|]

@@ -30,7 +30,7 @@ import Language.Haskell.TH
 import Language.Haskell.TH.Context (reifyInstancesWithContext)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Common (allPathTypeNames, asConQ, asName, asType, asTypeQ, bestPathTypeName, ModelType(ModelType),
-                                        makeFieldCon, makePathCon, makePathType)
+                                        makeFieldCon, makePathCon, makePathType, telld, tells)
 import Language.Haskell.TH.Path.Core (HasIdPath(idPath), SelfPath, SinkType,
                                       Path_List, Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
 import Language.Haskell.TH.Path.Graph (TypeGraphM)
@@ -110,8 +110,8 @@ doSimplePath v = do
   let pname = bestPathTypeName v
   a <- runQ $ newName "a"
   -- e.g. data Path_Int a = Path_Int deriving (Eq, Ord, Read, Show, Typeable, Data)
-  runQ (dataD (pure []) (asName pname) [PlainTV a] [normalC (asName pname) []] supers) >>= tell . (: [])
-  runQ [d|instance HasIdPath ($(asTypeQ pname) a) where idPath = $(asConQ pname)|] >>= tell
+  tells [dataD (pure []) (asName pname) [PlainTV a] [normalC (asName pname) []] supers]
+  telld [d|instance HasIdPath ($(asTypeQ pname) a) where idPath = $(asConQ pname)|]
 
 viewPath :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TGVSimple -> Type -> m ()
 viewPath v styp = do
@@ -122,11 +122,11 @@ viewPath v styp = do
   -- data Path_MaybeImageFile a =
   --           Path_MaybeImageFile_View (Path_String a) | Path_MaybeImageFile
   --         deriving (Eq, Ord, Read, Show, Typeable, Data)
-  runQ (dataD (pure []) (asName pname) [PlainTV a]
+  tells [dataD (pure []) (asName pname) [PlainTV a]
           [ normalC (asName (makePathCon pname "View")) [strictType notStrict (pure ptype)]
           , normalC (asName pname) []
-          ] supers) >>= tell . (: [])
-  runQ [d|instance HasIdPath ($(asTypeQ pname) a) where idPath = $(asConQ pname)|] >>= tell
+          ] supers]
+  telld [d|instance HasIdPath ($(asTypeQ pname) a) where idPath = $(asConQ pname)|]
 
 doNames :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TGVSimple -> m ()
 doNames v = mapM_ (\tname -> runQ (reify tname) >>= doInfo) (typeNames v)
@@ -191,16 +191,16 @@ doNames v = mapM_ (\tname -> runQ (reify tname) >>= doInfo) (typeNames v)
       makeDecs :: Name -> [Con] -> m ()
       makeDecs _a [] = return ()
       makeDecs a pcons =
-                do mapM_ (\pname ->
-                              -- data Path_Permissions a =
-                              --      Path_Permissions_owner (Path_UserId a) |
-                              --      Path_Permissions_writers (Path_UserIds a) |
-                              --      Path_Permissions_readers (Path_UserIds a) |
-                              --      Path_Permissions
-                              --    deriving (Eq, Ord, Read, Show, Typeable, Data)
-                              do runQ (dataD (cxt []) (asName pname) [PlainTV a] (List.map return (pcons ++ [NormalC (asName pname) []])) supers) >>= tell . (: []))
-                         (Set.map makePathType . Set.map ModelType . typeNames $ v)
-                   mapM_ (\pname -> runQ [d|instance HasIdPath ($(asTypeQ pname) a) where idPath = $(asConQ pname)|] >>= tell) (Set.map makePathType . Set.map ModelType . typeNames $ v)
+          mapM_ (\pname ->
+                    -- data Path_Permissions a =
+                    --      Path_Permissions_owner (Path_UserId a) |
+                    --      Path_Permissions_writers (Path_UserIds a) |
+                    --      Path_Permissions_readers (Path_UserIds a) |
+                    --      Path_Permissions
+                    --    deriving (Eq, Ord, Read, Show, Typeable, Data)
+                    do tells [dataD (cxt []) (asName pname) [PlainTV a] (List.map return (pcons ++ [NormalC (asName pname) []])) supers]
+                       telld [d|instance HasIdPath ($(asTypeQ pname) a) where idPath = $(asConQ pname)|])
+                (Set.map makePathType . Set.map ModelType . typeNames $ v)
 
 supers :: [Name]
 supers = [''Eq, ''Ord, ''Read, ''Show, ''Typeable, ''Data]

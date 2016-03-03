@@ -32,14 +32,19 @@ module Language.Haskell.TH.Path.Common
     , makePathCon
     , makeFieldCon
     , uncurry3
+    , tells
+    , telld
+    , mconcatQ
     ) where
 
 import Control.Lens hiding (cons, Strict)
+import Control.Monad.Writer (MonadWriter, tell)
 import Data.List as List (map)
 import Data.Set as Set (map, minView, Set)
 import Language.Haskell.TH
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Instances ()
+import Language.Haskell.TH.Syntax (Quasi)
 import Language.Haskell.TH.TypeGraph.Expand (E, unE)
 import Language.Haskell.TH.TypeGraph.TypeGraph (HasTGV(asTGV))
 import Language.Haskell.TH.TypeGraph.Vertex (etype, field, syns,
@@ -178,3 +183,14 @@ makeFieldCon key =
 
 uncurry3 :: (a -> b -> c -> d) -> (a, b, c) -> d
 uncurry3 f (a, b, c) = f a b c
+
+telld :: (Quasi m, MonadWriter [a] m) => Q [a] -> m ()
+telld ds = runQ ds >>= tell
+
+tells :: (Quasi m, MonadWriter [a] m) => [Q a] -> m ()
+tells ds = telld (sequence ds)
+
+mconcatQ :: [ExpQ] -> ExpQ
+mconcatQ [] = [| mempty |]
+mconcatQ [x] = x
+mconcatQ xs = [|mconcat $(listE xs)|]
