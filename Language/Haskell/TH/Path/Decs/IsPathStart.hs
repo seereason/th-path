@@ -94,30 +94,30 @@ peekDecs v =
 isPathControl :: TGVSimple -> (TypeGraphM m, MonadWriter [ClauseType] m) => Control m (TGV, PatQ, ExpQ) (ExpQ, ExpQ)
 isPathControl v =
     Control { _doView =
-                \w ->
+                \_x w ->
                     do let pcname = makePathCon (makePathType (ModelType (asName v))) "View"
                        pure [(wildP, [(w, conP (asName pcname) [wildP], conE (asName pcname))])]
             , _doOrder =
-                \w ->
+                \_x w ->
                     do k <- runQ $ newName "k"
                        pure [(wildP, [(w, conP 'Path_At [varP k, wildP], [|Path_At $(varE k)|])])]
             , _doMap =
-                \w ->
+                \_x w ->
                     do k <- runQ $ newName "k"
                        pure [(wildP, [(w, conP 'Path_Look [varP k, wildP], [|Path_Look $(varE k)|])])]
             , _doPair =
-                \f s ->
+                \_x f s ->
                     pure [(wildP, [(f, conP 'Path_First [wildP], [|Path_First|]),
                                    (s, conP 'Path_Second [wildP], [|Path_Second|])])]
             , _doMaybe =
-                \w ->
+                \_x w ->
                     pure [(wildP, [(w, conP 'Path_Just [wildP], [|Path_Just|])])]
             , _doEither =
-                \l r ->
+                \_x l r ->
                     do pure [(conP 'Left [wildP], [(l, conP 'Path_Left [wildP], [|Path_Left|])]),
                              (conP 'Right [wildP], [(r, conP 'Path_Right [wildP], [|Path_Right|])])]
             , _doField =
-                \s f ->
+                \_s f ->
                     do let pcname = maybe (error $ "Not a field: " ++ show f) id (makeFieldCon f)
                        pure (f, conP (asName pcname) [wildP], asConQ pcname)
             , _doConc =
@@ -136,7 +136,7 @@ isPathControl v =
                        pf <- doPeek v w p pcon >>= liftPeek p
                        return (hf, pf)
             , _doAlt =
-                \s xpat rs ->
+                \xpat rs ->
                     do let (hfs, pfs) = unzip rs
                        tell [PeekClause $ clause [xpat] (normalB [| $(concatMapQ pfs) :: Forest (Peek $(asTypeQ v)) |]) [],
                              HopClause $ clause [xpat] (normalB [| $(concatMapQ hfs) :: Forest (Peek $(asTypeQ v)) |]) []]

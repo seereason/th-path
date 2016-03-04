@@ -775,9 +775,6 @@ instance HasPaths Markup JSONText
     where type Path Markup JSONText = Path_Markup JSONText
           pathsOf (s@(Markdown {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Text) g)) [(Path_Markup_markdownText, markdownText s)]
           pathsOf (s@(Html {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Text) g)) [(Path_Markup_htmlText, htmlText s)]
-          pathsOf (s@(LaTeX {})) g = []
-          pathsOf (s@(Pandoc {})) g = []
-          pathsOf (s@(Markup {})) g = []
 instance HasPaths Markup Markup
     where type Path Markup Markup = Path_Markup Markup
           pathsOf _ _ = [idPath]
@@ -785,27 +782,24 @@ instance HasPaths Markup Text
     where type Path Markup Text = Path_Markup Text
           pathsOf (s@(Markdown {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Text) g)) [(Path_Markup_markdownText, markdownText s)]
           pathsOf (s@(Html {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Text) g)) [(Path_Markup_htmlText, htmlText s)]
-          pathsOf (s@(LaTeX {})) g = []
-          pathsOf (s@(Pandoc {})) g = []
-          pathsOf (s@(Markup {})) g = []
 instance HasPaths Permissions JSONText
     where type Path Permissions JSONText = Path_Permissions JSONText
           pathsOf (s@(Permissions {})) g = mconcat [[],
-                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: UserIds) g)) [(Path_Permissions_writers, writers s)],
-                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: UserIds) g)) [(Path_Permissions_readers, readers s)]]
+                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: [UserId]) g)) [(Path_Permissions_writers, writers s)],
+                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: [UserId]) g)) [(Path_Permissions_readers, readers s)]]
 instance HasPaths Permissions Permissions
     where type Path Permissions Permissions = Path_Permissions Permissions
           pathsOf _ _ = [idPath]
 instance HasPaths Permissions UserIds
     where type Path Permissions UserIds = Path_Permissions UserIds
           pathsOf (s@(Permissions {})) g = mconcat [[],
-                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: UserIds) g)) [(Path_Permissions_writers, writers s)],
-                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: UserIds) g)) [(Path_Permissions_readers, readers s)]]
+                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: [UserId]) g)) [(Path_Permissions_writers, writers s)],
+                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: [UserId]) g)) [(Path_Permissions_readers, readers s)]]
 instance HasPaths Permissions Text
     where type Path Permissions Text = Path_Permissions Text
           pathsOf (s@(Permissions {})) g = mconcat [[],
-                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: UserIds) g)) [(Path_Permissions_writers, writers s)],
-                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: UserIds) g)) [(Path_Permissions_readers, readers s)]]
+                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: [UserId]) g)) [(Path_Permissions_writers, writers s)],
+                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: [UserId]) g)) [(Path_Permissions_readers, readers s)]]
 instance HasPaths Permissions UserId
     where type Path Permissions UserId = Path_Permissions UserId
           pathsOf (s@(Permissions {})) g = mconcat [concatMap (\(p, a') -> map p (pathsOf (a' :: UserId) g)) [(Path_Permissions_owner, owner s)], [], []]
@@ -839,22 +833,22 @@ instance HasPaths AbbrevPair Text
                                  concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) [(Path_Second, snd s)]]
 instance HasPaths AbbrevPairs JSONText
     where type Path AbbrevPairs JSONText = Path_OMap AbbrevPairID (Path_Pair (Path_CIString JSONText) (Path_Markup JSONText))
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: (CIString, Markup)) g)) (map (\(i, x) -> (Path_At i, x)) (toPairs s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: (CIString, Markup)) g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs s))
 instance HasPaths AbbrevPairs Markup
     where type Path AbbrevPairs Markup = Path_OMap AbbrevPairID (Path_Pair (Path_CIString Markup) (Path_Markup Markup))
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: (CIString, Markup)) g)) (map (\(i, x) -> (Path_At i, x)) (toPairs s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: (CIString, Markup)) g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs s))
 instance HasPaths AbbrevPairs AbbrevPair
     where type Path AbbrevPairs AbbrevPair = Path_OMap AbbrevPairID (Path_Pair (Path_CIString AbbrevPair) (Path_Markup AbbrevPair))
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: (CIString, Markup)) g)) (map (\(i, x) -> (Path_At i, x)) (toPairs s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: (CIString, Markup)) g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs s))
 instance HasPaths AbbrevPairs AbbrevPairs
     where type Path AbbrevPairs AbbrevPairs = Path_OMap AbbrevPairID (Path_Pair (Path_CIString AbbrevPairs) (Path_Markup AbbrevPairs))
           pathsOf _ _ = [idPath]
 instance HasPaths AbbrevPairs CIString
     where type Path AbbrevPairs CIString = Path_OMap AbbrevPairID (Path_Pair (Path_CIString CIString) (Path_Markup CIString))
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: (CIString, Markup)) g)) (map (\(i, x) -> (Path_At i, x)) (toPairs s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: (CIString, Markup)) g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs s))
 instance HasPaths AbbrevPairs Text
     where type Path AbbrevPairs Text = Path_OMap AbbrevPairID (Path_Pair (Path_CIString Text) (Path_Markup Text))
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: (CIString, Markup)) g)) (map (\(i, x) -> (Path_At i, x)) (toPairs s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: (CIString, Markup)) g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs s))
 instance HasPaths Author JSONText
     where type Path Author JSONText = Path_Author JSONText
           pathsOf (s@(Author {})) g = mconcat [concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) [(Path_Author_authorName, authorName s)],
@@ -872,19 +866,19 @@ instance HasPaths Author Text
                                                concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) [(Path_Author_authorCredentials, authorCredentials s)]]
 instance HasPaths Authors JSONText
     where type Path Authors JSONText = Path_OMap AuthorID (Path_Author JSONText)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Author) g)) (map (\(i, x) -> (Path_At i, x)) (toPairs s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Author) g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs s))
 instance HasPaths Authors Markup
     where type Path Authors Markup = Path_OMap AuthorID (Path_Author Markup)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Author) g)) (map (\(i, x) -> (Path_At i, x)) (toPairs s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Author) g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs s))
 instance HasPaths Authors Author
     where type Path Authors Author = Path_OMap AuthorID (Path_Author Author)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Author) g)) (map (\(i, x) -> (Path_At i, x)) (toPairs s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Author) g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs s))
 instance HasPaths Authors Authors
     where type Path Authors Authors = Path_OMap AuthorID (Path_Author Authors)
           pathsOf _ _ = [idPath]
 instance HasPaths Authors Text
     where type Path Authors Text = Path_OMap AuthorID (Path_Author Text)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Author) g)) (map (\(i, x) -> (Path_At i, x)) (toPairs s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Author) g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs s))
 instance HasPaths Branding JSONText
     where type Path Branding JSONText = Path_Branding JSONText
           pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Text) g)) (map (\a' -> (Path_Branding_View, a')) (toListOf (toLens (Path_Branding_View (idPath :: Path Text
@@ -913,31 +907,31 @@ instance HasPaths MarkupPair Text
                                  concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) [(Path_Second, snd s)]]
 instance HasPaths MarkupPairs JSONText
     where type Path MarkupPairs JSONText = Path_OMap MarkupPairID (Path_Pair (Path_Markup JSONText) (Path_Markup JSONText))
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: (Markup, Markup)) g)) (map (\(i, x) -> (Path_At i, x)) (toPairs s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: (Markup, Markup)) g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs s))
 instance HasPaths MarkupPairs Markup
     where type Path MarkupPairs Markup = Path_OMap MarkupPairID (Path_Pair (Path_Markup Markup) (Path_Markup Markup))
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: (Markup, Markup)) g)) (map (\(i, x) -> (Path_At i, x)) (toPairs s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: (Markup, Markup)) g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs s))
 instance HasPaths MarkupPairs MarkupPair
     where type Path MarkupPairs MarkupPair = Path_OMap MarkupPairID (Path_Pair (Path_Markup MarkupPair) (Path_Markup MarkupPair))
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: (Markup, Markup)) g)) (map (\(i, x) -> (Path_At i, x)) (toPairs s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: (Markup, Markup)) g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs s))
 instance HasPaths MarkupPairs MarkupPairs
     where type Path MarkupPairs MarkupPairs = Path_OMap MarkupPairID (Path_Pair (Path_Markup MarkupPairs) (Path_Markup MarkupPairs))
           pathsOf _ _ = [idPath]
 instance HasPaths MarkupPairs Text
     where type Path MarkupPairs Text = Path_OMap MarkupPairID (Path_Pair (Path_Markup Text) (Path_Markup Text))
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: (Markup, Markup)) g)) (map (\(i, x) -> (Path_At i, x)) (toPairs s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: (Markup, Markup)) g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs s))
 instance HasPaths Markups JSONText
     where type Path Markups JSONText = Path_OMap MarkupID (Path_Markup JSONText)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) (map (\(i, x) -> (Path_At i, x)) (toPairs s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs s))
 instance HasPaths Markups Markup
     where type Path Markups Markup = Path_OMap MarkupID (Path_Markup Markup)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) (map (\(i, x) -> (Path_At i, x)) (toPairs s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs s))
 instance HasPaths Markups Markups
     where type Path Markups Markups = Path_OMap MarkupID (Path_Markup Markups)
           pathsOf _ _ = [idPath]
 instance HasPaths Markups Text
     where type Path Markups Text = Path_OMap MarkupID (Path_Markup Text)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) (map (\(i, x) -> (Path_At i, x)) (toPairs s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs s))
 instance HasPaths MaybeReportIntendedUse String
     where type Path MaybeReportIntendedUse String = Path_MaybeReportIntendedUse String
           pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: [Char]) g)) (map (\a' -> (Path_MaybeReportIntendedUse_View,
@@ -1144,52 +1138,42 @@ instance HasPaths ReportElem String
     where type Path ReportElem String = Path_ReportElem String
           pathsOf (s@(ReportItem {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Item) g)) [(Path_ReportElem_elemItem, elemItem s)]
           pathsOf (s@(ReportParagraph {})) g = []
-          pathsOf (s@(ReportUndecided {})) g = mempty
 instance HasPaths ReportElem Bool
     where type Path ReportElem Bool = Path_ReportElem Bool
           pathsOf (s@(ReportItem {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Item) g)) [(Path_ReportElem_elemItem, elemItem s)]
           pathsOf (s@(ReportParagraph {})) g = []
-          pathsOf (s@(ReportUndecided {})) g = mempty
 instance HasPaths ReportElem Double
     where type Path ReportElem Double = Path_ReportElem Double
           pathsOf (s@(ReportItem {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Item) g)) [(Path_ReportElem_elemItem, elemItem s)]
           pathsOf (s@(ReportParagraph {})) g = []
-          pathsOf (s@(ReportUndecided {})) g = mempty
 instance HasPaths ReportElem Dimension
     where type Path ReportElem Dimension = Path_ReportElem Dimension
           pathsOf (s@(ReportItem {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Item) g)) [(Path_ReportElem_elemItem, elemItem s)]
           pathsOf (s@(ReportParagraph {})) g = []
-          pathsOf (s@(ReportUndecided {})) g = mempty
 instance HasPaths ReportElem ImageCrop
     where type Path ReportElem ImageCrop = Path_ReportElem ImageCrop
           pathsOf (s@(ReportItem {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Item) g)) [(Path_ReportElem_elemItem, elemItem s)]
           pathsOf (s@(ReportParagraph {})) g = []
-          pathsOf (s@(ReportUndecided {})) g = mempty
 instance HasPaths ReportElem ImageSize
     where type Path ReportElem ImageSize = Path_ReportElem ImageSize
           pathsOf (s@(ReportItem {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Item) g)) [(Path_ReportElem_elemItem, elemItem s)]
           pathsOf (s@(ReportParagraph {})) g = []
-          pathsOf (s@(ReportUndecided {})) g = mempty
 instance HasPaths ReportElem Units
     where type Path ReportElem Units = Path_ReportElem Units
           pathsOf (s@(ReportItem {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Item) g)) [(Path_ReportElem_elemItem, elemItem s)]
           pathsOf (s@(ReportParagraph {})) g = []
-          pathsOf (s@(ReportUndecided {})) g = mempty
 instance HasPaths ReportElem ImageFile
     where type Path ReportElem ImageFile = Path_ReportElem ImageFile
           pathsOf (s@(ReportItem {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Item) g)) [(Path_ReportElem_elemItem, elemItem s)]
           pathsOf (s@(ReportParagraph {})) g = []
-          pathsOf (s@(ReportUndecided {})) g = mempty
 instance HasPaths ReportElem JSONText
     where type Path ReportElem JSONText = Path_ReportElem JSONText
           pathsOf (s@(ReportItem {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Item) g)) [(Path_ReportElem_elemItem, elemItem s)]
           pathsOf (s@(ReportParagraph {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) [(Path_ReportElem_elemText, elemText s)]
-          pathsOf (s@(ReportUndecided {})) g = mempty
 instance HasPaths ReportElem Markup
     where type Path ReportElem Markup = Path_ReportElem Markup
           pathsOf (s@(ReportItem {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Item) g)) [(Path_ReportElem_elemItem, elemItem s)]
           pathsOf (s@(ReportParagraph {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) [(Path_ReportElem_elemText, elemText s)]
-          pathsOf (s@(ReportUndecided {})) g = mempty
 instance HasPaths ReportElem ReportElem
     where type Path ReportElem ReportElem = Path_ReportElem ReportElem
           pathsOf _ _ = [idPath]
@@ -1197,126 +1181,115 @@ instance HasPaths ReportElem EUI
     where type Path ReportElem EUI = Path_ReportElem EUI
           pathsOf (s@(ReportItem {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Item) g)) [(Path_ReportElem_elemItem, elemItem s)]
           pathsOf (s@(ReportParagraph {})) g = []
-          pathsOf (s@(ReportUndecided {})) g = mempty
 instance HasPaths ReportElem MEUI
     where type Path ReportElem MEUI = Path_ReportElem MEUI
           pathsOf (s@(ReportItem {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Item) g)) [(Path_ReportElem_elemItem, elemItem s)]
           pathsOf (s@(ReportParagraph {})) g = []
-          pathsOf (s@(ReportUndecided {})) g = mempty
 instance HasPaths ReportElem MaybeImageFile
     where type Path ReportElem MaybeImageFile = Path_ReportElem MaybeImageFile
           pathsOf (s@(ReportItem {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Item) g)) [(Path_ReportElem_elemItem, elemItem s)]
           pathsOf (s@(ReportParagraph {})) g = []
-          pathsOf (s@(ReportUndecided {})) g = mempty
 instance HasPaths ReportElem ReportImage
     where type Path ReportElem ReportImage = Path_ReportElem ReportImage
           pathsOf (s@(ReportItem {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Item) g)) [(Path_ReportElem_elemItem, elemItem s)]
           pathsOf (s@(ReportParagraph {})) g = []
-          pathsOf (s@(ReportUndecided {})) g = mempty
 instance HasPaths ReportElem ReportImages
     where type Path ReportElem ReportImages = Path_ReportElem ReportImages
           pathsOf (s@(ReportItem {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Item) g)) [(Path_ReportElem_elemItem, elemItem s)]
           pathsOf (s@(ReportParagraph {})) g = []
-          pathsOf (s@(ReportUndecided {})) g = mempty
 instance HasPaths ReportElem ReportImageView
     where type Path ReportElem ReportImageView = Path_ReportElem ReportImageView
           pathsOf (s@(ReportItem {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Item) g)) [(Path_ReportElem_elemItem, elemItem s)]
           pathsOf (s@(ReportParagraph {})) g = []
-          pathsOf (s@(ReportUndecided {})) g = mempty
 instance HasPaths ReportElem SaneSizeImageSize
     where type Path ReportElem SaneSizeImageSize = Path_ReportElem SaneSizeImageSize
           pathsOf (s@(ReportItem {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Item) g)) [(Path_ReportElem_elemItem, elemItem s)]
           pathsOf (s@(ReportParagraph {})) g = []
-          pathsOf (s@(ReportUndecided {})) g = mempty
 instance HasPaths ReportElem Item
     where type Path ReportElem Item = Path_ReportElem Item
           pathsOf (s@(ReportItem {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Item) g)) [(Path_ReportElem_elemItem, elemItem s)]
           pathsOf (s@(ReportParagraph {})) g = []
-          pathsOf (s@(ReportUndecided {})) g = mempty
 instance HasPaths ReportElem MIM
     where type Path ReportElem MIM = Path_ReportElem MIM
           pathsOf (s@(ReportItem {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Item) g)) [(Path_ReportElem_elemItem, elemItem s)]
           pathsOf (s@(ReportParagraph {})) g = []
-          pathsOf (s@(ReportUndecided {})) g = mempty
 instance HasPaths ReportElem URI
     where type Path ReportElem URI = Path_ReportElem URI
           pathsOf (s@(ReportItem {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Item) g)) [(Path_ReportElem_elemItem, elemItem s)]
           pathsOf (s@(ReportParagraph {})) g = []
-          pathsOf (s@(ReportUndecided {})) g = mempty
 instance HasPaths ReportElem Text
     where type Path ReportElem Text = Path_ReportElem Text
           pathsOf (s@(ReportItem {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Item) g)) [(Path_ReportElem_elemItem, elemItem s)]
           pathsOf (s@(ReportParagraph {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) [(Path_ReportElem_elemText, elemText s)]
-          pathsOf (s@(ReportUndecided {})) g = mempty
 instance HasPaths ReportElems String
     where type Path ReportElems String = Path_OMap ReportElemID (Path_ReportElem String)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElem) g)) (map (\(i, x) -> (Path_At i, x)) (toPairs s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElem) g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs s))
 instance HasPaths ReportElems Bool
     where type Path ReportElems Bool = Path_OMap ReportElemID (Path_ReportElem Bool)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElem) g)) (map (\(i, x) -> (Path_At i, x)) (toPairs s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElem) g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs s))
 instance HasPaths ReportElems Double
     where type Path ReportElems Double = Path_OMap ReportElemID (Path_ReportElem Double)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElem) g)) (map (\(i, x) -> (Path_At i, x)) (toPairs s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElem) g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs s))
 instance HasPaths ReportElems Dimension
     where type Path ReportElems Dimension = Path_OMap ReportElemID (Path_ReportElem Dimension)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElem) g)) (map (\(i, x) -> (Path_At i, x)) (toPairs s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElem) g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs s))
 instance HasPaths ReportElems ImageCrop
     where type Path ReportElems ImageCrop = Path_OMap ReportElemID (Path_ReportElem ImageCrop)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElem) g)) (map (\(i, x) -> (Path_At i, x)) (toPairs s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElem) g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs s))
 instance HasPaths ReportElems ImageSize
     where type Path ReportElems ImageSize = Path_OMap ReportElemID (Path_ReportElem ImageSize)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElem) g)) (map (\(i, x) -> (Path_At i, x)) (toPairs s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElem) g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs s))
 instance HasPaths ReportElems Units
     where type Path ReportElems Units = Path_OMap ReportElemID (Path_ReportElem Units)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElem) g)) (map (\(i, x) -> (Path_At i, x)) (toPairs s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElem) g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs s))
 instance HasPaths ReportElems ImageFile
     where type Path ReportElems ImageFile = Path_OMap ReportElemID (Path_ReportElem ImageFile)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElem) g)) (map (\(i, x) -> (Path_At i, x)) (toPairs s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElem) g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs s))
 instance HasPaths ReportElems JSONText
     where type Path ReportElems JSONText = Path_OMap ReportElemID (Path_ReportElem JSONText)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElem) g)) (map (\(i, x) -> (Path_At i, x)) (toPairs s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElem) g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs s))
 instance HasPaths ReportElems Markup
     where type Path ReportElems Markup = Path_OMap ReportElemID (Path_ReportElem Markup)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElem) g)) (map (\(i, x) -> (Path_At i, x)) (toPairs s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElem) g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs s))
 instance HasPaths ReportElems ReportElem
     where type Path ReportElems ReportElem = Path_OMap ReportElemID (Path_ReportElem ReportElem)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElem) g)) (map (\(i, x) -> (Path_At i, x)) (toPairs s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElem) g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs s))
 instance HasPaths ReportElems ReportElems
     where type Path ReportElems ReportElems = Path_OMap ReportElemID (Path_ReportElem ReportElems)
           pathsOf _ _ = [idPath]
 instance HasPaths ReportElems EUI
     where type Path ReportElems EUI = Path_OMap ReportElemID (Path_ReportElem EUI)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElem) g)) (map (\(i, x) -> (Path_At i, x)) (toPairs s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElem) g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs s))
 instance HasPaths ReportElems MEUI
     where type Path ReportElems MEUI = Path_OMap ReportElemID (Path_ReportElem MEUI)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElem) g)) (map (\(i, x) -> (Path_At i, x)) (toPairs s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElem) g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs s))
 instance HasPaths ReportElems MaybeImageFile
     where type Path ReportElems MaybeImageFile = Path_OMap ReportElemID (Path_ReportElem MaybeImageFile)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElem) g)) (map (\(i, x) -> (Path_At i, x)) (toPairs s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElem) g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs s))
 instance HasPaths ReportElems ReportImage
     where type Path ReportElems ReportImage = Path_OMap ReportElemID (Path_ReportElem ReportImage)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElem) g)) (map (\(i, x) -> (Path_At i, x)) (toPairs s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElem) g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs s))
 instance HasPaths ReportElems ReportImages
     where type Path ReportElems ReportImages = Path_OMap ReportElemID (Path_ReportElem ReportImages)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElem) g)) (map (\(i, x) -> (Path_At i, x)) (toPairs s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElem) g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs s))
 instance HasPaths ReportElems ReportImageView
     where type Path ReportElems ReportImageView = Path_OMap ReportElemID (Path_ReportElem ReportImageView)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElem) g)) (map (\(i, x) -> (Path_At i, x)) (toPairs s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElem) g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs s))
 instance HasPaths ReportElems SaneSizeImageSize
     where type Path ReportElems SaneSizeImageSize = Path_OMap ReportElemID (Path_ReportElem SaneSizeImageSize)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElem) g)) (map (\(i, x) -> (Path_At i, x)) (toPairs s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElem) g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs s))
 instance HasPaths ReportElems Item
     where type Path ReportElems Item = Path_OMap ReportElemID (Path_ReportElem Item)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElem) g)) (map (\(i, x) -> (Path_At i, x)) (toPairs s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElem) g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs s))
 instance HasPaths ReportElems MIM
     where type Path ReportElems MIM = Path_OMap ReportElemID (Path_ReportElem MIM)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElem) g)) (map (\(i, x) -> (Path_At i, x)) (toPairs s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElem) g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs s))
 instance HasPaths ReportElems URI
     where type Path ReportElems URI = Path_OMap ReportElemID (Path_ReportElem URI)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElem) g)) (map (\(i, x) -> (Path_At i, x)) (toPairs s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElem) g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs s))
 instance HasPaths ReportElems Text
     where type Path ReportElems Text = Path_OMap ReportElemID (Path_ReportElem Text)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElem) g)) (map (\(i, x) -> (Path_At i, x)) (toPairs s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElem) g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs s))
 instance HasPaths ReportFlags String
     where type Path ReportFlags String = Path_ReportFlags String
           pathsOf (s@(ReportFlags {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Bool) g)) [(Path_ReportFlags_hideEmptyItemFields, hideEmptyItemFields s)]
@@ -1513,61 +1486,61 @@ instance HasPaths ReportImage Text
                                                                                                         a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView ReportImageView))) s))
 instance HasPaths ReportImages String
     where type Path ReportImages String = Path_OMap ReportImageID (Path_ReportImage String)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportImage) g)) (map (\(i, x) -> (Path_At i, x)) (toPairs s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportImage) g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs s))
 instance HasPaths ReportImages Bool
     where type Path ReportImages Bool = Path_OMap ReportImageID (Path_ReportImage Bool)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportImage) g)) (map (\(i, x) -> (Path_At i, x)) (toPairs s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportImage) g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs s))
 instance HasPaths ReportImages Double
     where type Path ReportImages Double = Path_OMap ReportImageID (Path_ReportImage Double)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportImage) g)) (map (\(i, x) -> (Path_At i, x)) (toPairs s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportImage) g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs s))
 instance HasPaths ReportImages Dimension
     where type Path ReportImages Dimension = Path_OMap ReportImageID (Path_ReportImage Dimension)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportImage) g)) (map (\(i, x) -> (Path_At i, x)) (toPairs s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportImage) g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs s))
 instance HasPaths ReportImages ImageCrop
     where type Path ReportImages ImageCrop = Path_OMap ReportImageID (Path_ReportImage ImageCrop)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportImage) g)) (map (\(i, x) -> (Path_At i, x)) (toPairs s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportImage) g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs s))
 instance HasPaths ReportImages ImageSize
     where type Path ReportImages ImageSize = Path_OMap ReportImageID (Path_ReportImage ImageSize)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportImage) g)) (map (\(i, x) -> (Path_At i, x)) (toPairs s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportImage) g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs s))
 instance HasPaths ReportImages Units
     where type Path ReportImages Units = Path_OMap ReportImageID (Path_ReportImage Units)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportImage) g)) (map (\(i, x) -> (Path_At i, x)) (toPairs s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportImage) g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs s))
 instance HasPaths ReportImages ImageFile
     where type Path ReportImages ImageFile = Path_OMap ReportImageID (Path_ReportImage ImageFile)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportImage) g)) (map (\(i, x) -> (Path_At i, x)) (toPairs s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportImage) g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs s))
 instance HasPaths ReportImages JSONText
     where type Path ReportImages JSONText = Path_OMap ReportImageID (Path_ReportImage JSONText)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportImage) g)) (map (\(i, x) -> (Path_At i, x)) (toPairs s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportImage) g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs s))
 instance HasPaths ReportImages Markup
     where type Path ReportImages Markup = Path_OMap ReportImageID (Path_ReportImage Markup)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportImage) g)) (map (\(i, x) -> (Path_At i, x)) (toPairs s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportImage) g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs s))
 instance HasPaths ReportImages EUI
     where type Path ReportImages EUI = Path_OMap ReportImageID (Path_ReportImage EUI)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportImage) g)) (map (\(i, x) -> (Path_At i, x)) (toPairs s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportImage) g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs s))
 instance HasPaths ReportImages MEUI
     where type Path ReportImages MEUI = Path_OMap ReportImageID (Path_ReportImage MEUI)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportImage) g)) (map (\(i, x) -> (Path_At i, x)) (toPairs s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportImage) g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs s))
 instance HasPaths ReportImages MaybeImageFile
     where type Path ReportImages MaybeImageFile = Path_OMap ReportImageID (Path_ReportImage MaybeImageFile)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportImage) g)) (map (\(i, x) -> (Path_At i, x)) (toPairs s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportImage) g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs s))
 instance HasPaths ReportImages ReportImage
     where type Path ReportImages ReportImage = Path_OMap ReportImageID (Path_ReportImage ReportImage)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportImage) g)) (map (\(i, x) -> (Path_At i, x)) (toPairs s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportImage) g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs s))
 instance HasPaths ReportImages ReportImages
     where type Path ReportImages ReportImages = Path_OMap ReportImageID (Path_ReportImage ReportImages)
           pathsOf _ _ = [idPath]
 instance HasPaths ReportImages ReportImageView
     where type Path ReportImages ReportImageView = Path_OMap ReportImageID (Path_ReportImage ReportImageView)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportImage) g)) (map (\(i, x) -> (Path_At i, x)) (toPairs s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportImage) g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs s))
 instance HasPaths ReportImages SaneSizeImageSize
     where type Path ReportImages SaneSizeImageSize = Path_OMap ReportImageID (Path_ReportImage SaneSizeImageSize)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportImage) g)) (map (\(i, x) -> (Path_At i, x)) (toPairs s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportImage) g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs s))
 instance HasPaths ReportImages URI
     where type Path ReportImages URI = Path_OMap ReportImageID (Path_ReportImage URI)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportImage) g)) (map (\(i, x) -> (Path_At i, x)) (toPairs s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportImage) g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs s))
 instance HasPaths ReportImages Text
     where type Path ReportImages Text = Path_OMap ReportImageID (Path_ReportImage Text)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportImage) g)) (map (\(i, x) -> (Path_At i, x)) (toPairs s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportImage) g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs s))
 instance HasPaths ReadOnlyFilePath String
     where type Path ReadOnlyFilePath String = Path_ReadOnlyFilePath String
           pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: [Char]) g)) (map (\a' -> (Path_ReadOnlyFilePath_View,
@@ -1581,15 +1554,15 @@ instance HasPaths ReadOnlyFilePath ReadOnlyFilePath
           pathsOf _ _ = [idPath]
 instance HasPaths ReportImageView String
     where type Path ReportImageView String = Path_ReportImageView String
-          pathsOf (s@(ReportImageView {})) g = mconcat [concatMap (\(p, a') -> map p (pathsOf (a' :: SaneSizeImageSize) g)) [(Path_ReportImageView__picSize, _picSize s)],
+          pathsOf (s@(ReportImageView {})) g = mconcat [concatMap (\(p, a') -> map p (pathsOf (a' :: SaneSize ImageSize) g)) [(Path_ReportImageView__picSize, _picSize s)],
                                                         [],
                                                         [],
                                                         [],
-                                                        concatMap (\(p, a') -> map p (pathsOf (a' :: MaybeImageFile) g)) [(Path_ReportImageView__picEditedDeprecated, _picEditedDeprecated s)],
-                                                        concatMap (\(p, a') -> map p (pathsOf (a' :: MaybeImageFile) g)) [(Path_ReportImageView__picThumbDeprecated, _picThumbDeprecated s)],
-                                                        concatMap (\(p, a') -> map p (pathsOf (a' :: MaybeImageFile) g)) [(Path_ReportImageView__picPrinterDeprecated, _picPrinterDeprecated s)],
+                                                        concatMap (\(p, a') -> map p (pathsOf (a' :: Maybe ImageFile) g)) [(Path_ReportImageView__picEditedDeprecated, _picEditedDeprecated s)],
+                                                        concatMap (\(p, a') -> map p (pathsOf (a' :: Maybe ImageFile) g)) [(Path_ReportImageView__picThumbDeprecated, _picThumbDeprecated s)],
+                                                        concatMap (\(p, a') -> map p (pathsOf (a' :: Maybe ImageFile) g)) [(Path_ReportImageView__picPrinterDeprecated, _picPrinterDeprecated s)],
                                                         concatMap (\(p, a') -> map p (pathsOf (a' :: Bool) g)) [(Path_ReportImageView__picMustEnlarge, _picMustEnlarge s)],
-                                                        concatMap (\(p, a') -> map p (pathsOf (a' :: MaybeImageFile) g)) [(Path_ReportImageView__picEnlargedDeprecated, _picEnlargedDeprecated s)]]
+                                                        concatMap (\(p, a') -> map p (pathsOf (a' :: Maybe ImageFile) g)) [(Path_ReportImageView__picEnlargedDeprecated, _picEnlargedDeprecated s)]]
 instance HasPaths ReportImageView Bool
     where type Path ReportImageView Bool = Path_ReportImageView Bool
           pathsOf (s@(ReportImageView {})) g = mconcat [[],
@@ -1603,7 +1576,7 @@ instance HasPaths ReportImageView Bool
                                                         []]
 instance HasPaths ReportImageView Double
     where type Path ReportImageView Double = Path_ReportImageView Double
-          pathsOf (s@(ReportImageView {})) g = mconcat [concatMap (\(p, a') -> map p (pathsOf (a' :: SaneSizeImageSize) g)) [(Path_ReportImageView__picSize, _picSize s)],
+          pathsOf (s@(ReportImageView {})) g = mconcat [concatMap (\(p, a') -> map p (pathsOf (a' :: SaneSize ImageSize) g)) [(Path_ReportImageView__picSize, _picSize s)],
                                                         [],
                                                         [],
                                                         [],
@@ -1614,7 +1587,7 @@ instance HasPaths ReportImageView Double
                                                         []]
 instance HasPaths ReportImageView Dimension
     where type Path ReportImageView Dimension = Path_ReportImageView Dimension
-          pathsOf (s@(ReportImageView {})) g = mconcat [concatMap (\(p, a') -> map p (pathsOf (a' :: SaneSizeImageSize) g)) [(Path_ReportImageView__picSize, _picSize s)],
+          pathsOf (s@(ReportImageView {})) g = mconcat [concatMap (\(p, a') -> map p (pathsOf (a' :: SaneSize ImageSize) g)) [(Path_ReportImageView__picSize, _picSize s)],
                                                         [],
                                                         [],
                                                         [],
@@ -1636,7 +1609,7 @@ instance HasPaths ReportImageView ImageCrop
                                                         []]
 instance HasPaths ReportImageView ImageSize
     where type Path ReportImageView ImageSize = Path_ReportImageView ImageSize
-          pathsOf (s@(ReportImageView {})) g = mconcat [concatMap (\(p, a') -> map p (pathsOf (a' :: SaneSizeImageSize) g)) [(Path_ReportImageView__picSize, _picSize s)],
+          pathsOf (s@(ReportImageView {})) g = mconcat [concatMap (\(p, a') -> map p (pathsOf (a' :: SaneSize ImageSize) g)) [(Path_ReportImageView__picSize, _picSize s)],
                                                         [],
                                                         [],
                                                         [],
@@ -1647,7 +1620,7 @@ instance HasPaths ReportImageView ImageSize
                                                         []]
 instance HasPaths ReportImageView Units
     where type Path ReportImageView Units = Path_ReportImageView Units
-          pathsOf (s@(ReportImageView {})) g = mconcat [concatMap (\(p, a') -> map p (pathsOf (a' :: SaneSizeImageSize) g)) [(Path_ReportImageView__picSize, _picSize s)],
+          pathsOf (s@(ReportImageView {})) g = mconcat [concatMap (\(p, a') -> map p (pathsOf (a' :: SaneSize ImageSize) g)) [(Path_ReportImageView__picSize, _picSize s)],
                                                         [],
                                                         [],
                                                         [],
@@ -1669,15 +1642,15 @@ instance HasPaths ReportImageView ImageFile
                                                         []]
 instance HasPaths ReportImageView JSONText
     where type Path ReportImageView JSONText = Path_ReportImageView JSONText
-          pathsOf (s@(ReportImageView {})) g = mconcat [concatMap (\(p, a') -> map p (pathsOf (a' :: SaneSizeImageSize) g)) [(Path_ReportImageView__picSize, _picSize s)],
+          pathsOf (s@(ReportImageView {})) g = mconcat [concatMap (\(p, a') -> map p (pathsOf (a' :: SaneSize ImageSize) g)) [(Path_ReportImageView__picSize, _picSize s)],
                                                         [],
                                                         concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) [(Path_ReportImageView__picCaption, _picCaption s)],
                                                         [],
-                                                        concatMap (\(p, a') -> map p (pathsOf (a' :: MaybeImageFile) g)) [(Path_ReportImageView__picEditedDeprecated, _picEditedDeprecated s)],
-                                                        concatMap (\(p, a') -> map p (pathsOf (a' :: MaybeImageFile) g)) [(Path_ReportImageView__picThumbDeprecated, _picThumbDeprecated s)],
-                                                        concatMap (\(p, a') -> map p (pathsOf (a' :: MaybeImageFile) g)) [(Path_ReportImageView__picPrinterDeprecated, _picPrinterDeprecated s)],
+                                                        concatMap (\(p, a') -> map p (pathsOf (a' :: Maybe ImageFile) g)) [(Path_ReportImageView__picEditedDeprecated, _picEditedDeprecated s)],
+                                                        concatMap (\(p, a') -> map p (pathsOf (a' :: Maybe ImageFile) g)) [(Path_ReportImageView__picThumbDeprecated, _picThumbDeprecated s)],
+                                                        concatMap (\(p, a') -> map p (pathsOf (a' :: Maybe ImageFile) g)) [(Path_ReportImageView__picPrinterDeprecated, _picPrinterDeprecated s)],
                                                         concatMap (\(p, a') -> map p (pathsOf (a' :: Bool) g)) [(Path_ReportImageView__picMustEnlarge, _picMustEnlarge s)],
-                                                        concatMap (\(p, a') -> map p (pathsOf (a' :: MaybeImageFile) g)) [(Path_ReportImageView__picEnlargedDeprecated, _picEnlargedDeprecated s)]]
+                                                        concatMap (\(p, a') -> map p (pathsOf (a' :: Maybe ImageFile) g)) [(Path_ReportImageView__picEnlargedDeprecated, _picEnlargedDeprecated s)]]
 instance HasPaths ReportImageView Markup
     where type Path ReportImageView Markup = Path_ReportImageView Markup
           pathsOf (s@(ReportImageView {})) g = mconcat [[],
@@ -1717,17 +1690,17 @@ instance HasPaths ReportImageView MaybeImageFile
                                                         [],
                                                         [],
                                                         [],
-                                                        concatMap (\(p, a') -> map p (pathsOf (a' :: MaybeImageFile) g)) [(Path_ReportImageView__picEditedDeprecated, _picEditedDeprecated s)],
-                                                        concatMap (\(p, a') -> map p (pathsOf (a' :: MaybeImageFile) g)) [(Path_ReportImageView__picThumbDeprecated, _picThumbDeprecated s)],
-                                                        concatMap (\(p, a') -> map p (pathsOf (a' :: MaybeImageFile) g)) [(Path_ReportImageView__picPrinterDeprecated, _picPrinterDeprecated s)],
+                                                        concatMap (\(p, a') -> map p (pathsOf (a' :: Maybe ImageFile) g)) [(Path_ReportImageView__picEditedDeprecated, _picEditedDeprecated s)],
+                                                        concatMap (\(p, a') -> map p (pathsOf (a' :: Maybe ImageFile) g)) [(Path_ReportImageView__picThumbDeprecated, _picThumbDeprecated s)],
+                                                        concatMap (\(p, a') -> map p (pathsOf (a' :: Maybe ImageFile) g)) [(Path_ReportImageView__picPrinterDeprecated, _picPrinterDeprecated s)],
                                                         [],
-                                                        concatMap (\(p, a') -> map p (pathsOf (a' :: MaybeImageFile) g)) [(Path_ReportImageView__picEnlargedDeprecated, _picEnlargedDeprecated s)]]
+                                                        concatMap (\(p, a') -> map p (pathsOf (a' :: Maybe ImageFile) g)) [(Path_ReportImageView__picEnlargedDeprecated, _picEnlargedDeprecated s)]]
 instance HasPaths ReportImageView ReportImageView
     where type Path ReportImageView ReportImageView = Path_ReportImageView ReportImageView
           pathsOf _ _ = [idPath]
 instance HasPaths ReportImageView SaneSizeImageSize
     where type Path ReportImageView SaneSizeImageSize = Path_ReportImageView SaneSizeImageSize
-          pathsOf (s@(ReportImageView {})) g = mconcat [concatMap (\(p, a') -> map p (pathsOf (a' :: SaneSizeImageSize) g)) [(Path_ReportImageView__picSize, _picSize s)],
+          pathsOf (s@(ReportImageView {})) g = mconcat [concatMap (\(p, a') -> map p (pathsOf (a' :: SaneSize ImageSize) g)) [(Path_ReportImageView__picSize, _picSize s)],
                                                         [],
                                                         [],
                                                         [],
@@ -1760,7 +1733,7 @@ instance HasPaths ReportImageView Text
                                                         []]
 instance HasPaths ReportView String
     where type Path ReportView String = Path_ReportView String
-          pathsOf (s@(ReportView {})) g = mconcat [concatMap (\(p, a') -> map p (pathsOf (a' :: ReadOnlyFilePath) g)) [(Path_ReportView__reportFolder, _reportFolder s)],
+          pathsOf (s@(ReportView {})) g = mconcat [concatMap (\(p, a') -> map p (pathsOf (a' :: ReadOnly ([Char])) g)) [(Path_ReportView__reportFolder, _reportFolder s)],
                                                    [],
                                                    [],
                                                    [],
@@ -1776,7 +1749,7 @@ instance HasPaths ReportView String
                                                    [],
                                                    [],
                                                    [],
-                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: MaybeReportIntendedUse) g)) [(Path_ReportView__reportIntendedUse, _reportIntendedUse s)],
+                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Maybe ReportIntendedUse) g)) [(Path_ReportView__reportIntendedUse, _reportIntendedUse s)],
                                                    [],
                                                    [],
                                                    [],
@@ -1786,7 +1759,7 @@ instance HasPaths ReportView String
                                                    [],
                                                    [],
                                                    [],
-                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElems) g)) [(Path_ReportView__reportBody, _reportBody s)],
+                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Order ReportElemID ReportElem) g)) [(Path_ReportView__reportBody, _reportBody s)],
                                                    [],
                                                    [],
                                                    [],
@@ -1843,7 +1816,7 @@ instance HasPaths ReportView Int64
                                                    [],
                                                    [],
                                                    [],
-                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: EpochMilli) g)) [(Path_ReportView__reportCreated, _reportCreated s)],
+                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Int64) g)) [(Path_ReportView__reportCreated, _reportCreated s)],
                                                    [],
                                                    [],
                                                    [],
@@ -1880,7 +1853,7 @@ instance HasPaths ReportView Bool
                                                    [],
                                                    [],
                                                    [],
-                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElems) g)) [(Path_ReportView__reportBody, _reportBody s)],
+                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Order ReportElemID ReportElem) g)) [(Path_ReportView__reportBody, _reportBody s)],
                                                    [],
                                                    [],
                                                    [],
@@ -1927,7 +1900,7 @@ instance HasPaths ReportView Double
                                                    [],
                                                    [],
                                                    [],
-                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElems) g)) [(Path_ReportView__reportBody, _reportBody s)],
+                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Order ReportElemID ReportElem) g)) [(Path_ReportView__reportBody, _reportBody s)],
                                                    [],
                                                    [],
                                                    [],
@@ -2021,7 +1994,7 @@ instance HasPaths ReportView Dimension
                                                    [],
                                                    [],
                                                    [],
-                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElems) g)) [(Path_ReportView__reportBody, _reportBody s)],
+                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Order ReportElemID ReportElem) g)) [(Path_ReportView__reportBody, _reportBody s)],
                                                    [],
                                                    [],
                                                    [],
@@ -2068,7 +2041,7 @@ instance HasPaths ReportView ImageCrop
                                                    [],
                                                    [],
                                                    [],
-                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElems) g)) [(Path_ReportView__reportBody, _reportBody s)],
+                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Order ReportElemID ReportElem) g)) [(Path_ReportView__reportBody, _reportBody s)],
                                                    [],
                                                    [],
                                                    [],
@@ -2115,7 +2088,7 @@ instance HasPaths ReportView ImageSize
                                                    [],
                                                    [],
                                                    [],
-                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElems) g)) [(Path_ReportView__reportBody, _reportBody s)],
+                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Order ReportElemID ReportElem) g)) [(Path_ReportView__reportBody, _reportBody s)],
                                                    [],
                                                    [],
                                                    [],
@@ -2162,7 +2135,7 @@ instance HasPaths ReportView Units
                                                    [],
                                                    [],
                                                    [],
-                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElems) g)) [(Path_ReportView__reportBody, _reportBody s)],
+                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Order ReportElemID ReportElem) g)) [(Path_ReportView__reportBody, _reportBody s)],
                                                    [],
                                                    [],
                                                    [],
@@ -2209,7 +2182,7 @@ instance HasPaths ReportView ImageFile
                                                    [],
                                                    [],
                                                    [],
-                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElems) g)) [(Path_ReportView__reportBody, _reportBody s)],
+                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Order ReportElemID ReportElem) g)) [(Path_ReportView__reportBody, _reportBody s)],
                                                    [],
                                                    [],
                                                    [],
@@ -2277,23 +2250,23 @@ instance HasPaths ReportView Integer
                                                    []]
 instance HasPaths ReportView JSONText
     where type Path ReportView JSONText = Path_ReportView JSONText
-          pathsOf (s@(ReportView {})) g = mconcat [concatMap (\(p, a') -> map p (pathsOf (a' :: ReadOnlyFilePath) g)) [(Path_ReportView__reportFolder, _reportFolder s)],
+          pathsOf (s@(ReportView {})) g = mconcat [concatMap (\(p, a') -> map p (pathsOf (a' :: ReadOnly ([Char])) g)) [(Path_ReportView__reportFolder, _reportFolder s)],
                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) [(Path_ReportView__reportName, _reportName s)],
                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) [(Path_ReportView__reportDate, _reportDate s)],
                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) [(Path_ReportView__reportContractDate, _reportContractDate s)],
                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) [(Path_ReportView__reportInspectionDate, _reportInspectionDate s)],
                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) [(Path_ReportView__reportEffectiveDate, _reportEffectiveDate s)],
-                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Authors) g)) [(Path_ReportView__reportAuthors, _reportAuthors s)],
+                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Order AuthorID Author) g)) [(Path_ReportView__reportAuthors, _reportAuthors s)],
                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) [(Path_ReportView__reportPreparer, _reportPreparer s)],
                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) [(Path_ReportView__reportPreparerEIN, _reportPreparerEIN s)],
                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) [(Path_ReportView__reportPreparerAddress, _reportPreparerAddress s)],
                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) [(Path_ReportView__reportPreparerEMail, _reportPreparerEMail s)],
                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) [(Path_ReportView__reportPreparerWebsite, _reportPreparerWebsite s)],
-                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: AbbrevPairs) g)) [(Path_ReportView__reportAbbrevs, _reportAbbrevs s)],
+                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Order AbbrevPairID ((CIString, Markup))) g)) [(Path_ReportView__reportAbbrevs, _reportAbbrevs s)],
                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) [(Path_ReportView__reportTitle, _reportTitle s)],
                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) [(Path_ReportView__reportHeader, _reportHeader s)],
                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) [(Path_ReportView__reportFooter, _reportFooter s)],
-                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: MaybeReportIntendedUse) g)) [(Path_ReportView__reportIntendedUse, _reportIntendedUse s)],
+                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Maybe ReportIntendedUse) g)) [(Path_ReportView__reportIntendedUse, _reportIntendedUse s)],
                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: ReportValueTypeInfo) g)) [(Path_ReportView__reportValueTypeInfo, _reportValueTypeInfo s)],
                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: ReportValueApproachInfo) g)) [(Path_ReportView__reportValueApproachInfo, _reportValueApproachInfo s)],
                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) [(Path_ReportView__reportClientName, _reportClientName s)],
@@ -2303,13 +2276,13 @@ instance HasPaths ReportView JSONText
                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) [(Path_ReportView__reportItemsOwner, _reportItemsOwner s)],
                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) [(Path_ReportView__reportBriefItems, _reportBriefItems s)],
                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) [(Path_ReportView__reportInspectionLocation, _reportInspectionLocation s)],
-                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElems) g)) [(Path_ReportView__reportBody, _reportBody s)],
-                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: MarkupPairs) g)) [(Path_ReportView__reportGlossary, _reportGlossary s)],
-                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: MarkupPairs) g)) [(Path_ReportView__reportSources, _reportSources s)],
+                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Order ReportElemID ReportElem) g)) [(Path_ReportView__reportBody, _reportBody s)],
+                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Order MarkupPairID ((Markup, Markup))) g)) [(Path_ReportView__reportGlossary, _reportGlossary s)],
+                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Order MarkupPairID ((Markup, Markup))) g)) [(Path_ReportView__reportSources, _reportSources s)],
                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) [(Path_ReportView__reportLetterOfTransmittal, _reportLetterOfTransmittal s)],
                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) [(Path_ReportView__reportScopeOfWork, _reportScopeOfWork s)],
-                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Markups) g)) [(Path_ReportView__reportCertification, _reportCertification s)],
-                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Markups) g)) [(Path_ReportView__reportLimitingConditions, _reportLimitingConditions s)],
+                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Order MarkupID Markup) g)) [(Path_ReportView__reportCertification, _reportCertification s)],
+                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Order MarkupID Markup) g)) [(Path_ReportView__reportLimitingConditions, _reportLimitingConditions s)],
                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) [(Path_ReportView__reportPrivacyPolicy, _reportPrivacyPolicy s)],
                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: Permissions) g)) [(Path_ReportView__reportPerms, _reportPerms s)],
                                                    [],
@@ -2330,13 +2303,13 @@ instance HasPaths ReportView Markup
                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) [(Path_ReportView__reportContractDate, _reportContractDate s)],
                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) [(Path_ReportView__reportInspectionDate, _reportInspectionDate s)],
                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) [(Path_ReportView__reportEffectiveDate, _reportEffectiveDate s)],
-                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Authors) g)) [(Path_ReportView__reportAuthors, _reportAuthors s)],
+                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Order AuthorID Author) g)) [(Path_ReportView__reportAuthors, _reportAuthors s)],
                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) [(Path_ReportView__reportPreparer, _reportPreparer s)],
                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) [(Path_ReportView__reportPreparerEIN, _reportPreparerEIN s)],
                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) [(Path_ReportView__reportPreparerAddress, _reportPreparerAddress s)],
                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) [(Path_ReportView__reportPreparerEMail, _reportPreparerEMail s)],
                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) [(Path_ReportView__reportPreparerWebsite, _reportPreparerWebsite s)],
-                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: AbbrevPairs) g)) [(Path_ReportView__reportAbbrevs, _reportAbbrevs s)],
+                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Order AbbrevPairID ((CIString, Markup))) g)) [(Path_ReportView__reportAbbrevs, _reportAbbrevs s)],
                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) [(Path_ReportView__reportTitle, _reportTitle s)],
                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) [(Path_ReportView__reportHeader, _reportHeader s)],
                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) [(Path_ReportView__reportFooter, _reportFooter s)],
@@ -2350,13 +2323,13 @@ instance HasPaths ReportView Markup
                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) [(Path_ReportView__reportItemsOwner, _reportItemsOwner s)],
                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) [(Path_ReportView__reportBriefItems, _reportBriefItems s)],
                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) [(Path_ReportView__reportInspectionLocation, _reportInspectionLocation s)],
-                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElems) g)) [(Path_ReportView__reportBody, _reportBody s)],
-                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: MarkupPairs) g)) [(Path_ReportView__reportGlossary, _reportGlossary s)],
-                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: MarkupPairs) g)) [(Path_ReportView__reportSources, _reportSources s)],
+                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Order ReportElemID ReportElem) g)) [(Path_ReportView__reportBody, _reportBody s)],
+                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Order MarkupPairID ((Markup, Markup))) g)) [(Path_ReportView__reportGlossary, _reportGlossary s)],
+                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Order MarkupPairID ((Markup, Markup))) g)) [(Path_ReportView__reportSources, _reportSources s)],
                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) [(Path_ReportView__reportLetterOfTransmittal, _reportLetterOfTransmittal s)],
                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) [(Path_ReportView__reportScopeOfWork, _reportScopeOfWork s)],
-                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Markups) g)) [(Path_ReportView__reportCertification, _reportCertification s)],
-                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Markups) g)) [(Path_ReportView__reportLimitingConditions, _reportLimitingConditions s)],
+                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Order MarkupID Markup) g)) [(Path_ReportView__reportCertification, _reportCertification s)],
+                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Order MarkupID Markup) g)) [(Path_ReportView__reportLimitingConditions, _reportLimitingConditions s)],
                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) [(Path_ReportView__reportPrivacyPolicy, _reportPrivacyPolicy s)],
                                                    [],
                                                    [],
@@ -2477,7 +2450,7 @@ instance HasPaths ReportView AbbrevPair
                                                    [],
                                                    [],
                                                    [],
-                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: AbbrevPairs) g)) [(Path_ReportView__reportAbbrevs, _reportAbbrevs s)],
+                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Order AbbrevPairID ((CIString, Markup))) g)) [(Path_ReportView__reportAbbrevs, _reportAbbrevs s)],
                                                    [],
                                                    [],
                                                    [],
@@ -2524,7 +2497,7 @@ instance HasPaths ReportView AbbrevPairs
                                                    [],
                                                    [],
                                                    [],
-                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: AbbrevPairs) g)) [(Path_ReportView__reportAbbrevs, _reportAbbrevs s)],
+                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Order AbbrevPairID ((CIString, Markup))) g)) [(Path_ReportView__reportAbbrevs, _reportAbbrevs s)],
                                                    [],
                                                    [],
                                                    [],
@@ -2565,7 +2538,7 @@ instance HasPaths ReportView Author
                                                    [],
                                                    [],
                                                    [],
-                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Authors) g)) [(Path_ReportView__reportAuthors, _reportAuthors s)],
+                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Order AuthorID Author) g)) [(Path_ReportView__reportAuthors, _reportAuthors s)],
                                                    [],
                                                    [],
                                                    [],
@@ -2612,7 +2585,7 @@ instance HasPaths ReportView Authors
                                                    [],
                                                    [],
                                                    [],
-                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Authors) g)) [(Path_ReportView__reportAuthors, _reportAuthors s)],
+                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Order AuthorID Author) g)) [(Path_ReportView__reportAuthors, _reportAuthors s)],
                                                    [],
                                                    [],
                                                    [],
@@ -2727,8 +2700,8 @@ instance HasPaths ReportView MarkupPair
                                                    [],
                                                    [],
                                                    [],
-                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: MarkupPairs) g)) [(Path_ReportView__reportGlossary, _reportGlossary s)],
-                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: MarkupPairs) g)) [(Path_ReportView__reportSources, _reportSources s)],
+                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Order MarkupPairID ((Markup, Markup))) g)) [(Path_ReportView__reportGlossary, _reportGlossary s)],
+                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Order MarkupPairID ((Markup, Markup))) g)) [(Path_ReportView__reportSources, _reportSources s)],
                                                    [],
                                                    [],
                                                    [],
@@ -2774,8 +2747,8 @@ instance HasPaths ReportView MarkupPairs
                                                    [],
                                                    [],
                                                    [],
-                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: MarkupPairs) g)) [(Path_ReportView__reportGlossary, _reportGlossary s)],
-                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: MarkupPairs) g)) [(Path_ReportView__reportSources, _reportSources s)],
+                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Order MarkupPairID ((Markup, Markup))) g)) [(Path_ReportView__reportGlossary, _reportGlossary s)],
+                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Order MarkupPairID ((Markup, Markup))) g)) [(Path_ReportView__reportSources, _reportSources s)],
                                                    [],
                                                    [],
                                                    [],
@@ -2825,8 +2798,8 @@ instance HasPaths ReportView Markups
                                                    [],
                                                    [],
                                                    [],
-                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Markups) g)) [(Path_ReportView__reportCertification, _reportCertification s)],
-                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Markups) g)) [(Path_ReportView__reportLimitingConditions, _reportLimitingConditions s)],
+                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Order MarkupID Markup) g)) [(Path_ReportView__reportCertification, _reportCertification s)],
+                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Order MarkupID Markup) g)) [(Path_ReportView__reportLimitingConditions, _reportLimitingConditions s)],
                                                    [],
                                                    [],
                                                    [],
@@ -2857,7 +2830,7 @@ instance HasPaths ReportView MaybeReportIntendedUse
                                                    [],
                                                    [],
                                                    [],
-                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: MaybeReportIntendedUse) g)) [(Path_ReportView__reportIntendedUse, _reportIntendedUse s)],
+                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Maybe ReportIntendedUse) g)) [(Path_ReportView__reportIntendedUse, _reportIntendedUse s)],
                                                    [],
                                                    [],
                                                    [],
@@ -2914,7 +2887,7 @@ instance HasPaths ReportView ReportElem
                                                    [],
                                                    [],
                                                    [],
-                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElems) g)) [(Path_ReportView__reportBody, _reportBody s)],
+                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Order ReportElemID ReportElem) g)) [(Path_ReportView__reportBody, _reportBody s)],
                                                    [],
                                                    [],
                                                    [],
@@ -2961,7 +2934,7 @@ instance HasPaths ReportView ReportElems
                                                    [],
                                                    [],
                                                    [],
-                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElems) g)) [(Path_ReportView__reportBody, _reportBody s)],
+                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Order ReportElemID ReportElem) g)) [(Path_ReportView__reportBody, _reportBody s)],
                                                    [],
                                                    [],
                                                    [],
@@ -3243,7 +3216,7 @@ instance HasPaths ReportView EUI
                                                    [],
                                                    [],
                                                    [],
-                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElems) g)) [(Path_ReportView__reportBody, _reportBody s)],
+                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Order ReportElemID ReportElem) g)) [(Path_ReportView__reportBody, _reportBody s)],
                                                    [],
                                                    [],
                                                    [],
@@ -3290,7 +3263,7 @@ instance HasPaths ReportView MEUI
                                                    [],
                                                    [],
                                                    [],
-                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElems) g)) [(Path_ReportView__reportBody, _reportBody s)],
+                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Order ReportElemID ReportElem) g)) [(Path_ReportView__reportBody, _reportBody s)],
                                                    [],
                                                    [],
                                                    [],
@@ -3337,7 +3310,7 @@ instance HasPaths ReportView MaybeImageFile
                                                    [],
                                                    [],
                                                    [],
-                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElems) g)) [(Path_ReportView__reportBody, _reportBody s)],
+                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Order ReportElemID ReportElem) g)) [(Path_ReportView__reportBody, _reportBody s)],
                                                    [],
                                                    [],
                                                    [],
@@ -3384,7 +3357,7 @@ instance HasPaths ReportView ReportImage
                                                    [],
                                                    [],
                                                    [],
-                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElems) g)) [(Path_ReportView__reportBody, _reportBody s)],
+                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Order ReportElemID ReportElem) g)) [(Path_ReportView__reportBody, _reportBody s)],
                                                    [],
                                                    [],
                                                    [],
@@ -3431,7 +3404,7 @@ instance HasPaths ReportView ReportImages
                                                    [],
                                                    [],
                                                    [],
-                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElems) g)) [(Path_ReportView__reportBody, _reportBody s)],
+                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Order ReportElemID ReportElem) g)) [(Path_ReportView__reportBody, _reportBody s)],
                                                    [],
                                                    [],
                                                    [],
@@ -3452,7 +3425,7 @@ instance HasPaths ReportView ReportImages
                                                    []]
 instance HasPaths ReportView ReadOnlyFilePath
     where type Path ReportView ReadOnlyFilePath = Path_ReportView ReadOnlyFilePath
-          pathsOf (s@(ReportView {})) g = mconcat [concatMap (\(p, a') -> map p (pathsOf (a' :: ReadOnlyFilePath) g)) [(Path_ReportView__reportFolder, _reportFolder s)],
+          pathsOf (s@(ReportView {})) g = mconcat [concatMap (\(p, a') -> map p (pathsOf (a' :: ReadOnly ([Char])) g)) [(Path_ReportView__reportFolder, _reportFolder s)],
                                                    [],
                                                    [],
                                                    [],
@@ -3525,7 +3498,7 @@ instance HasPaths ReportView ReportImageView
                                                    [],
                                                    [],
                                                    [],
-                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElems) g)) [(Path_ReportView__reportBody, _reportBody s)],
+                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Order ReportElemID ReportElem) g)) [(Path_ReportView__reportBody, _reportBody s)],
                                                    [],
                                                    [],
                                                    [],
@@ -3575,7 +3548,7 @@ instance HasPaths ReportView SaneSizeImageSize
                                                    [],
                                                    [],
                                                    [],
-                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElems) g)) [(Path_ReportView__reportBody, _reportBody s)],
+                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Order ReportElemID ReportElem) g)) [(Path_ReportView__reportBody, _reportBody s)],
                                                    [],
                                                    [],
                                                    [],
@@ -3622,7 +3595,7 @@ instance HasPaths ReportView Item
                                                    [],
                                                    [],
                                                    [],
-                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElems) g)) [(Path_ReportView__reportBody, _reportBody s)],
+                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Order ReportElemID ReportElem) g)) [(Path_ReportView__reportBody, _reportBody s)],
                                                    [],
                                                    [],
                                                    [],
@@ -3669,7 +3642,7 @@ instance HasPaths ReportView MIM
                                                    [],
                                                    [],
                                                    [],
-                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElems) g)) [(Path_ReportView__reportBody, _reportBody s)],
+                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Order ReportElemID ReportElem) g)) [(Path_ReportView__reportBody, _reportBody s)],
                                                    [],
                                                    [],
                                                    [],
@@ -3702,7 +3675,7 @@ instance HasPaths ReportView CIString
                                                    [],
                                                    [],
                                                    [],
-                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: AbbrevPairs) g)) [(Path_ReportView__reportAbbrevs, _reportAbbrevs s)],
+                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Order AbbrevPairID ((CIString, Markup))) g)) [(Path_ReportView__reportAbbrevs, _reportAbbrevs s)],
                                                    [],
                                                    [],
                                                    [],
@@ -3763,7 +3736,7 @@ instance HasPaths ReportView URI
                                                    [],
                                                    [],
                                                    [],
-                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElems) g)) [(Path_ReportView__reportBody, _reportBody s)],
+                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Order ReportElemID ReportElem) g)) [(Path_ReportView__reportBody, _reportBody s)],
                                                    [],
                                                    [],
                                                    [],
@@ -3790,13 +3763,13 @@ instance HasPaths ReportView Text
                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) [(Path_ReportView__reportContractDate, _reportContractDate s)],
                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) [(Path_ReportView__reportInspectionDate, _reportInspectionDate s)],
                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) [(Path_ReportView__reportEffectiveDate, _reportEffectiveDate s)],
-                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Authors) g)) [(Path_ReportView__reportAuthors, _reportAuthors s)],
+                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Order AuthorID Author) g)) [(Path_ReportView__reportAuthors, _reportAuthors s)],
                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) [(Path_ReportView__reportPreparer, _reportPreparer s)],
                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) [(Path_ReportView__reportPreparerEIN, _reportPreparerEIN s)],
                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) [(Path_ReportView__reportPreparerAddress, _reportPreparerAddress s)],
                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) [(Path_ReportView__reportPreparerEMail, _reportPreparerEMail s)],
                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) [(Path_ReportView__reportPreparerWebsite, _reportPreparerWebsite s)],
-                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: AbbrevPairs) g)) [(Path_ReportView__reportAbbrevs, _reportAbbrevs s)],
+                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Order AbbrevPairID ((CIString, Markup))) g)) [(Path_ReportView__reportAbbrevs, _reportAbbrevs s)],
                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) [(Path_ReportView__reportTitle, _reportTitle s)],
                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) [(Path_ReportView__reportHeader, _reportHeader s)],
                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) [(Path_ReportView__reportFooter, _reportFooter s)],
@@ -3810,13 +3783,13 @@ instance HasPaths ReportView Text
                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) [(Path_ReportView__reportItemsOwner, _reportItemsOwner s)],
                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) [(Path_ReportView__reportBriefItems, _reportBriefItems s)],
                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) [(Path_ReportView__reportInspectionLocation, _reportInspectionLocation s)],
-                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElems) g)) [(Path_ReportView__reportBody, _reportBody s)],
-                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: MarkupPairs) g)) [(Path_ReportView__reportGlossary, _reportGlossary s)],
-                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: MarkupPairs) g)) [(Path_ReportView__reportSources, _reportSources s)],
+                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Order ReportElemID ReportElem) g)) [(Path_ReportView__reportBody, _reportBody s)],
+                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Order MarkupPairID ((Markup, Markup))) g)) [(Path_ReportView__reportGlossary, _reportGlossary s)],
+                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Order MarkupPairID ((Markup, Markup))) g)) [(Path_ReportView__reportSources, _reportSources s)],
                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) [(Path_ReportView__reportLetterOfTransmittal, _reportLetterOfTransmittal s)],
                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) [(Path_ReportView__reportScopeOfWork, _reportScopeOfWork s)],
-                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Markups) g)) [(Path_ReportView__reportCertification, _reportCertification s)],
-                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Markups) g)) [(Path_ReportView__reportLimitingConditions, _reportLimitingConditions s)],
+                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Order MarkupID Markup) g)) [(Path_ReportView__reportCertification, _reportCertification s)],
+                                                   concatMap (\(p, a') -> map p (pathsOf (a' :: Order MarkupID Markup) g)) [(Path_ReportView__reportLimitingConditions, _reportLimitingConditions s)],
                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) [(Path_ReportView__reportPrivacyPolicy, _reportPrivacyPolicy s)],
                                                    concatMap (\(p, a') -> map p (pathsOf (a' :: Permissions) g)) [(Path_ReportView__reportPerms, _reportPerms s)],
                                                    [],
@@ -3952,382 +3925,382 @@ instance HasPaths SaneSizeImageSize SaneSizeImageSize
           pathsOf _ _ = [idPath]
 instance HasPaths Item String
     where type Path Item String = Path_Item String
-          pathsOf (s@(Item {})) g = mconcat [[], [], concatMap (\(p, a') -> map p (pathsOf (a' :: ReportImages) g)) [(Path_Item_images, images s)]]
+          pathsOf (s@(Item {})) g = mconcat [[], [], concatMap (\(p, a') -> map p (pathsOf (a' :: Order ReportImageID ReportImage) g)) [(Path_Item_images, images s)]]
 instance HasPaths Item Bool
     where type Path Item Bool = Path_Item Bool
-          pathsOf (s@(Item {})) g = mconcat [[], [], concatMap (\(p, a') -> map p (pathsOf (a' :: ReportImages) g)) [(Path_Item_images, images s)]]
+          pathsOf (s@(Item {})) g = mconcat [[], [], concatMap (\(p, a') -> map p (pathsOf (a' :: Order ReportImageID ReportImage) g)) [(Path_Item_images, images s)]]
 instance HasPaths Item Double
     where type Path Item Double = Path_Item Double
-          pathsOf (s@(Item {})) g = mconcat [[], [], concatMap (\(p, a') -> map p (pathsOf (a' :: ReportImages) g)) [(Path_Item_images, images s)]]
+          pathsOf (s@(Item {})) g = mconcat [[], [], concatMap (\(p, a') -> map p (pathsOf (a' :: Order ReportImageID ReportImage) g)) [(Path_Item_images, images s)]]
 instance HasPaths Item Dimension
     where type Path Item Dimension = Path_Item Dimension
-          pathsOf (s@(Item {})) g = mconcat [[], [], concatMap (\(p, a') -> map p (pathsOf (a' :: ReportImages) g)) [(Path_Item_images, images s)]]
+          pathsOf (s@(Item {})) g = mconcat [[], [], concatMap (\(p, a') -> map p (pathsOf (a' :: Order ReportImageID ReportImage) g)) [(Path_Item_images, images s)]]
 instance HasPaths Item ImageCrop
     where type Path Item ImageCrop = Path_Item ImageCrop
-          pathsOf (s@(Item {})) g = mconcat [[], [], concatMap (\(p, a') -> map p (pathsOf (a' :: ReportImages) g)) [(Path_Item_images, images s)]]
+          pathsOf (s@(Item {})) g = mconcat [[], [], concatMap (\(p, a') -> map p (pathsOf (a' :: Order ReportImageID ReportImage) g)) [(Path_Item_images, images s)]]
 instance HasPaths Item ImageSize
     where type Path Item ImageSize = Path_Item ImageSize
-          pathsOf (s@(Item {})) g = mconcat [[], [], concatMap (\(p, a') -> map p (pathsOf (a' :: ReportImages) g)) [(Path_Item_images, images s)]]
+          pathsOf (s@(Item {})) g = mconcat [[], [], concatMap (\(p, a') -> map p (pathsOf (a' :: Order ReportImageID ReportImage) g)) [(Path_Item_images, images s)]]
 instance HasPaths Item Units
     where type Path Item Units = Path_Item Units
-          pathsOf (s@(Item {})) g = mconcat [[], [], concatMap (\(p, a') -> map p (pathsOf (a' :: ReportImages) g)) [(Path_Item_images, images s)]]
+          pathsOf (s@(Item {})) g = mconcat [[], [], concatMap (\(p, a') -> map p (pathsOf (a' :: Order ReportImageID ReportImage) g)) [(Path_Item_images, images s)]]
 instance HasPaths Item ImageFile
     where type Path Item ImageFile = Path_Item ImageFile
-          pathsOf (s@(Item {})) g = mconcat [[], [], concatMap (\(p, a') -> map p (pathsOf (a' :: ReportImages) g)) [(Path_Item_images, images s)]]
+          pathsOf (s@(Item {})) g = mconcat [[], [], concatMap (\(p, a') -> map p (pathsOf (a' :: Order ReportImageID ReportImage) g)) [(Path_Item_images, images s)]]
 instance HasPaths Item JSONText
     where type Path Item JSONText = Path_Item JSONText
           pathsOf (s@(Item {})) g = mconcat [concatMap (\(p, a') -> map p (pathsOf (a' :: Text) g)) [(Path_Item_itemName, itemName s)],
-                                             concatMap (\(p, a') -> map p (pathsOf (a' :: MIM) g)) [(Path_Item_fields, fields s)],
-                                             concatMap (\(p, a') -> map p (pathsOf (a' :: ReportImages) g)) [(Path_Item_images, images s)]]
+                                             concatMap (\(p, a') -> map p (pathsOf (a' :: Map ItemFieldName Markup) g)) [(Path_Item_fields, fields s)],
+                                             concatMap (\(p, a') -> map p (pathsOf (a' :: Order ReportImageID ReportImage) g)) [(Path_Item_images, images s)]]
 instance HasPaths Item Markup
     where type Path Item Markup = Path_Item Markup
           pathsOf (s@(Item {})) g = mconcat [[],
-                                             concatMap (\(p, a') -> map p (pathsOf (a' :: MIM) g)) [(Path_Item_fields, fields s)],
-                                             concatMap (\(p, a') -> map p (pathsOf (a' :: ReportImages) g)) [(Path_Item_images, images s)]]
+                                             concatMap (\(p, a') -> map p (pathsOf (a' :: Map ItemFieldName Markup) g)) [(Path_Item_fields, fields s)],
+                                             concatMap (\(p, a') -> map p (pathsOf (a' :: Order ReportImageID ReportImage) g)) [(Path_Item_images, images s)]]
 instance HasPaths Item EUI
     where type Path Item EUI = Path_Item EUI
-          pathsOf (s@(Item {})) g = mconcat [[], [], concatMap (\(p, a') -> map p (pathsOf (a' :: ReportImages) g)) [(Path_Item_images, images s)]]
+          pathsOf (s@(Item {})) g = mconcat [[], [], concatMap (\(p, a') -> map p (pathsOf (a' :: Order ReportImageID ReportImage) g)) [(Path_Item_images, images s)]]
 instance HasPaths Item MEUI
     where type Path Item MEUI = Path_Item MEUI
-          pathsOf (s@(Item {})) g = mconcat [[], [], concatMap (\(p, a') -> map p (pathsOf (a' :: ReportImages) g)) [(Path_Item_images, images s)]]
+          pathsOf (s@(Item {})) g = mconcat [[], [], concatMap (\(p, a') -> map p (pathsOf (a' :: Order ReportImageID ReportImage) g)) [(Path_Item_images, images s)]]
 instance HasPaths Item MaybeImageFile
     where type Path Item MaybeImageFile = Path_Item MaybeImageFile
-          pathsOf (s@(Item {})) g = mconcat [[], [], concatMap (\(p, a') -> map p (pathsOf (a' :: ReportImages) g)) [(Path_Item_images, images s)]]
+          pathsOf (s@(Item {})) g = mconcat [[], [], concatMap (\(p, a') -> map p (pathsOf (a' :: Order ReportImageID ReportImage) g)) [(Path_Item_images, images s)]]
 instance HasPaths Item ReportImage
     where type Path Item ReportImage = Path_Item ReportImage
-          pathsOf (s@(Item {})) g = mconcat [[], [], concatMap (\(p, a') -> map p (pathsOf (a' :: ReportImages) g)) [(Path_Item_images, images s)]]
+          pathsOf (s@(Item {})) g = mconcat [[], [], concatMap (\(p, a') -> map p (pathsOf (a' :: Order ReportImageID ReportImage) g)) [(Path_Item_images, images s)]]
 instance HasPaths Item ReportImages
     where type Path Item ReportImages = Path_Item ReportImages
-          pathsOf (s@(Item {})) g = mconcat [[], [], concatMap (\(p, a') -> map p (pathsOf (a' :: ReportImages) g)) [(Path_Item_images, images s)]]
+          pathsOf (s@(Item {})) g = mconcat [[], [], concatMap (\(p, a') -> map p (pathsOf (a' :: Order ReportImageID ReportImage) g)) [(Path_Item_images, images s)]]
 instance HasPaths Item ReportImageView
     where type Path Item ReportImageView = Path_Item ReportImageView
-          pathsOf (s@(Item {})) g = mconcat [[], [], concatMap (\(p, a') -> map p (pathsOf (a' :: ReportImages) g)) [(Path_Item_images, images s)]]
+          pathsOf (s@(Item {})) g = mconcat [[], [], concatMap (\(p, a') -> map p (pathsOf (a' :: Order ReportImageID ReportImage) g)) [(Path_Item_images, images s)]]
 instance HasPaths Item SaneSizeImageSize
     where type Path Item SaneSizeImageSize = Path_Item SaneSizeImageSize
-          pathsOf (s@(Item {})) g = mconcat [[], [], concatMap (\(p, a') -> map p (pathsOf (a' :: ReportImages) g)) [(Path_Item_images, images s)]]
+          pathsOf (s@(Item {})) g = mconcat [[], [], concatMap (\(p, a') -> map p (pathsOf (a' :: Order ReportImageID ReportImage) g)) [(Path_Item_images, images s)]]
 instance HasPaths Item Item
     where type Path Item Item = Path_Item Item
           pathsOf _ _ = [idPath]
 instance HasPaths Item MIM
     where type Path Item MIM = Path_Item MIM
-          pathsOf (s@(Item {})) g = mconcat [[], concatMap (\(p, a') -> map p (pathsOf (a' :: MIM) g)) [(Path_Item_fields, fields s)], []]
+          pathsOf (s@(Item {})) g = mconcat [[], concatMap (\(p, a') -> map p (pathsOf (a' :: Map ItemFieldName Markup) g)) [(Path_Item_fields, fields s)], []]
 instance HasPaths Item URI
     where type Path Item URI = Path_Item URI
-          pathsOf (s@(Item {})) g = mconcat [[], [], concatMap (\(p, a') -> map p (pathsOf (a' :: ReportImages) g)) [(Path_Item_images, images s)]]
+          pathsOf (s@(Item {})) g = mconcat [[], [], concatMap (\(p, a') -> map p (pathsOf (a' :: Order ReportImageID ReportImage) g)) [(Path_Item_images, images s)]]
 instance HasPaths Item Text
     where type Path Item Text = Path_Item Text
           pathsOf (s@(Item {})) g = mconcat [concatMap (\(p, a') -> map p (pathsOf (a' :: Text) g)) [(Path_Item_itemName, itemName s)],
-                                             concatMap (\(p, a') -> map p (pathsOf (a' :: MIM) g)) [(Path_Item_fields, fields s)],
-                                             concatMap (\(p, a') -> map p (pathsOf (a' :: ReportImages) g)) [(Path_Item_images, images s)]]
+                                             concatMap (\(p, a') -> map p (pathsOf (a' :: Map ItemFieldName Markup) g)) [(Path_Item_fields, fields s)],
+                                             concatMap (\(p, a') -> map p (pathsOf (a' :: Order ReportImageID ReportImage) g)) [(Path_Item_images, images s)]]
 instance HasPaths MIM JSONText
     where type Path MIM JSONText = Path_Map ItemFieldName (Path_Markup JSONText)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) (map (\(i, x) -> (Path_Look i, x)) (toList s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList s))
 instance HasPaths MIM Markup
     where type Path MIM Markup = Path_Map ItemFieldName (Path_Markup Markup)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) (map (\(i, x) -> (Path_Look i, x)) (toList s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList s))
 instance HasPaths MIM MIM
     where type Path MIM MIM = Path_Map ItemFieldName (Path_Markup MIM)
           pathsOf _ _ = [idPath]
 instance HasPaths MIM Text
     where type Path MIM Text = Path_Map ItemFieldName (Path_Markup Text)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) (map (\(i, x) -> (Path_Look i, x)) (toList s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList s))
 instance HasPaths MRR String
     where type Path MRR String = Path_Map ReportID (Path_Report String)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(i, x) -> (Path_Look i, x)) (toList s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList s))
 instance HasPaths MRR Int64
     where type Path MRR Int64 = Path_Map ReportID (Path_Report Int64)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(i, x) -> (Path_Look i, x)) (toList s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList s))
 instance HasPaths MRR Bool
     where type Path MRR Bool = Path_Map ReportID (Path_Report Bool)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(i, x) -> (Path_Look i, x)) (toList s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList s))
 instance HasPaths MRR Double
     where type Path MRR Double = Path_Map ReportID (Path_Report Double)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(i, x) -> (Path_Look i, x)) (toList s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList s))
 instance HasPaths MRR Int
     where type Path MRR Int = Path_Map ReportID (Path_Report Int)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(i, x) -> (Path_Look i, x)) (toList s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList s))
 instance HasPaths MRR Dimension
     where type Path MRR Dimension = Path_Map ReportID (Path_Report Dimension)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(i, x) -> (Path_Look i, x)) (toList s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList s))
 instance HasPaths MRR ImageCrop
     where type Path MRR ImageCrop = Path_Map ReportID (Path_Report ImageCrop)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(i, x) -> (Path_Look i, x)) (toList s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList s))
 instance HasPaths MRR ImageSize
     where type Path MRR ImageSize = Path_Map ReportID (Path_Report ImageSize)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(i, x) -> (Path_Look i, x)) (toList s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList s))
 instance HasPaths MRR Units
     where type Path MRR Units = Path_Map ReportID (Path_Report Units)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(i, x) -> (Path_Look i, x)) (toList s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList s))
 instance HasPaths MRR ImageFile
     where type Path MRR ImageFile = Path_Map ReportID (Path_Report ImageFile)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(i, x) -> (Path_Look i, x)) (toList s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList s))
 instance HasPaths MRR Integer
     where type Path MRR Integer = Path_Map ReportID (Path_Report Integer)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(i, x) -> (Path_Look i, x)) (toList s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList s))
 instance HasPaths MRR JSONText
     where type Path MRR JSONText = Path_Map ReportID (Path_Report JSONText)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(i, x) -> (Path_Look i, x)) (toList s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList s))
 instance HasPaths MRR Markup
     where type Path MRR Markup = Path_Map ReportID (Path_Report Markup)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(i, x) -> (Path_Look i, x)) (toList s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList s))
 instance HasPaths MRR Permissions
     where type Path MRR Permissions = Path_Map ReportID (Path_Report Permissions)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(i, x) -> (Path_Look i, x)) (toList s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList s))
 instance HasPaths MRR UserIds
     where type Path MRR UserIds = Path_Map ReportID (Path_Report UserIds)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(i, x) -> (Path_Look i, x)) (toList s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList s))
 instance HasPaths MRR AbbrevPair
     where type Path MRR AbbrevPair = Path_Map ReportID (Path_Report AbbrevPair)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(i, x) -> (Path_Look i, x)) (toList s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList s))
 instance HasPaths MRR AbbrevPairs
     where type Path MRR AbbrevPairs = Path_Map ReportID (Path_Report AbbrevPairs)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(i, x) -> (Path_Look i, x)) (toList s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList s))
 instance HasPaths MRR Author
     where type Path MRR Author = Path_Map ReportID (Path_Report Author)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(i, x) -> (Path_Look i, x)) (toList s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList s))
 instance HasPaths MRR Authors
     where type Path MRR Authors = Path_Map ReportID (Path_Report Authors)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(i, x) -> (Path_Look i, x)) (toList s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList s))
 instance HasPaths MRR Branding
     where type Path MRR Branding = Path_Map ReportID (Path_Report Branding)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(i, x) -> (Path_Look i, x)) (toList s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList s))
 instance HasPaths MRR MarkupPair
     where type Path MRR MarkupPair = Path_Map ReportID (Path_Report MarkupPair)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(i, x) -> (Path_Look i, x)) (toList s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList s))
 instance HasPaths MRR MarkupPairs
     where type Path MRR MarkupPairs = Path_Map ReportID (Path_Report MarkupPairs)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(i, x) -> (Path_Look i, x)) (toList s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList s))
 instance HasPaths MRR Markups
     where type Path MRR Markups = Path_Map ReportID (Path_Report Markups)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(i, x) -> (Path_Look i, x)) (toList s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList s))
 instance HasPaths MRR MaybeReportIntendedUse
     where type Path MRR MaybeReportIntendedUse = Path_Map ReportID (Path_Report MaybeReportIntendedUse)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(i, x) -> (Path_Look i, x)) (toList s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList s))
 instance HasPaths MRR Report
     where type Path MRR Report = Path_Map ReportID (Path_Report Report)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(i, x) -> (Path_Look i, x)) (toList s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList s))
 instance HasPaths MRR ReportElem
     where type Path MRR ReportElem = Path_Map ReportID (Path_Report ReportElem)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(i, x) -> (Path_Look i, x)) (toList s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList s))
 instance HasPaths MRR ReportElems
     where type Path MRR ReportElems = Path_Map ReportID (Path_Report ReportElems)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(i, x) -> (Path_Look i, x)) (toList s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList s))
 instance HasPaths MRR ReportFlags
     where type Path MRR ReportFlags = Path_Map ReportID (Path_Report ReportFlags)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(i, x) -> (Path_Look i, x)) (toList s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList s))
 instance HasPaths MRR ReportStandard
     where type Path MRR ReportStandard = Path_Map ReportID (Path_Report ReportStandard)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(i, x) -> (Path_Look i, x)) (toList s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList s))
 instance HasPaths MRR ReportStatus
     where type Path MRR ReportStatus = Path_Map ReportID (Path_Report ReportStatus)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(i, x) -> (Path_Look i, x)) (toList s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList s))
 instance HasPaths MRR ReportValueApproachInfo
     where type Path MRR ReportValueApproachInfo = Path_Map ReportID (Path_Report ReportValueApproachInfo)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(i, x) -> (Path_Look i, x)) (toList s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList s))
 instance HasPaths MRR ReportValueTypeInfo
     where type Path MRR ReportValueTypeInfo = Path_Map ReportID (Path_Report ReportValueTypeInfo)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(i, x) -> (Path_Look i, x)) (toList s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList s))
 instance HasPaths MRR EUI
     where type Path MRR EUI = Path_Map ReportID (Path_Report EUI)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(i, x) -> (Path_Look i, x)) (toList s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList s))
 instance HasPaths MRR MEUI
     where type Path MRR MEUI = Path_Map ReportID (Path_Report MEUI)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(i, x) -> (Path_Look i, x)) (toList s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList s))
 instance HasPaths MRR MaybeImageFile
     where type Path MRR MaybeImageFile = Path_Map ReportID (Path_Report MaybeImageFile)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(i, x) -> (Path_Look i, x)) (toList s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList s))
 instance HasPaths MRR ReportImage
     where type Path MRR ReportImage = Path_Map ReportID (Path_Report ReportImage)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(i, x) -> (Path_Look i, x)) (toList s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList s))
 instance HasPaths MRR ReportImages
     where type Path MRR ReportImages = Path_Map ReportID (Path_Report ReportImages)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(i, x) -> (Path_Look i, x)) (toList s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList s))
 instance HasPaths MRR ReadOnlyFilePath
     where type Path MRR ReadOnlyFilePath = Path_Map ReportID (Path_Report ReadOnlyFilePath)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(i, x) -> (Path_Look i, x)) (toList s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList s))
 instance HasPaths MRR ReportImageView
     where type Path MRR ReportImageView = Path_Map ReportID (Path_Report ReportImageView)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(i, x) -> (Path_Look i, x)) (toList s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList s))
 instance HasPaths MRR ReportView
     where type Path MRR ReportView = Path_Map ReportID (Path_Report ReportView)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(i, x) -> (Path_Look i, x)) (toList s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList s))
 instance HasPaths MRR SaneSizeImageSize
     where type Path MRR SaneSizeImageSize = Path_Map ReportID (Path_Report SaneSizeImageSize)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(i, x) -> (Path_Look i, x)) (toList s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList s))
 instance HasPaths MRR Item
     where type Path MRR Item = Path_Map ReportID (Path_Report Item)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(i, x) -> (Path_Look i, x)) (toList s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList s))
 instance HasPaths MRR MIM
     where type Path MRR MIM = Path_Map ReportID (Path_Report MIM)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(i, x) -> (Path_Look i, x)) (toList s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList s))
 instance HasPaths MRR MRR
     where type Path MRR MRR = Path_Map ReportID (Path_Report MRR)
           pathsOf _ _ = [idPath]
 instance HasPaths MRR CIString
     where type Path MRR CIString = Path_Map ReportID (Path_Report CIString)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(i, x) -> (Path_Look i, x)) (toList s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList s))
 instance HasPaths MRR URI
     where type Path MRR URI = Path_Map ReportID (Path_Report URI)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(i, x) -> (Path_Look i, x)) (toList s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList s))
 instance HasPaths MRR Text
     where type Path MRR Text = Path_Map ReportID (Path_Report Text)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(i, x) -> (Path_Look i, x)) (toList s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList s))
 instance HasPaths MRR UserId
     where type Path MRR UserId = Path_Map ReportID (Path_Report UserId)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(i, x) -> (Path_Look i, x)) (toList s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList s))
 instance HasPaths MRR UUID
     where type Path MRR UUID = Path_Map ReportID (Path_Report UUID)
-          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(i, x) -> (Path_Look i, x)) (toList s))
+          pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Report) g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList s))
 instance HasPaths ReportMap String
     where type Path ReportMap String = Path_ReportMap String
-          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: MRR) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
+          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Map ReportID Report) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
 instance HasPaths ReportMap Int64
     where type Path ReportMap Int64 = Path_ReportMap Int64
-          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: MRR) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
+          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Map ReportID Report) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
 instance HasPaths ReportMap Bool
     where type Path ReportMap Bool = Path_ReportMap Bool
-          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: MRR) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
+          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Map ReportID Report) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
 instance HasPaths ReportMap Double
     where type Path ReportMap Double = Path_ReportMap Double
-          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: MRR) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
+          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Map ReportID Report) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
 instance HasPaths ReportMap Int
     where type Path ReportMap Int = Path_ReportMap Int
-          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: MRR) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
+          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Map ReportID Report) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
 instance HasPaths ReportMap Dimension
     where type Path ReportMap Dimension = Path_ReportMap Dimension
-          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: MRR) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
+          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Map ReportID Report) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
 instance HasPaths ReportMap ImageCrop
     where type Path ReportMap ImageCrop = Path_ReportMap ImageCrop
-          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: MRR) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
+          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Map ReportID Report) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
 instance HasPaths ReportMap ImageSize
     where type Path ReportMap ImageSize = Path_ReportMap ImageSize
-          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: MRR) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
+          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Map ReportID Report) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
 instance HasPaths ReportMap Units
     where type Path ReportMap Units = Path_ReportMap Units
-          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: MRR) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
+          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Map ReportID Report) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
 instance HasPaths ReportMap ImageFile
     where type Path ReportMap ImageFile = Path_ReportMap ImageFile
-          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: MRR) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
+          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Map ReportID Report) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
 instance HasPaths ReportMap Integer
     where type Path ReportMap Integer = Path_ReportMap Integer
-          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: MRR) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
+          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Map ReportID Report) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
 instance HasPaths ReportMap JSONText
     where type Path ReportMap JSONText = Path_ReportMap JSONText
-          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: MRR) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
+          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Map ReportID Report) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
 instance HasPaths ReportMap Markup
     where type Path ReportMap Markup = Path_ReportMap Markup
-          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: MRR) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
+          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Map ReportID Report) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
 instance HasPaths ReportMap Permissions
     where type Path ReportMap Permissions = Path_ReportMap Permissions
-          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: MRR) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
+          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Map ReportID Report) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
 instance HasPaths ReportMap UserIds
     where type Path ReportMap UserIds = Path_ReportMap UserIds
-          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: MRR) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
+          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Map ReportID Report) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
 instance HasPaths ReportMap AbbrevPair
     where type Path ReportMap AbbrevPair = Path_ReportMap AbbrevPair
-          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: MRR) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
+          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Map ReportID Report) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
 instance HasPaths ReportMap AbbrevPairs
     where type Path ReportMap AbbrevPairs = Path_ReportMap AbbrevPairs
-          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: MRR) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
+          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Map ReportID Report) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
 instance HasPaths ReportMap Author
     where type Path ReportMap Author = Path_ReportMap Author
-          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: MRR) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
+          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Map ReportID Report) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
 instance HasPaths ReportMap Authors
     where type Path ReportMap Authors = Path_ReportMap Authors
-          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: MRR) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
+          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Map ReportID Report) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
 instance HasPaths ReportMap Branding
     where type Path ReportMap Branding = Path_ReportMap Branding
-          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: MRR) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
+          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Map ReportID Report) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
 instance HasPaths ReportMap MarkupPair
     where type Path ReportMap MarkupPair = Path_ReportMap MarkupPair
-          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: MRR) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
+          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Map ReportID Report) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
 instance HasPaths ReportMap MarkupPairs
     where type Path ReportMap MarkupPairs = Path_ReportMap MarkupPairs
-          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: MRR) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
+          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Map ReportID Report) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
 instance HasPaths ReportMap Markups
     where type Path ReportMap Markups = Path_ReportMap Markups
-          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: MRR) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
+          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Map ReportID Report) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
 instance HasPaths ReportMap MaybeReportIntendedUse
     where type Path ReportMap MaybeReportIntendedUse = Path_ReportMap MaybeReportIntendedUse
-          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: MRR) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
+          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Map ReportID Report) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
 instance HasPaths ReportMap Report
     where type Path ReportMap Report = Path_ReportMap Report
-          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: MRR) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
+          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Map ReportID Report) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
 instance HasPaths ReportMap ReportElem
     where type Path ReportMap ReportElem = Path_ReportMap ReportElem
-          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: MRR) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
+          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Map ReportID Report) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
 instance HasPaths ReportMap ReportElems
     where type Path ReportMap ReportElems = Path_ReportMap ReportElems
-          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: MRR) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
+          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Map ReportID Report) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
 instance HasPaths ReportMap ReportFlags
     where type Path ReportMap ReportFlags = Path_ReportMap ReportFlags
-          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: MRR) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
+          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Map ReportID Report) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
 instance HasPaths ReportMap ReportStandard
     where type Path ReportMap ReportStandard = Path_ReportMap ReportStandard
-          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: MRR) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
+          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Map ReportID Report) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
 instance HasPaths ReportMap ReportStatus
     where type Path ReportMap ReportStatus = Path_ReportMap ReportStatus
-          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: MRR) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
+          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Map ReportID Report) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
 instance HasPaths ReportMap ReportValueApproachInfo
     where type Path ReportMap ReportValueApproachInfo = Path_ReportMap ReportValueApproachInfo
-          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: MRR) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
+          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Map ReportID Report) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
 instance HasPaths ReportMap ReportValueTypeInfo
     where type Path ReportMap ReportValueTypeInfo = Path_ReportMap ReportValueTypeInfo
-          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: MRR) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
+          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Map ReportID Report) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
 instance HasPaths ReportMap EUI
     where type Path ReportMap EUI = Path_ReportMap EUI
-          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: MRR) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
+          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Map ReportID Report) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
 instance HasPaths ReportMap MEUI
     where type Path ReportMap MEUI = Path_ReportMap MEUI
-          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: MRR) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
+          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Map ReportID Report) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
 instance HasPaths ReportMap MaybeImageFile
     where type Path ReportMap MaybeImageFile = Path_ReportMap MaybeImageFile
-          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: MRR) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
+          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Map ReportID Report) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
 instance HasPaths ReportMap ReportImage
     where type Path ReportMap ReportImage = Path_ReportMap ReportImage
-          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: MRR) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
+          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Map ReportID Report) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
 instance HasPaths ReportMap ReportImages
     where type Path ReportMap ReportImages = Path_ReportMap ReportImages
-          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: MRR) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
+          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Map ReportID Report) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
 instance HasPaths ReportMap ReadOnlyFilePath
     where type Path ReportMap ReadOnlyFilePath = Path_ReportMap ReadOnlyFilePath
-          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: MRR) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
+          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Map ReportID Report) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
 instance HasPaths ReportMap ReportImageView
     where type Path ReportMap ReportImageView = Path_ReportMap ReportImageView
-          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: MRR) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
+          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Map ReportID Report) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
 instance HasPaths ReportMap ReportView
     where type Path ReportMap ReportView = Path_ReportMap ReportView
-          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: MRR) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
+          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Map ReportID Report) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
 instance HasPaths ReportMap SaneSizeImageSize
     where type Path ReportMap SaneSizeImageSize = Path_ReportMap SaneSizeImageSize
-          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: MRR) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
+          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Map ReportID Report) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
 instance HasPaths ReportMap Item
     where type Path ReportMap Item = Path_ReportMap Item
-          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: MRR) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
+          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Map ReportID Report) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
 instance HasPaths ReportMap MIM
     where type Path ReportMap MIM = Path_ReportMap MIM
-          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: MRR) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
+          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Map ReportID Report) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
 instance HasPaths ReportMap MRR
     where type Path ReportMap MRR = Path_ReportMap MRR
-          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: MRR) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
+          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Map ReportID Report) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
 instance HasPaths ReportMap ReportMap
     where type Path ReportMap ReportMap = Path_ReportMap ReportMap
           pathsOf _ _ = [idPath]
 instance HasPaths ReportMap CIString
     where type Path ReportMap CIString = Path_ReportMap CIString
-          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: MRR) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
+          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Map ReportID Report) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
 instance HasPaths ReportMap URI
     where type Path ReportMap URI = Path_ReportMap URI
-          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: MRR) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
+          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Map ReportID Report) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
 instance HasPaths ReportMap Text
     where type Path ReportMap Text = Path_ReportMap Text
-          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: MRR) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
+          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Map ReportID Report) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
 instance HasPaths ReportMap UserId
     where type Path ReportMap UserId = Path_ReportMap UserId
-          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: MRR) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
+          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Map ReportID Report) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
 instance HasPaths ReportMap UUID
     where type Path ReportMap UUID = Path_ReportMap UUID
-          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: MRR) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
+          pathsOf (s@(ReportMap {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Map ReportID Report) g)) [(Path_ReportMap_unReportMap, unReportMap s)]
 instance HasPaths CIString JSONText
     where type Path CIString JSONText = Path_CIString JSONText
           pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: Text) g)) (map (\a' -> (Path_CIString_View, a')) (toListOf (toLens (Path_CIString_View (idPath :: Path Text
@@ -8800,16 +8773,16 @@ instance IsPathStart (Map ItemFieldName Markup)
               | Peek_MIM_MIM (Path (Map ItemFieldName Markup) (Map ItemFieldName Markup)) (Maybe (Map ItemFieldName Markup))
               | Peek_MIM_Text (Path (Map ItemFieldName Markup) Text) (Maybe Text)
               deriving (Eq, Show)
-          peek (s@_) = concatMap (\path -> case path of
-                                               p@(Path_Look k _) -> map (\a -> let f = peek a
-                                                                                in let liftPeek (Peek_Markup_JSONText q z) = Peek_MIM_JSONText (Path_Look k q) z
-                                                                                       liftPeek (Peek_Markup_Markup q z) = Peek_MIM_Markup (Path_Look k q) z
-                                                                                       liftPeek (Peek_Markup_Text q z) = Peek_MIM_Text (Path_Look k q) z
-                                                                                    in Node (Peek_MIM_Markup p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
-                                               _ -> []) (pathsOf s (undefined :: Proxy Markup)) :: Forest (Peek (Map ItemFieldName Markup))
-          hop (s@_) = concatMap (\path -> case path of
-                                              p@(Path_Look k _) -> map (\a -> Node (Peek_MIM_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
-                                              _ -> []) (pathsOf s (undefined :: Proxy Markup)) :: Forest (Peek (Map ItemFieldName Markup))
+          peek s = concatMap (\path -> case path of
+                                           p@(Path_Look k _) -> map (\a -> let f = peek a
+                                                                            in let liftPeek (Peek_Markup_JSONText q z) = Peek_MIM_JSONText (Path_Look k q) z
+                                                                                   liftPeek (Peek_Markup_Markup q z) = Peek_MIM_Markup (Path_Look k q) z
+                                                                                   liftPeek (Peek_Markup_Text q z) = Peek_MIM_Text (Path_Look k q) z
+                                                                                in Node (Peek_MIM_Markup p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
+                                           _ -> []) (pathsOf s (undefined :: Proxy Markup)) :: Forest (Peek (Map ItemFieldName Markup))
+          hop s = concatMap (\path -> case path of
+                                          p@(Path_Look k _) -> map (\a -> Node (Peek_MIM_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
+                                          _ -> []) (pathsOf s (undefined :: Proxy Markup)) :: Forest (Peek (Map ItemFieldName Markup))
           describe' (Peek_MIM_Markup (p@(Path_Look k _)) x) = fromMaybe "Markup" (describe (Proxy :: Proxy Markup) Nothing)
 instance IsPathStart (Map ReportID Report)
     where data Peek (Map ReportID Report)
@@ -8863,61 +8836,61 @@ instance IsPathStart (Map ReportID Report)
               | Peek_MRR_UserId (Path (Map ReportID Report) UserId) (Maybe UserId)
               | Peek_MRR_UUID (Path (Map ReportID Report) UUID) (Maybe UUID)
               deriving (Eq, Show)
-          peek (s@_) = concatMap (\path -> case path of
-                                               p@(Path_Look k _) -> map (\a -> let f = peek a
-                                                                                in let liftPeek (Peek_Report_String q z) = Peek_MRR_String (Path_Look k q) z
-                                                                                       liftPeek (Peek_Report_Int64 q z) = Peek_MRR_Int64 (Path_Look k q) z
-                                                                                       liftPeek (Peek_Report_Int q z) = Peek_MRR_Int (Path_Look k q) z
-                                                                                       liftPeek (Peek_Report_Bool q z) = Peek_MRR_Bool (Path_Look k q) z
-                                                                                       liftPeek (Peek_Report_Double q z) = Peek_MRR_Double (Path_Look k q) z
-                                                                                       liftPeek (Peek_Report_Dimension q z) = Peek_MRR_Dimension (Path_Look k q) z
-                                                                                       liftPeek (Peek_Report_ImageCrop q z) = Peek_MRR_ImageCrop (Path_Look k q) z
-                                                                                       liftPeek (Peek_Report_ImageSize q z) = Peek_MRR_ImageSize (Path_Look k q) z
-                                                                                       liftPeek (Peek_Report_Units q z) = Peek_MRR_Units (Path_Look k q) z
-                                                                                       liftPeek (Peek_Report_ImageFile q z) = Peek_MRR_ImageFile (Path_Look k q) z
-                                                                                       liftPeek (Peek_Report_Integer q z) = Peek_MRR_Integer (Path_Look k q) z
-                                                                                       liftPeek (Peek_Report_JSONText q z) = Peek_MRR_JSONText (Path_Look k q) z
-                                                                                       liftPeek (Peek_Report_Markup q z) = Peek_MRR_Markup (Path_Look k q) z
-                                                                                       liftPeek (Peek_Report_Permissions q z) = Peek_MRR_Permissions (Path_Look k q) z
-                                                                                       liftPeek (Peek_Report_UserIds q z) = Peek_MRR_UserIds (Path_Look k q) z
-                                                                                       liftPeek (Peek_Report_AbbrevPair q z) = Peek_MRR_AbbrevPair (Path_Look k q) z
-                                                                                       liftPeek (Peek_Report_AbbrevPairs q z) = Peek_MRR_AbbrevPairs (Path_Look k q) z
-                                                                                       liftPeek (Peek_Report_Author q z) = Peek_MRR_Author (Path_Look k q) z
-                                                                                       liftPeek (Peek_Report_Authors q z) = Peek_MRR_Authors (Path_Look k q) z
-                                                                                       liftPeek (Peek_Report_Branding q z) = Peek_MRR_Branding (Path_Look k q) z
-                                                                                       liftPeek (Peek_Report_MarkupPair q z) = Peek_MRR_MarkupPair (Path_Look k q) z
-                                                                                       liftPeek (Peek_Report_MarkupPairs q z) = Peek_MRR_MarkupPairs (Path_Look k q) z
-                                                                                       liftPeek (Peek_Report_Markups q z) = Peek_MRR_Markups (Path_Look k q) z
-                                                                                       liftPeek (Peek_Report_MaybeReportIntendedUse q z) = Peek_MRR_MaybeReportIntendedUse (Path_Look k q) z
-                                                                                       liftPeek (Peek_Report_Report q z) = Peek_MRR_Report (Path_Look k q) z
-                                                                                       liftPeek (Peek_Report_ReportElem q z) = Peek_MRR_ReportElem (Path_Look k q) z
-                                                                                       liftPeek (Peek_Report_ReportElems q z) = Peek_MRR_ReportElems (Path_Look k q) z
-                                                                                       liftPeek (Peek_Report_ReportFlags q z) = Peek_MRR_ReportFlags (Path_Look k q) z
-                                                                                       liftPeek (Peek_Report_ReportStandard q z) = Peek_MRR_ReportStandard (Path_Look k q) z
-                                                                                       liftPeek (Peek_Report_ReportStatus q z) = Peek_MRR_ReportStatus (Path_Look k q) z
-                                                                                       liftPeek (Peek_Report_ReportValueApproachInfo q z) = Peek_MRR_ReportValueApproachInfo (Path_Look k q) z
-                                                                                       liftPeek (Peek_Report_ReportValueTypeInfo q z) = Peek_MRR_ReportValueTypeInfo (Path_Look k q) z
-                                                                                       liftPeek (Peek_Report_EUI q z) = Peek_MRR_EUI (Path_Look k q) z
-                                                                                       liftPeek (Peek_Report_MEUI q z) = Peek_MRR_MEUI (Path_Look k q) z
-                                                                                       liftPeek (Peek_Report_MaybeImageFile q z) = Peek_MRR_MaybeImageFile (Path_Look k q) z
-                                                                                       liftPeek (Peek_Report_ReportImage q z) = Peek_MRR_ReportImage (Path_Look k q) z
-                                                                                       liftPeek (Peek_Report_ReportImages q z) = Peek_MRR_ReportImages (Path_Look k q) z
-                                                                                       liftPeek (Peek_Report_ReadOnlyFilePath q z) = Peek_MRR_ReadOnlyFilePath (Path_Look k q) z
-                                                                                       liftPeek (Peek_Report_ReportImageView q z) = Peek_MRR_ReportImageView (Path_Look k q) z
-                                                                                       liftPeek (Peek_Report_ReportView q z) = Peek_MRR_ReportView (Path_Look k q) z
-                                                                                       liftPeek (Peek_Report_SaneSizeImageSize q z) = Peek_MRR_SaneSizeImageSize (Path_Look k q) z
-                                                                                       liftPeek (Peek_Report_Item q z) = Peek_MRR_Item (Path_Look k q) z
-                                                                                       liftPeek (Peek_Report_MIM q z) = Peek_MRR_MIM (Path_Look k q) z
-                                                                                       liftPeek (Peek_Report_CIString q z) = Peek_MRR_CIString (Path_Look k q) z
-                                                                                       liftPeek (Peek_Report_URI q z) = Peek_MRR_URI (Path_Look k q) z
-                                                                                       liftPeek (Peek_Report_Text q z) = Peek_MRR_Text (Path_Look k q) z
-                                                                                       liftPeek (Peek_Report_UserId q z) = Peek_MRR_UserId (Path_Look k q) z
-                                                                                       liftPeek (Peek_Report_UUID q z) = Peek_MRR_UUID (Path_Look k q) z
-                                                                                    in Node (Peek_MRR_Report p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Report])
-                                               _ -> []) (pathsOf s (undefined :: Proxy Report)) :: Forest (Peek (Map ReportID Report))
-          hop (s@_) = concatMap (\path -> case path of
-                                              p@(Path_Look k _) -> map (\a -> Node (Peek_MRR_Report p (Just a)) []) (toListOf (toLens p) s :: [Report])
-                                              _ -> []) (pathsOf s (undefined :: Proxy Report)) :: Forest (Peek (Map ReportID Report))
+          peek s = concatMap (\path -> case path of
+                                           p@(Path_Look k _) -> map (\a -> let f = peek a
+                                                                            in let liftPeek (Peek_Report_String q z) = Peek_MRR_String (Path_Look k q) z
+                                                                                   liftPeek (Peek_Report_Int64 q z) = Peek_MRR_Int64 (Path_Look k q) z
+                                                                                   liftPeek (Peek_Report_Int q z) = Peek_MRR_Int (Path_Look k q) z
+                                                                                   liftPeek (Peek_Report_Bool q z) = Peek_MRR_Bool (Path_Look k q) z
+                                                                                   liftPeek (Peek_Report_Double q z) = Peek_MRR_Double (Path_Look k q) z
+                                                                                   liftPeek (Peek_Report_Dimension q z) = Peek_MRR_Dimension (Path_Look k q) z
+                                                                                   liftPeek (Peek_Report_ImageCrop q z) = Peek_MRR_ImageCrop (Path_Look k q) z
+                                                                                   liftPeek (Peek_Report_ImageSize q z) = Peek_MRR_ImageSize (Path_Look k q) z
+                                                                                   liftPeek (Peek_Report_Units q z) = Peek_MRR_Units (Path_Look k q) z
+                                                                                   liftPeek (Peek_Report_ImageFile q z) = Peek_MRR_ImageFile (Path_Look k q) z
+                                                                                   liftPeek (Peek_Report_Integer q z) = Peek_MRR_Integer (Path_Look k q) z
+                                                                                   liftPeek (Peek_Report_JSONText q z) = Peek_MRR_JSONText (Path_Look k q) z
+                                                                                   liftPeek (Peek_Report_Markup q z) = Peek_MRR_Markup (Path_Look k q) z
+                                                                                   liftPeek (Peek_Report_Permissions q z) = Peek_MRR_Permissions (Path_Look k q) z
+                                                                                   liftPeek (Peek_Report_UserIds q z) = Peek_MRR_UserIds (Path_Look k q) z
+                                                                                   liftPeek (Peek_Report_AbbrevPair q z) = Peek_MRR_AbbrevPair (Path_Look k q) z
+                                                                                   liftPeek (Peek_Report_AbbrevPairs q z) = Peek_MRR_AbbrevPairs (Path_Look k q) z
+                                                                                   liftPeek (Peek_Report_Author q z) = Peek_MRR_Author (Path_Look k q) z
+                                                                                   liftPeek (Peek_Report_Authors q z) = Peek_MRR_Authors (Path_Look k q) z
+                                                                                   liftPeek (Peek_Report_Branding q z) = Peek_MRR_Branding (Path_Look k q) z
+                                                                                   liftPeek (Peek_Report_MarkupPair q z) = Peek_MRR_MarkupPair (Path_Look k q) z
+                                                                                   liftPeek (Peek_Report_MarkupPairs q z) = Peek_MRR_MarkupPairs (Path_Look k q) z
+                                                                                   liftPeek (Peek_Report_Markups q z) = Peek_MRR_Markups (Path_Look k q) z
+                                                                                   liftPeek (Peek_Report_MaybeReportIntendedUse q z) = Peek_MRR_MaybeReportIntendedUse (Path_Look k q) z
+                                                                                   liftPeek (Peek_Report_Report q z) = Peek_MRR_Report (Path_Look k q) z
+                                                                                   liftPeek (Peek_Report_ReportElem q z) = Peek_MRR_ReportElem (Path_Look k q) z
+                                                                                   liftPeek (Peek_Report_ReportElems q z) = Peek_MRR_ReportElems (Path_Look k q) z
+                                                                                   liftPeek (Peek_Report_ReportFlags q z) = Peek_MRR_ReportFlags (Path_Look k q) z
+                                                                                   liftPeek (Peek_Report_ReportStandard q z) = Peek_MRR_ReportStandard (Path_Look k q) z
+                                                                                   liftPeek (Peek_Report_ReportStatus q z) = Peek_MRR_ReportStatus (Path_Look k q) z
+                                                                                   liftPeek (Peek_Report_ReportValueApproachInfo q z) = Peek_MRR_ReportValueApproachInfo (Path_Look k q) z
+                                                                                   liftPeek (Peek_Report_ReportValueTypeInfo q z) = Peek_MRR_ReportValueTypeInfo (Path_Look k q) z
+                                                                                   liftPeek (Peek_Report_EUI q z) = Peek_MRR_EUI (Path_Look k q) z
+                                                                                   liftPeek (Peek_Report_MEUI q z) = Peek_MRR_MEUI (Path_Look k q) z
+                                                                                   liftPeek (Peek_Report_MaybeImageFile q z) = Peek_MRR_MaybeImageFile (Path_Look k q) z
+                                                                                   liftPeek (Peek_Report_ReportImage q z) = Peek_MRR_ReportImage (Path_Look k q) z
+                                                                                   liftPeek (Peek_Report_ReportImages q z) = Peek_MRR_ReportImages (Path_Look k q) z
+                                                                                   liftPeek (Peek_Report_ReadOnlyFilePath q z) = Peek_MRR_ReadOnlyFilePath (Path_Look k q) z
+                                                                                   liftPeek (Peek_Report_ReportImageView q z) = Peek_MRR_ReportImageView (Path_Look k q) z
+                                                                                   liftPeek (Peek_Report_ReportView q z) = Peek_MRR_ReportView (Path_Look k q) z
+                                                                                   liftPeek (Peek_Report_SaneSizeImageSize q z) = Peek_MRR_SaneSizeImageSize (Path_Look k q) z
+                                                                                   liftPeek (Peek_Report_Item q z) = Peek_MRR_Item (Path_Look k q) z
+                                                                                   liftPeek (Peek_Report_MIM q z) = Peek_MRR_MIM (Path_Look k q) z
+                                                                                   liftPeek (Peek_Report_CIString q z) = Peek_MRR_CIString (Path_Look k q) z
+                                                                                   liftPeek (Peek_Report_URI q z) = Peek_MRR_URI (Path_Look k q) z
+                                                                                   liftPeek (Peek_Report_Text q z) = Peek_MRR_Text (Path_Look k q) z
+                                                                                   liftPeek (Peek_Report_UserId q z) = Peek_MRR_UserId (Path_Look k q) z
+                                                                                   liftPeek (Peek_Report_UUID q z) = Peek_MRR_UUID (Path_Look k q) z
+                                                                                in Node (Peek_MRR_Report p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Report])
+                                           _ -> []) (pathsOf s (undefined :: Proxy Report)) :: Forest (Peek (Map ReportID Report))
+          hop s = concatMap (\path -> case path of
+                                          p@(Path_Look k _) -> map (\a -> Node (Peek_MRR_Report p (Just a)) []) (toListOf (toLens p) s :: [Report])
+                                          _ -> []) (pathsOf s (undefined :: Proxy Report)) :: Forest (Peek (Map ReportID Report))
           describe' (Peek_MRR_Report (p@(Path_Look k _)) x) = "Report"
 instance IsPathStart (Order AbbrevPairID ((CIString, Markup)))
     where data Peek (Order AbbrevPairID ((CIString, Markup)))
@@ -8929,18 +8902,18 @@ instance IsPathStart (Order AbbrevPairID ((CIString, Markup)))
               | Peek_AbbrevPairs_CIString (Path (Order AbbrevPairID ((CIString, Markup))) CIString) (Maybe CIString)
               | Peek_AbbrevPairs_Text (Path (Order AbbrevPairID ((CIString, Markup))) Text) (Maybe Text)
               deriving (Eq, Show)
-          peek (s@_) = concatMap (\path -> case path of
-                                               p@(Path_At k _) -> map (\a -> let f = peek a
-                                                                              in let liftPeek (Peek_AbbrevPair_JSONText q z) = Peek_AbbrevPairs_JSONText (Path_At k q) z
-                                                                                     liftPeek (Peek_AbbrevPair_Markup q z) = Peek_AbbrevPairs_Markup (Path_At k q) z
-                                                                                     liftPeek (Peek_AbbrevPair_AbbrevPair q z) = Peek_AbbrevPairs_AbbrevPair (Path_At k q) z
-                                                                                     liftPeek (Peek_AbbrevPair_CIString q z) = Peek_AbbrevPairs_CIString (Path_At k q) z
-                                                                                     liftPeek (Peek_AbbrevPair_Text q z) = Peek_AbbrevPairs_Text (Path_At k q) z
-                                                                                  in Node (Peek_AbbrevPairs_AbbrevPair p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [(CIString, Markup)])
-                                               _ -> []) (pathsOf s (undefined :: Proxy ((CIString, Markup)))) :: Forest (Peek (Order AbbrevPairID ((CIString, Markup))))
-          hop (s@_) = concatMap (\path -> case path of
-                                              p@(Path_At k _) -> map (\a -> Node (Peek_AbbrevPairs_AbbrevPair p (Just a)) []) (toListOf (toLens p) s :: [(CIString, Markup)])
-                                              _ -> []) (pathsOf s (undefined :: Proxy ((CIString, Markup)))) :: Forest (Peek (Order AbbrevPairID ((CIString, Markup))))
+          peek s = concatMap (\path -> case path of
+                                           p@(Path_At k _) -> map (\a -> let f = peek a
+                                                                          in let liftPeek (Peek_AbbrevPair_JSONText q z) = Peek_AbbrevPairs_JSONText (Path_At k q) z
+                                                                                 liftPeek (Peek_AbbrevPair_Markup q z) = Peek_AbbrevPairs_Markup (Path_At k q) z
+                                                                                 liftPeek (Peek_AbbrevPair_AbbrevPair q z) = Peek_AbbrevPairs_AbbrevPair (Path_At k q) z
+                                                                                 liftPeek (Peek_AbbrevPair_CIString q z) = Peek_AbbrevPairs_CIString (Path_At k q) z
+                                                                                 liftPeek (Peek_AbbrevPair_Text q z) = Peek_AbbrevPairs_Text (Path_At k q) z
+                                                                              in Node (Peek_AbbrevPairs_AbbrevPair p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [(CIString, Markup)])
+                                           _ -> []) (pathsOf s (undefined :: Proxy ((CIString, Markup)))) :: Forest (Peek (Order AbbrevPairID ((CIString, Markup))))
+          hop s = concatMap (\path -> case path of
+                                          p@(Path_At k _) -> map (\a -> Node (Peek_AbbrevPairs_AbbrevPair p (Just a)) []) (toListOf (toLens p) s :: [(CIString, Markup)])
+                                          _ -> []) (pathsOf s (undefined :: Proxy ((CIString, Markup)))) :: Forest (Peek (Order AbbrevPairID ((CIString, Markup))))
           describe' (Peek_AbbrevPairs_AbbrevPair (p@(Path_At k _)) x) = "Abbrev Pair"
 instance IsPathStart (Order AuthorID Author)
     where data Peek (Order AuthorID Author)
@@ -8950,17 +8923,17 @@ instance IsPathStart (Order AuthorID Author)
               | Peek_Authors_Authors (Path (Order AuthorID Author) (Order AuthorID Author)) (Maybe (Order AuthorID Author))
               | Peek_Authors_Text (Path (Order AuthorID Author) Text) (Maybe Text)
               deriving (Eq, Show)
-          peek (s@_) = concatMap (\path -> case path of
-                                               p@(Path_At k _) -> map (\a -> let f = peek a
-                                                                              in let liftPeek (Peek_Author_JSONText q z) = Peek_Authors_JSONText (Path_At k q) z
-                                                                                     liftPeek (Peek_Author_Markup q z) = Peek_Authors_Markup (Path_At k q) z
-                                                                                     liftPeek (Peek_Author_Author q z) = Peek_Authors_Author (Path_At k q) z
-                                                                                     liftPeek (Peek_Author_Text q z) = Peek_Authors_Text (Path_At k q) z
-                                                                                  in Node (Peek_Authors_Author p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Author])
-                                               _ -> []) (pathsOf s (undefined :: Proxy Author)) :: Forest (Peek (Order AuthorID Author))
-          hop (s@_) = concatMap (\path -> case path of
-                                              p@(Path_At k _) -> map (\a -> Node (Peek_Authors_Author p (Just a)) []) (toListOf (toLens p) s :: [Author])
-                                              _ -> []) (pathsOf s (undefined :: Proxy Author)) :: Forest (Peek (Order AuthorID Author))
+          peek s = concatMap (\path -> case path of
+                                           p@(Path_At k _) -> map (\a -> let f = peek a
+                                                                          in let liftPeek (Peek_Author_JSONText q z) = Peek_Authors_JSONText (Path_At k q) z
+                                                                                 liftPeek (Peek_Author_Markup q z) = Peek_Authors_Markup (Path_At k q) z
+                                                                                 liftPeek (Peek_Author_Author q z) = Peek_Authors_Author (Path_At k q) z
+                                                                                 liftPeek (Peek_Author_Text q z) = Peek_Authors_Text (Path_At k q) z
+                                                                              in Node (Peek_Authors_Author p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Author])
+                                           _ -> []) (pathsOf s (undefined :: Proxy Author)) :: Forest (Peek (Order AuthorID Author))
+          hop s = concatMap (\path -> case path of
+                                          p@(Path_At k _) -> map (\a -> Node (Peek_Authors_Author p (Just a)) []) (toListOf (toLens p) s :: [Author])
+                                          _ -> []) (pathsOf s (undefined :: Proxy Author)) :: Forest (Peek (Order AuthorID Author))
           describe' (Peek_Authors_Author (p@(Path_At k _)) x) = "Author"
 instance IsPathStart (Order MarkupID Markup)
     where data Peek (Order MarkupID Markup)
@@ -8969,16 +8942,16 @@ instance IsPathStart (Order MarkupID Markup)
               | Peek_Markups_Markups (Path (Order MarkupID Markup) (Order MarkupID Markup)) (Maybe (Order MarkupID Markup))
               | Peek_Markups_Text (Path (Order MarkupID Markup) Text) (Maybe Text)
               deriving (Eq, Show)
-          peek (s@_) = concatMap (\path -> case path of
-                                               p@(Path_At k _) -> map (\a -> let f = peek a
-                                                                              in let liftPeek (Peek_Markup_JSONText q z) = Peek_Markups_JSONText (Path_At k q) z
-                                                                                     liftPeek (Peek_Markup_Markup q z) = Peek_Markups_Markup (Path_At k q) z
-                                                                                     liftPeek (Peek_Markup_Text q z) = Peek_Markups_Text (Path_At k q) z
-                                                                                  in Node (Peek_Markups_Markup p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
-                                               _ -> []) (pathsOf s (undefined :: Proxy Markup)) :: Forest (Peek (Order MarkupID Markup))
-          hop (s@_) = concatMap (\path -> case path of
-                                              p@(Path_At k _) -> map (\a -> Node (Peek_Markups_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
-                                              _ -> []) (pathsOf s (undefined :: Proxy Markup)) :: Forest (Peek (Order MarkupID Markup))
+          peek s = concatMap (\path -> case path of
+                                           p@(Path_At k _) -> map (\a -> let f = peek a
+                                                                          in let liftPeek (Peek_Markup_JSONText q z) = Peek_Markups_JSONText (Path_At k q) z
+                                                                                 liftPeek (Peek_Markup_Markup q z) = Peek_Markups_Markup (Path_At k q) z
+                                                                                 liftPeek (Peek_Markup_Text q z) = Peek_Markups_Text (Path_At k q) z
+                                                                              in Node (Peek_Markups_Markup p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
+                                           _ -> []) (pathsOf s (undefined :: Proxy Markup)) :: Forest (Peek (Order MarkupID Markup))
+          hop s = concatMap (\path -> case path of
+                                          p@(Path_At k _) -> map (\a -> Node (Peek_Markups_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
+                                          _ -> []) (pathsOf s (undefined :: Proxy Markup)) :: Forest (Peek (Order MarkupID Markup))
           describe' (Peek_Markups_Markup (p@(Path_At k _)) x) = fromMaybe "Markup" (describe (Proxy :: Proxy Markup) Nothing)
 instance IsPathStart (Order MarkupPairID ((Markup, Markup)))
     where data Peek (Order MarkupPairID ((Markup, Markup)))
@@ -8988,17 +8961,17 @@ instance IsPathStart (Order MarkupPairID ((Markup, Markup)))
               | Peek_MarkupPairs_MarkupPairs (Path (Order MarkupPairID ((Markup, Markup))) (Order MarkupPairID ((Markup, Markup)))) (Maybe (Order MarkupPairID ((Markup, Markup))))
               | Peek_MarkupPairs_Text (Path (Order MarkupPairID ((Markup, Markup))) Text) (Maybe Text)
               deriving (Eq, Show)
-          peek (s@_) = concatMap (\path -> case path of
-                                               p@(Path_At k _) -> map (\a -> let f = peek a
-                                                                              in let liftPeek (Peek_MarkupPair_JSONText q z) = Peek_MarkupPairs_JSONText (Path_At k q) z
-                                                                                     liftPeek (Peek_MarkupPair_Markup q z) = Peek_MarkupPairs_Markup (Path_At k q) z
-                                                                                     liftPeek (Peek_MarkupPair_MarkupPair q z) = Peek_MarkupPairs_MarkupPair (Path_At k q) z
-                                                                                     liftPeek (Peek_MarkupPair_Text q z) = Peek_MarkupPairs_Text (Path_At k q) z
-                                                                                  in Node (Peek_MarkupPairs_MarkupPair p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [(Markup, Markup)])
-                                               _ -> []) (pathsOf s (undefined :: Proxy ((Markup, Markup)))) :: Forest (Peek (Order MarkupPairID ((Markup, Markup))))
-          hop (s@_) = concatMap (\path -> case path of
-                                              p@(Path_At k _) -> map (\a -> Node (Peek_MarkupPairs_MarkupPair p (Just a)) []) (toListOf (toLens p) s :: [(Markup, Markup)])
-                                              _ -> []) (pathsOf s (undefined :: Proxy ((Markup, Markup)))) :: Forest (Peek (Order MarkupPairID ((Markup, Markup))))
+          peek s = concatMap (\path -> case path of
+                                           p@(Path_At k _) -> map (\a -> let f = peek a
+                                                                          in let liftPeek (Peek_MarkupPair_JSONText q z) = Peek_MarkupPairs_JSONText (Path_At k q) z
+                                                                                 liftPeek (Peek_MarkupPair_Markup q z) = Peek_MarkupPairs_Markup (Path_At k q) z
+                                                                                 liftPeek (Peek_MarkupPair_MarkupPair q z) = Peek_MarkupPairs_MarkupPair (Path_At k q) z
+                                                                                 liftPeek (Peek_MarkupPair_Text q z) = Peek_MarkupPairs_Text (Path_At k q) z
+                                                                              in Node (Peek_MarkupPairs_MarkupPair p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [(Markup, Markup)])
+                                           _ -> []) (pathsOf s (undefined :: Proxy ((Markup, Markup)))) :: Forest (Peek (Order MarkupPairID ((Markup, Markup))))
+          hop s = concatMap (\path -> case path of
+                                          p@(Path_At k _) -> map (\a -> Node (Peek_MarkupPairs_MarkupPair p (Just a)) []) (toListOf (toLens p) s :: [(Markup, Markup)])
+                                          _ -> []) (pathsOf s (undefined :: Proxy ((Markup, Markup)))) :: Forest (Peek (Order MarkupPairID ((Markup, Markup))))
           describe' (Peek_MarkupPairs_MarkupPair (p@(Path_At k _)) x) = "Markup Pair"
 instance IsPathStart (Order ReportElemID ReportElem)
     where data Peek (Order ReportElemID ReportElem)
@@ -9026,35 +8999,35 @@ instance IsPathStart (Order ReportElemID ReportElem)
               | Peek_ReportElems_URI (Path (Order ReportElemID ReportElem) URI) (Maybe URI)
               | Peek_ReportElems_Text (Path (Order ReportElemID ReportElem) Text) (Maybe Text)
               deriving (Eq, Show)
-          peek (s@_) = concatMap (\path -> case path of
-                                               p@(Path_At k _) -> map (\a -> let f = peek a
-                                                                              in let liftPeek (Peek_ReportElem_String q z) = Peek_ReportElems_String (Path_At k q) z
-                                                                                     liftPeek (Peek_ReportElem_Bool q z) = Peek_ReportElems_Bool (Path_At k q) z
-                                                                                     liftPeek (Peek_ReportElem_Double q z) = Peek_ReportElems_Double (Path_At k q) z
-                                                                                     liftPeek (Peek_ReportElem_Dimension q z) = Peek_ReportElems_Dimension (Path_At k q) z
-                                                                                     liftPeek (Peek_ReportElem_ImageCrop q z) = Peek_ReportElems_ImageCrop (Path_At k q) z
-                                                                                     liftPeek (Peek_ReportElem_ImageSize q z) = Peek_ReportElems_ImageSize (Path_At k q) z
-                                                                                     liftPeek (Peek_ReportElem_Units q z) = Peek_ReportElems_Units (Path_At k q) z
-                                                                                     liftPeek (Peek_ReportElem_ImageFile q z) = Peek_ReportElems_ImageFile (Path_At k q) z
-                                                                                     liftPeek (Peek_ReportElem_JSONText q z) = Peek_ReportElems_JSONText (Path_At k q) z
-                                                                                     liftPeek (Peek_ReportElem_Markup q z) = Peek_ReportElems_Markup (Path_At k q) z
-                                                                                     liftPeek (Peek_ReportElem_ReportElem q z) = Peek_ReportElems_ReportElem (Path_At k q) z
-                                                                                     liftPeek (Peek_ReportElem_EUI q z) = Peek_ReportElems_EUI (Path_At k q) z
-                                                                                     liftPeek (Peek_ReportElem_MEUI q z) = Peek_ReportElems_MEUI (Path_At k q) z
-                                                                                     liftPeek (Peek_ReportElem_MaybeImageFile q z) = Peek_ReportElems_MaybeImageFile (Path_At k q) z
-                                                                                     liftPeek (Peek_ReportElem_ReportImage q z) = Peek_ReportElems_ReportImage (Path_At k q) z
-                                                                                     liftPeek (Peek_ReportElem_ReportImages q z) = Peek_ReportElems_ReportImages (Path_At k q) z
-                                                                                     liftPeek (Peek_ReportElem_ReportImageView q z) = Peek_ReportElems_ReportImageView (Path_At k q) z
-                                                                                     liftPeek (Peek_ReportElem_SaneSizeImageSize q z) = Peek_ReportElems_SaneSizeImageSize (Path_At k q) z
-                                                                                     liftPeek (Peek_ReportElem_Item q z) = Peek_ReportElems_Item (Path_At k q) z
-                                                                                     liftPeek (Peek_ReportElem_MIM q z) = Peek_ReportElems_MIM (Path_At k q) z
-                                                                                     liftPeek (Peek_ReportElem_URI q z) = Peek_ReportElems_URI (Path_At k q) z
-                                                                                     liftPeek (Peek_ReportElem_Text q z) = Peek_ReportElems_Text (Path_At k q) z
-                                                                                  in Node (Peek_ReportElems_ReportElem p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [ReportElem])
-                                               _ -> []) (pathsOf s (undefined :: Proxy ReportElem)) :: Forest (Peek (Order ReportElemID ReportElem))
-          hop (s@_) = concatMap (\path -> case path of
-                                              p@(Path_At k _) -> map (\a -> Node (Peek_ReportElems_ReportElem p (Just a)) []) (toListOf (toLens p) s :: [ReportElem])
-                                              _ -> []) (pathsOf s (undefined :: Proxy ReportElem)) :: Forest (Peek (Order ReportElemID ReportElem))
+          peek s = concatMap (\path -> case path of
+                                           p@(Path_At k _) -> map (\a -> let f = peek a
+                                                                          in let liftPeek (Peek_ReportElem_String q z) = Peek_ReportElems_String (Path_At k q) z
+                                                                                 liftPeek (Peek_ReportElem_Bool q z) = Peek_ReportElems_Bool (Path_At k q) z
+                                                                                 liftPeek (Peek_ReportElem_Double q z) = Peek_ReportElems_Double (Path_At k q) z
+                                                                                 liftPeek (Peek_ReportElem_Dimension q z) = Peek_ReportElems_Dimension (Path_At k q) z
+                                                                                 liftPeek (Peek_ReportElem_ImageCrop q z) = Peek_ReportElems_ImageCrop (Path_At k q) z
+                                                                                 liftPeek (Peek_ReportElem_ImageSize q z) = Peek_ReportElems_ImageSize (Path_At k q) z
+                                                                                 liftPeek (Peek_ReportElem_Units q z) = Peek_ReportElems_Units (Path_At k q) z
+                                                                                 liftPeek (Peek_ReportElem_ImageFile q z) = Peek_ReportElems_ImageFile (Path_At k q) z
+                                                                                 liftPeek (Peek_ReportElem_JSONText q z) = Peek_ReportElems_JSONText (Path_At k q) z
+                                                                                 liftPeek (Peek_ReportElem_Markup q z) = Peek_ReportElems_Markup (Path_At k q) z
+                                                                                 liftPeek (Peek_ReportElem_ReportElem q z) = Peek_ReportElems_ReportElem (Path_At k q) z
+                                                                                 liftPeek (Peek_ReportElem_EUI q z) = Peek_ReportElems_EUI (Path_At k q) z
+                                                                                 liftPeek (Peek_ReportElem_MEUI q z) = Peek_ReportElems_MEUI (Path_At k q) z
+                                                                                 liftPeek (Peek_ReportElem_MaybeImageFile q z) = Peek_ReportElems_MaybeImageFile (Path_At k q) z
+                                                                                 liftPeek (Peek_ReportElem_ReportImage q z) = Peek_ReportElems_ReportImage (Path_At k q) z
+                                                                                 liftPeek (Peek_ReportElem_ReportImages q z) = Peek_ReportElems_ReportImages (Path_At k q) z
+                                                                                 liftPeek (Peek_ReportElem_ReportImageView q z) = Peek_ReportElems_ReportImageView (Path_At k q) z
+                                                                                 liftPeek (Peek_ReportElem_SaneSizeImageSize q z) = Peek_ReportElems_SaneSizeImageSize (Path_At k q) z
+                                                                                 liftPeek (Peek_ReportElem_Item q z) = Peek_ReportElems_Item (Path_At k q) z
+                                                                                 liftPeek (Peek_ReportElem_MIM q z) = Peek_ReportElems_MIM (Path_At k q) z
+                                                                                 liftPeek (Peek_ReportElem_URI q z) = Peek_ReportElems_URI (Path_At k q) z
+                                                                                 liftPeek (Peek_ReportElem_Text q z) = Peek_ReportElems_Text (Path_At k q) z
+                                                                              in Node (Peek_ReportElems_ReportElem p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [ReportElem])
+                                           _ -> []) (pathsOf s (undefined :: Proxy ReportElem)) :: Forest (Peek (Order ReportElemID ReportElem))
+          hop s = concatMap (\path -> case path of
+                                          p@(Path_At k _) -> map (\a -> Node (Peek_ReportElems_ReportElem p (Just a)) []) (toListOf (toLens p) s :: [ReportElem])
+                                          _ -> []) (pathsOf s (undefined :: Proxy ReportElem)) :: Forest (Peek (Order ReportElemID ReportElem))
           describe' (Peek_ReportElems_ReportElem (p@(Path_At k _)) x) = "Report Elem"
 instance IsPathStart (Order ReportImageID ReportImage)
     where data Peek (Order ReportImageID ReportImage)
@@ -9078,31 +9051,31 @@ instance IsPathStart (Order ReportImageID ReportImage)
               | Peek_ReportImages_URI (Path (Order ReportImageID ReportImage) URI) (Maybe URI)
               | Peek_ReportImages_Text (Path (Order ReportImageID ReportImage) Text) (Maybe Text)
               deriving (Eq, Show)
-          peek (s@_) = concatMap (\path -> case path of
-                                               p@(Path_At k _) -> map (\a -> let f = peek a
-                                                                              in let liftPeek (Peek_ReportImage_String q z) = Peek_ReportImages_String (Path_At k q) z
-                                                                                     liftPeek (Peek_ReportImage_Bool q z) = Peek_ReportImages_Bool (Path_At k q) z
-                                                                                     liftPeek (Peek_ReportImage_Double q z) = Peek_ReportImages_Double (Path_At k q) z
-                                                                                     liftPeek (Peek_ReportImage_Dimension q z) = Peek_ReportImages_Dimension (Path_At k q) z
-                                                                                     liftPeek (Peek_ReportImage_ImageCrop q z) = Peek_ReportImages_ImageCrop (Path_At k q) z
-                                                                                     liftPeek (Peek_ReportImage_ImageSize q z) = Peek_ReportImages_ImageSize (Path_At k q) z
-                                                                                     liftPeek (Peek_ReportImage_Units q z) = Peek_ReportImages_Units (Path_At k q) z
-                                                                                     liftPeek (Peek_ReportImage_ImageFile q z) = Peek_ReportImages_ImageFile (Path_At k q) z
-                                                                                     liftPeek (Peek_ReportImage_JSONText q z) = Peek_ReportImages_JSONText (Path_At k q) z
-                                                                                     liftPeek (Peek_ReportImage_Markup q z) = Peek_ReportImages_Markup (Path_At k q) z
-                                                                                     liftPeek (Peek_ReportImage_EUI q z) = Peek_ReportImages_EUI (Path_At k q) z
-                                                                                     liftPeek (Peek_ReportImage_MEUI q z) = Peek_ReportImages_MEUI (Path_At k q) z
-                                                                                     liftPeek (Peek_ReportImage_MaybeImageFile q z) = Peek_ReportImages_MaybeImageFile (Path_At k q) z
-                                                                                     liftPeek (Peek_ReportImage_ReportImage q z) = Peek_ReportImages_ReportImage (Path_At k q) z
-                                                                                     liftPeek (Peek_ReportImage_ReportImageView q z) = Peek_ReportImages_ReportImageView (Path_At k q) z
-                                                                                     liftPeek (Peek_ReportImage_SaneSizeImageSize q z) = Peek_ReportImages_SaneSizeImageSize (Path_At k q) z
-                                                                                     liftPeek (Peek_ReportImage_URI q z) = Peek_ReportImages_URI (Path_At k q) z
-                                                                                     liftPeek (Peek_ReportImage_Text q z) = Peek_ReportImages_Text (Path_At k q) z
-                                                                                  in Node (Peek_ReportImages_ReportImage p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [ReportImage])
-                                               _ -> []) (pathsOf s (undefined :: Proxy ReportImage)) :: Forest (Peek (Order ReportImageID ReportImage))
-          hop (s@_) = concatMap (\path -> case path of
-                                              p@(Path_At k _) -> map (\a -> Node (Peek_ReportImages_ReportImage p (Just a)) []) (toListOf (toLens p) s :: [ReportImage])
-                                              _ -> []) (pathsOf s (undefined :: Proxy ReportImage)) :: Forest (Peek (Order ReportImageID ReportImage))
+          peek s = concatMap (\path -> case path of
+                                           p@(Path_At k _) -> map (\a -> let f = peek a
+                                                                          in let liftPeek (Peek_ReportImage_String q z) = Peek_ReportImages_String (Path_At k q) z
+                                                                                 liftPeek (Peek_ReportImage_Bool q z) = Peek_ReportImages_Bool (Path_At k q) z
+                                                                                 liftPeek (Peek_ReportImage_Double q z) = Peek_ReportImages_Double (Path_At k q) z
+                                                                                 liftPeek (Peek_ReportImage_Dimension q z) = Peek_ReportImages_Dimension (Path_At k q) z
+                                                                                 liftPeek (Peek_ReportImage_ImageCrop q z) = Peek_ReportImages_ImageCrop (Path_At k q) z
+                                                                                 liftPeek (Peek_ReportImage_ImageSize q z) = Peek_ReportImages_ImageSize (Path_At k q) z
+                                                                                 liftPeek (Peek_ReportImage_Units q z) = Peek_ReportImages_Units (Path_At k q) z
+                                                                                 liftPeek (Peek_ReportImage_ImageFile q z) = Peek_ReportImages_ImageFile (Path_At k q) z
+                                                                                 liftPeek (Peek_ReportImage_JSONText q z) = Peek_ReportImages_JSONText (Path_At k q) z
+                                                                                 liftPeek (Peek_ReportImage_Markup q z) = Peek_ReportImages_Markup (Path_At k q) z
+                                                                                 liftPeek (Peek_ReportImage_EUI q z) = Peek_ReportImages_EUI (Path_At k q) z
+                                                                                 liftPeek (Peek_ReportImage_MEUI q z) = Peek_ReportImages_MEUI (Path_At k q) z
+                                                                                 liftPeek (Peek_ReportImage_MaybeImageFile q z) = Peek_ReportImages_MaybeImageFile (Path_At k q) z
+                                                                                 liftPeek (Peek_ReportImage_ReportImage q z) = Peek_ReportImages_ReportImage (Path_At k q) z
+                                                                                 liftPeek (Peek_ReportImage_ReportImageView q z) = Peek_ReportImages_ReportImageView (Path_At k q) z
+                                                                                 liftPeek (Peek_ReportImage_SaneSizeImageSize q z) = Peek_ReportImages_SaneSizeImageSize (Path_At k q) z
+                                                                                 liftPeek (Peek_ReportImage_URI q z) = Peek_ReportImages_URI (Path_At k q) z
+                                                                                 liftPeek (Peek_ReportImage_Text q z) = Peek_ReportImages_Text (Path_At k q) z
+                                                                              in Node (Peek_ReportImages_ReportImage p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [ReportImage])
+                                           _ -> []) (pathsOf s (undefined :: Proxy ReportImage)) :: Forest (Peek (Order ReportImageID ReportImage))
+          hop s = concatMap (\path -> case path of
+                                          p@(Path_At k _) -> map (\a -> Node (Peek_ReportImages_ReportImage p (Just a)) []) (toListOf (toLens p) s :: [ReportImage])
+                                          _ -> []) (pathsOf s (undefined :: Proxy ReportImage)) :: Forest (Peek (Order ReportImageID ReportImage))
           describe' (Peek_ReportImages_ReportImage (p@(Path_At k _)) x) = "Report Image"
 instance IsPathStart ((Markup, Markup))
     where data Peek ((Markup, Markup))
@@ -9111,26 +9084,26 @@ instance IsPathStart ((Markup, Markup))
               | Peek_MarkupPair_MarkupPair (Path ((Markup, Markup)) ((Markup, Markup))) (Maybe ((Markup, Markup)))
               | Peek_MarkupPair_Text (Path ((Markup, Markup)) Text) (Maybe Text)
               deriving (Eq, Show)
-          peek (s@_) = mconcat [concatMap (\path -> case path of
-                                                        p@(Path_First _) -> map (\a -> let f = peek a
-                                                                                        in let liftPeek (Peek_Markup_JSONText q z) = Peek_MarkupPair_JSONText (Path_First q) z
-                                                                                               liftPeek (Peek_Markup_Markup q z) = Peek_MarkupPair_Markup (Path_First q) z
-                                                                                               liftPeek (Peek_Markup_Text q z) = Peek_MarkupPair_Text (Path_First q) z
-                                                                                            in Node (Peek_MarkupPair_Markup p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
-                                                        _ -> []) (pathsOf s (undefined :: Proxy Markup)),
-                                concatMap (\path -> case path of
-                                                        p@(Path_Second _) -> map (\a -> let f = peek a
-                                                                                         in let liftPeek (Peek_Markup_JSONText q z) = Peek_MarkupPair_JSONText (Path_Second q) z
-                                                                                                liftPeek (Peek_Markup_Markup q z) = Peek_MarkupPair_Markup (Path_Second q) z
-                                                                                                liftPeek (Peek_Markup_Text q z) = Peek_MarkupPair_Text (Path_Second q) z
-                                                                                             in Node (Peek_MarkupPair_Markup p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
-                                                        _ -> []) (pathsOf s (undefined :: Proxy Markup))] :: Forest (Peek ((Markup, Markup)))
-          hop (s@_) = mconcat [concatMap (\path -> case path of
-                                                       p@(Path_First _) -> map (\a -> Node (Peek_MarkupPair_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
-                                                       _ -> []) (pathsOf s (undefined :: Proxy Markup)),
-                               concatMap (\path -> case path of
-                                                       p@(Path_Second _) -> map (\a -> Node (Peek_MarkupPair_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
-                                                       _ -> []) (pathsOf s (undefined :: Proxy Markup))] :: Forest (Peek ((Markup, Markup)))
+          peek s = mconcat [concatMap (\path -> case path of
+                                                    p@(Path_First _) -> map (\a -> let f = peek a
+                                                                                    in let liftPeek (Peek_Markup_JSONText q z) = Peek_MarkupPair_JSONText (Path_First q) z
+                                                                                           liftPeek (Peek_Markup_Markup q z) = Peek_MarkupPair_Markup (Path_First q) z
+                                                                                           liftPeek (Peek_Markup_Text q z) = Peek_MarkupPair_Text (Path_First q) z
+                                                                                        in Node (Peek_MarkupPair_Markup p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
+                                                    _ -> []) (pathsOf s (undefined :: Proxy Markup)),
+                            concatMap (\path -> case path of
+                                                    p@(Path_Second _) -> map (\a -> let f = peek a
+                                                                                     in let liftPeek (Peek_Markup_JSONText q z) = Peek_MarkupPair_JSONText (Path_Second q) z
+                                                                                            liftPeek (Peek_Markup_Markup q z) = Peek_MarkupPair_Markup (Path_Second q) z
+                                                                                            liftPeek (Peek_Markup_Text q z) = Peek_MarkupPair_Text (Path_Second q) z
+                                                                                         in Node (Peek_MarkupPair_Markup p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
+                                                    _ -> []) (pathsOf s (undefined :: Proxy Markup))] :: Forest (Peek ((Markup, Markup)))
+          hop s = mconcat [concatMap (\path -> case path of
+                                                   p@(Path_First _) -> map (\a -> Node (Peek_MarkupPair_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
+                                                   _ -> []) (pathsOf s (undefined :: Proxy Markup)),
+                           concatMap (\path -> case path of
+                                                   p@(Path_Second _) -> map (\a -> Node (Peek_MarkupPair_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
+                                                   _ -> []) (pathsOf s (undefined :: Proxy Markup))] :: Forest (Peek ((Markup, Markup)))
           describe' (Peek_MarkupPair_Markup (p@(Path_First _)) x) = fromMaybe "Markup" (describe (Proxy :: Proxy Markup) Nothing)
           describe' (Peek_MarkupPair_Markup (p@(Path_Second _)) x) = fromMaybe "Markup" (describe (Proxy :: Proxy Markup) Nothing)
 instance IsPathStart ((CIString, Markup))
@@ -9141,26 +9114,26 @@ instance IsPathStart ((CIString, Markup))
               | Peek_AbbrevPair_CIString (Path ((CIString, Markup)) CIString) (Maybe CIString)
               | Peek_AbbrevPair_Text (Path ((CIString, Markup)) Text) (Maybe Text)
               deriving (Eq, Show)
-          peek (s@_) = mconcat [concatMap (\path -> case path of
-                                                        p@(Path_First _) -> map (\a -> let f = peek a
-                                                                                        in let liftPeek (Peek_CIString_JSONText q z) = Peek_AbbrevPair_JSONText (Path_First q) z
-                                                                                               liftPeek (Peek_CIString_CIString q z) = Peek_AbbrevPair_CIString (Path_First q) z
-                                                                                               liftPeek (Peek_CIString_Text q z) = Peek_AbbrevPair_Text (Path_First q) z
-                                                                                            in Node (Peek_AbbrevPair_CIString p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [CIString])
-                                                        _ -> []) (pathsOf s (undefined :: Proxy CIString)),
-                                concatMap (\path -> case path of
-                                                        p@(Path_Second _) -> map (\a -> let f = peek a
-                                                                                         in let liftPeek (Peek_Markup_JSONText q z) = Peek_AbbrevPair_JSONText (Path_Second q) z
-                                                                                                liftPeek (Peek_Markup_Markup q z) = Peek_AbbrevPair_Markup (Path_Second q) z
-                                                                                                liftPeek (Peek_Markup_Text q z) = Peek_AbbrevPair_Text (Path_Second q) z
-                                                                                             in Node (Peek_AbbrevPair_Markup p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
-                                                        _ -> []) (pathsOf s (undefined :: Proxy Markup))] :: Forest (Peek ((CIString, Markup)))
-          hop (s@_) = mconcat [concatMap (\path -> case path of
-                                                       p@(Path_First _) -> map (\a -> Node (Peek_AbbrevPair_CIString p (Just a)) []) (toListOf (toLens p) s :: [CIString])
-                                                       _ -> []) (pathsOf s (undefined :: Proxy CIString)),
-                               concatMap (\path -> case path of
-                                                       p@(Path_Second _) -> map (\a -> Node (Peek_AbbrevPair_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
-                                                       _ -> []) (pathsOf s (undefined :: Proxy Markup))] :: Forest (Peek ((CIString, Markup)))
+          peek s = mconcat [concatMap (\path -> case path of
+                                                    p@(Path_First _) -> map (\a -> let f = peek a
+                                                                                    in let liftPeek (Peek_CIString_JSONText q z) = Peek_AbbrevPair_JSONText (Path_First q) z
+                                                                                           liftPeek (Peek_CIString_CIString q z) = Peek_AbbrevPair_CIString (Path_First q) z
+                                                                                           liftPeek (Peek_CIString_Text q z) = Peek_AbbrevPair_Text (Path_First q) z
+                                                                                        in Node (Peek_AbbrevPair_CIString p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [CIString])
+                                                    _ -> []) (pathsOf s (undefined :: Proxy CIString)),
+                            concatMap (\path -> case path of
+                                                    p@(Path_Second _) -> map (\a -> let f = peek a
+                                                                                     in let liftPeek (Peek_Markup_JSONText q z) = Peek_AbbrevPair_JSONText (Path_Second q) z
+                                                                                            liftPeek (Peek_Markup_Markup q z) = Peek_AbbrevPair_Markup (Path_Second q) z
+                                                                                            liftPeek (Peek_Markup_Text q z) = Peek_AbbrevPair_Text (Path_Second q) z
+                                                                                         in Node (Peek_AbbrevPair_Markup p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
+                                                    _ -> []) (pathsOf s (undefined :: Proxy Markup))] :: Forest (Peek ((CIString, Markup)))
+          hop s = mconcat [concatMap (\path -> case path of
+                                                   p@(Path_First _) -> map (\a -> Node (Peek_AbbrevPair_CIString p (Just a)) []) (toListOf (toLens p) s :: [CIString])
+                                                   _ -> []) (pathsOf s (undefined :: Proxy CIString)),
+                           concatMap (\path -> case path of
+                                                   p@(Path_Second _) -> map (\a -> Node (Peek_AbbrevPair_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
+                                                   _ -> []) (pathsOf s (undefined :: Proxy Markup))] :: Forest (Peek ((CIString, Markup)))
           describe' (Peek_AbbrevPair_CIString (p@(Path_First _)) x) = "CIString"
           describe' (Peek_AbbrevPair_Markup (p@(Path_Second _)) x) = fromMaybe "Markup" (describe (Proxy :: Proxy Markup) Nothing)
 instance IsPathStart (Maybe (Either URI ImageFile))
@@ -9170,16 +9143,16 @@ instance IsPathStart (Maybe (Either URI ImageFile))
               | Peek_MEUI_MEUI (Path (Maybe (Either URI ImageFile)) (Maybe (Either URI ImageFile))) (Maybe (Maybe (Either URI ImageFile)))
               | Peek_MEUI_URI (Path (Maybe (Either URI ImageFile)) URI) (Maybe URI)
               deriving (Eq, Show)
-          peek (s@_) = concatMap (\path -> case path of
-                                               p@(Path_Just _) -> map (\a -> let f = peek a
-                                                                              in let liftPeek (Peek_EUI_ImageFile q z) = Peek_MEUI_ImageFile (Path_Just q) z
-                                                                                     liftPeek (Peek_EUI_EUI q z) = Peek_MEUI_EUI (Path_Just q) z
-                                                                                     liftPeek (Peek_EUI_URI q z) = Peek_MEUI_URI (Path_Just q) z
-                                                                                  in Node (Peek_MEUI_EUI p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Either URI ImageFile])
-                                               _ -> []) (pathsOf s (undefined :: Proxy (Either URI ImageFile))) :: Forest (Peek (Maybe (Either URI ImageFile)))
-          hop (s@_) = concatMap (\path -> case path of
-                                              p@(Path_Just _) -> map (\a -> Node (Peek_MEUI_EUI p (Just a)) []) (toListOf (toLens p) s :: [Either URI ImageFile])
-                                              _ -> []) (pathsOf s (undefined :: Proxy (Either URI ImageFile))) :: Forest (Peek (Maybe (Either URI ImageFile)))
+          peek s = concatMap (\path -> case path of
+                                           p@(Path_Just _) -> map (\a -> let f = peek a
+                                                                          in let liftPeek (Peek_EUI_ImageFile q z) = Peek_MEUI_ImageFile (Path_Just q) z
+                                                                                 liftPeek (Peek_EUI_EUI q z) = Peek_MEUI_EUI (Path_Just q) z
+                                                                                 liftPeek (Peek_EUI_URI q z) = Peek_MEUI_URI (Path_Just q) z
+                                                                              in Node (Peek_MEUI_EUI p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Either URI ImageFile])
+                                           _ -> []) (pathsOf s (undefined :: Proxy (Either URI ImageFile))) :: Forest (Peek (Maybe (Either URI ImageFile)))
+          hop s = concatMap (\path -> case path of
+                                          p@(Path_Just _) -> map (\a -> Node (Peek_MEUI_EUI p (Just a)) []) (toListOf (toLens p) s :: [Either URI ImageFile])
+                                          _ -> []) (pathsOf s (undefined :: Proxy (Either URI ImageFile))) :: Forest (Peek (Maybe (Either URI ImageFile)))
           describe' (Peek_MEUI_EUI (p@(Path_Just _)) x) = "EUI"
 instance IsPathStart (Maybe ImageFile)
     where data Peek (Maybe ImageFile)
@@ -9187,15 +9160,15 @@ instance IsPathStart (Maybe ImageFile)
               | Peek_MaybeImageFile_JSONText (Path (Maybe ImageFile) JSONText) (Maybe JSONText)
               | Peek_MaybeImageFile_MaybeImageFile (Path (Maybe ImageFile) (Maybe ImageFile)) (Maybe (Maybe ImageFile))
               deriving (Eq, Show)
-          peek (s@_) = concatMap (\path -> case path of
-                                               p@(Path_MaybeImageFile_View _) -> map (\a -> let f = peek a
-                                                                                             in let liftPeek (Peek_String_String q z) = Peek_MaybeImageFile_String (Path_MaybeImageFile_View q) z
-                                                                                                    liftPeek (Peek_String_JSONText q z) = Peek_MaybeImageFile_JSONText (Path_MaybeImageFile_View q) z
-                                                                                                 in Node (Peek_MaybeImageFile_String p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [[Char]])
-                                               _ -> []) (pathsOf s (undefined :: Proxy ([Char]))) :: Forest (Peek (Maybe ImageFile))
-          hop (s@_) = concatMap (\path -> case path of
-                                              p@(Path_MaybeImageFile_View _) -> map (\a -> Node (Peek_MaybeImageFile_String p (Just a)) []) (toListOf (toLens p) s :: [[Char]])
-                                              _ -> []) (pathsOf s (undefined :: Proxy ([Char]))) :: Forest (Peek (Maybe ImageFile))
+          peek s = concatMap (\path -> case path of
+                                           p@(Path_MaybeImageFile_View _) -> map (\a -> let f = peek a
+                                                                                         in let liftPeek (Peek_String_String q z) = Peek_MaybeImageFile_String (Path_MaybeImageFile_View q) z
+                                                                                                liftPeek (Peek_String_JSONText q z) = Peek_MaybeImageFile_JSONText (Path_MaybeImageFile_View q) z
+                                                                                             in Node (Peek_MaybeImageFile_String p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [[Char]])
+                                           _ -> []) (pathsOf s (undefined :: Proxy ([Char]))) :: Forest (Peek (Maybe ImageFile))
+          hop s = concatMap (\path -> case path of
+                                          p@(Path_MaybeImageFile_View _) -> map (\a -> Node (Peek_MaybeImageFile_String p (Just a)) []) (toListOf (toLens p) s :: [[Char]])
+                                          _ -> []) (pathsOf s (undefined :: Proxy ([Char]))) :: Forest (Peek (Maybe ImageFile))
           describe' (Peek_MaybeImageFile_String (p@(Path_MaybeImageFile_View _)) x) = "String"
 instance IsPathStart (Maybe ReportIntendedUse)
     where data Peek (Maybe ReportIntendedUse)
@@ -9203,15 +9176,15 @@ instance IsPathStart (Maybe ReportIntendedUse)
               | Peek_MaybeReportIntendedUse_JSONText (Path (Maybe ReportIntendedUse) JSONText) (Maybe JSONText)
               | Peek_MaybeReportIntendedUse_MaybeReportIntendedUse (Path (Maybe ReportIntendedUse) (Maybe ReportIntendedUse)) (Maybe (Maybe ReportIntendedUse))
               deriving (Eq, Show)
-          peek (s@_) = concatMap (\path -> case path of
-                                               p@(Path_MaybeReportIntendedUse_View _) -> map (\a -> let f = peek a
-                                                                                                     in let liftPeek (Peek_String_String q z) = Peek_MaybeReportIntendedUse_String (Path_MaybeReportIntendedUse_View q) z
-                                                                                                            liftPeek (Peek_String_JSONText q z) = Peek_MaybeReportIntendedUse_JSONText (Path_MaybeReportIntendedUse_View q) z
-                                                                                                         in Node (Peek_MaybeReportIntendedUse_String p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [[Char]])
-                                               _ -> []) (pathsOf s (undefined :: Proxy ([Char]))) :: Forest (Peek (Maybe ReportIntendedUse))
-          hop (s@_) = concatMap (\path -> case path of
-                                              p@(Path_MaybeReportIntendedUse_View _) -> map (\a -> Node (Peek_MaybeReportIntendedUse_String p (Just a)) []) (toListOf (toLens p) s :: [[Char]])
-                                              _ -> []) (pathsOf s (undefined :: Proxy ([Char]))) :: Forest (Peek (Maybe ReportIntendedUse))
+          peek s = concatMap (\path -> case path of
+                                           p@(Path_MaybeReportIntendedUse_View _) -> map (\a -> let f = peek a
+                                                                                                 in let liftPeek (Peek_String_String q z) = Peek_MaybeReportIntendedUse_String (Path_MaybeReportIntendedUse_View q) z
+                                                                                                        liftPeek (Peek_String_JSONText q z) = Peek_MaybeReportIntendedUse_JSONText (Path_MaybeReportIntendedUse_View q) z
+                                                                                                     in Node (Peek_MaybeReportIntendedUse_String p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [[Char]])
+                                           _ -> []) (pathsOf s (undefined :: Proxy ([Char]))) :: Forest (Peek (Maybe ReportIntendedUse))
+          hop s = concatMap (\path -> case path of
+                                          p@(Path_MaybeReportIntendedUse_View _) -> map (\a -> Node (Peek_MaybeReportIntendedUse_String p (Just a)) []) (toListOf (toLens p) s :: [[Char]])
+                                          _ -> []) (pathsOf s (undefined :: Proxy ([Char]))) :: Forest (Peek (Maybe ReportIntendedUse))
           describe' (Peek_MaybeReportIntendedUse_String (p@(Path_MaybeReportIntendedUse_View _)) x) = "String"
 instance IsPathStart (ReadOnly ([Char]))
     where data Peek (ReadOnly ([Char]))
@@ -9219,15 +9192,15 @@ instance IsPathStart (ReadOnly ([Char]))
               | Peek_ReadOnlyFilePath_JSONText (Path (ReadOnly ([Char])) JSONText) (Maybe JSONText)
               | Peek_ReadOnlyFilePath_ReadOnlyFilePath (Path (ReadOnly ([Char])) (ReadOnly ([Char]))) (Maybe (ReadOnly ([Char])))
               deriving (Eq, Show)
-          peek (s@_) = concatMap (\path -> case path of
-                                               p@(Path_ReadOnlyFilePath_View _) -> map (\a -> let f = peek a
-                                                                                               in let liftPeek (Peek_String_String q z) = Peek_ReadOnlyFilePath_String (Path_ReadOnlyFilePath_View q) z
-                                                                                                      liftPeek (Peek_String_JSONText q z) = Peek_ReadOnlyFilePath_JSONText (Path_ReadOnlyFilePath_View q) z
-                                                                                                   in Node (Peek_ReadOnlyFilePath_String p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [[Char]])
-                                               _ -> []) (pathsOf s (undefined :: Proxy ([Char]))) :: Forest (Peek (ReadOnly ([Char])))
-          hop (s@_) = concatMap (\path -> case path of
-                                              p@(Path_ReadOnlyFilePath_View _) -> map (\a -> Node (Peek_ReadOnlyFilePath_String p (Just a)) []) (toListOf (toLens p) s :: [[Char]])
-                                              _ -> []) (pathsOf s (undefined :: Proxy ([Char]))) :: Forest (Peek (ReadOnly ([Char])))
+          peek s = concatMap (\path -> case path of
+                                           p@(Path_ReadOnlyFilePath_View _) -> map (\a -> let f = peek a
+                                                                                           in let liftPeek (Peek_String_String q z) = Peek_ReadOnlyFilePath_String (Path_ReadOnlyFilePath_View q) z
+                                                                                                  liftPeek (Peek_String_JSONText q z) = Peek_ReadOnlyFilePath_JSONText (Path_ReadOnlyFilePath_View q) z
+                                                                                               in Node (Peek_ReadOnlyFilePath_String p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [[Char]])
+                                           _ -> []) (pathsOf s (undefined :: Proxy ([Char]))) :: Forest (Peek (ReadOnly ([Char])))
+          hop s = concatMap (\path -> case path of
+                                          p@(Path_ReadOnlyFilePath_View _) -> map (\a -> Node (Peek_ReadOnlyFilePath_String p (Just a)) []) (toListOf (toLens p) s :: [[Char]])
+                                          _ -> []) (pathsOf s (undefined :: Proxy ([Char]))) :: Forest (Peek (ReadOnly ([Char])))
           describe' (Peek_ReadOnlyFilePath_String (p@(Path_ReadOnlyFilePath_View _)) x) = "String"
 instance IsPathStart (SaneSize ImageSize)
     where data Peek (SaneSize ImageSize)
@@ -9239,32 +9212,32 @@ instance IsPathStart (SaneSize ImageSize)
               | Peek_SaneSizeImageSize_JSONText (Path (SaneSize ImageSize) JSONText) (Maybe JSONText)
               | Peek_SaneSizeImageSize_SaneSizeImageSize (Path (SaneSize ImageSize) (SaneSize ImageSize)) (Maybe (SaneSize ImageSize))
               deriving (Eq, Show)
-          peek (s@_) = concatMap (\path -> case path of
-                                               p@(Path_SaneSizeImageSize_View _) -> map (\a -> let f = peek a
-                                                                                                in let liftPeek (Peek_ImageSize_String q z) = Peek_SaneSizeImageSize_String (Path_SaneSizeImageSize_View q) z
-                                                                                                       liftPeek (Peek_ImageSize_Double q z) = Peek_SaneSizeImageSize_Double (Path_SaneSizeImageSize_View q) z
-                                                                                                       liftPeek (Peek_ImageSize_Dimension q z) = Peek_SaneSizeImageSize_Dimension (Path_SaneSizeImageSize_View q) z
-                                                                                                       liftPeek (Peek_ImageSize_ImageSize q z) = Peek_SaneSizeImageSize_ImageSize (Path_SaneSizeImageSize_View q) z
-                                                                                                       liftPeek (Peek_ImageSize_Units q z) = Peek_SaneSizeImageSize_Units (Path_SaneSizeImageSize_View q) z
-                                                                                                       liftPeek (Peek_ImageSize_JSONText q z) = Peek_SaneSizeImageSize_JSONText (Path_SaneSizeImageSize_View q) z
-                                                                                                    in Node (Peek_SaneSizeImageSize_ImageSize p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [ImageSize])
-                                               _ -> []) (pathsOf s (undefined :: Proxy ImageSize)) :: Forest (Peek (SaneSize ImageSize))
-          hop (s@_) = concatMap (\path -> case path of
-                                              p@(Path_SaneSizeImageSize_View _) -> map (\a -> Node (Peek_SaneSizeImageSize_ImageSize p (Just a)) []) (toListOf (toLens p) s :: [ImageSize])
-                                              _ -> []) (pathsOf s (undefined :: Proxy ImageSize)) :: Forest (Peek (SaneSize ImageSize))
+          peek s = concatMap (\path -> case path of
+                                           p@(Path_SaneSizeImageSize_View _) -> map (\a -> let f = peek a
+                                                                                            in let liftPeek (Peek_ImageSize_String q z) = Peek_SaneSizeImageSize_String (Path_SaneSizeImageSize_View q) z
+                                                                                                   liftPeek (Peek_ImageSize_Double q z) = Peek_SaneSizeImageSize_Double (Path_SaneSizeImageSize_View q) z
+                                                                                                   liftPeek (Peek_ImageSize_Dimension q z) = Peek_SaneSizeImageSize_Dimension (Path_SaneSizeImageSize_View q) z
+                                                                                                   liftPeek (Peek_ImageSize_ImageSize q z) = Peek_SaneSizeImageSize_ImageSize (Path_SaneSizeImageSize_View q) z
+                                                                                                   liftPeek (Peek_ImageSize_Units q z) = Peek_SaneSizeImageSize_Units (Path_SaneSizeImageSize_View q) z
+                                                                                                   liftPeek (Peek_ImageSize_JSONText q z) = Peek_SaneSizeImageSize_JSONText (Path_SaneSizeImageSize_View q) z
+                                                                                                in Node (Peek_SaneSizeImageSize_ImageSize p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [ImageSize])
+                                           _ -> []) (pathsOf s (undefined :: Proxy ImageSize)) :: Forest (Peek (SaneSize ImageSize))
+          hop s = concatMap (\path -> case path of
+                                          p@(Path_SaneSizeImageSize_View _) -> map (\a -> Node (Peek_SaneSizeImageSize_ImageSize p (Just a)) []) (toListOf (toLens p) s :: [ImageSize])
+                                          _ -> []) (pathsOf s (undefined :: Proxy ImageSize)) :: Forest (Peek (SaneSize ImageSize))
           describe' (Peek_SaneSizeImageSize_ImageSize (p@(Path_SaneSizeImageSize_View _)) x) = "Image Size"
 instance IsPathStart ([Char])
     where data Peek ([Char])
               = Peek_String_String (Path ([Char]) ([Char])) (Maybe ([Char])) | Peek_String_JSONText (Path ([Char]) JSONText) (Maybe JSONText)
               deriving (Eq, Show)
-          peek (s@_) = concatMap (\path -> case path of
-                                               p@(Path_String_View _) -> map (\a -> let f = peek a
-                                                                                     in let liftPeek (Peek_JSONText_JSONText q z) = Peek_String_JSONText (Path_String_View q) z
-                                                                                         in Node (Peek_String_JSONText p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [JSONText])
-                                               _ -> []) (pathsOf s (undefined :: Proxy JSONText)) :: Forest (Peek ([Char]))
-          hop (s@_) = concatMap (\path -> case path of
-                                              p@(Path_String_View _) -> map (\a -> Node (Peek_String_JSONText p (Just a)) []) (toListOf (toLens p) s :: [JSONText])
-                                              _ -> []) (pathsOf s (undefined :: Proxy JSONText)) :: Forest (Peek ([Char]))
+          peek s = concatMap (\path -> case path of
+                                           p@(Path_String_View _) -> map (\a -> let f = peek a
+                                                                                 in let liftPeek (Peek_JSONText_JSONText q z) = Peek_String_JSONText (Path_String_View q) z
+                                                                                     in Node (Peek_String_JSONText p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [JSONText])
+                                           _ -> []) (pathsOf s (undefined :: Proxy JSONText)) :: Forest (Peek ([Char]))
+          hop s = concatMap (\path -> case path of
+                                          p@(Path_String_View _) -> map (\a -> Node (Peek_String_JSONText p (Just a)) []) (toListOf (toLens p) s :: [JSONText])
+                                          _ -> []) (pathsOf s (undefined :: Proxy JSONText)) :: Forest (Peek ([Char]))
           describe' (Peek_String_JSONText (p@(Path_String_View _)) x) = "JSONText"
 instance IsPathStart ([UserId])
     where data Peek ([UserId])
@@ -9272,15 +9245,15 @@ instance IsPathStart ([UserId])
               | Peek_UserIds_UserIds (Path ([UserId]) ([UserId])) (Maybe ([UserId]))
               | Peek_UserIds_Text (Path ([UserId]) Text) (Maybe Text)
               deriving (Eq, Show)
-          peek (s@_) = concatMap (\path -> case path of
-                                               p@(Path_UserIds_View _) -> map (\a -> let f = peek a
-                                                                                      in let liftPeek (Peek_Text_JSONText q z) = Peek_UserIds_JSONText (Path_UserIds_View q) z
-                                                                                             liftPeek (Peek_Text_Text q z) = Peek_UserIds_Text (Path_UserIds_View q) z
-                                                                                          in Node (Peek_UserIds_Text p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Text])
-                                               _ -> []) (pathsOf s (undefined :: Proxy Text)) :: Forest (Peek ([UserId]))
-          hop (s@_) = concatMap (\path -> case path of
-                                              p@(Path_UserIds_View _) -> map (\a -> Node (Peek_UserIds_Text p (Just a)) []) (toListOf (toLens p) s :: [Text])
-                                              _ -> []) (pathsOf s (undefined :: Proxy Text)) :: Forest (Peek ([UserId]))
+          peek s = concatMap (\path -> case path of
+                                           p@(Path_UserIds_View _) -> map (\a -> let f = peek a
+                                                                                  in let liftPeek (Peek_Text_JSONText q z) = Peek_UserIds_JSONText (Path_UserIds_View q) z
+                                                                                         liftPeek (Peek_Text_Text q z) = Peek_UserIds_Text (Path_UserIds_View q) z
+                                                                                      in Node (Peek_UserIds_Text p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Text])
+                                           _ -> []) (pathsOf s (undefined :: Proxy Text)) :: Forest (Peek ([UserId]))
+          hop s = concatMap (\path -> case path of
+                                          p@(Path_UserIds_View _) -> map (\a -> Node (Peek_UserIds_Text p (Just a)) []) (toListOf (toLens p) s :: [Text])
+                                          _ -> []) (pathsOf s (undefined :: Proxy Text)) :: Forest (Peek ([UserId]))
           describe' (Peek_UserIds_Text (p@(Path_UserIds_View _)) x) = "Text"
 instance IsPathStart Int64
     where data Peek Int64 = Peek_Int64_Int64 (Path Int64 Int64) (Maybe Int64) deriving (Eq, Show)
@@ -9291,15 +9264,15 @@ instance IsPathStart Bool
     where data Peek Bool
               = Peek_Bool_String (Path Bool ([Char])) (Maybe ([Char])) | Peek_Bool_Bool (Path Bool Bool) (Maybe Bool) | Peek_Bool_JSONText (Path Bool JSONText) (Maybe JSONText)
               deriving (Eq, Show)
-          peek (s@_) = concatMap (\path -> case path of
-                                               p@(Path_Bool_View _) -> map (\a -> let f = peek a
-                                                                                   in let liftPeek (Peek_String_String q z) = Peek_Bool_String (Path_Bool_View q) z
-                                                                                          liftPeek (Peek_String_JSONText q z) = Peek_Bool_JSONText (Path_Bool_View q) z
-                                                                                       in Node (Peek_Bool_String p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [[Char]])
-                                               _ -> []) (pathsOf s (undefined :: Proxy ([Char]))) :: Forest (Peek Bool)
-          hop (s@_) = concatMap (\path -> case path of
-                                              p@(Path_Bool_View _) -> map (\a -> Node (Peek_Bool_String p (Just a)) []) (toListOf (toLens p) s :: [[Char]])
-                                              _ -> []) (pathsOf s (undefined :: Proxy ([Char]))) :: Forest (Peek Bool)
+          peek s = concatMap (\path -> case path of
+                                           p@(Path_Bool_View _) -> map (\a -> let f = peek a
+                                                                               in let liftPeek (Peek_String_String q z) = Peek_Bool_String (Path_Bool_View q) z
+                                                                                      liftPeek (Peek_String_JSONText q z) = Peek_Bool_JSONText (Path_Bool_View q) z
+                                                                                   in Node (Peek_Bool_String p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [[Char]])
+                                           _ -> []) (pathsOf s (undefined :: Proxy ([Char]))) :: Forest (Peek Bool)
+          hop s = concatMap (\path -> case path of
+                                          p@(Path_Bool_View _) -> map (\a -> Node (Peek_Bool_String p (Just a)) []) (toListOf (toLens p) s :: [[Char]])
+                                          _ -> []) (pathsOf s (undefined :: Proxy ([Char]))) :: Forest (Peek Bool)
           describe' (Peek_Bool_String (p@(Path_Bool_View _)) x) = "String"
 instance IsPathStart Double
     where data Peek Double
@@ -9307,15 +9280,15 @@ instance IsPathStart Double
               | Peek_Double_Double (Path Double Double) (Maybe Double)
               | Peek_Double_JSONText (Path Double JSONText) (Maybe JSONText)
               deriving (Eq, Show)
-          peek (s@_) = concatMap (\path -> case path of
-                                               p@(Path_Double_View _) -> map (\a -> let f = peek a
-                                                                                     in let liftPeek (Peek_String_String q z) = Peek_Double_String (Path_Double_View q) z
-                                                                                            liftPeek (Peek_String_JSONText q z) = Peek_Double_JSONText (Path_Double_View q) z
-                                                                                         in Node (Peek_Double_String p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [[Char]])
-                                               _ -> []) (pathsOf s (undefined :: Proxy ([Char]))) :: Forest (Peek Double)
-          hop (s@_) = concatMap (\path -> case path of
-                                              p@(Path_Double_View _) -> map (\a -> Node (Peek_Double_String p (Just a)) []) (toListOf (toLens p) s :: [[Char]])
-                                              _ -> []) (pathsOf s (undefined :: Proxy ([Char]))) :: Forest (Peek Double)
+          peek s = concatMap (\path -> case path of
+                                           p@(Path_Double_View _) -> map (\a -> let f = peek a
+                                                                                 in let liftPeek (Peek_String_String q z) = Peek_Double_String (Path_Double_View q) z
+                                                                                        liftPeek (Peek_String_JSONText q z) = Peek_Double_JSONText (Path_Double_View q) z
+                                                                                     in Node (Peek_Double_String p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [[Char]])
+                                           _ -> []) (pathsOf s (undefined :: Proxy ([Char]))) :: Forest (Peek Double)
+          hop s = concatMap (\path -> case path of
+                                          p@(Path_Double_View _) -> map (\a -> Node (Peek_Double_String p (Just a)) []) (toListOf (toLens p) s :: [[Char]])
+                                          _ -> []) (pathsOf s (undefined :: Proxy ([Char]))) :: Forest (Peek Double)
           describe' (Peek_Double_String (p@(Path_Double_View _)) x) = "String"
 instance IsPathStart Int
     where data Peek Int = Peek_Int_Int (Path Int Int) (Maybe Int) deriving (Eq, Show)
@@ -9326,14 +9299,14 @@ instance IsPathStart Dimension
     where data Peek Dimension
               = Peek_Dimension_Dimension (Path Dimension Dimension) (Maybe Dimension) | Peek_Dimension_JSONText (Path Dimension JSONText) (Maybe JSONText)
               deriving (Eq, Show)
-          peek (s@_) = concatMap (\path -> case path of
-                                               p@(Path_Dimension_View _) -> map (\a -> let f = peek a
-                                                                                        in let liftPeek (Peek_JSONText_JSONText q z) = Peek_Dimension_JSONText (Path_Dimension_View q) z
-                                                                                            in Node (Peek_Dimension_JSONText p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [JSONText])
-                                               _ -> []) (pathsOf s (undefined :: Proxy JSONText)) :: Forest (Peek Dimension)
-          hop (s@_) = concatMap (\path -> case path of
-                                              p@(Path_Dimension_View _) -> map (\a -> Node (Peek_Dimension_JSONText p (Just a)) []) (toListOf (toLens p) s :: [JSONText])
-                                              _ -> []) (pathsOf s (undefined :: Proxy JSONText)) :: Forest (Peek Dimension)
+          peek s = concatMap (\path -> case path of
+                                           p@(Path_Dimension_View _) -> map (\a -> let f = peek a
+                                                                                    in let liftPeek (Peek_JSONText_JSONText q z) = Peek_Dimension_JSONText (Path_Dimension_View q) z
+                                                                                        in Node (Peek_Dimension_JSONText p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [JSONText])
+                                           _ -> []) (pathsOf s (undefined :: Proxy JSONText)) :: Forest (Peek Dimension)
+          hop s = concatMap (\path -> case path of
+                                          p@(Path_Dimension_View _) -> map (\a -> Node (Peek_Dimension_JSONText p (Just a)) []) (toListOf (toLens p) s :: [JSONText])
+                                          _ -> []) (pathsOf s (undefined :: Proxy JSONText)) :: Forest (Peek Dimension)
           describe' (Peek_Dimension_JSONText (p@(Path_Dimension_View _)) x) = "JSONText"
 instance IsPathStart ImageCrop
     where data Peek ImageCrop = Peek_ImageCrop_ImageCrop (Path ImageCrop ImageCrop) (Maybe ImageCrop) deriving (Eq, Show)
@@ -9382,14 +9355,14 @@ instance IsPathStart ImageSize
           describe' (Peek_ImageSize_Units (p@(Path_ImageSize_units _)) x) = "Units"
 instance IsPathStart Units
     where data Peek Units = Peek_Units_Units (Path Units Units) (Maybe Units) | Peek_Units_JSONText (Path Units JSONText) (Maybe JSONText) deriving (Eq, Show)
-          peek (s@_) = concatMap (\path -> case path of
-                                               p@(Path_Units_View _) -> map (\a -> let f = peek a
-                                                                                    in let liftPeek (Peek_JSONText_JSONText q z) = Peek_Units_JSONText (Path_Units_View q) z
-                                                                                        in Node (Peek_Units_JSONText p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [JSONText])
-                                               _ -> []) (pathsOf s (undefined :: Proxy JSONText)) :: Forest (Peek Units)
-          hop (s@_) = concatMap (\path -> case path of
-                                              p@(Path_Units_View _) -> map (\a -> Node (Peek_Units_JSONText p (Just a)) []) (toListOf (toLens p) s :: [JSONText])
-                                              _ -> []) (pathsOf s (undefined :: Proxy JSONText)) :: Forest (Peek Units)
+          peek s = concatMap (\path -> case path of
+                                           p@(Path_Units_View _) -> map (\a -> let f = peek a
+                                                                                in let liftPeek (Peek_JSONText_JSONText q z) = Peek_Units_JSONText (Path_Units_View q) z
+                                                                                    in Node (Peek_Units_JSONText p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [JSONText])
+                                           _ -> []) (pathsOf s (undefined :: Proxy JSONText)) :: Forest (Peek Units)
+          hop s = concatMap (\path -> case path of
+                                          p@(Path_Units_View _) -> map (\a -> Node (Peek_Units_JSONText p (Just a)) []) (toListOf (toLens p) s :: [JSONText])
+                                          _ -> []) (pathsOf s (undefined :: Proxy JSONText)) :: Forest (Peek Units)
           describe' (Peek_Units_JSONText (p@(Path_Units_View _)) x) = "JSONText"
 instance IsPathStart ImageFile
     where data Peek ImageFile = Peek_ImageFile_ImageFile (Path ImageFile ImageFile) (Maybe ImageFile) deriving (Eq, Show)
@@ -9518,15 +9491,15 @@ instance IsPathStart Branding
               | Peek_Branding_Branding (Path Branding Branding) (Maybe Branding)
               | Peek_Branding_Text (Path Branding Text) (Maybe Text)
               deriving (Eq, Show)
-          peek (s@_) = concatMap (\path -> case path of
-                                               p@(Path_Branding_View _) -> map (\a -> let f = peek a
-                                                                                       in let liftPeek (Peek_Text_JSONText q z) = Peek_Branding_JSONText (Path_Branding_View q) z
-                                                                                              liftPeek (Peek_Text_Text q z) = Peek_Branding_Text (Path_Branding_View q) z
-                                                                                           in Node (Peek_Branding_Text p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Text])
-                                               _ -> []) (pathsOf s (undefined :: Proxy Text)) :: Forest (Peek Branding)
-          hop (s@_) = concatMap (\path -> case path of
-                                              p@(Path_Branding_View _) -> map (\a -> Node (Peek_Branding_Text p (Just a)) []) (toListOf (toLens p) s :: [Text])
-                                              _ -> []) (pathsOf s (undefined :: Proxy Text)) :: Forest (Peek Branding)
+          peek s = concatMap (\path -> case path of
+                                           p@(Path_Branding_View _) -> map (\a -> let f = peek a
+                                                                                   in let liftPeek (Peek_Text_JSONText q z) = Peek_Branding_JSONText (Path_Branding_View q) z
+                                                                                          liftPeek (Peek_Text_Text q z) = Peek_Branding_Text (Path_Branding_View q) z
+                                                                                       in Node (Peek_Branding_Text p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Text])
+                                           _ -> []) (pathsOf s (undefined :: Proxy Text)) :: Forest (Peek Branding)
+          hop s = concatMap (\path -> case path of
+                                          p@(Path_Branding_View _) -> map (\a -> Node (Peek_Branding_Text p (Just a)) []) (toListOf (toLens p) s :: [Text])
+                                          _ -> []) (pathsOf s (undefined :: Proxy Text)) :: Forest (Peek Branding)
           describe' (Peek_Branding_Text (p@(Path_Branding_View _)) x) = "Text"
 instance IsPathStart Report
     where data Peek Report
@@ -9579,60 +9552,60 @@ instance IsPathStart Report
               | Peek_Report_UserId (Path Report UserId) (Maybe UserId)
               | Peek_Report_UUID (Path Report UUID) (Maybe UUID)
               deriving (Eq, Show)
-          peek (s@_) = concatMap (\path -> case path of
-                                               p@(Path_Report_View _) -> map (\a -> let f = peek a
-                                                                                     in let liftPeek (Peek_ReportView_String q z) = Peek_Report_String (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_Int64 q z) = Peek_Report_Int64 (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_Int q z) = Peek_Report_Int (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_Bool q z) = Peek_Report_Bool (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_Double q z) = Peek_Report_Double (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_Dimension q z) = Peek_Report_Dimension (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_ImageCrop q z) = Peek_Report_ImageCrop (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_ImageSize q z) = Peek_Report_ImageSize (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_Units q z) = Peek_Report_Units (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_ImageFile q z) = Peek_Report_ImageFile (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_Integer q z) = Peek_Report_Integer (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_JSONText q z) = Peek_Report_JSONText (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_Markup q z) = Peek_Report_Markup (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_Permissions q z) = Peek_Report_Permissions (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_UserIds q z) = Peek_Report_UserIds (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_AbbrevPair q z) = Peek_Report_AbbrevPair (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_AbbrevPairs q z) = Peek_Report_AbbrevPairs (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_Author q z) = Peek_Report_Author (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_Authors q z) = Peek_Report_Authors (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_Branding q z) = Peek_Report_Branding (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_MarkupPair q z) = Peek_Report_MarkupPair (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_MarkupPairs q z) = Peek_Report_MarkupPairs (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_Markups q z) = Peek_Report_Markups (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_MaybeReportIntendedUse q z) = Peek_Report_MaybeReportIntendedUse (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_ReportElem q z) = Peek_Report_ReportElem (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_ReportElems q z) = Peek_Report_ReportElems (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_ReportFlags q z) = Peek_Report_ReportFlags (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_ReportStandard q z) = Peek_Report_ReportStandard (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_ReportStatus q z) = Peek_Report_ReportStatus (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_ReportValueApproachInfo q z) = Peek_Report_ReportValueApproachInfo (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_ReportValueTypeInfo q z) = Peek_Report_ReportValueTypeInfo (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_EUI q z) = Peek_Report_EUI (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_MEUI q z) = Peek_Report_MEUI (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_MaybeImageFile q z) = Peek_Report_MaybeImageFile (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_ReportImage q z) = Peek_Report_ReportImage (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_ReportImages q z) = Peek_Report_ReportImages (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_ReadOnlyFilePath q z) = Peek_Report_ReadOnlyFilePath (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_ReportImageView q z) = Peek_Report_ReportImageView (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_ReportView q z) = Peek_Report_ReportView (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_SaneSizeImageSize q z) = Peek_Report_SaneSizeImageSize (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_Item q z) = Peek_Report_Item (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_MIM q z) = Peek_Report_MIM (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_CIString q z) = Peek_Report_CIString (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_URI q z) = Peek_Report_URI (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_Text q z) = Peek_Report_Text (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_UserId q z) = Peek_Report_UserId (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_UUID q z) = Peek_Report_UUID (Path_Report_View q) z
-                                                                                         in Node (Peek_Report_ReportView p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [ReportView])
-                                               _ -> []) (pathsOf s (undefined :: Proxy ReportView)) :: Forest (Peek Report)
-          hop (s@_) = concatMap (\path -> case path of
-                                              p@(Path_Report_View _) -> map (\a -> Node (Peek_Report_ReportView p (Just a)) []) (toListOf (toLens p) s :: [ReportView])
-                                              _ -> []) (pathsOf s (undefined :: Proxy ReportView)) :: Forest (Peek Report)
+          peek s = concatMap (\path -> case path of
+                                           p@(Path_Report_View _) -> map (\a -> let f = peek a
+                                                                                 in let liftPeek (Peek_ReportView_String q z) = Peek_Report_String (Path_Report_View q) z
+                                                                                        liftPeek (Peek_ReportView_Int64 q z) = Peek_Report_Int64 (Path_Report_View q) z
+                                                                                        liftPeek (Peek_ReportView_Int q z) = Peek_Report_Int (Path_Report_View q) z
+                                                                                        liftPeek (Peek_ReportView_Bool q z) = Peek_Report_Bool (Path_Report_View q) z
+                                                                                        liftPeek (Peek_ReportView_Double q z) = Peek_Report_Double (Path_Report_View q) z
+                                                                                        liftPeek (Peek_ReportView_Dimension q z) = Peek_Report_Dimension (Path_Report_View q) z
+                                                                                        liftPeek (Peek_ReportView_ImageCrop q z) = Peek_Report_ImageCrop (Path_Report_View q) z
+                                                                                        liftPeek (Peek_ReportView_ImageSize q z) = Peek_Report_ImageSize (Path_Report_View q) z
+                                                                                        liftPeek (Peek_ReportView_Units q z) = Peek_Report_Units (Path_Report_View q) z
+                                                                                        liftPeek (Peek_ReportView_ImageFile q z) = Peek_Report_ImageFile (Path_Report_View q) z
+                                                                                        liftPeek (Peek_ReportView_Integer q z) = Peek_Report_Integer (Path_Report_View q) z
+                                                                                        liftPeek (Peek_ReportView_JSONText q z) = Peek_Report_JSONText (Path_Report_View q) z
+                                                                                        liftPeek (Peek_ReportView_Markup q z) = Peek_Report_Markup (Path_Report_View q) z
+                                                                                        liftPeek (Peek_ReportView_Permissions q z) = Peek_Report_Permissions (Path_Report_View q) z
+                                                                                        liftPeek (Peek_ReportView_UserIds q z) = Peek_Report_UserIds (Path_Report_View q) z
+                                                                                        liftPeek (Peek_ReportView_AbbrevPair q z) = Peek_Report_AbbrevPair (Path_Report_View q) z
+                                                                                        liftPeek (Peek_ReportView_AbbrevPairs q z) = Peek_Report_AbbrevPairs (Path_Report_View q) z
+                                                                                        liftPeek (Peek_ReportView_Author q z) = Peek_Report_Author (Path_Report_View q) z
+                                                                                        liftPeek (Peek_ReportView_Authors q z) = Peek_Report_Authors (Path_Report_View q) z
+                                                                                        liftPeek (Peek_ReportView_Branding q z) = Peek_Report_Branding (Path_Report_View q) z
+                                                                                        liftPeek (Peek_ReportView_MarkupPair q z) = Peek_Report_MarkupPair (Path_Report_View q) z
+                                                                                        liftPeek (Peek_ReportView_MarkupPairs q z) = Peek_Report_MarkupPairs (Path_Report_View q) z
+                                                                                        liftPeek (Peek_ReportView_Markups q z) = Peek_Report_Markups (Path_Report_View q) z
+                                                                                        liftPeek (Peek_ReportView_MaybeReportIntendedUse q z) = Peek_Report_MaybeReportIntendedUse (Path_Report_View q) z
+                                                                                        liftPeek (Peek_ReportView_ReportElem q z) = Peek_Report_ReportElem (Path_Report_View q) z
+                                                                                        liftPeek (Peek_ReportView_ReportElems q z) = Peek_Report_ReportElems (Path_Report_View q) z
+                                                                                        liftPeek (Peek_ReportView_ReportFlags q z) = Peek_Report_ReportFlags (Path_Report_View q) z
+                                                                                        liftPeek (Peek_ReportView_ReportStandard q z) = Peek_Report_ReportStandard (Path_Report_View q) z
+                                                                                        liftPeek (Peek_ReportView_ReportStatus q z) = Peek_Report_ReportStatus (Path_Report_View q) z
+                                                                                        liftPeek (Peek_ReportView_ReportValueApproachInfo q z) = Peek_Report_ReportValueApproachInfo (Path_Report_View q) z
+                                                                                        liftPeek (Peek_ReportView_ReportValueTypeInfo q z) = Peek_Report_ReportValueTypeInfo (Path_Report_View q) z
+                                                                                        liftPeek (Peek_ReportView_EUI q z) = Peek_Report_EUI (Path_Report_View q) z
+                                                                                        liftPeek (Peek_ReportView_MEUI q z) = Peek_Report_MEUI (Path_Report_View q) z
+                                                                                        liftPeek (Peek_ReportView_MaybeImageFile q z) = Peek_Report_MaybeImageFile (Path_Report_View q) z
+                                                                                        liftPeek (Peek_ReportView_ReportImage q z) = Peek_Report_ReportImage (Path_Report_View q) z
+                                                                                        liftPeek (Peek_ReportView_ReportImages q z) = Peek_Report_ReportImages (Path_Report_View q) z
+                                                                                        liftPeek (Peek_ReportView_ReadOnlyFilePath q z) = Peek_Report_ReadOnlyFilePath (Path_Report_View q) z
+                                                                                        liftPeek (Peek_ReportView_ReportImageView q z) = Peek_Report_ReportImageView (Path_Report_View q) z
+                                                                                        liftPeek (Peek_ReportView_ReportView q z) = Peek_Report_ReportView (Path_Report_View q) z
+                                                                                        liftPeek (Peek_ReportView_SaneSizeImageSize q z) = Peek_Report_SaneSizeImageSize (Path_Report_View q) z
+                                                                                        liftPeek (Peek_ReportView_Item q z) = Peek_Report_Item (Path_Report_View q) z
+                                                                                        liftPeek (Peek_ReportView_MIM q z) = Peek_Report_MIM (Path_Report_View q) z
+                                                                                        liftPeek (Peek_ReportView_CIString q z) = Peek_Report_CIString (Path_Report_View q) z
+                                                                                        liftPeek (Peek_ReportView_URI q z) = Peek_Report_URI (Path_Report_View q) z
+                                                                                        liftPeek (Peek_ReportView_Text q z) = Peek_Report_Text (Path_Report_View q) z
+                                                                                        liftPeek (Peek_ReportView_UserId q z) = Peek_Report_UserId (Path_Report_View q) z
+                                                                                        liftPeek (Peek_ReportView_UUID q z) = Peek_Report_UUID (Path_Report_View q) z
+                                                                                     in Node (Peek_Report_ReportView p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [ReportView])
+                                           _ -> []) (pathsOf s (undefined :: Proxy ReportView)) :: Forest (Peek Report)
+          hop s = concatMap (\path -> case path of
+                                          p@(Path_Report_View _) -> map (\a -> Node (Peek_Report_ReportView p (Just a)) []) (toListOf (toLens p) s :: [ReportView])
+                                          _ -> []) (pathsOf s (undefined :: Proxy ReportView)) :: Forest (Peek Report)
           describe' (Peek_Report_ReportView (p@(Path_Report_View _)) x) = "Report View"
 instance IsPathStart ReportElem
     where data Peek ReportElem
@@ -9728,15 +9701,15 @@ instance IsPathStart ReportIntendedUse
               | Peek_ReportIntendedUse_JSONText (Path ReportIntendedUse JSONText) (Maybe JSONText)
               | Peek_ReportIntendedUse_ReportIntendedUse (Path ReportIntendedUse ReportIntendedUse) (Maybe ReportIntendedUse)
               deriving (Eq, Show)
-          peek (s@_) = concatMap (\path -> case path of
-                                               p@(Path_ReportIntendedUse_View _) -> map (\a -> let f = peek a
-                                                                                                in let liftPeek (Peek_String_String q z) = Peek_ReportIntendedUse_String (Path_ReportIntendedUse_View q) z
-                                                                                                       liftPeek (Peek_String_JSONText q z) = Peek_ReportIntendedUse_JSONText (Path_ReportIntendedUse_View q) z
-                                                                                                    in Node (Peek_ReportIntendedUse_String p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [[Char]])
-                                               _ -> []) (pathsOf s (undefined :: Proxy ([Char]))) :: Forest (Peek ReportIntendedUse)
-          hop (s@_) = concatMap (\path -> case path of
-                                              p@(Path_ReportIntendedUse_View _) -> map (\a -> Node (Peek_ReportIntendedUse_String p (Just a)) []) (toListOf (toLens p) s :: [[Char]])
-                                              _ -> []) (pathsOf s (undefined :: Proxy ([Char]))) :: Forest (Peek ReportIntendedUse)
+          peek s = concatMap (\path -> case path of
+                                           p@(Path_ReportIntendedUse_View _) -> map (\a -> let f = peek a
+                                                                                            in let liftPeek (Peek_String_String q z) = Peek_ReportIntendedUse_String (Path_ReportIntendedUse_View q) z
+                                                                                                   liftPeek (Peek_String_JSONText q z) = Peek_ReportIntendedUse_JSONText (Path_ReportIntendedUse_View q) z
+                                                                                                in Node (Peek_ReportIntendedUse_String p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [[Char]])
+                                           _ -> []) (pathsOf s (undefined :: Proxy ([Char]))) :: Forest (Peek ReportIntendedUse)
+          hop s = concatMap (\path -> case path of
+                                          p@(Path_ReportIntendedUse_View _) -> map (\a -> Node (Peek_ReportIntendedUse_String p (Just a)) []) (toListOf (toLens p) s :: [[Char]])
+                                          _ -> []) (pathsOf s (undefined :: Proxy ([Char]))) :: Forest (Peek ReportIntendedUse)
           describe' (Peek_ReportIntendedUse_String (p@(Path_ReportIntendedUse_View _)) x) = "String"
 instance IsPathStart ReportStandard
     where data Peek ReportStandard
@@ -9759,15 +9732,15 @@ instance IsPathStart ReportStatus
               | Peek_ReportStatus_JSONText (Path ReportStatus JSONText) (Maybe JSONText)
               | Peek_ReportStatus_ReportStatus (Path ReportStatus ReportStatus) (Maybe ReportStatus)
               deriving (Eq, Show)
-          peek (s@_) = concatMap (\path -> case path of
-                                               p@(Path_ReportStatus_View _) -> map (\a -> let f = peek a
-                                                                                           in let liftPeek (Peek_String_String q z) = Peek_ReportStatus_String (Path_ReportStatus_View q) z
-                                                                                                  liftPeek (Peek_String_JSONText q z) = Peek_ReportStatus_JSONText (Path_ReportStatus_View q) z
-                                                                                               in Node (Peek_ReportStatus_String p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [[Char]])
-                                               _ -> []) (pathsOf s (undefined :: Proxy ([Char]))) :: Forest (Peek ReportStatus)
-          hop (s@_) = concatMap (\path -> case path of
-                                              p@(Path_ReportStatus_View _) -> map (\a -> Node (Peek_ReportStatus_String p (Just a)) []) (toListOf (toLens p) s :: [[Char]])
-                                              _ -> []) (pathsOf s (undefined :: Proxy ([Char]))) :: Forest (Peek ReportStatus)
+          peek s = concatMap (\path -> case path of
+                                           p@(Path_ReportStatus_View _) -> map (\a -> let f = peek a
+                                                                                       in let liftPeek (Peek_String_String q z) = Peek_ReportStatus_String (Path_ReportStatus_View q) z
+                                                                                              liftPeek (Peek_String_JSONText q z) = Peek_ReportStatus_JSONText (Path_ReportStatus_View q) z
+                                                                                           in Node (Peek_ReportStatus_String p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [[Char]])
+                                           _ -> []) (pathsOf s (undefined :: Proxy ([Char]))) :: Forest (Peek ReportStatus)
+          hop s = concatMap (\path -> case path of
+                                          p@(Path_ReportStatus_View _) -> map (\a -> Node (Peek_ReportStatus_String p (Just a)) []) (toListOf (toLens p) s :: [[Char]])
+                                          _ -> []) (pathsOf s (undefined :: Proxy ([Char]))) :: Forest (Peek ReportStatus)
           describe' (Peek_ReportStatus_String (p@(Path_ReportStatus_View _)) x) = "String"
 instance IsPathStart ReportValueApproachInfo
     where data Peek ReportValueApproachInfo
@@ -9899,30 +9872,30 @@ instance IsPathStart ReportImage
               | Peek_ReportImage_URI (Path ReportImage URI) (Maybe URI)
               | Peek_ReportImage_Text (Path ReportImage Text) (Maybe Text)
               deriving (Eq, Show)
-          peek (s@_) = concatMap (\path -> case path of
-                                               p@(Path_ReportImage_View _) -> map (\a -> let f = peek a
-                                                                                          in let liftPeek (Peek_ReportImageView_String q z) = Peek_ReportImage_String (Path_ReportImage_View q) z
-                                                                                                 liftPeek (Peek_ReportImageView_Bool q z) = Peek_ReportImage_Bool (Path_ReportImage_View q) z
-                                                                                                 liftPeek (Peek_ReportImageView_Double q z) = Peek_ReportImage_Double (Path_ReportImage_View q) z
-                                                                                                 liftPeek (Peek_ReportImageView_Dimension q z) = Peek_ReportImage_Dimension (Path_ReportImage_View q) z
-                                                                                                 liftPeek (Peek_ReportImageView_ImageCrop q z) = Peek_ReportImage_ImageCrop (Path_ReportImage_View q) z
-                                                                                                 liftPeek (Peek_ReportImageView_ImageSize q z) = Peek_ReportImage_ImageSize (Path_ReportImage_View q) z
-                                                                                                 liftPeek (Peek_ReportImageView_Units q z) = Peek_ReportImage_Units (Path_ReportImage_View q) z
-                                                                                                 liftPeek (Peek_ReportImageView_ImageFile q z) = Peek_ReportImage_ImageFile (Path_ReportImage_View q) z
-                                                                                                 liftPeek (Peek_ReportImageView_JSONText q z) = Peek_ReportImage_JSONText (Path_ReportImage_View q) z
-                                                                                                 liftPeek (Peek_ReportImageView_Markup q z) = Peek_ReportImage_Markup (Path_ReportImage_View q) z
-                                                                                                 liftPeek (Peek_ReportImageView_EUI q z) = Peek_ReportImage_EUI (Path_ReportImage_View q) z
-                                                                                                 liftPeek (Peek_ReportImageView_MEUI q z) = Peek_ReportImage_MEUI (Path_ReportImage_View q) z
-                                                                                                 liftPeek (Peek_ReportImageView_MaybeImageFile q z) = Peek_ReportImage_MaybeImageFile (Path_ReportImage_View q) z
-                                                                                                 liftPeek (Peek_ReportImageView_ReportImageView q z) = Peek_ReportImage_ReportImageView (Path_ReportImage_View q) z
-                                                                                                 liftPeek (Peek_ReportImageView_SaneSizeImageSize q z) = Peek_ReportImage_SaneSizeImageSize (Path_ReportImage_View q) z
-                                                                                                 liftPeek (Peek_ReportImageView_URI q z) = Peek_ReportImage_URI (Path_ReportImage_View q) z
-                                                                                                 liftPeek (Peek_ReportImageView_Text q z) = Peek_ReportImage_Text (Path_ReportImage_View q) z
-                                                                                              in Node (Peek_ReportImage_ReportImageView p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [ReportImageView])
-                                               _ -> []) (pathsOf s (undefined :: Proxy ReportImageView)) :: Forest (Peek ReportImage)
-          hop (s@_) = concatMap (\path -> case path of
-                                              p@(Path_ReportImage_View _) -> map (\a -> Node (Peek_ReportImage_ReportImageView p (Just a)) []) (toListOf (toLens p) s :: [ReportImageView])
-                                              _ -> []) (pathsOf s (undefined :: Proxy ReportImageView)) :: Forest (Peek ReportImage)
+          peek s = concatMap (\path -> case path of
+                                           p@(Path_ReportImage_View _) -> map (\a -> let f = peek a
+                                                                                      in let liftPeek (Peek_ReportImageView_String q z) = Peek_ReportImage_String (Path_ReportImage_View q) z
+                                                                                             liftPeek (Peek_ReportImageView_Bool q z) = Peek_ReportImage_Bool (Path_ReportImage_View q) z
+                                                                                             liftPeek (Peek_ReportImageView_Double q z) = Peek_ReportImage_Double (Path_ReportImage_View q) z
+                                                                                             liftPeek (Peek_ReportImageView_Dimension q z) = Peek_ReportImage_Dimension (Path_ReportImage_View q) z
+                                                                                             liftPeek (Peek_ReportImageView_ImageCrop q z) = Peek_ReportImage_ImageCrop (Path_ReportImage_View q) z
+                                                                                             liftPeek (Peek_ReportImageView_ImageSize q z) = Peek_ReportImage_ImageSize (Path_ReportImage_View q) z
+                                                                                             liftPeek (Peek_ReportImageView_Units q z) = Peek_ReportImage_Units (Path_ReportImage_View q) z
+                                                                                             liftPeek (Peek_ReportImageView_ImageFile q z) = Peek_ReportImage_ImageFile (Path_ReportImage_View q) z
+                                                                                             liftPeek (Peek_ReportImageView_JSONText q z) = Peek_ReportImage_JSONText (Path_ReportImage_View q) z
+                                                                                             liftPeek (Peek_ReportImageView_Markup q z) = Peek_ReportImage_Markup (Path_ReportImage_View q) z
+                                                                                             liftPeek (Peek_ReportImageView_EUI q z) = Peek_ReportImage_EUI (Path_ReportImage_View q) z
+                                                                                             liftPeek (Peek_ReportImageView_MEUI q z) = Peek_ReportImage_MEUI (Path_ReportImage_View q) z
+                                                                                             liftPeek (Peek_ReportImageView_MaybeImageFile q z) = Peek_ReportImage_MaybeImageFile (Path_ReportImage_View q) z
+                                                                                             liftPeek (Peek_ReportImageView_ReportImageView q z) = Peek_ReportImage_ReportImageView (Path_ReportImage_View q) z
+                                                                                             liftPeek (Peek_ReportImageView_SaneSizeImageSize q z) = Peek_ReportImage_SaneSizeImageSize (Path_ReportImage_View q) z
+                                                                                             liftPeek (Peek_ReportImageView_URI q z) = Peek_ReportImage_URI (Path_ReportImage_View q) z
+                                                                                             liftPeek (Peek_ReportImageView_Text q z) = Peek_ReportImage_Text (Path_ReportImage_View q) z
+                                                                                          in Node (Peek_ReportImage_ReportImageView p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [ReportImageView])
+                                           _ -> []) (pathsOf s (undefined :: Proxy ReportImageView)) :: Forest (Peek ReportImage)
+          hop s = concatMap (\path -> case path of
+                                          p@(Path_ReportImage_View _) -> map (\a -> Node (Peek_ReportImage_ReportImageView p (Just a)) []) (toListOf (toLens p) s :: [ReportImageView])
+                                          _ -> []) (pathsOf s (undefined :: Proxy ReportImageView)) :: Forest (Peek ReportImage)
           describe' (Peek_ReportImage_ReportImageView (p@(Path_ReportImage_View _)) x) = "Report Image View"
 instance IsPathStart ReportImageView
     where data Peek ReportImageView
@@ -11027,15 +11000,15 @@ instance IsPathStart CIString
               | Peek_CIString_CIString (Path CIString CIString) (Maybe CIString)
               | Peek_CIString_Text (Path CIString Text) (Maybe Text)
               deriving (Eq, Show)
-          peek (s@_) = concatMap (\path -> case path of
-                                               p@(Path_CIString_View _) -> map (\a -> let f = peek a
-                                                                                       in let liftPeek (Peek_Text_JSONText q z) = Peek_CIString_JSONText (Path_CIString_View q) z
-                                                                                              liftPeek (Peek_Text_Text q z) = Peek_CIString_Text (Path_CIString_View q) z
-                                                                                           in Node (Peek_CIString_Text p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Text])
-                                               _ -> []) (pathsOf s (undefined :: Proxy Text)) :: Forest (Peek CIString)
-          hop (s@_) = concatMap (\path -> case path of
-                                              p@(Path_CIString_View _) -> map (\a -> Node (Peek_CIString_Text p (Just a)) []) (toListOf (toLens p) s :: [Text])
-                                              _ -> []) (pathsOf s (undefined :: Proxy Text)) :: Forest (Peek CIString)
+          peek s = concatMap (\path -> case path of
+                                           p@(Path_CIString_View _) -> map (\a -> let f = peek a
+                                                                                   in let liftPeek (Peek_Text_JSONText q z) = Peek_CIString_JSONText (Path_CIString_View q) z
+                                                                                          liftPeek (Peek_Text_Text q z) = Peek_CIString_Text (Path_CIString_View q) z
+                                                                                       in Node (Peek_CIString_Text p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Text])
+                                           _ -> []) (pathsOf s (undefined :: Proxy Text)) :: Forest (Peek CIString)
+          hop s = concatMap (\path -> case path of
+                                          p@(Path_CIString_View _) -> map (\a -> Node (Peek_CIString_Text p (Just a)) []) (toListOf (toLens p) s :: [Text])
+                                          _ -> []) (pathsOf s (undefined :: Proxy Text)) :: Forest (Peek CIString)
           describe' (Peek_CIString_Text (p@(Path_CIString_View _)) x) = "Text"
 instance IsPathStart URI
     where data Peek URI = Peek_URI_URI (Path URI URI) (Maybe URI) deriving (Eq, Show)
@@ -11044,14 +11017,14 @@ instance IsPathStart URI
           describe' _ = []
 instance IsPathStart Text
     where data Peek Text = Peek_Text_JSONText (Path Text JSONText) (Maybe JSONText) | Peek_Text_Text (Path Text Text) (Maybe Text) deriving (Eq, Show)
-          peek (s@_) = concatMap (\path -> case path of
-                                               p@(Path_Text_View _) -> map (\a -> let f = peek a
-                                                                                   in let liftPeek (Peek_JSONText_JSONText q z) = Peek_Text_JSONText (Path_Text_View q) z
-                                                                                       in Node (Peek_Text_JSONText p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [JSONText])
-                                               _ -> []) (pathsOf s (undefined :: Proxy JSONText)) :: Forest (Peek Text)
-          hop (s@_) = concatMap (\path -> case path of
-                                              p@(Path_Text_View _) -> map (\a -> Node (Peek_Text_JSONText p (Just a)) []) (toListOf (toLens p) s :: [JSONText])
-                                              _ -> []) (pathsOf s (undefined :: Proxy JSONText)) :: Forest (Peek Text)
+          peek s = concatMap (\path -> case path of
+                                           p@(Path_Text_View _) -> map (\a -> let f = peek a
+                                                                               in let liftPeek (Peek_JSONText_JSONText q z) = Peek_Text_JSONText (Path_Text_View q) z
+                                                                                   in Node (Peek_Text_JSONText p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [JSONText])
+                                           _ -> []) (pathsOf s (undefined :: Proxy JSONText)) :: Forest (Peek Text)
+          hop s = concatMap (\path -> case path of
+                                          p@(Path_Text_View _) -> map (\a -> Node (Peek_Text_JSONText p (Just a)) []) (toListOf (toLens p) s :: [JSONText])
+                                          _ -> []) (pathsOf s (undefined :: Proxy JSONText)) :: Forest (Peek Text)
           describe' (Peek_Text_JSONText (p@(Path_Text_View _)) x) = "JSONText"
 instance IsPathStart UserId
     where data Peek UserId = Peek_UserId_UserId (Path UserId UserId) (Maybe UserId) deriving (Eq, Show)
