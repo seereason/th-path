@@ -91,37 +91,37 @@ peekDecs v =
                           [(,) <$> notStrict <*> [t|Path $(asTypeQ v) $(asTypeQ g)|],
                            (,) <$> notStrict <*> [t|Maybe $(asTypeQ g)|] ]]
 
-isPathControl :: (TypeGraphM m, MonadWriter [ClauseType] m) => Control m (TGV, PatQ, ExpQ) (ExpQ, ExpQ)
-isPathControl =
+isPathControl :: TGVSimple -> (TypeGraphM m, MonadWriter [ClauseType] m) => Control m (TGV, PatQ, ExpQ) (ExpQ, ExpQ)
+isPathControl v =
     Control { _doView =
-                \v w ->
+                \w ->
                     do let pcname = makePathCon (makePathType (ModelType (asName v))) "View"
                        pure [(wildP, [(w, conP (asName pcname) [wildP], conE (asName pcname))])]
             , _doOrder =
-                \_v w ->
+                \w ->
                     do k <- runQ $ newName "k"
                        pure [(wildP, [(w, conP 'Path_At [varP k, wildP], [|Path_At $(varE k)|])])]
             , _doMap =
-                \_v w ->
+                \w ->
                     do k <- runQ $ newName "k"
                        pure [(wildP, [(w, conP 'Path_Look [varP k, wildP], [|Path_Look $(varE k)|])])]
             , _doPair =
-                \_v f s ->
+                \f s ->
                     pure [(wildP, [(f, conP 'Path_First [wildP], [|Path_First|]),
                                    (s, conP 'Path_Second [wildP], [|Path_Second|])])]
             , _doMaybe =
-                \_v w ->
+                \w ->
                     pure [(wildP, [(w, conP 'Path_Just [wildP], [|Path_Just|])])]
             , _doEither =
-                \_v l r ->
+                \l r ->
                     do pure [(conP 'Left [wildP], [(l, conP 'Path_Left [wildP], [|Path_Left|])]),
                              (conP 'Right [wildP], [(r, conP 'Path_Right [wildP], [|Path_Right|])])]
             , _doField =
-                \_v f ->
+                \s f ->
                     do let pcname = maybe (error $ "Not a field: " ++ show f) id (makeFieldCon f)
                        pure (f, conP (asName pcname) [wildP], asConQ pcname)
             , _doConc =
-                \v s conc@(w, ppat, pcon) ->
+                \s conc@(w, ppat, pcon) ->
                     do let liftPeek p node =
                                pure [| concatMap
                                            (\path -> case path of
@@ -136,15 +136,15 @@ isPathControl =
                        pf <- doPeek v w p pcon >>= liftPeek p
                        return (hf, pf)
             , _doAlt =
-                \v s xpat rs ->
+                \s xpat rs ->
                     do let (hfs, pfs) = unzip rs
-                       tell [PeekClause $ clause [asP s xpat] (normalB [| $(concatMapQ pfs) :: Forest (Peek $(asTypeQ v)) |]) [],
-                             HopClause $ clause [asP s xpat] (normalB [| $(concatMapQ hfs) :: Forest (Peek $(asTypeQ v)) |]) []]
+                       tell [PeekClause $ clause [xpat] (normalB [| $(concatMapQ pfs) :: Forest (Peek $(asTypeQ v)) |]) [],
+                             HopClause $ clause [xpat] (normalB [| $(concatMapQ hfs) :: Forest (Peek $(asTypeQ v)) |]) []]
             }
 
 peekClauses :: forall m conc alt. (TypeGraphM m, MonadWriter [ClauseType] m, conc ~ (TGV, PatQ, ExpQ), alt ~ (PatQ, [conc])) =>
                TGVSimple -> m ()
-peekClauses v = doTGVSimple isPathControl v
+peekClauses v = doTGVSimple (isPathControl v) v
 
 concatMapQ :: [ExpQ] -> ExpQ
 concatMapQ [] = [|mempty|]
