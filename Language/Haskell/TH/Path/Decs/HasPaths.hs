@@ -28,7 +28,7 @@ import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Common (asConQ, asType, asTypeQ, HasName(asName), makePathCon, makePathType, mconcatQ, ModelType(ModelType), tells)
 import Language.Haskell.TH.Path.Core (HasIdPath(idPath), HasPaths(..), ToLens(..), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
 import Language.Haskell.TH.Path.Decs.PathType (pathType)
-import Language.Haskell.TH.Path.Graph (TypeGraphM)
+import Language.Haskell.TH.Path.Graph (testIsPath, TypeGraphM)
 import Language.Haskell.TH.Path.Instances ()
 import Language.Haskell.TH.Path.Order (Path_OMap(..), toPairs)
 import Language.Haskell.TH.Path.Traverse (Control(..), doTGVSimple)
@@ -51,11 +51,7 @@ pathDecs' v gkey = do
   g <- runQ (newName "g")
   poc <- case v == gkey of
            True -> pure [clause [wildP, wildP] (normalB [| [idPath] |]) []]
-#if 1
            False -> execWriterT (doTGVSimple (hasPathControl v gkey g) v)
-#else
-           False -> execWriterT (pathsOfClauses (hasPathControl v gkey s g) v gkey x g)
-#endif
   when (not (null poc))
        (tells [ instanceD (pure []) [t|HasPaths $(pure (bestType v)) $(pure (bestType gkey))|]
                 [ tySynInstD ''Path (tySynEqn [pure (bestType v), pure (bestType gkey)] (pure ptyp))
@@ -109,13 +105,3 @@ hasPathControl v gkey g =
                 \xpat exps ->
                     tell [clause [xpat, varP g] (normalB (mconcatQ exps)) []]
             }
-
--- | See if there is a path from typ to gkey.  We need to avoid
--- building expressions for non-existant paths because they will cause
--- "no Path instance" errors.
-testIsPath :: TypeGraphM m => Type -> TGVSimple -> m Bool
-testIsPath typ gkey = do
-  mkey <- tgvSimple' typ
-  case mkey of
-    Nothing -> pure False
-    Just v -> (maybe False (Set.member gkey) . Map.lookup v) <$> allPathKeys
