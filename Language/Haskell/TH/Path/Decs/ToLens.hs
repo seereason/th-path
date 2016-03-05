@@ -39,7 +39,7 @@ import Language.Haskell.TH.Syntax as TH (VarStrictType)
 import Language.Haskell.TH.TypeGraph.TypeGraph (goalReachableSimple, pathKeys, simplify, tgv, tgvSimple)
 import Language.Haskell.TH.TypeGraph.Vertex (field, TGV, TGVSimple, TypeGraphVertex(bestType))
 
-toLensControl :: (TypeGraphM m, MonadWriter [ClauseQ] m) => TGVSimple -> TGVSimple -> Control m [(Con, [ClauseQ])] ()
+toLensControl :: (TypeGraphM m, MonadWriter [ClauseQ] m) => TGVSimple -> TGVSimple -> Control m () ()
 toLensControl key gkey =
     Control
     { _doView = undefined
@@ -71,8 +71,8 @@ toLensControl key gkey =
                                                          -- let hop = [|\f x -> fmap (\y -> $(recUpdE [|x|] [fieldExp fn [|y|]])) (f $(appE (varE fn) [|x|]))|] in
                                                          let hop = varE (fieldLensNameOld (asName key) fname) in
                                                          if goal then hop else [|$hop . $lns|])) clauses
-                   return [(con, clauses')]
-            (False, _) -> pure []
+                   tell clauses'
+            (False, _) -> pure ()
     , _doConc = undefined
     , _doAlt = undefined
     }
@@ -107,12 +107,12 @@ toLensClauses key gkey =
   -- toLensClauses key gkey ptyp = do
   --   r <- foldPath control key
   --   return $ r ++ [clause [varP x] (normalB [|error ("toLens' (" ++ $(lift (pprint' key)) ++ ") -> (" ++ $(lift (pprint' gkey)) ++ ") - unmatched: " ++ show $(varE x))|]) []]
-  do let control = toLensControl key gkey :: Control m [(Con, [ClauseQ])] ()
+  do let control = toLensControl key gkey :: Control m () ()
      x <- runQ (newName "_x")
      toLensClauses' control x key gkey
 
 toLensClauses' :: forall m. (TypeGraphM m, MonadWriter [ClauseQ] m) =>
-                  Control m [(Con, [ClauseQ])] ()
+                  Control m () ()
                -> Name
                -> TGVSimple -- ^ the type whose clauses we are generating
                -> TGVSimple -- ^ the goal type key
@@ -192,19 +192,19 @@ toLensClauses' control x key gkey =
       doDec _tps dec = error $ "doName - unexpected Dec: " ++ show dec
 
       doCons :: (Type -> Type) -> Name -> [Con] -> m ()
-      doCons subst tname cons = ((concatMap snd . concat) <$> List.mapM (doCon subst tname) cons) >>= tell
+      doCons subst tname cons = Prelude.mapM_ (doCon subst tname) cons
 
       -- For each constructor of the original type, we create a list of pairs, a
       -- path type constructor and the clause which recognizes it.
-      doCon :: (Type -> Type) -> Name -> Con -> m [(Con, [ClauseQ])]
+      doCon :: (Type -> Type) -> Name -> Con -> m ()
       doCon subst tname (ForallC _ _ con) = doCon subst tname con
-      doCon subst tname (NormalC _ _) = return []
-      doCon subst tname (InfixC _ _ _) = return []
+      doCon subst tname (NormalC _ _) = pure ()
+      doCon subst tname (InfixC _ _ _) = pure ()
       doCon subst tname (RecC cname ts) =
-          concat <$> List.mapM (\(fname, _, ftype') -> do
-                                  let ftype = subst ftype'
-                                  fkey <- tgvSimple ftype >>= tgv (Just (tname, cname, Right fname))
-                                  _doField control x fkey) ts
+          Prelude.mapM_ (\(fname, _, ftype') -> do
+                           let ftype = subst ftype'
+                           fkey <- tgvSimple ftype >>= tgv (Just (tname, cname, Right fname))
+                           _doField control x fkey) ts
 
 -- Apply arity 1 functions to the clause pattern and expression
 mapClause :: TypeGraphM m => (PatQ -> PatQ) -> (ExpQ -> ExpQ) -> ClauseQ -> m ClauseQ
