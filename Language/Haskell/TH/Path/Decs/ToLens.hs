@@ -19,15 +19,12 @@ module Language.Haskell.TH.Path.Decs.ToLens (toLensDecs) where
 import Control.Lens hiding (cons, Strict)
 import Control.Monad (when)
 import Control.Monad as List ( mapM )
-import Control.Monad.State (evalStateT, StateT)
-import Control.Monad.States (MonadStates(getPoly), modifyPoly)
-import Control.Monad.Trans as Monad (lift)
 import Control.Monad.Writer (execWriterT, MonadWriter, tell)
 import Data.Bool (bool)
 import Data.List as List (map)
 import Data.Map as Map (Map)
 import Data.Maybe (fromJust, isJust)
-import Data.Set.Extra as Set (insert, mapM_, member, Set)
+import Data.Set.Extra as Set (mapM_)
 import Language.Haskell.TH
 import Language.Haskell.TH.Context (reifyInstancesWithContext)
 import Language.Haskell.TH.Instances ()
@@ -48,7 +45,7 @@ toLensDecs v =
 toLensDecs' :: forall m s. (TypeGraphM m, MonadWriter [Dec] m, s ~TGVSimple) => s -> s -> m ()
 toLensDecs' key gkey = do
   ptyp <- pathType (pure (bestType gkey)) key
-  tlc <- execWriterT $ evalStateT (toLensClauses key gkey) mempty
+  tlc <- execWriterT $ toLensClauses key gkey
   when (not (null tlc)) $
        (runQ $ sequence
             [ instanceD (pure []) [t|ToLens $(pure ptyp)|]
@@ -58,10 +55,10 @@ toLensDecs' key gkey = do
                 ] ]) >>= tell
 
 
-toLensClauses :: forall m s. (TypeGraphM m, MonadWriter [ClauseQ] m, s ~ TGVSimple) =>
-                       s -- ^ the type whose clauses we are generating
-                    -> s -- ^ the goal type key
-                    -> StateT (Set Name) m ()
+toLensClauses :: forall m. (TypeGraphM m, MonadWriter [ClauseQ] m) =>
+                 TGVSimple -- ^ the type whose clauses we are generating
+              -> TGVSimple -- ^ the goal type key
+              -> m ()
 toLensClauses key gkey
     | key == gkey =
         tell [clause [wildP] (normalB [|id|]) []]
@@ -91,11 +88,7 @@ toLensClauses key gkey =
              let (AppT (ConT pname) _gtyp) = ptyp
              lkey <- tgvSimple ltyp
              doClause gkey ltyp (\p -> conP (mkName (nameBase pname ++ "_View")) [if lkey == gkey then wildP else p]) (pure lns)
-       ConT tname ->
-           getPoly >>= \s -> if Set.member tname s
-                             then return ()
-                             else modifyPoly (Set.insert tname) >>
-                                  doName tname gkey
+       ConT tname -> doName tname gkey
        AppT (AppT mtyp _ityp) vtyp
            | mtyp == ConT ''Order ->
                do k <- runQ (newName "k")
@@ -132,7 +125,7 @@ doClause gkey typ pfunc lns = do
   when ok $ tell [clause [pfunc pat] (normalB lns') []]
 
 doName :: forall m. (TypeGraphM m, MonadWriter [ClauseQ] m) =>
-          Name -> TGVSimple -> StateT (Set Name) m ()
+          Name -> TGVSimple -> m ()
 doName tname gkey =
     -- If encounter a named type and the stack is empty we
     -- need to build the clauses for its declaration.
@@ -141,7 +134,7 @@ doName tname gkey =
          TyConI dec -> doDec dec
          _ -> error "doNameClauses"
     where
-            doDec :: Dec -> StateT (Set Name) m ()
+            doDec :: Dec -> m ()
             doDec (TySynD _ _ typ') =
                 do -- If we have a type synonym we can use the corresponding
                    -- path type synonym instead of the path type of the
@@ -155,12 +148,12 @@ doName tname gkey =
             doDec (DataD _ _ _ cons _) = doCons cons
             doDec dec = error $ "doName - unexpected Dec: " ++ show dec
 
-            doCons :: [Con] -> StateT (Set Name) m ()
+            doCons :: [Con] -> m ()
             doCons cons = ((concatMap snd . concat) <$> List.mapM doCon cons) >>= tell
 
             -- For each constructor of the original type, we create a list of pairs, a
             -- path type constructor and the clause which recognizes it.
-            doCon :: Con -> StateT (Set Name) m [(Con, [ClauseQ])]
+            doCon :: Con -> m [(Con, [ClauseQ])]
             doCon (ForallC _ _ con) = doCon con
             doCon (NormalC _ _) = return []
             doCon (InfixC _ _ _) = return []
@@ -169,9 +162,9 @@ doName tname gkey =
             -- Each field of the original type turns into zero or more (Con, Clause)
             -- pairs, each of which may or may not have a field representing the path type
             -- of some piece of the field value.
-            doField :: Name -> VarStrictType -> StateT (Set Name) m [(Con, [ClauseQ])]
+            doField :: Name -> VarStrictType -> m [(Con, [ClauseQ])]
             doField cname (fn, _, ft) = do
-                    fkey <- (tgvSimple ft :: StateT (Set Name) m TGVSimple) >>= tgv (Just (tname, cname, Right fn)) :: StateT (Set Name) m TGV
+                    fkey <- (tgvSimple ft :: m TGVSimple) >>= tgv (Just (tname, cname, Right fn)) :: m TGV
                     skey <- simplify fkey
                     ok <- goalReachableSimple gkey skey  -- is the goal type reachable from here?
                     case ok of
@@ -189,8 +182,7 @@ doName tname gkey =
                              -- These are the field's clauses.  Each pattern gets wrapped with the field path constructor,
                              -- and each field lens gets composed with the lens produced for the field's type.
                              let goal = skey == gkey
-                             clauses' <- List.mapM (Monad.lift .
-                                                    mapClause (\ pat -> conP (asName pcname) [pat])
+                             clauses' <- List.mapM (mapClause (\ pat -> conP (asName pcname) [pat])
                                                               (\ lns ->
                                                                    -- let hop = [|\f x -> fmap (\y -> $(recUpdE [|x|] [fieldExp fn [|y|]])) (f $(appE (varE fn) [|x|]))|] in
                                                                    let hop = varE (fieldLensNameOld tname fn) in
