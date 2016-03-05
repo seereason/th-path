@@ -16,7 +16,7 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeSynonymInstances #-}
 {-# OPTIONS_GHC -ddump-minimal-imports #-}
-module Language.Haskell.TH.Path.Traverse (Control(..), doTGVSimple) where
+module Language.Haskell.TH.Path.Traverse (Control(..), doTGVSimple, substG) where
 
 import Data.Generics (Data, everywhere, mkT)
 import Data.Map as Map (fromList, lookup, Map)
