@@ -16,7 +16,12 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeSynonymInstances #-}
 {-# OPTIONS_GHC -ddump-minimal-imports #-}
-module Language.Haskell.TH.Path.Traverse (Control(..), doTGVSimple, substG) where
+module Language.Haskell.TH.Path.Traverse
+    ( asP'
+    , Control(..)
+    , doTGVSimple
+    , substG
+    ) where
 
 import Data.Generics (Data, everywhere, mkT)
 import Data.Map as Map (fromList, lookup, Map)
@@ -34,24 +39,19 @@ import Language.Haskell.TH.TypeGraph.Vertex
 
 data Control m conc r
     = Control
-      { _doView :: Name -> TGV -> m [(PatQ, [conc])] -- Most of these could probably be pure
-      , _doOrder :: Name -> TGV -> m [(PatQ, [conc])]
-      , _doMap :: Name -> TGV -> m [(PatQ, [conc])]
-      , _doPair :: Name -> TGV -> TGV -> m [(PatQ, [conc])]
-      , _doMaybe :: Name -> TGV -> m [(PatQ, [conc])]
-      , _doEither :: Name -> TGV -> TGV -> m [(PatQ, [conc])]
-      , _doField :: Name -> TGV -> m conc -- s is temporary
-      , _doConc :: Name -> conc -> m r
+      { _doView :: TGV -> m [(PatQ, [conc])] -- Most of these could probably be pure
+      , _doOrder :: TGV -> m [(PatQ, [conc])]
+      , _doMap :: TGV -> m [(PatQ, [conc])]
+      , _doPair :: TGV -> TGV -> m [(PatQ, [conc])]
+      , _doMaybe :: TGV -> m [(PatQ, [conc])]
+      , _doEither :: TGV -> TGV -> m [(PatQ, [conc])]
+      , _doField :: TGV -> m conc -- s is temporary
+      , _doConc :: conc -> m r
       , _doAlt :: PatQ -> [r] -> m ()
       }
 
 doTGVSimple :: forall m r conc. (Quasi m, TypeGraphM m) => Control m conc r -> TGVSimple -> m ()
 doTGVSimple control v =
-    do x <- runQ $ newName "s"
-       doTGVSimple' control v x
-
-doTGVSimple' :: forall m r conc. (Quasi m, TypeGraphM m) => Control m conc r -> TGVSimple -> Name -> m ()
-doTGVSimple' control v x =
   do selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [asType v]
      simplePath <- (not . null) <$> reifyInstancesWithContext ''SinkType [asType v]
      viewTypeMaybe <- viewInstanceType (asType v)
@@ -61,22 +61,22 @@ doTGVSimple' control v x =
          | isJust viewTypeMaybe ->
              do let Just viewtyp = viewTypeMaybe
                 w <- tgvSimple viewtyp >>= tgv Nothing
-                _doView control x w >>= mapM_ doAlt . map (\(p, cs) -> (asP' x p, cs))
+                _doView control w >>= mapM_ doAlt . map (\(p, cs) -> (p, cs))
        typ -> doType typ []
     where
       doType (AppT t1 t2) tps = doType t1 (t2 : tps)
-      doType (ConT tname) [_ityp, vtyp] | tname == ''Order = tgvSimple vtyp >>= tgv Nothing >>= _doOrder control x >>= mapM_ doAlt . map (\(p, cs) -> (asP' x p, cs))
-      doType (ConT tname) [_ktyp, vtyp] | tname == ''Map = tgvSimple vtyp >>= tgv Nothing >>= _doMap control x >>= mapM_ doAlt . map (\(p, cs) -> (asP' x p, cs))
+      doType (ConT tname) [_ityp, vtyp] | tname == ''Order = tgvSimple vtyp >>= tgv Nothing >>= _doOrder control >>= mapM_ doAlt . map (\(p, cs) -> (p, cs))
+      doType (ConT tname) [_ktyp, vtyp] | tname == ''Map = tgvSimple vtyp >>= tgv Nothing >>= _doMap control >>= mapM_ doAlt . map (\(p, cs) -> (p, cs))
       doType (TupleT 2) [ftyp, styp] = do
         f <- tgvSimple ftyp >>= tgv Nothing -- (Just (''(,), '(,), Left 1))
         s <- tgvSimple styp >>= tgv Nothing -- (Just (''(,), '(,), Left 2))
-        _doPair control x f s >>= mapM_ doAlt . map (\(p, cs) -> (asP' x p, cs))
-      doType (ConT tname) [etyp] | tname == ''Maybe = tgvSimple etyp >>= tgv Nothing >>= _doMaybe control x >>= mapM_ doAlt . map (\(p, cs) -> (asP' x p, cs))
+        _doPair control f s >>= mapM_ doAlt . map (\(p, cs) -> (p, cs))
+      doType (ConT tname) [etyp] | tname == ''Maybe = tgvSimple etyp >>= tgv Nothing >>= _doMaybe control >>= mapM_ doAlt . map (\(p, cs) -> (p, cs))
       doType (ConT tname) [ltyp, rtyp]
           | tname == ''Either =
               do l <- tgvSimple ltyp >>= tgv Nothing -- (Just (''Either, 'Left, Left 1))
                  r <- tgvSimple rtyp >>= tgv Nothing -- (Just (''Either, 'Right, Left 1))
-                 _doEither control x l r >>= mapM_ doAlt . map (\(p, cs) -> (asP' x p, cs))
+                 _doEither control l r >>= mapM_ doAlt . map (\(p, cs) -> (p, cs))
       doType (ConT tname) tps = doName tps tname
       doType ListT [_etyp] = error "list" {- tell [clause [wildP] (normalB [|error "list"|]) []]-}
       doType _ _ = return ()
@@ -105,20 +105,20 @@ doTGVSimple' control v x =
       doCon subst tname (ForallC _ _ con) = doCon subst tname con
       doCon subst tname (RecC cname vsts) = do
         flds <- mapM (doNamedField subst tname cname) (zip vsts [1..])
-        doAlt (asP' x (recP cname []), flds)
+        doAlt ((recP cname []), flds)
       doCon _subst _tname (NormalC _cname _sts) = do
 #if 1
         pure ()
 #else
         flds <- mapM (doAnonField bindings tname cname) (zip sts [1..])
-        doAlt (asP' x (recP cname []), flds)
+        doAlt ((recP cname []), flds)
 #endif
       doCon _bindings _tname (InfixC _lhs _cname _rhs) = do
 #if 1
         pure ()
 #else
         flds <- mapM (doAnonField bindings tname cname) (zip [lhs, rhs] [1..])
-        c <- doAlt (asP' x (infixP wildP cname wildP), flds)
+        c <- doAlt ((infixP wildP cname wildP), flds)
         return [c]
 #endif
 
@@ -126,17 +126,17 @@ doTGVSimple' control v x =
       doNamedField subst tname cname ((fname, _, ftype), _fpos) =
           do let ftype' = subst ftype
              f <- tgvSimple ftype' >>= tgv (Just (tname, cname, Right fname))
-             _doField control x f
+             _doField control f
 
       doAnonField :: (Type -> Type) -> Name -> Name -> ((Strict, Type), Int) -> m conc
       doAnonField subst tname cname ((_, ftype), fpos) =
           do let ftype' = subst ftype
              f <- tgvSimple ftype' >>= tgv (Just (tname, cname, Left fpos))
-             _doField control x f
+             _doField control f
 
       doAlt :: (PatQ, [conc]) -> m ()
       doAlt (xpat, concs) = do
-        mapM (_doConc control x) concs >>= _doAlt control xpat
+        mapM (_doConc control) concs >>= _doAlt control xpat
 
 substG :: Data a => Map Name Type -> a -> a
 substG bindings typ = everywhere (mkT (subst1 bindings)) typ

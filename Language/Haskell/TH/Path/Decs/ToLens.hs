@@ -39,8 +39,8 @@ import Language.Haskell.TH.Syntax as TH (VarStrictType)
 import Language.Haskell.TH.TypeGraph.TypeGraph (goalReachableSimple, pathKeys, simplify, tgv, tgvSimple)
 import Language.Haskell.TH.TypeGraph.Vertex (field, TGV, TGVSimple, TypeGraphVertex(bestType))
 
-toLensControl :: (TypeGraphM m, MonadWriter [ClauseQ] m) => TGVSimple -> TGVSimple -> Control m () ()
-toLensControl key gkey =
+toLensControl :: (TypeGraphM m, MonadWriter [ClauseQ] m) => TGVSimple -> TGVSimple -> Name -> Control m () ()
+toLensControl key gkey x =
     Control
     { _doView = undefined
     , _doOrder = undefined
@@ -49,7 +49,7 @@ toLensControl key gkey =
     , _doMaybe = undefined
     , _doEither = undefined
     , _doField =
-        \x fkey -> do
+        \fkey -> do
           skey <- simplify fkey
           ok <- goalReachableSimple gkey skey
           case (ok, view (_2 . field) fkey) of
@@ -107,17 +107,16 @@ toLensClauses key gkey =
   -- toLensClauses key gkey ptyp = do
   --   r <- foldPath control key
   --   return $ r ++ [clause [varP x] (normalB [|error ("toLens' (" ++ $(lift (pprint' key)) ++ ") -> (" ++ $(lift (pprint' gkey)) ++ ") - unmatched: " ++ show $(varE x))|]) []]
-  do let control = toLensControl key gkey :: Control m () ()
-     x <- runQ (newName "_x")
-     toLensClauses' control x key gkey
+  do x <- runQ (newName "_x")
+     let control = toLensControl key gkey x :: Control m () ()
+     toLensClauses' control key gkey
 
 toLensClauses' :: forall m. (TypeGraphM m, MonadWriter [ClauseQ] m) =>
                   Control m () ()
-               -> Name
                -> TGVSimple -- ^ the type whose clauses we are generating
                -> TGVSimple -- ^ the goal type key
                -> m ()
-toLensClauses' control x key gkey =
+toLensClauses' control key gkey =
   do ptyp <- pathType (pure (bestType gkey)) key
      let v = key
      selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [asType v]
@@ -204,7 +203,7 @@ toLensClauses' control x key gkey =
           Prelude.mapM_ (\(fname, _, ftype') -> do
                            let ftype = subst ftype'
                            fkey <- tgvSimple ftype >>= tgv (Just (tname, cname, Right fname))
-                           _doField control x fkey) ts
+                           _doField control fkey) ts
 
 -- Apply arity 1 functions to the clause pattern and expression
 mapClause :: TypeGraphM m => (PatQ -> PatQ) -> (ExpQ -> ExpQ) -> ClauseQ -> m ClauseQ

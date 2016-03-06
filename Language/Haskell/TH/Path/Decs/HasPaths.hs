@@ -31,7 +31,7 @@ import Language.Haskell.TH.Path.Decs.PathType (pathType)
 import Language.Haskell.TH.Path.Graph (testIsPath, TypeGraphM)
 import Language.Haskell.TH.Path.Instances ()
 import Language.Haskell.TH.Path.Order (Path_OMap(..), toPairs)
-import Language.Haskell.TH.Path.Traverse (Control(..), doTGVSimple)
+import Language.Haskell.TH.Path.Traverse (asP', Control(..), doTGVSimple)
 import Language.Haskell.TH.TypeGraph.TypeGraph (pathKeys)
 import Language.Haskell.TH.TypeGraph.Vertex (field, TGVSimple, TypeGraphVertex(bestType))
 
@@ -47,44 +47,44 @@ pathDecs' :: (TypeGraphM m, MonadWriter [Dec] m) =>
              TGVSimple -> TGVSimple -> m ()
 pathDecs' v gkey = do
   ptyp <- pathType (pure (bestType gkey)) v
-  -- x <- runQ (newName "s")
+  x <- runQ (newName "s")
   g <- runQ (newName "g")
   poc <- case v == gkey of
            True -> pure [clause [wildP, wildP] (normalB [| [idPath] |]) []]
-           False -> execWriterT (doTGVSimple (hasPathControl v gkey g) v)
+           False -> execWriterT (doTGVSimple (hasPathControl v gkey g x) v)
   when (not (null poc))
        (tells [ instanceD (pure []) [t|HasPaths $(pure (bestType v)) $(pure (bestType gkey))|]
                 [ tySynInstD ''Path (tySynEqn [pure (bestType v), pure (bestType gkey)] (pure ptyp))
                 , funD 'pathsOf poc
                 ]])
 
-hasPathControl :: (TypeGraphM m, MonadWriter [ClauseQ] m) => TGVSimple -> TGVSimple -> Name -> Control m (Type, ExpQ) ExpQ
-hasPathControl v gkey g =
+hasPathControl :: (TypeGraphM m, MonadWriter [ClauseQ] m) => TGVSimple -> TGVSimple -> Name -> Name -> Control m (Type, ExpQ) ExpQ
+hasPathControl v gkey g x =
     Control { _doView =
-                \x w -> do
+                \w -> do
                   let pcname = makePathCon (makePathType (ModelType (asName v))) "View"
                   pure [(wildP, [(asType w,
                                   [|map (\a' -> ($(asConQ pcname) {-:: Path $(asTypeQ w) $(asTypeQ gkey) -> Path $(asTypeQ v) $(asTypeQ gkey)-}, a'))
                                         (toListOf (toLens ($(asConQ pcname) (idPath :: Path $(asTypeQ w) $(asTypeQ w)))) $(varE x)) |])])]
             , _doOrder =
-                \x w -> do
+                \w -> do
                   pure [(wildP, [(asType w, [| map (\(idx, val) -> (Path_At idx, val)) (toPairs $(varE x)) |])])]
             , _doMap =
-                \x w -> do
+                \w -> do
                   pure [(wildP, [(asType w, [| map (\(idx, val) -> (Path_Look idx, val)) (Map.toList $(varE x)) |])])]
             , _doPair =
-                \x f s -> do
+                \f s -> do
                   pure [(wildP, [(asType f, [| [(Path_First, fst $(varE x))] |]),
                                  (asType s, [| [(Path_Second, snd $(varE x))] |])])]
             , _doMaybe =
-                \x w -> do
+                \w -> do
                   pure [(wildP, [(asType w, [| case $(varE x) of Nothing -> []; Just a' -> [(Path_Just, a')]|])])]
             , _doEither =
-                \x l r ->
+                \l r ->
                     do pure [(conP 'Left [wildP], [(asType l, [| case $(varE x) of Left a' -> [(Path_Left, a')]; Right _ -> []|])]),
                              (conP 'Right [wildP], [(asType r, [| case $(varE x) of Left _ -> []; Right a' -> [(Path_Right, a')]|])])]
             , _doField =
-                \x f ->
+                \f ->
                     case view (_2 . field) f of
                       Just (_tname, _cname, Right fname) ->
                           pure (asType f, [| [($(asConQ (makePathCon (makePathType (ModelType (asName v))) (nameBase fname))), ($(varE fname) $(varE x)))] |])
@@ -94,7 +94,7 @@ hasPathControl v gkey g =
                                                     lamE (replicate (fpos-1) wildP ++ [varP p] ++ replicate (2-fpos) wildP) (varE p)) $(varE x))] |])
                       Nothing -> error "Not a field"
             , _doConc =
-                \_x (typ, asList) ->
+                \(typ, asList) ->
                     do isPath <- testIsPath typ gkey
                        case isPath of
                          False -> pure [| [] |]
@@ -103,5 +103,5 @@ hasPathControl v gkey g =
                                            ($asList {-:: [(Path $(pure typ) $(asTypeQ gkey) -> Path $(pure styp) $(asTypeQ gkey), $(pure typ))]-}) |]
             , _doAlt =
                 \xpat exps ->
-                    tell [clause [xpat, varP g] (normalB (mconcatQ exps)) []]
+                    tell [clause [asP' x xpat, varP g] (normalB (mconcatQ exps)) []]
             }

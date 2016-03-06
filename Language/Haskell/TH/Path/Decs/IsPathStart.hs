@@ -36,7 +36,7 @@ import Language.Haskell.TH.Path.Core (IsPathStart(Peek, peek, hop, describe'), H
                                       Describe(describe), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..), forestMap)
 import Language.Haskell.TH.Path.Graph (TypeGraphM)
 import Language.Haskell.TH.Path.Order (Path_OMap(..))
-import Language.Haskell.TH.Path.Traverse (Control(..), doTGVSimple)
+import Language.Haskell.TH.Path.Traverse (asP', Control(..), doTGVSimple)
 import Language.Haskell.TH.TypeGraph.TypeGraph (pathKeys, pathKeys')
 import Language.Haskell.TH.TypeGraph.Vertex (TGV, field, TGVSimple)
 
@@ -91,44 +91,44 @@ peekDecs v =
                           [(,) <$> notStrict <*> [t|Path $(asTypeQ v) $(asTypeQ g)|],
                            (,) <$> notStrict <*> [t|Maybe $(asTypeQ g)|] ]]
 
-isPathControl :: TGVSimple -> (TypeGraphM m, MonadWriter [ClauseType] m) => Control m (TGV, PatQ, ExpQ) (ExpQ, ExpQ)
-isPathControl v =
+isPathControl :: (TypeGraphM m, MonadWriter [ClauseType] m) => TGVSimple -> Name -> Control m (TGV, PatQ, ExpQ) (ExpQ, ExpQ)
+isPathControl v x =
     Control { _doView =
-                \_x w ->
+                \w ->
                     do let pcname = makePathCon (makePathType (ModelType (asName v))) "View"
                        pure [(wildP, [(w, conP (asName pcname) [wildP], conE (asName pcname))])]
             , _doOrder =
-                \_x w ->
+                \w ->
                     do k <- runQ $ newName "k"
                        pure [(wildP, [(w, conP 'Path_At [varP k, wildP], [|Path_At $(varE k)|])])]
             , _doMap =
-                \_x w ->
+                \w ->
                     do k <- runQ $ newName "k"
                        pure [(wildP, [(w, conP 'Path_Look [varP k, wildP], [|Path_Look $(varE k)|])])]
             , _doPair =
-                \_x f s ->
+                \f s ->
                     pure [(wildP, [(f, conP 'Path_First [wildP], [|Path_First|]),
-                                   (s, conP 'Path_Second [wildP], [|Path_Second|])])]
+                                    (s, conP 'Path_Second [wildP], [|Path_Second|])])]
             , _doMaybe =
-                \_x w ->
+                \w ->
                     pure [(wildP, [(w, conP 'Path_Just [wildP], [|Path_Just|])])]
             , _doEither =
-                \_x l r ->
+                \l r ->
                     do pure [(conP 'Left [wildP], [(l, conP 'Path_Left [wildP], [|Path_Left|])]),
                              (conP 'Right [wildP], [(r, conP 'Path_Right [wildP], [|Path_Right|])])]
             , _doField =
-                \_s f ->
+                \f ->
                     do let pcname = maybe (error $ "Not a field: " ++ show f) id (makeFieldCon f)
                        pure (f, conP (asName pcname) [wildP], asConQ pcname)
             , _doConc =
-                \s conc@(w, ppat, pcon) ->
+                \conc@(w, ppat, pcon) ->
                     do let liftPeek p node =
                                pure [| concatMap
                                            (\path -> case path of
                                                        $(asP p ppat) ->
-                                                           map $node (toListOf (toLens $(varE p)) $(varE s) :: [$(asTypeQ w)])
+                                                           map $node (toListOf (toLens $(varE p)) $(varE x) :: [$(asTypeQ w)])
                                                        _ -> [])
-                                           (pathsOf $(varE s) (undefined :: Proxy $(asTypeQ w))
+                                           (pathsOf $(varE x) (undefined :: Proxy $(asTypeQ w))
                                                {-:: [$(asTypeQ (makePathType (ModelType (asName v)))) $(asTypeQ w)]-}) |]
                        describeConc v conc
                        p <- runQ $ newName "p"
@@ -138,13 +138,15 @@ isPathControl v =
             , _doAlt =
                 \xpat rs ->
                     do let (hfs, pfs) = unzip rs
-                       tell [PeekClause $ clause [xpat] (normalB [| $(concatMapQ pfs) :: Forest (Peek $(asTypeQ v)) |]) [],
-                             HopClause $ clause [xpat] (normalB [| $(concatMapQ hfs) :: Forest (Peek $(asTypeQ v)) |]) []]
+                       tell [PeekClause $ clause [asP' x xpat] (normalB [| $(concatMapQ pfs) :: Forest (Peek $(asTypeQ v)) |]) [],
+                             HopClause $ clause [asP' x xpat] (normalB [| $(concatMapQ hfs) :: Forest (Peek $(asTypeQ v)) |]) []]
             }
 
 peekClauses :: forall m conc alt. (TypeGraphM m, MonadWriter [ClauseType] m, conc ~ (TGV, PatQ, ExpQ), alt ~ (PatQ, [conc])) =>
                TGVSimple -> m ()
-peekClauses v = doTGVSimple (isPathControl v) v
+peekClauses v = do
+  x <- runQ (newName "s")
+  doTGVSimple (isPathControl v x) v
 
 concatMapQ :: [ExpQ] -> ExpQ
 concatMapQ [] = [|mempty|]
