@@ -37,7 +37,7 @@ import Language.Haskell.TH.Syntax
 import Language.Haskell.TH.TypeGraph.TypeGraph
 import Language.Haskell.TH.TypeGraph.Vertex
 
-data Control m conc r
+data Control m conc
     = Control
       { _doView :: TGV -> m [(PatQ, [conc])] -- Most of these could probably be pure
       , _doOrder :: TGV -> m [(PatQ, [conc])]
@@ -46,11 +46,11 @@ data Control m conc r
       , _doMaybe :: TGV -> m [(PatQ, [conc])]
       , _doEither :: TGV -> TGV -> m [(PatQ, [conc])]
       , _doField :: TGV -> m conc -- s is temporary
-      , _doConc :: conc -> m r
-      , _doAlt :: PatQ -> [r] -> m ()
+      -- , _doConc :: conc -> m r
+      , _doAlt :: (PatQ, [conc]) -> m ()
       }
 
-doTGVSimple :: forall m r conc. (Quasi m, TypeGraphM m) => Control m conc r -> TGVSimple -> m ()
+doTGVSimple :: forall m conc. (Quasi m, TypeGraphM m) => Control m conc -> TGVSimple -> m ()
 doTGVSimple control v =
   do selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [asType v]
      simplePath <- (not . null) <$> reifyInstancesWithContext ''SinkType [asType v]
@@ -135,9 +135,7 @@ doTGVSimple control v =
              _doField control f
 
       doAlts :: [(PatQ, [conc])] -> m ()
-      doAlts = Prelude.mapM_ (\(xpat, concs) ->
-                                  mapM (_doConc control) concs >>=
-                                  _doAlt control xpat)
+      doAlts = Prelude.mapM_ (_doAlt control)
 
 substG :: Data a => Map Name Type -> a -> a
 substG bindings typ = everywhere (mkT (subst1 bindings)) typ

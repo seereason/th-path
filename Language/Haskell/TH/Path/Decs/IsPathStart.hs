@@ -91,7 +91,7 @@ peekDecs v =
                           [(,) <$> notStrict <*> [t|Path $(asTypeQ v) $(asTypeQ g)|],
                            (,) <$> notStrict <*> [t|Maybe $(asTypeQ g)|] ]]
 
-isPathControl :: (TypeGraphM m, MonadWriter [ClauseType] m) => TGVSimple -> Name -> Control m (TGV, PatQ, ExpQ) (ExpQ, ExpQ)
+isPathControl :: (TypeGraphM m, MonadWriter [ClauseType] m) => TGVSimple -> Name -> Control m (TGV, PatQ, ExpQ)
 isPathControl v x =
     Control { _doView =
                 \w ->
@@ -120,26 +120,26 @@ isPathControl v x =
                 \f ->
                     do let pcname = maybe (error $ "Not a field: " ++ show f) id (makeFieldCon f)
                        pure (f, conP (asName pcname) [wildP], asConQ pcname)
-            , _doConc =
-                \conc@(w, ppat, pcon) ->
-                    do let liftPeek p node =
-                               pure [| concatMap
-                                           (\path -> case path of
-                                                       $(asP p ppat) ->
-                                                           map $node (toListOf (toLens $(varE p)) $(varE x) :: [$(asTypeQ w)])
-                                                       _ -> [])
-                                           (pathsOf $(varE x) (undefined :: Proxy $(asTypeQ w))
-                                               {-:: [$(asTypeQ (makePathType (ModelType (asName v)))) $(asTypeQ w)]-}) |]
-                       describeConc v conc
-                       p <- runQ $ newName "p"
-                       hf <- doHop v w p pcon >>= liftPeek p
-                       pf <- doPeek v w p pcon >>= liftPeek p
-                       return (hf, pf)
             , _doAlt =
-                \xpat rs ->
-                    do let (hfs, pfs) = unzip rs
-                       tell [PeekClause $ clause [asP' x xpat] (normalB [| $(concatMapQ pfs) :: Forest (Peek $(asTypeQ v)) |]) [],
-                             HopClause $ clause [asP' x xpat] (normalB [| $(concatMapQ hfs) :: Forest (Peek $(asTypeQ v)) |]) []]
+                \(xpat, concs) -> do
+                  rs <- mapM (\conc@(w, ppat, pcon) ->
+                                  do let liftPeek p node =
+                                             pure [| concatMap
+                                                         (\path -> case path of
+                                                                     $(asP p ppat) ->
+                                                                         map $node (toListOf (toLens $(varE p)) $(varE x) :: [$(asTypeQ w)])
+                                                                     _ -> [])
+                                                         (pathsOf $(varE x) (undefined :: Proxy $(asTypeQ w))
+                                                             {-:: [$(asTypeQ (makePathType (ModelType (asName v)))) $(asTypeQ w)]-}) |]
+                                     describeConc v conc
+                                     p <- runQ $ newName "p"
+                                     hf <- doHop v w p pcon >>= liftPeek p
+                                     pf <- doPeek v w p pcon >>= liftPeek p
+                                     return (hf, pf))
+                             concs
+                  let (hfs, pfs) = unzip rs
+                  tell [PeekClause $ clause [asP' x xpat] (normalB [| $(concatMapQ pfs) :: Forest (Peek $(asTypeQ v)) |]) [],
+                        HopClause $ clause [asP' x xpat] (normalB [| $(concatMapQ hfs) :: Forest (Peek $(asTypeQ v)) |]) []]
             }
 
 peekClauses :: forall m conc alt. (TypeGraphM m, MonadWriter [ClauseType] m, conc ~ (TGV, PatQ, ExpQ), alt ~ (PatQ, [conc])) =>

@@ -36,7 +36,7 @@ import Language.Haskell.TH.Path.View (viewInstanceType, viewLens)
 import Language.Haskell.TH.TypeGraph.TypeGraph (goalReachableSimple, pathKeys, simplify, tgv, tgvSimple)
 import Language.Haskell.TH.TypeGraph.Vertex (field, TGVSimple, TypeGraphVertex(bestType))
 
-toLensControl :: (TypeGraphM m, MonadWriter [ClauseQ] m) => TGVSimple -> TGVSimple -> Name -> Control m () ()
+toLensControl :: (TypeGraphM m, MonadWriter [ClauseQ] m) => TGVSimple -> TGVSimple -> Name -> Control m ()
 toLensControl key gkey x =
     Control
     { _doView = undefined
@@ -70,7 +70,6 @@ toLensControl key gkey x =
                        lns = if skey == gkey then hop else [|$hop . toLens $(varE x)|]
                    tell [clause [conP (asName pcname) [varP x]] (normalB lns) []]
             (False, _) -> pure ()
-    , _doConc = undefined
     , _doAlt = undefined
     }
 
@@ -105,11 +104,11 @@ toLensClauses key gkey =
   --   r <- foldPath control key
   --   return $ r ++ [clause [varP x] (normalB [|error ("toLens' (" ++ $(lift (pprint' key)) ++ ") -> (" ++ $(lift (pprint' gkey)) ++ ") - unmatched: " ++ show $(varE x))|]) []]
   do x <- runQ (newName "_x")
-     let control = toLensControl key gkey x :: Control m () ()
+     let control = toLensControl key gkey x :: Control m ()
      toLensClauses' control key gkey
 
 toLensClauses' :: forall m. (TypeGraphM m, MonadWriter [ClauseQ] m) =>
-                  Control m () ()
+                  Control m ()
                -> TGVSimple -- ^ the type whose clauses we are generating
                -> TGVSimple -- ^ the goal type key
                -> m ()

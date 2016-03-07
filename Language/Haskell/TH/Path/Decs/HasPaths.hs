@@ -58,7 +58,7 @@ pathDecs' v gkey = do
                 , funD 'pathsOf poc
                 ]])
 
-hasPathControl :: (TypeGraphM m, MonadWriter [ClauseQ] m) => TGVSimple -> TGVSimple -> Name -> Name -> Control m (Type, ExpQ) ExpQ
+hasPathControl :: (TypeGraphM m, MonadWriter [ClauseQ] m) => TGVSimple -> TGVSimple -> Name -> Name -> Control m (Type, ExpQ)
 hasPathControl v gkey g x =
     Control { _doView =
                 \w -> do
@@ -93,15 +93,15 @@ hasPathControl v gkey g x =
                                                $(do p <- newName "p"
                                                     lamE (replicate (fpos-1) wildP ++ [varP p] ++ replicate (2-fpos) wildP) (varE p)) $(varE x))] |])
                       Nothing -> error "Not a field"
-            , _doConc =
-                \(typ, asList) ->
-                    do isPath <- testIsPath typ gkey
-                       case isPath of
-                         False -> pure [| [] |]
-                         True -> pure [| List.concatMap
-                                           (\(p, a') -> (List.map p (pathsOf (a' :: $(pure typ)) $(varE g) {-:: [Path $(pure typ) $(asTypeQ gkey)]-})) {-:: [Path $(pure styp) $(asTypeQ gkey)]-})
-                                           ($asList {-:: [(Path $(pure typ) $(asTypeQ gkey) -> Path $(pure styp) $(asTypeQ gkey), $(pure typ))]-}) |]
             , _doAlt =
-                \xpat exps ->
-                    tell [clause [asP' x xpat, varP g] (normalB (mconcatQ exps)) []]
+                \(xpat, concs) -> do
+                  exps <- mapM (\(typ, asList) ->
+                                    do isPath <- testIsPath typ gkey
+                                       case isPath of
+                                         False -> pure [| [] |]
+                                         True -> pure [| List.concatMap
+                                                           (\(p, a') -> (List.map p (pathsOf (a' :: $(pure typ)) $(varE g) {-:: [Path $(pure typ) $(asTypeQ gkey)]-})) {-:: [Path $(pure styp) $(asTypeQ gkey)]-})
+                                                           ($asList {-:: [(Path $(pure typ) $(asTypeQ gkey) -> Path $(pure styp) $(asTypeQ gkey), $(pure typ))]-}) |])
+                               concs
+                  tell [clause [asP' x xpat, varP g] (normalB (mconcatQ exps)) []]
             }
