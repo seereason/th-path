@@ -50,11 +50,11 @@ toLensControl key gkey x =
           let (AppT (ConT pname) _gtyp) = ptyp
           doClause gkey (asType w) (\p -> conP (mkName (nameBase pname ++ "_View")) [if asType w == asType gkey then wildP else p]) (pure lns)
     , _doOrder =
-        \w -> do
+        \_i w -> do
           k <- runQ (newName "k")
           doClause gkey (asType w) (\p -> [p|Path_At $(varP k) $p|]) [|lens_omat $(varE k)|]
     , _doMap =
-        \w -> do
+        \_i w -> do
           k <- runQ (newName "k")
           doClause gkey (asType w) (\p -> [p|Path_Look $(varP k) $p|]) [|mat $(varE k)|]
     , _doPair =

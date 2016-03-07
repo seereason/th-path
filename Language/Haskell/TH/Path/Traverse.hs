@@ -40,8 +40,8 @@ import Language.Haskell.TH.TypeGraph.Vertex
 data Control m conc
     = Control
       { _doView :: TGV -> m conc -- Most of these could probably be pure
-      , _doOrder :: TGV -> m conc
-      , _doMap :: TGV -> m conc
+      , _doOrder :: Type -> TGV -> m conc
+      , _doMap :: Type -> TGV -> m conc
       , _doPair :: TGV -> TGV -> m (conc, conc)
       , _doMaybe :: TGV -> m conc
       , _doEither :: TGV -> TGV -> m (conc, conc)
@@ -64,8 +64,8 @@ doTGVSimple control v =
        typ -> doType typ []
     where
       doType (AppT t1 t2) tps = doType t1 (t2 : tps)
-      doType (ConT tname) [_ityp, vtyp] | tname == ''Order = tgvSimple vtyp >>= tgv Nothing >>= _doOrder control >>= \conc -> doAlts [(wildP, [conc])]
-      doType (ConT tname) [_ktyp, vtyp] | tname == ''Map = tgvSimple vtyp >>= tgv Nothing >>= _doMap control >>= \conc -> doAlts [(wildP, [conc])]
+      doType (ConT tname) [ityp, vtyp] | tname == ''Order = tgvSimple vtyp >>= tgv Nothing >>= _doOrder control ityp >>= \conc -> doAlts [(wildP, [conc])]
+      doType (ConT tname) [ktyp, vtyp] | tname == ''Map = tgvSimple vtyp >>= tgv Nothing >>= _doMap control ktyp >>= \conc -> doAlts [(wildP, [conc])]
       doType (TupleT 2) [ftyp, styp] = do
         f <- tgvSimple ftyp >>= tgv Nothing -- (Just (''(,), '(,), Left 1))
         s <- tgvSimple styp >>= tgv Nothing -- (Just (''(,), '(,), Left 2))

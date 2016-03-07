@@ -35,25 +35,59 @@ import Language.Haskell.TH.Path.Core (HasIdPath(idPath), SelfPath, SinkType,
                                       Path_List, Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
 import Language.Haskell.TH.Path.Graph (TypeGraphM)
 import Language.Haskell.TH.Path.Order (Order, Path_OMap(..))
+import Language.Haskell.TH.Path.Traverse (Control(..))
 import Language.Haskell.TH.Path.View (viewInstanceType)
 import Language.Haskell.TH.Syntax as TH (VarStrictType)
 import Language.Haskell.TH.TypeGraph.Prelude (pprint1)
-import Language.Haskell.TH.TypeGraph.TypeGraph (HasTGVSimple(asTGVSimple), reachableFromSimple, tgv, tgvSimple)
+import Language.Haskell.TH.TypeGraph.TypeGraph (HasTGVSimple(asTGVSimple), reachableFromSimple, simplify, tgv, tgvSimple)
 import Language.Haskell.TH.TypeGraph.Vertex (TGVSimple, typeNames)
+
+pathTypeControl :: (TypeGraphM m) => TypeQ -> TGVSimple -> Control m Type
+pathTypeControl gtyp key =
+    Control
+    { _doView = \w -> runQ [t|$(asTypeQ (bestPathTypeName key)) $gtyp|]
+    , _doOrder = undefined
+{-
+        \ityp w ->
+            do ipath <- tgvSimple ityp >>= pathType gtyp
+               epath <- simplify w >>= pathType gtyp
+               runQ [t|Path_OMap $ityp $(return epath)|]
+-}
+    , _doMap = undefined
+    , _doPair = undefined
+    , _doMaybe =
+        \w -> do
+          w' <- simplify w
+          epath <- pathType gtyp w'
+          runQ [t|Path_Maybe $(pure epath)|]
+    , _doEither = undefined
+    , _doField = undefined
+    , _doAlt = undefined
+    }
 
 -- | Given a type, compute the corresponding path type.
 pathType :: forall m. TypeGraphM m =>
             TypeQ
          -> TGVSimple -- ^ The type to convert to a path type
          -> m Type
-pathType gtyp key = do
+pathType gtyp key = pathType' (pathTypeControl gtyp key) gtyp key
+
+pathType' :: forall m. TypeGraphM m =>
+             Control m Type
+          -> TypeQ
+          -> TGVSimple -- ^ The type to convert to a path type
+          -> m Type
+pathType' control gtyp key = do
   selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [asType key]
   simplePath <- (not . null) <$> reifyInstancesWithContext ''SinkType [asType key]
-  viewType <- viewInstanceType (asType key)
+  viewTypeMaybe <- viewInstanceType (asType key)
   case asType (asTGVSimple key) of
     _ | selfPath -> return $ asType (asTGVSimple key)
       | simplePath -> runQ [t|$(asTypeQ (bestPathTypeName key)) $gtyp|]
-      | isJust viewType -> runQ [t|$(asTypeQ (bestPathTypeName key)) $gtyp|]
+      | isJust viewTypeMaybe ->
+          do let Just viewType = viewTypeMaybe
+             w <- tgvSimple viewType >>= tgv Nothing
+             _doView control w
     ConT tname ->
         runQ $ [t|$(asTypeQ (makePathType (ModelType tname))) $gtyp|]
     AppT (AppT mtyp ityp) etyp
@@ -61,6 +95,10 @@ pathType gtyp key = do
             do ipath <- tgvSimple ityp >>= pathType gtyp
                epath <- tgvSimple etyp >>= pathType gtyp
                runQ [t|Path_OMap $(return ipath) $(return epath)|]
+{-
+            do w <- tgvSimple etyp >>= tgv Nothing
+               _doOrder control w
+-}
     AppT ListT etyp ->
         do epath <- tgvSimple etyp >>= pathType gtyp
            runQ [t|Path_List $(return epath)|]
@@ -75,8 +113,8 @@ pathType gtyp key = do
            runQ [t| Path_Pair $(return fpath) $(return spath) |]
     AppT t1 vtyp
         | t1 == ConT ''Maybe ->
-            do epath <- tgvSimple vtyp >>= pathType gtyp
-               runQ [t|Path_Maybe $(return epath)|]
+            do w <- tgvSimple vtyp >>= tgv Nothing
+               _doMaybe control w
     AppT (AppT t3 ltyp) rtyp
         | t3 == ConT ''Either ->
             do lpath <- tgvSimple ltyp >>= pathType gtyp

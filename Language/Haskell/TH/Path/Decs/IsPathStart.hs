@@ -98,11 +98,11 @@ isPathControl v x =
                     do let pcname = makePathCon (makePathType (ModelType (asName v))) "View"
                        pure (w, conP (asName pcname) [wildP], conE (asName pcname))
             , _doOrder =
-                \w ->
+                \_i w ->
                     do k <- runQ $ newName "k"
                        pure (w, conP 'Path_At [varP k, wildP], [|Path_At $(varE k)|])
             , _doMap =
-                \w ->
+                \_i w ->
                     do k <- runQ $ newName "k"
                        pure (w, conP 'Path_Look [varP k, wildP], [|Path_Look $(varE k)|])
             , _doPair =

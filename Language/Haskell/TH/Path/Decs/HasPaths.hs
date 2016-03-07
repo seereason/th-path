@@ -66,10 +66,10 @@ hasPathControl v gkey g x =
                   pure (asType w, [|map (\a' -> ($(asConQ pcname) {-:: Path $(asTypeQ w) $(asTypeQ gkey) -> Path $(asTypeQ v) $(asTypeQ gkey)-}, a'))
                                         (toListOf (toLens ($(asConQ pcname) (idPath :: Path $(asTypeQ w) $(asTypeQ w)))) $(varE x)) |])
             , _doOrder =
-                \w -> do
+                \_i w -> do
                   pure (asType w, [| map (\(idx, val) -> (Path_At idx, val)) (toPairs $(varE x)) |])
             , _doMap =
-                \w -> do
+                \_i w -> do
                   pure (asType w, [| map (\(idx, val) -> (Path_Look idx, val)) (Map.toList $(varE x)) |])
             , _doPair =
                 \f s -> do
