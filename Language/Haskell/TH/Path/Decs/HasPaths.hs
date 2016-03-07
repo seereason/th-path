@@ -63,26 +63,25 @@ hasPathControl v gkey g x =
     Control { _doView =
                 \w -> do
                   let pcname = makePathCon (makePathType (ModelType (asName v))) "View"
-                  pure [(wildP, [(asType w,
-                                  [|map (\a' -> ($(asConQ pcname) {-:: Path $(asTypeQ w) $(asTypeQ gkey) -> Path $(asTypeQ v) $(asTypeQ gkey)-}, a'))
-                                        (toListOf (toLens ($(asConQ pcname) (idPath :: Path $(asTypeQ w) $(asTypeQ w)))) $(varE x)) |])])]
+                  pure (asType w, [|map (\a' -> ($(asConQ pcname) {-:: Path $(asTypeQ w) $(asTypeQ gkey) -> Path $(asTypeQ v) $(asTypeQ gkey)-}, a'))
+                                        (toListOf (toLens ($(asConQ pcname) (idPath :: Path $(asTypeQ w) $(asTypeQ w)))) $(varE x)) |])
             , _doOrder =
                 \w -> do
-                  pure [(wildP, [(asType w, [| map (\(idx, val) -> (Path_At idx, val)) (toPairs $(varE x)) |])])]
+                  pure (asType w, [| map (\(idx, val) -> (Path_At idx, val)) (toPairs $(varE x)) |])
             , _doMap =
                 \w -> do
-                  pure [(wildP, [(asType w, [| map (\(idx, val) -> (Path_Look idx, val)) (Map.toList $(varE x)) |])])]
+                  pure (asType w, [| map (\(idx, val) -> (Path_Look idx, val)) (Map.toList $(varE x)) |])
             , _doPair =
                 \f s -> do
-                  pure [(wildP, [(asType f, [| [(Path_First, fst $(varE x))] |]),
-                                 (asType s, [| [(Path_Second, snd $(varE x))] |])])]
+                  pure ((asType f, [| [(Path_First, fst $(varE x))] |]),
+                        (asType s, [| [(Path_Second, snd $(varE x))] |]))
             , _doMaybe =
                 \w -> do
-                  pure [(wildP, [(asType w, [| case $(varE x) of Nothing -> []; Just a' -> [(Path_Just, a')]|])])]
+                  pure (asType w, [| case $(varE x) of Nothing -> []; Just a' -> [(Path_Just, a')]|])
             , _doEither =
                 \l r ->
-                    do pure [(conP 'Left [wildP], [(asType l, [| case $(varE x) of Left a' -> [(Path_Left, a')]; Right _ -> []|])]),
-                             (conP 'Right [wildP], [(asType r, [| case $(varE x) of Left _ -> []; Right a' -> [(Path_Right, a')]|])])]
+                    do pure ((asType l, [| case $(varE x) of Left a' -> [(Path_Left, a')]; Right _ -> []|]),
+                             (asType r, [| case $(varE x) of Left _ -> []; Right a' -> [(Path_Right, a')]|]))
             , _doField =
                 \f ->
                     case view (_2 . field) f of

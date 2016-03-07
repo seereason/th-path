@@ -39,12 +39,12 @@ import Language.Haskell.TH.TypeGraph.Vertex
 
 data Control m conc
     = Control
-      { _doView :: TGV -> m [(PatQ, [conc])] -- Most of these could probably be pure
-      , _doOrder :: TGV -> m [(PatQ, [conc])]
-      , _doMap :: TGV -> m [(PatQ, [conc])]
-      , _doPair :: TGV -> TGV -> m [(PatQ, [conc])]
-      , _doMaybe :: TGV -> m [(PatQ, [conc])]
-      , _doEither :: TGV -> TGV -> m [(PatQ, [conc])]
+      { _doView :: TGV -> m conc -- Most of these could probably be pure
+      , _doOrder :: TGV -> m conc
+      , _doMap :: TGV -> m conc
+      , _doPair :: TGV -> TGV -> m (conc, conc)
+      , _doMaybe :: TGV -> m conc
+      , _doEither :: TGV -> TGV -> m (conc, conc)
       , _doField :: TGV -> m conc -- s is temporary
       -- , _doConc :: conc -> m r
       , _doAlt :: (PatQ, [conc]) -> m ()
@@ -61,22 +61,23 @@ doTGVSimple control v =
          | isJust viewTypeMaybe ->
              do let Just viewtyp = viewTypeMaybe
                 w <- tgvSimple viewtyp >>= tgv Nothing
-                _doView control w >>= doAlts
+                _doView control w >>= \conc -> doAlts [(wildP, [conc])]
        typ -> doType typ []
     where
       doType (AppT t1 t2) tps = doType t1 (t2 : tps)
-      doType (ConT tname) [_ityp, vtyp] | tname == ''Order = tgvSimple vtyp >>= tgv Nothing >>= _doOrder control >>= doAlts
-      doType (ConT tname) [_ktyp, vtyp] | tname == ''Map = tgvSimple vtyp >>= tgv Nothing >>= _doMap control >>= doAlts
+      doType (ConT tname) [_ityp, vtyp] | tname == ''Order = tgvSimple vtyp >>= tgv Nothing >>= _doOrder control >>= \conc -> doAlts [(wildP, [conc])]
+      doType (ConT tname) [_ktyp, vtyp] | tname == ''Map = tgvSimple vtyp >>= tgv Nothing >>= _doMap control >>= \conc -> doAlts [(wildP, [conc])]
       doType (TupleT 2) [ftyp, styp] = do
         f <- tgvSimple ftyp >>= tgv Nothing -- (Just (''(,), '(,), Left 1))
         s <- tgvSimple styp >>= tgv Nothing -- (Just (''(,), '(,), Left 2))
-        _doPair control f s >>= doAlts
-      doType (ConT tname) [etyp] | tname == ''Maybe = tgvSimple etyp >>= tgv Nothing >>= _doMaybe control >>= doAlts
+        _doPair control f s >>= \(fconc, sconc) -> doAlts [(wildP, [fconc, sconc])]
+      doType (ConT tname) [etyp] | tname == ''Maybe = tgvSimple etyp >>= tgv Nothing >>= _doMaybe control >>= \conc -> doAlts [(wildP, [conc])]
       doType (ConT tname) [ltyp, rtyp]
           | tname == ''Either =
               do l <- tgvSimple ltyp >>= tgv Nothing -- (Just (''Either, 'Left, Left 1))
                  r <- tgvSimple rtyp >>= tgv Nothing -- (Just (''Either, 'Right, Left 1))
-                 _doEither control l r >>= doAlts
+                 _doEither control l r >>= \(lconc, rconc) -> doAlts [(conP 'Left [wildP], [lconc]),
+                                                                      (conP 'Right [wildP], [rconc])]
       doType (ConT tname) tps = doName tps tname
       doType ListT [_etyp] = error "list" {- tell [clause [wildP] (normalB [|error "list"|]) []]-}
       doType _ _ = return ()
