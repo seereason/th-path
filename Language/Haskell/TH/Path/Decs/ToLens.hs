@@ -31,7 +31,7 @@ import Language.Haskell.TH.Path.Core (mat, S, A, ToLens(toLens), SelfPath, SinkT
 import Language.Haskell.TH.Path.Decs.PathType (pathType)
 import Language.Haskell.TH.Path.Graph (TypeGraphM)
 import Language.Haskell.TH.Path.Order (lens_omat, Order, Path_OMap(..))
-import Language.Haskell.TH.Path.Traverse (Control(..), doTGVSimple, substG)
+import Language.Haskell.TH.Path.Traverse (Control(..), doType, substG)
 import Language.Haskell.TH.Path.View (viewInstanceType, viewLens)
 import Language.Haskell.TH.TypeGraph.TypeGraph (goalReachableSimple, pathKeys, simplify, tgv, tgvSimple)
 import Language.Haskell.TH.TypeGraph.Vertex (field, TGVSimple, TypeGraphVertex(bestType))
@@ -121,7 +121,7 @@ toLensClauses key gkey =
   --   return $ r ++ [clause [varP x] (normalB [|error ("toLens' (" ++ $(lift (pprint' key)) ++ ") -> (" ++ $(lift (pprint' gkey)) ++ ") - unmatched: " ++ show $(varE x))|]) []]
   do x <- runQ (newName "_x")
      let control = toLensControl key gkey x :: Control m ()
-     doTGVSimple control key
+     doType control (asType key)
 
 -- | Given a function pfunc that modifies a pattern, add a
 -- 'Language.Haskell.TH.Clause' (a function with a typically incomplete

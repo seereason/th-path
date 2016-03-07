@@ -31,7 +31,7 @@ import Language.Haskell.TH.Path.Decs.PathType (pathType)
 import Language.Haskell.TH.Path.Graph (testIsPath, TypeGraphM)
 import Language.Haskell.TH.Path.Instances ()
 import Language.Haskell.TH.Path.Order (Path_OMap(..), toPairs)
-import Language.Haskell.TH.Path.Traverse (asP', Control(..), doTGVSimple)
+import Language.Haskell.TH.Path.Traverse (asP', Control(..), doType)
 import Language.Haskell.TH.TypeGraph.TypeGraph (pathKeys)
 import Language.Haskell.TH.TypeGraph.Vertex (field, TGVSimple, TypeGraphVertex(bestType))
 
@@ -51,7 +51,7 @@ pathDecs' v gkey = do
   g <- runQ (newName "g")
   poc <- case v == gkey of
            True -> pure [clause [wildP, wildP] (normalB [| [idPath] |]) []]
-           False -> execWriterT (doTGVSimple (hasPathControl v gkey g x) v)
+           False -> execWriterT (doType (hasPathControl v gkey g x) (asType v))
   when (not (null poc))
        (tells [ instanceD (pure []) [t|HasPaths $(pure (bestType v)) $(pure (bestType gkey))|]
                 [ tySynInstD ''Path (tySynEqn [pure (bestType v), pure (bestType gkey)] (pure ptyp))

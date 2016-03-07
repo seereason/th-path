@@ -36,7 +36,7 @@ import Language.Haskell.TH.Path.Core (IsPathStart(Peek, peek, hop, describe'), H
                                       Describe(describe), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..), forestMap)
 import Language.Haskell.TH.Path.Graph (TypeGraphM)
 import Language.Haskell.TH.Path.Order (Path_OMap(..))
-import Language.Haskell.TH.Path.Traverse (asP', Control(..), doTGVSimple)
+import Language.Haskell.TH.Path.Traverse (asP', Control(..), doType)
 import Language.Haskell.TH.TypeGraph.TypeGraph (pathKeys, pathKeys')
 import Language.Haskell.TH.TypeGraph.Vertex (TGV, field, TGVSimple)
 
@@ -146,7 +146,7 @@ peekClauses :: forall m conc alt. (TypeGraphM m, MonadWriter [ClauseType] m, con
                TGVSimple -> m ()
 peekClauses v = do
   x <- runQ (newName "s")
-  doTGVSimple (isPathControl v x) v
+  doType (isPathControl v x) (asType v)
 
 concatMapQ :: [ExpQ] -> ExpQ
 concatMapQ [] = [|mempty|]
