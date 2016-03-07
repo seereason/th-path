@@ -61,22 +61,22 @@ doTGVSimple control v =
          | isJust viewTypeMaybe ->
              do let Just viewtyp = viewTypeMaybe
                 w <- tgvSimple viewtyp >>= tgv Nothing
-                _doView control w >>= mapM_ doAlt . map (\(p, cs) -> (p, cs))
+                _doView control w >>= doAlts
        typ -> doType typ []
     where
       doType (AppT t1 t2) tps = doType t1 (t2 : tps)
-      doType (ConT tname) [_ityp, vtyp] | tname == ''Order = tgvSimple vtyp >>= tgv Nothing >>= _doOrder control >>= mapM_ doAlt . map (\(p, cs) -> (p, cs))
-      doType (ConT tname) [_ktyp, vtyp] | tname == ''Map = tgvSimple vtyp >>= tgv Nothing >>= _doMap control >>= mapM_ doAlt . map (\(p, cs) -> (p, cs))
+      doType (ConT tname) [_ityp, vtyp] | tname == ''Order = tgvSimple vtyp >>= tgv Nothing >>= _doOrder control >>= doAlts
+      doType (ConT tname) [_ktyp, vtyp] | tname == ''Map = tgvSimple vtyp >>= tgv Nothing >>= _doMap control >>= doAlts
       doType (TupleT 2) [ftyp, styp] = do
         f <- tgvSimple ftyp >>= tgv Nothing -- (Just (''(,), '(,), Left 1))
         s <- tgvSimple styp >>= tgv Nothing -- (Just (''(,), '(,), Left 2))
-        _doPair control f s >>= mapM_ doAlt . map (\(p, cs) -> (p, cs))
-      doType (ConT tname) [etyp] | tname == ''Maybe = tgvSimple etyp >>= tgv Nothing >>= _doMaybe control >>= mapM_ doAlt . map (\(p, cs) -> (p, cs))
+        _doPair control f s >>= doAlts
+      doType (ConT tname) [etyp] | tname == ''Maybe = tgvSimple etyp >>= tgv Nothing >>= _doMaybe control >>= doAlts
       doType (ConT tname) [ltyp, rtyp]
           | tname == ''Either =
               do l <- tgvSimple ltyp >>= tgv Nothing -- (Just (''Either, 'Left, Left 1))
                  r <- tgvSimple rtyp >>= tgv Nothing -- (Just (''Either, 'Right, Left 1))
-                 _doEither control l r >>= mapM_ doAlt . map (\(p, cs) -> (p, cs))
+                 _doEither control l r >>= doAlts
       doType (ConT tname) tps = doName tps tname
       doType ListT [_etyp] = error "list" {- tell [clause [wildP] (normalB [|error "list"|]) []]-}
       doType _ _ = return ()
@@ -105,20 +105,20 @@ doTGVSimple control v =
       doCon subst tname (ForallC _ _ con) = doCon subst tname con
       doCon subst tname (RecC cname vsts) = do
         flds <- mapM (doNamedField subst tname cname) (zip vsts [1..])
-        doAlt ((recP cname []), flds)
+        doAlts [(recP cname [], flds)]
       doCon _subst _tname (NormalC _cname _sts) = do
 #if 1
         pure ()
 #else
         flds <- mapM (doAnonField bindings tname cname) (zip sts [1..])
-        doAlt ((recP cname []), flds)
+        doAlts [(recP cname [], flds)]
 #endif
       doCon _bindings _tname (InfixC _lhs _cname _rhs) = do
 #if 1
         pure ()
 #else
         flds <- mapM (doAnonField bindings tname cname) (zip [lhs, rhs] [1..])
-        c <- doAlt ((infixP wildP cname wildP), flds)
+        c <- doAlts [(infixP wildP cname wildP, flds)]
         return [c]
 #endif
 
@@ -134,9 +134,10 @@ doTGVSimple control v =
              f <- tgvSimple ftype' >>= tgv (Just (tname, cname, Left fpos))
              _doField control f
 
-      doAlt :: (PatQ, [conc]) -> m ()
-      doAlt (xpat, concs) = do
-        mapM (_doConc control) concs >>= _doAlt control xpat
+      doAlts :: [(PatQ, [conc])] -> m ()
+      doAlts = Prelude.mapM_ (\(xpat, concs) ->
+                                  mapM (_doConc control) concs >>=
+                                  _doAlt control xpat)
 
 substG :: Data a => Map Name Type -> a -> a
 substG bindings typ = everywhere (mkT (subst1 bindings)) typ

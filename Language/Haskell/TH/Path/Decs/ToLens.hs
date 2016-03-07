@@ -18,12 +18,10 @@ module Language.Haskell.TH.Path.Decs.ToLens (toLensDecs) where
 
 import Control.Lens hiding (cons, Strict)
 import Control.Monad (when)
-import Control.Monad as List ( mapM )
 import Control.Monad.Writer (execWriterT, MonadWriter, tell)
 import Data.Bool (bool)
-import Data.List as List (map)
 import Data.Map as Map (fromList, Map)
-import Data.Maybe (fromJust, isJust)
+import Data.Maybe (isJust)
 import Data.Set.Extra as Set (mapM_)
 import Language.Haskell.TH
 import Language.Haskell.TH.Context (reifyInstancesWithContext)
@@ -35,14 +33,20 @@ import Language.Haskell.TH.Path.Graph (TypeGraphM)
 import Language.Haskell.TH.Path.Order (lens_omat, Order, Path_OMap(..))
 import Language.Haskell.TH.Path.Traverse (Control(..), substG)
 import Language.Haskell.TH.Path.View (viewInstanceType, viewLens)
-import Language.Haskell.TH.Syntax as TH (VarStrictType)
 import Language.Haskell.TH.TypeGraph.TypeGraph (goalReachableSimple, pathKeys, simplify, tgv, tgvSimple)
-import Language.Haskell.TH.TypeGraph.Vertex (field, TGV, TGVSimple, TypeGraphVertex(bestType))
+import Language.Haskell.TH.TypeGraph.Vertex (field, TGVSimple, TypeGraphVertex(bestType))
 
 toLensControl :: (TypeGraphM m, MonadWriter [ClauseQ] m) => TGVSimple -> TGVSimple -> Name -> Control m () ()
 toLensControl key gkey x =
     Control
     { _doView = undefined
+{-
+          \w -> do
+            ptyp <- pathType (pure (bestType gkey)) key
+            lns <- runQ [|viewLens :: Lens' $(return (asType key)) $(asTypeQ w)|]
+            let (AppT (ConT pname) _gtyp) = ptyp
+            doClause gkey (asType w) (\p -> conP (mkName (nameBase pname ++ "_View")) [if simplify w == gkey then wildP else p]) (pure lns)
+-}
     , _doOrder = undefined
     , _doMap = undefined
     , _doPair = undefined
@@ -53,25 +57,18 @@ toLensControl key gkey x =
           skey <- simplify fkey
           ok <- goalReachableSimple gkey skey
           case (ok, view (_2 . field) fkey) of
-            (True, Just (tname, cname, Right fname)) ->
+            (True, Just (_tname, _cname, Right fname)) ->
                 do -- Build a type expression for the path type, inserting any
                    -- necessary declarations into the state.  Also, build an
                    -- expression for the lens that turns this field value into the
                    -- goal type.
-                   clauses <- {-runQ (newName "_x") >>= \x ->-} return [clause [varP x] (normalB [|toLens $(varE x)|]) []]
                    let Just pcname = makeFieldCon fkey
-                   ptype' <- pathType (pure (bestType gkey)) skey
-                   -- This is the new constructor for this field
-                   con <- runQ $ normalC (asName pcname) [strictType notStrict (return ptype')]
-                   -- These are the field's clauses.  Each pattern gets wrapped with the field path constructor,
-                   -- and each field lens gets composed with the lens produced for the field's type.
-                   let goal = skey == gkey
-                   clauses' <- List.mapM (mapClause (\ pat -> conP (asName pcname) [pat])
-                                                    (\ lns ->
-                                                         -- let hop = [|\f x -> fmap (\y -> $(recUpdE [|x|] [fieldExp fn [|y|]])) (f $(appE (varE fn) [|x|]))|] in
-                                                         let hop = varE (fieldLensNameOld (asName key) fname) in
-                                                         if goal then hop else [|$hop . $lns|])) clauses
-                   tell clauses'
+                   -- These are the field's clauses.  Each pattern gets wrapped
+                   -- with the field path constructor, and each field lens gets
+                   -- composed with the lens produced for the field's type.
+                   let hop = varE (fieldLensNameOld (asName key) fname)
+                       lns = if skey == gkey then hop else [|$hop . toLens $(varE x)|]
+                   tell [clause [conP (asName pcname) [varP x]] (normalB lns) []]
             (False, _) -> pure ()
     , _doConc = undefined
     , _doAlt = undefined
@@ -126,7 +123,11 @@ toLensClauses' control key gkey =
        _ | selfPath -> return ()
          | simplePath -> return () -- Simple paths only work if we are at the goal type, and that case is handled above.
          | isJust viewTypeMaybe -> do
-             let viewtyp = fromJust viewTypeMaybe
+             let Just viewtyp = viewTypeMaybe
+{-
+             w <- tgvSimple viewtyp >>= tgv Nothing
+             _doView w
+-}
              lns <- runQ [|viewLens :: Lens' $(return (asType v)) $(return viewtyp)|]
              -- Ok, we have a type key, and a lens that goes between key and
              -- lkey, and we need to create a toLens' function for key's path type.
@@ -204,11 +205,6 @@ toLensClauses' control key gkey =
                            let ftype = subst ftype'
                            fkey <- tgvSimple ftype >>= tgv (Just (tname, cname, Right fname))
                            _doField control fkey) ts
-
--- Apply arity 1 functions to the clause pattern and expression
-mapClause :: TypeGraphM m => (PatQ -> PatQ) -> (ExpQ -> ExpQ) -> ClauseQ -> m ClauseQ
-mapClause patf lnsf clauseq =
-    runQ clauseq >>= \(Clause [pat] (NormalB lns) xs) -> return $ clause [patf (pure pat)] (normalB (lnsf (pure lns))) (List.map pure xs)
 
 -- | Given a function pfunc that modifies a pattern, add a
 -- 'Language.Haskell.TH.Clause' (a function with a typically incomplete
