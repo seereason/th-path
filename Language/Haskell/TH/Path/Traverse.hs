@@ -46,7 +46,6 @@ data Control m conc
       , _doMaybe :: TGV -> m conc
       , _doEither :: TGV -> TGV -> m (conc, conc)
       , _doField :: TGV -> m conc -- s is temporary
-      -- , _doConc :: conc -> m r
       , _doAlt :: (PatQ, [conc]) -> m ()
       }
 
@@ -151,4 +150,5 @@ asP' name patQ = do
   pat <- patQ
   case pat of
     WildP -> varP name
+    AsP name' _ | name == name' -> patQ
     _ -> asP name patQ
