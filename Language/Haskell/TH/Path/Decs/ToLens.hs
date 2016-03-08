@@ -20,20 +20,17 @@ import Control.Lens hiding (cons, Strict)
 import Control.Monad (when)
 import Control.Monad.Writer (execWriterT, MonadWriter, tell)
 import Data.Bool (bool)
-import Data.Map as Map (fromList, Map)
-import Data.Maybe (isJust)
 import Data.Set.Extra as Set (mapM_)
 import Language.Haskell.TH
-import Language.Haskell.TH.Context (reifyInstancesWithContext)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Common (fieldLensNameOld, HasName(asName), HasType(asType), HasTypeQ(asTypeQ), makeFieldCon)
-import Language.Haskell.TH.Path.Core (mat, S, A, ToLens(toLens), SelfPath, SinkType, Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
+import Language.Haskell.TH.Path.Core (mat, S, A, ToLens(toLens), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
 import Language.Haskell.TH.Path.Decs.PathType (pathType)
 import Language.Haskell.TH.Path.Graph (TypeGraphM)
-import Language.Haskell.TH.Path.Order (lens_omat, Order, Path_OMap(..))
-import Language.Haskell.TH.Path.Traverse (Control(..), doType, substG)
-import Language.Haskell.TH.Path.View (viewInstanceType, viewLens)
-import Language.Haskell.TH.TypeGraph.TypeGraph (goalReachableSimple, pathKeys, simplify, tgv, tgvSimple)
+import Language.Haskell.TH.Path.Order (lens_omat, Path_OMap(..))
+import Language.Haskell.TH.Path.Traverse (Control(..), doType)
+import Language.Haskell.TH.Path.View (viewLens)
+import Language.Haskell.TH.TypeGraph.TypeGraph (goalReachableSimple, pathKeys, simplify, tgvSimple)
 import Language.Haskell.TH.TypeGraph.Vertex (field, TGVSimple, TypeGraphVertex(bestType))
 
 toLensControl :: (TypeGraphM m, MonadWriter [ClauseQ] m) => TGVSimple -> TGVSimple -> Name -> Control m ()
@@ -85,8 +82,11 @@ toLensControl key gkey x =
                    let hop = varE (fieldLensNameOld (asName key) fname)
                        lns = if skey == gkey then hop else [|$hop . toLens $(varE x)|]
                    tell [clause [conP (asName pcname) [varP x]] (normalB lns) []]
+            (True, Just (_tname, _cname, Left _fpos)) -> pure ()
+            (True, Nothing) -> pure ()
             (False, _) -> pure ()
     , _doAlt = \_ -> pure ()
+    , _doSyn = \_tname _typ -> pure ()
     }
 
 toLensDecs :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TGVSimple -> m ()

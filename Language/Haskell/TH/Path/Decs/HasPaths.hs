@@ -103,4 +103,6 @@ hasPathControl v gkey g x =
                                                            ($asList {-:: [(Path $(pure typ) $(asTypeQ gkey) -> Path $(pure styp) $(asTypeQ gkey), $(pure typ))]-}) |])
                                concs
                   tell [clause [asP' x xpat, varP g] (normalB (mconcatQ exps)) []]
+            , _doSyn =
+                \_tname _typ -> pure ()
             }

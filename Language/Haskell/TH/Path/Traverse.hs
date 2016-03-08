@@ -26,6 +26,7 @@ module Language.Haskell.TH.Path.Traverse
 import Data.Generics (Data, everywhere, mkT)
 import Data.Map as Map (fromList, lookup, Map)
 import Data.Maybe (isJust)
+import qualified Data.Set.Extra as Set (insert, map)
 import Language.Haskell.TH
 import Language.Haskell.TH.Context (reifyInstancesWithContext)
 import Language.Haskell.TH.Path.Common
@@ -47,6 +48,7 @@ data Control m conc
       , _doEither :: TGV -> TGV -> m (conc, conc)
       , _doField :: TGV -> m conc -- s is temporary
       , _doAlt :: (PatQ, [conc]) -> m ()
+      , _doSyn :: Name -> Type -> m ()
       }
 
 doType :: forall m conc. (Quasi m, TypeGraphM m) => Control m conc -> Type -> m ()
@@ -55,14 +57,14 @@ doType control typ =
      selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [asType v]
      simplePath <- (not . null) <$> reifyInstancesWithContext ''SinkType [asType v]
      viewTypeMaybe <- viewInstanceType (asType v)
-     case asType v of
+     case () of
        _ | selfPath -> pure ()
          | simplePath -> pure ()
          | isJust viewTypeMaybe ->
              do let Just viewtyp = viewTypeMaybe
                 w <- tgvSimple viewtyp >>= tgv Nothing
                 _doView control w >>= \conc -> doAlts [(wildP, [conc])]
-       _ -> doType' (asType v) []
+       _ -> Prelude.mapM_ (\t -> doType' t []) (Set.insert (asType v) (Set.map ConT (typeNames v)))
     where
       doType' (AppT t1 t2) tps = doType' t1 (t2 : tps)
       doType' (ConT tname) [ityp, vtyp] | tname == ''Order = tgvSimple vtyp >>= tgv Nothing >>= _doOrder control ityp >>= \conc -> doAlts [(wildP, [conc])]
@@ -86,6 +88,7 @@ doType control typ =
       doName tps tname = qReify tname >>= doInfo tps
       doInfo :: [Type] -> Info -> m ()
       doInfo tps (TyConI dec) = doDec tps dec
+      doInfo tps (FamilyI dec _insts) = doDec tps dec
       doInfo _ _ = pure ()
       doDec :: [Type] -> Dec -> m ()
       doDec tps (NewtypeD cx tname binds con supers) = doDec tps (DataD cx tname binds [con] supers)
@@ -96,6 +99,13 @@ doType control typ =
         let bindings = Map.fromList (zip (map asName binds) tps)
             subst = substG bindings
         doCons subst tname cons
+      doDec tps (TySynD _tname binds _typ)
+          | length tps /= length binds =
+              error $ "Arity mismatch: binds: " ++ show binds ++ ", types: " ++ show tps
+      doDec tps (TySynD tname binds syntyp) = do
+        let bindings = Map.fromList (zip (map asName binds) tps)
+            subst = substG bindings
+        _doSyn control tname (subst syntyp)
       doDec _tps dec = error $ "Unexpected dec: " ++ pprint dec
 
       doCons :: (Type -> Type) -> Name -> [Con] -> m ()

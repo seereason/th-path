@@ -63,6 +63,7 @@ pathTypeControl gtyp key =
     , _doEither = undefined
     , _doField = undefined
     , _doAlt = undefined
+    , _doSyn = undefined
     }
 
 -- | Given a type, compute the corresponding path type.
@@ -124,47 +125,47 @@ pathType' control gtyp key = do
             error $ "pathType otherf: " ++ pprint1 key ++ "\n" ++
                     intercalate "\n  " ("reachable from:" : List.map pprint1 (Foldable.toList ks))
 
+pathTypeDecControl :: (TypeGraphM m) => TGVSimple -> Control m ()
+pathTypeDecControl v =
+    Control
+    { _doView = undefined
+    , _doOrder = undefined
+    , _doMap = undefined
+    , _doPair = undefined
+    , _doMaybe = undefined
+    , _doEither = undefined
+    , _doField = undefined
+    , _doAlt = undefined
+    , _doSyn = undefined
+    }
 
 pathTypeDecs :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TGVSimple -> m ()
 pathTypeDecs v = do
   -- generate the data Path_* declarations
   selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [asType v]
   simplePath <- (not . null) <$> reifyInstancesWithContext ''SinkType [asType v]
-  viewType <- viewInstanceType (asType v)
+  viewTypeMaybe <- viewInstanceType (asType v)
   let pname = bestPathTypeName v
       psyns = Set.delete pname (allPathTypeNames v)
-  a <- runQ $ newName "a"
   -- e.g. type Path_EpochMilli a = Path_Int64 a
-  runQ (mapM (\psyn -> tySynD (asName psyn) [PlainTV a] (appT (asTypeQ pname) (varT a))) (toList psyns)) >>= tell
+  runQ (mapM (\psyn -> newName "a" >>= \a -> tySynD (asName psyn) [PlainTV a] (appT (asTypeQ pname) (varT a))) (toList psyns)) >>= tell
   case () of
-    _ | selfPath -> return ()
+    _ | selfPath -> pure ()
       | simplePath -> doSimplePath v
-      | isJust viewType -> viewPath v (fromJust viewType)
-      | otherwise -> doNames v
-
-doSimplePath :: forall m. (TypeGraphM m, MonadWriter [Dec] m) =>
-                TGVSimple -> m ()
-doSimplePath v = do
-  let pname = bestPathTypeName v
-  a <- runQ $ newName "a"
-  -- e.g. data Path_Int a = Path_Int deriving (Eq, Ord, Read, Show, Typeable, Data)
-  tells [dataD (pure []) (asName pname) [PlainTV a] [normalC (asName pname) []] supers]
-  telld [d|instance HasIdPath ($(asTypeQ pname) a) where idPath = $(asConQ pname)|]
-
-viewPath :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TGVSimple -> Type -> m ()
-viewPath v styp = do
-  let pname = bestPathTypeName v
-  skey <- tgvSimple styp
-  a <- runQ $ newName "a"
-  ptype <- pathType (varT a) skey
-  -- data Path_MaybeImageFile a =
-  --           Path_MaybeImageFile_View (Path_String a) | Path_MaybeImageFile
-  --         deriving (Eq, Ord, Read, Show, Typeable, Data)
-  tells [dataD (pure []) (asName pname) [PlainTV a]
-          [ normalC (asName (makePathCon pname "View")) [strictType notStrict (pure ptype)]
-          , normalC (asName pname) []
-          ] supers]
-  telld [d|instance HasIdPath ($(asTypeQ pname) a) where idPath = $(asConQ pname)|]
+      | isJust viewTypeMaybe ->
+          do let Just viewType = viewTypeMaybe
+             skey <- tgvSimple viewType
+             a <- runQ $ newName "a"
+             ptype <- pathType (varT a) skey
+             -- data Path_MaybeImageFile a =
+             --           Path_MaybeImageFile_View (Path_String a) | Path_MaybeImageFile
+             --         deriving (Eq, Ord, Read, Show, Typeable, Data)
+             tells [dataD (pure []) (asName pname) [PlainTV a]
+                    [ normalC (asName (makePathCon pname "View")) [strictType notStrict (pure ptype)]
+                    , normalC (asName pname) []
+                    ] supers]
+             telld [d|instance HasIdPath ($(asTypeQ pname) a) where idPath = $(asConQ pname)|]
+    _ -> doNames v
 
 doNames :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TGVSimple -> m ()
 doNames v = mapM_ (\tname -> runQ (reify tname) >>= doInfo) (typeNames v)
@@ -239,6 +240,15 @@ doNames v = mapM_ (\tname -> runQ (reify tname) >>= doInfo) (typeNames v)
                     do tells [dataD (cxt []) (asName pname) [PlainTV a] (List.map return (pcons ++ [NormalC (asName pname) []])) supers]
                        telld [d|instance HasIdPath ($(asTypeQ pname) a) where idPath = $(asConQ pname)|])
                 (Set.map makePathType . Set.map ModelType . typeNames $ v)
+
+doSimplePath :: forall m. (TypeGraphM m, MonadWriter [Dec] m) =>
+                TGVSimple -> m ()
+doSimplePath v = do
+  let pname = bestPathTypeName v
+  a <- runQ $ newName "a"
+  -- e.g. data Path_Int a = Path_Int deriving (Eq, Ord, Read, Show, Typeable, Data)
+  tells [dataD (pure []) (asName pname) [PlainTV a] [normalC (asName pname) []] supers]
+  telld [d|instance HasIdPath ($(asTypeQ pname) a) where idPath = $(asConQ pname)|]
 
 supers :: [Name]
 supers = [''Eq, ''Ord, ''Read, ''Show, ''Typeable, ''Data]
