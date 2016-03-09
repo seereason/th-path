@@ -42,7 +42,7 @@ import Language.Haskell.TH.TypeGraph.Prelude (pprint1)
 import Language.Haskell.TH.TypeGraph.TypeGraph (HasTGVSimple(asTGVSimple), reachableFromSimple, simplify, tgv, tgvSimple)
 import Language.Haskell.TH.TypeGraph.Vertex (TGVSimple, typeNames)
 
-pathTypeControl :: (TypeGraphM m) => TypeQ -> TGVSimple -> Control m Type Type
+pathTypeControl :: (TypeGraphM m) => TypeQ -> TGVSimple -> Control m Type Type Type
 pathTypeControl gtyp key =
     Control
     { _doView = \w -> runQ [t|$(asTypeQ (bestPathTypeName key)) $gtyp|]
@@ -64,6 +64,7 @@ pathTypeControl gtyp key =
     , _doField = undefined
     , _doAlt = undefined
     , _doSyn = undefined
+    , _doAlts = undefined
     }
 
 -- | Given a type, compute the corresponding path type.
@@ -74,7 +75,7 @@ pathType :: forall m. TypeGraphM m =>
 pathType gtyp key = pathType' (pathTypeControl gtyp key) gtyp key
 
 pathType' :: forall m. TypeGraphM m =>
-             Control m Type Type
+             Control m Type Type Type
           -> TypeQ
           -> TGVSimple -- ^ The type to convert to a path type
           -> m Type
@@ -125,7 +126,7 @@ pathType' control gtyp key = do
             error $ "pathType otherf: " ++ pprint1 key ++ "\n" ++
                     intercalate "\n  " ("reachable from:" : List.map pprint1 (Foldable.toList ks))
 
-pathTypeDecControl :: (TypeGraphM m) => TGVSimple -> Control m () ()
+pathTypeDecControl :: (TypeGraphM m) => TGVSimple -> Control m () () ()
 pathTypeDecControl v =
     Control
     { _doView = undefined

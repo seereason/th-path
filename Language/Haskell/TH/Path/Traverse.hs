@@ -38,7 +38,7 @@ import Language.Haskell.TH.Syntax
 import Language.Haskell.TH.TypeGraph.TypeGraph
 import Language.Haskell.TH.TypeGraph.Vertex
 
-data Control m conc r
+data Control m conc alt r
     = Control
       { _doView :: TGV -> m conc -- Most of these could probably be pure
       , _doOrder :: Type -> TGV -> m conc
@@ -47,11 +47,12 @@ data Control m conc r
       , _doMaybe :: TGV -> m conc
       , _doEither :: TGV -> TGV -> m (conc, conc)
       , _doField :: TGV -> m conc -- s is temporary
-      , _doAlt :: (PatQ, [conc]) -> m ()
+      , _doAlt :: (PatQ, [conc]) -> m alt
       , _doSyn :: Name -> Type -> m r
+      , _doAlts :: [alt] -> m r
       }
 
-doType :: forall m conc. (Quasi m, TypeGraphM m) => Control m conc () -> Type -> m ()
+doType :: forall m conc. (Quasi m, TypeGraphM m) => Control m conc () () -> Type -> m ()
 doType control typ =
   do v <- tgvSimple typ
      selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [asType v]
@@ -146,7 +147,7 @@ doType control typ =
              _doField control f
 
       doAlts :: [(PatQ, [conc])] -> m ()
-      doAlts = Prelude.mapM_ (_doAlt control)
+      doAlts alts = mapM (_doAlt control) alts >>= _doAlts control
 
 substG :: Data a => Map Name Type -> a -> a
 substG bindings typ = everywhere (mkT (subst1 bindings)) typ
