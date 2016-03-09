@@ -93,7 +93,9 @@ peekDecs v =
 
 isPathControl :: (TypeGraphM m, MonadWriter [ClauseType] m) => TGVSimple -> Name -> Control m (TGV, PatQ, ExpQ) () ()
 isPathControl v x =
-    Control { _doView =
+    Control { _doSimple = pure ()
+            , _doSelf = pure ()
+            , _doView =
                 \w ->
                     do let pcname = makePathCon (makePathType (ModelType (asName v))) "View"
                        pure (w, conP (asName pcname) [wildP], conE (asName pcname))

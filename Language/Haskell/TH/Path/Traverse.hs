@@ -40,7 +40,9 @@ import Language.Haskell.TH.TypeGraph.Vertex
 
 data Control m conc alt r
     = Control
-      { _doView :: TGV -> m conc -- Most of these could probably be pure
+      { _doSimple :: m r
+      , _doSelf :: m r
+      , _doView :: TGV -> m conc -- Most of these could probably be pure
       , _doOrder :: Type -> TGV -> m conc
       , _doMap :: Type -> TGV -> m conc
       , _doPair :: TGV -> TGV -> m (conc, conc)
@@ -59,8 +61,8 @@ doType control typ =
      simplePath <- (not . null) <$> reifyInstancesWithContext ''SinkType [asType v]
      viewTypeMaybe <- viewInstanceType (asType v)
      case () of
-       _ | selfPath -> pure ()
-         | simplePath -> pure ()
+       _ | selfPath -> _doSelf control
+         | simplePath -> _doSimple control
          | isJust viewTypeMaybe ->
              do let Just viewtyp = viewTypeMaybe
                 w <- tgvSimple viewtyp >>= tgv Nothing

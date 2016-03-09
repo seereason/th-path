@@ -36,7 +36,9 @@ import Language.Haskell.TH.TypeGraph.Vertex (field, TGVSimple, TypeGraphVertex(b
 toLensControl :: (TypeGraphM m, MonadWriter [ClauseQ] m) => TGVSimple -> TGVSimple -> Name -> Control m () () ()
 toLensControl key gkey x =
     Control
-    { _doView =
+    { _doSimple = pure ()
+    , _doSelf = pure ()
+    , _doView =
         \w -> do
           ptyp <- pathType (pure (bestType gkey)) key
           lns <- runQ [|viewLens :: Lens' $(return (asType key)) $(asTypeQ w)|]

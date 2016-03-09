@@ -34,13 +34,15 @@ import Language.Haskell.TH.Path.Order (Order, Path_OMap(..))
 import Language.Haskell.TH.Path.Traverse (Control(..))
 import Language.Haskell.TH.Path.View (viewInstanceType)
 import Language.Haskell.TH.TypeGraph.Prelude (pprint1)
-import Language.Haskell.TH.TypeGraph.TypeGraph (HasTGVSimple(asTGVSimple), reachableFromSimple, simplify, tgv, tgvSimple)
+import Language.Haskell.TH.TypeGraph.TypeGraph (reachableFromSimple, simplify, tgv, tgvSimple)
 import Language.Haskell.TH.TypeGraph.Vertex (TGVSimple)
 
 pathTypeControl :: (TypeGraphM m) => TypeQ -> TGVSimple -> Control m Type Type Type
 pathTypeControl gtyp key =
     Control
-    { _doView = \w -> runQ [t|$(asTypeQ (bestPathTypeName key)) $gtyp|]
+    { _doSimple = pure (asType key)
+    , _doSelf = runQ [t|$(asTypeQ (bestPathTypeName key)) $gtyp|]
+    , _doView = \_ -> runQ [t|$(asTypeQ (bestPathTypeName key)) $gtyp|]
     , _doOrder = undefined
 {-
         \ityp w ->
@@ -78,8 +80,8 @@ pathType' control gtyp key = do
   selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [asType key]
   simplePath <- (not . null) <$> reifyInstancesWithContext ''SinkType [asType key]
   viewTypeMaybe <- viewInstanceType (asType key)
-  case asType (asTGVSimple key) of
-    _ | selfPath -> return $ asType (asTGVSimple key)
+  case asType key of
+    _ | selfPath -> return $ asType key
       | simplePath -> runQ [t|$(asTypeQ (bestPathTypeName key)) $gtyp|]
       | isJust viewTypeMaybe ->
           do let Just viewType = viewTypeMaybe

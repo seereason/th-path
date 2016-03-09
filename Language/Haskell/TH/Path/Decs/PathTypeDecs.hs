@@ -42,7 +42,9 @@ import Language.Haskell.TH.TypeGraph.Vertex (TGVSimple, typeNames)
 pathTypeDecControl :: (TypeGraphM m) => TGVSimple -> Control m () () ()
 pathTypeDecControl v =
     Control
-    { _doView = undefined
+    { _doSimple = undefined
+    , _doSelf = undefined
+    , _doView = undefined
     , _doOrder = undefined
     , _doMap = undefined
     , _doPair = undefined
