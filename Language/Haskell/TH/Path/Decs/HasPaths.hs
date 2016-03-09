@@ -31,7 +31,7 @@ import Language.Haskell.TH.Path.Decs.PathType (pathType)
 import Language.Haskell.TH.Path.Graph (testIsPath, TypeGraphM)
 import Language.Haskell.TH.Path.Instances ()
 import Language.Haskell.TH.Path.Order (Path_OMap(..), toPairs)
-import Language.Haskell.TH.Path.Traverse (asP', Control(..), doType)
+import Language.Haskell.TH.Path.Traverse (asP', Control(..), doType, finishEither, finishPair)
 import Language.Haskell.TH.TypeGraph.TypeGraph (pathKeys)
 import Language.Haskell.TH.TypeGraph.Vertex (field, TGVSimple, TypeGraphVertex(bestType))
 
@@ -60,15 +60,16 @@ pathDecs' v gkey = do
 
 hasPathControl :: (TypeGraphM m, MonadWriter [ClauseQ] m) => TGVSimple -> TGVSimple -> Name -> Name -> Control m (Type, ExpQ) () ()
 hasPathControl v gkey g x =
+    let control = hasPathControl v gkey g x in
     Control { _doSimple = pure ()
             , _doSelf = pure ()
             , _doView =
                 \w -> do
                   let pcname = makePathCon (makePathType (ModelType (asName v))) "View"
-                  alt <- _doConcs (hasPathControl v gkey g x) wildP
+                  alt <- _doConcs control wildP
                              [(asType w, [|map (\a' -> ($(asConQ pcname) {-:: Path $(asTypeQ w) $(asTypeQ gkey) -> Path $(asTypeQ v) $(asTypeQ gkey)-}, a'))
                                                (toListOf (toLens ($(asConQ pcname) (idPath :: Path $(asTypeQ w) $(asTypeQ w)))) $(varE x)) |])]
-                  _doAlts (hasPathControl v gkey g x) [alt]
+                  _doAlts control [alt]
             , _doOrder =
                 \_i w -> do
                   pure (asType w, [| map (\(idx, val) -> (Path_At idx, val)) (toPairs $(varE x)) |])
@@ -76,16 +77,24 @@ hasPathControl v gkey g x =
                 \_i w -> do
                   pure (asType w, [| map (\(idx, val) -> (Path_Look idx, val)) (Map.toList $(varE x)) |])
             , _doPair =
-                \f s -> do
-                  pure ((asType f, [| [(Path_First, fst $(varE x))] |]),
-                        (asType s, [| [(Path_Second, snd $(varE x))] |]))
+                \f s -> finishPair control
+                                   (asType f, [| [(Path_First, fst $(varE x))] |])
+                                   (asType s, [| [(Path_Second, snd $(varE x))] |])
             , _doMaybe =
                 \w -> do
                   pure (asType w, [| case $(varE x) of Nothing -> []; Just a' -> [(Path_Just, a')]|])
             , _doEither =
                 \l r ->
+                    do let lconc = (asType l, [| case $(varE x) of Left a' -> [(Path_Left, a')]; Right _ -> []|])
+                           rconc = (asType r, [| case $(varE x) of Left _ -> []; Right a' -> [(Path_Right, a')]|])
+                       finishEither control lconc rconc
+                       -- lalt <- _doConcs control (conP 'Left [wildP]) [lconc]
+                       -- ralt <- _doConcs control (conP 'Right [wildP]) [rconc]
+                       -- _doAlts control [lalt, ralt]
+{-
                     do pure ((asType l, [| case $(varE x) of Left a' -> [(Path_Left, a')]; Right _ -> []|]),
                              (asType r, [| case $(varE x) of Left _ -> []; Right a' -> [(Path_Right, a')]|]))
+-}
             , _doField =
                 \f ->
                     case view (_2 . field) f of

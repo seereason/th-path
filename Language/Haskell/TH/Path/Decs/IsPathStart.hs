@@ -36,8 +36,8 @@ import Language.Haskell.TH.Path.Core (IsPathStart(Peek, peek, hop, describe'), H
                                       Describe(describe), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..), forestMap)
 import Language.Haskell.TH.Path.Graph (TypeGraphM)
 import Language.Haskell.TH.Path.Order (Path_OMap(..))
-import Language.Haskell.TH.Path.Traverse (asP', Control(..), doType)
-import Language.Haskell.TH.TypeGraph.TypeGraph (pathKeys, pathKeys')
+import Language.Haskell.TH.Path.Traverse (asP', Control(..), doType, finishEither, finishPair)
+import Language.Haskell.TH.TypeGraph.TypeGraph (pathKeys, pathKeys', tgv, tgvSimple)
 import Language.Haskell.TH.TypeGraph.Vertex (TGV, field, TGVSimple)
 
 newtype PeekType = PeekType {unPeekType :: Name} deriving (Eq, Ord, Show) -- e.g. Peek_AbbrevPairs
@@ -91,15 +91,17 @@ peekDecs v =
                           [(,) <$> notStrict <*> [t|Path $(asTypeQ v) $(asTypeQ g)|],
                            (,) <$> notStrict <*> [t|Maybe $(asTypeQ g)|] ]]
 
-isPathControl :: (TypeGraphM m, MonadWriter [ClauseType] m) => TGVSimple -> Name -> Control m (TGV, PatQ, ExpQ) () ()
+isPathControl :: forall m. (TypeGraphM m, MonadWriter [ClauseType] m) => TGVSimple -> Name -> Control m (TGV, PatQ, ExpQ) () ()
 isPathControl v x =
+    let control :: Control m (TGV, PatQ, ExpQ) () ()
+        control = isPathControl v x in
     Control { _doSimple = pure ()
             , _doSelf = pure ()
             , _doView =
                 \w ->
                     do let pcname = makePathCon (makePathType (ModelType (asName v))) "View"
-                       alt <- _doConcs (isPathControl v x) wildP [(w, conP (asName pcname) [wildP], conE (asName pcname))]
-                       _doAlts (isPathControl v x) [alt]
+                       alt <- _doConcs control wildP [(w, conP (asName pcname) [wildP], conE (asName pcname))]
+                       _doAlts control [alt]
             , _doOrder =
                 \_i w ->
                     do k <- runQ $ newName "k"
@@ -110,15 +112,19 @@ isPathControl v x =
                        pure (w, conP 'Path_Look [varP k, wildP], [|Path_Look $(varE k)|])
             , _doPair =
                 \f s ->
-                    pure ((f, conP 'Path_First [wildP], [|Path_First|]),
-                          (s, conP 'Path_Second [wildP], [|Path_Second|]))
+                    finishPair control
+                               (f, conP 'Path_First [wildP], [|Path_First|])
+                               (s, conP 'Path_Second [wildP], [|Path_Second|])
             , _doMaybe =
                 \w ->
                     pure (w, conP 'Path_Just [wildP], [|Path_Just|])
             , _doEither =
-                \l r ->
-                    do pure ((l, conP 'Path_Left [wildP], [|Path_Left|]),
-                             (r, conP 'Path_Right [wildP], [|Path_Right|]))
+                \ltyp rtyp ->
+                    do l <- tgvSimple ltyp >>= tgv Nothing
+                       r <- tgvSimple rtyp >>= tgv Nothing
+                       let lconc = (l, conP 'Path_Left [wildP], [|Path_Left|])
+                           rconc = (r, conP 'Path_Right [wildP], [|Path_Right|])
+                       finishEither control lconc rconc
             , _doField =
                 \f ->
                     do let pcname = maybe (error $ "Not a field: " ++ show f) id (makeFieldCon f)

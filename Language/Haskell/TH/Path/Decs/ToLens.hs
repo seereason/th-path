@@ -20,6 +20,7 @@ import Control.Lens hiding (cons, Strict)
 import Control.Monad (when)
 import Control.Monad.Writer (execWriterT, MonadWriter, tell)
 import Data.Bool (bool)
+import Data.Default (Default(def))
 import Data.Set.Extra as Set (mapM_)
 import Language.Haskell.TH
 import Language.Haskell.TH.Instances ()
@@ -57,16 +58,18 @@ toLensControl key gkey x =
           k <- runQ (newName "k")
           doClause gkey (asType w) (\p -> [p|Path_Look $(varP k) $p|]) [|mat $(varE k)|]
     , _doPair =
-        \f s -> do
-          (,) <$> doClause gkey (asType f) (\p -> [p|Path_First $p|]) [|_1|]
-              <*> doClause gkey (asType s) (\p -> [p|Path_Second $p|]) [|_2|]
+        \f s ->
+            do doClause gkey (asType f) (\p -> [p|Path_First $p|]) [|_1|]
+               doClause gkey (asType s) (\p -> [p|Path_Second $p|]) [|_2|]
+               pure def
     , _doMaybe =
         \w -> do
           doClause gkey (asType w) (\p -> [p|Path_Just $p|]) [|_Just|]
     , _doEither =
-        \l r -> do
-          (,) <$> doClause gkey (asType l) (\p -> [p|Path_Left $p|]) [|_Left|]
-              <*> doClause gkey (asType r) (\p -> [p|Path_Right $p|]) [|_Right|]
+        \l r ->
+            do doClause gkey (asType l) (\p -> [p|Path_Left $p|]) [|_Left|]
+               doClause gkey (asType r) (\p -> [p|Path_Right $p|]) [|_Right|]
+               pure def
     , _doField =
         \fkey -> do
           skey <- simplify fkey

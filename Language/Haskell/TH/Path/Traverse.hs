@@ -21,6 +21,8 @@ module Language.Haskell.TH.Path.Traverse
     , Control(..)
     , doType
     , substG
+    , finishPair
+    , finishEither
     ) where
 
 import Data.Default (Default(def))
@@ -45,9 +47,9 @@ data Control m conc alt r
       , _doView :: TGV -> m r -- Most of these could probably be pure
       , _doOrder :: Type -> TGV -> m conc
       , _doMap :: Type -> TGV -> m conc
-      , _doPair :: TGV -> TGV -> m (conc, conc)
+      , _doPair :: TGV -> TGV -> m r
       , _doMaybe :: TGV -> m conc
-      , _doEither :: TGV -> TGV -> m (conc, conc)
+      , _doEither :: Type -> Type -> m r
       , _doField :: TGV -> m conc -- s is temporary
       , _doConcs :: PatQ -> [conc] -> m alt
       , _doSyn :: Name -> Type -> m r
@@ -76,14 +78,18 @@ doType control typ =
       doType' (TupleT 2) [ftyp, styp] = do
         f <- tgvSimple ftyp >>= tgv Nothing -- (Just (''(,), '(,), Left 1))
         s <- tgvSimple styp >>= tgv Nothing -- (Just (''(,), '(,), Left 2))
-        _doPair control f s >>= \(fconc, sconc) -> doAlts [(wildP, [fconc, sconc])]
+        _doPair control f s {- >>= \(fconc, sconc) -> doAlts [(wildP, [fconc, sconc])] -}
       doType' (ConT tname) [etyp] | tname == ''Maybe = tgvSimple etyp >>= tgv Nothing >>= _doMaybe control >>= \conc -> doAlts [(wildP, [conc])]
       doType' (ConT tname) [ltyp, rtyp]
           | tname == ''Either =
+#if 0
               do l <- tgvSimple ltyp >>= tgv Nothing -- (Just (''Either, 'Left, Left 1))
                  r <- tgvSimple rtyp >>= tgv Nothing -- (Just (''Either, 'Right, Left 1))
                  _doEither control l r >>= \(lconc, rconc) -> doAlts [(conP 'Left [wildP], [lconc]),
                                                                       (conP 'Right [wildP], [rconc])]
+#else
+              _doEither control ltyp rtyp
+#endif
       doType' (ConT tname) tps = doName tps tname
       doType' ListT [_etyp] = error "list" {- tell [clause [wildP] (normalB [|error "list"|]) []]-}
       doType' _ _ = pure def
@@ -167,3 +173,12 @@ asP' name patQ = do
     WildP -> varP name
     AsP name' _ | name == name' -> patQ
     _ -> asP name patQ
+
+finishPair :: Monad m => Control m conc alt r -> conc -> conc -> m r
+finishPair control fconc sconc = _doConcs control wildP [fconc, sconc] >>= \alt -> _doAlts control [alt]
+
+finishEither :: Monad m => Control m conc alt r -> conc -> conc -> m r
+finishEither control lconc rconc =
+    do lalt <- _doConcs control (conP 'Left [wildP]) [lconc]
+       ralt <- _doConcs control (conP 'Right [wildP]) [rconc]
+       _doAlts control [lalt, ralt]
