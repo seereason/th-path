@@ -23,10 +23,10 @@ module Language.Haskell.TH.Path.Traverse
     , substG
     ) where
 
+import Data.Default (Default(def))
 import Data.Generics (Data, everywhere, mkT)
 import Data.Map as Map (fromList, lookup, Map)
 import Data.Maybe (isJust)
-import qualified Data.Set.Extra as Set (insert, map)
 import Language.Haskell.TH
 import Language.Haskell.TH.Context (reifyInstancesWithContext)
 import Language.Haskell.TH.Path.Common
@@ -54,7 +54,7 @@ data Control m conc alt r
       , _doAlts :: [alt] -> m r
       }
 
-doType :: forall m conc. (Quasi m, TypeGraphM m) => Control m conc () () -> Type -> m ()
+doType :: forall m conc alt r. (Quasi m, TypeGraphM m, Default r) => Control m conc alt r -> Type -> m r
 doType control typ =
   do v <- tgvSimple typ
      selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [asType v]
@@ -67,8 +67,9 @@ doType control typ =
              do let Just viewtyp = viewTypeMaybe
                 w <- tgvSimple viewtyp >>= tgv Nothing
                 _doView control w {- >>= \conc -> doAlts [(wildP, [conc])] -}
-       _ -> Prelude.mapM_ (\t -> doType' t []) (Set.insert (asType v) (Set.map ConT (typeNames v)))
+       _ -> doType' typ []
     where
+      doType' :: Type -> [Type] -> m r
       doType' (AppT t1 t2) tps = doType' t1 (t2 : tps)
       doType' (ConT tname) [ityp, vtyp] | tname == ''Order = tgvSimple vtyp >>= tgv Nothing >>= _doOrder control ityp >>= \conc -> doAlts [(wildP, [conc])]
       doType' (ConT tname) [ktyp, vtyp] | tname == ''Map = tgvSimple vtyp >>= tgv Nothing >>= _doMap control ktyp >>= \conc -> doAlts [(wildP, [conc])]
@@ -85,15 +86,15 @@ doType control typ =
                                                                       (conP 'Right [wildP], [rconc])]
       doType' (ConT tname) tps = doName tps tname
       doType' ListT [_etyp] = error "list" {- tell [clause [wildP] (normalB [|error "list"|]) []]-}
-      doType' _ _ = return ()
+      doType' _ _ = pure def
 
-      doName :: [Type] -> Name -> m ()
+      doName :: [Type] -> Name -> m r
       doName tps tname = qReify tname >>= doInfo tps
-      doInfo :: [Type] -> Info -> m ()
+      doInfo :: [Type] -> Info -> m r
       doInfo tps (TyConI dec) = doDec tps dec
       doInfo tps (FamilyI dec _insts) = doDec tps dec
-      doInfo _ _ = pure ()
-      doDec :: [Type] -> Dec -> m ()
+      doInfo _ _ = pure def
+      doDec :: [Type] -> Dec -> m r
       doDec tps (NewtypeD cx tname binds con supers) = doDec tps (DataD cx tname binds [con] supers)
       doDec tps (DataD _cx _tname binds _cons _supers)
           | length tps /= length binds =
@@ -111,25 +112,25 @@ doType control typ =
         _doSyn control tname (subst syntyp)
       doDec _tps dec = error $ "Unexpected dec: " ++ pprint dec
 
-      doCons :: (Type -> Type) -> Name -> [Con] -> m ()
+      doCons :: (Type -> Type) -> Name -> [Con] -> m r
       doCons _subst _tname [] = error "No constructors"
-      doCons subst tname cons = mapM_ (doCon subst tname) cons
+      doCons subst tname cons = mapM (doCon subst tname) cons >>= _doAlts control
 
-      doCon :: (Type -> Type) -> Name -> Con -> m ()
+      doCon :: (Type -> Type) -> Name -> Con -> m alt
       doCon subst tname (ForallC _ _ con) = doCon subst tname con
       doCon subst tname (RecC cname vsts) = do
         flds <- mapM (doNamedField subst tname cname) (zip vsts [1..])
-        doAlts [(recP cname [], flds)]
-      doCon _subst _tname (NormalC _cname _sts) = do
+        _doConcs control (recP cname []) flds
+      doCon _subst _tname (NormalC cname _sts) = do
 #if 1
-        pure ()
+        _doConcs control (recP cname []) []
 #else
         flds <- mapM (doAnonField bindings tname cname) (zip sts [1..])
         doAlts [(recP cname [], flds)]
 #endif
-      doCon _bindings _tname (InfixC _lhs _cname _rhs) = do
+      doCon _bindings _tname (InfixC _lhs cname _rhs) = do
 #if 1
-        pure ()
+        _doConcs control (infixP wildP cname wildP) []
 #else
         flds <- mapM (doAnonField bindings tname cname) (zip [lhs, rhs] [1..])
         c <- doAlts [(infixP wildP cname wildP, flds)]
@@ -148,7 +149,7 @@ doType control typ =
              f <- tgvSimple ftype' >>= tgv (Just (tname, cname, Left fpos))
              _doField control f
 
-      doAlts :: [(PatQ, [conc])] -> m ()
+      doAlts :: [(PatQ, [conc])] -> m r
       doAlts alts = mapM (uncurry (_doConcs control)) alts >>= _doAlts control
 
 substG :: Data a => Map Name Type -> a -> a

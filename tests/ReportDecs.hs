@@ -775,6 +775,9 @@ instance HasPaths Markup JSONText
     where type Path Markup JSONText = Path_Markup JSONText
           pathsOf (s@(Markdown {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Text) g)) [(Path_Markup_markdownText, markdownText s)]
           pathsOf (s@(Html {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Text) g)) [(Path_Markup_htmlText, htmlText s)]
+          pathsOf (s@(LaTeX {})) g = mempty
+          pathsOf (s@(Pandoc {})) g = mempty
+          pathsOf (s@(Markup {})) g = mempty
 instance HasPaths Markup Markup
     where type Path Markup Markup = Path_Markup Markup
           pathsOf _ _ = [idPath]
@@ -782,6 +785,9 @@ instance HasPaths Markup Text
     where type Path Markup Text = Path_Markup Text
           pathsOf (s@(Markdown {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Text) g)) [(Path_Markup_markdownText, markdownText s)]
           pathsOf (s@(Html {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Text) g)) [(Path_Markup_htmlText, htmlText s)]
+          pathsOf (s@(LaTeX {})) g = mempty
+          pathsOf (s@(Pandoc {})) g = mempty
+          pathsOf (s@(Markup {})) g = mempty
 instance HasPaths Permissions JSONText
     where type Path Permissions JSONText = Path_Permissions JSONText
           pathsOf (s@(Permissions {})) g = mconcat [[],
@@ -1138,42 +1144,52 @@ instance HasPaths ReportElem String
     where type Path ReportElem String = Path_ReportElem String
           pathsOf (s@(ReportItem {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Item) g)) [(Path_ReportElem_elemItem, elemItem s)]
           pathsOf (s@(ReportParagraph {})) g = []
+          pathsOf (s@(ReportUndecided {})) g = mempty
 instance HasPaths ReportElem Bool
     where type Path ReportElem Bool = Path_ReportElem Bool
           pathsOf (s@(ReportItem {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Item) g)) [(Path_ReportElem_elemItem, elemItem s)]
           pathsOf (s@(ReportParagraph {})) g = []
+          pathsOf (s@(ReportUndecided {})) g = mempty
 instance HasPaths ReportElem Double
     where type Path ReportElem Double = Path_ReportElem Double
           pathsOf (s@(ReportItem {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Item) g)) [(Path_ReportElem_elemItem, elemItem s)]
           pathsOf (s@(ReportParagraph {})) g = []
+          pathsOf (s@(ReportUndecided {})) g = mempty
 instance HasPaths ReportElem Dimension
     where type Path ReportElem Dimension = Path_ReportElem Dimension
           pathsOf (s@(ReportItem {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Item) g)) [(Path_ReportElem_elemItem, elemItem s)]
           pathsOf (s@(ReportParagraph {})) g = []
+          pathsOf (s@(ReportUndecided {})) g = mempty
 instance HasPaths ReportElem ImageCrop
     where type Path ReportElem ImageCrop = Path_ReportElem ImageCrop
           pathsOf (s@(ReportItem {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Item) g)) [(Path_ReportElem_elemItem, elemItem s)]
           pathsOf (s@(ReportParagraph {})) g = []
+          pathsOf (s@(ReportUndecided {})) g = mempty
 instance HasPaths ReportElem ImageSize
     where type Path ReportElem ImageSize = Path_ReportElem ImageSize
           pathsOf (s@(ReportItem {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Item) g)) [(Path_ReportElem_elemItem, elemItem s)]
           pathsOf (s@(ReportParagraph {})) g = []
+          pathsOf (s@(ReportUndecided {})) g = mempty
 instance HasPaths ReportElem Units
     where type Path ReportElem Units = Path_ReportElem Units
           pathsOf (s@(ReportItem {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Item) g)) [(Path_ReportElem_elemItem, elemItem s)]
           pathsOf (s@(ReportParagraph {})) g = []
+          pathsOf (s@(ReportUndecided {})) g = mempty
 instance HasPaths ReportElem ImageFile
     where type Path ReportElem ImageFile = Path_ReportElem ImageFile
           pathsOf (s@(ReportItem {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Item) g)) [(Path_ReportElem_elemItem, elemItem s)]
           pathsOf (s@(ReportParagraph {})) g = []
+          pathsOf (s@(ReportUndecided {})) g = mempty
 instance HasPaths ReportElem JSONText
     where type Path ReportElem JSONText = Path_ReportElem JSONText
           pathsOf (s@(ReportItem {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Item) g)) [(Path_ReportElem_elemItem, elemItem s)]
           pathsOf (s@(ReportParagraph {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) [(Path_ReportElem_elemText, elemText s)]
+          pathsOf (s@(ReportUndecided {})) g = mempty
 instance HasPaths ReportElem Markup
     where type Path ReportElem Markup = Path_ReportElem Markup
           pathsOf (s@(ReportItem {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Item) g)) [(Path_ReportElem_elemItem, elemItem s)]
           pathsOf (s@(ReportParagraph {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) [(Path_ReportElem_elemText, elemText s)]
+          pathsOf (s@(ReportUndecided {})) g = mempty
 instance HasPaths ReportElem ReportElem
     where type Path ReportElem ReportElem = Path_ReportElem ReportElem
           pathsOf _ _ = [idPath]
@@ -1181,46 +1197,57 @@ instance HasPaths ReportElem EUI
     where type Path ReportElem EUI = Path_ReportElem EUI
           pathsOf (s@(ReportItem {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Item) g)) [(Path_ReportElem_elemItem, elemItem s)]
           pathsOf (s@(ReportParagraph {})) g = []
+          pathsOf (s@(ReportUndecided {})) g = mempty
 instance HasPaths ReportElem MEUI
     where type Path ReportElem MEUI = Path_ReportElem MEUI
           pathsOf (s@(ReportItem {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Item) g)) [(Path_ReportElem_elemItem, elemItem s)]
           pathsOf (s@(ReportParagraph {})) g = []
+          pathsOf (s@(ReportUndecided {})) g = mempty
 instance HasPaths ReportElem MaybeImageFile
     where type Path ReportElem MaybeImageFile = Path_ReportElem MaybeImageFile
           pathsOf (s@(ReportItem {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Item) g)) [(Path_ReportElem_elemItem, elemItem s)]
           pathsOf (s@(ReportParagraph {})) g = []
+          pathsOf (s@(ReportUndecided {})) g = mempty
 instance HasPaths ReportElem ReportImage
     where type Path ReportElem ReportImage = Path_ReportElem ReportImage
           pathsOf (s@(ReportItem {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Item) g)) [(Path_ReportElem_elemItem, elemItem s)]
           pathsOf (s@(ReportParagraph {})) g = []
+          pathsOf (s@(ReportUndecided {})) g = mempty
 instance HasPaths ReportElem ReportImages
     where type Path ReportElem ReportImages = Path_ReportElem ReportImages
           pathsOf (s@(ReportItem {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Item) g)) [(Path_ReportElem_elemItem, elemItem s)]
           pathsOf (s@(ReportParagraph {})) g = []
+          pathsOf (s@(ReportUndecided {})) g = mempty
 instance HasPaths ReportElem ReportImageView
     where type Path ReportElem ReportImageView = Path_ReportElem ReportImageView
           pathsOf (s@(ReportItem {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Item) g)) [(Path_ReportElem_elemItem, elemItem s)]
           pathsOf (s@(ReportParagraph {})) g = []
+          pathsOf (s@(ReportUndecided {})) g = mempty
 instance HasPaths ReportElem SaneSizeImageSize
     where type Path ReportElem SaneSizeImageSize = Path_ReportElem SaneSizeImageSize
           pathsOf (s@(ReportItem {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Item) g)) [(Path_ReportElem_elemItem, elemItem s)]
           pathsOf (s@(ReportParagraph {})) g = []
+          pathsOf (s@(ReportUndecided {})) g = mempty
 instance HasPaths ReportElem Item
     where type Path ReportElem Item = Path_ReportElem Item
           pathsOf (s@(ReportItem {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Item) g)) [(Path_ReportElem_elemItem, elemItem s)]
           pathsOf (s@(ReportParagraph {})) g = []
+          pathsOf (s@(ReportUndecided {})) g = mempty
 instance HasPaths ReportElem MIM
     where type Path ReportElem MIM = Path_ReportElem MIM
           pathsOf (s@(ReportItem {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Item) g)) [(Path_ReportElem_elemItem, elemItem s)]
           pathsOf (s@(ReportParagraph {})) g = []
+          pathsOf (s@(ReportUndecided {})) g = mempty
 instance HasPaths ReportElem URI
     where type Path ReportElem URI = Path_ReportElem URI
           pathsOf (s@(ReportItem {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Item) g)) [(Path_ReportElem_elemItem, elemItem s)]
           pathsOf (s@(ReportParagraph {})) g = []
+          pathsOf (s@(ReportUndecided {})) g = mempty
 instance HasPaths ReportElem Text
     where type Path ReportElem Text = Path_ReportElem Text
           pathsOf (s@(ReportItem {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Item) g)) [(Path_ReportElem_elemItem, elemItem s)]
           pathsOf (s@(ReportParagraph {})) g = concatMap (\(p, a') -> map p (pathsOf (a' :: Markup) g)) [(Path_ReportElem_elemText, elemText s)]
+          pathsOf (s@(ReportUndecided {})) g = mempty
 instance HasPaths ReportElems String
     where type Path ReportElems String = Path_OMap ReportElemID (Path_ReportElem String)
           pathsOf s g = concatMap (\(p, a') -> map p (pathsOf (a' :: ReportElem) g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs s))
@@ -9397,12 +9424,18 @@ instance IsPathStart Markup
                                                                                                         liftPeek (Peek_Text_Text q z) = Peek_Markup_Text (Path_Markup_htmlText q) z
                                                                                                      in Node (Peek_Markup_Text p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Text])
                                                        _ -> []) (pathsOf s (undefined :: Proxy Text)) :: Forest (Peek Markup)
+          peek (s@(LaTeX {})) = mempty :: Forest (Peek Markup)
+          peek (s@(Pandoc {})) = mempty :: Forest (Peek Markup)
+          peek (s@(Markup {})) = mempty :: Forest (Peek Markup)
           hop (s@(Markdown {})) = concatMap (\path -> case path of
                                                           p@(Path_Markup_markdownText _) -> map (\a -> Node (Peek_Markup_Text p (Just a)) []) (toListOf (toLens p) s :: [Text])
                                                           _ -> []) (pathsOf s (undefined :: Proxy Text)) :: Forest (Peek Markup)
           hop (s@(Html {})) = concatMap (\path -> case path of
                                                       p@(Path_Markup_htmlText _) -> map (\a -> Node (Peek_Markup_Text p (Just a)) []) (toListOf (toLens p) s :: [Text])
                                                       _ -> []) (pathsOf s (undefined :: Proxy Text)) :: Forest (Peek Markup)
+          hop (s@(LaTeX {})) = mempty :: Forest (Peek Markup)
+          hop (s@(Pandoc {})) = mempty :: Forest (Peek Markup)
+          hop (s@(Markup {})) = mempty :: Forest (Peek Markup)
           describe' (Peek_Markup_Text (p@(Path_Markup_markdownText _)) x) = "Markdown Text"
           describe' (Peek_Markup_Text (p@(Path_Markup_htmlText _)) x) = "Html Text"
 instance IsPathStart Permissions
@@ -9664,12 +9697,14 @@ instance IsPathStart ReportElem
                                                                                                                        liftPeek (Peek_Markup_Text q z) = Peek_ReportElem_Text (Path_ReportElem_elemText q) z
                                                                                                                     in Node (Peek_ReportElem_Markup p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
                                                                   _ -> []) (pathsOf s (undefined :: Proxy Markup)) :: Forest (Peek ReportElem)
+          peek (s@(ReportUndecided {})) = mempty :: Forest (Peek ReportElem)
           hop (s@(ReportItem {})) = concatMap (\path -> case path of
                                                             p@(Path_ReportElem_elemItem _) -> map (\a -> Node (Peek_ReportElem_Item p (Just a)) []) (toListOf (toLens p) s :: [Item])
                                                             _ -> []) (pathsOf s (undefined :: Proxy Item)) :: Forest (Peek ReportElem)
           hop (s@(ReportParagraph {})) = concatMap (\path -> case path of
                                                                  p@(Path_ReportElem_elemText _) -> map (\a -> Node (Peek_ReportElem_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
                                                                  _ -> []) (pathsOf s (undefined :: Proxy Markup)) :: Forest (Peek ReportElem)
+          hop (s@(ReportUndecided {})) = mempty :: Forest (Peek ReportElem)
           describe' (Peek_ReportElem_Item (p@(Path_ReportElem_elemItem _)) x) = "Elem Item"
           describe' (Peek_ReportElem_Markup (p@(Path_ReportElem_elemText _))
                                             x) = fromMaybe "Elem Text" (describe (Proxy :: Proxy Markup) (Just (Name (mkOccName "ReportElem") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
