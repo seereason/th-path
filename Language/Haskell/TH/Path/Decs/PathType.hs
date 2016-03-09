@@ -59,7 +59,7 @@ pathTypeControl gtyp key =
           runQ [t|Path_Maybe $(pure epath)|]
     , _doEither = undefined
     , _doField = undefined
-    , _doAlt = undefined
+    , _doConcs = undefined
     , _doSyn = undefined
     , _doAlts = undefined
     }

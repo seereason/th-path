@@ -98,7 +98,8 @@ isPathControl v x =
             , _doView =
                 \w ->
                     do let pcname = makePathCon (makePathType (ModelType (asName v))) "View"
-                       pure (w, conP (asName pcname) [wildP], conE (asName pcname))
+                       alt <- _doConcs (isPathControl v x) wildP [(w, conP (asName pcname) [wildP], conE (asName pcname))]
+                       _doAlts (isPathControl v x) [alt]
             , _doOrder =
                 \_i w ->
                     do k <- runQ $ newName "k"
@@ -122,8 +123,8 @@ isPathControl v x =
                 \f ->
                     do let pcname = maybe (error $ "Not a field: " ++ show f) id (makeFieldCon f)
                        pure (f, conP (asName pcname) [wildP], asConQ pcname)
-            , _doAlt =
-                \(xpat, concs) -> do
+            , _doConcs =
+                \xpat concs -> do
                   rs <- mapM (\conc@(w, ppat, pcon) ->
                                   do let liftPeek p node =
                                              pure [| concatMap

@@ -65,8 +65,10 @@ hasPathControl v gkey g x =
             , _doView =
                 \w -> do
                   let pcname = makePathCon (makePathType (ModelType (asName v))) "View"
-                  pure (asType w, [|map (\a' -> ($(asConQ pcname) {-:: Path $(asTypeQ w) $(asTypeQ gkey) -> Path $(asTypeQ v) $(asTypeQ gkey)-}, a'))
-                                        (toListOf (toLens ($(asConQ pcname) (idPath :: Path $(asTypeQ w) $(asTypeQ w)))) $(varE x)) |])
+                  alt <- _doConcs (hasPathControl v gkey g x) wildP
+                             [(asType w, [|map (\a' -> ($(asConQ pcname) {-:: Path $(asTypeQ w) $(asTypeQ gkey) -> Path $(asTypeQ v) $(asTypeQ gkey)-}, a'))
+                                               (toListOf (toLens ($(asConQ pcname) (idPath :: Path $(asTypeQ w) $(asTypeQ w)))) $(varE x)) |])]
+                  _doAlts (hasPathControl v gkey g x) [alt]
             , _doOrder =
                 \_i w -> do
                   pure (asType w, [| map (\(idx, val) -> (Path_At idx, val)) (toPairs $(varE x)) |])
@@ -94,8 +96,8 @@ hasPathControl v gkey g x =
                                                $(do p <- newName "p"
                                                     lamE (replicate (fpos-1) wildP ++ [varP p] ++ replicate (2-fpos) wildP) (varE p)) $(varE x))] |])
                       Nothing -> error "Not a field"
-            , _doAlt =
-                \(xpat, concs) -> do
+            , _doConcs =
+                \xpat concs -> do
                   exps <- mapM (\(typ, asList) ->
                                     do isPath <- testIsPath typ gkey
                                        case isPath of

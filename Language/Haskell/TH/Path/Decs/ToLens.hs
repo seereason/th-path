@@ -87,7 +87,7 @@ toLensControl key gkey x =
             (True, Just (_tname, _cname, Left _fpos)) -> pure ()
             (True, Nothing) -> pure ()
             (False, _) -> pure ()
-    , _doAlt = \_ -> pure ()
+    , _doConcs = \_ _ -> pure ()
     , _doSyn = \_tname _typ -> pure ()
     , _doAlts = \_ -> pure ()
     }

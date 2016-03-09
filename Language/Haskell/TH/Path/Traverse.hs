@@ -42,14 +42,14 @@ data Control m conc alt r
     = Control
       { _doSimple :: m r
       , _doSelf :: m r
-      , _doView :: TGV -> m conc -- Most of these could probably be pure
+      , _doView :: TGV -> m r -- Most of these could probably be pure
       , _doOrder :: Type -> TGV -> m conc
       , _doMap :: Type -> TGV -> m conc
       , _doPair :: TGV -> TGV -> m (conc, conc)
       , _doMaybe :: TGV -> m conc
       , _doEither :: TGV -> TGV -> m (conc, conc)
       , _doField :: TGV -> m conc -- s is temporary
-      , _doAlt :: (PatQ, [conc]) -> m alt
+      , _doConcs :: PatQ -> [conc] -> m alt
       , _doSyn :: Name -> Type -> m r
       , _doAlts :: [alt] -> m r
       }
@@ -66,7 +66,7 @@ doType control typ =
          | isJust viewTypeMaybe ->
              do let Just viewtyp = viewTypeMaybe
                 w <- tgvSimple viewtyp >>= tgv Nothing
-                _doView control w >>= \conc -> doAlts [(wildP, [conc])]
+                _doView control w {- >>= \conc -> doAlts [(wildP, [conc])] -}
        _ -> Prelude.mapM_ (\t -> doType' t []) (Set.insert (asType v) (Set.map ConT (typeNames v)))
     where
       doType' (AppT t1 t2) tps = doType' t1 (t2 : tps)
@@ -149,7 +149,7 @@ doType control typ =
              _doField control f
 
       doAlts :: [(PatQ, [conc])] -> m ()
-      doAlts alts = mapM (_doAlt control) alts >>= _doAlts control
+      doAlts alts = mapM (uncurry (_doConcs control)) alts >>= _doAlts control
 
 substG :: Data a => Map Name Type -> a -> a
 substG bindings typ = everywhere (mkT (subst1 bindings)) typ

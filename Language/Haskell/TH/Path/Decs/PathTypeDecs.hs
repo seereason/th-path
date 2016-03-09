@@ -51,7 +51,7 @@ pathTypeDecControl v =
     , _doMaybe = undefined
     , _doEither = undefined
     , _doField = undefined
-    , _doAlt = undefined
+    , _doConcs = undefined
     , _doSyn = undefined
     , _doAlts = undefined
     }
