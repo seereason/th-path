@@ -33,7 +33,7 @@ import Language.Haskell.TH.Path.View (viewLens)
 import Language.Haskell.TH.TypeGraph.TypeGraph (goalReachableSimple, pathKeys, simplify, tgvSimple)
 import Language.Haskell.TH.TypeGraph.Vertex (field, TGVSimple, TypeGraphVertex(bestType))
 
-toLensControl :: (TypeGraphM m, MonadWriter [ClauseQ] m) => TGVSimple -> TGVSimple -> Name -> Control m ()
+toLensControl :: (TypeGraphM m, MonadWriter [ClauseQ] m) => TGVSimple -> TGVSimple -> Name -> Control m () ()
 toLensControl key gkey x =
     Control
     { _doView =
@@ -120,7 +120,7 @@ toLensClauses key gkey =
   --   r <- foldPath control key
   --   return $ r ++ [clause [varP x] (normalB [|error ("toLens' (" ++ $(lift (pprint' key)) ++ ") -> (" ++ $(lift (pprint' gkey)) ++ ") - unmatched: " ++ show $(varE x))|]) []]
   do x <- runQ (newName "_x")
-     let control = toLensControl key gkey x :: Control m ()
+     let control = toLensControl key gkey x :: Control m () ()
      doType control (asType key)
 
 -- | Given a function pfunc that modifies a pattern, add a

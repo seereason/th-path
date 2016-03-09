@@ -58,7 +58,7 @@ pathDecs' v gkey = do
                 , funD 'pathsOf poc
                 ]])
 
-hasPathControl :: (TypeGraphM m, MonadWriter [ClauseQ] m) => TGVSimple -> TGVSimple -> Name -> Name -> Control m (Type, ExpQ)
+hasPathControl :: (TypeGraphM m, MonadWriter [ClauseQ] m) => TGVSimple -> TGVSimple -> Name -> Name -> Control m (Type, ExpQ) ()
 hasPathControl v gkey g x =
     Control { _doView =
                 \w -> do

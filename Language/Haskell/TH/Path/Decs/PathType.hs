@@ -24,7 +24,7 @@ import Data.Data (Data, Typeable)
 import Data.Foldable as Foldable
 import Data.List as List (intercalate, map)
 import Data.Map as Map (Map)
-import Data.Maybe (fromJust, isJust)
+import Data.Maybe (isJust)
 import Data.Set.Extra as Set (delete, map)
 import Language.Haskell.TH
 import Language.Haskell.TH.Context (reifyInstancesWithContext)
@@ -42,7 +42,7 @@ import Language.Haskell.TH.TypeGraph.Prelude (pprint1)
 import Language.Haskell.TH.TypeGraph.TypeGraph (HasTGVSimple(asTGVSimple), reachableFromSimple, simplify, tgv, tgvSimple)
 import Language.Haskell.TH.TypeGraph.Vertex (TGVSimple, typeNames)
 
-pathTypeControl :: (TypeGraphM m) => TypeQ -> TGVSimple -> Control m Type
+pathTypeControl :: (TypeGraphM m) => TypeQ -> TGVSimple -> Control m Type Type
 pathTypeControl gtyp key =
     Control
     { _doView = \w -> runQ [t|$(asTypeQ (bestPathTypeName key)) $gtyp|]
@@ -74,7 +74,7 @@ pathType :: forall m. TypeGraphM m =>
 pathType gtyp key = pathType' (pathTypeControl gtyp key) gtyp key
 
 pathType' :: forall m. TypeGraphM m =>
-             Control m Type
+             Control m Type Type
           -> TypeQ
           -> TGVSimple -- ^ The type to convert to a path type
           -> m Type
@@ -125,7 +125,7 @@ pathType' control gtyp key = do
             error $ "pathType otherf: " ++ pprint1 key ++ "\n" ++
                     intercalate "\n  " ("reachable from:" : List.map pprint1 (Foldable.toList ks))
 
-pathTypeDecControl :: (TypeGraphM m) => TGVSimple -> Control m ()
+pathTypeDecControl :: (TypeGraphM m) => TGVSimple -> Control m () ()
 pathTypeDecControl v =
     Control
     { _doView = undefined
