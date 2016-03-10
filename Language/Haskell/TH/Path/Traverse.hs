@@ -49,6 +49,7 @@ data Control m conc alt r
       , _doView :: Type -> m r -- Most of these could probably be pure
       , _doOrder :: Type -> Type -> m r
       , _doMap :: Type -> Type -> m r
+      , _doList :: Type -> m r
       , _doPair :: Type -> Type -> m r
       , _doMaybe :: Type -> m r
       , _doEither :: Type -> Type -> m r
@@ -86,7 +87,7 @@ doType control typ =
               _doEither control ltyp rtyp
 #endif
       doType' (ConT tname) tps = doName tps tname
-      doType' ListT [_etyp] = error "list" {- tell [clause [wildP] (normalB [|error "list"|]) []]-}
+      doType' ListT [etyp] = _doList control etyp
       doType' _ _ = pure def
 
       doName :: [Type] -> Name -> m r

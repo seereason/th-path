@@ -113,6 +113,8 @@ isPathControl v x =
                     do w <- tgvSimple typ >>= tgv Nothing
                        k <- runQ $ newName "k"
                        finishConc control (w, conP 'Path_Look [varP k, wildP], [|Path_Look $(varE k)|])
+            , _doList =
+                \_e -> pure ()
             , _doPair =
                 \ftyp styp ->
                     do f <- tgvSimple ftyp >>= tgv Nothing

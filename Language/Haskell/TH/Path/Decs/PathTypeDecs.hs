@@ -47,6 +47,7 @@ pathTypeDecControl v =
     , _doView = undefined
     , _doOrder = undefined
     , _doMap = undefined
+    , _doList = undefined
     , _doPair = undefined
     , _doMaybe = undefined
     , _doEither = undefined

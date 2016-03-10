@@ -76,6 +76,8 @@ hasPathControl v gkey g x =
             , _doMap =
                 \_i w -> do
                   finishConc control (asType w, [| map (\(idx, val) -> (Path_Look idx, val)) (Map.toList $(varE x)) |])
+            , _doList =
+                \_e -> pure ()
             , _doPair =
                 \f s -> finishPair control
                                    (asType f, [| [(Path_First, fst $(varE x))] |])

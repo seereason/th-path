@@ -37,7 +37,7 @@ import Language.Haskell.TH.TypeGraph.Prelude (pprint1)
 import Language.Haskell.TH.TypeGraph.TypeGraph (reachableFromSimple, tgvSimple)
 import Language.Haskell.TH.TypeGraph.Vertex (TGVSimple)
 
-pathTypeControl :: (TypeGraphM m) => TypeQ -> TGVSimple -> Control m Type Type Type
+pathTypeControl :: (TypeGraphM m) => TypeQ -> TGVSimple -> Control m () () Type
 pathTypeControl gtyp key =
     Control
     { _doSimple = pure (asType key)
@@ -50,6 +50,7 @@ pathTypeControl gtyp key =
                epath <- simplify w >>= pathType gtyp
                runQ [t|Path_OMap $ityp $(return epath)|]
 -}
+    , _doList = undefined
     , _doMap = undefined
     , _doPair = undefined
     , _doMaybe =
@@ -76,7 +77,7 @@ pathType :: forall m. TypeGraphM m =>
 pathType gtyp key = pathType' (pathTypeControl gtyp key) gtyp key
 
 pathType' :: forall m. TypeGraphM m =>
-             Control m Type Type Type
+             Control m () () Type
           -> TypeQ
           -> TGVSimple -- ^ The type to convert to a path type
           -> m Type

@@ -57,6 +57,8 @@ toLensControl key gkey x =
         \_i w -> do
           k <- runQ (newName "k")
           doClause gkey (asType w) (\p -> [p|Path_Look $(varP k) $p|]) [|mat $(varE k)|]
+    , _doList =
+        \_e -> pure ()
     , _doPair =
         \f s ->
             do doClause gkey (asType f) (\p -> [p|Path_First $p|]) [|_1|]
