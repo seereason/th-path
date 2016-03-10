@@ -98,26 +98,32 @@ isPathControl v x =
     Control { _doSimple = pure ()
             , _doSelf = pure ()
             , _doView =
-                \w ->
-                    do let pcname = makePathCon (makePathType (ModelType (asName v))) "View"
+                \typ ->
+                    do w <- tgvSimple typ >>= tgv Nothing
+                       let pcname = makePathCon (makePathType (ModelType (asName v))) "View"
                        alt <- _doConcs control wildP [(w, conP (asName pcname) [wildP], conE (asName pcname))]
                        _doAlts control [alt]
             , _doOrder =
-                \_i w ->
-                    do k <- runQ $ newName "k"
+                \_i typ ->
+                    do w <- tgvSimple typ >>= tgv Nothing
+                       k <- runQ $ newName "k"
                        finishConc control (w, conP 'Path_At [varP k, wildP], [|Path_At $(varE k)|])
             , _doMap =
-                \_i w ->
-                    do k <- runQ $ newName "k"
+                \_i typ ->
+                    do w <- tgvSimple typ >>= tgv Nothing
+                       k <- runQ $ newName "k"
                        finishConc control (w, conP 'Path_Look [varP k, wildP], [|Path_Look $(varE k)|])
             , _doPair =
-                \f s ->
-                    finishPair control
+                \ftyp styp ->
+                    do f <- tgvSimple ftyp >>= tgv Nothing
+                       s <- tgvSimple styp >>= tgv Nothing
+                       finishPair control
                                (f, conP 'Path_First [wildP], [|Path_First|])
                                (s, conP 'Path_Second [wildP], [|Path_Second|])
             , _doMaybe =
-                \w ->
-                    finishConc control (w, conP 'Path_Just [wildP], [|Path_Just|])
+                \typ ->
+                    do w <- tgvSimple typ >>= tgv Nothing
+                       finishConc control (w, conP 'Path_Just [wildP], [|Path_Just|])
             , _doEither =
                 \ltyp rtyp ->
                     do l <- tgvSimple ltyp >>= tgv Nothing

@@ -46,11 +46,11 @@ data Control m conc alt r
       { _doSimple :: m r
       , _doSelf :: m r
       , _doSyn :: Name -> Type -> m r
-      , _doView :: TGV -> m r -- Most of these could probably be pure
-      , _doOrder :: Type -> TGV -> m r
-      , _doMap :: Type -> TGV -> m r
-      , _doPair :: TGV -> TGV -> m r
-      , _doMaybe :: TGV -> m r
+      , _doView :: Type -> m r -- Most of these could probably be pure
+      , _doOrder :: Type -> Type -> m r
+      , _doMap :: Type -> Type -> m r
+      , _doPair :: Type -> Type -> m r
+      , _doMaybe :: Type -> m r
       , _doEither :: Type -> Type -> m r
       , _doField :: TGV -> m conc -- s is temporary
       , _doConcs :: PatQ -> [conc] -> m alt
@@ -68,26 +68,20 @@ doType control typ =
          | simplePath -> _doSimple control
          | isJust viewTypeMaybe ->
              do let Just viewtyp = viewTypeMaybe
-                w <- tgvSimple viewtyp >>= tgv Nothing
-                _doView control w {- >>= \conc -> doAlts [(wildP, [conc])] -}
+                _doView control viewtyp
        _ -> doType' typ []
     where
       doType' :: Type -> [Type] -> m r
       doType' (AppT t1 t2) tps = doType' t1 (t2 : tps)
-      doType' (ConT tname) [ityp, vtyp] | tname == ''Order = tgvSimple vtyp >>= tgv Nothing >>= _doOrder control ityp {- >>= \conc -> doAlts [(wildP, [conc])] -}
-      doType' (ConT tname) [ktyp, vtyp] | tname == ''Map = tgvSimple vtyp >>= tgv Nothing >>= _doMap control ktyp {- >>= \conc -> doAlts [(wildP, [conc])] -}
-      doType' (TupleT 2) [ftyp, styp] = do
-        f <- tgvSimple ftyp >>= tgv Nothing -- (Just (''(,), '(,), Left 1))
-        s <- tgvSimple styp >>= tgv Nothing -- (Just (''(,), '(,), Left 2))
-        _doPair control f s {- >>= \(fconc, sconc) -> doAlts [(wildP, [fconc, sconc])] -}
-      doType' (ConT tname) [etyp] | tname == ''Maybe = tgvSimple etyp >>= tgv Nothing >>= _doMaybe control {- >>= \conc -> doAlts [(wildP, [conc])] -}
+      doType' (ConT tname) [ityp, vtyp] | tname == ''Order = _doOrder control ityp vtyp
+      doType' (ConT tname) [ktyp, vtyp] | tname == ''Map = _doMap control ktyp vtyp
+      doType' (TupleT 2) [ftyp, styp] = _doPair control ftyp styp
+      doType' (ConT tname) [etyp] | tname == ''Maybe = _doMaybe control etyp
       doType' (ConT tname) [ltyp, rtyp]
           | tname == ''Either =
 #if 0
-              do l <- tgvSimple ltyp >>= tgv Nothing -- (Just (''Either, 'Left, Left 1))
-                 r <- tgvSimple rtyp >>= tgv Nothing -- (Just (''Either, 'Right, Left 1))
-                 _doEither control l r >>= \(lconc, rconc) -> doAlts [(conP 'Left [wildP], [lconc]),
-                                                                      (conP 'Right [wildP], [rconc])]
+              _doEither control l r >>= \(lconc, rconc) -> doAlts [(conP 'Left [wildP], [lconc]),
+                                                                   (conP 'Right [wildP], [rconc])]
 #else
               _doEither control ltyp rtyp
 #endif

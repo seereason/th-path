@@ -34,7 +34,7 @@ import Language.Haskell.TH.Path.Order (Order, Path_OMap(..))
 import Language.Haskell.TH.Path.Traverse (Control(..))
 import Language.Haskell.TH.Path.View (viewInstanceType)
 import Language.Haskell.TH.TypeGraph.Prelude (pprint1)
-import Language.Haskell.TH.TypeGraph.TypeGraph (reachableFromSimple, simplify, tgv, tgvSimple)
+import Language.Haskell.TH.TypeGraph.TypeGraph (reachableFromSimple, tgvSimple)
 import Language.Haskell.TH.TypeGraph.Vertex (TGVSimple)
 
 pathTypeControl :: (TypeGraphM m) => TypeQ -> TGVSimple -> Control m Type Type Type
@@ -53,8 +53,8 @@ pathTypeControl gtyp key =
     , _doMap = undefined
     , _doPair = undefined
     , _doMaybe =
-        \w -> do
-          w' <- simplify w
+        \typ -> do
+          w' <- tgvSimple typ
           epath <- pathType gtyp w'
           runQ [t|Path_Maybe $(pure epath)|]
     , _doEither =
@@ -89,8 +89,7 @@ pathType' control gtyp key = do
       | simplePath -> runQ [t|$(asTypeQ (bestPathTypeName key)) $gtyp|]
       | isJust viewTypeMaybe ->
           do let Just viewType = viewTypeMaybe
-             w <- tgvSimple viewType >>= tgv Nothing
-             _doView control w
+             _doView control viewType
     ConT tname ->
         runQ $ [t|$(asTypeQ (makePathType (ModelType tname))) $gtyp|]
     AppT (AppT mtyp ityp) etyp
@@ -116,8 +115,7 @@ pathType' control gtyp key = do
            runQ [t| Path_Pair $(return fpath) $(return spath) |]
     AppT t1 vtyp
         | t1 == ConT ''Maybe ->
-            do w <- tgvSimple vtyp >>= tgv Nothing
-               _doMaybe control w
+            _doMaybe control vtyp
     AppT (AppT t3 ltyp) rtyp
         | t3 == ConT ''Either ->
             _doEither control ltyp rtyp
