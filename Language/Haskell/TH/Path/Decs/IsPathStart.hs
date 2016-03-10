@@ -205,11 +205,18 @@ describeConc v (w, ppat, _pcon) =
     do p <- runQ $ newName "p"
        x <- runQ $ newName "x"
        hasDescribeInstance <- (not . null) <$> reifyInstancesWithContext ''Describe [asType w]
-       let PeekCon n = makePeekCon (ModelType (asName v)) (ModelType (asName w))
-       tell [DescClause $ clause [conP n [asP p ppat, varP x]] (normalB (case hasDescribeInstance of
-                                                                           True -> [|fromMaybe $(lift (toDescription w))
-                                                                                               (describe (Proxy :: Proxy $(asTypeQ w)) $(lift (view (_2 . field) w)))|]
-                                                                           False -> lift (toDescription w))) []]
+       pathKeys' w >>= mapM_ (doGoal' p x hasDescribeInstance)
+    where
+      doGoal' p x hasDescribeInstance g = do
+        let PeekCon n = makePeekCon (ModelType (asName v)) (ModelType (asName g))
+        tell [DescClause $
+                clause
+                  [conP n [asP p ppat, varP x]]
+                  (normalB (case hasDescribeInstance of
+                              True -> [|fromMaybe
+                                          $(lift (toDescription w))
+                                          (describe (Proxy :: Proxy $(asTypeQ w)) $(lift (view (_2 . field) w)))|]
+                              False -> lift (toDescription w))) []]
 
 toDescription :: TGV -> String
 toDescription w =
