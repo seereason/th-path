@@ -26,7 +26,6 @@ module Language.Haskell.TH.Path.Traverse
     , finishEither
     ) where
 
-import Data.Default (Default(def))
 import Data.Generics (Data, everywhere, mkT)
 import Data.Map as Map (fromList, lookup, Map)
 import Data.Maybe (isJust)
@@ -58,7 +57,7 @@ data Control m conc alt r
       , _doAlts :: [alt] -> m r
       }
 
-doType :: forall m conc alt r. (Quasi m, TypeGraphM m, Default r) => Control m conc alt r -> Type -> m r
+doType :: forall m conc alt r. (Quasi m, TypeGraphM m) => Control m conc alt r -> Type -> m r
 doType control typ =
   do v <- tgvSimple typ
      selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [asType v]
@@ -88,14 +87,14 @@ doType control typ =
 #endif
       doType' (ConT tname) tps = doName tps tname
       doType' ListT [etyp] = _doList control etyp
-      doType' _ _ = pure def
+      doType' typ _ = error $ "doType: unexpected type: " ++ show typ
 
       doName :: [Type] -> Name -> m r
       doName tps tname = qReify tname >>= doInfo tps
       doInfo :: [Type] -> Info -> m r
       doInfo tps (TyConI dec) = doDec tps dec
       doInfo tps (FamilyI dec _insts) = doDec tps dec
-      doInfo _ _ = pure def
+      doInfo _ info = error $ "doType: unexpected info: " ++ show info
       doDec :: [Type] -> Dec -> m r
       doDec tps (NewtypeD cx tname binds con supers) = doDec tps (DataD cx tname binds [con] supers)
       doDec tps (DataD _cx _tname binds _cons _supers)
