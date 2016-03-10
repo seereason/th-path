@@ -45,14 +45,14 @@ data Control m conc alt r
       { _doSimple :: m r
       , _doSelf :: m r
       , _doSyn :: Name -> Type -> m r
-      , _doView :: Type -> m r -- Most of these could probably be pure
+      , _doView :: Type -> m r
       , _doOrder :: Type -> Type -> m r
       , _doMap :: Type -> Type -> m r
       , _doList :: Type -> m r
       , _doPair :: Type -> Type -> m r
       , _doMaybe :: Type -> m r
       , _doEither :: Type -> Type -> m r
-      , _doField :: Field -> Type -> m conc -- s is temporary
+      , _doField :: Field -> Type -> m conc
       , _doConcs :: PatQ -> [conc] -> m alt
       , _doAlts :: [alt] -> m r
       }
@@ -87,7 +87,7 @@ doType control typ =
 #endif
       doType' (ConT tname) tps = doName tps tname
       doType' ListT [etyp] = _doList control etyp
-      doType' typ _ = error $ "doType: unexpected type: " ++ show typ
+      doType' _ _ = error $ "doType: unexpected type: " ++ show typ
 
       doName :: [Type] -> Name -> m r
       doName tps tname = qReify tname >>= doInfo tps

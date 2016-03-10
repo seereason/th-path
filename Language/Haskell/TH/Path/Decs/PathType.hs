@@ -25,7 +25,7 @@ import Data.Maybe (isJust)
 import Language.Haskell.TH
 import Language.Haskell.TH.Context (reifyInstancesWithContext)
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.Path.Common (asType, asTypeQ, bestPathTypeName, ModelType(ModelType),
+import Language.Haskell.TH.Path.Common (asName, asType, asTypeQ, bestPathTypeName, ModelType(ModelType),
                                         makePathType)
 import Language.Haskell.TH.Path.Core (SelfPath, SinkType,
                                       Path_List, Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
@@ -40,33 +40,51 @@ import Language.Haskell.TH.TypeGraph.Vertex (TGVSimple)
 pathTypeControl :: (TypeGraphM m) => TypeQ -> TGVSimple -> Control m () () Type
 pathTypeControl gtyp key =
     Control
-    { _doSimple = pure (asType key)
-    , _doSelf = runQ [t|$(asTypeQ (bestPathTypeName key)) $gtyp|]
+    { _doSelf = pure $ asType key
+    , _doSimple = runQ [t|$(asTypeQ (bestPathTypeName key)) $gtyp|]
     , _doView = \_ -> runQ [t|$(asTypeQ (bestPathTypeName key)) $gtyp|]
-    , _doOrder = undefined
+    , _doOrder =
+        \ityp etyp ->
+            do ipath <- tgvSimple ityp >>= pathType gtyp
+               epath <- tgvSimple etyp >>= pathType gtyp
+               runQ [t|Path_OMap $(return ipath) $(return epath)|]
 {-
         \ityp w ->
             do ipath <- tgvSimple ityp >>= pathType gtyp
                epath <- simplify w >>= pathType gtyp
                runQ [t|Path_OMap $ityp $(return epath)|]
 -}
-    , _doList = undefined
-    , _doMap = undefined
-    , _doPair = undefined
+    , _doMap =
+        \ktyp vtyp ->
+            do kpath <- tgvSimple ktyp >>= pathType gtyp
+               vpath <- tgvSimple vtyp >>= pathType gtyp
+               runQ [t| Path_Map $(return kpath) $(return vpath)|]
+    , _doList =
+        \etyp ->
+            do epath <- tgvSimple etyp >>= pathType gtyp
+               runQ [t|Path_List $(return epath)|]
+    , _doPair =
+        \ftyp styp ->
+            do fpath <- tgvSimple ftyp >>= pathType gtyp
+               spath <- tgvSimple styp >>= pathType gtyp
+               runQ [t| Path_Pair $(return fpath) $(return spath) |]
     , _doMaybe =
-        \typ -> do
-          w' <- tgvSimple typ
-          epath <- pathType gtyp w'
-          runQ [t|Path_Maybe $(pure epath)|]
+        \typ ->
+            do w' <- tgvSimple typ
+               epath <- pathType gtyp w'
+               runQ [t|Path_Maybe $(pure epath)|]
     , _doEither =
-        \ltyp rtyp -> do
-          lpath <- tgvSimple ltyp >>= pathType gtyp
-          rpath <- tgvSimple rtyp >>= pathType gtyp
-          runQ [t| Path_Either $(return lpath) $(return rpath) |]
-    , _doField = undefined
-    , _doConcs = undefined
-    , _doSyn = undefined
-    , _doAlts = undefined
+        \ltyp rtyp ->
+            do lpath <- tgvSimple ltyp >>= pathType gtyp
+               rpath <- tgvSimple rtyp >>= pathType gtyp
+               runQ [t| Path_Either $(return lpath) $(return rpath) |]
+    , _doField = \_ _ -> pure ()
+    , _doConcs = \_ _ -> pure ()
+    , _doSyn =
+        \name typ ->
+            error $ "PathType _doSyn " ++ show name ++ " " ++ show typ
+    , _doAlts =
+        \_ -> runQ $ [t|$(asTypeQ (makePathType (ModelType (asName key)))) $gtyp|]
     }
 
 -- | Given a type, compute the corresponding path type.
@@ -86,8 +104,8 @@ pathType' control gtyp key = do
   simplePath <- (not . null) <$> reifyInstancesWithContext ''SinkType [asType key]
   viewTypeMaybe <- viewInstanceType (asType key)
   case asType key of
-    _ | selfPath -> return $ asType key
-      | simplePath -> runQ [t|$(asTypeQ (bestPathTypeName key)) $gtyp|]
+    _ | selfPath -> _doSelf control
+      | simplePath -> _doSimple control
       | isJust viewTypeMaybe ->
           do let Just viewType = viewTypeMaybe
              _doView control viewType
@@ -95,25 +113,14 @@ pathType' control gtyp key = do
         runQ $ [t|$(asTypeQ (makePathType (ModelType tname))) $gtyp|]
     AppT (AppT mtyp ityp) etyp
         | mtyp == ConT ''Order ->
-            do ipath <- tgvSimple ityp >>= pathType gtyp
-               epath <- tgvSimple etyp >>= pathType gtyp
-               runQ [t|Path_OMap $(return ipath) $(return epath)|]
-{-
-            do w <- tgvSimple etyp >>= tgv Nothing
-               _doOrder control w
--}
+            _doOrder control ityp etyp
     AppT ListT etyp ->
-        do epath <- tgvSimple etyp >>= pathType gtyp
-           runQ [t|Path_List $(return epath)|]
+        _doList control etyp
     AppT (AppT t3 ktyp) vtyp
         | t3 == ConT ''Map ->
-            do kpath <- tgvSimple ktyp >>= pathType gtyp
-               vpath <- tgvSimple vtyp >>= pathType gtyp
-               runQ [t| Path_Map $(return kpath) $(return vpath)|]
+            _doMap control ktyp vtyp
     AppT (AppT (TupleT 2) ftyp) styp ->
-        do fpath <- tgvSimple ftyp >>= pathType gtyp
-           spath <- tgvSimple styp >>= pathType gtyp
-           runQ [t| Path_Pair $(return fpath) $(return spath) |]
+        _doPair control ftyp styp
     AppT t1 vtyp
         | t1 == ConT ''Maybe ->
             _doMaybe control vtyp
