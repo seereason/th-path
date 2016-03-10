@@ -57,7 +57,11 @@ pathTypeControl gtyp key =
           w' <- simplify w
           epath <- pathType gtyp w'
           runQ [t|Path_Maybe $(pure epath)|]
-    , _doEither = undefined
+    , _doEither =
+        \ltyp rtyp -> do
+          lpath <- tgvSimple ltyp >>= pathType gtyp
+          rpath <- tgvSimple rtyp >>= pathType gtyp
+          runQ [t| Path_Either $(return lpath) $(return rpath) |]
     , _doField = undefined
     , _doConcs = undefined
     , _doSyn = undefined
@@ -116,9 +120,7 @@ pathType' control gtyp key = do
                _doMaybe control w
     AppT (AppT t3 ltyp) rtyp
         | t3 == ConT ''Either ->
-            do lpath <- tgvSimple ltyp >>= pathType gtyp
-               rpath <- tgvSimple rtyp >>= pathType gtyp
-               runQ [t| Path_Either $(return lpath) $(return rpath)|]
+            _doEither control ltyp rtyp
     _ -> do ks <- reachableFromSimple key
             error $ "pathType otherf: " ++ pprint1 key ++ "\n" ++
                     intercalate "\n  " ("reachable from:" : List.map pprint1 (Foldable.toList ks))

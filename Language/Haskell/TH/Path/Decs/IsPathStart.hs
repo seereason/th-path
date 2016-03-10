@@ -36,7 +36,7 @@ import Language.Haskell.TH.Path.Core (IsPathStart(Peek, peek, hop, describe'), H
                                       Describe(describe), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..), forestMap)
 import Language.Haskell.TH.Path.Graph (TypeGraphM)
 import Language.Haskell.TH.Path.Order (Path_OMap(..))
-import Language.Haskell.TH.Path.Traverse (asP', Control(..), doType, finishEither, finishPair)
+import Language.Haskell.TH.Path.Traverse (asP', Control(..), doType, finishConc, finishEither, finishPair)
 import Language.Haskell.TH.TypeGraph.TypeGraph (pathKeys, pathKeys', tgv, tgvSimple)
 import Language.Haskell.TH.TypeGraph.Vertex (TGV, field, TGVSimple)
 
@@ -105,11 +105,11 @@ isPathControl v x =
             , _doOrder =
                 \_i w ->
                     do k <- runQ $ newName "k"
-                       pure (w, conP 'Path_At [varP k, wildP], [|Path_At $(varE k)|])
+                       finishConc control (w, conP 'Path_At [varP k, wildP], [|Path_At $(varE k)|])
             , _doMap =
                 \_i w ->
                     do k <- runQ $ newName "k"
-                       pure (w, conP 'Path_Look [varP k, wildP], [|Path_Look $(varE k)|])
+                       finishConc control (w, conP 'Path_Look [varP k, wildP], [|Path_Look $(varE k)|])
             , _doPair =
                 \f s ->
                     finishPair control
@@ -117,7 +117,7 @@ isPathControl v x =
                                (s, conP 'Path_Second [wildP], [|Path_Second|])
             , _doMaybe =
                 \w ->
-                    pure (w, conP 'Path_Just [wildP], [|Path_Just|])
+                    finishConc control (w, conP 'Path_Just [wildP], [|Path_Just|])
             , _doEither =
                 \ltyp rtyp ->
                     do l <- tgvSimple ltyp >>= tgv Nothing

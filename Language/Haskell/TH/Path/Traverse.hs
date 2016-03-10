@@ -21,6 +21,7 @@ module Language.Haskell.TH.Path.Traverse
     , Control(..)
     , doType
     , substG
+    , finishConc
     , finishPair
     , finishEither
     ) where
@@ -44,15 +45,15 @@ data Control m conc alt r
     = Control
       { _doSimple :: m r
       , _doSelf :: m r
+      , _doSyn :: Name -> Type -> m r
       , _doView :: TGV -> m r -- Most of these could probably be pure
-      , _doOrder :: Type -> TGV -> m conc
-      , _doMap :: Type -> TGV -> m conc
+      , _doOrder :: Type -> TGV -> m r
+      , _doMap :: Type -> TGV -> m r
       , _doPair :: TGV -> TGV -> m r
-      , _doMaybe :: TGV -> m conc
+      , _doMaybe :: TGV -> m r
       , _doEither :: Type -> Type -> m r
       , _doField :: TGV -> m conc -- s is temporary
       , _doConcs :: PatQ -> [conc] -> m alt
-      , _doSyn :: Name -> Type -> m r
       , _doAlts :: [alt] -> m r
       }
 
@@ -73,13 +74,13 @@ doType control typ =
     where
       doType' :: Type -> [Type] -> m r
       doType' (AppT t1 t2) tps = doType' t1 (t2 : tps)
-      doType' (ConT tname) [ityp, vtyp] | tname == ''Order = tgvSimple vtyp >>= tgv Nothing >>= _doOrder control ityp >>= \conc -> doAlts [(wildP, [conc])]
-      doType' (ConT tname) [ktyp, vtyp] | tname == ''Map = tgvSimple vtyp >>= tgv Nothing >>= _doMap control ktyp >>= \conc -> doAlts [(wildP, [conc])]
+      doType' (ConT tname) [ityp, vtyp] | tname == ''Order = tgvSimple vtyp >>= tgv Nothing >>= _doOrder control ityp {- >>= \conc -> doAlts [(wildP, [conc])] -}
+      doType' (ConT tname) [ktyp, vtyp] | tname == ''Map = tgvSimple vtyp >>= tgv Nothing >>= _doMap control ktyp {- >>= \conc -> doAlts [(wildP, [conc])] -}
       doType' (TupleT 2) [ftyp, styp] = do
         f <- tgvSimple ftyp >>= tgv Nothing -- (Just (''(,), '(,), Left 1))
         s <- tgvSimple styp >>= tgv Nothing -- (Just (''(,), '(,), Left 2))
         _doPair control f s {- >>= \(fconc, sconc) -> doAlts [(wildP, [fconc, sconc])] -}
-      doType' (ConT tname) [etyp] | tname == ''Maybe = tgvSimple etyp >>= tgv Nothing >>= _doMaybe control >>= \conc -> doAlts [(wildP, [conc])]
+      doType' (ConT tname) [etyp] | tname == ''Maybe = tgvSimple etyp >>= tgv Nothing >>= _doMaybe control {- >>= \conc -> doAlts [(wildP, [conc])] -}
       doType' (ConT tname) [ltyp, rtyp]
           | tname == ''Either =
 #if 0
@@ -173,6 +174,9 @@ asP' name patQ = do
     WildP -> varP name
     AsP name' _ | name == name' -> patQ
     _ -> asP name patQ
+
+finishConc :: Monad m => Control m conc alt r -> conc -> m r
+finishConc control conc = _doConcs control wildP [conc] >>= \alt -> _doAlts control [alt]
 
 finishPair :: Monad m => Control m conc alt r -> conc -> conc -> m r
 finishPair control fconc sconc = _doConcs control wildP [fconc, sconc] >>= \alt -> _doAlts control [alt]

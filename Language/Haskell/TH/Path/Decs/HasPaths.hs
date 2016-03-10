@@ -31,7 +31,7 @@ import Language.Haskell.TH.Path.Decs.PathType (pathType)
 import Language.Haskell.TH.Path.Graph (testIsPath, TypeGraphM)
 import Language.Haskell.TH.Path.Instances ()
 import Language.Haskell.TH.Path.Order (Path_OMap(..), toPairs)
-import Language.Haskell.TH.Path.Traverse (asP', Control(..), doType, finishEither, finishPair)
+import Language.Haskell.TH.Path.Traverse (asP', Control(..), doType, finishConc, finishEither, finishPair)
 import Language.Haskell.TH.TypeGraph.TypeGraph (pathKeys)
 import Language.Haskell.TH.TypeGraph.Vertex (field, TGVSimple, TypeGraphVertex(bestType))
 
@@ -72,17 +72,17 @@ hasPathControl v gkey g x =
                   _doAlts control [alt]
             , _doOrder =
                 \_i w -> do
-                  pure (asType w, [| map (\(idx, val) -> (Path_At idx, val)) (toPairs $(varE x)) |])
+                  finishConc control (asType w, [| map (\(idx, val) -> (Path_At idx, val)) (toPairs $(varE x)) |])
             , _doMap =
                 \_i w -> do
-                  pure (asType w, [| map (\(idx, val) -> (Path_Look idx, val)) (Map.toList $(varE x)) |])
+                  finishConc control (asType w, [| map (\(idx, val) -> (Path_Look idx, val)) (Map.toList $(varE x)) |])
             , _doPair =
                 \f s -> finishPair control
                                    (asType f, [| [(Path_First, fst $(varE x))] |])
                                    (asType s, [| [(Path_Second, snd $(varE x))] |])
             , _doMaybe =
                 \w -> do
-                  pure (asType w, [| case $(varE x) of Nothing -> []; Just a' -> [(Path_Just, a')]|])
+                  finishConc control (asType w, [| case $(varE x) of Nothing -> []; Just a' -> [(Path_Just, a')]|])
             , _doEither =
                 \l r ->
                     do let lconc = (asType l, [| case $(varE x) of Left a' -> [(Path_Left, a')]; Right _ -> []|])
