@@ -132,8 +132,9 @@ isPathControl v x =
                            rconc = (r, conP 'Path_Right [wildP], [|Path_Right|])
                        finishEither control lconc rconc
             , _doField =
-                \f ->
-                    do let pcname = maybe (error $ "Not a field: " ++ show f) id (makeFieldCon f)
+                \fld typ ->
+                    do f <- tgvSimple typ >>= tgv (Just fld)
+                       let pcname = maybe (error $ "Not a field: " ++ show f) id (makeFieldCon f)
                        pure (f, conP (asName pcname) [wildP], asConQ pcname)
             , _doConcs =
                 \xpat concs -> do

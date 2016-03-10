@@ -33,7 +33,7 @@ import Language.Haskell.TH.Path.Instances ()
 import Language.Haskell.TH.Path.Order (Path_OMap(..), toPairs)
 import Language.Haskell.TH.Path.Traverse (asP', Control(..), doType, finishConc, finishEither, finishPair)
 import Language.Haskell.TH.TypeGraph.TypeGraph (pathKeys)
-import Language.Haskell.TH.TypeGraph.Vertex (field, TGVSimple, TypeGraphVertex(bestType))
+import Language.Haskell.TH.TypeGraph.Vertex (TGVSimple, TypeGraphVertex(bestType))
 
 pathDecs :: (TypeGraphM m, MonadWriter [Dec] m) => TGVSimple -> m ()
 pathDecs v =
@@ -96,15 +96,14 @@ hasPathControl v gkey g x =
                              (asType r, [| case $(varE x) of Left _ -> []; Right a' -> [(Path_Right, a')]|]))
 -}
             , _doField =
-                \f ->
-                    case view (_2 . field) f of
-                      Just (_tname, _cname, Right fname) ->
-                          pure (asType f, [| [($(asConQ (makePathCon (makePathType (ModelType (asName v))) (nameBase fname))), ($(varE fname) $(varE x)))] |])
-                      Just (_tname, _cname, Left fpos) ->
-                          pure (asType f, [| [($(asConQ (makePathCon (makePathType (ModelType (asName v))) (show fpos))),
+                \fld typ ->
+                    case fld of
+                      (_tname, _cname, Right fname) ->
+                          pure (typ, [| [($(asConQ (makePathCon (makePathType (ModelType (asName v))) (nameBase fname))), ($(varE fname) $(varE x)))] |])
+                      (_tname, _cname, Left fpos) ->
+                          pure (typ, [| [($(asConQ (makePathCon (makePathType (ModelType (asName v))) (show fpos))),
                                                $(do p <- newName "p"
                                                     lamE (replicate (fpos-1) wildP ++ [varP p] ++ replicate (2-fpos) wildP) (varE p)) $(varE x))] |])
-                      Nothing -> error "Not a field"
             , _doConcs =
                 \xpat concs -> do
                   exps <- mapM (\(typ, asList) ->

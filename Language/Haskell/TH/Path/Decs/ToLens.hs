@@ -31,7 +31,7 @@ import Language.Haskell.TH.Path.Graph (TypeGraphM)
 import Language.Haskell.TH.Path.Order (lens_omat, Path_OMap(..))
 import Language.Haskell.TH.Path.Traverse (Control(..), doType)
 import Language.Haskell.TH.Path.View (viewLens)
-import Language.Haskell.TH.TypeGraph.TypeGraph (goalReachableSimple, pathKeys, simplify, tgvSimple)
+import Language.Haskell.TH.TypeGraph.TypeGraph (goalReachableSimple, pathKeys, tgv, tgvSimple)
 import Language.Haskell.TH.TypeGraph.Vertex (field, TGVSimple, TypeGraphVertex(bestType))
 
 toLensControl :: (TypeGraphM m, MonadWriter [ClauseQ] m) => TGVSimple -> TGVSimple -> Name -> Control m () () ()
@@ -71,8 +71,9 @@ toLensControl key gkey x =
                doClause gkey (asType r) (\p -> [p|Path_Right $p|]) [|_Right|]
                pure def
     , _doField =
-        \fkey -> do
-          skey <- simplify fkey
+        \fld typ -> do
+          skey <- tgvSimple typ
+          fkey <- tgv (Just fld) skey
           ok <- goalReachableSimple gkey skey
           case (ok, view (_2 . field) fkey) of
             (True, Just (_tname, _cname, Right fname)) ->

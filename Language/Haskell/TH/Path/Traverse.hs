@@ -38,8 +38,8 @@ import Language.Haskell.TH.Path.Graph (TypeGraphM)
 import Language.Haskell.TH.Path.Order (Order)
 import Language.Haskell.TH.Path.View (viewInstanceType)
 import Language.Haskell.TH.Syntax
+import Language.Haskell.TH.TypeGraph.Shape (Field)
 import Language.Haskell.TH.TypeGraph.TypeGraph
-import Language.Haskell.TH.TypeGraph.Vertex
 
 data Control m conc alt r
     = Control
@@ -52,7 +52,7 @@ data Control m conc alt r
       , _doPair :: Type -> Type -> m r
       , _doMaybe :: Type -> m r
       , _doEither :: Type -> Type -> m r
-      , _doField :: TGV -> m conc -- s is temporary
+      , _doField :: Field -> Type -> m conc -- s is temporary
       , _doConcs :: PatQ -> [conc] -> m alt
       , _doAlts :: [alt] -> m r
       }
@@ -140,15 +140,11 @@ doType control typ =
 
       doNamedField :: (Type -> Type) -> Name -> Name -> ((Name, Strict, Type), Int) -> m conc
       doNamedField subst tname cname ((fname, _, ftype), _fpos) =
-          do let ftype' = subst ftype
-             f <- tgvSimple ftype' >>= tgv (Just (tname, cname, Right fname))
-             _doField control f
+          _doField control (tname, cname, Right fname) (subst ftype)
 
       doAnonField :: (Type -> Type) -> Name -> Name -> ((Strict, Type), Int) -> m conc
       doAnonField subst tname cname ((_, ftype), fpos) =
-          do let ftype' = subst ftype
-             f <- tgvSimple ftype' >>= tgv (Just (tname, cname, Left fpos))
-             _doField control f
+          _doField control (tname, cname, Left fpos) (subst ftype)
 
       doAlts :: [(PatQ, [conc])] -> m r
       doAlts alts = mapM (uncurry (_doConcs control)) alts >>= _doAlts control
