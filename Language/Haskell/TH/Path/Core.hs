@@ -183,7 +183,7 @@ class SelfPath a
 -- The @Maybe Field@ argument can be used to optionally signify that
 -- the @a@ is contained in a particular field of a record.
 class Describe a where
-    describe :: Maybe Field -> Proxy a -> Maybe String
+    describe :: Maybe Field -> a -> Maybe String
 
 -- Primitive path types
 

@@ -28,7 +28,7 @@ import Control.Lens (iso, _Just, _1, _2, _Left, _Right, Lens', toListOf, Travers
 import Data.Generics (Data, Typeable)
 import Data.Int (Int64)
 import Data.Map (Map, toList)
-import Data.Maybe (fromMaybe)
+import Data.Maybe (fromJust, fromMaybe)
 import Data.Monoid ((<>))
 import Data.Proxy
 import Data.Text (Text)

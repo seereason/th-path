@@ -129,10 +129,13 @@ data ReportView
              }
     deriving (Read, Show, Eq, Ord, Typeable, Data)
 
-instance Describe Markup where
+instance Describe (Proxy Markup) where
     describe loc Proxy
         | loc == Just ('ReportView, 'ReportView, Right '_reportLetterOfTransmittal) = Just "Letter of Transmittal"
         | otherwise = Nothing
+
+instance Describe (Proxy JSONText) where
+    describe _ Proxy = Nothing
 
 instance View Report where
     type ViewType Report = ReportView

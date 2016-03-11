@@ -28,7 +28,7 @@ import Control.Lens (iso, _Just, _1, _2, _Left, _Right, Lens', toListOf, Travers
 import Data.Generics (Data, Typeable)
 import Data.Int (Int64)
 import Data.Map (Map, toList)
-import Data.Maybe (fromMaybe)
+import Data.Maybe (fromJust, fromMaybe)
 import Data.Monoid ((<>))
 import Data.Proxy
 import Data.Text (Text)
@@ -8692,906 +8692,1742 @@ instance HasUserId UserId
           lens_UserId__unUserId = iso (\(UserId x) -> x) UserId
           {-# INLINE lens_UserId__unUserId #-}
 instance Describe (Peek (Either URI ImageFile))
-    where describe _ (Peek_EUI_URI (p@(Path_Left _)) x) = Just "URI"
-          describe _ (Peek_EUI_ImageFile (p@(Path_Right _)) x) = Just "Image File"
+    where describe _ (Peek_EUI_URI (p@(Path_Left wp)) x) = maybe (Just "URI") Just (maybe Nothing Just Nothing)
+          describe _ (Peek_EUI_ImageFile (p@(Path_Right wp)) x) = maybe (Just "Image File") Just (maybe Nothing Just Nothing)
 instance Describe (Peek (Map ItemFieldName Markup))
-    where describe _ (Peek_MIM_JSONText (p@(Path_Look k _)) x) = fromMaybe (Just "Markup") (describe Nothing (Proxy :: Proxy Markup))
-          describe _ (Peek_MIM_Markup (p@(Path_Look k _)) x) = fromMaybe (Just "Markup") (describe Nothing (Proxy :: Proxy Markup))
-          describe _ (Peek_MIM_Text (p@(Path_Look k _)) x) = fromMaybe (Just "Markup") (describe Nothing (Proxy :: Proxy Markup))
+    where describe _ (Peek_MIM_JSONText (p@(Path_Look k wp))
+                                        x) = maybe (Just "Markup") Just (maybe (describe Nothing (Proxy :: Proxy Markup)) Just (describe Nothing (Peek_Markup_JSONText wp undefined)))
+          describe _ (Peek_MIM_Markup (p@(Path_Look k wp)) x) = maybe (Just "Markup") Just (maybe (describe Nothing (Proxy :: Proxy Markup)) Just Nothing)
+          describe _ (Peek_MIM_Text (p@(Path_Look k wp))
+                                    x) = maybe (Just "Markup") Just (maybe (describe Nothing (Proxy :: Proxy Markup)) Just (describe Nothing (Peek_Markup_Text wp undefined)))
 instance Describe (Peek (Map ReportID Report))
-    where describe _ (Peek_MRR_String (p@(Path_Look k _)) x) = Just "Report"
-          describe _ (Peek_MRR_Int64 (p@(Path_Look k _)) x) = Just "Report"
-          describe _ (Peek_MRR_Int (p@(Path_Look k _)) x) = Just "Report"
-          describe _ (Peek_MRR_Bool (p@(Path_Look k _)) x) = Just "Report"
-          describe _ (Peek_MRR_Double (p@(Path_Look k _)) x) = Just "Report"
-          describe _ (Peek_MRR_Dimension (p@(Path_Look k _)) x) = Just "Report"
-          describe _ (Peek_MRR_ImageCrop (p@(Path_Look k _)) x) = Just "Report"
-          describe _ (Peek_MRR_ImageSize (p@(Path_Look k _)) x) = Just "Report"
-          describe _ (Peek_MRR_Units (p@(Path_Look k _)) x) = Just "Report"
-          describe _ (Peek_MRR_ImageFile (p@(Path_Look k _)) x) = Just "Report"
-          describe _ (Peek_MRR_Integer (p@(Path_Look k _)) x) = Just "Report"
-          describe _ (Peek_MRR_JSONText (p@(Path_Look k _)) x) = Just "Report"
-          describe _ (Peek_MRR_Markup (p@(Path_Look k _)) x) = Just "Report"
-          describe _ (Peek_MRR_Permissions (p@(Path_Look k _)) x) = Just "Report"
-          describe _ (Peek_MRR_UserIds (p@(Path_Look k _)) x) = Just "Report"
-          describe _ (Peek_MRR_AbbrevPair (p@(Path_Look k _)) x) = Just "Report"
-          describe _ (Peek_MRR_AbbrevPairs (p@(Path_Look k _)) x) = Just "Report"
-          describe _ (Peek_MRR_Author (p@(Path_Look k _)) x) = Just "Report"
-          describe _ (Peek_MRR_Authors (p@(Path_Look k _)) x) = Just "Report"
-          describe _ (Peek_MRR_Branding (p@(Path_Look k _)) x) = Just "Report"
-          describe _ (Peek_MRR_MarkupPair (p@(Path_Look k _)) x) = Just "Report"
-          describe _ (Peek_MRR_MarkupPairs (p@(Path_Look k _)) x) = Just "Report"
-          describe _ (Peek_MRR_Markups (p@(Path_Look k _)) x) = Just "Report"
-          describe _ (Peek_MRR_MaybeReportIntendedUse (p@(Path_Look k _)) x) = Just "Report"
-          describe _ (Peek_MRR_Report (p@(Path_Look k _)) x) = Just "Report"
-          describe _ (Peek_MRR_ReportElem (p@(Path_Look k _)) x) = Just "Report"
-          describe _ (Peek_MRR_ReportElems (p@(Path_Look k _)) x) = Just "Report"
-          describe _ (Peek_MRR_ReportFlags (p@(Path_Look k _)) x) = Just "Report"
-          describe _ (Peek_MRR_ReportStandard (p@(Path_Look k _)) x) = Just "Report"
-          describe _ (Peek_MRR_ReportStatus (p@(Path_Look k _)) x) = Just "Report"
-          describe _ (Peek_MRR_ReportValueApproachInfo (p@(Path_Look k _)) x) = Just "Report"
-          describe _ (Peek_MRR_ReportValueTypeInfo (p@(Path_Look k _)) x) = Just "Report"
-          describe _ (Peek_MRR_EUI (p@(Path_Look k _)) x) = Just "Report"
-          describe _ (Peek_MRR_MEUI (p@(Path_Look k _)) x) = Just "Report"
-          describe _ (Peek_MRR_MaybeImageFile (p@(Path_Look k _)) x) = Just "Report"
-          describe _ (Peek_MRR_ReportImage (p@(Path_Look k _)) x) = Just "Report"
-          describe _ (Peek_MRR_ReportImages (p@(Path_Look k _)) x) = Just "Report"
-          describe _ (Peek_MRR_ReadOnlyFilePath (p@(Path_Look k _)) x) = Just "Report"
-          describe _ (Peek_MRR_ReportImageView (p@(Path_Look k _)) x) = Just "Report"
-          describe _ (Peek_MRR_ReportView (p@(Path_Look k _)) x) = Just "Report"
-          describe _ (Peek_MRR_SaneSizeImageSize (p@(Path_Look k _)) x) = Just "Report"
-          describe _ (Peek_MRR_Item (p@(Path_Look k _)) x) = Just "Report"
-          describe _ (Peek_MRR_MIM (p@(Path_Look k _)) x) = Just "Report"
-          describe _ (Peek_MRR_CIString (p@(Path_Look k _)) x) = Just "Report"
-          describe _ (Peek_MRR_URI (p@(Path_Look k _)) x) = Just "Report"
-          describe _ (Peek_MRR_Text (p@(Path_Look k _)) x) = Just "Report"
-          describe _ (Peek_MRR_UserId (p@(Path_Look k _)) x) = Just "Report"
-          describe _ (Peek_MRR_UUID (p@(Path_Look k _)) x) = Just "Report"
+    where describe _ (Peek_MRR_String (p@(Path_Look k wp)) x) = maybe (Just "Report") Just (maybe Nothing Just (describe Nothing (Peek_Report_String wp undefined)))
+          describe _ (Peek_MRR_Int64 (p@(Path_Look k wp)) x) = maybe (Just "Report") Just (maybe Nothing Just (describe Nothing (Peek_Report_Int64 wp undefined)))
+          describe _ (Peek_MRR_Int (p@(Path_Look k wp)) x) = maybe (Just "Report") Just (maybe Nothing Just (describe Nothing (Peek_Report_Int wp undefined)))
+          describe _ (Peek_MRR_Bool (p@(Path_Look k wp)) x) = maybe (Just "Report") Just (maybe Nothing Just (describe Nothing (Peek_Report_Bool wp undefined)))
+          describe _ (Peek_MRR_Double (p@(Path_Look k wp)) x) = maybe (Just "Report") Just (maybe Nothing Just (describe Nothing (Peek_Report_Double wp undefined)))
+          describe _ (Peek_MRR_Dimension (p@(Path_Look k wp)) x) = maybe (Just "Report") Just (maybe Nothing Just (describe Nothing (Peek_Report_Dimension wp undefined)))
+          describe _ (Peek_MRR_ImageCrop (p@(Path_Look k wp)) x) = maybe (Just "Report") Just (maybe Nothing Just (describe Nothing (Peek_Report_ImageCrop wp undefined)))
+          describe _ (Peek_MRR_ImageSize (p@(Path_Look k wp)) x) = maybe (Just "Report") Just (maybe Nothing Just (describe Nothing (Peek_Report_ImageSize wp undefined)))
+          describe _ (Peek_MRR_Units (p@(Path_Look k wp)) x) = maybe (Just "Report") Just (maybe Nothing Just (describe Nothing (Peek_Report_Units wp undefined)))
+          describe _ (Peek_MRR_ImageFile (p@(Path_Look k wp)) x) = maybe (Just "Report") Just (maybe Nothing Just (describe Nothing (Peek_Report_ImageFile wp undefined)))
+          describe _ (Peek_MRR_Integer (p@(Path_Look k wp)) x) = maybe (Just "Report") Just (maybe Nothing Just (describe Nothing (Peek_Report_Integer wp undefined)))
+          describe _ (Peek_MRR_JSONText (p@(Path_Look k wp)) x) = maybe (Just "Report") Just (maybe Nothing Just (describe Nothing (Peek_Report_JSONText wp undefined)))
+          describe _ (Peek_MRR_Markup (p@(Path_Look k wp)) x) = maybe (Just "Report") Just (maybe Nothing Just (describe Nothing (Peek_Report_Markup wp undefined)))
+          describe _ (Peek_MRR_Permissions (p@(Path_Look k wp)) x) = maybe (Just "Report") Just (maybe Nothing Just (describe Nothing (Peek_Report_Permissions wp undefined)))
+          describe _ (Peek_MRR_UserIds (p@(Path_Look k wp)) x) = maybe (Just "Report") Just (maybe Nothing Just (describe Nothing (Peek_Report_UserIds wp undefined)))
+          describe _ (Peek_MRR_AbbrevPair (p@(Path_Look k wp)) x) = maybe (Just "Report") Just (maybe Nothing Just (describe Nothing (Peek_Report_AbbrevPair wp undefined)))
+          describe _ (Peek_MRR_AbbrevPairs (p@(Path_Look k wp)) x) = maybe (Just "Report") Just (maybe Nothing Just (describe Nothing (Peek_Report_AbbrevPairs wp undefined)))
+          describe _ (Peek_MRR_Author (p@(Path_Look k wp)) x) = maybe (Just "Report") Just (maybe Nothing Just (describe Nothing (Peek_Report_Author wp undefined)))
+          describe _ (Peek_MRR_Authors (p@(Path_Look k wp)) x) = maybe (Just "Report") Just (maybe Nothing Just (describe Nothing (Peek_Report_Authors wp undefined)))
+          describe _ (Peek_MRR_Branding (p@(Path_Look k wp)) x) = maybe (Just "Report") Just (maybe Nothing Just (describe Nothing (Peek_Report_Branding wp undefined)))
+          describe _ (Peek_MRR_MarkupPair (p@(Path_Look k wp)) x) = maybe (Just "Report") Just (maybe Nothing Just (describe Nothing (Peek_Report_MarkupPair wp undefined)))
+          describe _ (Peek_MRR_MarkupPairs (p@(Path_Look k wp)) x) = maybe (Just "Report") Just (maybe Nothing Just (describe Nothing (Peek_Report_MarkupPairs wp undefined)))
+          describe _ (Peek_MRR_Markups (p@(Path_Look k wp)) x) = maybe (Just "Report") Just (maybe Nothing Just (describe Nothing (Peek_Report_Markups wp undefined)))
+          describe _ (Peek_MRR_MaybeReportIntendedUse (p@(Path_Look k wp))
+                                                      x) = maybe (Just "Report") Just (maybe Nothing Just (describe Nothing (Peek_Report_MaybeReportIntendedUse wp undefined)))
+          describe _ (Peek_MRR_Report (p@(Path_Look k wp)) x) = maybe (Just "Report") Just (maybe Nothing Just Nothing)
+          describe _ (Peek_MRR_ReportElem (p@(Path_Look k wp)) x) = maybe (Just "Report") Just (maybe Nothing Just (describe Nothing (Peek_Report_ReportElem wp undefined)))
+          describe _ (Peek_MRR_ReportElems (p@(Path_Look k wp)) x) = maybe (Just "Report") Just (maybe Nothing Just (describe Nothing (Peek_Report_ReportElems wp undefined)))
+          describe _ (Peek_MRR_ReportFlags (p@(Path_Look k wp)) x) = maybe (Just "Report") Just (maybe Nothing Just (describe Nothing (Peek_Report_ReportFlags wp undefined)))
+          describe _ (Peek_MRR_ReportStandard (p@(Path_Look k wp))
+                                              x) = maybe (Just "Report") Just (maybe Nothing Just (describe Nothing (Peek_Report_ReportStandard wp undefined)))
+          describe _ (Peek_MRR_ReportStatus (p@(Path_Look k wp)) x) = maybe (Just "Report") Just (maybe Nothing Just (describe Nothing (Peek_Report_ReportStatus wp undefined)))
+          describe _ (Peek_MRR_ReportValueApproachInfo (p@(Path_Look k wp))
+                                                       x) = maybe (Just "Report") Just (maybe Nothing Just (describe Nothing (Peek_Report_ReportValueApproachInfo wp undefined)))
+          describe _ (Peek_MRR_ReportValueTypeInfo (p@(Path_Look k wp))
+                                                   x) = maybe (Just "Report") Just (maybe Nothing Just (describe Nothing (Peek_Report_ReportValueTypeInfo wp undefined)))
+          describe _ (Peek_MRR_EUI (p@(Path_Look k wp)) x) = maybe (Just "Report") Just (maybe Nothing Just (describe Nothing (Peek_Report_EUI wp undefined)))
+          describe _ (Peek_MRR_MEUI (p@(Path_Look k wp)) x) = maybe (Just "Report") Just (maybe Nothing Just (describe Nothing (Peek_Report_MEUI wp undefined)))
+          describe _ (Peek_MRR_MaybeImageFile (p@(Path_Look k wp))
+                                              x) = maybe (Just "Report") Just (maybe Nothing Just (describe Nothing (Peek_Report_MaybeImageFile wp undefined)))
+          describe _ (Peek_MRR_ReportImage (p@(Path_Look k wp)) x) = maybe (Just "Report") Just (maybe Nothing Just (describe Nothing (Peek_Report_ReportImage wp undefined)))
+          describe _ (Peek_MRR_ReportImages (p@(Path_Look k wp)) x) = maybe (Just "Report") Just (maybe Nothing Just (describe Nothing (Peek_Report_ReportImages wp undefined)))
+          describe _ (Peek_MRR_ReadOnlyFilePath (p@(Path_Look k wp))
+                                                x) = maybe (Just "Report") Just (maybe Nothing Just (describe Nothing (Peek_Report_ReadOnlyFilePath wp undefined)))
+          describe _ (Peek_MRR_ReportImageView (p@(Path_Look k wp))
+                                               x) = maybe (Just "Report") Just (maybe Nothing Just (describe Nothing (Peek_Report_ReportImageView wp undefined)))
+          describe _ (Peek_MRR_ReportView (p@(Path_Look k wp)) x) = maybe (Just "Report") Just (maybe Nothing Just (describe Nothing (Peek_Report_ReportView wp undefined)))
+          describe _ (Peek_MRR_SaneSizeImageSize (p@(Path_Look k wp))
+                                                 x) = maybe (Just "Report") Just (maybe Nothing Just (describe Nothing (Peek_Report_SaneSizeImageSize wp undefined)))
+          describe _ (Peek_MRR_Item (p@(Path_Look k wp)) x) = maybe (Just "Report") Just (maybe Nothing Just (describe Nothing (Peek_Report_Item wp undefined)))
+          describe _ (Peek_MRR_MIM (p@(Path_Look k wp)) x) = maybe (Just "Report") Just (maybe Nothing Just (describe Nothing (Peek_Report_MIM wp undefined)))
+          describe _ (Peek_MRR_CIString (p@(Path_Look k wp)) x) = maybe (Just "Report") Just (maybe Nothing Just (describe Nothing (Peek_Report_CIString wp undefined)))
+          describe _ (Peek_MRR_URI (p@(Path_Look k wp)) x) = maybe (Just "Report") Just (maybe Nothing Just (describe Nothing (Peek_Report_URI wp undefined)))
+          describe _ (Peek_MRR_Text (p@(Path_Look k wp)) x) = maybe (Just "Report") Just (maybe Nothing Just (describe Nothing (Peek_Report_Text wp undefined)))
+          describe _ (Peek_MRR_UserId (p@(Path_Look k wp)) x) = maybe (Just "Report") Just (maybe Nothing Just (describe Nothing (Peek_Report_UserId wp undefined)))
+          describe _ (Peek_MRR_UUID (p@(Path_Look k wp)) x) = maybe (Just "Report") Just (maybe Nothing Just (describe Nothing (Peek_Report_UUID wp undefined)))
 instance Describe (Peek (Order AbbrevPairID ((CIString, Markup))))
-    where describe _ (Peek_AbbrevPairs_JSONText (p@(Path_At k _)) x) = Just "Abbrev Pair"
-          describe _ (Peek_AbbrevPairs_Markup (p@(Path_At k _)) x) = Just "Abbrev Pair"
-          describe _ (Peek_AbbrevPairs_AbbrevPair (p@(Path_At k _)) x) = Just "Abbrev Pair"
-          describe _ (Peek_AbbrevPairs_CIString (p@(Path_At k _)) x) = Just "Abbrev Pair"
-          describe _ (Peek_AbbrevPairs_Text (p@(Path_At k _)) x) = Just "Abbrev Pair"
+    where describe _ (Peek_AbbrevPairs_JSONText (p@(Path_At k wp))
+                                                x) = maybe (Just "Abbrev Pair") Just (maybe Nothing Just (describe Nothing (Peek_AbbrevPair_JSONText wp undefined)))
+          describe _ (Peek_AbbrevPairs_Markup (p@(Path_At k wp))
+                                              x) = maybe (Just "Abbrev Pair") Just (maybe Nothing Just (describe Nothing (Peek_AbbrevPair_Markup wp undefined)))
+          describe _ (Peek_AbbrevPairs_AbbrevPair (p@(Path_At k wp)) x) = maybe (Just "Abbrev Pair") Just (maybe Nothing Just Nothing)
+          describe _ (Peek_AbbrevPairs_CIString (p@(Path_At k wp))
+                                                x) = maybe (Just "Abbrev Pair") Just (maybe Nothing Just (describe Nothing (Peek_AbbrevPair_CIString wp undefined)))
+          describe _ (Peek_AbbrevPairs_Text (p@(Path_At k wp)) x) = maybe (Just "Abbrev Pair") Just (maybe Nothing Just (describe Nothing (Peek_AbbrevPair_Text wp undefined)))
 instance Describe (Peek (Order AuthorID Author))
-    where describe _ (Peek_Authors_JSONText (p@(Path_At k _)) x) = Just "Author"
-          describe _ (Peek_Authors_Markup (p@(Path_At k _)) x) = Just "Author"
-          describe _ (Peek_Authors_Author (p@(Path_At k _)) x) = Just "Author"
-          describe _ (Peek_Authors_Text (p@(Path_At k _)) x) = Just "Author"
+    where describe _ (Peek_Authors_JSONText (p@(Path_At k wp)) x) = maybe (Just "Author") Just (maybe Nothing Just (describe Nothing (Peek_Author_JSONText wp undefined)))
+          describe _ (Peek_Authors_Markup (p@(Path_At k wp)) x) = maybe (Just "Author") Just (maybe Nothing Just (describe Nothing (Peek_Author_Markup wp undefined)))
+          describe _ (Peek_Authors_Author (p@(Path_At k wp)) x) = maybe (Just "Author") Just (maybe Nothing Just Nothing)
+          describe _ (Peek_Authors_Text (p@(Path_At k wp)) x) = maybe (Just "Author") Just (maybe Nothing Just (describe Nothing (Peek_Author_Text wp undefined)))
 instance Describe (Peek (Order MarkupID Markup))
-    where describe _ (Peek_Markups_JSONText (p@(Path_At k _)) x) = fromMaybe (Just "Markup") (describe Nothing (Proxy :: Proxy Markup))
-          describe _ (Peek_Markups_Markup (p@(Path_At k _)) x) = fromMaybe (Just "Markup") (describe Nothing (Proxy :: Proxy Markup))
-          describe _ (Peek_Markups_Text (p@(Path_At k _)) x) = fromMaybe (Just "Markup") (describe Nothing (Proxy :: Proxy Markup))
+    where describe _ (Peek_Markups_JSONText (p@(Path_At k wp))
+                                            x) = maybe (Just "Markup") Just (maybe (describe Nothing (Proxy :: Proxy Markup)) Just (describe Nothing (Peek_Markup_JSONText wp undefined)))
+          describe _ (Peek_Markups_Markup (p@(Path_At k wp)) x) = maybe (Just "Markup") Just (maybe (describe Nothing (Proxy :: Proxy Markup)) Just Nothing)
+          describe _ (Peek_Markups_Text (p@(Path_At k wp))
+                                        x) = maybe (Just "Markup") Just (maybe (describe Nothing (Proxy :: Proxy Markup)) Just (describe Nothing (Peek_Markup_Text wp undefined)))
 instance Describe (Peek (Order MarkupPairID ((Markup, Markup))))
-    where describe _ (Peek_MarkupPairs_JSONText (p@(Path_At k _)) x) = Just "Markup Pair"
-          describe _ (Peek_MarkupPairs_Markup (p@(Path_At k _)) x) = Just "Markup Pair"
-          describe _ (Peek_MarkupPairs_MarkupPair (p@(Path_At k _)) x) = Just "Markup Pair"
-          describe _ (Peek_MarkupPairs_Text (p@(Path_At k _)) x) = Just "Markup Pair"
+    where describe _ (Peek_MarkupPairs_JSONText (p@(Path_At k wp))
+                                                x) = maybe (Just "Markup Pair") Just (maybe Nothing Just (describe Nothing (Peek_MarkupPair_JSONText wp undefined)))
+          describe _ (Peek_MarkupPairs_Markup (p@(Path_At k wp))
+                                              x) = maybe (Just "Markup Pair") Just (maybe Nothing Just (describe Nothing (Peek_MarkupPair_Markup wp undefined)))
+          describe _ (Peek_MarkupPairs_MarkupPair (p@(Path_At k wp)) x) = maybe (Just "Markup Pair") Just (maybe Nothing Just Nothing)
+          describe _ (Peek_MarkupPairs_Text (p@(Path_At k wp)) x) = maybe (Just "Markup Pair") Just (maybe Nothing Just (describe Nothing (Peek_MarkupPair_Text wp undefined)))
 instance Describe (Peek (Order ReportElemID ReportElem))
-    where describe _ (Peek_ReportElems_String (p@(Path_At k _)) x) = Just "Report Elem"
-          describe _ (Peek_ReportElems_Bool (p@(Path_At k _)) x) = Just "Report Elem"
-          describe _ (Peek_ReportElems_Double (p@(Path_At k _)) x) = Just "Report Elem"
-          describe _ (Peek_ReportElems_Dimension (p@(Path_At k _)) x) = Just "Report Elem"
-          describe _ (Peek_ReportElems_ImageCrop (p@(Path_At k _)) x) = Just "Report Elem"
-          describe _ (Peek_ReportElems_ImageSize (p@(Path_At k _)) x) = Just "Report Elem"
-          describe _ (Peek_ReportElems_Units (p@(Path_At k _)) x) = Just "Report Elem"
-          describe _ (Peek_ReportElems_ImageFile (p@(Path_At k _)) x) = Just "Report Elem"
-          describe _ (Peek_ReportElems_JSONText (p@(Path_At k _)) x) = Just "Report Elem"
-          describe _ (Peek_ReportElems_Markup (p@(Path_At k _)) x) = Just "Report Elem"
-          describe _ (Peek_ReportElems_ReportElem (p@(Path_At k _)) x) = Just "Report Elem"
-          describe _ (Peek_ReportElems_EUI (p@(Path_At k _)) x) = Just "Report Elem"
-          describe _ (Peek_ReportElems_MEUI (p@(Path_At k _)) x) = Just "Report Elem"
-          describe _ (Peek_ReportElems_MaybeImageFile (p@(Path_At k _)) x) = Just "Report Elem"
-          describe _ (Peek_ReportElems_ReportImage (p@(Path_At k _)) x) = Just "Report Elem"
-          describe _ (Peek_ReportElems_ReportImages (p@(Path_At k _)) x) = Just "Report Elem"
-          describe _ (Peek_ReportElems_ReportImageView (p@(Path_At k _)) x) = Just "Report Elem"
-          describe _ (Peek_ReportElems_SaneSizeImageSize (p@(Path_At k _)) x) = Just "Report Elem"
-          describe _ (Peek_ReportElems_Item (p@(Path_At k _)) x) = Just "Report Elem"
-          describe _ (Peek_ReportElems_MIM (p@(Path_At k _)) x) = Just "Report Elem"
-          describe _ (Peek_ReportElems_URI (p@(Path_At k _)) x) = Just "Report Elem"
-          describe _ (Peek_ReportElems_Text (p@(Path_At k _)) x) = Just "Report Elem"
+    where describe _ (Peek_ReportElems_String (p@(Path_At k wp))
+                                              x) = maybe (Just "Report Elem") Just (maybe Nothing Just (describe Nothing (Peek_ReportElem_String wp undefined)))
+          describe _ (Peek_ReportElems_Bool (p@(Path_At k wp)) x) = maybe (Just "Report Elem") Just (maybe Nothing Just (describe Nothing (Peek_ReportElem_Bool wp undefined)))
+          describe _ (Peek_ReportElems_Double (p@(Path_At k wp))
+                                              x) = maybe (Just "Report Elem") Just (maybe Nothing Just (describe Nothing (Peek_ReportElem_Double wp undefined)))
+          describe _ (Peek_ReportElems_Dimension (p@(Path_At k wp))
+                                                 x) = maybe (Just "Report Elem") Just (maybe Nothing Just (describe Nothing (Peek_ReportElem_Dimension wp undefined)))
+          describe _ (Peek_ReportElems_ImageCrop (p@(Path_At k wp))
+                                                 x) = maybe (Just "Report Elem") Just (maybe Nothing Just (describe Nothing (Peek_ReportElem_ImageCrop wp undefined)))
+          describe _ (Peek_ReportElems_ImageSize (p@(Path_At k wp))
+                                                 x) = maybe (Just "Report Elem") Just (maybe Nothing Just (describe Nothing (Peek_ReportElem_ImageSize wp undefined)))
+          describe _ (Peek_ReportElems_Units (p@(Path_At k wp)) x) = maybe (Just "Report Elem") Just (maybe Nothing Just (describe Nothing (Peek_ReportElem_Units wp undefined)))
+          describe _ (Peek_ReportElems_ImageFile (p@(Path_At k wp))
+                                                 x) = maybe (Just "Report Elem") Just (maybe Nothing Just (describe Nothing (Peek_ReportElem_ImageFile wp undefined)))
+          describe _ (Peek_ReportElems_JSONText (p@(Path_At k wp))
+                                                x) = maybe (Just "Report Elem") Just (maybe Nothing Just (describe Nothing (Peek_ReportElem_JSONText wp undefined)))
+          describe _ (Peek_ReportElems_Markup (p@(Path_At k wp))
+                                              x) = maybe (Just "Report Elem") Just (maybe Nothing Just (describe Nothing (Peek_ReportElem_Markup wp undefined)))
+          describe _ (Peek_ReportElems_ReportElem (p@(Path_At k wp)) x) = maybe (Just "Report Elem") Just (maybe Nothing Just Nothing)
+          describe _ (Peek_ReportElems_EUI (p@(Path_At k wp)) x) = maybe (Just "Report Elem") Just (maybe Nothing Just (describe Nothing (Peek_ReportElem_EUI wp undefined)))
+          describe _ (Peek_ReportElems_MEUI (p@(Path_At k wp)) x) = maybe (Just "Report Elem") Just (maybe Nothing Just (describe Nothing (Peek_ReportElem_MEUI wp undefined)))
+          describe _ (Peek_ReportElems_MaybeImageFile (p@(Path_At k wp))
+                                                      x) = maybe (Just "Report Elem") Just (maybe Nothing Just (describe Nothing (Peek_ReportElem_MaybeImageFile wp undefined)))
+          describe _ (Peek_ReportElems_ReportImage (p@(Path_At k wp))
+                                                   x) = maybe (Just "Report Elem") Just (maybe Nothing Just (describe Nothing (Peek_ReportElem_ReportImage wp undefined)))
+          describe _ (Peek_ReportElems_ReportImages (p@(Path_At k wp))
+                                                    x) = maybe (Just "Report Elem") Just (maybe Nothing Just (describe Nothing (Peek_ReportElem_ReportImages wp undefined)))
+          describe _ (Peek_ReportElems_ReportImageView (p@(Path_At k wp))
+                                                       x) = maybe (Just "Report Elem") Just (maybe Nothing Just (describe Nothing (Peek_ReportElem_ReportImageView wp undefined)))
+          describe _ (Peek_ReportElems_SaneSizeImageSize (p@(Path_At k wp))
+                                                         x) = maybe (Just "Report Elem") Just (maybe Nothing Just (describe Nothing (Peek_ReportElem_SaneSizeImageSize wp undefined)))
+          describe _ (Peek_ReportElems_Item (p@(Path_At k wp)) x) = maybe (Just "Report Elem") Just (maybe Nothing Just (describe Nothing (Peek_ReportElem_Item wp undefined)))
+          describe _ (Peek_ReportElems_MIM (p@(Path_At k wp)) x) = maybe (Just "Report Elem") Just (maybe Nothing Just (describe Nothing (Peek_ReportElem_MIM wp undefined)))
+          describe _ (Peek_ReportElems_URI (p@(Path_At k wp)) x) = maybe (Just "Report Elem") Just (maybe Nothing Just (describe Nothing (Peek_ReportElem_URI wp undefined)))
+          describe _ (Peek_ReportElems_Text (p@(Path_At k wp)) x) = maybe (Just "Report Elem") Just (maybe Nothing Just (describe Nothing (Peek_ReportElem_Text wp undefined)))
 instance Describe (Peek (Order ReportImageID ReportImage))
-    where describe _ (Peek_ReportImages_String (p@(Path_At k _)) x) = Just "Report Image"
-          describe _ (Peek_ReportImages_Bool (p@(Path_At k _)) x) = Just "Report Image"
-          describe _ (Peek_ReportImages_Double (p@(Path_At k _)) x) = Just "Report Image"
-          describe _ (Peek_ReportImages_Dimension (p@(Path_At k _)) x) = Just "Report Image"
-          describe _ (Peek_ReportImages_ImageCrop (p@(Path_At k _)) x) = Just "Report Image"
-          describe _ (Peek_ReportImages_ImageSize (p@(Path_At k _)) x) = Just "Report Image"
-          describe _ (Peek_ReportImages_Units (p@(Path_At k _)) x) = Just "Report Image"
-          describe _ (Peek_ReportImages_ImageFile (p@(Path_At k _)) x) = Just "Report Image"
-          describe _ (Peek_ReportImages_JSONText (p@(Path_At k _)) x) = Just "Report Image"
-          describe _ (Peek_ReportImages_Markup (p@(Path_At k _)) x) = Just "Report Image"
-          describe _ (Peek_ReportImages_EUI (p@(Path_At k _)) x) = Just "Report Image"
-          describe _ (Peek_ReportImages_MEUI (p@(Path_At k _)) x) = Just "Report Image"
-          describe _ (Peek_ReportImages_MaybeImageFile (p@(Path_At k _)) x) = Just "Report Image"
-          describe _ (Peek_ReportImages_ReportImage (p@(Path_At k _)) x) = Just "Report Image"
-          describe _ (Peek_ReportImages_ReportImageView (p@(Path_At k _)) x) = Just "Report Image"
-          describe _ (Peek_ReportImages_SaneSizeImageSize (p@(Path_At k _)) x) = Just "Report Image"
-          describe _ (Peek_ReportImages_URI (p@(Path_At k _)) x) = Just "Report Image"
-          describe _ (Peek_ReportImages_Text (p@(Path_At k _)) x) = Just "Report Image"
+    where describe _ (Peek_ReportImages_String (p@(Path_At k wp))
+                                               x) = maybe (Just "Report Image") Just (maybe Nothing Just (describe Nothing (Peek_ReportImage_String wp undefined)))
+          describe _ (Peek_ReportImages_Bool (p@(Path_At k wp))
+                                             x) = maybe (Just "Report Image") Just (maybe Nothing Just (describe Nothing (Peek_ReportImage_Bool wp undefined)))
+          describe _ (Peek_ReportImages_Double (p@(Path_At k wp))
+                                               x) = maybe (Just "Report Image") Just (maybe Nothing Just (describe Nothing (Peek_ReportImage_Double wp undefined)))
+          describe _ (Peek_ReportImages_Dimension (p@(Path_At k wp))
+                                                  x) = maybe (Just "Report Image") Just (maybe Nothing Just (describe Nothing (Peek_ReportImage_Dimension wp undefined)))
+          describe _ (Peek_ReportImages_ImageCrop (p@(Path_At k wp))
+                                                  x) = maybe (Just "Report Image") Just (maybe Nothing Just (describe Nothing (Peek_ReportImage_ImageCrop wp undefined)))
+          describe _ (Peek_ReportImages_ImageSize (p@(Path_At k wp))
+                                                  x) = maybe (Just "Report Image") Just (maybe Nothing Just (describe Nothing (Peek_ReportImage_ImageSize wp undefined)))
+          describe _ (Peek_ReportImages_Units (p@(Path_At k wp))
+                                              x) = maybe (Just "Report Image") Just (maybe Nothing Just (describe Nothing (Peek_ReportImage_Units wp undefined)))
+          describe _ (Peek_ReportImages_ImageFile (p@(Path_At k wp))
+                                                  x) = maybe (Just "Report Image") Just (maybe Nothing Just (describe Nothing (Peek_ReportImage_ImageFile wp undefined)))
+          describe _ (Peek_ReportImages_JSONText (p@(Path_At k wp))
+                                                 x) = maybe (Just "Report Image") Just (maybe Nothing Just (describe Nothing (Peek_ReportImage_JSONText wp undefined)))
+          describe _ (Peek_ReportImages_Markup (p@(Path_At k wp))
+                                               x) = maybe (Just "Report Image") Just (maybe Nothing Just (describe Nothing (Peek_ReportImage_Markup wp undefined)))
+          describe _ (Peek_ReportImages_EUI (p@(Path_At k wp)) x) = maybe (Just "Report Image") Just (maybe Nothing Just (describe Nothing (Peek_ReportImage_EUI wp undefined)))
+          describe _ (Peek_ReportImages_MEUI (p@(Path_At k wp))
+                                             x) = maybe (Just "Report Image") Just (maybe Nothing Just (describe Nothing (Peek_ReportImage_MEUI wp undefined)))
+          describe _ (Peek_ReportImages_MaybeImageFile (p@(Path_At k wp))
+                                                       x) = maybe (Just "Report Image") Just (maybe Nothing Just (describe Nothing (Peek_ReportImage_MaybeImageFile wp undefined)))
+          describe _ (Peek_ReportImages_ReportImage (p@(Path_At k wp)) x) = maybe (Just "Report Image") Just (maybe Nothing Just Nothing)
+          describe _ (Peek_ReportImages_ReportImageView (p@(Path_At k wp))
+                                                        x) = maybe (Just "Report Image") Just (maybe Nothing Just (describe Nothing (Peek_ReportImage_ReportImageView wp undefined)))
+          describe _ (Peek_ReportImages_SaneSizeImageSize (p@(Path_At k wp))
+                                                          x) = maybe (Just "Report Image") Just (maybe Nothing Just (describe Nothing (Peek_ReportImage_SaneSizeImageSize wp undefined)))
+          describe _ (Peek_ReportImages_URI (p@(Path_At k wp)) x) = maybe (Just "Report Image") Just (maybe Nothing Just (describe Nothing (Peek_ReportImage_URI wp undefined)))
+          describe _ (Peek_ReportImages_Text (p@(Path_At k wp))
+                                             x) = maybe (Just "Report Image") Just (maybe Nothing Just (describe Nothing (Peek_ReportImage_Text wp undefined)))
 instance Describe (Peek ((Markup, Markup)))
-    where describe _ (Peek_MarkupPair_JSONText (p@(Path_First _)) x) = fromMaybe (Just "Markup") (describe Nothing (Proxy :: Proxy Markup))
-          describe _ (Peek_MarkupPair_Markup (p@(Path_First _)) x) = fromMaybe (Just "Markup") (describe Nothing (Proxy :: Proxy Markup))
-          describe _ (Peek_MarkupPair_Text (p@(Path_First _)) x) = fromMaybe (Just "Markup") (describe Nothing (Proxy :: Proxy Markup))
-          describe _ (Peek_MarkupPair_JSONText (p@(Path_Second _)) x) = fromMaybe (Just "Markup") (describe Nothing (Proxy :: Proxy Markup))
-          describe _ (Peek_MarkupPair_Markup (p@(Path_Second _)) x) = fromMaybe (Just "Markup") (describe Nothing (Proxy :: Proxy Markup))
-          describe _ (Peek_MarkupPair_Text (p@(Path_Second _)) x) = fromMaybe (Just "Markup") (describe Nothing (Proxy :: Proxy Markup))
+    where describe _ (Peek_MarkupPair_JSONText (p@(Path_First wp))
+                                               x) = maybe (Just "Markup") Just (maybe (describe Nothing (Proxy :: Proxy Markup)) Just (describe Nothing (Peek_Markup_JSONText wp undefined)))
+          describe _ (Peek_MarkupPair_Markup (p@(Path_First wp)) x) = maybe (Just "Markup") Just (maybe (describe Nothing (Proxy :: Proxy Markup)) Just Nothing)
+          describe _ (Peek_MarkupPair_Text (p@(Path_First wp))
+                                           x) = maybe (Just "Markup") Just (maybe (describe Nothing (Proxy :: Proxy Markup)) Just (describe Nothing (Peek_Markup_Text wp undefined)))
+          describe _ (Peek_MarkupPair_JSONText (p@(Path_Second wp))
+                                               x) = maybe (Just "Markup") Just (maybe (describe Nothing (Proxy :: Proxy Markup)) Just (describe Nothing (Peek_Markup_JSONText wp undefined)))
+          describe _ (Peek_MarkupPair_Markup (p@(Path_Second wp)) x) = maybe (Just "Markup") Just (maybe (describe Nothing (Proxy :: Proxy Markup)) Just Nothing)
+          describe _ (Peek_MarkupPair_Text (p@(Path_Second wp))
+                                           x) = maybe (Just "Markup") Just (maybe (describe Nothing (Proxy :: Proxy Markup)) Just (describe Nothing (Peek_Markup_Text wp undefined)))
 instance Describe (Peek ((CIString, Markup)))
-    where describe _ (Peek_AbbrevPair_JSONText (p@(Path_First _)) x) = Just "CIString"
-          describe _ (Peek_AbbrevPair_CIString (p@(Path_First _)) x) = Just "CIString"
-          describe _ (Peek_AbbrevPair_Text (p@(Path_First _)) x) = Just "CIString"
-          describe _ (Peek_AbbrevPair_JSONText (p@(Path_Second _)) x) = fromMaybe (Just "Markup") (describe Nothing (Proxy :: Proxy Markup))
-          describe _ (Peek_AbbrevPair_Markup (p@(Path_Second _)) x) = fromMaybe (Just "Markup") (describe Nothing (Proxy :: Proxy Markup))
-          describe _ (Peek_AbbrevPair_Text (p@(Path_Second _)) x) = fromMaybe (Just "Markup") (describe Nothing (Proxy :: Proxy Markup))
+    where describe _ (Peek_AbbrevPair_JSONText (p@(Path_First wp))
+                                               x) = maybe (Just "CIString") Just (maybe Nothing Just (describe Nothing (Peek_CIString_JSONText wp undefined)))
+          describe _ (Peek_AbbrevPair_CIString (p@(Path_First wp)) x) = maybe (Just "CIString") Just (maybe Nothing Just Nothing)
+          describe _ (Peek_AbbrevPair_Text (p@(Path_First wp)) x) = maybe (Just "CIString") Just (maybe Nothing Just (describe Nothing (Peek_CIString_Text wp undefined)))
+          describe _ (Peek_AbbrevPair_JSONText (p@(Path_Second wp))
+                                               x) = maybe (Just "Markup") Just (maybe (describe Nothing (Proxy :: Proxy Markup)) Just (describe Nothing (Peek_Markup_JSONText wp undefined)))
+          describe _ (Peek_AbbrevPair_Markup (p@(Path_Second wp)) x) = maybe (Just "Markup") Just (maybe (describe Nothing (Proxy :: Proxy Markup)) Just Nothing)
+          describe _ (Peek_AbbrevPair_Text (p@(Path_Second wp))
+                                           x) = maybe (Just "Markup") Just (maybe (describe Nothing (Proxy :: Proxy Markup)) Just (describe Nothing (Peek_Markup_Text wp undefined)))
 instance Describe (Peek (Maybe (Either URI ImageFile)))
-    where describe _ (Peek_MEUI_ImageFile (p@(Path_Just _)) x) = Just "EUI"
-          describe _ (Peek_MEUI_EUI (p@(Path_Just _)) x) = Just "EUI"
-          describe _ (Peek_MEUI_URI (p@(Path_Just _)) x) = Just "EUI"
+    where describe _ (Peek_MEUI_ImageFile (p@(Path_Just wp)) x) = maybe (Just "EUI") Just (maybe Nothing Just (describe Nothing (Peek_EUI_ImageFile wp undefined)))
+          describe _ (Peek_MEUI_EUI (p@(Path_Just wp)) x) = maybe (Just "EUI") Just (maybe Nothing Just Nothing)
+          describe _ (Peek_MEUI_URI (p@(Path_Just wp)) x) = maybe (Just "EUI") Just (maybe Nothing Just (describe Nothing (Peek_EUI_URI wp undefined)))
 instance Describe (Peek (Maybe ImageFile))
-    where describe _ (Peek_MaybeImageFile_String (p@(Path_MaybeImageFile_View _)) x) = Just "String"
-          describe _ (Peek_MaybeImageFile_JSONText (p@(Path_MaybeImageFile_View _)) x) = Just "String"
+    where describe _ (Peek_MaybeImageFile_String (p@(Path_MaybeImageFile_View wp)) x) = maybe (Just "String") Just (maybe Nothing Just Nothing)
+          describe _ (Peek_MaybeImageFile_JSONText (p@(Path_MaybeImageFile_View wp))
+                                                   x) = maybe (Just "String") Just (maybe Nothing Just (describe Nothing (Peek_String_JSONText wp undefined)))
 instance Describe (Peek (Maybe ReportIntendedUse))
-    where describe _ (Peek_MaybeReportIntendedUse_String (p@(Path_MaybeReportIntendedUse_View _)) x) = Just "String"
-          describe _ (Peek_MaybeReportIntendedUse_JSONText (p@(Path_MaybeReportIntendedUse_View _)) x) = Just "String"
+    where describe _ (Peek_MaybeReportIntendedUse_String (p@(Path_MaybeReportIntendedUse_View wp)) x) = maybe (Just "String") Just (maybe Nothing Just Nothing)
+          describe _ (Peek_MaybeReportIntendedUse_JSONText (p@(Path_MaybeReportIntendedUse_View wp))
+                                                           x) = maybe (Just "String") Just (maybe Nothing Just (describe Nothing (Peek_String_JSONText wp undefined)))
 instance Describe (Peek (ReadOnly ([Char])))
-    where describe _ (Peek_ReadOnlyFilePath_String (p@(Path_ReadOnlyFilePath_View _)) x) = Just "String"
-          describe _ (Peek_ReadOnlyFilePath_JSONText (p@(Path_ReadOnlyFilePath_View _)) x) = Just "String"
+    where describe _ (Peek_ReadOnlyFilePath_String (p@(Path_ReadOnlyFilePath_View wp)) x) = maybe (Just "String") Just (maybe Nothing Just Nothing)
+          describe _ (Peek_ReadOnlyFilePath_JSONText (p@(Path_ReadOnlyFilePath_View wp))
+                                                     x) = maybe (Just "String") Just (maybe Nothing Just (describe Nothing (Peek_String_JSONText wp undefined)))
 instance Describe (Peek (SaneSize ImageSize))
-    where describe _ (Peek_SaneSizeImageSize_String (p@(Path_SaneSizeImageSize_View _)) x) = Just "Image Size"
-          describe _ (Peek_SaneSizeImageSize_Double (p@(Path_SaneSizeImageSize_View _)) x) = Just "Image Size"
-          describe _ (Peek_SaneSizeImageSize_Dimension (p@(Path_SaneSizeImageSize_View _)) x) = Just "Image Size"
-          describe _ (Peek_SaneSizeImageSize_ImageSize (p@(Path_SaneSizeImageSize_View _)) x) = Just "Image Size"
-          describe _ (Peek_SaneSizeImageSize_Units (p@(Path_SaneSizeImageSize_View _)) x) = Just "Image Size"
-          describe _ (Peek_SaneSizeImageSize_JSONText (p@(Path_SaneSizeImageSize_View _)) x) = Just "Image Size"
+    where describe _ (Peek_SaneSizeImageSize_String (p@(Path_SaneSizeImageSize_View wp))
+                                                    x) = maybe (Just "Image Size") Just (maybe Nothing Just (describe Nothing (Peek_ImageSize_String wp undefined)))
+          describe _ (Peek_SaneSizeImageSize_Double (p@(Path_SaneSizeImageSize_View wp))
+                                                    x) = maybe (Just "Image Size") Just (maybe Nothing Just (describe Nothing (Peek_ImageSize_Double wp undefined)))
+          describe _ (Peek_SaneSizeImageSize_Dimension (p@(Path_SaneSizeImageSize_View wp))
+                                                       x) = maybe (Just "Image Size") Just (maybe Nothing Just (describe Nothing (Peek_ImageSize_Dimension wp undefined)))
+          describe _ (Peek_SaneSizeImageSize_ImageSize (p@(Path_SaneSizeImageSize_View wp)) x) = maybe (Just "Image Size") Just (maybe Nothing Just Nothing)
+          describe _ (Peek_SaneSizeImageSize_Units (p@(Path_SaneSizeImageSize_View wp))
+                                                   x) = maybe (Just "Image Size") Just (maybe Nothing Just (describe Nothing (Peek_ImageSize_Units wp undefined)))
+          describe _ (Peek_SaneSizeImageSize_JSONText (p@(Path_SaneSizeImageSize_View wp))
+                                                      x) = maybe (Just "Image Size") Just (maybe Nothing Just (describe Nothing (Peek_ImageSize_JSONText wp undefined)))
 instance Describe (Peek ([Char]))
-    where describe _ (Peek_String_JSONText (p@(Path_String_View _)) x) = Just "JSONText"
+    where describe _ (Peek_String_JSONText (p@(Path_String_View wp)) x) = maybe (Just "JSONText") Just (maybe Nothing Just Nothing)
 instance Describe (Peek ([UserId]))
-    where describe _ (Peek_UserIds_JSONText (p@(Path_UserIds_View _)) x) = Just "Text"
-          describe _ (Peek_UserIds_Text (p@(Path_UserIds_View _)) x) = Just "Text"
+    where describe _ (Peek_UserIds_JSONText (p@(Path_UserIds_View wp))
+                                            x) = maybe (Just "Text") Just (maybe Nothing Just (describe Nothing (Peek_Text_JSONText wp undefined)))
+          describe _ (Peek_UserIds_Text (p@(Path_UserIds_View wp)) x) = maybe (Just "Text") Just (maybe Nothing Just Nothing)
 instance Describe (Peek Int64)
-    where describe _ = []
+    where describe _ _ = Nothing
 instance Describe (Peek Bool)
-    where describe _ (Peek_Bool_String (p@(Path_Bool_View _)) x) = Just "String"
-          describe _ (Peek_Bool_JSONText (p@(Path_Bool_View _)) x) = Just "String"
+    where describe _ (Peek_Bool_String (p@(Path_Bool_View wp)) x) = maybe (Just "String") Just (maybe Nothing Just Nothing)
+          describe _ (Peek_Bool_JSONText (p@(Path_Bool_View wp)) x) = maybe (Just "String") Just (maybe Nothing Just (describe Nothing (Peek_String_JSONText wp undefined)))
 instance Describe (Peek Double)
-    where describe _ (Peek_Double_String (p@(Path_Double_View _)) x) = Just "String"
-          describe _ (Peek_Double_JSONText (p@(Path_Double_View _)) x) = Just "String"
+    where describe _ (Peek_Double_String (p@(Path_Double_View wp)) x) = maybe (Just "String") Just (maybe Nothing Just Nothing)
+          describe _ (Peek_Double_JSONText (p@(Path_Double_View wp)) x) = maybe (Just "String") Just (maybe Nothing Just (describe Nothing (Peek_String_JSONText wp undefined)))
 instance Describe (Peek Int)
-    where describe _ = []
+    where describe _ _ = Nothing
 instance Describe (Peek Dimension)
-    where describe _ (Peek_Dimension_JSONText (p@(Path_Dimension_View _)) x) = Just "JSONText"
+    where describe _ (Peek_Dimension_JSONText (p@(Path_Dimension_View wp)) x) = maybe (Just "JSONText") Just (maybe Nothing Just Nothing)
 instance Describe (Peek ImageCrop)
-    where describe _ = []
+    where describe _ _ = Nothing
 instance Describe (Peek ImageSize)
-    where describe _ (Peek_ImageSize_Dimension (p@(Path_ImageSize_dim _)) x) = Just "Dim"
-          describe _ (Peek_ImageSize_JSONText (p@(Path_ImageSize_dim _)) x) = Just "Dim"
-          describe _ (Peek_ImageSize_String (p@(Path_ImageSize_size _)) x) = Just "Size"
-          describe _ (Peek_ImageSize_Double (p@(Path_ImageSize_size _)) x) = Just "Size"
-          describe _ (Peek_ImageSize_JSONText (p@(Path_ImageSize_size _)) x) = Just "Size"
-          describe _ (Peek_ImageSize_Units (p@(Path_ImageSize_units _)) x) = Just "Units"
-          describe _ (Peek_ImageSize_JSONText (p@(Path_ImageSize_units _)) x) = Just "Units"
+    where describe _ (Peek_ImageSize_Dimension (p@(Path_ImageSize_dim wp)) x) = maybe (Just "Dim") Just (maybe Nothing Just Nothing)
+          describe _ (Peek_ImageSize_JSONText (p@(Path_ImageSize_dim wp))
+                                              x) = maybe (Just "Dim") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ImageSize") (NameG TcClsName (mkPkgName "image_32ny9K9iHbQ5dPQ1oIAXYp") (mkModName "Appraisal.Image")),
+                                                                                                                Name (mkOccName "ImageSize") (NameG DataName (mkPkgName "image_32ny9K9iHbQ5dPQ1oIAXYp") (mkModName "Appraisal.Image")),
+                                                                                                                Right (Name (mkOccName "dim") (NameG VarName (mkPkgName "image_32ny9K9iHbQ5dPQ1oIAXYp") (mkModName "Appraisal.Image"))))) (Peek_Dimension_JSONText wp undefined)))
+          describe _ (Peek_ImageSize_String (p@(Path_ImageSize_size wp))
+                                            x) = maybe (Just "Size") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ImageSize") (NameG TcClsName (mkPkgName "image_32ny9K9iHbQ5dPQ1oIAXYp") (mkModName "Appraisal.Image")),
+                                                                                                               Name (mkOccName "ImageSize") (NameG DataName (mkPkgName "image_32ny9K9iHbQ5dPQ1oIAXYp") (mkModName "Appraisal.Image")),
+                                                                                                               Right (Name (mkOccName "size") (NameG VarName (mkPkgName "image_32ny9K9iHbQ5dPQ1oIAXYp") (mkModName "Appraisal.Image"))))) (Peek_Double_String wp undefined)))
+          describe _ (Peek_ImageSize_Double (p@(Path_ImageSize_size wp)) x) = maybe (Just "Size") Just (maybe Nothing Just Nothing)
+          describe _ (Peek_ImageSize_JSONText (p@(Path_ImageSize_size wp))
+                                              x) = maybe (Just "Size") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ImageSize") (NameG TcClsName (mkPkgName "image_32ny9K9iHbQ5dPQ1oIAXYp") (mkModName "Appraisal.Image")),
+                                                                                                                 Name (mkOccName "ImageSize") (NameG DataName (mkPkgName "image_32ny9K9iHbQ5dPQ1oIAXYp") (mkModName "Appraisal.Image")),
+                                                                                                                 Right (Name (mkOccName "size") (NameG VarName (mkPkgName "image_32ny9K9iHbQ5dPQ1oIAXYp") (mkModName "Appraisal.Image"))))) (Peek_Double_JSONText wp undefined)))
+          describe _ (Peek_ImageSize_Units (p@(Path_ImageSize_units wp)) x) = maybe (Just "Units") Just (maybe Nothing Just Nothing)
+          describe _ (Peek_ImageSize_JSONText (p@(Path_ImageSize_units wp))
+                                              x) = maybe (Just "Units") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ImageSize") (NameG TcClsName (mkPkgName "image_32ny9K9iHbQ5dPQ1oIAXYp") (mkModName "Appraisal.Image")),
+                                                                                                                  Name (mkOccName "ImageSize") (NameG DataName (mkPkgName "image_32ny9K9iHbQ5dPQ1oIAXYp") (mkModName "Appraisal.Image")),
+                                                                                                                  Right (Name (mkOccName "units") (NameG VarName (mkPkgName "image_32ny9K9iHbQ5dPQ1oIAXYp") (mkModName "Appraisal.Image"))))) (Peek_Units_JSONText wp undefined)))
 instance Describe (Peek Units)
-    where describe _ (Peek_Units_JSONText (p@(Path_Units_View _)) x) = Just "JSONText"
+    where describe _ (Peek_Units_JSONText (p@(Path_Units_View wp)) x) = maybe (Just "JSONText") Just (maybe Nothing Just Nothing)
 instance Describe (Peek ImageFile)
-    where describe _ = []
+    where describe _ _ = Nothing
 instance Describe (Peek Integer)
-    where describe _ = []
+    where describe _ _ = Nothing
 instance Describe (Peek JSONText)
-    where describe _ = []
+    where describe _ _ = Nothing
 instance Describe (Peek Markup)
-    where describe _ (Peek_Markup_JSONText (p@(Path_Markup_markdownText _)) x) = Just "Markdown Text"
-          describe _ (Peek_Markup_Text (p@(Path_Markup_markdownText _)) x) = Just "Markdown Text"
-          describe _ (Peek_Markup_JSONText (p@(Path_Markup_htmlText _)) x) = Just "Html Text"
-          describe _ (Peek_Markup_Text (p@(Path_Markup_htmlText _)) x) = Just "Html Text"
+    where describe _ (Peek_Markup_JSONText (p@(Path_Markup_markdownText wp))
+                                           x) = maybe (Just "Markdown Text") Just (maybe Nothing Just (describe (Just (Name (mkOccName "Markup") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Markup")),
+                                                                                                                       Name (mkOccName "Markdown") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Markup")),
+                                                                                                                       Right (Name (mkOccName "markdownText") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Markup"))))) (Peek_Text_JSONText wp undefined)))
+          describe _ (Peek_Markup_Text (p@(Path_Markup_markdownText wp)) x) = maybe (Just "Markdown Text") Just (maybe Nothing Just Nothing)
+          describe _ (Peek_Markup_JSONText (p@(Path_Markup_htmlText wp))
+                                           x) = maybe (Just "Html Text") Just (maybe Nothing Just (describe (Just (Name (mkOccName "Markup") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Markup")),
+                                                                                                                   Name (mkOccName "Html") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Markup")),
+                                                                                                                   Right (Name (mkOccName "htmlText") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Markup"))))) (Peek_Text_JSONText wp undefined)))
+          describe _ (Peek_Markup_Text (p@(Path_Markup_htmlText wp)) x) = maybe (Just "Html Text") Just (maybe Nothing Just Nothing)
 instance Describe (Peek Permissions)
-    where describe _ (Peek_Permissions_UserId (p@(Path_Permissions_owner _)) x) = Just "Owner"
-          describe _ (Peek_Permissions_JSONText (p@(Path_Permissions_writers _)) x) = Just "Writers"
-          describe _ (Peek_Permissions_UserIds (p@(Path_Permissions_writers _)) x) = Just "Writers"
-          describe _ (Peek_Permissions_Text (p@(Path_Permissions_writers _)) x) = Just "Writers"
-          describe _ (Peek_Permissions_JSONText (p@(Path_Permissions_readers _)) x) = Just "Readers"
-          describe _ (Peek_Permissions_UserIds (p@(Path_Permissions_readers _)) x) = Just "Readers"
-          describe _ (Peek_Permissions_Text (p@(Path_Permissions_readers _)) x) = Just "Readers"
+    where describe _ (Peek_Permissions_UserId (p@(Path_Permissions_owner wp)) x) = maybe (Just "Owner") Just (maybe Nothing Just Nothing)
+          describe _ (Peek_Permissions_JSONText (p@(Path_Permissions_writers wp))
+                                                x) = maybe (Just "Writers") Just (maybe Nothing Just (describe (Just (Name (mkOccName "Permissions") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Permissions")),
+                                                                                                                      Name (mkOccName "Permissions") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Permissions")),
+                                                                                                                      Right (Name (mkOccName "writers") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Permissions"))))) (Peek_UserIds_JSONText wp undefined)))
+          describe _ (Peek_Permissions_UserIds (p@(Path_Permissions_writers wp)) x) = maybe (Just "Writers") Just (maybe Nothing Just Nothing)
+          describe _ (Peek_Permissions_Text (p@(Path_Permissions_writers wp))
+                                            x) = maybe (Just "Writers") Just (maybe Nothing Just (describe (Just (Name (mkOccName "Permissions") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Permissions")),
+                                                                                                                  Name (mkOccName "Permissions") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Permissions")),
+                                                                                                                  Right (Name (mkOccName "writers") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Permissions"))))) (Peek_UserIds_Text wp undefined)))
+          describe _ (Peek_Permissions_JSONText (p@(Path_Permissions_readers wp))
+                                                x) = maybe (Just "Readers") Just (maybe Nothing Just (describe (Just (Name (mkOccName "Permissions") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Permissions")),
+                                                                                                                      Name (mkOccName "Permissions") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Permissions")),
+                                                                                                                      Right (Name (mkOccName "readers") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Permissions"))))) (Peek_UserIds_JSONText wp undefined)))
+          describe _ (Peek_Permissions_UserIds (p@(Path_Permissions_readers wp)) x) = maybe (Just "Readers") Just (maybe Nothing Just Nothing)
+          describe _ (Peek_Permissions_Text (p@(Path_Permissions_readers wp))
+                                            x) = maybe (Just "Readers") Just (maybe Nothing Just (describe (Just (Name (mkOccName "Permissions") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Permissions")),
+                                                                                                                  Name (mkOccName "Permissions") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Permissions")),
+                                                                                                                  Right (Name (mkOccName "readers") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Permissions"))))) (Peek_UserIds_Text wp undefined)))
 instance Describe (Peek Author)
-    where describe _ (Peek_Author_JSONText (p@(Path_Author_authorName _))
-                                           x) = fromMaybe (Just "Author Name") (describe (Just (Name (mkOccName "Author") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
-                                                                                                Name (mkOccName "Author") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
-                                                                                                Right (Name (mkOccName "authorName") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_Author_Markup (p@(Path_Author_authorName _))
-                                         x) = fromMaybe (Just "Author Name") (describe (Just (Name (mkOccName "Author") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
-                                                                                              Name (mkOccName "Author") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
-                                                                                              Right (Name (mkOccName "authorName") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_Author_Text (p@(Path_Author_authorName _))
-                                       x) = fromMaybe (Just "Author Name") (describe (Just (Name (mkOccName "Author") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
-                                                                                            Name (mkOccName "Author") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
-                                                                                            Right (Name (mkOccName "authorName") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_Author_JSONText (p@(Path_Author_authorCredentials _))
-                                           x) = fromMaybe (Just "Author Credentials") (describe (Just (Name (mkOccName "Author") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
-                                                                                                       Name (mkOccName "Author") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
-                                                                                                       Right (Name (mkOccName "authorCredentials") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_Author_Markup (p@(Path_Author_authorCredentials _))
-                                         x) = fromMaybe (Just "Author Credentials") (describe (Just (Name (mkOccName "Author") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
-                                                                                                     Name (mkOccName "Author") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
-                                                                                                     Right (Name (mkOccName "authorCredentials") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_Author_Text (p@(Path_Author_authorCredentials _))
-                                       x) = fromMaybe (Just "Author Credentials") (describe (Just (Name (mkOccName "Author") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
-                                                                                                   Name (mkOccName "Author") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
-                                                                                                   Right (Name (mkOccName "authorCredentials") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Proxy :: Proxy Markup))
+    where describe _ (Peek_Author_JSONText (p@(Path_Author_authorName wp))
+                                           x) = maybe (Just "Author Name") Just (maybe (describe (Just (Name (mkOccName "Author") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                        Name (mkOccName "Author") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                        Right (Name (mkOccName "authorName") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Proxy :: Proxy Markup)) Just (describe (Just (Name (mkOccName "Author") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                                                                                                                                                                 Name (mkOccName "Author") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                                                                                                                                                                 Right (Name (mkOccName "authorName") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Peek_Markup_JSONText wp undefined)))
+          describe _ (Peek_Author_Markup (p@(Path_Author_authorName wp))
+                                         x) = maybe (Just "Author Name") Just (maybe (describe (Just (Name (mkOccName "Author") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                      Name (mkOccName "Author") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                      Right (Name (mkOccName "authorName") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Proxy :: Proxy Markup)) Just Nothing)
+          describe _ (Peek_Author_Text (p@(Path_Author_authorName wp))
+                                       x) = maybe (Just "Author Name") Just (maybe (describe (Just (Name (mkOccName "Author") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                    Name (mkOccName "Author") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                    Right (Name (mkOccName "authorName") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Proxy :: Proxy Markup)) Just (describe (Just (Name (mkOccName "Author") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                                                                                                                                                             Name (mkOccName "Author") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                                                                                                                                                             Right (Name (mkOccName "authorName") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Peek_Markup_Text wp undefined)))
+          describe _ (Peek_Author_JSONText (p@(Path_Author_authorCredentials wp))
+                                           x) = maybe (Just "Author Credentials") Just (maybe (describe (Just (Name (mkOccName "Author") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                               Name (mkOccName "Author") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                               Right (Name (mkOccName "authorCredentials") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Proxy :: Proxy Markup)) Just (describe (Just (Name (mkOccName "Author") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                                                                                                                                                                               Name (mkOccName "Author") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                                                                                                                                                                               Right (Name (mkOccName "authorCredentials") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Peek_Markup_JSONText wp undefined)))
+          describe _ (Peek_Author_Markup (p@(Path_Author_authorCredentials wp))
+                                         x) = maybe (Just "Author Credentials") Just (maybe (describe (Just (Name (mkOccName "Author") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                             Name (mkOccName "Author") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                             Right (Name (mkOccName "authorCredentials") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Proxy :: Proxy Markup)) Just Nothing)
+          describe _ (Peek_Author_Text (p@(Path_Author_authorCredentials wp))
+                                       x) = maybe (Just "Author Credentials") Just (maybe (describe (Just (Name (mkOccName "Author") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                           Name (mkOccName "Author") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                           Right (Name (mkOccName "authorCredentials") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Proxy :: Proxy Markup)) Just (describe (Just (Name (mkOccName "Author") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                                                                                                                                                                           Name (mkOccName "Author") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                                                                                                                                                                           Right (Name (mkOccName "authorCredentials") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Peek_Markup_Text wp undefined)))
 instance Describe (Peek Branding)
-    where describe _ (Peek_Branding_JSONText (p@(Path_Branding_View _)) x) = Just "Text"
-          describe _ (Peek_Branding_Text (p@(Path_Branding_View _)) x) = Just "Text"
+    where describe _ (Peek_Branding_JSONText (p@(Path_Branding_View wp))
+                                             x) = maybe (Just "Text") Just (maybe Nothing Just (describe Nothing (Peek_Text_JSONText wp undefined)))
+          describe _ (Peek_Branding_Text (p@(Path_Branding_View wp)) x) = maybe (Just "Text") Just (maybe Nothing Just Nothing)
 instance Describe (Peek Report)
-    where describe _ (Peek_Report_String (p@(Path_Report_View _)) x) = Just "Report View"
-          describe _ (Peek_Report_Int64 (p@(Path_Report_View _)) x) = Just "Report View"
-          describe _ (Peek_Report_Int (p@(Path_Report_View _)) x) = Just "Report View"
-          describe _ (Peek_Report_Bool (p@(Path_Report_View _)) x) = Just "Report View"
-          describe _ (Peek_Report_Double (p@(Path_Report_View _)) x) = Just "Report View"
-          describe _ (Peek_Report_Dimension (p@(Path_Report_View _)) x) = Just "Report View"
-          describe _ (Peek_Report_ImageCrop (p@(Path_Report_View _)) x) = Just "Report View"
-          describe _ (Peek_Report_ImageSize (p@(Path_Report_View _)) x) = Just "Report View"
-          describe _ (Peek_Report_Units (p@(Path_Report_View _)) x) = Just "Report View"
-          describe _ (Peek_Report_ImageFile (p@(Path_Report_View _)) x) = Just "Report View"
-          describe _ (Peek_Report_Integer (p@(Path_Report_View _)) x) = Just "Report View"
-          describe _ (Peek_Report_JSONText (p@(Path_Report_View _)) x) = Just "Report View"
-          describe _ (Peek_Report_Markup (p@(Path_Report_View _)) x) = Just "Report View"
-          describe _ (Peek_Report_Permissions (p@(Path_Report_View _)) x) = Just "Report View"
-          describe _ (Peek_Report_UserIds (p@(Path_Report_View _)) x) = Just "Report View"
-          describe _ (Peek_Report_AbbrevPair (p@(Path_Report_View _)) x) = Just "Report View"
-          describe _ (Peek_Report_AbbrevPairs (p@(Path_Report_View _)) x) = Just "Report View"
-          describe _ (Peek_Report_Author (p@(Path_Report_View _)) x) = Just "Report View"
-          describe _ (Peek_Report_Authors (p@(Path_Report_View _)) x) = Just "Report View"
-          describe _ (Peek_Report_Branding (p@(Path_Report_View _)) x) = Just "Report View"
-          describe _ (Peek_Report_MarkupPair (p@(Path_Report_View _)) x) = Just "Report View"
-          describe _ (Peek_Report_MarkupPairs (p@(Path_Report_View _)) x) = Just "Report View"
-          describe _ (Peek_Report_Markups (p@(Path_Report_View _)) x) = Just "Report View"
-          describe _ (Peek_Report_MaybeReportIntendedUse (p@(Path_Report_View _)) x) = Just "Report View"
-          describe _ (Peek_Report_ReportElem (p@(Path_Report_View _)) x) = Just "Report View"
-          describe _ (Peek_Report_ReportElems (p@(Path_Report_View _)) x) = Just "Report View"
-          describe _ (Peek_Report_ReportFlags (p@(Path_Report_View _)) x) = Just "Report View"
-          describe _ (Peek_Report_ReportStandard (p@(Path_Report_View _)) x) = Just "Report View"
-          describe _ (Peek_Report_ReportStatus (p@(Path_Report_View _)) x) = Just "Report View"
-          describe _ (Peek_Report_ReportValueApproachInfo (p@(Path_Report_View _)) x) = Just "Report View"
-          describe _ (Peek_Report_ReportValueTypeInfo (p@(Path_Report_View _)) x) = Just "Report View"
-          describe _ (Peek_Report_EUI (p@(Path_Report_View _)) x) = Just "Report View"
-          describe _ (Peek_Report_MEUI (p@(Path_Report_View _)) x) = Just "Report View"
-          describe _ (Peek_Report_MaybeImageFile (p@(Path_Report_View _)) x) = Just "Report View"
-          describe _ (Peek_Report_ReportImage (p@(Path_Report_View _)) x) = Just "Report View"
-          describe _ (Peek_Report_ReportImages (p@(Path_Report_View _)) x) = Just "Report View"
-          describe _ (Peek_Report_ReadOnlyFilePath (p@(Path_Report_View _)) x) = Just "Report View"
-          describe _ (Peek_Report_ReportImageView (p@(Path_Report_View _)) x) = Just "Report View"
-          describe _ (Peek_Report_ReportView (p@(Path_Report_View _)) x) = Just "Report View"
-          describe _ (Peek_Report_SaneSizeImageSize (p@(Path_Report_View _)) x) = Just "Report View"
-          describe _ (Peek_Report_Item (p@(Path_Report_View _)) x) = Just "Report View"
-          describe _ (Peek_Report_MIM (p@(Path_Report_View _)) x) = Just "Report View"
-          describe _ (Peek_Report_CIString (p@(Path_Report_View _)) x) = Just "Report View"
-          describe _ (Peek_Report_URI (p@(Path_Report_View _)) x) = Just "Report View"
-          describe _ (Peek_Report_Text (p@(Path_Report_View _)) x) = Just "Report View"
-          describe _ (Peek_Report_UserId (p@(Path_Report_View _)) x) = Just "Report View"
-          describe _ (Peek_Report_UUID (p@(Path_Report_View _)) x) = Just "Report View"
+    where describe _ (Peek_Report_String (p@(Path_Report_View wp))
+                                         x) = maybe (Just "Report View") Just (maybe Nothing Just (describe Nothing (Peek_ReportView_String wp undefined)))
+          describe _ (Peek_Report_Int64 (p@(Path_Report_View wp))
+                                        x) = maybe (Just "Report View") Just (maybe Nothing Just (describe Nothing (Peek_ReportView_Int64 wp undefined)))
+          describe _ (Peek_Report_Int (p@(Path_Report_View wp)) x) = maybe (Just "Report View") Just (maybe Nothing Just (describe Nothing (Peek_ReportView_Int wp undefined)))
+          describe _ (Peek_Report_Bool (p@(Path_Report_View wp)) x) = maybe (Just "Report View") Just (maybe Nothing Just (describe Nothing (Peek_ReportView_Bool wp undefined)))
+          describe _ (Peek_Report_Double (p@(Path_Report_View wp))
+                                         x) = maybe (Just "Report View") Just (maybe Nothing Just (describe Nothing (Peek_ReportView_Double wp undefined)))
+          describe _ (Peek_Report_Dimension (p@(Path_Report_View wp))
+                                            x) = maybe (Just "Report View") Just (maybe Nothing Just (describe Nothing (Peek_ReportView_Dimension wp undefined)))
+          describe _ (Peek_Report_ImageCrop (p@(Path_Report_View wp))
+                                            x) = maybe (Just "Report View") Just (maybe Nothing Just (describe Nothing (Peek_ReportView_ImageCrop wp undefined)))
+          describe _ (Peek_Report_ImageSize (p@(Path_Report_View wp))
+                                            x) = maybe (Just "Report View") Just (maybe Nothing Just (describe Nothing (Peek_ReportView_ImageSize wp undefined)))
+          describe _ (Peek_Report_Units (p@(Path_Report_View wp))
+                                        x) = maybe (Just "Report View") Just (maybe Nothing Just (describe Nothing (Peek_ReportView_Units wp undefined)))
+          describe _ (Peek_Report_ImageFile (p@(Path_Report_View wp))
+                                            x) = maybe (Just "Report View") Just (maybe Nothing Just (describe Nothing (Peek_ReportView_ImageFile wp undefined)))
+          describe _ (Peek_Report_Integer (p@(Path_Report_View wp))
+                                          x) = maybe (Just "Report View") Just (maybe Nothing Just (describe Nothing (Peek_ReportView_Integer wp undefined)))
+          describe _ (Peek_Report_JSONText (p@(Path_Report_View wp))
+                                           x) = maybe (Just "Report View") Just (maybe Nothing Just (describe Nothing (Peek_ReportView_JSONText wp undefined)))
+          describe _ (Peek_Report_Markup (p@(Path_Report_View wp))
+                                         x) = maybe (Just "Report View") Just (maybe Nothing Just (describe Nothing (Peek_ReportView_Markup wp undefined)))
+          describe _ (Peek_Report_Permissions (p@(Path_Report_View wp))
+                                              x) = maybe (Just "Report View") Just (maybe Nothing Just (describe Nothing (Peek_ReportView_Permissions wp undefined)))
+          describe _ (Peek_Report_UserIds (p@(Path_Report_View wp))
+                                          x) = maybe (Just "Report View") Just (maybe Nothing Just (describe Nothing (Peek_ReportView_UserIds wp undefined)))
+          describe _ (Peek_Report_AbbrevPair (p@(Path_Report_View wp))
+                                             x) = maybe (Just "Report View") Just (maybe Nothing Just (describe Nothing (Peek_ReportView_AbbrevPair wp undefined)))
+          describe _ (Peek_Report_AbbrevPairs (p@(Path_Report_View wp))
+                                              x) = maybe (Just "Report View") Just (maybe Nothing Just (describe Nothing (Peek_ReportView_AbbrevPairs wp undefined)))
+          describe _ (Peek_Report_Author (p@(Path_Report_View wp))
+                                         x) = maybe (Just "Report View") Just (maybe Nothing Just (describe Nothing (Peek_ReportView_Author wp undefined)))
+          describe _ (Peek_Report_Authors (p@(Path_Report_View wp))
+                                          x) = maybe (Just "Report View") Just (maybe Nothing Just (describe Nothing (Peek_ReportView_Authors wp undefined)))
+          describe _ (Peek_Report_Branding (p@(Path_Report_View wp))
+                                           x) = maybe (Just "Report View") Just (maybe Nothing Just (describe Nothing (Peek_ReportView_Branding wp undefined)))
+          describe _ (Peek_Report_MarkupPair (p@(Path_Report_View wp))
+                                             x) = maybe (Just "Report View") Just (maybe Nothing Just (describe Nothing (Peek_ReportView_MarkupPair wp undefined)))
+          describe _ (Peek_Report_MarkupPairs (p@(Path_Report_View wp))
+                                              x) = maybe (Just "Report View") Just (maybe Nothing Just (describe Nothing (Peek_ReportView_MarkupPairs wp undefined)))
+          describe _ (Peek_Report_Markups (p@(Path_Report_View wp))
+                                          x) = maybe (Just "Report View") Just (maybe Nothing Just (describe Nothing (Peek_ReportView_Markups wp undefined)))
+          describe _ (Peek_Report_MaybeReportIntendedUse (p@(Path_Report_View wp))
+                                                         x) = maybe (Just "Report View") Just (maybe Nothing Just (describe Nothing (Peek_ReportView_MaybeReportIntendedUse wp undefined)))
+          describe _ (Peek_Report_ReportElem (p@(Path_Report_View wp))
+                                             x) = maybe (Just "Report View") Just (maybe Nothing Just (describe Nothing (Peek_ReportView_ReportElem wp undefined)))
+          describe _ (Peek_Report_ReportElems (p@(Path_Report_View wp))
+                                              x) = maybe (Just "Report View") Just (maybe Nothing Just (describe Nothing (Peek_ReportView_ReportElems wp undefined)))
+          describe _ (Peek_Report_ReportFlags (p@(Path_Report_View wp))
+                                              x) = maybe (Just "Report View") Just (maybe Nothing Just (describe Nothing (Peek_ReportView_ReportFlags wp undefined)))
+          describe _ (Peek_Report_ReportStandard (p@(Path_Report_View wp))
+                                                 x) = maybe (Just "Report View") Just (maybe Nothing Just (describe Nothing (Peek_ReportView_ReportStandard wp undefined)))
+          describe _ (Peek_Report_ReportStatus (p@(Path_Report_View wp))
+                                               x) = maybe (Just "Report View") Just (maybe Nothing Just (describe Nothing (Peek_ReportView_ReportStatus wp undefined)))
+          describe _ (Peek_Report_ReportValueApproachInfo (p@(Path_Report_View wp))
+                                                          x) = maybe (Just "Report View") Just (maybe Nothing Just (describe Nothing (Peek_ReportView_ReportValueApproachInfo wp undefined)))
+          describe _ (Peek_Report_ReportValueTypeInfo (p@(Path_Report_View wp))
+                                                      x) = maybe (Just "Report View") Just (maybe Nothing Just (describe Nothing (Peek_ReportView_ReportValueTypeInfo wp undefined)))
+          describe _ (Peek_Report_EUI (p@(Path_Report_View wp)) x) = maybe (Just "Report View") Just (maybe Nothing Just (describe Nothing (Peek_ReportView_EUI wp undefined)))
+          describe _ (Peek_Report_MEUI (p@(Path_Report_View wp)) x) = maybe (Just "Report View") Just (maybe Nothing Just (describe Nothing (Peek_ReportView_MEUI wp undefined)))
+          describe _ (Peek_Report_MaybeImageFile (p@(Path_Report_View wp))
+                                                 x) = maybe (Just "Report View") Just (maybe Nothing Just (describe Nothing (Peek_ReportView_MaybeImageFile wp undefined)))
+          describe _ (Peek_Report_ReportImage (p@(Path_Report_View wp))
+                                              x) = maybe (Just "Report View") Just (maybe Nothing Just (describe Nothing (Peek_ReportView_ReportImage wp undefined)))
+          describe _ (Peek_Report_ReportImages (p@(Path_Report_View wp))
+                                               x) = maybe (Just "Report View") Just (maybe Nothing Just (describe Nothing (Peek_ReportView_ReportImages wp undefined)))
+          describe _ (Peek_Report_ReadOnlyFilePath (p@(Path_Report_View wp))
+                                                   x) = maybe (Just "Report View") Just (maybe Nothing Just (describe Nothing (Peek_ReportView_ReadOnlyFilePath wp undefined)))
+          describe _ (Peek_Report_ReportImageView (p@(Path_Report_View wp))
+                                                  x) = maybe (Just "Report View") Just (maybe Nothing Just (describe Nothing (Peek_ReportView_ReportImageView wp undefined)))
+          describe _ (Peek_Report_ReportView (p@(Path_Report_View wp)) x) = maybe (Just "Report View") Just (maybe Nothing Just Nothing)
+          describe _ (Peek_Report_SaneSizeImageSize (p@(Path_Report_View wp))
+                                                    x) = maybe (Just "Report View") Just (maybe Nothing Just (describe Nothing (Peek_ReportView_SaneSizeImageSize wp undefined)))
+          describe _ (Peek_Report_Item (p@(Path_Report_View wp)) x) = maybe (Just "Report View") Just (maybe Nothing Just (describe Nothing (Peek_ReportView_Item wp undefined)))
+          describe _ (Peek_Report_MIM (p@(Path_Report_View wp)) x) = maybe (Just "Report View") Just (maybe Nothing Just (describe Nothing (Peek_ReportView_MIM wp undefined)))
+          describe _ (Peek_Report_CIString (p@(Path_Report_View wp))
+                                           x) = maybe (Just "Report View") Just (maybe Nothing Just (describe Nothing (Peek_ReportView_CIString wp undefined)))
+          describe _ (Peek_Report_URI (p@(Path_Report_View wp)) x) = maybe (Just "Report View") Just (maybe Nothing Just (describe Nothing (Peek_ReportView_URI wp undefined)))
+          describe _ (Peek_Report_Text (p@(Path_Report_View wp)) x) = maybe (Just "Report View") Just (maybe Nothing Just (describe Nothing (Peek_ReportView_Text wp undefined)))
+          describe _ (Peek_Report_UserId (p@(Path_Report_View wp))
+                                         x) = maybe (Just "Report View") Just (maybe Nothing Just (describe Nothing (Peek_ReportView_UserId wp undefined)))
+          describe _ (Peek_Report_UUID (p@(Path_Report_View wp)) x) = maybe (Just "Report View") Just (maybe Nothing Just (describe Nothing (Peek_ReportView_UUID wp undefined)))
 instance Describe (Peek ReportElem)
-    where describe _ (Peek_ReportElem_String (p@(Path_ReportElem_elemItem _)) x) = Just "Elem Item"
-          describe _ (Peek_ReportElem_Bool (p@(Path_ReportElem_elemItem _)) x) = Just "Elem Item"
-          describe _ (Peek_ReportElem_Double (p@(Path_ReportElem_elemItem _)) x) = Just "Elem Item"
-          describe _ (Peek_ReportElem_Dimension (p@(Path_ReportElem_elemItem _)) x) = Just "Elem Item"
-          describe _ (Peek_ReportElem_ImageCrop (p@(Path_ReportElem_elemItem _)) x) = Just "Elem Item"
-          describe _ (Peek_ReportElem_ImageSize (p@(Path_ReportElem_elemItem _)) x) = Just "Elem Item"
-          describe _ (Peek_ReportElem_Units (p@(Path_ReportElem_elemItem _)) x) = Just "Elem Item"
-          describe _ (Peek_ReportElem_ImageFile (p@(Path_ReportElem_elemItem _)) x) = Just "Elem Item"
-          describe _ (Peek_ReportElem_JSONText (p@(Path_ReportElem_elemItem _)) x) = Just "Elem Item"
-          describe _ (Peek_ReportElem_Markup (p@(Path_ReportElem_elemItem _)) x) = Just "Elem Item"
-          describe _ (Peek_ReportElem_EUI (p@(Path_ReportElem_elemItem _)) x) = Just "Elem Item"
-          describe _ (Peek_ReportElem_MEUI (p@(Path_ReportElem_elemItem _)) x) = Just "Elem Item"
-          describe _ (Peek_ReportElem_MaybeImageFile (p@(Path_ReportElem_elemItem _)) x) = Just "Elem Item"
-          describe _ (Peek_ReportElem_ReportImage (p@(Path_ReportElem_elemItem _)) x) = Just "Elem Item"
-          describe _ (Peek_ReportElem_ReportImages (p@(Path_ReportElem_elemItem _)) x) = Just "Elem Item"
-          describe _ (Peek_ReportElem_ReportImageView (p@(Path_ReportElem_elemItem _)) x) = Just "Elem Item"
-          describe _ (Peek_ReportElem_SaneSizeImageSize (p@(Path_ReportElem_elemItem _)) x) = Just "Elem Item"
-          describe _ (Peek_ReportElem_Item (p@(Path_ReportElem_elemItem _)) x) = Just "Elem Item"
-          describe _ (Peek_ReportElem_MIM (p@(Path_ReportElem_elemItem _)) x) = Just "Elem Item"
-          describe _ (Peek_ReportElem_URI (p@(Path_ReportElem_elemItem _)) x) = Just "Elem Item"
-          describe _ (Peek_ReportElem_Text (p@(Path_ReportElem_elemItem _)) x) = Just "Elem Item"
-          describe _ (Peek_ReportElem_JSONText (p@(Path_ReportElem_elemText _))
-                                               x) = fromMaybe (Just "Elem Text") (describe (Just (Name (mkOccName "ReportElem") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
-                                                                                                  Name (mkOccName "ReportParagraph") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
-                                                                                                  Right (Name (mkOccName "elemText") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportElem_Markup (p@(Path_ReportElem_elemText _))
-                                             x) = fromMaybe (Just "Elem Text") (describe (Just (Name (mkOccName "ReportElem") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
-                                                                                                Name (mkOccName "ReportParagraph") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
-                                                                                                Right (Name (mkOccName "elemText") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportElem_Text (p@(Path_ReportElem_elemText _))
-                                           x) = fromMaybe (Just "Elem Text") (describe (Just (Name (mkOccName "ReportElem") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
-                                                                                              Name (mkOccName "ReportParagraph") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
-                                                                                              Right (Name (mkOccName "elemText") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Proxy :: Proxy Markup))
+    where describe _ (Peek_ReportElem_String (p@(Path_ReportElem_elemItem wp))
+                                             x) = maybe (Just "Elem Item") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportElem") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                     Name (mkOccName "ReportItem") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                     Right (Name (mkOccName "elemItem") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Peek_Item_String wp undefined)))
+          describe _ (Peek_ReportElem_Bool (p@(Path_ReportElem_elemItem wp))
+                                           x) = maybe (Just "Elem Item") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportElem") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                   Name (mkOccName "ReportItem") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                   Right (Name (mkOccName "elemItem") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Peek_Item_Bool wp undefined)))
+          describe _ (Peek_ReportElem_Double (p@(Path_ReportElem_elemItem wp))
+                                             x) = maybe (Just "Elem Item") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportElem") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                     Name (mkOccName "ReportItem") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                     Right (Name (mkOccName "elemItem") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Peek_Item_Double wp undefined)))
+          describe _ (Peek_ReportElem_Dimension (p@(Path_ReportElem_elemItem wp))
+                                                x) = maybe (Just "Elem Item") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportElem") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                        Name (mkOccName "ReportItem") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                        Right (Name (mkOccName "elemItem") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Peek_Item_Dimension wp undefined)))
+          describe _ (Peek_ReportElem_ImageCrop (p@(Path_ReportElem_elemItem wp))
+                                                x) = maybe (Just "Elem Item") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportElem") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                        Name (mkOccName "ReportItem") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                        Right (Name (mkOccName "elemItem") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Peek_Item_ImageCrop wp undefined)))
+          describe _ (Peek_ReportElem_ImageSize (p@(Path_ReportElem_elemItem wp))
+                                                x) = maybe (Just "Elem Item") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportElem") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                        Name (mkOccName "ReportItem") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                        Right (Name (mkOccName "elemItem") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Peek_Item_ImageSize wp undefined)))
+          describe _ (Peek_ReportElem_Units (p@(Path_ReportElem_elemItem wp))
+                                            x) = maybe (Just "Elem Item") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportElem") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                    Name (mkOccName "ReportItem") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                    Right (Name (mkOccName "elemItem") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Peek_Item_Units wp undefined)))
+          describe _ (Peek_ReportElem_ImageFile (p@(Path_ReportElem_elemItem wp))
+                                                x) = maybe (Just "Elem Item") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportElem") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                        Name (mkOccName "ReportItem") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                        Right (Name (mkOccName "elemItem") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Peek_Item_ImageFile wp undefined)))
+          describe _ (Peek_ReportElem_JSONText (p@(Path_ReportElem_elemItem wp))
+                                               x) = maybe (Just "Elem Item") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportElem") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                       Name (mkOccName "ReportItem") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                       Right (Name (mkOccName "elemItem") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Peek_Item_JSONText wp undefined)))
+          describe _ (Peek_ReportElem_Markup (p@(Path_ReportElem_elemItem wp))
+                                             x) = maybe (Just "Elem Item") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportElem") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                     Name (mkOccName "ReportItem") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                     Right (Name (mkOccName "elemItem") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Peek_Item_Markup wp undefined)))
+          describe _ (Peek_ReportElem_EUI (p@(Path_ReportElem_elemItem wp))
+                                          x) = maybe (Just "Elem Item") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportElem") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                  Name (mkOccName "ReportItem") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                  Right (Name (mkOccName "elemItem") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Peek_Item_EUI wp undefined)))
+          describe _ (Peek_ReportElem_MEUI (p@(Path_ReportElem_elemItem wp))
+                                           x) = maybe (Just "Elem Item") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportElem") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                   Name (mkOccName "ReportItem") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                   Right (Name (mkOccName "elemItem") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Peek_Item_MEUI wp undefined)))
+          describe _ (Peek_ReportElem_MaybeImageFile (p@(Path_ReportElem_elemItem wp))
+                                                     x) = maybe (Just "Elem Item") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportElem") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                             Name (mkOccName "ReportItem") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                             Right (Name (mkOccName "elemItem") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Peek_Item_MaybeImageFile wp undefined)))
+          describe _ (Peek_ReportElem_ReportImage (p@(Path_ReportElem_elemItem wp))
+                                                  x) = maybe (Just "Elem Item") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportElem") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                          Name (mkOccName "ReportItem") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                          Right (Name (mkOccName "elemItem") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Peek_Item_ReportImage wp undefined)))
+          describe _ (Peek_ReportElem_ReportImages (p@(Path_ReportElem_elemItem wp))
+                                                   x) = maybe (Just "Elem Item") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportElem") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                           Name (mkOccName "ReportItem") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                           Right (Name (mkOccName "elemItem") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Peek_Item_ReportImages wp undefined)))
+          describe _ (Peek_ReportElem_ReportImageView (p@(Path_ReportElem_elemItem wp))
+                                                      x) = maybe (Just "Elem Item") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportElem") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                              Name (mkOccName "ReportItem") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                              Right (Name (mkOccName "elemItem") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Peek_Item_ReportImageView wp undefined)))
+          describe _ (Peek_ReportElem_SaneSizeImageSize (p@(Path_ReportElem_elemItem wp))
+                                                        x) = maybe (Just "Elem Item") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportElem") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                                Name (mkOccName "ReportItem") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                                Right (Name (mkOccName "elemItem") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Peek_Item_SaneSizeImageSize wp undefined)))
+          describe _ (Peek_ReportElem_Item (p@(Path_ReportElem_elemItem wp)) x) = maybe (Just "Elem Item") Just (maybe Nothing Just Nothing)
+          describe _ (Peek_ReportElem_MIM (p@(Path_ReportElem_elemItem wp))
+                                          x) = maybe (Just "Elem Item") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportElem") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                  Name (mkOccName "ReportItem") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                  Right (Name (mkOccName "elemItem") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Peek_Item_MIM wp undefined)))
+          describe _ (Peek_ReportElem_URI (p@(Path_ReportElem_elemItem wp))
+                                          x) = maybe (Just "Elem Item") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportElem") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                  Name (mkOccName "ReportItem") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                  Right (Name (mkOccName "elemItem") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Peek_Item_URI wp undefined)))
+          describe _ (Peek_ReportElem_Text (p@(Path_ReportElem_elemItem wp))
+                                           x) = maybe (Just "Elem Item") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportElem") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                   Name (mkOccName "ReportItem") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                   Right (Name (mkOccName "elemItem") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Peek_Item_Text wp undefined)))
+          describe _ (Peek_ReportElem_JSONText (p@(Path_ReportElem_elemText wp))
+                                               x) = maybe (Just "Elem Text") Just (maybe (describe (Just (Name (mkOccName "ReportElem") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                          Name (mkOccName "ReportParagraph") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                          Right (Name (mkOccName "elemText") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Proxy :: Proxy Markup)) Just (describe (Just (Name (mkOccName "ReportElem") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                                                                                                                                                                 Name (mkOccName "ReportParagraph") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                                                                                                                                                                 Right (Name (mkOccName "elemText") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Peek_Markup_JSONText wp undefined)))
+          describe _ (Peek_ReportElem_Markup (p@(Path_ReportElem_elemText wp))
+                                             x) = maybe (Just "Elem Text") Just (maybe (describe (Just (Name (mkOccName "ReportElem") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                        Name (mkOccName "ReportParagraph") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                        Right (Name (mkOccName "elemText") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Proxy :: Proxy Markup)) Just Nothing)
+          describe _ (Peek_ReportElem_Text (p@(Path_ReportElem_elemText wp))
+                                           x) = maybe (Just "Elem Text") Just (maybe (describe (Just (Name (mkOccName "ReportElem") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                      Name (mkOccName "ReportParagraph") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                      Right (Name (mkOccName "elemText") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Proxy :: Proxy Markup)) Just (describe (Just (Name (mkOccName "ReportElem") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                                                                                                                                                             Name (mkOccName "ReportParagraph") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                                                                                                                                                             Right (Name (mkOccName "elemText") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Peek_Markup_Text wp undefined)))
 instance Describe (Peek ReportFlags)
-    where describe _ (Peek_ReportFlags_String (p@(Path_ReportFlags_hideEmptyItemFields _)) x) = Just "Hide Empty Item Fields"
-          describe _ (Peek_ReportFlags_Bool (p@(Path_ReportFlags_hideEmptyItemFields _)) x) = Just "Hide Empty Item Fields"
-          describe _ (Peek_ReportFlags_JSONText (p@(Path_ReportFlags_hideEmptyItemFields _)) x) = Just "Hide Empty Item Fields"
+    where describe _ (Peek_ReportFlags_String (p@(Path_ReportFlags_hideEmptyItemFields wp))
+                                              x) = maybe (Just "Hide Empty Item Fields") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportFlags") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                                   Name (mkOccName "ReportFlags") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                                   Right (Name (mkOccName "hideEmptyItemFields") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Peek_Bool_String wp undefined)))
+          describe _ (Peek_ReportFlags_Bool (p@(Path_ReportFlags_hideEmptyItemFields wp)) x) = maybe (Just "Hide Empty Item Fields") Just (maybe Nothing Just Nothing)
+          describe _ (Peek_ReportFlags_JSONText (p@(Path_ReportFlags_hideEmptyItemFields wp))
+                                                x) = maybe (Just "Hide Empty Item Fields") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportFlags") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                                     Name (mkOccName "ReportFlags") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                                     Right (Name (mkOccName "hideEmptyItemFields") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Peek_Bool_JSONText wp undefined)))
 instance Describe (Peek ReportIntendedUse)
-    where describe _ (Peek_ReportIntendedUse_String (p@(Path_ReportIntendedUse_View _)) x) = Just "String"
-          describe _ (Peek_ReportIntendedUse_JSONText (p@(Path_ReportIntendedUse_View _)) x) = Just "String"
+    where describe _ (Peek_ReportIntendedUse_String (p@(Path_ReportIntendedUse_View wp)) x) = maybe (Just "String") Just (maybe Nothing Just Nothing)
+          describe _ (Peek_ReportIntendedUse_JSONText (p@(Path_ReportIntendedUse_View wp))
+                                                      x) = maybe (Just "String") Just (maybe Nothing Just (describe Nothing (Peek_String_JSONText wp undefined)))
 instance Describe (Peek ReportStandard)
-    where describe _ (Peek_ReportStandard_Int (p@(Path_ReportStandard_unReportStandard _)) x) = Just "Un Report Standard"
+    where describe _ (Peek_ReportStandard_Int (p@(Path_ReportStandard_unReportStandard wp)) x) = maybe (Just "Un Report Standard") Just (maybe Nothing Just Nothing)
 instance Describe (Peek ReportStatus)
-    where describe _ (Peek_ReportStatus_String (p@(Path_ReportStatus_View _)) x) = Just "String"
-          describe _ (Peek_ReportStatus_JSONText (p@(Path_ReportStatus_View _)) x) = Just "String"
+    where describe _ (Peek_ReportStatus_String (p@(Path_ReportStatus_View wp)) x) = maybe (Just "String") Just (maybe Nothing Just Nothing)
+          describe _ (Peek_ReportStatus_JSONText (p@(Path_ReportStatus_View wp))
+                                                 x) = maybe (Just "String") Just (maybe Nothing Just (describe Nothing (Peek_String_JSONText wp undefined)))
 instance Describe (Peek ReportValueApproachInfo)
-    where describe _ (Peek_ReportValueApproachInfo_JSONText (p@(Path_ReportValueApproachInfo_reportValueApproachName _))
-                                                            x) = fromMaybe (Just "Report Value Approach Name") (describe (Just (Name (mkOccName "ReportValueApproachInfo") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
-                                                                                                                                Name (mkOccName "ReportValueApproachInfo") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
-                                                                                                                                Right (Name (mkOccName "reportValueApproachName") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportValueApproachInfo_Markup (p@(Path_ReportValueApproachInfo_reportValueApproachName _))
-                                                          x) = fromMaybe (Just "Report Value Approach Name") (describe (Just (Name (mkOccName "ReportValueApproachInfo") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
-                                                                                                                              Name (mkOccName "ReportValueApproachInfo") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
-                                                                                                                              Right (Name (mkOccName "reportValueApproachName") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportValueApproachInfo_Text (p@(Path_ReportValueApproachInfo_reportValueApproachName _))
-                                                        x) = fromMaybe (Just "Report Value Approach Name") (describe (Just (Name (mkOccName "ReportValueApproachInfo") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
-                                                                                                                            Name (mkOccName "ReportValueApproachInfo") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
-                                                                                                                            Right (Name (mkOccName "reportValueApproachName") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportValueApproachInfo_JSONText (p@(Path_ReportValueApproachInfo_reportValueApproachDescription _))
-                                                            x) = fromMaybe (Just "Report Value Approach Description") (describe (Just (Name (mkOccName "ReportValueApproachInfo") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
-                                                                                                                                       Name (mkOccName "ReportValueApproachInfo") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
-                                                                                                                                       Right (Name (mkOccName "reportValueApproachDescription") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportValueApproachInfo_Markup (p@(Path_ReportValueApproachInfo_reportValueApproachDescription _))
-                                                          x) = fromMaybe (Just "Report Value Approach Description") (describe (Just (Name (mkOccName "ReportValueApproachInfo") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
-                                                                                                                                     Name (mkOccName "ReportValueApproachInfo") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
-                                                                                                                                     Right (Name (mkOccName "reportValueApproachDescription") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportValueApproachInfo_Text (p@(Path_ReportValueApproachInfo_reportValueApproachDescription _))
-                                                        x) = fromMaybe (Just "Report Value Approach Description") (describe (Just (Name (mkOccName "ReportValueApproachInfo") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
-                                                                                                                                   Name (mkOccName "ReportValueApproachInfo") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
-                                                                                                                                   Right (Name (mkOccName "reportValueApproachDescription") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Proxy :: Proxy Markup))
+    where describe _ (Peek_ReportValueApproachInfo_JSONText (p@(Path_ReportValueApproachInfo_reportValueApproachName wp))
+                                                            x) = maybe (Just "Report Value Approach Name") Just (maybe (describe (Just (Name (mkOccName "ReportValueApproachInfo") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                                        Name (mkOccName "ReportValueApproachInfo") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                                        Right (Name (mkOccName "reportValueApproachName") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Proxy :: Proxy Markup)) Just (describe (Just (Name (mkOccName "ReportValueApproachInfo") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                                                                                                                                                                                                              Name (mkOccName "ReportValueApproachInfo") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                                                                                                                                                                                                              Right (Name (mkOccName "reportValueApproachName") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Peek_Markup_JSONText wp undefined)))
+          describe _ (Peek_ReportValueApproachInfo_Markup (p@(Path_ReportValueApproachInfo_reportValueApproachName wp))
+                                                          x) = maybe (Just "Report Value Approach Name") Just (maybe (describe (Just (Name (mkOccName "ReportValueApproachInfo") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                                      Name (mkOccName "ReportValueApproachInfo") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                                      Right (Name (mkOccName "reportValueApproachName") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Proxy :: Proxy Markup)) Just Nothing)
+          describe _ (Peek_ReportValueApproachInfo_Text (p@(Path_ReportValueApproachInfo_reportValueApproachName wp))
+                                                        x) = maybe (Just "Report Value Approach Name") Just (maybe (describe (Just (Name (mkOccName "ReportValueApproachInfo") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                                    Name (mkOccName "ReportValueApproachInfo") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                                    Right (Name (mkOccName "reportValueApproachName") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Proxy :: Proxy Markup)) Just (describe (Just (Name (mkOccName "ReportValueApproachInfo") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                                                                                                                                                                                                          Name (mkOccName "ReportValueApproachInfo") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                                                                                                                                                                                                          Right (Name (mkOccName "reportValueApproachName") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Peek_Markup_Text wp undefined)))
+          describe _ (Peek_ReportValueApproachInfo_JSONText (p@(Path_ReportValueApproachInfo_reportValueApproachDescription wp))
+                                                            x) = maybe (Just "Report Value Approach Description") Just (maybe (describe (Just (Name (mkOccName "ReportValueApproachInfo") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                                               Name (mkOccName "ReportValueApproachInfo") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                                               Right (Name (mkOccName "reportValueApproachDescription") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Proxy :: Proxy Markup)) Just (describe (Just (Name (mkOccName "ReportValueApproachInfo") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                                                                                                                                                                                                                            Name (mkOccName "ReportValueApproachInfo") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                                                                                                                                                                                                                            Right (Name (mkOccName "reportValueApproachDescription") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Peek_Markup_JSONText wp undefined)))
+          describe _ (Peek_ReportValueApproachInfo_Markup (p@(Path_ReportValueApproachInfo_reportValueApproachDescription wp))
+                                                          x) = maybe (Just "Report Value Approach Description") Just (maybe (describe (Just (Name (mkOccName "ReportValueApproachInfo") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                                             Name (mkOccName "ReportValueApproachInfo") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                                             Right (Name (mkOccName "reportValueApproachDescription") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Proxy :: Proxy Markup)) Just Nothing)
+          describe _ (Peek_ReportValueApproachInfo_Text (p@(Path_ReportValueApproachInfo_reportValueApproachDescription wp))
+                                                        x) = maybe (Just "Report Value Approach Description") Just (maybe (describe (Just (Name (mkOccName "ReportValueApproachInfo") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                                           Name (mkOccName "ReportValueApproachInfo") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                                           Right (Name (mkOccName "reportValueApproachDescription") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Proxy :: Proxy Markup)) Just (describe (Just (Name (mkOccName "ReportValueApproachInfo") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                                                                                                                                                                                                                        Name (mkOccName "ReportValueApproachInfo") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                                                                                                                                                                                                                        Right (Name (mkOccName "reportValueApproachDescription") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Peek_Markup_Text wp undefined)))
 instance Describe (Peek ReportValueTypeInfo)
-    where describe _ (Peek_ReportValueTypeInfo_JSONText (p@(Path_ReportValueTypeInfo_reportValueTypeName _))
-                                                        x) = fromMaybe (Just "Report Value Type Name") (describe (Just (Name (mkOccName "ReportValueTypeInfo") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
-                                                                                                                        Name (mkOccName "ReportValueTypeInfo") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
-                                                                                                                        Right (Name (mkOccName "reportValueTypeName") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportValueTypeInfo_Markup (p@(Path_ReportValueTypeInfo_reportValueTypeName _))
-                                                      x) = fromMaybe (Just "Report Value Type Name") (describe (Just (Name (mkOccName "ReportValueTypeInfo") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
-                                                                                                                      Name (mkOccName "ReportValueTypeInfo") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
-                                                                                                                      Right (Name (mkOccName "reportValueTypeName") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportValueTypeInfo_Text (p@(Path_ReportValueTypeInfo_reportValueTypeName _))
-                                                    x) = fromMaybe (Just "Report Value Type Name") (describe (Just (Name (mkOccName "ReportValueTypeInfo") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
-                                                                                                                    Name (mkOccName "ReportValueTypeInfo") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
-                                                                                                                    Right (Name (mkOccName "reportValueTypeName") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportValueTypeInfo_JSONText (p@(Path_ReportValueTypeInfo_reportValueTypeDescription _))
-                                                        x) = fromMaybe (Just "Report Value Type Description") (describe (Just (Name (mkOccName "ReportValueTypeInfo") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
-                                                                                                                               Name (mkOccName "ReportValueTypeInfo") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
-                                                                                                                               Right (Name (mkOccName "reportValueTypeDescription") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportValueTypeInfo_Markup (p@(Path_ReportValueTypeInfo_reportValueTypeDescription _))
-                                                      x) = fromMaybe (Just "Report Value Type Description") (describe (Just (Name (mkOccName "ReportValueTypeInfo") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
-                                                                                                                             Name (mkOccName "ReportValueTypeInfo") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
-                                                                                                                             Right (Name (mkOccName "reportValueTypeDescription") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportValueTypeInfo_Text (p@(Path_ReportValueTypeInfo_reportValueTypeDescription _))
-                                                    x) = fromMaybe (Just "Report Value Type Description") (describe (Just (Name (mkOccName "ReportValueTypeInfo") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
-                                                                                                                           Name (mkOccName "ReportValueTypeInfo") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
-                                                                                                                           Right (Name (mkOccName "reportValueTypeDescription") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportValueTypeInfo_JSONText (p@(Path_ReportValueTypeInfo_reportValueTypeDefinition _))
-                                                        x) = fromMaybe (Just "Report Value Type Definition") (describe (Just (Name (mkOccName "ReportValueTypeInfo") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
+    where describe _ (Peek_ReportValueTypeInfo_JSONText (p@(Path_ReportValueTypeInfo_reportValueTypeName wp))
+                                                        x) = maybe (Just "Report Value Type Name") Just (maybe (describe (Just (Name (mkOccName "ReportValueTypeInfo") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                                Name (mkOccName "ReportValueTypeInfo") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                                Right (Name (mkOccName "reportValueTypeName") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Proxy :: Proxy Markup)) Just (describe (Just (Name (mkOccName "ReportValueTypeInfo") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                                                                                                                                                                                                  Name (mkOccName "ReportValueTypeInfo") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                                                                                                                                                                                                  Right (Name (mkOccName "reportValueTypeName") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Peek_Markup_JSONText wp undefined)))
+          describe _ (Peek_ReportValueTypeInfo_Markup (p@(Path_ReportValueTypeInfo_reportValueTypeName wp))
+                                                      x) = maybe (Just "Report Value Type Name") Just (maybe (describe (Just (Name (mkOccName "ReportValueTypeInfo") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
                                                                                                                               Name (mkOccName "ReportValueTypeInfo") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
-                                                                                                                              Right (Name (mkOccName "reportValueTypeDefinition") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportValueTypeInfo_Markup (p@(Path_ReportValueTypeInfo_reportValueTypeDefinition _))
-                                                      x) = fromMaybe (Just "Report Value Type Definition") (describe (Just (Name (mkOccName "ReportValueTypeInfo") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                              Right (Name (mkOccName "reportValueTypeName") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Proxy :: Proxy Markup)) Just Nothing)
+          describe _ (Peek_ReportValueTypeInfo_Text (p@(Path_ReportValueTypeInfo_reportValueTypeName wp))
+                                                    x) = maybe (Just "Report Value Type Name") Just (maybe (describe (Just (Name (mkOccName "ReportValueTypeInfo") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
                                                                                                                             Name (mkOccName "ReportValueTypeInfo") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
-                                                                                                                            Right (Name (mkOccName "reportValueTypeDefinition") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportValueTypeInfo_Text (p@(Path_ReportValueTypeInfo_reportValueTypeDefinition _))
-                                                    x) = fromMaybe (Just "Report Value Type Definition") (describe (Just (Name (mkOccName "ReportValueTypeInfo") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
-                                                                                                                          Name (mkOccName "ReportValueTypeInfo") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
-                                                                                                                          Right (Name (mkOccName "reportValueTypeDefinition") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Proxy :: Proxy Markup))
+                                                                                                                            Right (Name (mkOccName "reportValueTypeName") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Proxy :: Proxy Markup)) Just (describe (Just (Name (mkOccName "ReportValueTypeInfo") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                                                                                                                                                                                              Name (mkOccName "ReportValueTypeInfo") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                                                                                                                                                                                              Right (Name (mkOccName "reportValueTypeName") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Peek_Markup_Text wp undefined)))
+          describe _ (Peek_ReportValueTypeInfo_JSONText (p@(Path_ReportValueTypeInfo_reportValueTypeDescription wp))
+                                                        x) = maybe (Just "Report Value Type Description") Just (maybe (describe (Just (Name (mkOccName "ReportValueTypeInfo") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                                       Name (mkOccName "ReportValueTypeInfo") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                                       Right (Name (mkOccName "reportValueTypeDescription") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Proxy :: Proxy Markup)) Just (describe (Just (Name (mkOccName "ReportValueTypeInfo") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                                                                                                                                                                                                                Name (mkOccName "ReportValueTypeInfo") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                                                                                                                                                                                                                Right (Name (mkOccName "reportValueTypeDescription") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Peek_Markup_JSONText wp undefined)))
+          describe _ (Peek_ReportValueTypeInfo_Markup (p@(Path_ReportValueTypeInfo_reportValueTypeDescription wp))
+                                                      x) = maybe (Just "Report Value Type Description") Just (maybe (describe (Just (Name (mkOccName "ReportValueTypeInfo") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                                     Name (mkOccName "ReportValueTypeInfo") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                                     Right (Name (mkOccName "reportValueTypeDescription") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Proxy :: Proxy Markup)) Just Nothing)
+          describe _ (Peek_ReportValueTypeInfo_Text (p@(Path_ReportValueTypeInfo_reportValueTypeDescription wp))
+                                                    x) = maybe (Just "Report Value Type Description") Just (maybe (describe (Just (Name (mkOccName "ReportValueTypeInfo") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                                   Name (mkOccName "ReportValueTypeInfo") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                                   Right (Name (mkOccName "reportValueTypeDescription") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Proxy :: Proxy Markup)) Just (describe (Just (Name (mkOccName "ReportValueTypeInfo") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                                                                                                                                                                                                            Name (mkOccName "ReportValueTypeInfo") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                                                                                                                                                                                                            Right (Name (mkOccName "reportValueTypeDescription") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Peek_Markup_Text wp undefined)))
+          describe _ (Peek_ReportValueTypeInfo_JSONText (p@(Path_ReportValueTypeInfo_reportValueTypeDefinition wp))
+                                                        x) = maybe (Just "Report Value Type Definition") Just (maybe (describe (Just (Name (mkOccName "ReportValueTypeInfo") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                                      Name (mkOccName "ReportValueTypeInfo") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                                      Right (Name (mkOccName "reportValueTypeDefinition") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Proxy :: Proxy Markup)) Just (describe (Just (Name (mkOccName "ReportValueTypeInfo") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                                                                                                                                                                                                              Name (mkOccName "ReportValueTypeInfo") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                                                                                                                                                                                                              Right (Name (mkOccName "reportValueTypeDefinition") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Peek_Markup_JSONText wp undefined)))
+          describe _ (Peek_ReportValueTypeInfo_Markup (p@(Path_ReportValueTypeInfo_reportValueTypeDefinition wp))
+                                                      x) = maybe (Just "Report Value Type Definition") Just (maybe (describe (Just (Name (mkOccName "ReportValueTypeInfo") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                                    Name (mkOccName "ReportValueTypeInfo") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                                    Right (Name (mkOccName "reportValueTypeDefinition") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Proxy :: Proxy Markup)) Just Nothing)
+          describe _ (Peek_ReportValueTypeInfo_Text (p@(Path_ReportValueTypeInfo_reportValueTypeDefinition wp))
+                                                    x) = maybe (Just "Report Value Type Definition") Just (maybe (describe (Just (Name (mkOccName "ReportValueTypeInfo") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                                  Name (mkOccName "ReportValueTypeInfo") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                                  Right (Name (mkOccName "reportValueTypeDefinition") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Proxy :: Proxy Markup)) Just (describe (Just (Name (mkOccName "ReportValueTypeInfo") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                                                                                                                                                                                                          Name (mkOccName "ReportValueTypeInfo") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.Report")),
+                                                                                                                                                                                                                                                                                                          Right (Name (mkOccName "reportValueTypeDefinition") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.Report"))))) (Peek_Markup_Text wp undefined)))
 instance Describe (Peek ReportImage)
-    where describe _ (Peek_ReportImage_String (p@(Path_ReportImage_View _)) x) = Just "Report Image View"
-          describe _ (Peek_ReportImage_Bool (p@(Path_ReportImage_View _)) x) = Just "Report Image View"
-          describe _ (Peek_ReportImage_Double (p@(Path_ReportImage_View _)) x) = Just "Report Image View"
-          describe _ (Peek_ReportImage_Dimension (p@(Path_ReportImage_View _)) x) = Just "Report Image View"
-          describe _ (Peek_ReportImage_ImageCrop (p@(Path_ReportImage_View _)) x) = Just "Report Image View"
-          describe _ (Peek_ReportImage_ImageSize (p@(Path_ReportImage_View _)) x) = Just "Report Image View"
-          describe _ (Peek_ReportImage_Units (p@(Path_ReportImage_View _)) x) = Just "Report Image View"
-          describe _ (Peek_ReportImage_ImageFile (p@(Path_ReportImage_View _)) x) = Just "Report Image View"
-          describe _ (Peek_ReportImage_JSONText (p@(Path_ReportImage_View _)) x) = Just "Report Image View"
-          describe _ (Peek_ReportImage_Markup (p@(Path_ReportImage_View _)) x) = Just "Report Image View"
-          describe _ (Peek_ReportImage_EUI (p@(Path_ReportImage_View _)) x) = Just "Report Image View"
-          describe _ (Peek_ReportImage_MEUI (p@(Path_ReportImage_View _)) x) = Just "Report Image View"
-          describe _ (Peek_ReportImage_MaybeImageFile (p@(Path_ReportImage_View _)) x) = Just "Report Image View"
-          describe _ (Peek_ReportImage_ReportImageView (p@(Path_ReportImage_View _)) x) = Just "Report Image View"
-          describe _ (Peek_ReportImage_SaneSizeImageSize (p@(Path_ReportImage_View _)) x) = Just "Report Image View"
-          describe _ (Peek_ReportImage_URI (p@(Path_ReportImage_View _)) x) = Just "Report Image View"
-          describe _ (Peek_ReportImage_Text (p@(Path_ReportImage_View _)) x) = Just "Report Image View"
+    where describe _ (Peek_ReportImage_String (p@(Path_ReportImage_View wp))
+                                              x) = maybe (Just "Report Image View") Just (maybe Nothing Just (describe Nothing (Peek_ReportImageView_String wp undefined)))
+          describe _ (Peek_ReportImage_Bool (p@(Path_ReportImage_View wp))
+                                            x) = maybe (Just "Report Image View") Just (maybe Nothing Just (describe Nothing (Peek_ReportImageView_Bool wp undefined)))
+          describe _ (Peek_ReportImage_Double (p@(Path_ReportImage_View wp))
+                                              x) = maybe (Just "Report Image View") Just (maybe Nothing Just (describe Nothing (Peek_ReportImageView_Double wp undefined)))
+          describe _ (Peek_ReportImage_Dimension (p@(Path_ReportImage_View wp))
+                                                 x) = maybe (Just "Report Image View") Just (maybe Nothing Just (describe Nothing (Peek_ReportImageView_Dimension wp undefined)))
+          describe _ (Peek_ReportImage_ImageCrop (p@(Path_ReportImage_View wp))
+                                                 x) = maybe (Just "Report Image View") Just (maybe Nothing Just (describe Nothing (Peek_ReportImageView_ImageCrop wp undefined)))
+          describe _ (Peek_ReportImage_ImageSize (p@(Path_ReportImage_View wp))
+                                                 x) = maybe (Just "Report Image View") Just (maybe Nothing Just (describe Nothing (Peek_ReportImageView_ImageSize wp undefined)))
+          describe _ (Peek_ReportImage_Units (p@(Path_ReportImage_View wp))
+                                             x) = maybe (Just "Report Image View") Just (maybe Nothing Just (describe Nothing (Peek_ReportImageView_Units wp undefined)))
+          describe _ (Peek_ReportImage_ImageFile (p@(Path_ReportImage_View wp))
+                                                 x) = maybe (Just "Report Image View") Just (maybe Nothing Just (describe Nothing (Peek_ReportImageView_ImageFile wp undefined)))
+          describe _ (Peek_ReportImage_JSONText (p@(Path_ReportImage_View wp))
+                                                x) = maybe (Just "Report Image View") Just (maybe Nothing Just (describe Nothing (Peek_ReportImageView_JSONText wp undefined)))
+          describe _ (Peek_ReportImage_Markup (p@(Path_ReportImage_View wp))
+                                              x) = maybe (Just "Report Image View") Just (maybe Nothing Just (describe Nothing (Peek_ReportImageView_Markup wp undefined)))
+          describe _ (Peek_ReportImage_EUI (p@(Path_ReportImage_View wp))
+                                           x) = maybe (Just "Report Image View") Just (maybe Nothing Just (describe Nothing (Peek_ReportImageView_EUI wp undefined)))
+          describe _ (Peek_ReportImage_MEUI (p@(Path_ReportImage_View wp))
+                                            x) = maybe (Just "Report Image View") Just (maybe Nothing Just (describe Nothing (Peek_ReportImageView_MEUI wp undefined)))
+          describe _ (Peek_ReportImage_MaybeImageFile (p@(Path_ReportImage_View wp))
+                                                      x) = maybe (Just "Report Image View") Just (maybe Nothing Just (describe Nothing (Peek_ReportImageView_MaybeImageFile wp undefined)))
+          describe _ (Peek_ReportImage_ReportImageView (p@(Path_ReportImage_View wp)) x) = maybe (Just "Report Image View") Just (maybe Nothing Just Nothing)
+          describe _ (Peek_ReportImage_SaneSizeImageSize (p@(Path_ReportImage_View wp))
+                                                         x) = maybe (Just "Report Image View") Just (maybe Nothing Just (describe Nothing (Peek_ReportImageView_SaneSizeImageSize wp undefined)))
+          describe _ (Peek_ReportImage_URI (p@(Path_ReportImage_View wp))
+                                           x) = maybe (Just "Report Image View") Just (maybe Nothing Just (describe Nothing (Peek_ReportImageView_URI wp undefined)))
+          describe _ (Peek_ReportImage_Text (p@(Path_ReportImage_View wp))
+                                            x) = maybe (Just "Report Image View") Just (maybe Nothing Just (describe Nothing (Peek_ReportImageView_Text wp undefined)))
 instance Describe (Peek ReportImageView)
-    where describe _ (Peek_ReportImageView_String (p@(Path_ReportImageView__picSize _)) x) = Just "Pic Size"
-          describe _ (Peek_ReportImageView_Double (p@(Path_ReportImageView__picSize _)) x) = Just "Pic Size"
-          describe _ (Peek_ReportImageView_Dimension (p@(Path_ReportImageView__picSize _)) x) = Just "Pic Size"
-          describe _ (Peek_ReportImageView_ImageSize (p@(Path_ReportImageView__picSize _)) x) = Just "Pic Size"
-          describe _ (Peek_ReportImageView_Units (p@(Path_ReportImageView__picSize _)) x) = Just "Pic Size"
-          describe _ (Peek_ReportImageView_JSONText (p@(Path_ReportImageView__picSize _)) x) = Just "Pic Size"
-          describe _ (Peek_ReportImageView_SaneSizeImageSize (p@(Path_ReportImageView__picSize _)) x) = Just "Pic Size"
-          describe _ (Peek_ReportImageView_ImageCrop (p@(Path_ReportImageView__picCrop _)) x) = Just "Pic Crop"
-          describe _ (Peek_ReportImageView_JSONText (p@(Path_ReportImageView__picCaption _))
-                                                    x) = fromMaybe (Just "Pic Caption") (describe (Just (Name (mkOccName "ReportImageView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                         Name (mkOccName "ReportImageView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                         Right (Name (mkOccName "_picCaption") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportImageView_Markup (p@(Path_ReportImageView__picCaption _))
-                                                  x) = fromMaybe (Just "Pic Caption") (describe (Just (Name (mkOccName "ReportImageView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                       Name (mkOccName "ReportImageView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                       Right (Name (mkOccName "_picCaption") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportImageView_Text (p@(Path_ReportImageView__picCaption _))
-                                                x) = fromMaybe (Just "Pic Caption") (describe (Just (Name (mkOccName "ReportImageView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                     Name (mkOccName "ReportImageView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                     Right (Name (mkOccName "_picCaption") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportImageView_ImageFile (p@(Path_ReportImageView__picOriginal _)) x) = Just "Pic Original"
-          describe _ (Peek_ReportImageView_EUI (p@(Path_ReportImageView__picOriginal _)) x) = Just "Pic Original"
-          describe _ (Peek_ReportImageView_MEUI (p@(Path_ReportImageView__picOriginal _)) x) = Just "Pic Original"
-          describe _ (Peek_ReportImageView_URI (p@(Path_ReportImageView__picOriginal _)) x) = Just "Pic Original"
-          describe _ (Peek_ReportImageView_String (p@(Path_ReportImageView__picEditedDeprecated _)) x) = Just "Pic Edited Deprecated"
-          describe _ (Peek_ReportImageView_JSONText (p@(Path_ReportImageView__picEditedDeprecated _)) x) = Just "Pic Edited Deprecated"
-          describe _ (Peek_ReportImageView_MaybeImageFile (p@(Path_ReportImageView__picEditedDeprecated _)) x) = Just "Pic Edited Deprecated"
-          describe _ (Peek_ReportImageView_String (p@(Path_ReportImageView__picThumbDeprecated _)) x) = Just "Pic Thumb Deprecated"
-          describe _ (Peek_ReportImageView_JSONText (p@(Path_ReportImageView__picThumbDeprecated _)) x) = Just "Pic Thumb Deprecated"
-          describe _ (Peek_ReportImageView_MaybeImageFile (p@(Path_ReportImageView__picThumbDeprecated _)) x) = Just "Pic Thumb Deprecated"
-          describe _ (Peek_ReportImageView_String (p@(Path_ReportImageView__picPrinterDeprecated _)) x) = Just "Pic Printer Deprecated"
-          describe _ (Peek_ReportImageView_JSONText (p@(Path_ReportImageView__picPrinterDeprecated _)) x) = Just "Pic Printer Deprecated"
-          describe _ (Peek_ReportImageView_MaybeImageFile (p@(Path_ReportImageView__picPrinterDeprecated _)) x) = Just "Pic Printer Deprecated"
-          describe _ (Peek_ReportImageView_String (p@(Path_ReportImageView__picMustEnlarge _)) x) = Just "Pic Must Enlarge"
-          describe _ (Peek_ReportImageView_Bool (p@(Path_ReportImageView__picMustEnlarge _)) x) = Just "Pic Must Enlarge"
-          describe _ (Peek_ReportImageView_JSONText (p@(Path_ReportImageView__picMustEnlarge _)) x) = Just "Pic Must Enlarge"
-          describe _ (Peek_ReportImageView_String (p@(Path_ReportImageView__picEnlargedDeprecated _)) x) = Just "Pic Enlarged Deprecated"
-          describe _ (Peek_ReportImageView_JSONText (p@(Path_ReportImageView__picEnlargedDeprecated _)) x) = Just "Pic Enlarged Deprecated"
-          describe _ (Peek_ReportImageView_MaybeImageFile (p@(Path_ReportImageView__picEnlargedDeprecated _)) x) = Just "Pic Enlarged Deprecated"
+    where describe _ (Peek_ReportImageView_String (p@(Path_ReportImageView__picSize wp))
+                                                  x) = maybe (Just "Pic Size") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportImageView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                         Name (mkOccName "ReportImageView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                         Right (Name (mkOccName "_picSize") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_SaneSizeImageSize_String wp undefined)))
+          describe _ (Peek_ReportImageView_Double (p@(Path_ReportImageView__picSize wp))
+                                                  x) = maybe (Just "Pic Size") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportImageView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                         Name (mkOccName "ReportImageView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                         Right (Name (mkOccName "_picSize") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_SaneSizeImageSize_Double wp undefined)))
+          describe _ (Peek_ReportImageView_Dimension (p@(Path_ReportImageView__picSize wp))
+                                                     x) = maybe (Just "Pic Size") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportImageView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                            Name (mkOccName "ReportImageView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                            Right (Name (mkOccName "_picSize") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_SaneSizeImageSize_Dimension wp undefined)))
+          describe _ (Peek_ReportImageView_ImageSize (p@(Path_ReportImageView__picSize wp))
+                                                     x) = maybe (Just "Pic Size") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportImageView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                            Name (mkOccName "ReportImageView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                            Right (Name (mkOccName "_picSize") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_SaneSizeImageSize_ImageSize wp undefined)))
+          describe _ (Peek_ReportImageView_Units (p@(Path_ReportImageView__picSize wp))
+                                                 x) = maybe (Just "Pic Size") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportImageView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                        Name (mkOccName "ReportImageView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                        Right (Name (mkOccName "_picSize") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_SaneSizeImageSize_Units wp undefined)))
+          describe _ (Peek_ReportImageView_JSONText (p@(Path_ReportImageView__picSize wp))
+                                                    x) = maybe (Just "Pic Size") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportImageView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                           Name (mkOccName "ReportImageView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                           Right (Name (mkOccName "_picSize") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_SaneSizeImageSize_JSONText wp undefined)))
+          describe _ (Peek_ReportImageView_SaneSizeImageSize (p@(Path_ReportImageView__picSize wp)) x) = maybe (Just "Pic Size") Just (maybe Nothing Just Nothing)
+          describe _ (Peek_ReportImageView_ImageCrop (p@(Path_ReportImageView__picCrop wp)) x) = maybe (Just "Pic Crop") Just (maybe Nothing Just Nothing)
+          describe _ (Peek_ReportImageView_JSONText (p@(Path_ReportImageView__picCaption wp))
+                                                    x) = maybe (Just "Pic Caption") Just (maybe (describe (Just (Name (mkOccName "ReportImageView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                 Name (mkOccName "ReportImageView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                 Right (Name (mkOccName "_picCaption") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just (describe (Just (Name (mkOccName "ReportImageView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                    Name (mkOccName "ReportImageView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                    Right (Name (mkOccName "_picCaption") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Markup_JSONText wp undefined)))
+          describe _ (Peek_ReportImageView_Markup (p@(Path_ReportImageView__picCaption wp))
+                                                  x) = maybe (Just "Pic Caption") Just (maybe (describe (Just (Name (mkOccName "ReportImageView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                               Name (mkOccName "ReportImageView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                               Right (Name (mkOccName "_picCaption") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just Nothing)
+          describe _ (Peek_ReportImageView_Text (p@(Path_ReportImageView__picCaption wp))
+                                                x) = maybe (Just "Pic Caption") Just (maybe (describe (Just (Name (mkOccName "ReportImageView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                             Name (mkOccName "ReportImageView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                             Right (Name (mkOccName "_picCaption") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just (describe (Just (Name (mkOccName "ReportImageView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                Name (mkOccName "ReportImageView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                Right (Name (mkOccName "_picCaption") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Markup_Text wp undefined)))
+          describe _ (Peek_ReportImageView_ImageFile (p@(Path_ReportImageView__picOriginal wp))
+                                                     x) = maybe (Just "Pic Original") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportImageView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                Name (mkOccName "ReportImageView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                Right (Name (mkOccName "_picOriginal") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_MEUI_ImageFile wp undefined)))
+          describe _ (Peek_ReportImageView_EUI (p@(Path_ReportImageView__picOriginal wp))
+                                               x) = maybe (Just "Pic Original") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportImageView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                          Name (mkOccName "ReportImageView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                          Right (Name (mkOccName "_picOriginal") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_MEUI_EUI wp undefined)))
+          describe _ (Peek_ReportImageView_MEUI (p@(Path_ReportImageView__picOriginal wp)) x) = maybe (Just "Pic Original") Just (maybe Nothing Just Nothing)
+          describe _ (Peek_ReportImageView_URI (p@(Path_ReportImageView__picOriginal wp))
+                                               x) = maybe (Just "Pic Original") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportImageView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                          Name (mkOccName "ReportImageView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                          Right (Name (mkOccName "_picOriginal") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_MEUI_URI wp undefined)))
+          describe _ (Peek_ReportImageView_String (p@(Path_ReportImageView__picEditedDeprecated wp))
+                                                  x) = maybe (Just "Pic Edited Deprecated") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportImageView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                      Name (mkOccName "ReportImageView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                      Right (Name (mkOccName "_picEditedDeprecated") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_MaybeImageFile_String wp undefined)))
+          describe _ (Peek_ReportImageView_JSONText (p@(Path_ReportImageView__picEditedDeprecated wp))
+                                                    x) = maybe (Just "Pic Edited Deprecated") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportImageView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                        Name (mkOccName "ReportImageView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                        Right (Name (mkOccName "_picEditedDeprecated") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_MaybeImageFile_JSONText wp undefined)))
+          describe _ (Peek_ReportImageView_MaybeImageFile (p@(Path_ReportImageView__picEditedDeprecated wp))
+                                                          x) = maybe (Just "Pic Edited Deprecated") Just (maybe Nothing Just Nothing)
+          describe _ (Peek_ReportImageView_String (p@(Path_ReportImageView__picThumbDeprecated wp))
+                                                  x) = maybe (Just "Pic Thumb Deprecated") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportImageView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                     Name (mkOccName "ReportImageView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                     Right (Name (mkOccName "_picThumbDeprecated") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_MaybeImageFile_String wp undefined)))
+          describe _ (Peek_ReportImageView_JSONText (p@(Path_ReportImageView__picThumbDeprecated wp))
+                                                    x) = maybe (Just "Pic Thumb Deprecated") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportImageView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                       Name (mkOccName "ReportImageView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                       Right (Name (mkOccName "_picThumbDeprecated") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_MaybeImageFile_JSONText wp undefined)))
+          describe _ (Peek_ReportImageView_MaybeImageFile (p@(Path_ReportImageView__picThumbDeprecated wp))
+                                                          x) = maybe (Just "Pic Thumb Deprecated") Just (maybe Nothing Just Nothing)
+          describe _ (Peek_ReportImageView_String (p@(Path_ReportImageView__picPrinterDeprecated wp))
+                                                  x) = maybe (Just "Pic Printer Deprecated") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportImageView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                       Name (mkOccName "ReportImageView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                       Right (Name (mkOccName "_picPrinterDeprecated") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_MaybeImageFile_String wp undefined)))
+          describe _ (Peek_ReportImageView_JSONText (p@(Path_ReportImageView__picPrinterDeprecated wp))
+                                                    x) = maybe (Just "Pic Printer Deprecated") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportImageView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                         Name (mkOccName "ReportImageView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                         Right (Name (mkOccName "_picPrinterDeprecated") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_MaybeImageFile_JSONText wp undefined)))
+          describe _ (Peek_ReportImageView_MaybeImageFile (p@(Path_ReportImageView__picPrinterDeprecated wp))
+                                                          x) = maybe (Just "Pic Printer Deprecated") Just (maybe Nothing Just Nothing)
+          describe _ (Peek_ReportImageView_String (p@(Path_ReportImageView__picMustEnlarge wp))
+                                                  x) = maybe (Just "Pic Must Enlarge") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportImageView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                 Name (mkOccName "ReportImageView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                 Right (Name (mkOccName "_picMustEnlarge") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Bool_String wp undefined)))
+          describe _ (Peek_ReportImageView_Bool (p@(Path_ReportImageView__picMustEnlarge wp)) x) = maybe (Just "Pic Must Enlarge") Just (maybe Nothing Just Nothing)
+          describe _ (Peek_ReportImageView_JSONText (p@(Path_ReportImageView__picMustEnlarge wp))
+                                                    x) = maybe (Just "Pic Must Enlarge") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportImageView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                   Name (mkOccName "ReportImageView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                   Right (Name (mkOccName "_picMustEnlarge") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Bool_JSONText wp undefined)))
+          describe _ (Peek_ReportImageView_String (p@(Path_ReportImageView__picEnlargedDeprecated wp))
+                                                  x) = maybe (Just "Pic Enlarged Deprecated") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportImageView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                        Name (mkOccName "ReportImageView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                        Right (Name (mkOccName "_picEnlargedDeprecated") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_MaybeImageFile_String wp undefined)))
+          describe _ (Peek_ReportImageView_JSONText (p@(Path_ReportImageView__picEnlargedDeprecated wp))
+                                                    x) = maybe (Just "Pic Enlarged Deprecated") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportImageView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                          Name (mkOccName "ReportImageView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                          Right (Name (mkOccName "_picEnlargedDeprecated") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_MaybeImageFile_JSONText wp undefined)))
+          describe _ (Peek_ReportImageView_MaybeImageFile (p@(Path_ReportImageView__picEnlargedDeprecated wp))
+                                                          x) = maybe (Just "Pic Enlarged Deprecated") Just (maybe Nothing Just Nothing)
 instance Describe (Peek ReportView)
-    where describe _ (Peek_ReportView_String (p@(Path_ReportView__reportFolder _)) x) = Just "Report Folder"
-          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportFolder _)) x) = Just "Report Folder"
-          describe _ (Peek_ReportView_ReadOnlyFilePath (p@(Path_ReportView__reportFolder _)) x) = Just "Report Folder"
-          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportName _))
-                                               x) = fromMaybe (Just "Report Name") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                    Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                    Right (Name (mkOccName "_reportName") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_Markup (p@(Path_ReportView__reportName _))
-                                             x) = fromMaybe (Just "Report Name") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                  Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                  Right (Name (mkOccName "_reportName") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportName _))
-                                           x) = fromMaybe (Just "Report Name") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                Right (Name (mkOccName "_reportName") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportDate _))
-                                               x) = fromMaybe (Just "Report Date") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                    Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                    Right (Name (mkOccName "_reportDate") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_Markup (p@(Path_ReportView__reportDate _))
-                                             x) = fromMaybe (Just "Report Date") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                  Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                  Right (Name (mkOccName "_reportDate") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportDate _))
-                                           x) = fromMaybe (Just "Report Date") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                Right (Name (mkOccName "_reportDate") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportContractDate _))
-                                               x) = fromMaybe (Just "Report Contract Date") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                             Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                             Right (Name (mkOccName "_reportContractDate") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_Markup (p@(Path_ReportView__reportContractDate _))
-                                             x) = fromMaybe (Just "Report Contract Date") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                           Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                           Right (Name (mkOccName "_reportContractDate") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportContractDate _))
-                                           x) = fromMaybe (Just "Report Contract Date") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                         Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                         Right (Name (mkOccName "_reportContractDate") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportInspectionDate _))
-                                               x) = fromMaybe (Just "Report Inspection Date") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                               Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                               Right (Name (mkOccName "_reportInspectionDate") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_Markup (p@(Path_ReportView__reportInspectionDate _))
-                                             x) = fromMaybe (Just "Report Inspection Date") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                             Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                             Right (Name (mkOccName "_reportInspectionDate") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportInspectionDate _))
-                                           x) = fromMaybe (Just "Report Inspection Date") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                           Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                           Right (Name (mkOccName "_reportInspectionDate") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportEffectiveDate _))
-                                               x) = fromMaybe (Just "Report Effective Date") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                              Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                              Right (Name (mkOccName "_reportEffectiveDate") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_Markup (p@(Path_ReportView__reportEffectiveDate _))
-                                             x) = fromMaybe (Just "Report Effective Date") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+    where describe _ (Peek_ReportView_String (p@(Path_ReportView__reportFolder wp))
+                                             x) = maybe (Just "Report Folder") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                         Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                         Right (Name (mkOccName "_reportFolder") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_ReadOnlyFilePath_String wp undefined)))
+          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportFolder wp))
+                                               x) = maybe (Just "Report Folder") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                           Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                           Right (Name (mkOccName "_reportFolder") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_ReadOnlyFilePath_JSONText wp undefined)))
+          describe _ (Peek_ReportView_ReadOnlyFilePath (p@(Path_ReportView__reportFolder wp)) x) = maybe (Just "Report Folder") Just (maybe Nothing Just Nothing)
+          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportName wp))
+                                               x) = maybe (Just "Report Name") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
                                                                                                             Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                            Right (Name (mkOccName "_reportEffectiveDate") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportEffectiveDate _))
-                                           x) = fromMaybe (Just "Report Effective Date") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                            Right (Name (mkOccName "_reportName") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                               Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                               Right (Name (mkOccName "_reportName") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Markup_JSONText wp undefined)))
+          describe _ (Peek_ReportView_Markup (p@(Path_ReportView__reportName wp))
+                                             x) = maybe (Just "Report Name") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
                                                                                                           Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                          Right (Name (mkOccName "_reportEffectiveDate") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportAuthors _)) x) = Just "Report Authors"
-          describe _ (Peek_ReportView_Markup (p@(Path_ReportView__reportAuthors _)) x) = Just "Report Authors"
-          describe _ (Peek_ReportView_Author (p@(Path_ReportView__reportAuthors _)) x) = Just "Report Authors"
-          describe _ (Peek_ReportView_Authors (p@(Path_ReportView__reportAuthors _)) x) = Just "Report Authors"
-          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportAuthors _)) x) = Just "Report Authors"
-          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportPreparer _))
-                                               x) = fromMaybe (Just "Report Preparer") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                          Right (Name (mkOccName "_reportName") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just Nothing)
+          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportName wp))
+                                           x) = maybe (Just "Report Name") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
                                                                                                         Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                        Right (Name (mkOccName "_reportPreparer") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_Markup (p@(Path_ReportView__reportPreparer _))
-                                             x) = fromMaybe (Just "Report Preparer") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                      Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                      Right (Name (mkOccName "_reportPreparer") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportPreparer _))
-                                           x) = fromMaybe (Just "Report Preparer") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                    Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                    Right (Name (mkOccName "_reportPreparer") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportPreparerEIN _))
-                                               x) = fromMaybe (Just "Report Preparer EIN") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                        Right (Name (mkOccName "_reportName") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                           Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                           Right (Name (mkOccName "_reportName") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Markup_Text wp undefined)))
+          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportDate wp))
+                                               x) = maybe (Just "Report Date") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
                                                                                                             Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                            Right (Name (mkOccName "_reportPreparerEIN") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_Markup (p@(Path_ReportView__reportPreparerEIN _))
-                                             x) = fromMaybe (Just "Report Preparer EIN") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                            Right (Name (mkOccName "_reportDate") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                               Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                               Right (Name (mkOccName "_reportDate") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Markup_JSONText wp undefined)))
+          describe _ (Peek_ReportView_Markup (p@(Path_ReportView__reportDate wp))
+                                             x) = maybe (Just "Report Date") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
                                                                                                           Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                          Right (Name (mkOccName "_reportPreparerEIN") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportPreparerEIN _))
-                                           x) = fromMaybe (Just "Report Preparer EIN") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                          Right (Name (mkOccName "_reportDate") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just Nothing)
+          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportDate wp))
+                                           x) = maybe (Just "Report Date") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
                                                                                                         Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                        Right (Name (mkOccName "_reportPreparerEIN") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportPreparerAddress _))
-                                               x) = fromMaybe (Just "Report Preparer Address") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                                Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                                Right (Name (mkOccName "_reportPreparerAddress") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_Markup (p@(Path_ReportView__reportPreparerAddress _))
-                                             x) = fromMaybe (Just "Report Preparer Address") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                              Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                              Right (Name (mkOccName "_reportPreparerAddress") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportPreparerAddress _))
-                                           x) = fromMaybe (Just "Report Preparer Address") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                            Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                            Right (Name (mkOccName "_reportPreparerAddress") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportPreparerEMail _))
-                                               x) = fromMaybe (Just "Report Preparer EMail") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                              Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                              Right (Name (mkOccName "_reportPreparerEMail") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_Markup (p@(Path_ReportView__reportPreparerEMail _))
-                                             x) = fromMaybe (Just "Report Preparer EMail") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                            Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                            Right (Name (mkOccName "_reportPreparerEMail") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportPreparerEMail _))
-                                           x) = fromMaybe (Just "Report Preparer EMail") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                          Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                          Right (Name (mkOccName "_reportPreparerEMail") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportPreparerWebsite _))
-                                               x) = fromMaybe (Just "Report Preparer Website") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                                Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                                Right (Name (mkOccName "_reportPreparerWebsite") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_Markup (p@(Path_ReportView__reportPreparerWebsite _))
-                                             x) = fromMaybe (Just "Report Preparer Website") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                              Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                              Right (Name (mkOccName "_reportPreparerWebsite") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportPreparerWebsite _))
-                                           x) = fromMaybe (Just "Report Preparer Website") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                            Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                            Right (Name (mkOccName "_reportPreparerWebsite") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportAbbrevs _)) x) = Just "Report Abbrevs"
-          describe _ (Peek_ReportView_Markup (p@(Path_ReportView__reportAbbrevs _)) x) = Just "Report Abbrevs"
-          describe _ (Peek_ReportView_AbbrevPair (p@(Path_ReportView__reportAbbrevs _)) x) = Just "Report Abbrevs"
-          describe _ (Peek_ReportView_AbbrevPairs (p@(Path_ReportView__reportAbbrevs _)) x) = Just "Report Abbrevs"
-          describe _ (Peek_ReportView_CIString (p@(Path_ReportView__reportAbbrevs _)) x) = Just "Report Abbrevs"
-          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportAbbrevs _)) x) = Just "Report Abbrevs"
-          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportTitle _))
-                                               x) = fromMaybe (Just "Report Title") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                     Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                     Right (Name (mkOccName "_reportTitle") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_Markup (p@(Path_ReportView__reportTitle _))
-                                             x) = fromMaybe (Just "Report Title") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                   Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                   Right (Name (mkOccName "_reportTitle") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportTitle _))
-                                           x) = fromMaybe (Just "Report Title") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                 Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                 Right (Name (mkOccName "_reportTitle") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportHeader _))
-                                               x) = fromMaybe (Just "Report Header") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                      Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                      Right (Name (mkOccName "_reportHeader") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_Markup (p@(Path_ReportView__reportHeader _))
-                                             x) = fromMaybe (Just "Report Header") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                    Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                    Right (Name (mkOccName "_reportHeader") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportHeader _))
-                                           x) = fromMaybe (Just "Report Header") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                  Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                  Right (Name (mkOccName "_reportHeader") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportFooter _))
-                                               x) = fromMaybe (Just "Report Footer") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                      Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                      Right (Name (mkOccName "_reportFooter") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_Markup (p@(Path_ReportView__reportFooter _))
-                                             x) = fromMaybe (Just "Report Footer") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                    Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                    Right (Name (mkOccName "_reportFooter") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportFooter _))
-                                           x) = fromMaybe (Just "Report Footer") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                  Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                  Right (Name (mkOccName "_reportFooter") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_String (p@(Path_ReportView__reportIntendedUse _)) x) = Just "Report Intended Use"
-          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportIntendedUse _)) x) = Just "Report Intended Use"
-          describe _ (Peek_ReportView_MaybeReportIntendedUse (p@(Path_ReportView__reportIntendedUse _)) x) = Just "Report Intended Use"
-          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportValueTypeInfo _)) x) = Just "Report Value Type Info"
-          describe _ (Peek_ReportView_Markup (p@(Path_ReportView__reportValueTypeInfo _)) x) = Just "Report Value Type Info"
-          describe _ (Peek_ReportView_ReportValueTypeInfo (p@(Path_ReportView__reportValueTypeInfo _)) x) = Just "Report Value Type Info"
-          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportValueTypeInfo _)) x) = Just "Report Value Type Info"
-          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportValueApproachInfo _)) x) = Just "Report Value Approach Info"
-          describe _ (Peek_ReportView_Markup (p@(Path_ReportView__reportValueApproachInfo _)) x) = Just "Report Value Approach Info"
-          describe _ (Peek_ReportView_ReportValueApproachInfo (p@(Path_ReportView__reportValueApproachInfo _)) x) = Just "Report Value Approach Info"
-          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportValueApproachInfo _)) x) = Just "Report Value Approach Info"
-          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportClientName _))
-                                               x) = fromMaybe (Just "Report Client Name") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                           Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                           Right (Name (mkOccName "_reportClientName") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_Markup (p@(Path_ReportView__reportClientName _))
-                                             x) = fromMaybe (Just "Report Client Name") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                         Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                         Right (Name (mkOccName "_reportClientName") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportClientName _))
-                                           x) = fromMaybe (Just "Report Client Name") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                       Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                       Right (Name (mkOccName "_reportClientName") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportClientAddress _))
-                                               x) = fromMaybe (Just "Report Client Address") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                              Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                              Right (Name (mkOccName "_reportClientAddress") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_Markup (p@(Path_ReportView__reportClientAddress _))
-                                             x) = fromMaybe (Just "Report Client Address") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                            Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                            Right (Name (mkOccName "_reportClientAddress") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportClientAddress _))
-                                           x) = fromMaybe (Just "Report Client Address") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                          Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                          Right (Name (mkOccName "_reportClientAddress") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportClientGreeting _))
-                                               x) = fromMaybe (Just "Report Client Greeting") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                               Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                               Right (Name (mkOccName "_reportClientGreeting") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_Markup (p@(Path_ReportView__reportClientGreeting _))
-                                             x) = fromMaybe (Just "Report Client Greeting") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                             Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                             Right (Name (mkOccName "_reportClientGreeting") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportClientGreeting _))
-                                           x) = fromMaybe (Just "Report Client Greeting") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                           Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                           Right (Name (mkOccName "_reportClientGreeting") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportItemsOwnerFull _))
-                                               x) = fromMaybe (Just "Report Items Owner Full") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                                Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                                Right (Name (mkOccName "_reportItemsOwnerFull") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_Markup (p@(Path_ReportView__reportItemsOwnerFull _))
-                                             x) = fromMaybe (Just "Report Items Owner Full") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                              Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                              Right (Name (mkOccName "_reportItemsOwnerFull") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportItemsOwnerFull _))
-                                           x) = fromMaybe (Just "Report Items Owner Full") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                            Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                            Right (Name (mkOccName "_reportItemsOwnerFull") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportItemsOwner _))
-                                               x) = fromMaybe (Just "Report Items Owner") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                           Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                           Right (Name (mkOccName "_reportItemsOwner") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_Markup (p@(Path_ReportView__reportItemsOwner _))
-                                             x) = fromMaybe (Just "Report Items Owner") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                         Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                         Right (Name (mkOccName "_reportItemsOwner") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportItemsOwner _))
-                                           x) = fromMaybe (Just "Report Items Owner") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                       Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                       Right (Name (mkOccName "_reportItemsOwner") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportBriefItems _))
-                                               x) = fromMaybe (Just "Report Brief Items") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                           Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                           Right (Name (mkOccName "_reportBriefItems") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_Markup (p@(Path_ReportView__reportBriefItems _))
-                                             x) = fromMaybe (Just "Report Brief Items") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                         Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                         Right (Name (mkOccName "_reportBriefItems") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportBriefItems _))
-                                           x) = fromMaybe (Just "Report Brief Items") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                       Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                       Right (Name (mkOccName "_reportBriefItems") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportInspectionLocation _))
-                                               x) = fromMaybe (Just "Report Inspection Location") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                                   Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                                   Right (Name (mkOccName "_reportInspectionLocation") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_Markup (p@(Path_ReportView__reportInspectionLocation _))
-                                             x) = fromMaybe (Just "Report Inspection Location") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                                 Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                                 Right (Name (mkOccName "_reportInspectionLocation") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportInspectionLocation _))
-                                           x) = fromMaybe (Just "Report Inspection Location") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                               Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                               Right (Name (mkOccName "_reportInspectionLocation") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_String (p@(Path_ReportView__reportBody _)) x) = Just "Report Body"
-          describe _ (Peek_ReportView_Bool (p@(Path_ReportView__reportBody _)) x) = Just "Report Body"
-          describe _ (Peek_ReportView_Double (p@(Path_ReportView__reportBody _)) x) = Just "Report Body"
-          describe _ (Peek_ReportView_Dimension (p@(Path_ReportView__reportBody _)) x) = Just "Report Body"
-          describe _ (Peek_ReportView_ImageCrop (p@(Path_ReportView__reportBody _)) x) = Just "Report Body"
-          describe _ (Peek_ReportView_ImageSize (p@(Path_ReportView__reportBody _)) x) = Just "Report Body"
-          describe _ (Peek_ReportView_Units (p@(Path_ReportView__reportBody _)) x) = Just "Report Body"
-          describe _ (Peek_ReportView_ImageFile (p@(Path_ReportView__reportBody _)) x) = Just "Report Body"
-          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportBody _)) x) = Just "Report Body"
-          describe _ (Peek_ReportView_Markup (p@(Path_ReportView__reportBody _)) x) = Just "Report Body"
-          describe _ (Peek_ReportView_ReportElem (p@(Path_ReportView__reportBody _)) x) = Just "Report Body"
-          describe _ (Peek_ReportView_ReportElems (p@(Path_ReportView__reportBody _)) x) = Just "Report Body"
-          describe _ (Peek_ReportView_EUI (p@(Path_ReportView__reportBody _)) x) = Just "Report Body"
-          describe _ (Peek_ReportView_MEUI (p@(Path_ReportView__reportBody _)) x) = Just "Report Body"
-          describe _ (Peek_ReportView_MaybeImageFile (p@(Path_ReportView__reportBody _)) x) = Just "Report Body"
-          describe _ (Peek_ReportView_ReportImage (p@(Path_ReportView__reportBody _)) x) = Just "Report Body"
-          describe _ (Peek_ReportView_ReportImages (p@(Path_ReportView__reportBody _)) x) = Just "Report Body"
-          describe _ (Peek_ReportView_ReportImageView (p@(Path_ReportView__reportBody _)) x) = Just "Report Body"
-          describe _ (Peek_ReportView_SaneSizeImageSize (p@(Path_ReportView__reportBody _)) x) = Just "Report Body"
-          describe _ (Peek_ReportView_Item (p@(Path_ReportView__reportBody _)) x) = Just "Report Body"
-          describe _ (Peek_ReportView_MIM (p@(Path_ReportView__reportBody _)) x) = Just "Report Body"
-          describe _ (Peek_ReportView_URI (p@(Path_ReportView__reportBody _)) x) = Just "Report Body"
-          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportBody _)) x) = Just "Report Body"
-          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportGlossary _)) x) = Just "Report Glossary"
-          describe _ (Peek_ReportView_Markup (p@(Path_ReportView__reportGlossary _)) x) = Just "Report Glossary"
-          describe _ (Peek_ReportView_MarkupPair (p@(Path_ReportView__reportGlossary _)) x) = Just "Report Glossary"
-          describe _ (Peek_ReportView_MarkupPairs (p@(Path_ReportView__reportGlossary _)) x) = Just "Report Glossary"
-          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportGlossary _)) x) = Just "Report Glossary"
-          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportSources _)) x) = Just "Report Sources"
-          describe _ (Peek_ReportView_Markup (p@(Path_ReportView__reportSources _)) x) = Just "Report Sources"
-          describe _ (Peek_ReportView_MarkupPair (p@(Path_ReportView__reportSources _)) x) = Just "Report Sources"
-          describe _ (Peek_ReportView_MarkupPairs (p@(Path_ReportView__reportSources _)) x) = Just "Report Sources"
-          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportSources _)) x) = Just "Report Sources"
-          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportLetterOfTransmittal _))
-                                               x) = fromMaybe (Just "Report Letter Of Transmittal") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                        Right (Name (mkOccName "_reportDate") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                           Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                           Right (Name (mkOccName "_reportDate") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Markup_Text wp undefined)))
+          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportContractDate wp))
+                                               x) = maybe (Just "Report Contract Date") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
                                                                                                                      Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                                     Right (Name (mkOccName "_reportLetterOfTransmittal") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_Markup (p@(Path_ReportView__reportLetterOfTransmittal _))
-                                             x) = fromMaybe (Just "Report Letter Of Transmittal") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                     Right (Name (mkOccName "_reportContractDate") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                                Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                                Right (Name (mkOccName "_reportContractDate") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Markup_JSONText wp undefined)))
+          describe _ (Peek_ReportView_Markup (p@(Path_ReportView__reportContractDate wp))
+                                             x) = maybe (Just "Report Contract Date") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
                                                                                                                    Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                                   Right (Name (mkOccName "_reportLetterOfTransmittal") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportLetterOfTransmittal _))
-                                           x) = fromMaybe (Just "Report Letter Of Transmittal") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                   Right (Name (mkOccName "_reportContractDate") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just Nothing)
+          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportContractDate wp))
+                                           x) = maybe (Just "Report Contract Date") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
                                                                                                                  Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                                 Right (Name (mkOccName "_reportLetterOfTransmittal") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportScopeOfWork _))
-                                               x) = fromMaybe (Just "Report Scope Of Work") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                             Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                             Right (Name (mkOccName "_reportScopeOfWork") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_Markup (p@(Path_ReportView__reportScopeOfWork _))
-                                             x) = fromMaybe (Just "Report Scope Of Work") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                           Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                           Right (Name (mkOccName "_reportScopeOfWork") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportScopeOfWork _))
-                                           x) = fromMaybe (Just "Report Scope Of Work") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                         Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                         Right (Name (mkOccName "_reportScopeOfWork") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportCertification _)) x) = Just "Report Certification"
-          describe _ (Peek_ReportView_Markup (p@(Path_ReportView__reportCertification _)) x) = Just "Report Certification"
-          describe _ (Peek_ReportView_Markups (p@(Path_ReportView__reportCertification _)) x) = Just "Report Certification"
-          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportCertification _)) x) = Just "Report Certification"
-          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportLimitingConditions _)) x) = Just "Report Limiting Conditions"
-          describe _ (Peek_ReportView_Markup (p@(Path_ReportView__reportLimitingConditions _)) x) = Just "Report Limiting Conditions"
-          describe _ (Peek_ReportView_Markups (p@(Path_ReportView__reportLimitingConditions _)) x) = Just "Report Limiting Conditions"
-          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportLimitingConditions _)) x) = Just "Report Limiting Conditions"
-          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportPrivacyPolicy _))
-                                               x) = fromMaybe (Just "Report Privacy Policy") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                 Right (Name (mkOccName "_reportContractDate") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                            Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                            Right (Name (mkOccName "_reportContractDate") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Markup_Text wp undefined)))
+          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportInspectionDate wp))
+                                               x) = maybe (Just "Report Inspection Date") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                       Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                       Right (Name (mkOccName "_reportInspectionDate") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                                    Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                                    Right (Name (mkOccName "_reportInspectionDate") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Markup_JSONText wp undefined)))
+          describe _ (Peek_ReportView_Markup (p@(Path_ReportView__reportInspectionDate wp))
+                                             x) = maybe (Just "Report Inspection Date") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                     Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                     Right (Name (mkOccName "_reportInspectionDate") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just Nothing)
+          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportInspectionDate wp))
+                                           x) = maybe (Just "Report Inspection Date") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                   Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                   Right (Name (mkOccName "_reportInspectionDate") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                                Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                                Right (Name (mkOccName "_reportInspectionDate") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Markup_Text wp undefined)))
+          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportEffectiveDate wp))
+                                               x) = maybe (Just "Report Effective Date") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                      Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                      Right (Name (mkOccName "_reportEffectiveDate") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                                  Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                                  Right (Name (mkOccName "_reportEffectiveDate") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Markup_JSONText wp undefined)))
+          describe _ (Peek_ReportView_Markup (p@(Path_ReportView__reportEffectiveDate wp))
+                                             x) = maybe (Just "Report Effective Date") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                    Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                    Right (Name (mkOccName "_reportEffectiveDate") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just Nothing)
+          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportEffectiveDate wp))
+                                           x) = maybe (Just "Report Effective Date") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                  Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                  Right (Name (mkOccName "_reportEffectiveDate") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                              Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                              Right (Name (mkOccName "_reportEffectiveDate") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Markup_Text wp undefined)))
+          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportAuthors wp))
+                                               x) = maybe (Just "Report Authors") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                            Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                            Right (Name (mkOccName "_reportAuthors") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Authors_JSONText wp undefined)))
+          describe _ (Peek_ReportView_Markup (p@(Path_ReportView__reportAuthors wp))
+                                             x) = maybe (Just "Report Authors") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                          Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                          Right (Name (mkOccName "_reportAuthors") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Authors_Markup wp undefined)))
+          describe _ (Peek_ReportView_Author (p@(Path_ReportView__reportAuthors wp))
+                                             x) = maybe (Just "Report Authors") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                          Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                          Right (Name (mkOccName "_reportAuthors") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Authors_Author wp undefined)))
+          describe _ (Peek_ReportView_Authors (p@(Path_ReportView__reportAuthors wp)) x) = maybe (Just "Report Authors") Just (maybe Nothing Just Nothing)
+          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportAuthors wp))
+                                           x) = maybe (Just "Report Authors") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                        Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                        Right (Name (mkOccName "_reportAuthors") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Authors_Text wp undefined)))
+          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportPreparer wp))
+                                               x) = maybe (Just "Report Preparer") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                Right (Name (mkOccName "_reportPreparer") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                       Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                       Right (Name (mkOccName "_reportPreparer") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Markup_JSONText wp undefined)))
+          describe _ (Peek_ReportView_Markup (p@(Path_ReportView__reportPreparer wp))
+                                             x) = maybe (Just "Report Preparer") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
                                                                                                               Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                              Right (Name (mkOccName "_reportPrivacyPolicy") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_Markup (p@(Path_ReportView__reportPrivacyPolicy _))
-                                             x) = fromMaybe (Just "Report Privacy Policy") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                              Right (Name (mkOccName "_reportPreparer") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just Nothing)
+          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportPreparer wp))
+                                           x) = maybe (Just "Report Preparer") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
                                                                                                             Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                            Right (Name (mkOccName "_reportPrivacyPolicy") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportPrivacyPolicy _))
-                                           x) = fromMaybe (Just "Report Privacy Policy") (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                            Right (Name (mkOccName "_reportPreparer") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                   Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                   Right (Name (mkOccName "_reportPreparer") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Markup_Text wp undefined)))
+          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportPreparerEIN wp))
+                                               x) = maybe (Just "Report Preparer EIN") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                    Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                    Right (Name (mkOccName "_reportPreparerEIN") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                              Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                              Right (Name (mkOccName "_reportPreparerEIN") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Markup_JSONText wp undefined)))
+          describe _ (Peek_ReportView_Markup (p@(Path_ReportView__reportPreparerEIN wp))
+                                             x) = maybe (Just "Report Preparer EIN") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                  Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                  Right (Name (mkOccName "_reportPreparerEIN") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just Nothing)
+          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportPreparerEIN wp))
+                                           x) = maybe (Just "Report Preparer EIN") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                Right (Name (mkOccName "_reportPreparerEIN") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                          Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                          Right (Name (mkOccName "_reportPreparerEIN") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Markup_Text wp undefined)))
+          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportPreparerAddress wp))
+                                               x) = maybe (Just "Report Preparer Address") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                        Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                        Right (Name (mkOccName "_reportPreparerAddress") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                                      Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                                      Right (Name (mkOccName "_reportPreparerAddress") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Markup_JSONText wp undefined)))
+          describe _ (Peek_ReportView_Markup (p@(Path_ReportView__reportPreparerAddress wp))
+                                             x) = maybe (Just "Report Preparer Address") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                      Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                      Right (Name (mkOccName "_reportPreparerAddress") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just Nothing)
+          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportPreparerAddress wp))
+                                           x) = maybe (Just "Report Preparer Address") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                    Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                    Right (Name (mkOccName "_reportPreparerAddress") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                                  Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                                  Right (Name (mkOccName "_reportPreparerAddress") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Markup_Text wp undefined)))
+          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportPreparerEMail wp))
+                                               x) = maybe (Just "Report Preparer EMail") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                      Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                      Right (Name (mkOccName "_reportPreparerEMail") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                                  Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                                  Right (Name (mkOccName "_reportPreparerEMail") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Markup_JSONText wp undefined)))
+          describe _ (Peek_ReportView_Markup (p@(Path_ReportView__reportPreparerEMail wp))
+                                             x) = maybe (Just "Report Preparer EMail") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                    Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                    Right (Name (mkOccName "_reportPreparerEMail") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just Nothing)
+          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportPreparerEMail wp))
+                                           x) = maybe (Just "Report Preparer EMail") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                  Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                  Right (Name (mkOccName "_reportPreparerEMail") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                              Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                              Right (Name (mkOccName "_reportPreparerEMail") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Markup_Text wp undefined)))
+          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportPreparerWebsite wp))
+                                               x) = maybe (Just "Report Preparer Website") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                        Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                        Right (Name (mkOccName "_reportPreparerWebsite") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                                      Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                                      Right (Name (mkOccName "_reportPreparerWebsite") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Markup_JSONText wp undefined)))
+          describe _ (Peek_ReportView_Markup (p@(Path_ReportView__reportPreparerWebsite wp))
+                                             x) = maybe (Just "Report Preparer Website") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                      Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                      Right (Name (mkOccName "_reportPreparerWebsite") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just Nothing)
+          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportPreparerWebsite wp))
+                                           x) = maybe (Just "Report Preparer Website") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                    Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                    Right (Name (mkOccName "_reportPreparerWebsite") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                                  Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                                  Right (Name (mkOccName "_reportPreparerWebsite") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Markup_Text wp undefined)))
+          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportAbbrevs wp))
+                                               x) = maybe (Just "Report Abbrevs") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                            Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                            Right (Name (mkOccName "_reportAbbrevs") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_AbbrevPairs_JSONText wp undefined)))
+          describe _ (Peek_ReportView_Markup (p@(Path_ReportView__reportAbbrevs wp))
+                                             x) = maybe (Just "Report Abbrevs") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                          Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                          Right (Name (mkOccName "_reportAbbrevs") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_AbbrevPairs_Markup wp undefined)))
+          describe _ (Peek_ReportView_AbbrevPair (p@(Path_ReportView__reportAbbrevs wp))
+                                                 x) = maybe (Just "Report Abbrevs") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                              Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                              Right (Name (mkOccName "_reportAbbrevs") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_AbbrevPairs_AbbrevPair wp undefined)))
+          describe _ (Peek_ReportView_AbbrevPairs (p@(Path_ReportView__reportAbbrevs wp)) x) = maybe (Just "Report Abbrevs") Just (maybe Nothing Just Nothing)
+          describe _ (Peek_ReportView_CIString (p@(Path_ReportView__reportAbbrevs wp))
+                                               x) = maybe (Just "Report Abbrevs") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                            Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                            Right (Name (mkOccName "_reportAbbrevs") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_AbbrevPairs_CIString wp undefined)))
+          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportAbbrevs wp))
+                                           x) = maybe (Just "Report Abbrevs") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                        Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                        Right (Name (mkOccName "_reportAbbrevs") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_AbbrevPairs_Text wp undefined)))
+          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportTitle wp))
+                                               x) = maybe (Just "Report Title") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                             Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                             Right (Name (mkOccName "_reportTitle") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                 Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                 Right (Name (mkOccName "_reportTitle") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Markup_JSONText wp undefined)))
+          describe _ (Peek_ReportView_Markup (p@(Path_ReportView__reportTitle wp))
+                                             x) = maybe (Just "Report Title") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                           Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                           Right (Name (mkOccName "_reportTitle") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just Nothing)
+          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportTitle wp))
+                                           x) = maybe (Just "Report Title") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                         Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                         Right (Name (mkOccName "_reportTitle") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                             Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                             Right (Name (mkOccName "_reportTitle") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Markup_Text wp undefined)))
+          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportHeader wp))
+                                               x) = maybe (Just "Report Header") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                              Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                              Right (Name (mkOccName "_reportHeader") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                   Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                   Right (Name (mkOccName "_reportHeader") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Markup_JSONText wp undefined)))
+          describe _ (Peek_ReportView_Markup (p@(Path_ReportView__reportHeader wp))
+                                             x) = maybe (Just "Report Header") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                            Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                            Right (Name (mkOccName "_reportHeader") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just Nothing)
+          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportHeader wp))
+                                           x) = maybe (Just "Report Header") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
                                                                                                           Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
-                                                                                                          Right (Name (mkOccName "_reportPrivacyPolicy") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup))
-          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportPerms _)) x) = Just "Report Perms"
-          describe _ (Peek_ReportView_Permissions (p@(Path_ReportView__reportPerms _)) x) = Just "Report Perms"
-          describe _ (Peek_ReportView_UserIds (p@(Path_ReportView__reportPerms _)) x) = Just "Report Perms"
-          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportPerms _)) x) = Just "Report Perms"
-          describe _ (Peek_ReportView_UserId (p@(Path_ReportView__reportPerms _)) x) = Just "Report Perms"
-          describe _ (Peek_ReportView_Integer (p@(Path_ReportView__reportRevision _)) x) = Just "Report Revision"
-          describe _ (Peek_ReportView_Int64 (p@(Path_ReportView__reportCreated _)) x) = Just "Report Created"
-          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportBranding _)) x) = Just "Report Branding"
-          describe _ (Peek_ReportView_Branding (p@(Path_ReportView__reportBranding _)) x) = Just "Report Branding"
-          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportBranding _)) x) = Just "Report Branding"
-          describe _ (Peek_ReportView_String (p@(Path_ReportView__reportStatus _)) x) = Just "Report Status"
-          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportStatus _)) x) = Just "Report Status"
-          describe _ (Peek_ReportView_ReportStatus (p@(Path_ReportView__reportStatus _)) x) = Just "Report Status"
-          describe _ (Peek_ReportView_String (p@(Path_ReportView__reportRedacted _)) x) = Just "Report Redacted"
-          describe _ (Peek_ReportView_Bool (p@(Path_ReportView__reportRedacted _)) x) = Just "Report Redacted"
-          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportRedacted _)) x) = Just "Report Redacted"
-          describe _ (Peek_ReportView_String (p@(Path_ReportView__reportFlags _)) x) = Just "Report Flags"
-          describe _ (Peek_ReportView_Bool (p@(Path_ReportView__reportFlags _)) x) = Just "Report Flags"
-          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportFlags _)) x) = Just "Report Flags"
-          describe _ (Peek_ReportView_ReportFlags (p@(Path_ReportView__reportFlags _)) x) = Just "Report Flags"
-          describe _ (Peek_ReportView_UUID (p@(Path_ReportView__reportUUID _)) x) = Just "Report UUID"
-          describe _ (Peek_ReportView_String (p@(Path_ReportView__reportOrderByItemName _)) x) = Just "Report Order By Item Name"
-          describe _ (Peek_ReportView_Bool (p@(Path_ReportView__reportOrderByItemName _)) x) = Just "Report Order By Item Name"
-          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportOrderByItemName _)) x) = Just "Report Order By Item Name"
-          describe _ (Peek_ReportView_String (p@(Path_ReportView__reportDisplayItemName _)) x) = Just "Report Display Item Name"
-          describe _ (Peek_ReportView_Bool (p@(Path_ReportView__reportDisplayItemName _)) x) = Just "Report Display Item Name"
-          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportDisplayItemName _)) x) = Just "Report Display Item Name"
-          describe _ (Peek_ReportView_Int (p@(Path_ReportView__reportStandardsVersion _)) x) = Just "Report Standards Version"
-          describe _ (Peek_ReportView_ReportStandard (p@(Path_ReportView__reportStandardsVersion _)) x) = Just "Report Standards Version"
+                                                                                                          Right (Name (mkOccName "_reportHeader") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                               Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                               Right (Name (mkOccName "_reportHeader") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Markup_Text wp undefined)))
+          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportFooter wp))
+                                               x) = maybe (Just "Report Footer") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                              Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                              Right (Name (mkOccName "_reportFooter") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                   Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                   Right (Name (mkOccName "_reportFooter") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Markup_JSONText wp undefined)))
+          describe _ (Peek_ReportView_Markup (p@(Path_ReportView__reportFooter wp))
+                                             x) = maybe (Just "Report Footer") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                            Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                            Right (Name (mkOccName "_reportFooter") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just Nothing)
+          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportFooter wp))
+                                           x) = maybe (Just "Report Footer") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                          Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                          Right (Name (mkOccName "_reportFooter") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                               Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                               Right (Name (mkOccName "_reportFooter") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Markup_Text wp undefined)))
+          describe _ (Peek_ReportView_String (p@(Path_ReportView__reportIntendedUse wp))
+                                             x) = maybe (Just "Report Intended Use") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                               Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                               Right (Name (mkOccName "_reportIntendedUse") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_MaybeReportIntendedUse_String wp undefined)))
+          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportIntendedUse wp))
+                                               x) = maybe (Just "Report Intended Use") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                 Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                 Right (Name (mkOccName "_reportIntendedUse") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_MaybeReportIntendedUse_JSONText wp undefined)))
+          describe _ (Peek_ReportView_MaybeReportIntendedUse (p@(Path_ReportView__reportIntendedUse wp))
+                                                             x) = maybe (Just "Report Intended Use") Just (maybe Nothing Just Nothing)
+          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportValueTypeInfo wp))
+                                               x) = maybe (Just "Report Value Type Info") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                    Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                    Right (Name (mkOccName "_reportValueTypeInfo") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_ReportValueTypeInfo_JSONText wp undefined)))
+          describe _ (Peek_ReportView_Markup (p@(Path_ReportView__reportValueTypeInfo wp))
+                                             x) = maybe (Just "Report Value Type Info") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                  Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                  Right (Name (mkOccName "_reportValueTypeInfo") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_ReportValueTypeInfo_Markup wp undefined)))
+          describe _ (Peek_ReportView_ReportValueTypeInfo (p@(Path_ReportView__reportValueTypeInfo wp))
+                                                          x) = maybe (Just "Report Value Type Info") Just (maybe Nothing Just Nothing)
+          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportValueTypeInfo wp))
+                                           x) = maybe (Just "Report Value Type Info") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                Right (Name (mkOccName "_reportValueTypeInfo") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_ReportValueTypeInfo_Text wp undefined)))
+          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportValueApproachInfo wp))
+                                               x) = maybe (Just "Report Value Approach Info") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                        Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                        Right (Name (mkOccName "_reportValueApproachInfo") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_ReportValueApproachInfo_JSONText wp undefined)))
+          describe _ (Peek_ReportView_Markup (p@(Path_ReportView__reportValueApproachInfo wp))
+                                             x) = maybe (Just "Report Value Approach Info") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                      Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                      Right (Name (mkOccName "_reportValueApproachInfo") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_ReportValueApproachInfo_Markup wp undefined)))
+          describe _ (Peek_ReportView_ReportValueApproachInfo (p@(Path_ReportView__reportValueApproachInfo wp))
+                                                              x) = maybe (Just "Report Value Approach Info") Just (maybe Nothing Just Nothing)
+          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportValueApproachInfo wp))
+                                           x) = maybe (Just "Report Value Approach Info") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                    Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                    Right (Name (mkOccName "_reportValueApproachInfo") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_ReportValueApproachInfo_Text wp undefined)))
+          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportClientName wp))
+                                               x) = maybe (Just "Report Client Name") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                   Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                   Right (Name (mkOccName "_reportClientName") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                            Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                            Right (Name (mkOccName "_reportClientName") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Markup_JSONText wp undefined)))
+          describe _ (Peek_ReportView_Markup (p@(Path_ReportView__reportClientName wp))
+                                             x) = maybe (Just "Report Client Name") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                 Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                 Right (Name (mkOccName "_reportClientName") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just Nothing)
+          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportClientName wp))
+                                           x) = maybe (Just "Report Client Name") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                               Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                               Right (Name (mkOccName "_reportClientName") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                        Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                        Right (Name (mkOccName "_reportClientName") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Markup_Text wp undefined)))
+          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportClientAddress wp))
+                                               x) = maybe (Just "Report Client Address") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                      Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                      Right (Name (mkOccName "_reportClientAddress") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                                  Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                                  Right (Name (mkOccName "_reportClientAddress") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Markup_JSONText wp undefined)))
+          describe _ (Peek_ReportView_Markup (p@(Path_ReportView__reportClientAddress wp))
+                                             x) = maybe (Just "Report Client Address") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                    Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                    Right (Name (mkOccName "_reportClientAddress") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just Nothing)
+          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportClientAddress wp))
+                                           x) = maybe (Just "Report Client Address") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                  Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                  Right (Name (mkOccName "_reportClientAddress") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                              Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                              Right (Name (mkOccName "_reportClientAddress") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Markup_Text wp undefined)))
+          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportClientGreeting wp))
+                                               x) = maybe (Just "Report Client Greeting") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                       Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                       Right (Name (mkOccName "_reportClientGreeting") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                                    Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                                    Right (Name (mkOccName "_reportClientGreeting") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Markup_JSONText wp undefined)))
+          describe _ (Peek_ReportView_Markup (p@(Path_ReportView__reportClientGreeting wp))
+                                             x) = maybe (Just "Report Client Greeting") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                     Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                     Right (Name (mkOccName "_reportClientGreeting") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just Nothing)
+          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportClientGreeting wp))
+                                           x) = maybe (Just "Report Client Greeting") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                   Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                   Right (Name (mkOccName "_reportClientGreeting") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                                Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                                Right (Name (mkOccName "_reportClientGreeting") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Markup_Text wp undefined)))
+          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportItemsOwnerFull wp))
+                                               x) = maybe (Just "Report Items Owner Full") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                        Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                        Right (Name (mkOccName "_reportItemsOwnerFull") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                                     Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                                     Right (Name (mkOccName "_reportItemsOwnerFull") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Markup_JSONText wp undefined)))
+          describe _ (Peek_ReportView_Markup (p@(Path_ReportView__reportItemsOwnerFull wp))
+                                             x) = maybe (Just "Report Items Owner Full") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                      Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                      Right (Name (mkOccName "_reportItemsOwnerFull") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just Nothing)
+          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportItemsOwnerFull wp))
+                                           x) = maybe (Just "Report Items Owner Full") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                    Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                    Right (Name (mkOccName "_reportItemsOwnerFull") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                                 Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                                 Right (Name (mkOccName "_reportItemsOwnerFull") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Markup_Text wp undefined)))
+          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportItemsOwner wp))
+                                               x) = maybe (Just "Report Items Owner") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                   Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                   Right (Name (mkOccName "_reportItemsOwner") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                            Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                            Right (Name (mkOccName "_reportItemsOwner") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Markup_JSONText wp undefined)))
+          describe _ (Peek_ReportView_Markup (p@(Path_ReportView__reportItemsOwner wp))
+                                             x) = maybe (Just "Report Items Owner") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                 Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                 Right (Name (mkOccName "_reportItemsOwner") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just Nothing)
+          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportItemsOwner wp))
+                                           x) = maybe (Just "Report Items Owner") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                               Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                               Right (Name (mkOccName "_reportItemsOwner") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                        Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                        Right (Name (mkOccName "_reportItemsOwner") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Markup_Text wp undefined)))
+          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportBriefItems wp))
+                                               x) = maybe (Just "Report Brief Items") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                   Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                   Right (Name (mkOccName "_reportBriefItems") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                            Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                            Right (Name (mkOccName "_reportBriefItems") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Markup_JSONText wp undefined)))
+          describe _ (Peek_ReportView_Markup (p@(Path_ReportView__reportBriefItems wp))
+                                             x) = maybe (Just "Report Brief Items") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                 Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                 Right (Name (mkOccName "_reportBriefItems") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just Nothing)
+          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportBriefItems wp))
+                                           x) = maybe (Just "Report Brief Items") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                               Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                               Right (Name (mkOccName "_reportBriefItems") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                        Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                        Right (Name (mkOccName "_reportBriefItems") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Markup_Text wp undefined)))
+          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportInspectionLocation wp))
+                                               x) = maybe (Just "Report Inspection Location") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                           Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                           Right (Name (mkOccName "_reportInspectionLocation") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                                            Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                                            Right (Name (mkOccName "_reportInspectionLocation") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Markup_JSONText wp undefined)))
+          describe _ (Peek_ReportView_Markup (p@(Path_ReportView__reportInspectionLocation wp))
+                                             x) = maybe (Just "Report Inspection Location") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                         Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                         Right (Name (mkOccName "_reportInspectionLocation") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just Nothing)
+          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportInspectionLocation wp))
+                                           x) = maybe (Just "Report Inspection Location") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                       Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                       Right (Name (mkOccName "_reportInspectionLocation") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                                        Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                                        Right (Name (mkOccName "_reportInspectionLocation") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Markup_Text wp undefined)))
+          describe _ (Peek_ReportView_String (p@(Path_ReportView__reportBody wp))
+                                             x) = maybe (Just "Report Body") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                       Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                       Right (Name (mkOccName "_reportBody") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_ReportElems_String wp undefined)))
+          describe _ (Peek_ReportView_Bool (p@(Path_ReportView__reportBody wp))
+                                           x) = maybe (Just "Report Body") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                     Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                     Right (Name (mkOccName "_reportBody") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_ReportElems_Bool wp undefined)))
+          describe _ (Peek_ReportView_Double (p@(Path_ReportView__reportBody wp))
+                                             x) = maybe (Just "Report Body") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                       Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                       Right (Name (mkOccName "_reportBody") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_ReportElems_Double wp undefined)))
+          describe _ (Peek_ReportView_Dimension (p@(Path_ReportView__reportBody wp))
+                                                x) = maybe (Just "Report Body") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                          Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                          Right (Name (mkOccName "_reportBody") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_ReportElems_Dimension wp undefined)))
+          describe _ (Peek_ReportView_ImageCrop (p@(Path_ReportView__reportBody wp))
+                                                x) = maybe (Just "Report Body") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                          Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                          Right (Name (mkOccName "_reportBody") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_ReportElems_ImageCrop wp undefined)))
+          describe _ (Peek_ReportView_ImageSize (p@(Path_ReportView__reportBody wp))
+                                                x) = maybe (Just "Report Body") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                          Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                          Right (Name (mkOccName "_reportBody") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_ReportElems_ImageSize wp undefined)))
+          describe _ (Peek_ReportView_Units (p@(Path_ReportView__reportBody wp))
+                                            x) = maybe (Just "Report Body") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                      Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                      Right (Name (mkOccName "_reportBody") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_ReportElems_Units wp undefined)))
+          describe _ (Peek_ReportView_ImageFile (p@(Path_ReportView__reportBody wp))
+                                                x) = maybe (Just "Report Body") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                          Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                          Right (Name (mkOccName "_reportBody") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_ReportElems_ImageFile wp undefined)))
+          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportBody wp))
+                                               x) = maybe (Just "Report Body") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                         Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                         Right (Name (mkOccName "_reportBody") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_ReportElems_JSONText wp undefined)))
+          describe _ (Peek_ReportView_Markup (p@(Path_ReportView__reportBody wp))
+                                             x) = maybe (Just "Report Body") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                       Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                       Right (Name (mkOccName "_reportBody") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_ReportElems_Markup wp undefined)))
+          describe _ (Peek_ReportView_ReportElem (p@(Path_ReportView__reportBody wp))
+                                                 x) = maybe (Just "Report Body") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                           Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                           Right (Name (mkOccName "_reportBody") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_ReportElems_ReportElem wp undefined)))
+          describe _ (Peek_ReportView_ReportElems (p@(Path_ReportView__reportBody wp)) x) = maybe (Just "Report Body") Just (maybe Nothing Just Nothing)
+          describe _ (Peek_ReportView_EUI (p@(Path_ReportView__reportBody wp))
+                                          x) = maybe (Just "Report Body") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                    Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                    Right (Name (mkOccName "_reportBody") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_ReportElems_EUI wp undefined)))
+          describe _ (Peek_ReportView_MEUI (p@(Path_ReportView__reportBody wp))
+                                           x) = maybe (Just "Report Body") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                     Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                     Right (Name (mkOccName "_reportBody") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_ReportElems_MEUI wp undefined)))
+          describe _ (Peek_ReportView_MaybeImageFile (p@(Path_ReportView__reportBody wp))
+                                                     x) = maybe (Just "Report Body") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                               Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                               Right (Name (mkOccName "_reportBody") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_ReportElems_MaybeImageFile wp undefined)))
+          describe _ (Peek_ReportView_ReportImage (p@(Path_ReportView__reportBody wp))
+                                                  x) = maybe (Just "Report Body") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                            Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                            Right (Name (mkOccName "_reportBody") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_ReportElems_ReportImage wp undefined)))
+          describe _ (Peek_ReportView_ReportImages (p@(Path_ReportView__reportBody wp))
+                                                   x) = maybe (Just "Report Body") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                             Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                             Right (Name (mkOccName "_reportBody") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_ReportElems_ReportImages wp undefined)))
+          describe _ (Peek_ReportView_ReportImageView (p@(Path_ReportView__reportBody wp))
+                                                      x) = maybe (Just "Report Body") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                Right (Name (mkOccName "_reportBody") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_ReportElems_ReportImageView wp undefined)))
+          describe _ (Peek_ReportView_SaneSizeImageSize (p@(Path_ReportView__reportBody wp))
+                                                        x) = maybe (Just "Report Body") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                  Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                  Right (Name (mkOccName "_reportBody") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_ReportElems_SaneSizeImageSize wp undefined)))
+          describe _ (Peek_ReportView_Item (p@(Path_ReportView__reportBody wp))
+                                           x) = maybe (Just "Report Body") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                     Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                     Right (Name (mkOccName "_reportBody") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_ReportElems_Item wp undefined)))
+          describe _ (Peek_ReportView_MIM (p@(Path_ReportView__reportBody wp))
+                                          x) = maybe (Just "Report Body") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                    Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                    Right (Name (mkOccName "_reportBody") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_ReportElems_MIM wp undefined)))
+          describe _ (Peek_ReportView_URI (p@(Path_ReportView__reportBody wp))
+                                          x) = maybe (Just "Report Body") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                    Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                    Right (Name (mkOccName "_reportBody") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_ReportElems_URI wp undefined)))
+          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportBody wp))
+                                           x) = maybe (Just "Report Body") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                     Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                     Right (Name (mkOccName "_reportBody") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_ReportElems_Text wp undefined)))
+          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportGlossary wp))
+                                               x) = maybe (Just "Report Glossary") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                             Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                             Right (Name (mkOccName "_reportGlossary") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_MarkupPairs_JSONText wp undefined)))
+          describe _ (Peek_ReportView_Markup (p@(Path_ReportView__reportGlossary wp))
+                                             x) = maybe (Just "Report Glossary") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                           Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                           Right (Name (mkOccName "_reportGlossary") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_MarkupPairs_Markup wp undefined)))
+          describe _ (Peek_ReportView_MarkupPair (p@(Path_ReportView__reportGlossary wp))
+                                                 x) = maybe (Just "Report Glossary") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                               Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                               Right (Name (mkOccName "_reportGlossary") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_MarkupPairs_MarkupPair wp undefined)))
+          describe _ (Peek_ReportView_MarkupPairs (p@(Path_ReportView__reportGlossary wp)) x) = maybe (Just "Report Glossary") Just (maybe Nothing Just Nothing)
+          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportGlossary wp))
+                                           x) = maybe (Just "Report Glossary") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                         Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                         Right (Name (mkOccName "_reportGlossary") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_MarkupPairs_Text wp undefined)))
+          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportSources wp))
+                                               x) = maybe (Just "Report Sources") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                            Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                            Right (Name (mkOccName "_reportSources") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_MarkupPairs_JSONText wp undefined)))
+          describe _ (Peek_ReportView_Markup (p@(Path_ReportView__reportSources wp))
+                                             x) = maybe (Just "Report Sources") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                          Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                          Right (Name (mkOccName "_reportSources") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_MarkupPairs_Markup wp undefined)))
+          describe _ (Peek_ReportView_MarkupPair (p@(Path_ReportView__reportSources wp))
+                                                 x) = maybe (Just "Report Sources") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                              Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                              Right (Name (mkOccName "_reportSources") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_MarkupPairs_MarkupPair wp undefined)))
+          describe _ (Peek_ReportView_MarkupPairs (p@(Path_ReportView__reportSources wp)) x) = maybe (Just "Report Sources") Just (maybe Nothing Just Nothing)
+          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportSources wp))
+                                           x) = maybe (Just "Report Sources") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                        Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                        Right (Name (mkOccName "_reportSources") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_MarkupPairs_Text wp undefined)))
+          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportLetterOfTransmittal wp))
+                                               x) = maybe (Just "Report Letter Of Transmittal") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                             Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                             Right (Name (mkOccName "_reportLetterOfTransmittal") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                                               Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                                               Right (Name (mkOccName "_reportLetterOfTransmittal") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Markup_JSONText wp undefined)))
+          describe _ (Peek_ReportView_Markup (p@(Path_ReportView__reportLetterOfTransmittal wp))
+                                             x) = maybe (Just "Report Letter Of Transmittal") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                           Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                           Right (Name (mkOccName "_reportLetterOfTransmittal") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just Nothing)
+          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportLetterOfTransmittal wp))
+                                           x) = maybe (Just "Report Letter Of Transmittal") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                         Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                         Right (Name (mkOccName "_reportLetterOfTransmittal") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                                           Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                                           Right (Name (mkOccName "_reportLetterOfTransmittal") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Markup_Text wp undefined)))
+          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportScopeOfWork wp))
+                                               x) = maybe (Just "Report Scope Of Work") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                     Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                     Right (Name (mkOccName "_reportScopeOfWork") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                               Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                               Right (Name (mkOccName "_reportScopeOfWork") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Markup_JSONText wp undefined)))
+          describe _ (Peek_ReportView_Markup (p@(Path_ReportView__reportScopeOfWork wp))
+                                             x) = maybe (Just "Report Scope Of Work") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                   Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                   Right (Name (mkOccName "_reportScopeOfWork") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just Nothing)
+          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportScopeOfWork wp))
+                                           x) = maybe (Just "Report Scope Of Work") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                 Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                 Right (Name (mkOccName "_reportScopeOfWork") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                           Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                           Right (Name (mkOccName "_reportScopeOfWork") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Markup_Text wp undefined)))
+          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportCertification wp))
+                                               x) = maybe (Just "Report Certification") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                  Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                  Right (Name (mkOccName "_reportCertification") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Markups_JSONText wp undefined)))
+          describe _ (Peek_ReportView_Markup (p@(Path_ReportView__reportCertification wp))
+                                             x) = maybe (Just "Report Certification") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                Right (Name (mkOccName "_reportCertification") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Markups_Markup wp undefined)))
+          describe _ (Peek_ReportView_Markups (p@(Path_ReportView__reportCertification wp)) x) = maybe (Just "Report Certification") Just (maybe Nothing Just Nothing)
+          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportCertification wp))
+                                           x) = maybe (Just "Report Certification") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                              Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                              Right (Name (mkOccName "_reportCertification") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Markups_Text wp undefined)))
+          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportLimitingConditions wp))
+                                               x) = maybe (Just "Report Limiting Conditions") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                        Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                        Right (Name (mkOccName "_reportLimitingConditions") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Markups_JSONText wp undefined)))
+          describe _ (Peek_ReportView_Markup (p@(Path_ReportView__reportLimitingConditions wp))
+                                             x) = maybe (Just "Report Limiting Conditions") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                      Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                      Right (Name (mkOccName "_reportLimitingConditions") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Markups_Markup wp undefined)))
+          describe _ (Peek_ReportView_Markups (p@(Path_ReportView__reportLimitingConditions wp)) x) = maybe (Just "Report Limiting Conditions") Just (maybe Nothing Just Nothing)
+          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportLimitingConditions wp))
+                                           x) = maybe (Just "Report Limiting Conditions") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                    Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                    Right (Name (mkOccName "_reportLimitingConditions") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Markups_Text wp undefined)))
+          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportPrivacyPolicy wp))
+                                               x) = maybe (Just "Report Privacy Policy") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                      Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                      Right (Name (mkOccName "_reportPrivacyPolicy") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                                  Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                                  Right (Name (mkOccName "_reportPrivacyPolicy") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Markup_JSONText wp undefined)))
+          describe _ (Peek_ReportView_Markup (p@(Path_ReportView__reportPrivacyPolicy wp))
+                                             x) = maybe (Just "Report Privacy Policy") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                    Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                    Right (Name (mkOccName "_reportPrivacyPolicy") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just Nothing)
+          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportPrivacyPolicy wp))
+                                           x) = maybe (Just "Report Privacy Policy") Just (maybe (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                  Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                  Right (Name (mkOccName "_reportPrivacyPolicy") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Proxy :: Proxy Markup)) Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                              Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                                                                                                                                                                              Right (Name (mkOccName "_reportPrivacyPolicy") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Markup_Text wp undefined)))
+          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportPerms wp))
+                                               x) = maybe (Just "Report Perms") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                          Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                          Right (Name (mkOccName "_reportPerms") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Permissions_JSONText wp undefined)))
+          describe _ (Peek_ReportView_Permissions (p@(Path_ReportView__reportPerms wp)) x) = maybe (Just "Report Perms") Just (maybe Nothing Just Nothing)
+          describe _ (Peek_ReportView_UserIds (p@(Path_ReportView__reportPerms wp))
+                                              x) = maybe (Just "Report Perms") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                         Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                         Right (Name (mkOccName "_reportPerms") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Permissions_UserIds wp undefined)))
+          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportPerms wp))
+                                           x) = maybe (Just "Report Perms") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                      Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                      Right (Name (mkOccName "_reportPerms") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Permissions_Text wp undefined)))
+          describe _ (Peek_ReportView_UserId (p@(Path_ReportView__reportPerms wp))
+                                             x) = maybe (Just "Report Perms") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                        Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                        Right (Name (mkOccName "_reportPerms") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Permissions_UserId wp undefined)))
+          describe _ (Peek_ReportView_Integer (p@(Path_ReportView__reportRevision wp)) x) = maybe (Just "Report Revision") Just (maybe Nothing Just Nothing)
+          describe _ (Peek_ReportView_Int64 (p@(Path_ReportView__reportCreated wp)) x) = maybe (Just "Report Created") Just (maybe Nothing Just Nothing)
+          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportBranding wp))
+                                               x) = maybe (Just "Report Branding") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                             Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                             Right (Name (mkOccName "_reportBranding") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Branding_JSONText wp undefined)))
+          describe _ (Peek_ReportView_Branding (p@(Path_ReportView__reportBranding wp)) x) = maybe (Just "Report Branding") Just (maybe Nothing Just Nothing)
+          describe _ (Peek_ReportView_Text (p@(Path_ReportView__reportBranding wp))
+                                           x) = maybe (Just "Report Branding") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                         Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                         Right (Name (mkOccName "_reportBranding") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Branding_Text wp undefined)))
+          describe _ (Peek_ReportView_String (p@(Path_ReportView__reportStatus wp))
+                                             x) = maybe (Just "Report Status") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                         Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                         Right (Name (mkOccName "_reportStatus") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_ReportStatus_String wp undefined)))
+          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportStatus wp))
+                                               x) = maybe (Just "Report Status") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                           Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                           Right (Name (mkOccName "_reportStatus") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_ReportStatus_JSONText wp undefined)))
+          describe _ (Peek_ReportView_ReportStatus (p@(Path_ReportView__reportStatus wp)) x) = maybe (Just "Report Status") Just (maybe Nothing Just Nothing)
+          describe _ (Peek_ReportView_String (p@(Path_ReportView__reportRedacted wp))
+                                             x) = maybe (Just "Report Redacted") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                           Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                           Right (Name (mkOccName "_reportRedacted") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Bool_String wp undefined)))
+          describe _ (Peek_ReportView_Bool (p@(Path_ReportView__reportRedacted wp)) x) = maybe (Just "Report Redacted") Just (maybe Nothing Just Nothing)
+          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportRedacted wp))
+                                               x) = maybe (Just "Report Redacted") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                             Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                             Right (Name (mkOccName "_reportRedacted") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Bool_JSONText wp undefined)))
+          describe _ (Peek_ReportView_String (p@(Path_ReportView__reportFlags wp))
+                                             x) = maybe (Just "Report Flags") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                        Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                        Right (Name (mkOccName "_reportFlags") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_ReportFlags_String wp undefined)))
+          describe _ (Peek_ReportView_Bool (p@(Path_ReportView__reportFlags wp))
+                                           x) = maybe (Just "Report Flags") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                      Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                      Right (Name (mkOccName "_reportFlags") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_ReportFlags_Bool wp undefined)))
+          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportFlags wp))
+                                               x) = maybe (Just "Report Flags") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                          Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                          Right (Name (mkOccName "_reportFlags") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_ReportFlags_JSONText wp undefined)))
+          describe _ (Peek_ReportView_ReportFlags (p@(Path_ReportView__reportFlags wp)) x) = maybe (Just "Report Flags") Just (maybe Nothing Just Nothing)
+          describe _ (Peek_ReportView_UUID (p@(Path_ReportView__reportUUID wp)) x) = maybe (Just "Report UUID") Just (maybe Nothing Just Nothing)
+          describe _ (Peek_ReportView_String (p@(Path_ReportView__reportOrderByItemName wp))
+                                             x) = maybe (Just "Report Order By Item Name") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                     Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                     Right (Name (mkOccName "_reportOrderByItemName") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Bool_String wp undefined)))
+          describe _ (Peek_ReportView_Bool (p@(Path_ReportView__reportOrderByItemName wp)) x) = maybe (Just "Report Order By Item Name") Just (maybe Nothing Just Nothing)
+          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportOrderByItemName wp))
+                                               x) = maybe (Just "Report Order By Item Name") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                       Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                       Right (Name (mkOccName "_reportOrderByItemName") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Bool_JSONText wp undefined)))
+          describe _ (Peek_ReportView_String (p@(Path_ReportView__reportDisplayItemName wp))
+                                             x) = maybe (Just "Report Display Item Name") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                    Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                    Right (Name (mkOccName "_reportDisplayItemName") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Bool_String wp undefined)))
+          describe _ (Peek_ReportView_Bool (p@(Path_ReportView__reportDisplayItemName wp)) x) = maybe (Just "Report Display Item Name") Just (maybe Nothing Just Nothing)
+          describe _ (Peek_ReportView_JSONText (p@(Path_ReportView__reportDisplayItemName wp))
+                                               x) = maybe (Just "Report Display Item Name") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                      Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                      Right (Name (mkOccName "_reportDisplayItemName") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_Bool_JSONText wp undefined)))
+          describe _ (Peek_ReportView_Int (p@(Path_ReportView__reportStandardsVersion wp))
+                                          x) = maybe (Just "Report Standards Version") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportView") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                 Name (mkOccName "ReportView") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportInstances")),
+                                                                                                                                 Right (Name (mkOccName "_reportStandardsVersion") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportInstances"))))) (Peek_ReportStandard_Int wp undefined)))
+          describe _ (Peek_ReportView_ReportStandard (p@(Path_ReportView__reportStandardsVersion wp))
+                                                     x) = maybe (Just "Report Standards Version") Just (maybe Nothing Just Nothing)
 instance Describe (Peek Item)
-    where describe _ (Peek_Item_JSONText (p@(Path_Item_itemName _)) x) = Just "Item Name"
-          describe _ (Peek_Item_Text (p@(Path_Item_itemName _)) x) = Just "Item Name"
-          describe _ (Peek_Item_JSONText (p@(Path_Item_fields _)) x) = Just "Fields"
-          describe _ (Peek_Item_Markup (p@(Path_Item_fields _)) x) = Just "Fields"
-          describe _ (Peek_Item_MIM (p@(Path_Item_fields _)) x) = Just "Fields"
-          describe _ (Peek_Item_Text (p@(Path_Item_fields _)) x) = Just "Fields"
-          describe _ (Peek_Item_String (p@(Path_Item_images _)) x) = Just "Images"
-          describe _ (Peek_Item_Bool (p@(Path_Item_images _)) x) = Just "Images"
-          describe _ (Peek_Item_Double (p@(Path_Item_images _)) x) = Just "Images"
-          describe _ (Peek_Item_Dimension (p@(Path_Item_images _)) x) = Just "Images"
-          describe _ (Peek_Item_ImageCrop (p@(Path_Item_images _)) x) = Just "Images"
-          describe _ (Peek_Item_ImageSize (p@(Path_Item_images _)) x) = Just "Images"
-          describe _ (Peek_Item_Units (p@(Path_Item_images _)) x) = Just "Images"
-          describe _ (Peek_Item_ImageFile (p@(Path_Item_images _)) x) = Just "Images"
-          describe _ (Peek_Item_JSONText (p@(Path_Item_images _)) x) = Just "Images"
-          describe _ (Peek_Item_Markup (p@(Path_Item_images _)) x) = Just "Images"
-          describe _ (Peek_Item_EUI (p@(Path_Item_images _)) x) = Just "Images"
-          describe _ (Peek_Item_MEUI (p@(Path_Item_images _)) x) = Just "Images"
-          describe _ (Peek_Item_MaybeImageFile (p@(Path_Item_images _)) x) = Just "Images"
-          describe _ (Peek_Item_ReportImage (p@(Path_Item_images _)) x) = Just "Images"
-          describe _ (Peek_Item_ReportImages (p@(Path_Item_images _)) x) = Just "Images"
-          describe _ (Peek_Item_ReportImageView (p@(Path_Item_images _)) x) = Just "Images"
-          describe _ (Peek_Item_SaneSizeImageSize (p@(Path_Item_images _)) x) = Just "Images"
-          describe _ (Peek_Item_URI (p@(Path_Item_images _)) x) = Just "Images"
-          describe _ (Peek_Item_Text (p@(Path_Item_images _)) x) = Just "Images"
+    where describe _ (Peek_Item_JSONText (p@(Path_Item_itemName wp))
+                                         x) = maybe (Just "Item Name") Just (maybe Nothing Just (describe (Just (Name (mkOccName "Item") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportItem")),
+                                                                                                                 Name (mkOccName "Item") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportItem")),
+                                                                                                                 Right (Name (mkOccName "itemName") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportItem"))))) (Peek_Text_JSONText wp undefined)))
+          describe _ (Peek_Item_Text (p@(Path_Item_itemName wp)) x) = maybe (Just "Item Name") Just (maybe Nothing Just Nothing)
+          describe _ (Peek_Item_JSONText (p@(Path_Item_fields wp))
+                                         x) = maybe (Just "Fields") Just (maybe Nothing Just (describe (Just (Name (mkOccName "Item") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportItem")),
+                                                                                                              Name (mkOccName "Item") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportItem")),
+                                                                                                              Right (Name (mkOccName "fields") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportItem"))))) (Peek_MIM_JSONText wp undefined)))
+          describe _ (Peek_Item_Markup (p@(Path_Item_fields wp))
+                                       x) = maybe (Just "Fields") Just (maybe Nothing Just (describe (Just (Name (mkOccName "Item") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportItem")),
+                                                                                                            Name (mkOccName "Item") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportItem")),
+                                                                                                            Right (Name (mkOccName "fields") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportItem"))))) (Peek_MIM_Markup wp undefined)))
+          describe _ (Peek_Item_MIM (p@(Path_Item_fields wp)) x) = maybe (Just "Fields") Just (maybe Nothing Just Nothing)
+          describe _ (Peek_Item_Text (p@(Path_Item_fields wp))
+                                     x) = maybe (Just "Fields") Just (maybe Nothing Just (describe (Just (Name (mkOccName "Item") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportItem")),
+                                                                                                          Name (mkOccName "Item") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportItem")),
+                                                                                                          Right (Name (mkOccName "fields") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportItem"))))) (Peek_MIM_Text wp undefined)))
+          describe _ (Peek_Item_String (p@(Path_Item_images wp))
+                                       x) = maybe (Just "Images") Just (maybe Nothing Just (describe (Just (Name (mkOccName "Item") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportItem")),
+                                                                                                            Name (mkOccName "Item") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportItem")),
+                                                                                                            Right (Name (mkOccName "images") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportItem"))))) (Peek_ReportImages_String wp undefined)))
+          describe _ (Peek_Item_Bool (p@(Path_Item_images wp))
+                                     x) = maybe (Just "Images") Just (maybe Nothing Just (describe (Just (Name (mkOccName "Item") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportItem")),
+                                                                                                          Name (mkOccName "Item") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportItem")),
+                                                                                                          Right (Name (mkOccName "images") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportItem"))))) (Peek_ReportImages_Bool wp undefined)))
+          describe _ (Peek_Item_Double (p@(Path_Item_images wp))
+                                       x) = maybe (Just "Images") Just (maybe Nothing Just (describe (Just (Name (mkOccName "Item") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportItem")),
+                                                                                                            Name (mkOccName "Item") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportItem")),
+                                                                                                            Right (Name (mkOccName "images") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportItem"))))) (Peek_ReportImages_Double wp undefined)))
+          describe _ (Peek_Item_Dimension (p@(Path_Item_images wp))
+                                          x) = maybe (Just "Images") Just (maybe Nothing Just (describe (Just (Name (mkOccName "Item") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportItem")),
+                                                                                                               Name (mkOccName "Item") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportItem")),
+                                                                                                               Right (Name (mkOccName "images") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportItem"))))) (Peek_ReportImages_Dimension wp undefined)))
+          describe _ (Peek_Item_ImageCrop (p@(Path_Item_images wp))
+                                          x) = maybe (Just "Images") Just (maybe Nothing Just (describe (Just (Name (mkOccName "Item") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportItem")),
+                                                                                                               Name (mkOccName "Item") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportItem")),
+                                                                                                               Right (Name (mkOccName "images") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportItem"))))) (Peek_ReportImages_ImageCrop wp undefined)))
+          describe _ (Peek_Item_ImageSize (p@(Path_Item_images wp))
+                                          x) = maybe (Just "Images") Just (maybe Nothing Just (describe (Just (Name (mkOccName "Item") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportItem")),
+                                                                                                               Name (mkOccName "Item") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportItem")),
+                                                                                                               Right (Name (mkOccName "images") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportItem"))))) (Peek_ReportImages_ImageSize wp undefined)))
+          describe _ (Peek_Item_Units (p@(Path_Item_images wp))
+                                      x) = maybe (Just "Images") Just (maybe Nothing Just (describe (Just (Name (mkOccName "Item") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportItem")),
+                                                                                                           Name (mkOccName "Item") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportItem")),
+                                                                                                           Right (Name (mkOccName "images") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportItem"))))) (Peek_ReportImages_Units wp undefined)))
+          describe _ (Peek_Item_ImageFile (p@(Path_Item_images wp))
+                                          x) = maybe (Just "Images") Just (maybe Nothing Just (describe (Just (Name (mkOccName "Item") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportItem")),
+                                                                                                               Name (mkOccName "Item") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportItem")),
+                                                                                                               Right (Name (mkOccName "images") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportItem"))))) (Peek_ReportImages_ImageFile wp undefined)))
+          describe _ (Peek_Item_JSONText (p@(Path_Item_images wp))
+                                         x) = maybe (Just "Images") Just (maybe Nothing Just (describe (Just (Name (mkOccName "Item") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportItem")),
+                                                                                                              Name (mkOccName "Item") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportItem")),
+                                                                                                              Right (Name (mkOccName "images") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportItem"))))) (Peek_ReportImages_JSONText wp undefined)))
+          describe _ (Peek_Item_Markup (p@(Path_Item_images wp))
+                                       x) = maybe (Just "Images") Just (maybe Nothing Just (describe (Just (Name (mkOccName "Item") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportItem")),
+                                                                                                            Name (mkOccName "Item") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportItem")),
+                                                                                                            Right (Name (mkOccName "images") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportItem"))))) (Peek_ReportImages_Markup wp undefined)))
+          describe _ (Peek_Item_EUI (p@(Path_Item_images wp))
+                                    x) = maybe (Just "Images") Just (maybe Nothing Just (describe (Just (Name (mkOccName "Item") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportItem")),
+                                                                                                         Name (mkOccName "Item") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportItem")),
+                                                                                                         Right (Name (mkOccName "images") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportItem"))))) (Peek_ReportImages_EUI wp undefined)))
+          describe _ (Peek_Item_MEUI (p@(Path_Item_images wp))
+                                     x) = maybe (Just "Images") Just (maybe Nothing Just (describe (Just (Name (mkOccName "Item") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportItem")),
+                                                                                                          Name (mkOccName "Item") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportItem")),
+                                                                                                          Right (Name (mkOccName "images") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportItem"))))) (Peek_ReportImages_MEUI wp undefined)))
+          describe _ (Peek_Item_MaybeImageFile (p@(Path_Item_images wp))
+                                               x) = maybe (Just "Images") Just (maybe Nothing Just (describe (Just (Name (mkOccName "Item") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportItem")),
+                                                                                                                    Name (mkOccName "Item") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportItem")),
+                                                                                                                    Right (Name (mkOccName "images") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportItem"))))) (Peek_ReportImages_MaybeImageFile wp undefined)))
+          describe _ (Peek_Item_ReportImage (p@(Path_Item_images wp))
+                                            x) = maybe (Just "Images") Just (maybe Nothing Just (describe (Just (Name (mkOccName "Item") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportItem")),
+                                                                                                                 Name (mkOccName "Item") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportItem")),
+                                                                                                                 Right (Name (mkOccName "images") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportItem"))))) (Peek_ReportImages_ReportImage wp undefined)))
+          describe _ (Peek_Item_ReportImages (p@(Path_Item_images wp)) x) = maybe (Just "Images") Just (maybe Nothing Just Nothing)
+          describe _ (Peek_Item_ReportImageView (p@(Path_Item_images wp))
+                                                x) = maybe (Just "Images") Just (maybe Nothing Just (describe (Just (Name (mkOccName "Item") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportItem")),
+                                                                                                                     Name (mkOccName "Item") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportItem")),
+                                                                                                                     Right (Name (mkOccName "images") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportItem"))))) (Peek_ReportImages_ReportImageView wp undefined)))
+          describe _ (Peek_Item_SaneSizeImageSize (p@(Path_Item_images wp))
+                                                  x) = maybe (Just "Images") Just (maybe Nothing Just (describe (Just (Name (mkOccName "Item") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportItem")),
+                                                                                                                       Name (mkOccName "Item") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportItem")),
+                                                                                                                       Right (Name (mkOccName "images") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportItem"))))) (Peek_ReportImages_SaneSizeImageSize wp undefined)))
+          describe _ (Peek_Item_URI (p@(Path_Item_images wp))
+                                    x) = maybe (Just "Images") Just (maybe Nothing Just (describe (Just (Name (mkOccName "Item") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportItem")),
+                                                                                                         Name (mkOccName "Item") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportItem")),
+                                                                                                         Right (Name (mkOccName "images") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportItem"))))) (Peek_ReportImages_URI wp undefined)))
+          describe _ (Peek_Item_Text (p@(Path_Item_images wp))
+                                     x) = maybe (Just "Images") Just (maybe Nothing Just (describe (Just (Name (mkOccName "Item") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportItem")),
+                                                                                                          Name (mkOccName "Item") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportItem")),
+                                                                                                          Right (Name (mkOccName "images") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportItem"))))) (Peek_ReportImages_Text wp undefined)))
 instance Describe (Peek ReportMap)
-    where describe _ (Peek_ReportMap_String (p@(Path_ReportMap_unReportMap _)) x) = Just "Un Report Map"
-          describe _ (Peek_ReportMap_Int64 (p@(Path_ReportMap_unReportMap _)) x) = Just "Un Report Map"
-          describe _ (Peek_ReportMap_Int (p@(Path_ReportMap_unReportMap _)) x) = Just "Un Report Map"
-          describe _ (Peek_ReportMap_Bool (p@(Path_ReportMap_unReportMap _)) x) = Just "Un Report Map"
-          describe _ (Peek_ReportMap_Double (p@(Path_ReportMap_unReportMap _)) x) = Just "Un Report Map"
-          describe _ (Peek_ReportMap_Dimension (p@(Path_ReportMap_unReportMap _)) x) = Just "Un Report Map"
-          describe _ (Peek_ReportMap_ImageCrop (p@(Path_ReportMap_unReportMap _)) x) = Just "Un Report Map"
-          describe _ (Peek_ReportMap_ImageSize (p@(Path_ReportMap_unReportMap _)) x) = Just "Un Report Map"
-          describe _ (Peek_ReportMap_Units (p@(Path_ReportMap_unReportMap _)) x) = Just "Un Report Map"
-          describe _ (Peek_ReportMap_ImageFile (p@(Path_ReportMap_unReportMap _)) x) = Just "Un Report Map"
-          describe _ (Peek_ReportMap_Integer (p@(Path_ReportMap_unReportMap _)) x) = Just "Un Report Map"
-          describe _ (Peek_ReportMap_JSONText (p@(Path_ReportMap_unReportMap _)) x) = Just "Un Report Map"
-          describe _ (Peek_ReportMap_Markup (p@(Path_ReportMap_unReportMap _)) x) = Just "Un Report Map"
-          describe _ (Peek_ReportMap_Permissions (p@(Path_ReportMap_unReportMap _)) x) = Just "Un Report Map"
-          describe _ (Peek_ReportMap_UserIds (p@(Path_ReportMap_unReportMap _)) x) = Just "Un Report Map"
-          describe _ (Peek_ReportMap_AbbrevPair (p@(Path_ReportMap_unReportMap _)) x) = Just "Un Report Map"
-          describe _ (Peek_ReportMap_AbbrevPairs (p@(Path_ReportMap_unReportMap _)) x) = Just "Un Report Map"
-          describe _ (Peek_ReportMap_Author (p@(Path_ReportMap_unReportMap _)) x) = Just "Un Report Map"
-          describe _ (Peek_ReportMap_Authors (p@(Path_ReportMap_unReportMap _)) x) = Just "Un Report Map"
-          describe _ (Peek_ReportMap_Branding (p@(Path_ReportMap_unReportMap _)) x) = Just "Un Report Map"
-          describe _ (Peek_ReportMap_MarkupPair (p@(Path_ReportMap_unReportMap _)) x) = Just "Un Report Map"
-          describe _ (Peek_ReportMap_MarkupPairs (p@(Path_ReportMap_unReportMap _)) x) = Just "Un Report Map"
-          describe _ (Peek_ReportMap_Markups (p@(Path_ReportMap_unReportMap _)) x) = Just "Un Report Map"
-          describe _ (Peek_ReportMap_MaybeReportIntendedUse (p@(Path_ReportMap_unReportMap _)) x) = Just "Un Report Map"
-          describe _ (Peek_ReportMap_Report (p@(Path_ReportMap_unReportMap _)) x) = Just "Un Report Map"
-          describe _ (Peek_ReportMap_ReportElem (p@(Path_ReportMap_unReportMap _)) x) = Just "Un Report Map"
-          describe _ (Peek_ReportMap_ReportElems (p@(Path_ReportMap_unReportMap _)) x) = Just "Un Report Map"
-          describe _ (Peek_ReportMap_ReportFlags (p@(Path_ReportMap_unReportMap _)) x) = Just "Un Report Map"
-          describe _ (Peek_ReportMap_ReportStandard (p@(Path_ReportMap_unReportMap _)) x) = Just "Un Report Map"
-          describe _ (Peek_ReportMap_ReportStatus (p@(Path_ReportMap_unReportMap _)) x) = Just "Un Report Map"
-          describe _ (Peek_ReportMap_ReportValueApproachInfo (p@(Path_ReportMap_unReportMap _)) x) = Just "Un Report Map"
-          describe _ (Peek_ReportMap_ReportValueTypeInfo (p@(Path_ReportMap_unReportMap _)) x) = Just "Un Report Map"
-          describe _ (Peek_ReportMap_EUI (p@(Path_ReportMap_unReportMap _)) x) = Just "Un Report Map"
-          describe _ (Peek_ReportMap_MEUI (p@(Path_ReportMap_unReportMap _)) x) = Just "Un Report Map"
-          describe _ (Peek_ReportMap_MaybeImageFile (p@(Path_ReportMap_unReportMap _)) x) = Just "Un Report Map"
-          describe _ (Peek_ReportMap_ReportImage (p@(Path_ReportMap_unReportMap _)) x) = Just "Un Report Map"
-          describe _ (Peek_ReportMap_ReportImages (p@(Path_ReportMap_unReportMap _)) x) = Just "Un Report Map"
-          describe _ (Peek_ReportMap_ReadOnlyFilePath (p@(Path_ReportMap_unReportMap _)) x) = Just "Un Report Map"
-          describe _ (Peek_ReportMap_ReportImageView (p@(Path_ReportMap_unReportMap _)) x) = Just "Un Report Map"
-          describe _ (Peek_ReportMap_ReportView (p@(Path_ReportMap_unReportMap _)) x) = Just "Un Report Map"
-          describe _ (Peek_ReportMap_SaneSizeImageSize (p@(Path_ReportMap_unReportMap _)) x) = Just "Un Report Map"
-          describe _ (Peek_ReportMap_Item (p@(Path_ReportMap_unReportMap _)) x) = Just "Un Report Map"
-          describe _ (Peek_ReportMap_MIM (p@(Path_ReportMap_unReportMap _)) x) = Just "Un Report Map"
-          describe _ (Peek_ReportMap_MRR (p@(Path_ReportMap_unReportMap _)) x) = Just "Un Report Map"
-          describe _ (Peek_ReportMap_CIString (p@(Path_ReportMap_unReportMap _)) x) = Just "Un Report Map"
-          describe _ (Peek_ReportMap_URI (p@(Path_ReportMap_unReportMap _)) x) = Just "Un Report Map"
-          describe _ (Peek_ReportMap_Text (p@(Path_ReportMap_unReportMap _)) x) = Just "Un Report Map"
-          describe _ (Peek_ReportMap_UserId (p@(Path_ReportMap_unReportMap _)) x) = Just "Un Report Map"
-          describe _ (Peek_ReportMap_UUID (p@(Path_ReportMap_unReportMap _)) x) = Just "Un Report Map"
+    where describe _ (Peek_ReportMap_String (p@(Path_ReportMap_unReportMap wp))
+                                            x) = maybe (Just "Un Report Map") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportMap") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                        Name (mkOccName "ReportMap") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                        Right (Name (mkOccName "unReportMap") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportMap"))))) (Peek_MRR_String wp undefined)))
+          describe _ (Peek_ReportMap_Int64 (p@(Path_ReportMap_unReportMap wp))
+                                           x) = maybe (Just "Un Report Map") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportMap") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                       Name (mkOccName "ReportMap") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                       Right (Name (mkOccName "unReportMap") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportMap"))))) (Peek_MRR_Int64 wp undefined)))
+          describe _ (Peek_ReportMap_Int (p@(Path_ReportMap_unReportMap wp))
+                                         x) = maybe (Just "Un Report Map") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportMap") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                     Name (mkOccName "ReportMap") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                     Right (Name (mkOccName "unReportMap") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportMap"))))) (Peek_MRR_Int wp undefined)))
+          describe _ (Peek_ReportMap_Bool (p@(Path_ReportMap_unReportMap wp))
+                                          x) = maybe (Just "Un Report Map") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportMap") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                      Name (mkOccName "ReportMap") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                      Right (Name (mkOccName "unReportMap") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportMap"))))) (Peek_MRR_Bool wp undefined)))
+          describe _ (Peek_ReportMap_Double (p@(Path_ReportMap_unReportMap wp))
+                                            x) = maybe (Just "Un Report Map") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportMap") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                        Name (mkOccName "ReportMap") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                        Right (Name (mkOccName "unReportMap") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportMap"))))) (Peek_MRR_Double wp undefined)))
+          describe _ (Peek_ReportMap_Dimension (p@(Path_ReportMap_unReportMap wp))
+                                               x) = maybe (Just "Un Report Map") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportMap") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                           Name (mkOccName "ReportMap") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                           Right (Name (mkOccName "unReportMap") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportMap"))))) (Peek_MRR_Dimension wp undefined)))
+          describe _ (Peek_ReportMap_ImageCrop (p@(Path_ReportMap_unReportMap wp))
+                                               x) = maybe (Just "Un Report Map") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportMap") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                           Name (mkOccName "ReportMap") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                           Right (Name (mkOccName "unReportMap") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportMap"))))) (Peek_MRR_ImageCrop wp undefined)))
+          describe _ (Peek_ReportMap_ImageSize (p@(Path_ReportMap_unReportMap wp))
+                                               x) = maybe (Just "Un Report Map") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportMap") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                           Name (mkOccName "ReportMap") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                           Right (Name (mkOccName "unReportMap") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportMap"))))) (Peek_MRR_ImageSize wp undefined)))
+          describe _ (Peek_ReportMap_Units (p@(Path_ReportMap_unReportMap wp))
+                                           x) = maybe (Just "Un Report Map") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportMap") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                       Name (mkOccName "ReportMap") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                       Right (Name (mkOccName "unReportMap") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportMap"))))) (Peek_MRR_Units wp undefined)))
+          describe _ (Peek_ReportMap_ImageFile (p@(Path_ReportMap_unReportMap wp))
+                                               x) = maybe (Just "Un Report Map") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportMap") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                           Name (mkOccName "ReportMap") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                           Right (Name (mkOccName "unReportMap") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportMap"))))) (Peek_MRR_ImageFile wp undefined)))
+          describe _ (Peek_ReportMap_Integer (p@(Path_ReportMap_unReportMap wp))
+                                             x) = maybe (Just "Un Report Map") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportMap") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                         Name (mkOccName "ReportMap") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                         Right (Name (mkOccName "unReportMap") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportMap"))))) (Peek_MRR_Integer wp undefined)))
+          describe _ (Peek_ReportMap_JSONText (p@(Path_ReportMap_unReportMap wp))
+                                              x) = maybe (Just "Un Report Map") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportMap") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                          Name (mkOccName "ReportMap") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                          Right (Name (mkOccName "unReportMap") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportMap"))))) (Peek_MRR_JSONText wp undefined)))
+          describe _ (Peek_ReportMap_Markup (p@(Path_ReportMap_unReportMap wp))
+                                            x) = maybe (Just "Un Report Map") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportMap") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                        Name (mkOccName "ReportMap") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                        Right (Name (mkOccName "unReportMap") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportMap"))))) (Peek_MRR_Markup wp undefined)))
+          describe _ (Peek_ReportMap_Permissions (p@(Path_ReportMap_unReportMap wp))
+                                                 x) = maybe (Just "Un Report Map") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportMap") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                             Name (mkOccName "ReportMap") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                             Right (Name (mkOccName "unReportMap") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportMap"))))) (Peek_MRR_Permissions wp undefined)))
+          describe _ (Peek_ReportMap_UserIds (p@(Path_ReportMap_unReportMap wp))
+                                             x) = maybe (Just "Un Report Map") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportMap") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                         Name (mkOccName "ReportMap") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                         Right (Name (mkOccName "unReportMap") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportMap"))))) (Peek_MRR_UserIds wp undefined)))
+          describe _ (Peek_ReportMap_AbbrevPair (p@(Path_ReportMap_unReportMap wp))
+                                                x) = maybe (Just "Un Report Map") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportMap") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                            Name (mkOccName "ReportMap") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                            Right (Name (mkOccName "unReportMap") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportMap"))))) (Peek_MRR_AbbrevPair wp undefined)))
+          describe _ (Peek_ReportMap_AbbrevPairs (p@(Path_ReportMap_unReportMap wp))
+                                                 x) = maybe (Just "Un Report Map") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportMap") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                             Name (mkOccName "ReportMap") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                             Right (Name (mkOccName "unReportMap") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportMap"))))) (Peek_MRR_AbbrevPairs wp undefined)))
+          describe _ (Peek_ReportMap_Author (p@(Path_ReportMap_unReportMap wp))
+                                            x) = maybe (Just "Un Report Map") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportMap") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                        Name (mkOccName "ReportMap") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                        Right (Name (mkOccName "unReportMap") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportMap"))))) (Peek_MRR_Author wp undefined)))
+          describe _ (Peek_ReportMap_Authors (p@(Path_ReportMap_unReportMap wp))
+                                             x) = maybe (Just "Un Report Map") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportMap") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                         Name (mkOccName "ReportMap") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                         Right (Name (mkOccName "unReportMap") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportMap"))))) (Peek_MRR_Authors wp undefined)))
+          describe _ (Peek_ReportMap_Branding (p@(Path_ReportMap_unReportMap wp))
+                                              x) = maybe (Just "Un Report Map") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportMap") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                          Name (mkOccName "ReportMap") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                          Right (Name (mkOccName "unReportMap") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportMap"))))) (Peek_MRR_Branding wp undefined)))
+          describe _ (Peek_ReportMap_MarkupPair (p@(Path_ReportMap_unReportMap wp))
+                                                x) = maybe (Just "Un Report Map") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportMap") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                            Name (mkOccName "ReportMap") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                            Right (Name (mkOccName "unReportMap") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportMap"))))) (Peek_MRR_MarkupPair wp undefined)))
+          describe _ (Peek_ReportMap_MarkupPairs (p@(Path_ReportMap_unReportMap wp))
+                                                 x) = maybe (Just "Un Report Map") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportMap") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                             Name (mkOccName "ReportMap") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                             Right (Name (mkOccName "unReportMap") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportMap"))))) (Peek_MRR_MarkupPairs wp undefined)))
+          describe _ (Peek_ReportMap_Markups (p@(Path_ReportMap_unReportMap wp))
+                                             x) = maybe (Just "Un Report Map") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportMap") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                         Name (mkOccName "ReportMap") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                         Right (Name (mkOccName "unReportMap") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportMap"))))) (Peek_MRR_Markups wp undefined)))
+          describe _ (Peek_ReportMap_MaybeReportIntendedUse (p@(Path_ReportMap_unReportMap wp))
+                                                            x) = maybe (Just "Un Report Map") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportMap") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                                        Name (mkOccName "ReportMap") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                                        Right (Name (mkOccName "unReportMap") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportMap"))))) (Peek_MRR_MaybeReportIntendedUse wp undefined)))
+          describe _ (Peek_ReportMap_Report (p@(Path_ReportMap_unReportMap wp))
+                                            x) = maybe (Just "Un Report Map") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportMap") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                        Name (mkOccName "ReportMap") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                        Right (Name (mkOccName "unReportMap") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportMap"))))) (Peek_MRR_Report wp undefined)))
+          describe _ (Peek_ReportMap_ReportElem (p@(Path_ReportMap_unReportMap wp))
+                                                x) = maybe (Just "Un Report Map") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportMap") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                            Name (mkOccName "ReportMap") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                            Right (Name (mkOccName "unReportMap") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportMap"))))) (Peek_MRR_ReportElem wp undefined)))
+          describe _ (Peek_ReportMap_ReportElems (p@(Path_ReportMap_unReportMap wp))
+                                                 x) = maybe (Just "Un Report Map") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportMap") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                             Name (mkOccName "ReportMap") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                             Right (Name (mkOccName "unReportMap") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportMap"))))) (Peek_MRR_ReportElems wp undefined)))
+          describe _ (Peek_ReportMap_ReportFlags (p@(Path_ReportMap_unReportMap wp))
+                                                 x) = maybe (Just "Un Report Map") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportMap") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                             Name (mkOccName "ReportMap") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                             Right (Name (mkOccName "unReportMap") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportMap"))))) (Peek_MRR_ReportFlags wp undefined)))
+          describe _ (Peek_ReportMap_ReportStandard (p@(Path_ReportMap_unReportMap wp))
+                                                    x) = maybe (Just "Un Report Map") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportMap") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                                Name (mkOccName "ReportMap") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                                Right (Name (mkOccName "unReportMap") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportMap"))))) (Peek_MRR_ReportStandard wp undefined)))
+          describe _ (Peek_ReportMap_ReportStatus (p@(Path_ReportMap_unReportMap wp))
+                                                  x) = maybe (Just "Un Report Map") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportMap") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                              Name (mkOccName "ReportMap") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                              Right (Name (mkOccName "unReportMap") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportMap"))))) (Peek_MRR_ReportStatus wp undefined)))
+          describe _ (Peek_ReportMap_ReportValueApproachInfo (p@(Path_ReportMap_unReportMap wp))
+                                                             x) = maybe (Just "Un Report Map") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportMap") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                                         Name (mkOccName "ReportMap") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                                         Right (Name (mkOccName "unReportMap") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportMap"))))) (Peek_MRR_ReportValueApproachInfo wp undefined)))
+          describe _ (Peek_ReportMap_ReportValueTypeInfo (p@(Path_ReportMap_unReportMap wp))
+                                                         x) = maybe (Just "Un Report Map") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportMap") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                                     Name (mkOccName "ReportMap") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                                     Right (Name (mkOccName "unReportMap") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportMap"))))) (Peek_MRR_ReportValueTypeInfo wp undefined)))
+          describe _ (Peek_ReportMap_EUI (p@(Path_ReportMap_unReportMap wp))
+                                         x) = maybe (Just "Un Report Map") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportMap") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                     Name (mkOccName "ReportMap") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                     Right (Name (mkOccName "unReportMap") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportMap"))))) (Peek_MRR_EUI wp undefined)))
+          describe _ (Peek_ReportMap_MEUI (p@(Path_ReportMap_unReportMap wp))
+                                          x) = maybe (Just "Un Report Map") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportMap") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                      Name (mkOccName "ReportMap") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                      Right (Name (mkOccName "unReportMap") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportMap"))))) (Peek_MRR_MEUI wp undefined)))
+          describe _ (Peek_ReportMap_MaybeImageFile (p@(Path_ReportMap_unReportMap wp))
+                                                    x) = maybe (Just "Un Report Map") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportMap") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                                Name (mkOccName "ReportMap") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                                Right (Name (mkOccName "unReportMap") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportMap"))))) (Peek_MRR_MaybeImageFile wp undefined)))
+          describe _ (Peek_ReportMap_ReportImage (p@(Path_ReportMap_unReportMap wp))
+                                                 x) = maybe (Just "Un Report Map") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportMap") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                             Name (mkOccName "ReportMap") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                             Right (Name (mkOccName "unReportMap") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportMap"))))) (Peek_MRR_ReportImage wp undefined)))
+          describe _ (Peek_ReportMap_ReportImages (p@(Path_ReportMap_unReportMap wp))
+                                                  x) = maybe (Just "Un Report Map") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportMap") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                              Name (mkOccName "ReportMap") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                              Right (Name (mkOccName "unReportMap") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportMap"))))) (Peek_MRR_ReportImages wp undefined)))
+          describe _ (Peek_ReportMap_ReadOnlyFilePath (p@(Path_ReportMap_unReportMap wp))
+                                                      x) = maybe (Just "Un Report Map") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportMap") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                                  Name (mkOccName "ReportMap") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                                  Right (Name (mkOccName "unReportMap") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportMap"))))) (Peek_MRR_ReadOnlyFilePath wp undefined)))
+          describe _ (Peek_ReportMap_ReportImageView (p@(Path_ReportMap_unReportMap wp))
+                                                     x) = maybe (Just "Un Report Map") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportMap") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                                 Name (mkOccName "ReportMap") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                                 Right (Name (mkOccName "unReportMap") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportMap"))))) (Peek_MRR_ReportImageView wp undefined)))
+          describe _ (Peek_ReportMap_ReportView (p@(Path_ReportMap_unReportMap wp))
+                                                x) = maybe (Just "Un Report Map") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportMap") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                            Name (mkOccName "ReportMap") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                            Right (Name (mkOccName "unReportMap") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportMap"))))) (Peek_MRR_ReportView wp undefined)))
+          describe _ (Peek_ReportMap_SaneSizeImageSize (p@(Path_ReportMap_unReportMap wp))
+                                                       x) = maybe (Just "Un Report Map") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportMap") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                                   Name (mkOccName "ReportMap") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                                   Right (Name (mkOccName "unReportMap") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportMap"))))) (Peek_MRR_SaneSizeImageSize wp undefined)))
+          describe _ (Peek_ReportMap_Item (p@(Path_ReportMap_unReportMap wp))
+                                          x) = maybe (Just "Un Report Map") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportMap") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                      Name (mkOccName "ReportMap") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                      Right (Name (mkOccName "unReportMap") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportMap"))))) (Peek_MRR_Item wp undefined)))
+          describe _ (Peek_ReportMap_MIM (p@(Path_ReportMap_unReportMap wp))
+                                         x) = maybe (Just "Un Report Map") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportMap") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                     Name (mkOccName "ReportMap") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                     Right (Name (mkOccName "unReportMap") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportMap"))))) (Peek_MRR_MIM wp undefined)))
+          describe _ (Peek_ReportMap_MRR (p@(Path_ReportMap_unReportMap wp)) x) = maybe (Just "Un Report Map") Just (maybe Nothing Just Nothing)
+          describe _ (Peek_ReportMap_CIString (p@(Path_ReportMap_unReportMap wp))
+                                              x) = maybe (Just "Un Report Map") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportMap") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                          Name (mkOccName "ReportMap") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                          Right (Name (mkOccName "unReportMap") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportMap"))))) (Peek_MRR_CIString wp undefined)))
+          describe _ (Peek_ReportMap_URI (p@(Path_ReportMap_unReportMap wp))
+                                         x) = maybe (Just "Un Report Map") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportMap") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                     Name (mkOccName "ReportMap") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                     Right (Name (mkOccName "unReportMap") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportMap"))))) (Peek_MRR_URI wp undefined)))
+          describe _ (Peek_ReportMap_Text (p@(Path_ReportMap_unReportMap wp))
+                                          x) = maybe (Just "Un Report Map") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportMap") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                      Name (mkOccName "ReportMap") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                      Right (Name (mkOccName "unReportMap") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportMap"))))) (Peek_MRR_Text wp undefined)))
+          describe _ (Peek_ReportMap_UserId (p@(Path_ReportMap_unReportMap wp))
+                                            x) = maybe (Just "Un Report Map") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportMap") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                        Name (mkOccName "ReportMap") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                        Right (Name (mkOccName "unReportMap") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportMap"))))) (Peek_MRR_UserId wp undefined)))
+          describe _ (Peek_ReportMap_UUID (p@(Path_ReportMap_unReportMap wp))
+                                          x) = maybe (Just "Un Report Map") Just (maybe Nothing Just (describe (Just (Name (mkOccName "ReportMap") (NameG TcClsName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                      Name (mkOccName "ReportMap") (NameG DataName (mkPkgName "main") (mkModName "Appraisal.ReportMap")),
+                                                                                                                      Right (Name (mkOccName "unReportMap") (NameG VarName (mkPkgName "main") (mkModName "Appraisal.ReportMap"))))) (Peek_MRR_UUID wp undefined)))
 instance Describe (Peek CIString)
-    where describe _ (Peek_CIString_JSONText (p@(Path_CIString_View _)) x) = Just "Text"
-          describe _ (Peek_CIString_Text (p@(Path_CIString_View _)) x) = Just "Text"
+    where describe _ (Peek_CIString_JSONText (p@(Path_CIString_View wp))
+                                             x) = maybe (Just "Text") Just (maybe Nothing Just (describe Nothing (Peek_Text_JSONText wp undefined)))
+          describe _ (Peek_CIString_Text (p@(Path_CIString_View wp)) x) = maybe (Just "Text") Just (maybe Nothing Just Nothing)
 instance Describe (Peek URI)
-    where describe _ = []
+    where describe _ _ = Nothing
 instance Describe (Peek Text)
-    where describe _ (Peek_Text_JSONText (p@(Path_Text_View _)) x) = Just "JSONText"
+    where describe _ (Peek_Text_JSONText (p@(Path_Text_View wp)) x) = maybe (Just "JSONText") Just (maybe Nothing Just Nothing)
 instance Describe (Peek UserId)
-    where describe _ = []
+    where describe _ _ = Nothing
 instance Describe (Peek UUID)
-    where describe _ = []
+    where describe _ _ = Nothing
 instance HasIdPath (Path_Author a)
     where idPath = Path_Author
 instance HasIdPath (Path_Bool a)
@@ -9677,20 +10513,20 @@ instance IsPathStart (Either URI ImageFile)
               | Peek_EUI_URI (Path (Either URI ImageFile) URI) (Maybe URI)
               deriving (Eq, Show)
           peek (s@(Left _)) = concatMap (\path -> case path of
-                                                      p@(Path_Left _) -> map (\a -> let f = peek a
-                                                                                     in let liftPeek (Peek_URI_URI q z) = Peek_EUI_URI (Path_Left q) z
-                                                                                         in Node (Peek_EUI_URI p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [URI])
+                                                      p@(Path_Left wp) -> map (\a -> let f = peek a
+                                                                                      in let liftPeek (Peek_URI_URI q z) = Peek_EUI_URI (Path_Left q) z
+                                                                                          in Node (Peek_EUI_URI p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [URI])
                                                       _ -> []) (pathsOf s (undefined :: Proxy URI)) :: Forest (Peek (Either URI ImageFile))
           peek (s@(Right _)) = concatMap (\path -> case path of
-                                                       p@(Path_Right _) -> map (\a -> let f = peek a
-                                                                                       in let liftPeek (Peek_ImageFile_ImageFile q z) = Peek_EUI_ImageFile (Path_Right q) z
-                                                                                           in Node (Peek_EUI_ImageFile p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [ImageFile])
+                                                       p@(Path_Right wp) -> map (\a -> let f = peek a
+                                                                                        in let liftPeek (Peek_ImageFile_ImageFile q z) = Peek_EUI_ImageFile (Path_Right q) z
+                                                                                            in Node (Peek_EUI_ImageFile p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [ImageFile])
                                                        _ -> []) (pathsOf s (undefined :: Proxy ImageFile)) :: Forest (Peek (Either URI ImageFile))
           hop (s@(Left _)) = concatMap (\path -> case path of
-                                                     p@(Path_Left _) -> map (\a -> Node (Peek_EUI_URI p (Just a)) []) (toListOf (toLens p) s :: [URI])
+                                                     p@(Path_Left wp) -> map (\a -> Node (Peek_EUI_URI p (Just a)) []) (toListOf (toLens p) s :: [URI])
                                                      _ -> []) (pathsOf s (undefined :: Proxy URI)) :: Forest (Peek (Either URI ImageFile))
           hop (s@(Right _)) = concatMap (\path -> case path of
-                                                      p@(Path_Right _) -> map (\a -> Node (Peek_EUI_ImageFile p (Just a)) []) (toListOf (toLens p) s :: [ImageFile])
+                                                      p@(Path_Right wp) -> map (\a -> Node (Peek_EUI_ImageFile p (Just a)) []) (toListOf (toLens p) s :: [ImageFile])
                                                       _ -> []) (pathsOf s (undefined :: Proxy ImageFile)) :: Forest (Peek (Either URI ImageFile))
 instance IsPathStart (Map ItemFieldName Markup)
     where data Peek (Map ItemFieldName Markup)
@@ -9700,14 +10536,14 @@ instance IsPathStart (Map ItemFieldName Markup)
               | Peek_MIM_Text (Path (Map ItemFieldName Markup) Text) (Maybe Text)
               deriving (Eq, Show)
           peek s = concatMap (\path -> case path of
-                                           p@(Path_Look k _) -> map (\a -> let f = peek a
-                                                                            in let liftPeek (Peek_Markup_JSONText q z) = Peek_MIM_JSONText (Path_Look k q) z
-                                                                                   liftPeek (Peek_Markup_Markup q z) = Peek_MIM_Markup (Path_Look k q) z
-                                                                                   liftPeek (Peek_Markup_Text q z) = Peek_MIM_Text (Path_Look k q) z
-                                                                                in Node (Peek_MIM_Markup p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
+                                           p@(Path_Look k wp) -> map (\a -> let f = peek a
+                                                                             in let liftPeek (Peek_Markup_JSONText q z) = Peek_MIM_JSONText (Path_Look k q) z
+                                                                                    liftPeek (Peek_Markup_Markup q z) = Peek_MIM_Markup (Path_Look k q) z
+                                                                                    liftPeek (Peek_Markup_Text q z) = Peek_MIM_Text (Path_Look k q) z
+                                                                                 in Node (Peek_MIM_Markup p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
                                            _ -> []) (pathsOf s (undefined :: Proxy Markup)) :: Forest (Peek (Map ItemFieldName Markup))
           hop s = concatMap (\path -> case path of
-                                          p@(Path_Look k _) -> map (\a -> Node (Peek_MIM_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
+                                          p@(Path_Look k wp) -> map (\a -> Node (Peek_MIM_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
                                           _ -> []) (pathsOf s (undefined :: Proxy Markup)) :: Forest (Peek (Map ItemFieldName Markup))
 instance IsPathStart (Map ReportID Report)
     where data Peek (Map ReportID Report)
@@ -9762,59 +10598,59 @@ instance IsPathStart (Map ReportID Report)
               | Peek_MRR_UUID (Path (Map ReportID Report) UUID) (Maybe UUID)
               deriving (Eq, Show)
           peek s = concatMap (\path -> case path of
-                                           p@(Path_Look k _) -> map (\a -> let f = peek a
-                                                                            in let liftPeek (Peek_Report_String q z) = Peek_MRR_String (Path_Look k q) z
-                                                                                   liftPeek (Peek_Report_Int64 q z) = Peek_MRR_Int64 (Path_Look k q) z
-                                                                                   liftPeek (Peek_Report_Int q z) = Peek_MRR_Int (Path_Look k q) z
-                                                                                   liftPeek (Peek_Report_Bool q z) = Peek_MRR_Bool (Path_Look k q) z
-                                                                                   liftPeek (Peek_Report_Double q z) = Peek_MRR_Double (Path_Look k q) z
-                                                                                   liftPeek (Peek_Report_Dimension q z) = Peek_MRR_Dimension (Path_Look k q) z
-                                                                                   liftPeek (Peek_Report_ImageCrop q z) = Peek_MRR_ImageCrop (Path_Look k q) z
-                                                                                   liftPeek (Peek_Report_ImageSize q z) = Peek_MRR_ImageSize (Path_Look k q) z
-                                                                                   liftPeek (Peek_Report_Units q z) = Peek_MRR_Units (Path_Look k q) z
-                                                                                   liftPeek (Peek_Report_ImageFile q z) = Peek_MRR_ImageFile (Path_Look k q) z
-                                                                                   liftPeek (Peek_Report_Integer q z) = Peek_MRR_Integer (Path_Look k q) z
-                                                                                   liftPeek (Peek_Report_JSONText q z) = Peek_MRR_JSONText (Path_Look k q) z
-                                                                                   liftPeek (Peek_Report_Markup q z) = Peek_MRR_Markup (Path_Look k q) z
-                                                                                   liftPeek (Peek_Report_Permissions q z) = Peek_MRR_Permissions (Path_Look k q) z
-                                                                                   liftPeek (Peek_Report_UserIds q z) = Peek_MRR_UserIds (Path_Look k q) z
-                                                                                   liftPeek (Peek_Report_AbbrevPair q z) = Peek_MRR_AbbrevPair (Path_Look k q) z
-                                                                                   liftPeek (Peek_Report_AbbrevPairs q z) = Peek_MRR_AbbrevPairs (Path_Look k q) z
-                                                                                   liftPeek (Peek_Report_Author q z) = Peek_MRR_Author (Path_Look k q) z
-                                                                                   liftPeek (Peek_Report_Authors q z) = Peek_MRR_Authors (Path_Look k q) z
-                                                                                   liftPeek (Peek_Report_Branding q z) = Peek_MRR_Branding (Path_Look k q) z
-                                                                                   liftPeek (Peek_Report_MarkupPair q z) = Peek_MRR_MarkupPair (Path_Look k q) z
-                                                                                   liftPeek (Peek_Report_MarkupPairs q z) = Peek_MRR_MarkupPairs (Path_Look k q) z
-                                                                                   liftPeek (Peek_Report_Markups q z) = Peek_MRR_Markups (Path_Look k q) z
-                                                                                   liftPeek (Peek_Report_MaybeReportIntendedUse q z) = Peek_MRR_MaybeReportIntendedUse (Path_Look k q) z
-                                                                                   liftPeek (Peek_Report_Report q z) = Peek_MRR_Report (Path_Look k q) z
-                                                                                   liftPeek (Peek_Report_ReportElem q z) = Peek_MRR_ReportElem (Path_Look k q) z
-                                                                                   liftPeek (Peek_Report_ReportElems q z) = Peek_MRR_ReportElems (Path_Look k q) z
-                                                                                   liftPeek (Peek_Report_ReportFlags q z) = Peek_MRR_ReportFlags (Path_Look k q) z
-                                                                                   liftPeek (Peek_Report_ReportStandard q z) = Peek_MRR_ReportStandard (Path_Look k q) z
-                                                                                   liftPeek (Peek_Report_ReportStatus q z) = Peek_MRR_ReportStatus (Path_Look k q) z
-                                                                                   liftPeek (Peek_Report_ReportValueApproachInfo q z) = Peek_MRR_ReportValueApproachInfo (Path_Look k q) z
-                                                                                   liftPeek (Peek_Report_ReportValueTypeInfo q z) = Peek_MRR_ReportValueTypeInfo (Path_Look k q) z
-                                                                                   liftPeek (Peek_Report_EUI q z) = Peek_MRR_EUI (Path_Look k q) z
-                                                                                   liftPeek (Peek_Report_MEUI q z) = Peek_MRR_MEUI (Path_Look k q) z
-                                                                                   liftPeek (Peek_Report_MaybeImageFile q z) = Peek_MRR_MaybeImageFile (Path_Look k q) z
-                                                                                   liftPeek (Peek_Report_ReportImage q z) = Peek_MRR_ReportImage (Path_Look k q) z
-                                                                                   liftPeek (Peek_Report_ReportImages q z) = Peek_MRR_ReportImages (Path_Look k q) z
-                                                                                   liftPeek (Peek_Report_ReadOnlyFilePath q z) = Peek_MRR_ReadOnlyFilePath (Path_Look k q) z
-                                                                                   liftPeek (Peek_Report_ReportImageView q z) = Peek_MRR_ReportImageView (Path_Look k q) z
-                                                                                   liftPeek (Peek_Report_ReportView q z) = Peek_MRR_ReportView (Path_Look k q) z
-                                                                                   liftPeek (Peek_Report_SaneSizeImageSize q z) = Peek_MRR_SaneSizeImageSize (Path_Look k q) z
-                                                                                   liftPeek (Peek_Report_Item q z) = Peek_MRR_Item (Path_Look k q) z
-                                                                                   liftPeek (Peek_Report_MIM q z) = Peek_MRR_MIM (Path_Look k q) z
-                                                                                   liftPeek (Peek_Report_CIString q z) = Peek_MRR_CIString (Path_Look k q) z
-                                                                                   liftPeek (Peek_Report_URI q z) = Peek_MRR_URI (Path_Look k q) z
-                                                                                   liftPeek (Peek_Report_Text q z) = Peek_MRR_Text (Path_Look k q) z
-                                                                                   liftPeek (Peek_Report_UserId q z) = Peek_MRR_UserId (Path_Look k q) z
-                                                                                   liftPeek (Peek_Report_UUID q z) = Peek_MRR_UUID (Path_Look k q) z
-                                                                                in Node (Peek_MRR_Report p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Report])
+                                           p@(Path_Look k wp) -> map (\a -> let f = peek a
+                                                                             in let liftPeek (Peek_Report_String q z) = Peek_MRR_String (Path_Look k q) z
+                                                                                    liftPeek (Peek_Report_Int64 q z) = Peek_MRR_Int64 (Path_Look k q) z
+                                                                                    liftPeek (Peek_Report_Int q z) = Peek_MRR_Int (Path_Look k q) z
+                                                                                    liftPeek (Peek_Report_Bool q z) = Peek_MRR_Bool (Path_Look k q) z
+                                                                                    liftPeek (Peek_Report_Double q z) = Peek_MRR_Double (Path_Look k q) z
+                                                                                    liftPeek (Peek_Report_Dimension q z) = Peek_MRR_Dimension (Path_Look k q) z
+                                                                                    liftPeek (Peek_Report_ImageCrop q z) = Peek_MRR_ImageCrop (Path_Look k q) z
+                                                                                    liftPeek (Peek_Report_ImageSize q z) = Peek_MRR_ImageSize (Path_Look k q) z
+                                                                                    liftPeek (Peek_Report_Units q z) = Peek_MRR_Units (Path_Look k q) z
+                                                                                    liftPeek (Peek_Report_ImageFile q z) = Peek_MRR_ImageFile (Path_Look k q) z
+                                                                                    liftPeek (Peek_Report_Integer q z) = Peek_MRR_Integer (Path_Look k q) z
+                                                                                    liftPeek (Peek_Report_JSONText q z) = Peek_MRR_JSONText (Path_Look k q) z
+                                                                                    liftPeek (Peek_Report_Markup q z) = Peek_MRR_Markup (Path_Look k q) z
+                                                                                    liftPeek (Peek_Report_Permissions q z) = Peek_MRR_Permissions (Path_Look k q) z
+                                                                                    liftPeek (Peek_Report_UserIds q z) = Peek_MRR_UserIds (Path_Look k q) z
+                                                                                    liftPeek (Peek_Report_AbbrevPair q z) = Peek_MRR_AbbrevPair (Path_Look k q) z
+                                                                                    liftPeek (Peek_Report_AbbrevPairs q z) = Peek_MRR_AbbrevPairs (Path_Look k q) z
+                                                                                    liftPeek (Peek_Report_Author q z) = Peek_MRR_Author (Path_Look k q) z
+                                                                                    liftPeek (Peek_Report_Authors q z) = Peek_MRR_Authors (Path_Look k q) z
+                                                                                    liftPeek (Peek_Report_Branding q z) = Peek_MRR_Branding (Path_Look k q) z
+                                                                                    liftPeek (Peek_Report_MarkupPair q z) = Peek_MRR_MarkupPair (Path_Look k q) z
+                                                                                    liftPeek (Peek_Report_MarkupPairs q z) = Peek_MRR_MarkupPairs (Path_Look k q) z
+                                                                                    liftPeek (Peek_Report_Markups q z) = Peek_MRR_Markups (Path_Look k q) z
+                                                                                    liftPeek (Peek_Report_MaybeReportIntendedUse q z) = Peek_MRR_MaybeReportIntendedUse (Path_Look k q) z
+                                                                                    liftPeek (Peek_Report_Report q z) = Peek_MRR_Report (Path_Look k q) z
+                                                                                    liftPeek (Peek_Report_ReportElem q z) = Peek_MRR_ReportElem (Path_Look k q) z
+                                                                                    liftPeek (Peek_Report_ReportElems q z) = Peek_MRR_ReportElems (Path_Look k q) z
+                                                                                    liftPeek (Peek_Report_ReportFlags q z) = Peek_MRR_ReportFlags (Path_Look k q) z
+                                                                                    liftPeek (Peek_Report_ReportStandard q z) = Peek_MRR_ReportStandard (Path_Look k q) z
+                                                                                    liftPeek (Peek_Report_ReportStatus q z) = Peek_MRR_ReportStatus (Path_Look k q) z
+                                                                                    liftPeek (Peek_Report_ReportValueApproachInfo q z) = Peek_MRR_ReportValueApproachInfo (Path_Look k q) z
+                                                                                    liftPeek (Peek_Report_ReportValueTypeInfo q z) = Peek_MRR_ReportValueTypeInfo (Path_Look k q) z
+                                                                                    liftPeek (Peek_Report_EUI q z) = Peek_MRR_EUI (Path_Look k q) z
+                                                                                    liftPeek (Peek_Report_MEUI q z) = Peek_MRR_MEUI (Path_Look k q) z
+                                                                                    liftPeek (Peek_Report_MaybeImageFile q z) = Peek_MRR_MaybeImageFile (Path_Look k q) z
+                                                                                    liftPeek (Peek_Report_ReportImage q z) = Peek_MRR_ReportImage (Path_Look k q) z
+                                                                                    liftPeek (Peek_Report_ReportImages q z) = Peek_MRR_ReportImages (Path_Look k q) z
+                                                                                    liftPeek (Peek_Report_ReadOnlyFilePath q z) = Peek_MRR_ReadOnlyFilePath (Path_Look k q) z
+                                                                                    liftPeek (Peek_Report_ReportImageView q z) = Peek_MRR_ReportImageView (Path_Look k q) z
+                                                                                    liftPeek (Peek_Report_ReportView q z) = Peek_MRR_ReportView (Path_Look k q) z
+                                                                                    liftPeek (Peek_Report_SaneSizeImageSize q z) = Peek_MRR_SaneSizeImageSize (Path_Look k q) z
+                                                                                    liftPeek (Peek_Report_Item q z) = Peek_MRR_Item (Path_Look k q) z
+                                                                                    liftPeek (Peek_Report_MIM q z) = Peek_MRR_MIM (Path_Look k q) z
+                                                                                    liftPeek (Peek_Report_CIString q z) = Peek_MRR_CIString (Path_Look k q) z
+                                                                                    liftPeek (Peek_Report_URI q z) = Peek_MRR_URI (Path_Look k q) z
+                                                                                    liftPeek (Peek_Report_Text q z) = Peek_MRR_Text (Path_Look k q) z
+                                                                                    liftPeek (Peek_Report_UserId q z) = Peek_MRR_UserId (Path_Look k q) z
+                                                                                    liftPeek (Peek_Report_UUID q z) = Peek_MRR_UUID (Path_Look k q) z
+                                                                                 in Node (Peek_MRR_Report p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Report])
                                            _ -> []) (pathsOf s (undefined :: Proxy Report)) :: Forest (Peek (Map ReportID Report))
           hop s = concatMap (\path -> case path of
-                                          p@(Path_Look k _) -> map (\a -> Node (Peek_MRR_Report p (Just a)) []) (toListOf (toLens p) s :: [Report])
+                                          p@(Path_Look k wp) -> map (\a -> Node (Peek_MRR_Report p (Just a)) []) (toListOf (toLens p) s :: [Report])
                                           _ -> []) (pathsOf s (undefined :: Proxy Report)) :: Forest (Peek (Map ReportID Report))
 instance IsPathStart (Order AbbrevPairID ((CIString, Markup)))
     where data Peek (Order AbbrevPairID ((CIString, Markup)))
@@ -9827,16 +10663,16 @@ instance IsPathStart (Order AbbrevPairID ((CIString, Markup)))
               | Peek_AbbrevPairs_Text (Path (Order AbbrevPairID ((CIString, Markup))) Text) (Maybe Text)
               deriving (Eq, Show)
           peek s = concatMap (\path -> case path of
-                                           p@(Path_At k _) -> map (\a -> let f = peek a
-                                                                          in let liftPeek (Peek_AbbrevPair_JSONText q z) = Peek_AbbrevPairs_JSONText (Path_At k q) z
-                                                                                 liftPeek (Peek_AbbrevPair_Markup q z) = Peek_AbbrevPairs_Markup (Path_At k q) z
-                                                                                 liftPeek (Peek_AbbrevPair_AbbrevPair q z) = Peek_AbbrevPairs_AbbrevPair (Path_At k q) z
-                                                                                 liftPeek (Peek_AbbrevPair_CIString q z) = Peek_AbbrevPairs_CIString (Path_At k q) z
-                                                                                 liftPeek (Peek_AbbrevPair_Text q z) = Peek_AbbrevPairs_Text (Path_At k q) z
-                                                                              in Node (Peek_AbbrevPairs_AbbrevPair p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [(CIString, Markup)])
+                                           p@(Path_At k wp) -> map (\a -> let f = peek a
+                                                                           in let liftPeek (Peek_AbbrevPair_JSONText q z) = Peek_AbbrevPairs_JSONText (Path_At k q) z
+                                                                                  liftPeek (Peek_AbbrevPair_Markup q z) = Peek_AbbrevPairs_Markup (Path_At k q) z
+                                                                                  liftPeek (Peek_AbbrevPair_AbbrevPair q z) = Peek_AbbrevPairs_AbbrevPair (Path_At k q) z
+                                                                                  liftPeek (Peek_AbbrevPair_CIString q z) = Peek_AbbrevPairs_CIString (Path_At k q) z
+                                                                                  liftPeek (Peek_AbbrevPair_Text q z) = Peek_AbbrevPairs_Text (Path_At k q) z
+                                                                               in Node (Peek_AbbrevPairs_AbbrevPair p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [(CIString, Markup)])
                                            _ -> []) (pathsOf s (undefined :: Proxy ((CIString, Markup)))) :: Forest (Peek (Order AbbrevPairID ((CIString, Markup))))
           hop s = concatMap (\path -> case path of
-                                          p@(Path_At k _) -> map (\a -> Node (Peek_AbbrevPairs_AbbrevPair p (Just a)) []) (toListOf (toLens p) s :: [(CIString, Markup)])
+                                          p@(Path_At k wp) -> map (\a -> Node (Peek_AbbrevPairs_AbbrevPair p (Just a)) []) (toListOf (toLens p) s :: [(CIString, Markup)])
                                           _ -> []) (pathsOf s (undefined :: Proxy ((CIString, Markup)))) :: Forest (Peek (Order AbbrevPairID ((CIString, Markup))))
 instance IsPathStart (Order AuthorID Author)
     where data Peek (Order AuthorID Author)
@@ -9847,15 +10683,15 @@ instance IsPathStart (Order AuthorID Author)
               | Peek_Authors_Text (Path (Order AuthorID Author) Text) (Maybe Text)
               deriving (Eq, Show)
           peek s = concatMap (\path -> case path of
-                                           p@(Path_At k _) -> map (\a -> let f = peek a
-                                                                          in let liftPeek (Peek_Author_JSONText q z) = Peek_Authors_JSONText (Path_At k q) z
-                                                                                 liftPeek (Peek_Author_Markup q z) = Peek_Authors_Markup (Path_At k q) z
-                                                                                 liftPeek (Peek_Author_Author q z) = Peek_Authors_Author (Path_At k q) z
-                                                                                 liftPeek (Peek_Author_Text q z) = Peek_Authors_Text (Path_At k q) z
-                                                                              in Node (Peek_Authors_Author p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Author])
+                                           p@(Path_At k wp) -> map (\a -> let f = peek a
+                                                                           in let liftPeek (Peek_Author_JSONText q z) = Peek_Authors_JSONText (Path_At k q) z
+                                                                                  liftPeek (Peek_Author_Markup q z) = Peek_Authors_Markup (Path_At k q) z
+                                                                                  liftPeek (Peek_Author_Author q z) = Peek_Authors_Author (Path_At k q) z
+                                                                                  liftPeek (Peek_Author_Text q z) = Peek_Authors_Text (Path_At k q) z
+                                                                               in Node (Peek_Authors_Author p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Author])
                                            _ -> []) (pathsOf s (undefined :: Proxy Author)) :: Forest (Peek (Order AuthorID Author))
           hop s = concatMap (\path -> case path of
-                                          p@(Path_At k _) -> map (\a -> Node (Peek_Authors_Author p (Just a)) []) (toListOf (toLens p) s :: [Author])
+                                          p@(Path_At k wp) -> map (\a -> Node (Peek_Authors_Author p (Just a)) []) (toListOf (toLens p) s :: [Author])
                                           _ -> []) (pathsOf s (undefined :: Proxy Author)) :: Forest (Peek (Order AuthorID Author))
 instance IsPathStart (Order MarkupID Markup)
     where data Peek (Order MarkupID Markup)
@@ -9865,14 +10701,14 @@ instance IsPathStart (Order MarkupID Markup)
               | Peek_Markups_Text (Path (Order MarkupID Markup) Text) (Maybe Text)
               deriving (Eq, Show)
           peek s = concatMap (\path -> case path of
-                                           p@(Path_At k _) -> map (\a -> let f = peek a
-                                                                          in let liftPeek (Peek_Markup_JSONText q z) = Peek_Markups_JSONText (Path_At k q) z
-                                                                                 liftPeek (Peek_Markup_Markup q z) = Peek_Markups_Markup (Path_At k q) z
-                                                                                 liftPeek (Peek_Markup_Text q z) = Peek_Markups_Text (Path_At k q) z
-                                                                              in Node (Peek_Markups_Markup p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
+                                           p@(Path_At k wp) -> map (\a -> let f = peek a
+                                                                           in let liftPeek (Peek_Markup_JSONText q z) = Peek_Markups_JSONText (Path_At k q) z
+                                                                                  liftPeek (Peek_Markup_Markup q z) = Peek_Markups_Markup (Path_At k q) z
+                                                                                  liftPeek (Peek_Markup_Text q z) = Peek_Markups_Text (Path_At k q) z
+                                                                               in Node (Peek_Markups_Markup p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
                                            _ -> []) (pathsOf s (undefined :: Proxy Markup)) :: Forest (Peek (Order MarkupID Markup))
           hop s = concatMap (\path -> case path of
-                                          p@(Path_At k _) -> map (\a -> Node (Peek_Markups_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
+                                          p@(Path_At k wp) -> map (\a -> Node (Peek_Markups_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
                                           _ -> []) (pathsOf s (undefined :: Proxy Markup)) :: Forest (Peek (Order MarkupID Markup))
 instance IsPathStart (Order MarkupPairID ((Markup, Markup)))
     where data Peek (Order MarkupPairID ((Markup, Markup)))
@@ -9883,15 +10719,15 @@ instance IsPathStart (Order MarkupPairID ((Markup, Markup)))
               | Peek_MarkupPairs_Text (Path (Order MarkupPairID ((Markup, Markup))) Text) (Maybe Text)
               deriving (Eq, Show)
           peek s = concatMap (\path -> case path of
-                                           p@(Path_At k _) -> map (\a -> let f = peek a
-                                                                          in let liftPeek (Peek_MarkupPair_JSONText q z) = Peek_MarkupPairs_JSONText (Path_At k q) z
-                                                                                 liftPeek (Peek_MarkupPair_Markup q z) = Peek_MarkupPairs_Markup (Path_At k q) z
-                                                                                 liftPeek (Peek_MarkupPair_MarkupPair q z) = Peek_MarkupPairs_MarkupPair (Path_At k q) z
-                                                                                 liftPeek (Peek_MarkupPair_Text q z) = Peek_MarkupPairs_Text (Path_At k q) z
-                                                                              in Node (Peek_MarkupPairs_MarkupPair p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [(Markup, Markup)])
+                                           p@(Path_At k wp) -> map (\a -> let f = peek a
+                                                                           in let liftPeek (Peek_MarkupPair_JSONText q z) = Peek_MarkupPairs_JSONText (Path_At k q) z
+                                                                                  liftPeek (Peek_MarkupPair_Markup q z) = Peek_MarkupPairs_Markup (Path_At k q) z
+                                                                                  liftPeek (Peek_MarkupPair_MarkupPair q z) = Peek_MarkupPairs_MarkupPair (Path_At k q) z
+                                                                                  liftPeek (Peek_MarkupPair_Text q z) = Peek_MarkupPairs_Text (Path_At k q) z
+                                                                               in Node (Peek_MarkupPairs_MarkupPair p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [(Markup, Markup)])
                                            _ -> []) (pathsOf s (undefined :: Proxy ((Markup, Markup)))) :: Forest (Peek (Order MarkupPairID ((Markup, Markup))))
           hop s = concatMap (\path -> case path of
-                                          p@(Path_At k _) -> map (\a -> Node (Peek_MarkupPairs_MarkupPair p (Just a)) []) (toListOf (toLens p) s :: [(Markup, Markup)])
+                                          p@(Path_At k wp) -> map (\a -> Node (Peek_MarkupPairs_MarkupPair p (Just a)) []) (toListOf (toLens p) s :: [(Markup, Markup)])
                                           _ -> []) (pathsOf s (undefined :: Proxy ((Markup, Markup)))) :: Forest (Peek (Order MarkupPairID ((Markup, Markup))))
 instance IsPathStart (Order ReportElemID ReportElem)
     where data Peek (Order ReportElemID ReportElem)
@@ -9920,33 +10756,33 @@ instance IsPathStart (Order ReportElemID ReportElem)
               | Peek_ReportElems_Text (Path (Order ReportElemID ReportElem) Text) (Maybe Text)
               deriving (Eq, Show)
           peek s = concatMap (\path -> case path of
-                                           p@(Path_At k _) -> map (\a -> let f = peek a
-                                                                          in let liftPeek (Peek_ReportElem_String q z) = Peek_ReportElems_String (Path_At k q) z
-                                                                                 liftPeek (Peek_ReportElem_Bool q z) = Peek_ReportElems_Bool (Path_At k q) z
-                                                                                 liftPeek (Peek_ReportElem_Double q z) = Peek_ReportElems_Double (Path_At k q) z
-                                                                                 liftPeek (Peek_ReportElem_Dimension q z) = Peek_ReportElems_Dimension (Path_At k q) z
-                                                                                 liftPeek (Peek_ReportElem_ImageCrop q z) = Peek_ReportElems_ImageCrop (Path_At k q) z
-                                                                                 liftPeek (Peek_ReportElem_ImageSize q z) = Peek_ReportElems_ImageSize (Path_At k q) z
-                                                                                 liftPeek (Peek_ReportElem_Units q z) = Peek_ReportElems_Units (Path_At k q) z
-                                                                                 liftPeek (Peek_ReportElem_ImageFile q z) = Peek_ReportElems_ImageFile (Path_At k q) z
-                                                                                 liftPeek (Peek_ReportElem_JSONText q z) = Peek_ReportElems_JSONText (Path_At k q) z
-                                                                                 liftPeek (Peek_ReportElem_Markup q z) = Peek_ReportElems_Markup (Path_At k q) z
-                                                                                 liftPeek (Peek_ReportElem_ReportElem q z) = Peek_ReportElems_ReportElem (Path_At k q) z
-                                                                                 liftPeek (Peek_ReportElem_EUI q z) = Peek_ReportElems_EUI (Path_At k q) z
-                                                                                 liftPeek (Peek_ReportElem_MEUI q z) = Peek_ReportElems_MEUI (Path_At k q) z
-                                                                                 liftPeek (Peek_ReportElem_MaybeImageFile q z) = Peek_ReportElems_MaybeImageFile (Path_At k q) z
-                                                                                 liftPeek (Peek_ReportElem_ReportImage q z) = Peek_ReportElems_ReportImage (Path_At k q) z
-                                                                                 liftPeek (Peek_ReportElem_ReportImages q z) = Peek_ReportElems_ReportImages (Path_At k q) z
-                                                                                 liftPeek (Peek_ReportElem_ReportImageView q z) = Peek_ReportElems_ReportImageView (Path_At k q) z
-                                                                                 liftPeek (Peek_ReportElem_SaneSizeImageSize q z) = Peek_ReportElems_SaneSizeImageSize (Path_At k q) z
-                                                                                 liftPeek (Peek_ReportElem_Item q z) = Peek_ReportElems_Item (Path_At k q) z
-                                                                                 liftPeek (Peek_ReportElem_MIM q z) = Peek_ReportElems_MIM (Path_At k q) z
-                                                                                 liftPeek (Peek_ReportElem_URI q z) = Peek_ReportElems_URI (Path_At k q) z
-                                                                                 liftPeek (Peek_ReportElem_Text q z) = Peek_ReportElems_Text (Path_At k q) z
-                                                                              in Node (Peek_ReportElems_ReportElem p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [ReportElem])
+                                           p@(Path_At k wp) -> map (\a -> let f = peek a
+                                                                           in let liftPeek (Peek_ReportElem_String q z) = Peek_ReportElems_String (Path_At k q) z
+                                                                                  liftPeek (Peek_ReportElem_Bool q z) = Peek_ReportElems_Bool (Path_At k q) z
+                                                                                  liftPeek (Peek_ReportElem_Double q z) = Peek_ReportElems_Double (Path_At k q) z
+                                                                                  liftPeek (Peek_ReportElem_Dimension q z) = Peek_ReportElems_Dimension (Path_At k q) z
+                                                                                  liftPeek (Peek_ReportElem_ImageCrop q z) = Peek_ReportElems_ImageCrop (Path_At k q) z
+                                                                                  liftPeek (Peek_ReportElem_ImageSize q z) = Peek_ReportElems_ImageSize (Path_At k q) z
+                                                                                  liftPeek (Peek_ReportElem_Units q z) = Peek_ReportElems_Units (Path_At k q) z
+                                                                                  liftPeek (Peek_ReportElem_ImageFile q z) = Peek_ReportElems_ImageFile (Path_At k q) z
+                                                                                  liftPeek (Peek_ReportElem_JSONText q z) = Peek_ReportElems_JSONText (Path_At k q) z
+                                                                                  liftPeek (Peek_ReportElem_Markup q z) = Peek_ReportElems_Markup (Path_At k q) z
+                                                                                  liftPeek (Peek_ReportElem_ReportElem q z) = Peek_ReportElems_ReportElem (Path_At k q) z
+                                                                                  liftPeek (Peek_ReportElem_EUI q z) = Peek_ReportElems_EUI (Path_At k q) z
+                                                                                  liftPeek (Peek_ReportElem_MEUI q z) = Peek_ReportElems_MEUI (Path_At k q) z
+                                                                                  liftPeek (Peek_ReportElem_MaybeImageFile q z) = Peek_ReportElems_MaybeImageFile (Path_At k q) z
+                                                                                  liftPeek (Peek_ReportElem_ReportImage q z) = Peek_ReportElems_ReportImage (Path_At k q) z
+                                                                                  liftPeek (Peek_ReportElem_ReportImages q z) = Peek_ReportElems_ReportImages (Path_At k q) z
+                                                                                  liftPeek (Peek_ReportElem_ReportImageView q z) = Peek_ReportElems_ReportImageView (Path_At k q) z
+                                                                                  liftPeek (Peek_ReportElem_SaneSizeImageSize q z) = Peek_ReportElems_SaneSizeImageSize (Path_At k q) z
+                                                                                  liftPeek (Peek_ReportElem_Item q z) = Peek_ReportElems_Item (Path_At k q) z
+                                                                                  liftPeek (Peek_ReportElem_MIM q z) = Peek_ReportElems_MIM (Path_At k q) z
+                                                                                  liftPeek (Peek_ReportElem_URI q z) = Peek_ReportElems_URI (Path_At k q) z
+                                                                                  liftPeek (Peek_ReportElem_Text q z) = Peek_ReportElems_Text (Path_At k q) z
+                                                                               in Node (Peek_ReportElems_ReportElem p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [ReportElem])
                                            _ -> []) (pathsOf s (undefined :: Proxy ReportElem)) :: Forest (Peek (Order ReportElemID ReportElem))
           hop s = concatMap (\path -> case path of
-                                          p@(Path_At k _) -> map (\a -> Node (Peek_ReportElems_ReportElem p (Just a)) []) (toListOf (toLens p) s :: [ReportElem])
+                                          p@(Path_At k wp) -> map (\a -> Node (Peek_ReportElems_ReportElem p (Just a)) []) (toListOf (toLens p) s :: [ReportElem])
                                           _ -> []) (pathsOf s (undefined :: Proxy ReportElem)) :: Forest (Peek (Order ReportElemID ReportElem))
 instance IsPathStart (Order ReportImageID ReportImage)
     where data Peek (Order ReportImageID ReportImage)
@@ -9971,29 +10807,29 @@ instance IsPathStart (Order ReportImageID ReportImage)
               | Peek_ReportImages_Text (Path (Order ReportImageID ReportImage) Text) (Maybe Text)
               deriving (Eq, Show)
           peek s = concatMap (\path -> case path of
-                                           p@(Path_At k _) -> map (\a -> let f = peek a
-                                                                          in let liftPeek (Peek_ReportImage_String q z) = Peek_ReportImages_String (Path_At k q) z
-                                                                                 liftPeek (Peek_ReportImage_Bool q z) = Peek_ReportImages_Bool (Path_At k q) z
-                                                                                 liftPeek (Peek_ReportImage_Double q z) = Peek_ReportImages_Double (Path_At k q) z
-                                                                                 liftPeek (Peek_ReportImage_Dimension q z) = Peek_ReportImages_Dimension (Path_At k q) z
-                                                                                 liftPeek (Peek_ReportImage_ImageCrop q z) = Peek_ReportImages_ImageCrop (Path_At k q) z
-                                                                                 liftPeek (Peek_ReportImage_ImageSize q z) = Peek_ReportImages_ImageSize (Path_At k q) z
-                                                                                 liftPeek (Peek_ReportImage_Units q z) = Peek_ReportImages_Units (Path_At k q) z
-                                                                                 liftPeek (Peek_ReportImage_ImageFile q z) = Peek_ReportImages_ImageFile (Path_At k q) z
-                                                                                 liftPeek (Peek_ReportImage_JSONText q z) = Peek_ReportImages_JSONText (Path_At k q) z
-                                                                                 liftPeek (Peek_ReportImage_Markup q z) = Peek_ReportImages_Markup (Path_At k q) z
-                                                                                 liftPeek (Peek_ReportImage_EUI q z) = Peek_ReportImages_EUI (Path_At k q) z
-                                                                                 liftPeek (Peek_ReportImage_MEUI q z) = Peek_ReportImages_MEUI (Path_At k q) z
-                                                                                 liftPeek (Peek_ReportImage_MaybeImageFile q z) = Peek_ReportImages_MaybeImageFile (Path_At k q) z
-                                                                                 liftPeek (Peek_ReportImage_ReportImage q z) = Peek_ReportImages_ReportImage (Path_At k q) z
-                                                                                 liftPeek (Peek_ReportImage_ReportImageView q z) = Peek_ReportImages_ReportImageView (Path_At k q) z
-                                                                                 liftPeek (Peek_ReportImage_SaneSizeImageSize q z) = Peek_ReportImages_SaneSizeImageSize (Path_At k q) z
-                                                                                 liftPeek (Peek_ReportImage_URI q z) = Peek_ReportImages_URI (Path_At k q) z
-                                                                                 liftPeek (Peek_ReportImage_Text q z) = Peek_ReportImages_Text (Path_At k q) z
-                                                                              in Node (Peek_ReportImages_ReportImage p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [ReportImage])
+                                           p@(Path_At k wp) -> map (\a -> let f = peek a
+                                                                           in let liftPeek (Peek_ReportImage_String q z) = Peek_ReportImages_String (Path_At k q) z
+                                                                                  liftPeek (Peek_ReportImage_Bool q z) = Peek_ReportImages_Bool (Path_At k q) z
+                                                                                  liftPeek (Peek_ReportImage_Double q z) = Peek_ReportImages_Double (Path_At k q) z
+                                                                                  liftPeek (Peek_ReportImage_Dimension q z) = Peek_ReportImages_Dimension (Path_At k q) z
+                                                                                  liftPeek (Peek_ReportImage_ImageCrop q z) = Peek_ReportImages_ImageCrop (Path_At k q) z
+                                                                                  liftPeek (Peek_ReportImage_ImageSize q z) = Peek_ReportImages_ImageSize (Path_At k q) z
+                                                                                  liftPeek (Peek_ReportImage_Units q z) = Peek_ReportImages_Units (Path_At k q) z
+                                                                                  liftPeek (Peek_ReportImage_ImageFile q z) = Peek_ReportImages_ImageFile (Path_At k q) z
+                                                                                  liftPeek (Peek_ReportImage_JSONText q z) = Peek_ReportImages_JSONText (Path_At k q) z
+                                                                                  liftPeek (Peek_ReportImage_Markup q z) = Peek_ReportImages_Markup (Path_At k q) z
+                                                                                  liftPeek (Peek_ReportImage_EUI q z) = Peek_ReportImages_EUI (Path_At k q) z
+                                                                                  liftPeek (Peek_ReportImage_MEUI q z) = Peek_ReportImages_MEUI (Path_At k q) z
+                                                                                  liftPeek (Peek_ReportImage_MaybeImageFile q z) = Peek_ReportImages_MaybeImageFile (Path_At k q) z
+                                                                                  liftPeek (Peek_ReportImage_ReportImage q z) = Peek_ReportImages_ReportImage (Path_At k q) z
+                                                                                  liftPeek (Peek_ReportImage_ReportImageView q z) = Peek_ReportImages_ReportImageView (Path_At k q) z
+                                                                                  liftPeek (Peek_ReportImage_SaneSizeImageSize q z) = Peek_ReportImages_SaneSizeImageSize (Path_At k q) z
+                                                                                  liftPeek (Peek_ReportImage_URI q z) = Peek_ReportImages_URI (Path_At k q) z
+                                                                                  liftPeek (Peek_ReportImage_Text q z) = Peek_ReportImages_Text (Path_At k q) z
+                                                                               in Node (Peek_ReportImages_ReportImage p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [ReportImage])
                                            _ -> []) (pathsOf s (undefined :: Proxy ReportImage)) :: Forest (Peek (Order ReportImageID ReportImage))
           hop s = concatMap (\path -> case path of
-                                          p@(Path_At k _) -> map (\a -> Node (Peek_ReportImages_ReportImage p (Just a)) []) (toListOf (toLens p) s :: [ReportImage])
+                                          p@(Path_At k wp) -> map (\a -> Node (Peek_ReportImages_ReportImage p (Just a)) []) (toListOf (toLens p) s :: [ReportImage])
                                           _ -> []) (pathsOf s (undefined :: Proxy ReportImage)) :: Forest (Peek (Order ReportImageID ReportImage))
 instance IsPathStart ((Markup, Markup))
     where data Peek ((Markup, Markup))
@@ -10003,24 +10839,24 @@ instance IsPathStart ((Markup, Markup))
               | Peek_MarkupPair_Text (Path ((Markup, Markup)) Text) (Maybe Text)
               deriving (Eq, Show)
           peek s = mconcat [concatMap (\path -> case path of
-                                                    p@(Path_First _) -> map (\a -> let f = peek a
-                                                                                    in let liftPeek (Peek_Markup_JSONText q z) = Peek_MarkupPair_JSONText (Path_First q) z
-                                                                                           liftPeek (Peek_Markup_Markup q z) = Peek_MarkupPair_Markup (Path_First q) z
-                                                                                           liftPeek (Peek_Markup_Text q z) = Peek_MarkupPair_Text (Path_First q) z
-                                                                                        in Node (Peek_MarkupPair_Markup p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
+                                                    p@(Path_First wp) -> map (\a -> let f = peek a
+                                                                                     in let liftPeek (Peek_Markup_JSONText q z) = Peek_MarkupPair_JSONText (Path_First q) z
+                                                                                            liftPeek (Peek_Markup_Markup q z) = Peek_MarkupPair_Markup (Path_First q) z
+                                                                                            liftPeek (Peek_Markup_Text q z) = Peek_MarkupPair_Text (Path_First q) z
+                                                                                         in Node (Peek_MarkupPair_Markup p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
                                                     _ -> []) (pathsOf s (undefined :: Proxy Markup)),
                             concatMap (\path -> case path of
-                                                    p@(Path_Second _) -> map (\a -> let f = peek a
-                                                                                     in let liftPeek (Peek_Markup_JSONText q z) = Peek_MarkupPair_JSONText (Path_Second q) z
-                                                                                            liftPeek (Peek_Markup_Markup q z) = Peek_MarkupPair_Markup (Path_Second q) z
-                                                                                            liftPeek (Peek_Markup_Text q z) = Peek_MarkupPair_Text (Path_Second q) z
-                                                                                         in Node (Peek_MarkupPair_Markup p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
+                                                    p@(Path_Second wp) -> map (\a -> let f = peek a
+                                                                                      in let liftPeek (Peek_Markup_JSONText q z) = Peek_MarkupPair_JSONText (Path_Second q) z
+                                                                                             liftPeek (Peek_Markup_Markup q z) = Peek_MarkupPair_Markup (Path_Second q) z
+                                                                                             liftPeek (Peek_Markup_Text q z) = Peek_MarkupPair_Text (Path_Second q) z
+                                                                                          in Node (Peek_MarkupPair_Markup p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
                                                     _ -> []) (pathsOf s (undefined :: Proxy Markup))] :: Forest (Peek ((Markup, Markup)))
           hop s = mconcat [concatMap (\path -> case path of
-                                                   p@(Path_First _) -> map (\a -> Node (Peek_MarkupPair_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
+                                                   p@(Path_First wp) -> map (\a -> Node (Peek_MarkupPair_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
                                                    _ -> []) (pathsOf s (undefined :: Proxy Markup)),
                            concatMap (\path -> case path of
-                                                   p@(Path_Second _) -> map (\a -> Node (Peek_MarkupPair_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
+                                                   p@(Path_Second wp) -> map (\a -> Node (Peek_MarkupPair_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
                                                    _ -> []) (pathsOf s (undefined :: Proxy Markup))] :: Forest (Peek ((Markup, Markup)))
 instance IsPathStart ((CIString, Markup))
     where data Peek ((CIString, Markup))
@@ -10031,24 +10867,24 @@ instance IsPathStart ((CIString, Markup))
               | Peek_AbbrevPair_Text (Path ((CIString, Markup)) Text) (Maybe Text)
               deriving (Eq, Show)
           peek s = mconcat [concatMap (\path -> case path of
-                                                    p@(Path_First _) -> map (\a -> let f = peek a
-                                                                                    in let liftPeek (Peek_CIString_JSONText q z) = Peek_AbbrevPair_JSONText (Path_First q) z
-                                                                                           liftPeek (Peek_CIString_CIString q z) = Peek_AbbrevPair_CIString (Path_First q) z
-                                                                                           liftPeek (Peek_CIString_Text q z) = Peek_AbbrevPair_Text (Path_First q) z
-                                                                                        in Node (Peek_AbbrevPair_CIString p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [CIString])
+                                                    p@(Path_First wp) -> map (\a -> let f = peek a
+                                                                                     in let liftPeek (Peek_CIString_JSONText q z) = Peek_AbbrevPair_JSONText (Path_First q) z
+                                                                                            liftPeek (Peek_CIString_CIString q z) = Peek_AbbrevPair_CIString (Path_First q) z
+                                                                                            liftPeek (Peek_CIString_Text q z) = Peek_AbbrevPair_Text (Path_First q) z
+                                                                                         in Node (Peek_AbbrevPair_CIString p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [CIString])
                                                     _ -> []) (pathsOf s (undefined :: Proxy CIString)),
                             concatMap (\path -> case path of
-                                                    p@(Path_Second _) -> map (\a -> let f = peek a
-                                                                                     in let liftPeek (Peek_Markup_JSONText q z) = Peek_AbbrevPair_JSONText (Path_Second q) z
-                                                                                            liftPeek (Peek_Markup_Markup q z) = Peek_AbbrevPair_Markup (Path_Second q) z
-                                                                                            liftPeek (Peek_Markup_Text q z) = Peek_AbbrevPair_Text (Path_Second q) z
-                                                                                         in Node (Peek_AbbrevPair_Markup p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
+                                                    p@(Path_Second wp) -> map (\a -> let f = peek a
+                                                                                      in let liftPeek (Peek_Markup_JSONText q z) = Peek_AbbrevPair_JSONText (Path_Second q) z
+                                                                                             liftPeek (Peek_Markup_Markup q z) = Peek_AbbrevPair_Markup (Path_Second q) z
+                                                                                             liftPeek (Peek_Markup_Text q z) = Peek_AbbrevPair_Text (Path_Second q) z
+                                                                                          in Node (Peek_AbbrevPair_Markup p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
                                                     _ -> []) (pathsOf s (undefined :: Proxy Markup))] :: Forest (Peek ((CIString, Markup)))
           hop s = mconcat [concatMap (\path -> case path of
-                                                   p@(Path_First _) -> map (\a -> Node (Peek_AbbrevPair_CIString p (Just a)) []) (toListOf (toLens p) s :: [CIString])
+                                                   p@(Path_First wp) -> map (\a -> Node (Peek_AbbrevPair_CIString p (Just a)) []) (toListOf (toLens p) s :: [CIString])
                                                    _ -> []) (pathsOf s (undefined :: Proxy CIString)),
                            concatMap (\path -> case path of
-                                                   p@(Path_Second _) -> map (\a -> Node (Peek_AbbrevPair_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
+                                                   p@(Path_Second wp) -> map (\a -> Node (Peek_AbbrevPair_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
                                                    _ -> []) (pathsOf s (undefined :: Proxy Markup))] :: Forest (Peek ((CIString, Markup)))
 instance IsPathStart (Maybe (Either URI ImageFile))
     where data Peek (Maybe (Either URI ImageFile))
@@ -10058,14 +10894,14 @@ instance IsPathStart (Maybe (Either URI ImageFile))
               | Peek_MEUI_URI (Path (Maybe (Either URI ImageFile)) URI) (Maybe URI)
               deriving (Eq, Show)
           peek s = concatMap (\path -> case path of
-                                           p@(Path_Just _) -> map (\a -> let f = peek a
-                                                                          in let liftPeek (Peek_EUI_ImageFile q z) = Peek_MEUI_ImageFile (Path_Just q) z
-                                                                                 liftPeek (Peek_EUI_EUI q z) = Peek_MEUI_EUI (Path_Just q) z
-                                                                                 liftPeek (Peek_EUI_URI q z) = Peek_MEUI_URI (Path_Just q) z
-                                                                              in Node (Peek_MEUI_EUI p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Either URI ImageFile])
+                                           p@(Path_Just wp) -> map (\a -> let f = peek a
+                                                                           in let liftPeek (Peek_EUI_ImageFile q z) = Peek_MEUI_ImageFile (Path_Just q) z
+                                                                                  liftPeek (Peek_EUI_EUI q z) = Peek_MEUI_EUI (Path_Just q) z
+                                                                                  liftPeek (Peek_EUI_URI q z) = Peek_MEUI_URI (Path_Just q) z
+                                                                               in Node (Peek_MEUI_EUI p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Either URI ImageFile])
                                            _ -> []) (pathsOf s (undefined :: Proxy (Either URI ImageFile))) :: Forest (Peek (Maybe (Either URI ImageFile)))
           hop s = concatMap (\path -> case path of
-                                          p@(Path_Just _) -> map (\a -> Node (Peek_MEUI_EUI p (Just a)) []) (toListOf (toLens p) s :: [Either URI ImageFile])
+                                          p@(Path_Just wp) -> map (\a -> Node (Peek_MEUI_EUI p (Just a)) []) (toListOf (toLens p) s :: [Either URI ImageFile])
                                           _ -> []) (pathsOf s (undefined :: Proxy (Either URI ImageFile))) :: Forest (Peek (Maybe (Either URI ImageFile)))
 instance IsPathStart (Maybe ImageFile)
     where data Peek (Maybe ImageFile)
@@ -10074,13 +10910,13 @@ instance IsPathStart (Maybe ImageFile)
               | Peek_MaybeImageFile_MaybeImageFile (Path (Maybe ImageFile) (Maybe ImageFile)) (Maybe (Maybe ImageFile))
               deriving (Eq, Show)
           peek s = concatMap (\path -> case path of
-                                           p@(Path_MaybeImageFile_View _) -> map (\a -> let f = peek a
-                                                                                         in let liftPeek (Peek_String_String q z) = Peek_MaybeImageFile_String (Path_MaybeImageFile_View q) z
-                                                                                                liftPeek (Peek_String_JSONText q z) = Peek_MaybeImageFile_JSONText (Path_MaybeImageFile_View q) z
-                                                                                             in Node (Peek_MaybeImageFile_String p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [[Char]])
+                                           p@(Path_MaybeImageFile_View wp) -> map (\a -> let f = peek a
+                                                                                          in let liftPeek (Peek_String_String q z) = Peek_MaybeImageFile_String (Path_MaybeImageFile_View q) z
+                                                                                                 liftPeek (Peek_String_JSONText q z) = Peek_MaybeImageFile_JSONText (Path_MaybeImageFile_View q) z
+                                                                                              in Node (Peek_MaybeImageFile_String p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [[Char]])
                                            _ -> []) (pathsOf s (undefined :: Proxy ([Char]))) :: Forest (Peek (Maybe ImageFile))
           hop s = concatMap (\path -> case path of
-                                          p@(Path_MaybeImageFile_View _) -> map (\a -> Node (Peek_MaybeImageFile_String p (Just a)) []) (toListOf (toLens p) s :: [[Char]])
+                                          p@(Path_MaybeImageFile_View wp) -> map (\a -> Node (Peek_MaybeImageFile_String p (Just a)) []) (toListOf (toLens p) s :: [[Char]])
                                           _ -> []) (pathsOf s (undefined :: Proxy ([Char]))) :: Forest (Peek (Maybe ImageFile))
 instance IsPathStart (Maybe ReportIntendedUse)
     where data Peek (Maybe ReportIntendedUse)
@@ -10089,13 +10925,13 @@ instance IsPathStart (Maybe ReportIntendedUse)
               | Peek_MaybeReportIntendedUse_MaybeReportIntendedUse (Path (Maybe ReportIntendedUse) (Maybe ReportIntendedUse)) (Maybe (Maybe ReportIntendedUse))
               deriving (Eq, Show)
           peek s = concatMap (\path -> case path of
-                                           p@(Path_MaybeReportIntendedUse_View _) -> map (\a -> let f = peek a
-                                                                                                 in let liftPeek (Peek_String_String q z) = Peek_MaybeReportIntendedUse_String (Path_MaybeReportIntendedUse_View q) z
-                                                                                                        liftPeek (Peek_String_JSONText q z) = Peek_MaybeReportIntendedUse_JSONText (Path_MaybeReportIntendedUse_View q) z
-                                                                                                     in Node (Peek_MaybeReportIntendedUse_String p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [[Char]])
+                                           p@(Path_MaybeReportIntendedUse_View wp) -> map (\a -> let f = peek a
+                                                                                                  in let liftPeek (Peek_String_String q z) = Peek_MaybeReportIntendedUse_String (Path_MaybeReportIntendedUse_View q) z
+                                                                                                         liftPeek (Peek_String_JSONText q z) = Peek_MaybeReportIntendedUse_JSONText (Path_MaybeReportIntendedUse_View q) z
+                                                                                                      in Node (Peek_MaybeReportIntendedUse_String p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [[Char]])
                                            _ -> []) (pathsOf s (undefined :: Proxy ([Char]))) :: Forest (Peek (Maybe ReportIntendedUse))
           hop s = concatMap (\path -> case path of
-                                          p@(Path_MaybeReportIntendedUse_View _) -> map (\a -> Node (Peek_MaybeReportIntendedUse_String p (Just a)) []) (toListOf (toLens p) s :: [[Char]])
+                                          p@(Path_MaybeReportIntendedUse_View wp) -> map (\a -> Node (Peek_MaybeReportIntendedUse_String p (Just a)) []) (toListOf (toLens p) s :: [[Char]])
                                           _ -> []) (pathsOf s (undefined :: Proxy ([Char]))) :: Forest (Peek (Maybe ReportIntendedUse))
 instance IsPathStart (ReadOnly ([Char]))
     where data Peek (ReadOnly ([Char]))
@@ -10104,13 +10940,13 @@ instance IsPathStart (ReadOnly ([Char]))
               | Peek_ReadOnlyFilePath_ReadOnlyFilePath (Path (ReadOnly ([Char])) (ReadOnly ([Char]))) (Maybe (ReadOnly ([Char])))
               deriving (Eq, Show)
           peek s = concatMap (\path -> case path of
-                                           p@(Path_ReadOnlyFilePath_View _) -> map (\a -> let f = peek a
-                                                                                           in let liftPeek (Peek_String_String q z) = Peek_ReadOnlyFilePath_String (Path_ReadOnlyFilePath_View q) z
-                                                                                                  liftPeek (Peek_String_JSONText q z) = Peek_ReadOnlyFilePath_JSONText (Path_ReadOnlyFilePath_View q) z
-                                                                                               in Node (Peek_ReadOnlyFilePath_String p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [[Char]])
+                                           p@(Path_ReadOnlyFilePath_View wp) -> map (\a -> let f = peek a
+                                                                                            in let liftPeek (Peek_String_String q z) = Peek_ReadOnlyFilePath_String (Path_ReadOnlyFilePath_View q) z
+                                                                                                   liftPeek (Peek_String_JSONText q z) = Peek_ReadOnlyFilePath_JSONText (Path_ReadOnlyFilePath_View q) z
+                                                                                                in Node (Peek_ReadOnlyFilePath_String p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [[Char]])
                                            _ -> []) (pathsOf s (undefined :: Proxy ([Char]))) :: Forest (Peek (ReadOnly ([Char])))
           hop s = concatMap (\path -> case path of
-                                          p@(Path_ReadOnlyFilePath_View _) -> map (\a -> Node (Peek_ReadOnlyFilePath_String p (Just a)) []) (toListOf (toLens p) s :: [[Char]])
+                                          p@(Path_ReadOnlyFilePath_View wp) -> map (\a -> Node (Peek_ReadOnlyFilePath_String p (Just a)) []) (toListOf (toLens p) s :: [[Char]])
                                           _ -> []) (pathsOf s (undefined :: Proxy ([Char]))) :: Forest (Peek (ReadOnly ([Char])))
 instance IsPathStart (SaneSize ImageSize)
     where data Peek (SaneSize ImageSize)
@@ -10123,29 +10959,29 @@ instance IsPathStart (SaneSize ImageSize)
               | Peek_SaneSizeImageSize_SaneSizeImageSize (Path (SaneSize ImageSize) (SaneSize ImageSize)) (Maybe (SaneSize ImageSize))
               deriving (Eq, Show)
           peek s = concatMap (\path -> case path of
-                                           p@(Path_SaneSizeImageSize_View _) -> map (\a -> let f = peek a
-                                                                                            in let liftPeek (Peek_ImageSize_String q z) = Peek_SaneSizeImageSize_String (Path_SaneSizeImageSize_View q) z
-                                                                                                   liftPeek (Peek_ImageSize_Double q z) = Peek_SaneSizeImageSize_Double (Path_SaneSizeImageSize_View q) z
-                                                                                                   liftPeek (Peek_ImageSize_Dimension q z) = Peek_SaneSizeImageSize_Dimension (Path_SaneSizeImageSize_View q) z
-                                                                                                   liftPeek (Peek_ImageSize_ImageSize q z) = Peek_SaneSizeImageSize_ImageSize (Path_SaneSizeImageSize_View q) z
-                                                                                                   liftPeek (Peek_ImageSize_Units q z) = Peek_SaneSizeImageSize_Units (Path_SaneSizeImageSize_View q) z
-                                                                                                   liftPeek (Peek_ImageSize_JSONText q z) = Peek_SaneSizeImageSize_JSONText (Path_SaneSizeImageSize_View q) z
-                                                                                                in Node (Peek_SaneSizeImageSize_ImageSize p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [ImageSize])
+                                           p@(Path_SaneSizeImageSize_View wp) -> map (\a -> let f = peek a
+                                                                                             in let liftPeek (Peek_ImageSize_String q z) = Peek_SaneSizeImageSize_String (Path_SaneSizeImageSize_View q) z
+                                                                                                    liftPeek (Peek_ImageSize_Double q z) = Peek_SaneSizeImageSize_Double (Path_SaneSizeImageSize_View q) z
+                                                                                                    liftPeek (Peek_ImageSize_Dimension q z) = Peek_SaneSizeImageSize_Dimension (Path_SaneSizeImageSize_View q) z
+                                                                                                    liftPeek (Peek_ImageSize_ImageSize q z) = Peek_SaneSizeImageSize_ImageSize (Path_SaneSizeImageSize_View q) z
+                                                                                                    liftPeek (Peek_ImageSize_Units q z) = Peek_SaneSizeImageSize_Units (Path_SaneSizeImageSize_View q) z
+                                                                                                    liftPeek (Peek_ImageSize_JSONText q z) = Peek_SaneSizeImageSize_JSONText (Path_SaneSizeImageSize_View q) z
+                                                                                                 in Node (Peek_SaneSizeImageSize_ImageSize p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [ImageSize])
                                            _ -> []) (pathsOf s (undefined :: Proxy ImageSize)) :: Forest (Peek (SaneSize ImageSize))
           hop s = concatMap (\path -> case path of
-                                          p@(Path_SaneSizeImageSize_View _) -> map (\a -> Node (Peek_SaneSizeImageSize_ImageSize p (Just a)) []) (toListOf (toLens p) s :: [ImageSize])
+                                          p@(Path_SaneSizeImageSize_View wp) -> map (\a -> Node (Peek_SaneSizeImageSize_ImageSize p (Just a)) []) (toListOf (toLens p) s :: [ImageSize])
                                           _ -> []) (pathsOf s (undefined :: Proxy ImageSize)) :: Forest (Peek (SaneSize ImageSize))
 instance IsPathStart ([Char])
     where data Peek ([Char])
               = Peek_String_String (Path ([Char]) ([Char])) (Maybe ([Char])) | Peek_String_JSONText (Path ([Char]) JSONText) (Maybe JSONText)
               deriving (Eq, Show)
           peek s = concatMap (\path -> case path of
-                                           p@(Path_String_View _) -> map (\a -> let f = peek a
-                                                                                 in let liftPeek (Peek_JSONText_JSONText q z) = Peek_String_JSONText (Path_String_View q) z
-                                                                                     in Node (Peek_String_JSONText p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [JSONText])
+                                           p@(Path_String_View wp) -> map (\a -> let f = peek a
+                                                                                  in let liftPeek (Peek_JSONText_JSONText q z) = Peek_String_JSONText (Path_String_View q) z
+                                                                                      in Node (Peek_String_JSONText p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [JSONText])
                                            _ -> []) (pathsOf s (undefined :: Proxy JSONText)) :: Forest (Peek ([Char]))
           hop s = concatMap (\path -> case path of
-                                          p@(Path_String_View _) -> map (\a -> Node (Peek_String_JSONText p (Just a)) []) (toListOf (toLens p) s :: [JSONText])
+                                          p@(Path_String_View wp) -> map (\a -> Node (Peek_String_JSONText p (Just a)) []) (toListOf (toLens p) s :: [JSONText])
                                           _ -> []) (pathsOf s (undefined :: Proxy JSONText)) :: Forest (Peek ([Char]))
 instance IsPathStart ([UserId])
     where data Peek ([UserId])
@@ -10154,13 +10990,13 @@ instance IsPathStart ([UserId])
               | Peek_UserIds_Text (Path ([UserId]) Text) (Maybe Text)
               deriving (Eq, Show)
           peek s = concatMap (\path -> case path of
-                                           p@(Path_UserIds_View _) -> map (\a -> let f = peek a
-                                                                                  in let liftPeek (Peek_Text_JSONText q z) = Peek_UserIds_JSONText (Path_UserIds_View q) z
-                                                                                         liftPeek (Peek_Text_Text q z) = Peek_UserIds_Text (Path_UserIds_View q) z
-                                                                                      in Node (Peek_UserIds_Text p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Text])
+                                           p@(Path_UserIds_View wp) -> map (\a -> let f = peek a
+                                                                                   in let liftPeek (Peek_Text_JSONText q z) = Peek_UserIds_JSONText (Path_UserIds_View q) z
+                                                                                          liftPeek (Peek_Text_Text q z) = Peek_UserIds_Text (Path_UserIds_View q) z
+                                                                                       in Node (Peek_UserIds_Text p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Text])
                                            _ -> []) (pathsOf s (undefined :: Proxy Text)) :: Forest (Peek ([UserId]))
           hop s = concatMap (\path -> case path of
-                                          p@(Path_UserIds_View _) -> map (\a -> Node (Peek_UserIds_Text p (Just a)) []) (toListOf (toLens p) s :: [Text])
+                                          p@(Path_UserIds_View wp) -> map (\a -> Node (Peek_UserIds_Text p (Just a)) []) (toListOf (toLens p) s :: [Text])
                                           _ -> []) (pathsOf s (undefined :: Proxy Text)) :: Forest (Peek ([UserId]))
 instance IsPathStart Int64
     where data Peek Int64 = Peek_Int64_Int64 (Path Int64 Int64) (Maybe Int64) deriving (Eq, Show)
@@ -10171,13 +11007,13 @@ instance IsPathStart Bool
               = Peek_Bool_String (Path Bool ([Char])) (Maybe ([Char])) | Peek_Bool_Bool (Path Bool Bool) (Maybe Bool) | Peek_Bool_JSONText (Path Bool JSONText) (Maybe JSONText)
               deriving (Eq, Show)
           peek s = concatMap (\path -> case path of
-                                           p@(Path_Bool_View _) -> map (\a -> let f = peek a
-                                                                               in let liftPeek (Peek_String_String q z) = Peek_Bool_String (Path_Bool_View q) z
-                                                                                      liftPeek (Peek_String_JSONText q z) = Peek_Bool_JSONText (Path_Bool_View q) z
-                                                                                   in Node (Peek_Bool_String p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [[Char]])
+                                           p@(Path_Bool_View wp) -> map (\a -> let f = peek a
+                                                                                in let liftPeek (Peek_String_String q z) = Peek_Bool_String (Path_Bool_View q) z
+                                                                                       liftPeek (Peek_String_JSONText q z) = Peek_Bool_JSONText (Path_Bool_View q) z
+                                                                                    in Node (Peek_Bool_String p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [[Char]])
                                            _ -> []) (pathsOf s (undefined :: Proxy ([Char]))) :: Forest (Peek Bool)
           hop s = concatMap (\path -> case path of
-                                          p@(Path_Bool_View _) -> map (\a -> Node (Peek_Bool_String p (Just a)) []) (toListOf (toLens p) s :: [[Char]])
+                                          p@(Path_Bool_View wp) -> map (\a -> Node (Peek_Bool_String p (Just a)) []) (toListOf (toLens p) s :: [[Char]])
                                           _ -> []) (pathsOf s (undefined :: Proxy ([Char]))) :: Forest (Peek Bool)
 instance IsPathStart Double
     where data Peek Double
@@ -10186,13 +11022,13 @@ instance IsPathStart Double
               | Peek_Double_JSONText (Path Double JSONText) (Maybe JSONText)
               deriving (Eq, Show)
           peek s = concatMap (\path -> case path of
-                                           p@(Path_Double_View _) -> map (\a -> let f = peek a
-                                                                                 in let liftPeek (Peek_String_String q z) = Peek_Double_String (Path_Double_View q) z
-                                                                                        liftPeek (Peek_String_JSONText q z) = Peek_Double_JSONText (Path_Double_View q) z
-                                                                                     in Node (Peek_Double_String p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [[Char]])
+                                           p@(Path_Double_View wp) -> map (\a -> let f = peek a
+                                                                                  in let liftPeek (Peek_String_String q z) = Peek_Double_String (Path_Double_View q) z
+                                                                                         liftPeek (Peek_String_JSONText q z) = Peek_Double_JSONText (Path_Double_View q) z
+                                                                                      in Node (Peek_Double_String p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [[Char]])
                                            _ -> []) (pathsOf s (undefined :: Proxy ([Char]))) :: Forest (Peek Double)
           hop s = concatMap (\path -> case path of
-                                          p@(Path_Double_View _) -> map (\a -> Node (Peek_Double_String p (Just a)) []) (toListOf (toLens p) s :: [[Char]])
+                                          p@(Path_Double_View wp) -> map (\a -> Node (Peek_Double_String p (Just a)) []) (toListOf (toLens p) s :: [[Char]])
                                           _ -> []) (pathsOf s (undefined :: Proxy ([Char]))) :: Forest (Peek Double)
 instance IsPathStart Int
     where data Peek Int = Peek_Int_Int (Path Int Int) (Maybe Int) deriving (Eq, Show)
@@ -10203,12 +11039,12 @@ instance IsPathStart Dimension
               = Peek_Dimension_Dimension (Path Dimension Dimension) (Maybe Dimension) | Peek_Dimension_JSONText (Path Dimension JSONText) (Maybe JSONText)
               deriving (Eq, Show)
           peek s = concatMap (\path -> case path of
-                                           p@(Path_Dimension_View _) -> map (\a -> let f = peek a
-                                                                                    in let liftPeek (Peek_JSONText_JSONText q z) = Peek_Dimension_JSONText (Path_Dimension_View q) z
-                                                                                        in Node (Peek_Dimension_JSONText p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [JSONText])
+                                           p@(Path_Dimension_View wp) -> map (\a -> let f = peek a
+                                                                                     in let liftPeek (Peek_JSONText_JSONText q z) = Peek_Dimension_JSONText (Path_Dimension_View q) z
+                                                                                         in Node (Peek_Dimension_JSONText p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [JSONText])
                                            _ -> []) (pathsOf s (undefined :: Proxy JSONText)) :: Forest (Peek Dimension)
           hop s = concatMap (\path -> case path of
-                                          p@(Path_Dimension_View _) -> map (\a -> Node (Peek_Dimension_JSONText p (Just a)) []) (toListOf (toLens p) s :: [JSONText])
+                                          p@(Path_Dimension_View wp) -> map (\a -> Node (Peek_Dimension_JSONText p (Just a)) []) (toListOf (toLens p) s :: [JSONText])
                                           _ -> []) (pathsOf s (undefined :: Proxy JSONText)) :: Forest (Peek Dimension)
 instance IsPathStart ImageCrop
     where data Peek ImageCrop = Peek_ImageCrop_ImageCrop (Path ImageCrop ImageCrop) (Maybe ImageCrop) deriving (Eq, Show)
@@ -10224,42 +11060,42 @@ instance IsPathStart ImageSize
               | Peek_ImageSize_JSONText (Path ImageSize JSONText) (Maybe JSONText)
               deriving (Eq, Show)
           peek (s@(ImageSize {})) = mconcat [concatMap (\path -> case path of
-                                                                     p@(Path_ImageSize_dim _) -> map (\a -> let f = peek a
-                                                                                                             in let liftPeek (Peek_Dimension_Dimension q z) = Peek_ImageSize_Dimension (Path_ImageSize_dim q) z
-                                                                                                                    liftPeek (Peek_Dimension_JSONText q z) = Peek_ImageSize_JSONText (Path_ImageSize_dim q) z
-                                                                                                                 in Node (Peek_ImageSize_Dimension p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Dimension])
+                                                                     p@(Path_ImageSize_dim wp) -> map (\a -> let f = peek a
+                                                                                                              in let liftPeek (Peek_Dimension_Dimension q z) = Peek_ImageSize_Dimension (Path_ImageSize_dim q) z
+                                                                                                                     liftPeek (Peek_Dimension_JSONText q z) = Peek_ImageSize_JSONText (Path_ImageSize_dim q) z
+                                                                                                                  in Node (Peek_ImageSize_Dimension p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Dimension])
                                                                      _ -> []) (pathsOf s (undefined :: Proxy Dimension)),
                                              concatMap (\path -> case path of
-                                                                     p@(Path_ImageSize_size _) -> map (\a -> let f = peek a
-                                                                                                              in let liftPeek (Peek_Double_String q z) = Peek_ImageSize_String (Path_ImageSize_size q) z
-                                                                                                                     liftPeek (Peek_Double_Double q z) = Peek_ImageSize_Double (Path_ImageSize_size q) z
-                                                                                                                     liftPeek (Peek_Double_JSONText q z) = Peek_ImageSize_JSONText (Path_ImageSize_size q) z
-                                                                                                                  in Node (Peek_ImageSize_Double p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Double])
+                                                                     p@(Path_ImageSize_size wp) -> map (\a -> let f = peek a
+                                                                                                               in let liftPeek (Peek_Double_String q z) = Peek_ImageSize_String (Path_ImageSize_size q) z
+                                                                                                                      liftPeek (Peek_Double_Double q z) = Peek_ImageSize_Double (Path_ImageSize_size q) z
+                                                                                                                      liftPeek (Peek_Double_JSONText q z) = Peek_ImageSize_JSONText (Path_ImageSize_size q) z
+                                                                                                                   in Node (Peek_ImageSize_Double p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Double])
                                                                      _ -> []) (pathsOf s (undefined :: Proxy Double)),
                                              concatMap (\path -> case path of
-                                                                     p@(Path_ImageSize_units _) -> map (\a -> let f = peek a
-                                                                                                               in let liftPeek (Peek_Units_Units q z) = Peek_ImageSize_Units (Path_ImageSize_units q) z
-                                                                                                                      liftPeek (Peek_Units_JSONText q z) = Peek_ImageSize_JSONText (Path_ImageSize_units q) z
-                                                                                                                   in Node (Peek_ImageSize_Units p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Units])
+                                                                     p@(Path_ImageSize_units wp) -> map (\a -> let f = peek a
+                                                                                                                in let liftPeek (Peek_Units_Units q z) = Peek_ImageSize_Units (Path_ImageSize_units q) z
+                                                                                                                       liftPeek (Peek_Units_JSONText q z) = Peek_ImageSize_JSONText (Path_ImageSize_units q) z
+                                                                                                                    in Node (Peek_ImageSize_Units p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Units])
                                                                      _ -> []) (pathsOf s (undefined :: Proxy Units))] :: Forest (Peek ImageSize)
           hop (s@(ImageSize {})) = mconcat [concatMap (\path -> case path of
-                                                                    p@(Path_ImageSize_dim _) -> map (\a -> Node (Peek_ImageSize_Dimension p (Just a)) []) (toListOf (toLens p) s :: [Dimension])
+                                                                    p@(Path_ImageSize_dim wp) -> map (\a -> Node (Peek_ImageSize_Dimension p (Just a)) []) (toListOf (toLens p) s :: [Dimension])
                                                                     _ -> []) (pathsOf s (undefined :: Proxy Dimension)),
                                             concatMap (\path -> case path of
-                                                                    p@(Path_ImageSize_size _) -> map (\a -> Node (Peek_ImageSize_Double p (Just a)) []) (toListOf (toLens p) s :: [Double])
+                                                                    p@(Path_ImageSize_size wp) -> map (\a -> Node (Peek_ImageSize_Double p (Just a)) []) (toListOf (toLens p) s :: [Double])
                                                                     _ -> []) (pathsOf s (undefined :: Proxy Double)),
                                             concatMap (\path -> case path of
-                                                                    p@(Path_ImageSize_units _) -> map (\a -> Node (Peek_ImageSize_Units p (Just a)) []) (toListOf (toLens p) s :: [Units])
+                                                                    p@(Path_ImageSize_units wp) -> map (\a -> Node (Peek_ImageSize_Units p (Just a)) []) (toListOf (toLens p) s :: [Units])
                                                                     _ -> []) (pathsOf s (undefined :: Proxy Units))] :: Forest (Peek ImageSize)
 instance IsPathStart Units
     where data Peek Units = Peek_Units_Units (Path Units Units) (Maybe Units) | Peek_Units_JSONText (Path Units JSONText) (Maybe JSONText) deriving (Eq, Show)
           peek s = concatMap (\path -> case path of
-                                           p@(Path_Units_View _) -> map (\a -> let f = peek a
-                                                                                in let liftPeek (Peek_JSONText_JSONText q z) = Peek_Units_JSONText (Path_Units_View q) z
-                                                                                    in Node (Peek_Units_JSONText p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [JSONText])
+                                           p@(Path_Units_View wp) -> map (\a -> let f = peek a
+                                                                                 in let liftPeek (Peek_JSONText_JSONText q z) = Peek_Units_JSONText (Path_Units_View q) z
+                                                                                     in Node (Peek_Units_JSONText p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [JSONText])
                                            _ -> []) (pathsOf s (undefined :: Proxy JSONText)) :: Forest (Peek Units)
           hop s = concatMap (\path -> case path of
-                                          p@(Path_Units_View _) -> map (\a -> Node (Peek_Units_JSONText p (Just a)) []) (toListOf (toLens p) s :: [JSONText])
+                                          p@(Path_Units_View wp) -> map (\a -> Node (Peek_Units_JSONText p (Just a)) []) (toListOf (toLens p) s :: [JSONText])
                                           _ -> []) (pathsOf s (undefined :: Proxy JSONText)) :: Forest (Peek Units)
 instance IsPathStart ImageFile
     where data Peek ImageFile = Peek_ImageFile_ImageFile (Path ImageFile ImageFile) (Maybe ImageFile) deriving (Eq, Show)
@@ -10280,25 +11116,25 @@ instance IsPathStart Markup
               | Peek_Markup_Text (Path Markup Text) (Maybe Text)
               deriving (Eq, Show)
           peek (s@(Markdown {})) = concatMap (\path -> case path of
-                                                           p@(Path_Markup_markdownText _) -> map (\a -> let f = peek a
-                                                                                                         in let liftPeek (Peek_Text_JSONText q z) = Peek_Markup_JSONText (Path_Markup_markdownText q) z
-                                                                                                                liftPeek (Peek_Text_Text q z) = Peek_Markup_Text (Path_Markup_markdownText q) z
-                                                                                                             in Node (Peek_Markup_Text p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Text])
+                                                           p@(Path_Markup_markdownText wp) -> map (\a -> let f = peek a
+                                                                                                          in let liftPeek (Peek_Text_JSONText q z) = Peek_Markup_JSONText (Path_Markup_markdownText q) z
+                                                                                                                 liftPeek (Peek_Text_Text q z) = Peek_Markup_Text (Path_Markup_markdownText q) z
+                                                                                                              in Node (Peek_Markup_Text p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Text])
                                                            _ -> []) (pathsOf s (undefined :: Proxy Text)) :: Forest (Peek Markup)
           peek (s@(Html {})) = concatMap (\path -> case path of
-                                                       p@(Path_Markup_htmlText _) -> map (\a -> let f = peek a
-                                                                                                 in let liftPeek (Peek_Text_JSONText q z) = Peek_Markup_JSONText (Path_Markup_htmlText q) z
-                                                                                                        liftPeek (Peek_Text_Text q z) = Peek_Markup_Text (Path_Markup_htmlText q) z
-                                                                                                     in Node (Peek_Markup_Text p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Text])
+                                                       p@(Path_Markup_htmlText wp) -> map (\a -> let f = peek a
+                                                                                                  in let liftPeek (Peek_Text_JSONText q z) = Peek_Markup_JSONText (Path_Markup_htmlText q) z
+                                                                                                         liftPeek (Peek_Text_Text q z) = Peek_Markup_Text (Path_Markup_htmlText q) z
+                                                                                                      in Node (Peek_Markup_Text p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Text])
                                                        _ -> []) (pathsOf s (undefined :: Proxy Text)) :: Forest (Peek Markup)
           peek (s@(LaTeX {})) = mempty :: Forest (Peek Markup)
           peek (s@(Pandoc {})) = mempty :: Forest (Peek Markup)
           peek (s@(Markup {})) = mempty :: Forest (Peek Markup)
           hop (s@(Markdown {})) = concatMap (\path -> case path of
-                                                          p@(Path_Markup_markdownText _) -> map (\a -> Node (Peek_Markup_Text p (Just a)) []) (toListOf (toLens p) s :: [Text])
+                                                          p@(Path_Markup_markdownText wp) -> map (\a -> Node (Peek_Markup_Text p (Just a)) []) (toListOf (toLens p) s :: [Text])
                                                           _ -> []) (pathsOf s (undefined :: Proxy Text)) :: Forest (Peek Markup)
           hop (s@(Html {})) = concatMap (\path -> case path of
-                                                      p@(Path_Markup_htmlText _) -> map (\a -> Node (Peek_Markup_Text p (Just a)) []) (toListOf (toLens p) s :: [Text])
+                                                      p@(Path_Markup_htmlText wp) -> map (\a -> Node (Peek_Markup_Text p (Just a)) []) (toListOf (toLens p) s :: [Text])
                                                       _ -> []) (pathsOf s (undefined :: Proxy Text)) :: Forest (Peek Markup)
           hop (s@(LaTeX {})) = mempty :: Forest (Peek Markup)
           hop (s@(Pandoc {})) = mempty :: Forest (Peek Markup)
@@ -10312,38 +11148,38 @@ instance IsPathStart Permissions
               | Peek_Permissions_UserId (Path Permissions UserId) (Maybe UserId)
               deriving (Eq, Show)
           peek (s@(Permissions {})) = mconcat [concatMap (\path -> case path of
-                                                                       p@(Path_Permissions_owner _) -> map (\a -> let f = peek a
-                                                                                                                   in let liftPeek (Peek_UserId_UserId q z) = Peek_Permissions_UserId (Path_Permissions_owner q) z
-                                                                                                                       in Node (Peek_Permissions_UserId p (if null f
-                                                                                                                                                            then Just a
-                                                                                                                                                            else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [UserId])
+                                                                       p@(Path_Permissions_owner wp) -> map (\a -> let f = peek a
+                                                                                                                    in let liftPeek (Peek_UserId_UserId q z) = Peek_Permissions_UserId (Path_Permissions_owner q) z
+                                                                                                                        in Node (Peek_Permissions_UserId p (if null f
+                                                                                                                                                             then Just a
+                                                                                                                                                             else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [UserId])
                                                                        _ -> []) (pathsOf s (undefined :: Proxy UserId)),
                                                concatMap (\path -> case path of
-                                                                       p@(Path_Permissions_writers _) -> map (\a -> let f = peek a
-                                                                                                                     in let liftPeek (Peek_UserIds_JSONText q z) = Peek_Permissions_JSONText (Path_Permissions_writers q) z
-                                                                                                                            liftPeek (Peek_UserIds_UserIds q z) = Peek_Permissions_UserIds (Path_Permissions_writers q) z
-                                                                                                                            liftPeek (Peek_UserIds_Text q z) = Peek_Permissions_Text (Path_Permissions_writers q) z
-                                                                                                                         in Node (Peek_Permissions_UserIds p (if null f
-                                                                                                                                                               then Just a
-                                                                                                                                                               else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [[UserId]])
+                                                                       p@(Path_Permissions_writers wp) -> map (\a -> let f = peek a
+                                                                                                                      in let liftPeek (Peek_UserIds_JSONText q z) = Peek_Permissions_JSONText (Path_Permissions_writers q) z
+                                                                                                                             liftPeek (Peek_UserIds_UserIds q z) = Peek_Permissions_UserIds (Path_Permissions_writers q) z
+                                                                                                                             liftPeek (Peek_UserIds_Text q z) = Peek_Permissions_Text (Path_Permissions_writers q) z
+                                                                                                                          in Node (Peek_Permissions_UserIds p (if null f
+                                                                                                                                                                then Just a
+                                                                                                                                                                else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [[UserId]])
                                                                        _ -> []) (pathsOf s (undefined :: Proxy ([UserId]))),
                                                concatMap (\path -> case path of
-                                                                       p@(Path_Permissions_readers _) -> map (\a -> let f = peek a
-                                                                                                                     in let liftPeek (Peek_UserIds_JSONText q z) = Peek_Permissions_JSONText (Path_Permissions_readers q) z
-                                                                                                                            liftPeek (Peek_UserIds_UserIds q z) = Peek_Permissions_UserIds (Path_Permissions_readers q) z
-                                                                                                                            liftPeek (Peek_UserIds_Text q z) = Peek_Permissions_Text (Path_Permissions_readers q) z
-                                                                                                                         in Node (Peek_Permissions_UserIds p (if null f
-                                                                                                                                                               then Just a
-                                                                                                                                                               else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [[UserId]])
+                                                                       p@(Path_Permissions_readers wp) -> map (\a -> let f = peek a
+                                                                                                                      in let liftPeek (Peek_UserIds_JSONText q z) = Peek_Permissions_JSONText (Path_Permissions_readers q) z
+                                                                                                                             liftPeek (Peek_UserIds_UserIds q z) = Peek_Permissions_UserIds (Path_Permissions_readers q) z
+                                                                                                                             liftPeek (Peek_UserIds_Text q z) = Peek_Permissions_Text (Path_Permissions_readers q) z
+                                                                                                                          in Node (Peek_Permissions_UserIds p (if null f
+                                                                                                                                                                then Just a
+                                                                                                                                                                else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [[UserId]])
                                                                        _ -> []) (pathsOf s (undefined :: Proxy ([UserId])))] :: Forest (Peek Permissions)
           hop (s@(Permissions {})) = mconcat [concatMap (\path -> case path of
-                                                                      p@(Path_Permissions_owner _) -> map (\a -> Node (Peek_Permissions_UserId p (Just a)) []) (toListOf (toLens p) s :: [UserId])
+                                                                      p@(Path_Permissions_owner wp) -> map (\a -> Node (Peek_Permissions_UserId p (Just a)) []) (toListOf (toLens p) s :: [UserId])
                                                                       _ -> []) (pathsOf s (undefined :: Proxy UserId)),
                                               concatMap (\path -> case path of
-                                                                      p@(Path_Permissions_writers _) -> map (\a -> Node (Peek_Permissions_UserIds p (Just a)) []) (toListOf (toLens p) s :: [[UserId]])
+                                                                      p@(Path_Permissions_writers wp) -> map (\a -> Node (Peek_Permissions_UserIds p (Just a)) []) (toListOf (toLens p) s :: [[UserId]])
                                                                       _ -> []) (pathsOf s (undefined :: Proxy ([UserId]))),
                                               concatMap (\path -> case path of
-                                                                      p@(Path_Permissions_readers _) -> map (\a -> Node (Peek_Permissions_UserIds p (Just a)) []) (toListOf (toLens p) s :: [[UserId]])
+                                                                      p@(Path_Permissions_readers wp) -> map (\a -> Node (Peek_Permissions_UserIds p (Just a)) []) (toListOf (toLens p) s :: [[UserId]])
                                                                       _ -> []) (pathsOf s (undefined :: Proxy ([UserId])))] :: Forest (Peek Permissions)
 instance IsPathStart Author
     where data Peek Author
@@ -10353,24 +11189,24 @@ instance IsPathStart Author
               | Peek_Author_Text (Path Author Text) (Maybe Text)
               deriving (Eq, Show)
           peek (s@(Author {})) = mconcat [concatMap (\path -> case path of
-                                                                  p@(Path_Author_authorName _) -> map (\a -> let f = peek a
-                                                                                                              in let liftPeek (Peek_Markup_JSONText q z) = Peek_Author_JSONText (Path_Author_authorName q) z
-                                                                                                                     liftPeek (Peek_Markup_Markup q z) = Peek_Author_Markup (Path_Author_authorName q) z
-                                                                                                                     liftPeek (Peek_Markup_Text q z) = Peek_Author_Text (Path_Author_authorName q) z
-                                                                                                                  in Node (Peek_Author_Markup p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
+                                                                  p@(Path_Author_authorName wp) -> map (\a -> let f = peek a
+                                                                                                               in let liftPeek (Peek_Markup_JSONText q z) = Peek_Author_JSONText (Path_Author_authorName q) z
+                                                                                                                      liftPeek (Peek_Markup_Markup q z) = Peek_Author_Markup (Path_Author_authorName q) z
+                                                                                                                      liftPeek (Peek_Markup_Text q z) = Peek_Author_Text (Path_Author_authorName q) z
+                                                                                                                   in Node (Peek_Author_Markup p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
                                                                   _ -> []) (pathsOf s (undefined :: Proxy Markup)),
                                           concatMap (\path -> case path of
-                                                                  p@(Path_Author_authorCredentials _) -> map (\a -> let f = peek a
-                                                                                                                     in let liftPeek (Peek_Markup_JSONText q z) = Peek_Author_JSONText (Path_Author_authorCredentials q) z
-                                                                                                                            liftPeek (Peek_Markup_Markup q z) = Peek_Author_Markup (Path_Author_authorCredentials q) z
-                                                                                                                            liftPeek (Peek_Markup_Text q z) = Peek_Author_Text (Path_Author_authorCredentials q) z
-                                                                                                                         in Node (Peek_Author_Markup p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
+                                                                  p@(Path_Author_authorCredentials wp) -> map (\a -> let f = peek a
+                                                                                                                      in let liftPeek (Peek_Markup_JSONText q z) = Peek_Author_JSONText (Path_Author_authorCredentials q) z
+                                                                                                                             liftPeek (Peek_Markup_Markup q z) = Peek_Author_Markup (Path_Author_authorCredentials q) z
+                                                                                                                             liftPeek (Peek_Markup_Text q z) = Peek_Author_Text (Path_Author_authorCredentials q) z
+                                                                                                                          in Node (Peek_Author_Markup p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
                                                                   _ -> []) (pathsOf s (undefined :: Proxy Markup))] :: Forest (Peek Author)
           hop (s@(Author {})) = mconcat [concatMap (\path -> case path of
-                                                                 p@(Path_Author_authorName _) -> map (\a -> Node (Peek_Author_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
+                                                                 p@(Path_Author_authorName wp) -> map (\a -> Node (Peek_Author_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
                                                                  _ -> []) (pathsOf s (undefined :: Proxy Markup)),
                                          concatMap (\path -> case path of
-                                                                 p@(Path_Author_authorCredentials _) -> map (\a -> Node (Peek_Author_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
+                                                                 p@(Path_Author_authorCredentials wp) -> map (\a -> Node (Peek_Author_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
                                                                  _ -> []) (pathsOf s (undefined :: Proxy Markup))] :: Forest (Peek Author)
 instance IsPathStart Branding
     where data Peek Branding
@@ -10379,13 +11215,13 @@ instance IsPathStart Branding
               | Peek_Branding_Text (Path Branding Text) (Maybe Text)
               deriving (Eq, Show)
           peek s = concatMap (\path -> case path of
-                                           p@(Path_Branding_View _) -> map (\a -> let f = peek a
-                                                                                   in let liftPeek (Peek_Text_JSONText q z) = Peek_Branding_JSONText (Path_Branding_View q) z
-                                                                                          liftPeek (Peek_Text_Text q z) = Peek_Branding_Text (Path_Branding_View q) z
-                                                                                       in Node (Peek_Branding_Text p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Text])
+                                           p@(Path_Branding_View wp) -> map (\a -> let f = peek a
+                                                                                    in let liftPeek (Peek_Text_JSONText q z) = Peek_Branding_JSONText (Path_Branding_View q) z
+                                                                                           liftPeek (Peek_Text_Text q z) = Peek_Branding_Text (Path_Branding_View q) z
+                                                                                        in Node (Peek_Branding_Text p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Text])
                                            _ -> []) (pathsOf s (undefined :: Proxy Text)) :: Forest (Peek Branding)
           hop s = concatMap (\path -> case path of
-                                          p@(Path_Branding_View _) -> map (\a -> Node (Peek_Branding_Text p (Just a)) []) (toListOf (toLens p) s :: [Text])
+                                          p@(Path_Branding_View wp) -> map (\a -> Node (Peek_Branding_Text p (Just a)) []) (toListOf (toLens p) s :: [Text])
                                           _ -> []) (pathsOf s (undefined :: Proxy Text)) :: Forest (Peek Branding)
 instance IsPathStart Report
     where data Peek Report
@@ -10439,58 +11275,58 @@ instance IsPathStart Report
               | Peek_Report_UUID (Path Report UUID) (Maybe UUID)
               deriving (Eq, Show)
           peek s = concatMap (\path -> case path of
-                                           p@(Path_Report_View _) -> map (\a -> let f = peek a
-                                                                                 in let liftPeek (Peek_ReportView_String q z) = Peek_Report_String (Path_Report_View q) z
-                                                                                        liftPeek (Peek_ReportView_Int64 q z) = Peek_Report_Int64 (Path_Report_View q) z
-                                                                                        liftPeek (Peek_ReportView_Int q z) = Peek_Report_Int (Path_Report_View q) z
-                                                                                        liftPeek (Peek_ReportView_Bool q z) = Peek_Report_Bool (Path_Report_View q) z
-                                                                                        liftPeek (Peek_ReportView_Double q z) = Peek_Report_Double (Path_Report_View q) z
-                                                                                        liftPeek (Peek_ReportView_Dimension q z) = Peek_Report_Dimension (Path_Report_View q) z
-                                                                                        liftPeek (Peek_ReportView_ImageCrop q z) = Peek_Report_ImageCrop (Path_Report_View q) z
-                                                                                        liftPeek (Peek_ReportView_ImageSize q z) = Peek_Report_ImageSize (Path_Report_View q) z
-                                                                                        liftPeek (Peek_ReportView_Units q z) = Peek_Report_Units (Path_Report_View q) z
-                                                                                        liftPeek (Peek_ReportView_ImageFile q z) = Peek_Report_ImageFile (Path_Report_View q) z
-                                                                                        liftPeek (Peek_ReportView_Integer q z) = Peek_Report_Integer (Path_Report_View q) z
-                                                                                        liftPeek (Peek_ReportView_JSONText q z) = Peek_Report_JSONText (Path_Report_View q) z
-                                                                                        liftPeek (Peek_ReportView_Markup q z) = Peek_Report_Markup (Path_Report_View q) z
-                                                                                        liftPeek (Peek_ReportView_Permissions q z) = Peek_Report_Permissions (Path_Report_View q) z
-                                                                                        liftPeek (Peek_ReportView_UserIds q z) = Peek_Report_UserIds (Path_Report_View q) z
-                                                                                        liftPeek (Peek_ReportView_AbbrevPair q z) = Peek_Report_AbbrevPair (Path_Report_View q) z
-                                                                                        liftPeek (Peek_ReportView_AbbrevPairs q z) = Peek_Report_AbbrevPairs (Path_Report_View q) z
-                                                                                        liftPeek (Peek_ReportView_Author q z) = Peek_Report_Author (Path_Report_View q) z
-                                                                                        liftPeek (Peek_ReportView_Authors q z) = Peek_Report_Authors (Path_Report_View q) z
-                                                                                        liftPeek (Peek_ReportView_Branding q z) = Peek_Report_Branding (Path_Report_View q) z
-                                                                                        liftPeek (Peek_ReportView_MarkupPair q z) = Peek_Report_MarkupPair (Path_Report_View q) z
-                                                                                        liftPeek (Peek_ReportView_MarkupPairs q z) = Peek_Report_MarkupPairs (Path_Report_View q) z
-                                                                                        liftPeek (Peek_ReportView_Markups q z) = Peek_Report_Markups (Path_Report_View q) z
-                                                                                        liftPeek (Peek_ReportView_MaybeReportIntendedUse q z) = Peek_Report_MaybeReportIntendedUse (Path_Report_View q) z
-                                                                                        liftPeek (Peek_ReportView_ReportElem q z) = Peek_Report_ReportElem (Path_Report_View q) z
-                                                                                        liftPeek (Peek_ReportView_ReportElems q z) = Peek_Report_ReportElems (Path_Report_View q) z
-                                                                                        liftPeek (Peek_ReportView_ReportFlags q z) = Peek_Report_ReportFlags (Path_Report_View q) z
-                                                                                        liftPeek (Peek_ReportView_ReportStandard q z) = Peek_Report_ReportStandard (Path_Report_View q) z
-                                                                                        liftPeek (Peek_ReportView_ReportStatus q z) = Peek_Report_ReportStatus (Path_Report_View q) z
-                                                                                        liftPeek (Peek_ReportView_ReportValueApproachInfo q z) = Peek_Report_ReportValueApproachInfo (Path_Report_View q) z
-                                                                                        liftPeek (Peek_ReportView_ReportValueTypeInfo q z) = Peek_Report_ReportValueTypeInfo (Path_Report_View q) z
-                                                                                        liftPeek (Peek_ReportView_EUI q z) = Peek_Report_EUI (Path_Report_View q) z
-                                                                                        liftPeek (Peek_ReportView_MEUI q z) = Peek_Report_MEUI (Path_Report_View q) z
-                                                                                        liftPeek (Peek_ReportView_MaybeImageFile q z) = Peek_Report_MaybeImageFile (Path_Report_View q) z
-                                                                                        liftPeek (Peek_ReportView_ReportImage q z) = Peek_Report_ReportImage (Path_Report_View q) z
-                                                                                        liftPeek (Peek_ReportView_ReportImages q z) = Peek_Report_ReportImages (Path_Report_View q) z
-                                                                                        liftPeek (Peek_ReportView_ReadOnlyFilePath q z) = Peek_Report_ReadOnlyFilePath (Path_Report_View q) z
-                                                                                        liftPeek (Peek_ReportView_ReportImageView q z) = Peek_Report_ReportImageView (Path_Report_View q) z
-                                                                                        liftPeek (Peek_ReportView_ReportView q z) = Peek_Report_ReportView (Path_Report_View q) z
-                                                                                        liftPeek (Peek_ReportView_SaneSizeImageSize q z) = Peek_Report_SaneSizeImageSize (Path_Report_View q) z
-                                                                                        liftPeek (Peek_ReportView_Item q z) = Peek_Report_Item (Path_Report_View q) z
-                                                                                        liftPeek (Peek_ReportView_MIM q z) = Peek_Report_MIM (Path_Report_View q) z
-                                                                                        liftPeek (Peek_ReportView_CIString q z) = Peek_Report_CIString (Path_Report_View q) z
-                                                                                        liftPeek (Peek_ReportView_URI q z) = Peek_Report_URI (Path_Report_View q) z
-                                                                                        liftPeek (Peek_ReportView_Text q z) = Peek_Report_Text (Path_Report_View q) z
-                                                                                        liftPeek (Peek_ReportView_UserId q z) = Peek_Report_UserId (Path_Report_View q) z
-                                                                                        liftPeek (Peek_ReportView_UUID q z) = Peek_Report_UUID (Path_Report_View q) z
-                                                                                     in Node (Peek_Report_ReportView p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [ReportView])
+                                           p@(Path_Report_View wp) -> map (\a -> let f = peek a
+                                                                                  in let liftPeek (Peek_ReportView_String q z) = Peek_Report_String (Path_Report_View q) z
+                                                                                         liftPeek (Peek_ReportView_Int64 q z) = Peek_Report_Int64 (Path_Report_View q) z
+                                                                                         liftPeek (Peek_ReportView_Int q z) = Peek_Report_Int (Path_Report_View q) z
+                                                                                         liftPeek (Peek_ReportView_Bool q z) = Peek_Report_Bool (Path_Report_View q) z
+                                                                                         liftPeek (Peek_ReportView_Double q z) = Peek_Report_Double (Path_Report_View q) z
+                                                                                         liftPeek (Peek_ReportView_Dimension q z) = Peek_Report_Dimension (Path_Report_View q) z
+                                                                                         liftPeek (Peek_ReportView_ImageCrop q z) = Peek_Report_ImageCrop (Path_Report_View q) z
+                                                                                         liftPeek (Peek_ReportView_ImageSize q z) = Peek_Report_ImageSize (Path_Report_View q) z
+                                                                                         liftPeek (Peek_ReportView_Units q z) = Peek_Report_Units (Path_Report_View q) z
+                                                                                         liftPeek (Peek_ReportView_ImageFile q z) = Peek_Report_ImageFile (Path_Report_View q) z
+                                                                                         liftPeek (Peek_ReportView_Integer q z) = Peek_Report_Integer (Path_Report_View q) z
+                                                                                         liftPeek (Peek_ReportView_JSONText q z) = Peek_Report_JSONText (Path_Report_View q) z
+                                                                                         liftPeek (Peek_ReportView_Markup q z) = Peek_Report_Markup (Path_Report_View q) z
+                                                                                         liftPeek (Peek_ReportView_Permissions q z) = Peek_Report_Permissions (Path_Report_View q) z
+                                                                                         liftPeek (Peek_ReportView_UserIds q z) = Peek_Report_UserIds (Path_Report_View q) z
+                                                                                         liftPeek (Peek_ReportView_AbbrevPair q z) = Peek_Report_AbbrevPair (Path_Report_View q) z
+                                                                                         liftPeek (Peek_ReportView_AbbrevPairs q z) = Peek_Report_AbbrevPairs (Path_Report_View q) z
+                                                                                         liftPeek (Peek_ReportView_Author q z) = Peek_Report_Author (Path_Report_View q) z
+                                                                                         liftPeek (Peek_ReportView_Authors q z) = Peek_Report_Authors (Path_Report_View q) z
+                                                                                         liftPeek (Peek_ReportView_Branding q z) = Peek_Report_Branding (Path_Report_View q) z
+                                                                                         liftPeek (Peek_ReportView_MarkupPair q z) = Peek_Report_MarkupPair (Path_Report_View q) z
+                                                                                         liftPeek (Peek_ReportView_MarkupPairs q z) = Peek_Report_MarkupPairs (Path_Report_View q) z
+                                                                                         liftPeek (Peek_ReportView_Markups q z) = Peek_Report_Markups (Path_Report_View q) z
+                                                                                         liftPeek (Peek_ReportView_MaybeReportIntendedUse q z) = Peek_Report_MaybeReportIntendedUse (Path_Report_View q) z
+                                                                                         liftPeek (Peek_ReportView_ReportElem q z) = Peek_Report_ReportElem (Path_Report_View q) z
+                                                                                         liftPeek (Peek_ReportView_ReportElems q z) = Peek_Report_ReportElems (Path_Report_View q) z
+                                                                                         liftPeek (Peek_ReportView_ReportFlags q z) = Peek_Report_ReportFlags (Path_Report_View q) z
+                                                                                         liftPeek (Peek_ReportView_ReportStandard q z) = Peek_Report_ReportStandard (Path_Report_View q) z
+                                                                                         liftPeek (Peek_ReportView_ReportStatus q z) = Peek_Report_ReportStatus (Path_Report_View q) z
+                                                                                         liftPeek (Peek_ReportView_ReportValueApproachInfo q z) = Peek_Report_ReportValueApproachInfo (Path_Report_View q) z
+                                                                                         liftPeek (Peek_ReportView_ReportValueTypeInfo q z) = Peek_Report_ReportValueTypeInfo (Path_Report_View q) z
+                                                                                         liftPeek (Peek_ReportView_EUI q z) = Peek_Report_EUI (Path_Report_View q) z
+                                                                                         liftPeek (Peek_ReportView_MEUI q z) = Peek_Report_MEUI (Path_Report_View q) z
+                                                                                         liftPeek (Peek_ReportView_MaybeImageFile q z) = Peek_Report_MaybeImageFile (Path_Report_View q) z
+                                                                                         liftPeek (Peek_ReportView_ReportImage q z) = Peek_Report_ReportImage (Path_Report_View q) z
+                                                                                         liftPeek (Peek_ReportView_ReportImages q z) = Peek_Report_ReportImages (Path_Report_View q) z
+                                                                                         liftPeek (Peek_ReportView_ReadOnlyFilePath q z) = Peek_Report_ReadOnlyFilePath (Path_Report_View q) z
+                                                                                         liftPeek (Peek_ReportView_ReportImageView q z) = Peek_Report_ReportImageView (Path_Report_View q) z
+                                                                                         liftPeek (Peek_ReportView_ReportView q z) = Peek_Report_ReportView (Path_Report_View q) z
+                                                                                         liftPeek (Peek_ReportView_SaneSizeImageSize q z) = Peek_Report_SaneSizeImageSize (Path_Report_View q) z
+                                                                                         liftPeek (Peek_ReportView_Item q z) = Peek_Report_Item (Path_Report_View q) z
+                                                                                         liftPeek (Peek_ReportView_MIM q z) = Peek_Report_MIM (Path_Report_View q) z
+                                                                                         liftPeek (Peek_ReportView_CIString q z) = Peek_Report_CIString (Path_Report_View q) z
+                                                                                         liftPeek (Peek_ReportView_URI q z) = Peek_Report_URI (Path_Report_View q) z
+                                                                                         liftPeek (Peek_ReportView_Text q z) = Peek_Report_Text (Path_Report_View q) z
+                                                                                         liftPeek (Peek_ReportView_UserId q z) = Peek_Report_UserId (Path_Report_View q) z
+                                                                                         liftPeek (Peek_ReportView_UUID q z) = Peek_Report_UUID (Path_Report_View q) z
+                                                                                      in Node (Peek_Report_ReportView p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [ReportView])
                                            _ -> []) (pathsOf s (undefined :: Proxy ReportView)) :: Forest (Peek Report)
           hop s = concatMap (\path -> case path of
-                                          p@(Path_Report_View _) -> map (\a -> Node (Peek_Report_ReportView p (Just a)) []) (toListOf (toLens p) s :: [ReportView])
+                                          p@(Path_Report_View wp) -> map (\a -> Node (Peek_Report_ReportView p (Just a)) []) (toListOf (toLens p) s :: [ReportView])
                                           _ -> []) (pathsOf s (undefined :: Proxy ReportView)) :: Forest (Peek Report)
 instance IsPathStart ReportElem
     where data Peek ReportElem
@@ -10518,43 +11354,43 @@ instance IsPathStart ReportElem
               | Peek_ReportElem_Text (Path ReportElem Text) (Maybe Text)
               deriving (Eq, Show)
           peek (s@(ReportItem {})) = concatMap (\path -> case path of
-                                                             p@(Path_ReportElem_elemItem _) -> map (\a -> let f = peek a
-                                                                                                           in let liftPeek (Peek_Item_String q z) = Peek_ReportElem_String (Path_ReportElem_elemItem q) z
-                                                                                                                  liftPeek (Peek_Item_Bool q z) = Peek_ReportElem_Bool (Path_ReportElem_elemItem q) z
-                                                                                                                  liftPeek (Peek_Item_Double q z) = Peek_ReportElem_Double (Path_ReportElem_elemItem q) z
-                                                                                                                  liftPeek (Peek_Item_Dimension q z) = Peek_ReportElem_Dimension (Path_ReportElem_elemItem q) z
-                                                                                                                  liftPeek (Peek_Item_ImageCrop q z) = Peek_ReportElem_ImageCrop (Path_ReportElem_elemItem q) z
-                                                                                                                  liftPeek (Peek_Item_ImageSize q z) = Peek_ReportElem_ImageSize (Path_ReportElem_elemItem q) z
-                                                                                                                  liftPeek (Peek_Item_Units q z) = Peek_ReportElem_Units (Path_ReportElem_elemItem q) z
-                                                                                                                  liftPeek (Peek_Item_ImageFile q z) = Peek_ReportElem_ImageFile (Path_ReportElem_elemItem q) z
-                                                                                                                  liftPeek (Peek_Item_JSONText q z) = Peek_ReportElem_JSONText (Path_ReportElem_elemItem q) z
-                                                                                                                  liftPeek (Peek_Item_Markup q z) = Peek_ReportElem_Markup (Path_ReportElem_elemItem q) z
-                                                                                                                  liftPeek (Peek_Item_EUI q z) = Peek_ReportElem_EUI (Path_ReportElem_elemItem q) z
-                                                                                                                  liftPeek (Peek_Item_MEUI q z) = Peek_ReportElem_MEUI (Path_ReportElem_elemItem q) z
-                                                                                                                  liftPeek (Peek_Item_MaybeImageFile q z) = Peek_ReportElem_MaybeImageFile (Path_ReportElem_elemItem q) z
-                                                                                                                  liftPeek (Peek_Item_ReportImage q z) = Peek_ReportElem_ReportImage (Path_ReportElem_elemItem q) z
-                                                                                                                  liftPeek (Peek_Item_ReportImages q z) = Peek_ReportElem_ReportImages (Path_ReportElem_elemItem q) z
-                                                                                                                  liftPeek (Peek_Item_ReportImageView q z) = Peek_ReportElem_ReportImageView (Path_ReportElem_elemItem q) z
-                                                                                                                  liftPeek (Peek_Item_SaneSizeImageSize q z) = Peek_ReportElem_SaneSizeImageSize (Path_ReportElem_elemItem q) z
-                                                                                                                  liftPeek (Peek_Item_Item q z) = Peek_ReportElem_Item (Path_ReportElem_elemItem q) z
-                                                                                                                  liftPeek (Peek_Item_MIM q z) = Peek_ReportElem_MIM (Path_ReportElem_elemItem q) z
-                                                                                                                  liftPeek (Peek_Item_URI q z) = Peek_ReportElem_URI (Path_ReportElem_elemItem q) z
-                                                                                                                  liftPeek (Peek_Item_Text q z) = Peek_ReportElem_Text (Path_ReportElem_elemItem q) z
-                                                                                                               in Node (Peek_ReportElem_Item p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Item])
+                                                             p@(Path_ReportElem_elemItem wp) -> map (\a -> let f = peek a
+                                                                                                            in let liftPeek (Peek_Item_String q z) = Peek_ReportElem_String (Path_ReportElem_elemItem q) z
+                                                                                                                   liftPeek (Peek_Item_Bool q z) = Peek_ReportElem_Bool (Path_ReportElem_elemItem q) z
+                                                                                                                   liftPeek (Peek_Item_Double q z) = Peek_ReportElem_Double (Path_ReportElem_elemItem q) z
+                                                                                                                   liftPeek (Peek_Item_Dimension q z) = Peek_ReportElem_Dimension (Path_ReportElem_elemItem q) z
+                                                                                                                   liftPeek (Peek_Item_ImageCrop q z) = Peek_ReportElem_ImageCrop (Path_ReportElem_elemItem q) z
+                                                                                                                   liftPeek (Peek_Item_ImageSize q z) = Peek_ReportElem_ImageSize (Path_ReportElem_elemItem q) z
+                                                                                                                   liftPeek (Peek_Item_Units q z) = Peek_ReportElem_Units (Path_ReportElem_elemItem q) z
+                                                                                                                   liftPeek (Peek_Item_ImageFile q z) = Peek_ReportElem_ImageFile (Path_ReportElem_elemItem q) z
+                                                                                                                   liftPeek (Peek_Item_JSONText q z) = Peek_ReportElem_JSONText (Path_ReportElem_elemItem q) z
+                                                                                                                   liftPeek (Peek_Item_Markup q z) = Peek_ReportElem_Markup (Path_ReportElem_elemItem q) z
+                                                                                                                   liftPeek (Peek_Item_EUI q z) = Peek_ReportElem_EUI (Path_ReportElem_elemItem q) z
+                                                                                                                   liftPeek (Peek_Item_MEUI q z) = Peek_ReportElem_MEUI (Path_ReportElem_elemItem q) z
+                                                                                                                   liftPeek (Peek_Item_MaybeImageFile q z) = Peek_ReportElem_MaybeImageFile (Path_ReportElem_elemItem q) z
+                                                                                                                   liftPeek (Peek_Item_ReportImage q z) = Peek_ReportElem_ReportImage (Path_ReportElem_elemItem q) z
+                                                                                                                   liftPeek (Peek_Item_ReportImages q z) = Peek_ReportElem_ReportImages (Path_ReportElem_elemItem q) z
+                                                                                                                   liftPeek (Peek_Item_ReportImageView q z) = Peek_ReportElem_ReportImageView (Path_ReportElem_elemItem q) z
+                                                                                                                   liftPeek (Peek_Item_SaneSizeImageSize q z) = Peek_ReportElem_SaneSizeImageSize (Path_ReportElem_elemItem q) z
+                                                                                                                   liftPeek (Peek_Item_Item q z) = Peek_ReportElem_Item (Path_ReportElem_elemItem q) z
+                                                                                                                   liftPeek (Peek_Item_MIM q z) = Peek_ReportElem_MIM (Path_ReportElem_elemItem q) z
+                                                                                                                   liftPeek (Peek_Item_URI q z) = Peek_ReportElem_URI (Path_ReportElem_elemItem q) z
+                                                                                                                   liftPeek (Peek_Item_Text q z) = Peek_ReportElem_Text (Path_ReportElem_elemItem q) z
+                                                                                                                in Node (Peek_ReportElem_Item p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Item])
                                                              _ -> []) (pathsOf s (undefined :: Proxy Item)) :: Forest (Peek ReportElem)
           peek (s@(ReportParagraph {})) = concatMap (\path -> case path of
-                                                                  p@(Path_ReportElem_elemText _) -> map (\a -> let f = peek a
-                                                                                                                in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportElem_JSONText (Path_ReportElem_elemText q) z
-                                                                                                                       liftPeek (Peek_Markup_Markup q z) = Peek_ReportElem_Markup (Path_ReportElem_elemText q) z
-                                                                                                                       liftPeek (Peek_Markup_Text q z) = Peek_ReportElem_Text (Path_ReportElem_elemText q) z
-                                                                                                                    in Node (Peek_ReportElem_Markup p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
+                                                                  p@(Path_ReportElem_elemText wp) -> map (\a -> let f = peek a
+                                                                                                                 in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportElem_JSONText (Path_ReportElem_elemText q) z
+                                                                                                                        liftPeek (Peek_Markup_Markup q z) = Peek_ReportElem_Markup (Path_ReportElem_elemText q) z
+                                                                                                                        liftPeek (Peek_Markup_Text q z) = Peek_ReportElem_Text (Path_ReportElem_elemText q) z
+                                                                                                                     in Node (Peek_ReportElem_Markup p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
                                                                   _ -> []) (pathsOf s (undefined :: Proxy Markup)) :: Forest (Peek ReportElem)
           peek (s@(ReportUndecided {})) = mempty :: Forest (Peek ReportElem)
           hop (s@(ReportItem {})) = concatMap (\path -> case path of
-                                                            p@(Path_ReportElem_elemItem _) -> map (\a -> Node (Peek_ReportElem_Item p (Just a)) []) (toListOf (toLens p) s :: [Item])
+                                                            p@(Path_ReportElem_elemItem wp) -> map (\a -> Node (Peek_ReportElem_Item p (Just a)) []) (toListOf (toLens p) s :: [Item])
                                                             _ -> []) (pathsOf s (undefined :: Proxy Item)) :: Forest (Peek ReportElem)
           hop (s@(ReportParagraph {})) = concatMap (\path -> case path of
-                                                                 p@(Path_ReportElem_elemText _) -> map (\a -> Node (Peek_ReportElem_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
+                                                                 p@(Path_ReportElem_elemText wp) -> map (\a -> Node (Peek_ReportElem_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
                                                                  _ -> []) (pathsOf s (undefined :: Proxy Markup)) :: Forest (Peek ReportElem)
           hop (s@(ReportUndecided {})) = mempty :: Forest (Peek ReportElem)
 instance IsPathStart ReportFlags
@@ -10565,16 +11401,16 @@ instance IsPathStart ReportFlags
               | Peek_ReportFlags_ReportFlags (Path ReportFlags ReportFlags) (Maybe ReportFlags)
               deriving (Eq, Show)
           peek (s@(ReportFlags {})) = concatMap (\path -> case path of
-                                                              p@(Path_ReportFlags_hideEmptyItemFields _) -> map (\a -> let f = peek a
-                                                                                                                        in let liftPeek (Peek_Bool_String q z) = Peek_ReportFlags_String (Path_ReportFlags_hideEmptyItemFields q) z
-                                                                                                                               liftPeek (Peek_Bool_Bool q z) = Peek_ReportFlags_Bool (Path_ReportFlags_hideEmptyItemFields q) z
-                                                                                                                               liftPeek (Peek_Bool_JSONText q z) = Peek_ReportFlags_JSONText (Path_ReportFlags_hideEmptyItemFields q) z
-                                                                                                                            in Node (Peek_ReportFlags_Bool p (if null f
-                                                                                                                                                               then Just a
-                                                                                                                                                               else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Bool])
+                                                              p@(Path_ReportFlags_hideEmptyItemFields wp) -> map (\a -> let f = peek a
+                                                                                                                         in let liftPeek (Peek_Bool_String q z) = Peek_ReportFlags_String (Path_ReportFlags_hideEmptyItemFields q) z
+                                                                                                                                liftPeek (Peek_Bool_Bool q z) = Peek_ReportFlags_Bool (Path_ReportFlags_hideEmptyItemFields q) z
+                                                                                                                                liftPeek (Peek_Bool_JSONText q z) = Peek_ReportFlags_JSONText (Path_ReportFlags_hideEmptyItemFields q) z
+                                                                                                                             in Node (Peek_ReportFlags_Bool p (if null f
+                                                                                                                                                                then Just a
+                                                                                                                                                                else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Bool])
                                                               _ -> []) (pathsOf s (undefined :: Proxy Bool)) :: Forest (Peek ReportFlags)
           hop (s@(ReportFlags {})) = concatMap (\path -> case path of
-                                                             p@(Path_ReportFlags_hideEmptyItemFields _) -> map (\a -> Node (Peek_ReportFlags_Bool p (Just a)) []) (toListOf (toLens p) s :: [Bool])
+                                                             p@(Path_ReportFlags_hideEmptyItemFields wp) -> map (\a -> Node (Peek_ReportFlags_Bool p (Just a)) []) (toListOf (toLens p) s :: [Bool])
                                                              _ -> []) (pathsOf s (undefined :: Proxy Bool)) :: Forest (Peek ReportFlags)
 instance IsPathStart ReportIntendedUse
     where data Peek ReportIntendedUse
@@ -10583,27 +11419,27 @@ instance IsPathStart ReportIntendedUse
               | Peek_ReportIntendedUse_ReportIntendedUse (Path ReportIntendedUse ReportIntendedUse) (Maybe ReportIntendedUse)
               deriving (Eq, Show)
           peek s = concatMap (\path -> case path of
-                                           p@(Path_ReportIntendedUse_View _) -> map (\a -> let f = peek a
-                                                                                            in let liftPeek (Peek_String_String q z) = Peek_ReportIntendedUse_String (Path_ReportIntendedUse_View q) z
-                                                                                                   liftPeek (Peek_String_JSONText q z) = Peek_ReportIntendedUse_JSONText (Path_ReportIntendedUse_View q) z
-                                                                                                in Node (Peek_ReportIntendedUse_String p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [[Char]])
+                                           p@(Path_ReportIntendedUse_View wp) -> map (\a -> let f = peek a
+                                                                                             in let liftPeek (Peek_String_String q z) = Peek_ReportIntendedUse_String (Path_ReportIntendedUse_View q) z
+                                                                                                    liftPeek (Peek_String_JSONText q z) = Peek_ReportIntendedUse_JSONText (Path_ReportIntendedUse_View q) z
+                                                                                                 in Node (Peek_ReportIntendedUse_String p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [[Char]])
                                            _ -> []) (pathsOf s (undefined :: Proxy ([Char]))) :: Forest (Peek ReportIntendedUse)
           hop s = concatMap (\path -> case path of
-                                          p@(Path_ReportIntendedUse_View _) -> map (\a -> Node (Peek_ReportIntendedUse_String p (Just a)) []) (toListOf (toLens p) s :: [[Char]])
+                                          p@(Path_ReportIntendedUse_View wp) -> map (\a -> Node (Peek_ReportIntendedUse_String p (Just a)) []) (toListOf (toLens p) s :: [[Char]])
                                           _ -> []) (pathsOf s (undefined :: Proxy ([Char]))) :: Forest (Peek ReportIntendedUse)
 instance IsPathStart ReportStandard
     where data Peek ReportStandard
               = Peek_ReportStandard_Int (Path ReportStandard Int) (Maybe Int) | Peek_ReportStandard_ReportStandard (Path ReportStandard ReportStandard) (Maybe ReportStandard)
               deriving (Eq, Show)
           peek (s@(ReportStandard {})) = concatMap (\path -> case path of
-                                                                 p@(Path_ReportStandard_unReportStandard _) -> map (\a -> let f = peek a
-                                                                                                                           in let liftPeek (Peek_Int_Int q z) = Peek_ReportStandard_Int (Path_ReportStandard_unReportStandard q) z
-                                                                                                                               in Node (Peek_ReportStandard_Int p (if null f
-                                                                                                                                                                    then Just a
-                                                                                                                                                                    else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Int])
+                                                                 p@(Path_ReportStandard_unReportStandard wp) -> map (\a -> let f = peek a
+                                                                                                                            in let liftPeek (Peek_Int_Int q z) = Peek_ReportStandard_Int (Path_ReportStandard_unReportStandard q) z
+                                                                                                                                in Node (Peek_ReportStandard_Int p (if null f
+                                                                                                                                                                     then Just a
+                                                                                                                                                                     else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Int])
                                                                  _ -> []) (pathsOf s (undefined :: Proxy Int)) :: Forest (Peek ReportStandard)
           hop (s@(ReportStandard {})) = concatMap (\path -> case path of
-                                                                p@(Path_ReportStandard_unReportStandard _) -> map (\a -> Node (Peek_ReportStandard_Int p (Just a)) []) (toListOf (toLens p) s :: [Int])
+                                                                p@(Path_ReportStandard_unReportStandard wp) -> map (\a -> Node (Peek_ReportStandard_Int p (Just a)) []) (toListOf (toLens p) s :: [Int])
                                                                 _ -> []) (pathsOf s (undefined :: Proxy Int)) :: Forest (Peek ReportStandard)
 instance IsPathStart ReportStatus
     where data Peek ReportStatus
@@ -10612,13 +11448,13 @@ instance IsPathStart ReportStatus
               | Peek_ReportStatus_ReportStatus (Path ReportStatus ReportStatus) (Maybe ReportStatus)
               deriving (Eq, Show)
           peek s = concatMap (\path -> case path of
-                                           p@(Path_ReportStatus_View _) -> map (\a -> let f = peek a
-                                                                                       in let liftPeek (Peek_String_String q z) = Peek_ReportStatus_String (Path_ReportStatus_View q) z
-                                                                                              liftPeek (Peek_String_JSONText q z) = Peek_ReportStatus_JSONText (Path_ReportStatus_View q) z
-                                                                                           in Node (Peek_ReportStatus_String p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [[Char]])
+                                           p@(Path_ReportStatus_View wp) -> map (\a -> let f = peek a
+                                                                                        in let liftPeek (Peek_String_String q z) = Peek_ReportStatus_String (Path_ReportStatus_View q) z
+                                                                                               liftPeek (Peek_String_JSONText q z) = Peek_ReportStatus_JSONText (Path_ReportStatus_View q) z
+                                                                                            in Node (Peek_ReportStatus_String p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [[Char]])
                                            _ -> []) (pathsOf s (undefined :: Proxy ([Char]))) :: Forest (Peek ReportStatus)
           hop s = concatMap (\path -> case path of
-                                          p@(Path_ReportStatus_View _) -> map (\a -> Node (Peek_ReportStatus_String p (Just a)) []) (toListOf (toLens p) s :: [[Char]])
+                                          p@(Path_ReportStatus_View wp) -> map (\a -> Node (Peek_ReportStatus_String p (Just a)) []) (toListOf (toLens p) s :: [[Char]])
                                           _ -> []) (pathsOf s (undefined :: Proxy ([Char]))) :: Forest (Peek ReportStatus)
 instance IsPathStart ReportValueApproachInfo
     where data Peek ReportValueApproachInfo
@@ -10628,34 +11464,34 @@ instance IsPathStart ReportValueApproachInfo
               | Peek_ReportValueApproachInfo_Text (Path ReportValueApproachInfo Text) (Maybe Text)
               deriving (Eq, Show)
           peek (s@(ReportValueApproachInfo {})) = mconcat [concatMap (\path -> case path of
-                                                                                   p@(Path_ReportValueApproachInfo_reportValueApproachName _) -> map (\a -> let f = peek a
-                                                                                                                                                             in let liftPeek (Peek_Markup_JSONText q
-                                                                                                                                                                                                   z) = Peek_ReportValueApproachInfo_JSONText (Path_ReportValueApproachInfo_reportValueApproachName q) z
-                                                                                                                                                                    liftPeek (Peek_Markup_Markup q
-                                                                                                                                                                                                 z) = Peek_ReportValueApproachInfo_Markup (Path_ReportValueApproachInfo_reportValueApproachName q) z
-                                                                                                                                                                    liftPeek (Peek_Markup_Text q
-                                                                                                                                                                                               z) = Peek_ReportValueApproachInfo_Text (Path_ReportValueApproachInfo_reportValueApproachName q) z
-                                                                                                                                                                 in Node (Peek_ReportValueApproachInfo_Markup p (if null f
-                                                                                                                                                                                                                  then Just a
-                                                                                                                                                                                                                  else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
+                                                                                   p@(Path_ReportValueApproachInfo_reportValueApproachName wp) -> map (\a -> let f = peek a
+                                                                                                                                                              in let liftPeek (Peek_Markup_JSONText q
+                                                                                                                                                                                                    z) = Peek_ReportValueApproachInfo_JSONText (Path_ReportValueApproachInfo_reportValueApproachName q) z
+                                                                                                                                                                     liftPeek (Peek_Markup_Markup q
+                                                                                                                                                                                                  z) = Peek_ReportValueApproachInfo_Markup (Path_ReportValueApproachInfo_reportValueApproachName q) z
+                                                                                                                                                                     liftPeek (Peek_Markup_Text q
+                                                                                                                                                                                                z) = Peek_ReportValueApproachInfo_Text (Path_ReportValueApproachInfo_reportValueApproachName q) z
+                                                                                                                                                                  in Node (Peek_ReportValueApproachInfo_Markup p (if null f
+                                                                                                                                                                                                                   then Just a
+                                                                                                                                                                                                                   else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
                                                                                    _ -> []) (pathsOf s (undefined :: Proxy Markup)),
                                                            concatMap (\path -> case path of
-                                                                                   p@(Path_ReportValueApproachInfo_reportValueApproachDescription _) -> map (\a -> let f = peek a
-                                                                                                                                                                    in let liftPeek (Peek_Markup_JSONText q
-                                                                                                                                                                                                          z) = Peek_ReportValueApproachInfo_JSONText (Path_ReportValueApproachInfo_reportValueApproachDescription q) z
-                                                                                                                                                                           liftPeek (Peek_Markup_Markup q
-                                                                                                                                                                                                        z) = Peek_ReportValueApproachInfo_Markup (Path_ReportValueApproachInfo_reportValueApproachDescription q) z
-                                                                                                                                                                           liftPeek (Peek_Markup_Text q
-                                                                                                                                                                                                      z) = Peek_ReportValueApproachInfo_Text (Path_ReportValueApproachInfo_reportValueApproachDescription q) z
-                                                                                                                                                                        in Node (Peek_ReportValueApproachInfo_Markup p (if null f
-                                                                                                                                                                                                                         then Just a
-                                                                                                                                                                                                                         else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
+                                                                                   p@(Path_ReportValueApproachInfo_reportValueApproachDescription wp) -> map (\a -> let f = peek a
+                                                                                                                                                                     in let liftPeek (Peek_Markup_JSONText q
+                                                                                                                                                                                                           z) = Peek_ReportValueApproachInfo_JSONText (Path_ReportValueApproachInfo_reportValueApproachDescription q) z
+                                                                                                                                                                            liftPeek (Peek_Markup_Markup q
+                                                                                                                                                                                                         z) = Peek_ReportValueApproachInfo_Markup (Path_ReportValueApproachInfo_reportValueApproachDescription q) z
+                                                                                                                                                                            liftPeek (Peek_Markup_Text q
+                                                                                                                                                                                                       z) = Peek_ReportValueApproachInfo_Text (Path_ReportValueApproachInfo_reportValueApproachDescription q) z
+                                                                                                                                                                         in Node (Peek_ReportValueApproachInfo_Markup p (if null f
+                                                                                                                                                                                                                          then Just a
+                                                                                                                                                                                                                          else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
                                                                                    _ -> []) (pathsOf s (undefined :: Proxy Markup))] :: Forest (Peek ReportValueApproachInfo)
           hop (s@(ReportValueApproachInfo {})) = mconcat [concatMap (\path -> case path of
-                                                                                  p@(Path_ReportValueApproachInfo_reportValueApproachName _) -> map (\a -> Node (Peek_ReportValueApproachInfo_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
+                                                                                  p@(Path_ReportValueApproachInfo_reportValueApproachName wp) -> map (\a -> Node (Peek_ReportValueApproachInfo_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
                                                                                   _ -> []) (pathsOf s (undefined :: Proxy Markup)),
                                                           concatMap (\path -> case path of
-                                                                                  p@(Path_ReportValueApproachInfo_reportValueApproachDescription _) -> map (\a -> Node (Peek_ReportValueApproachInfo_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
+                                                                                  p@(Path_ReportValueApproachInfo_reportValueApproachDescription wp) -> map (\a -> Node (Peek_ReportValueApproachInfo_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
                                                                                   _ -> []) (pathsOf s (undefined :: Proxy Markup))] :: Forest (Peek ReportValueApproachInfo)
 instance IsPathStart ReportValueTypeInfo
     where data Peek ReportValueTypeInfo
@@ -10665,49 +11501,49 @@ instance IsPathStart ReportValueTypeInfo
               | Peek_ReportValueTypeInfo_Text (Path ReportValueTypeInfo Text) (Maybe Text)
               deriving (Eq, Show)
           peek (s@(ReportValueTypeInfo {})) = mconcat [concatMap (\path -> case path of
-                                                                               p@(Path_ReportValueTypeInfo_reportValueTypeName _) -> map (\a -> let f = peek a
-                                                                                                                                                 in let liftPeek (Peek_Markup_JSONText q
-                                                                                                                                                                                       z) = Peek_ReportValueTypeInfo_JSONText (Path_ReportValueTypeInfo_reportValueTypeName q) z
-                                                                                                                                                        liftPeek (Peek_Markup_Markup q
-                                                                                                                                                                                     z) = Peek_ReportValueTypeInfo_Markup (Path_ReportValueTypeInfo_reportValueTypeName q) z
-                                                                                                                                                        liftPeek (Peek_Markup_Text q
-                                                                                                                                                                                   z) = Peek_ReportValueTypeInfo_Text (Path_ReportValueTypeInfo_reportValueTypeName q) z
-                                                                                                                                                     in Node (Peek_ReportValueTypeInfo_Markup p (if null f
-                                                                                                                                                                                                  then Just a
-                                                                                                                                                                                                  else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
+                                                                               p@(Path_ReportValueTypeInfo_reportValueTypeName wp) -> map (\a -> let f = peek a
+                                                                                                                                                  in let liftPeek (Peek_Markup_JSONText q
+                                                                                                                                                                                        z) = Peek_ReportValueTypeInfo_JSONText (Path_ReportValueTypeInfo_reportValueTypeName q) z
+                                                                                                                                                         liftPeek (Peek_Markup_Markup q
+                                                                                                                                                                                      z) = Peek_ReportValueTypeInfo_Markup (Path_ReportValueTypeInfo_reportValueTypeName q) z
+                                                                                                                                                         liftPeek (Peek_Markup_Text q
+                                                                                                                                                                                    z) = Peek_ReportValueTypeInfo_Text (Path_ReportValueTypeInfo_reportValueTypeName q) z
+                                                                                                                                                      in Node (Peek_ReportValueTypeInfo_Markup p (if null f
+                                                                                                                                                                                                   then Just a
+                                                                                                                                                                                                   else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
                                                                                _ -> []) (pathsOf s (undefined :: Proxy Markup)),
                                                        concatMap (\path -> case path of
-                                                                               p@(Path_ReportValueTypeInfo_reportValueTypeDescription _) -> map (\a -> let f = peek a
+                                                                               p@(Path_ReportValueTypeInfo_reportValueTypeDescription wp) -> map (\a -> let f = peek a
+                                                                                                                                                         in let liftPeek (Peek_Markup_JSONText q
+                                                                                                                                                                                               z) = Peek_ReportValueTypeInfo_JSONText (Path_ReportValueTypeInfo_reportValueTypeDescription q) z
+                                                                                                                                                                liftPeek (Peek_Markup_Markup q
+                                                                                                                                                                                             z) = Peek_ReportValueTypeInfo_Markup (Path_ReportValueTypeInfo_reportValueTypeDescription q) z
+                                                                                                                                                                liftPeek (Peek_Markup_Text q
+                                                                                                                                                                                           z) = Peek_ReportValueTypeInfo_Text (Path_ReportValueTypeInfo_reportValueTypeDescription q) z
+                                                                                                                                                             in Node (Peek_ReportValueTypeInfo_Markup p (if null f
+                                                                                                                                                                                                          then Just a
+                                                                                                                                                                                                          else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
+                                                                               _ -> []) (pathsOf s (undefined :: Proxy Markup)),
+                                                       concatMap (\path -> case path of
+                                                                               p@(Path_ReportValueTypeInfo_reportValueTypeDefinition wp) -> map (\a -> let f = peek a
                                                                                                                                                         in let liftPeek (Peek_Markup_JSONText q
-                                                                                                                                                                                              z) = Peek_ReportValueTypeInfo_JSONText (Path_ReportValueTypeInfo_reportValueTypeDescription q) z
+                                                                                                                                                                                              z) = Peek_ReportValueTypeInfo_JSONText (Path_ReportValueTypeInfo_reportValueTypeDefinition q) z
                                                                                                                                                                liftPeek (Peek_Markup_Markup q
-                                                                                                                                                                                            z) = Peek_ReportValueTypeInfo_Markup (Path_ReportValueTypeInfo_reportValueTypeDescription q) z
+                                                                                                                                                                                            z) = Peek_ReportValueTypeInfo_Markup (Path_ReportValueTypeInfo_reportValueTypeDefinition q) z
                                                                                                                                                                liftPeek (Peek_Markup_Text q
-                                                                                                                                                                                          z) = Peek_ReportValueTypeInfo_Text (Path_ReportValueTypeInfo_reportValueTypeDescription q) z
+                                                                                                                                                                                          z) = Peek_ReportValueTypeInfo_Text (Path_ReportValueTypeInfo_reportValueTypeDefinition q) z
                                                                                                                                                             in Node (Peek_ReportValueTypeInfo_Markup p (if null f
                                                                                                                                                                                                          then Just a
                                                                                                                                                                                                          else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
-                                                                               _ -> []) (pathsOf s (undefined :: Proxy Markup)),
-                                                       concatMap (\path -> case path of
-                                                                               p@(Path_ReportValueTypeInfo_reportValueTypeDefinition _) -> map (\a -> let f = peek a
-                                                                                                                                                       in let liftPeek (Peek_Markup_JSONText q
-                                                                                                                                                                                             z) = Peek_ReportValueTypeInfo_JSONText (Path_ReportValueTypeInfo_reportValueTypeDefinition q) z
-                                                                                                                                                              liftPeek (Peek_Markup_Markup q
-                                                                                                                                                                                           z) = Peek_ReportValueTypeInfo_Markup (Path_ReportValueTypeInfo_reportValueTypeDefinition q) z
-                                                                                                                                                              liftPeek (Peek_Markup_Text q
-                                                                                                                                                                                         z) = Peek_ReportValueTypeInfo_Text (Path_ReportValueTypeInfo_reportValueTypeDefinition q) z
-                                                                                                                                                           in Node (Peek_ReportValueTypeInfo_Markup p (if null f
-                                                                                                                                                                                                        then Just a
-                                                                                                                                                                                                        else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
                                                                                _ -> []) (pathsOf s (undefined :: Proxy Markup))] :: Forest (Peek ReportValueTypeInfo)
           hop (s@(ReportValueTypeInfo {})) = mconcat [concatMap (\path -> case path of
-                                                                              p@(Path_ReportValueTypeInfo_reportValueTypeName _) -> map (\a -> Node (Peek_ReportValueTypeInfo_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
+                                                                              p@(Path_ReportValueTypeInfo_reportValueTypeName wp) -> map (\a -> Node (Peek_ReportValueTypeInfo_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
                                                                               _ -> []) (pathsOf s (undefined :: Proxy Markup)),
                                                       concatMap (\path -> case path of
-                                                                              p@(Path_ReportValueTypeInfo_reportValueTypeDescription _) -> map (\a -> Node (Peek_ReportValueTypeInfo_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
+                                                                              p@(Path_ReportValueTypeInfo_reportValueTypeDescription wp) -> map (\a -> Node (Peek_ReportValueTypeInfo_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
                                                                               _ -> []) (pathsOf s (undefined :: Proxy Markup)),
                                                       concatMap (\path -> case path of
-                                                                              p@(Path_ReportValueTypeInfo_reportValueTypeDefinition _) -> map (\a -> Node (Peek_ReportValueTypeInfo_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
+                                                                              p@(Path_ReportValueTypeInfo_reportValueTypeDefinition wp) -> map (\a -> Node (Peek_ReportValueTypeInfo_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
                                                                               _ -> []) (pathsOf s (undefined :: Proxy Markup))] :: Forest (Peek ReportValueTypeInfo)
 instance IsPathStart ReportImage
     where data Peek ReportImage
@@ -10731,28 +11567,28 @@ instance IsPathStart ReportImage
               | Peek_ReportImage_Text (Path ReportImage Text) (Maybe Text)
               deriving (Eq, Show)
           peek s = concatMap (\path -> case path of
-                                           p@(Path_ReportImage_View _) -> map (\a -> let f = peek a
-                                                                                      in let liftPeek (Peek_ReportImageView_String q z) = Peek_ReportImage_String (Path_ReportImage_View q) z
-                                                                                             liftPeek (Peek_ReportImageView_Bool q z) = Peek_ReportImage_Bool (Path_ReportImage_View q) z
-                                                                                             liftPeek (Peek_ReportImageView_Double q z) = Peek_ReportImage_Double (Path_ReportImage_View q) z
-                                                                                             liftPeek (Peek_ReportImageView_Dimension q z) = Peek_ReportImage_Dimension (Path_ReportImage_View q) z
-                                                                                             liftPeek (Peek_ReportImageView_ImageCrop q z) = Peek_ReportImage_ImageCrop (Path_ReportImage_View q) z
-                                                                                             liftPeek (Peek_ReportImageView_ImageSize q z) = Peek_ReportImage_ImageSize (Path_ReportImage_View q) z
-                                                                                             liftPeek (Peek_ReportImageView_Units q z) = Peek_ReportImage_Units (Path_ReportImage_View q) z
-                                                                                             liftPeek (Peek_ReportImageView_ImageFile q z) = Peek_ReportImage_ImageFile (Path_ReportImage_View q) z
-                                                                                             liftPeek (Peek_ReportImageView_JSONText q z) = Peek_ReportImage_JSONText (Path_ReportImage_View q) z
-                                                                                             liftPeek (Peek_ReportImageView_Markup q z) = Peek_ReportImage_Markup (Path_ReportImage_View q) z
-                                                                                             liftPeek (Peek_ReportImageView_EUI q z) = Peek_ReportImage_EUI (Path_ReportImage_View q) z
-                                                                                             liftPeek (Peek_ReportImageView_MEUI q z) = Peek_ReportImage_MEUI (Path_ReportImage_View q) z
-                                                                                             liftPeek (Peek_ReportImageView_MaybeImageFile q z) = Peek_ReportImage_MaybeImageFile (Path_ReportImage_View q) z
-                                                                                             liftPeek (Peek_ReportImageView_ReportImageView q z) = Peek_ReportImage_ReportImageView (Path_ReportImage_View q) z
-                                                                                             liftPeek (Peek_ReportImageView_SaneSizeImageSize q z) = Peek_ReportImage_SaneSizeImageSize (Path_ReportImage_View q) z
-                                                                                             liftPeek (Peek_ReportImageView_URI q z) = Peek_ReportImage_URI (Path_ReportImage_View q) z
-                                                                                             liftPeek (Peek_ReportImageView_Text q z) = Peek_ReportImage_Text (Path_ReportImage_View q) z
-                                                                                          in Node (Peek_ReportImage_ReportImageView p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [ReportImageView])
+                                           p@(Path_ReportImage_View wp) -> map (\a -> let f = peek a
+                                                                                       in let liftPeek (Peek_ReportImageView_String q z) = Peek_ReportImage_String (Path_ReportImage_View q) z
+                                                                                              liftPeek (Peek_ReportImageView_Bool q z) = Peek_ReportImage_Bool (Path_ReportImage_View q) z
+                                                                                              liftPeek (Peek_ReportImageView_Double q z) = Peek_ReportImage_Double (Path_ReportImage_View q) z
+                                                                                              liftPeek (Peek_ReportImageView_Dimension q z) = Peek_ReportImage_Dimension (Path_ReportImage_View q) z
+                                                                                              liftPeek (Peek_ReportImageView_ImageCrop q z) = Peek_ReportImage_ImageCrop (Path_ReportImage_View q) z
+                                                                                              liftPeek (Peek_ReportImageView_ImageSize q z) = Peek_ReportImage_ImageSize (Path_ReportImage_View q) z
+                                                                                              liftPeek (Peek_ReportImageView_Units q z) = Peek_ReportImage_Units (Path_ReportImage_View q) z
+                                                                                              liftPeek (Peek_ReportImageView_ImageFile q z) = Peek_ReportImage_ImageFile (Path_ReportImage_View q) z
+                                                                                              liftPeek (Peek_ReportImageView_JSONText q z) = Peek_ReportImage_JSONText (Path_ReportImage_View q) z
+                                                                                              liftPeek (Peek_ReportImageView_Markup q z) = Peek_ReportImage_Markup (Path_ReportImage_View q) z
+                                                                                              liftPeek (Peek_ReportImageView_EUI q z) = Peek_ReportImage_EUI (Path_ReportImage_View q) z
+                                                                                              liftPeek (Peek_ReportImageView_MEUI q z) = Peek_ReportImage_MEUI (Path_ReportImage_View q) z
+                                                                                              liftPeek (Peek_ReportImageView_MaybeImageFile q z) = Peek_ReportImage_MaybeImageFile (Path_ReportImage_View q) z
+                                                                                              liftPeek (Peek_ReportImageView_ReportImageView q z) = Peek_ReportImage_ReportImageView (Path_ReportImage_View q) z
+                                                                                              liftPeek (Peek_ReportImageView_SaneSizeImageSize q z) = Peek_ReportImage_SaneSizeImageSize (Path_ReportImage_View q) z
+                                                                                              liftPeek (Peek_ReportImageView_URI q z) = Peek_ReportImage_URI (Path_ReportImage_View q) z
+                                                                                              liftPeek (Peek_ReportImageView_Text q z) = Peek_ReportImage_Text (Path_ReportImage_View q) z
+                                                                                           in Node (Peek_ReportImage_ReportImageView p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [ReportImageView])
                                            _ -> []) (pathsOf s (undefined :: Proxy ReportImageView)) :: Forest (Peek ReportImage)
           hop s = concatMap (\path -> case path of
-                                          p@(Path_ReportImage_View _) -> map (\a -> Node (Peek_ReportImage_ReportImageView p (Just a)) []) (toListOf (toLens p) s :: [ReportImageView])
+                                          p@(Path_ReportImage_View wp) -> map (\a -> Node (Peek_ReportImage_ReportImageView p (Just a)) []) (toListOf (toLens p) s :: [ReportImageView])
                                           _ -> []) (pathsOf s (undefined :: Proxy ReportImageView)) :: Forest (Peek ReportImage)
 instance IsPathStart ReportImageView
     where data Peek ReportImageView
@@ -10775,129 +11611,129 @@ instance IsPathStart ReportImageView
               | Peek_ReportImageView_Text (Path ReportImageView Text) (Maybe Text)
               deriving (Eq, Show)
           peek (s@(ReportImageView {})) = mconcat [concatMap (\path -> case path of
-                                                                           p@(Path_ReportImageView__picSize _) -> map (\a -> let f = peek a
-                                                                                                                              in let liftPeek (Peek_SaneSizeImageSize_String q z) = Peek_ReportImageView_String (Path_ReportImageView__picSize q) z
-                                                                                                                                     liftPeek (Peek_SaneSizeImageSize_Double q z) = Peek_ReportImageView_Double (Path_ReportImageView__picSize q) z
-                                                                                                                                     liftPeek (Peek_SaneSizeImageSize_Dimension q z) = Peek_ReportImageView_Dimension (Path_ReportImageView__picSize q) z
-                                                                                                                                     liftPeek (Peek_SaneSizeImageSize_ImageSize q z) = Peek_ReportImageView_ImageSize (Path_ReportImageView__picSize q) z
-                                                                                                                                     liftPeek (Peek_SaneSizeImageSize_Units q z) = Peek_ReportImageView_Units (Path_ReportImageView__picSize q) z
-                                                                                                                                     liftPeek (Peek_SaneSizeImageSize_JSONText q z) = Peek_ReportImageView_JSONText (Path_ReportImageView__picSize q) z
-                                                                                                                                     liftPeek (Peek_SaneSizeImageSize_SaneSizeImageSize q
-                                                                                                                                                                                        z) = Peek_ReportImageView_SaneSizeImageSize (Path_ReportImageView__picSize q) z
-                                                                                                                                  in Node (Peek_ReportImageView_SaneSizeImageSize p (if null f
-                                                                                                                                                                                      then Just a
-                                                                                                                                                                                      else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [SaneSize ImageSize])
+                                                                           p@(Path_ReportImageView__picSize wp) -> map (\a -> let f = peek a
+                                                                                                                               in let liftPeek (Peek_SaneSizeImageSize_String q z) = Peek_ReportImageView_String (Path_ReportImageView__picSize q) z
+                                                                                                                                      liftPeek (Peek_SaneSizeImageSize_Double q z) = Peek_ReportImageView_Double (Path_ReportImageView__picSize q) z
+                                                                                                                                      liftPeek (Peek_SaneSizeImageSize_Dimension q z) = Peek_ReportImageView_Dimension (Path_ReportImageView__picSize q) z
+                                                                                                                                      liftPeek (Peek_SaneSizeImageSize_ImageSize q z) = Peek_ReportImageView_ImageSize (Path_ReportImageView__picSize q) z
+                                                                                                                                      liftPeek (Peek_SaneSizeImageSize_Units q z) = Peek_ReportImageView_Units (Path_ReportImageView__picSize q) z
+                                                                                                                                      liftPeek (Peek_SaneSizeImageSize_JSONText q z) = Peek_ReportImageView_JSONText (Path_ReportImageView__picSize q) z
+                                                                                                                                      liftPeek (Peek_SaneSizeImageSize_SaneSizeImageSize q
+                                                                                                                                                                                         z) = Peek_ReportImageView_SaneSizeImageSize (Path_ReportImageView__picSize q) z
+                                                                                                                                   in Node (Peek_ReportImageView_SaneSizeImageSize p (if null f
+                                                                                                                                                                                       then Just a
+                                                                                                                                                                                       else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [SaneSize ImageSize])
                                                                            _ -> []) (pathsOf s (undefined :: Proxy (SaneSize ImageSize))),
                                                    concatMap (\path -> case path of
-                                                                           p@(Path_ReportImageView__picCrop _) -> map (\a -> let f = peek a
-                                                                                                                              in let liftPeek (Peek_ImageCrop_ImageCrop q z) = Peek_ReportImageView_ImageCrop (Path_ReportImageView__picCrop q) z
-                                                                                                                                  in Node (Peek_ReportImageView_ImageCrop p (if null f
-                                                                                                                                                                              then Just a
-                                                                                                                                                                              else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [ImageCrop])
+                                                                           p@(Path_ReportImageView__picCrop wp) -> map (\a -> let f = peek a
+                                                                                                                               in let liftPeek (Peek_ImageCrop_ImageCrop q z) = Peek_ReportImageView_ImageCrop (Path_ReportImageView__picCrop q) z
+                                                                                                                                   in Node (Peek_ReportImageView_ImageCrop p (if null f
+                                                                                                                                                                               then Just a
+                                                                                                                                                                               else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [ImageCrop])
                                                                            _ -> []) (pathsOf s (undefined :: Proxy ImageCrop)),
                                                    concatMap (\path -> case path of
-                                                                           p@(Path_ReportImageView__picCaption _) -> map (\a -> let f = peek a
-                                                                                                                                 in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportImageView_JSONText (Path_ReportImageView__picCaption q) z
-                                                                                                                                        liftPeek (Peek_Markup_Markup q z) = Peek_ReportImageView_Markup (Path_ReportImageView__picCaption q) z
-                                                                                                                                        liftPeek (Peek_Markup_Text q z) = Peek_ReportImageView_Text (Path_ReportImageView__picCaption q) z
-                                                                                                                                     in Node (Peek_ReportImageView_Markup p (if null f
-                                                                                                                                                                              then Just a
-                                                                                                                                                                              else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
+                                                                           p@(Path_ReportImageView__picCaption wp) -> map (\a -> let f = peek a
+                                                                                                                                  in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportImageView_JSONText (Path_ReportImageView__picCaption q) z
+                                                                                                                                         liftPeek (Peek_Markup_Markup q z) = Peek_ReportImageView_Markup (Path_ReportImageView__picCaption q) z
+                                                                                                                                         liftPeek (Peek_Markup_Text q z) = Peek_ReportImageView_Text (Path_ReportImageView__picCaption q) z
+                                                                                                                                      in Node (Peek_ReportImageView_Markup p (if null f
+                                                                                                                                                                               then Just a
+                                                                                                                                                                               else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
                                                                            _ -> []) (pathsOf s (undefined :: Proxy Markup)),
                                                    concatMap (\path -> case path of
-                                                                           p@(Path_ReportImageView__picOriginal _) -> map (\a -> let f = peek a
-                                                                                                                                  in let liftPeek (Peek_MEUI_ImageFile q z) = Peek_ReportImageView_ImageFile (Path_ReportImageView__picOriginal q) z
-                                                                                                                                         liftPeek (Peek_MEUI_EUI q z) = Peek_ReportImageView_EUI (Path_ReportImageView__picOriginal q) z
-                                                                                                                                         liftPeek (Peek_MEUI_MEUI q z) = Peek_ReportImageView_MEUI (Path_ReportImageView__picOriginal q) z
-                                                                                                                                         liftPeek (Peek_MEUI_URI q z) = Peek_ReportImageView_URI (Path_ReportImageView__picOriginal q) z
-                                                                                                                                      in Node (Peek_ReportImageView_MEUI p (if null f
-                                                                                                                                                                             then Just a
-                                                                                                                                                                             else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Maybe (Either URI
-                                                                                                                                                                                                                                                             ImageFile)])
+                                                                           p@(Path_ReportImageView__picOriginal wp) -> map (\a -> let f = peek a
+                                                                                                                                   in let liftPeek (Peek_MEUI_ImageFile q z) = Peek_ReportImageView_ImageFile (Path_ReportImageView__picOriginal q) z
+                                                                                                                                          liftPeek (Peek_MEUI_EUI q z) = Peek_ReportImageView_EUI (Path_ReportImageView__picOriginal q) z
+                                                                                                                                          liftPeek (Peek_MEUI_MEUI q z) = Peek_ReportImageView_MEUI (Path_ReportImageView__picOriginal q) z
+                                                                                                                                          liftPeek (Peek_MEUI_URI q z) = Peek_ReportImageView_URI (Path_ReportImageView__picOriginal q) z
+                                                                                                                                       in Node (Peek_ReportImageView_MEUI p (if null f
+                                                                                                                                                                              then Just a
+                                                                                                                                                                              else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Maybe (Either URI
+                                                                                                                                                                                                                                                              ImageFile)])
                                                                            _ -> []) (pathsOf s (undefined :: Proxy (Maybe (Either URI ImageFile)))),
                                                    concatMap (\path -> case path of
-                                                                           p@(Path_ReportImageView__picEditedDeprecated _) -> map (\a -> let f = peek a
-                                                                                                                                          in let liftPeek (Peek_MaybeImageFile_String q
-                                                                                                                                                                                      z) = Peek_ReportImageView_String (Path_ReportImageView__picEditedDeprecated q) z
-                                                                                                                                                 liftPeek (Peek_MaybeImageFile_JSONText q
-                                                                                                                                                                                        z) = Peek_ReportImageView_JSONText (Path_ReportImageView__picEditedDeprecated q) z
-                                                                                                                                                 liftPeek (Peek_MaybeImageFile_MaybeImageFile q
-                                                                                                                                                                                              z) = Peek_ReportImageView_MaybeImageFile (Path_ReportImageView__picEditedDeprecated q) z
-                                                                                                                                              in Node (Peek_ReportImageView_MaybeImageFile p (if null f
-                                                                                                                                                                                               then Just a
-                                                                                                                                                                                               else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Maybe ImageFile])
-                                                                           _ -> []) (pathsOf s (undefined :: Proxy (Maybe ImageFile))),
-                                                   concatMap (\path -> case path of
-                                                                           p@(Path_ReportImageView__picThumbDeprecated _) -> map (\a -> let f = peek a
-                                                                                                                                         in let liftPeek (Peek_MaybeImageFile_String q
-                                                                                                                                                                                     z) = Peek_ReportImageView_String (Path_ReportImageView__picThumbDeprecated q) z
-                                                                                                                                                liftPeek (Peek_MaybeImageFile_JSONText q
-                                                                                                                                                                                       z) = Peek_ReportImageView_JSONText (Path_ReportImageView__picThumbDeprecated q) z
-                                                                                                                                                liftPeek (Peek_MaybeImageFile_MaybeImageFile q
-                                                                                                                                                                                             z) = Peek_ReportImageView_MaybeImageFile (Path_ReportImageView__picThumbDeprecated q) z
-                                                                                                                                             in Node (Peek_ReportImageView_MaybeImageFile p (if null f
-                                                                                                                                                                                              then Just a
-                                                                                                                                                                                              else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Maybe ImageFile])
-                                                                           _ -> []) (pathsOf s (undefined :: Proxy (Maybe ImageFile))),
-                                                   concatMap (\path -> case path of
-                                                                           p@(Path_ReportImageView__picPrinterDeprecated _) -> map (\a -> let f = peek a
+                                                                           p@(Path_ReportImageView__picEditedDeprecated wp) -> map (\a -> let f = peek a
                                                                                                                                            in let liftPeek (Peek_MaybeImageFile_String q
-                                                                                                                                                                                       z) = Peek_ReportImageView_String (Path_ReportImageView__picPrinterDeprecated q) z
+                                                                                                                                                                                       z) = Peek_ReportImageView_String (Path_ReportImageView__picEditedDeprecated q) z
                                                                                                                                                   liftPeek (Peek_MaybeImageFile_JSONText q
-                                                                                                                                                                                         z) = Peek_ReportImageView_JSONText (Path_ReportImageView__picPrinterDeprecated q) z
+                                                                                                                                                                                         z) = Peek_ReportImageView_JSONText (Path_ReportImageView__picEditedDeprecated q) z
                                                                                                                                                   liftPeek (Peek_MaybeImageFile_MaybeImageFile q
-                                                                                                                                                                                               z) = Peek_ReportImageView_MaybeImageFile (Path_ReportImageView__picPrinterDeprecated q) z
+                                                                                                                                                                                               z) = Peek_ReportImageView_MaybeImageFile (Path_ReportImageView__picEditedDeprecated q) z
                                                                                                                                                in Node (Peek_ReportImageView_MaybeImageFile p (if null f
                                                                                                                                                                                                 then Just a
                                                                                                                                                                                                 else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Maybe ImageFile])
                                                                            _ -> []) (pathsOf s (undefined :: Proxy (Maybe ImageFile))),
                                                    concatMap (\path -> case path of
-                                                                           p@(Path_ReportImageView__picMustEnlarge _) -> map (\a -> let f = peek a
-                                                                                                                                     in let liftPeek (Peek_Bool_String q z) = Peek_ReportImageView_String (Path_ReportImageView__picMustEnlarge q) z
-                                                                                                                                            liftPeek (Peek_Bool_Bool q z) = Peek_ReportImageView_Bool (Path_ReportImageView__picMustEnlarge q) z
-                                                                                                                                            liftPeek (Peek_Bool_JSONText q z) = Peek_ReportImageView_JSONText (Path_ReportImageView__picMustEnlarge q) z
-                                                                                                                                         in Node (Peek_ReportImageView_Bool p (if null f
-                                                                                                                                                                                then Just a
-                                                                                                                                                                                else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Bool])
-                                                                           _ -> []) (pathsOf s (undefined :: Proxy Bool)),
+                                                                           p@(Path_ReportImageView__picThumbDeprecated wp) -> map (\a -> let f = peek a
+                                                                                                                                          in let liftPeek (Peek_MaybeImageFile_String q
+                                                                                                                                                                                      z) = Peek_ReportImageView_String (Path_ReportImageView__picThumbDeprecated q) z
+                                                                                                                                                 liftPeek (Peek_MaybeImageFile_JSONText q
+                                                                                                                                                                                        z) = Peek_ReportImageView_JSONText (Path_ReportImageView__picThumbDeprecated q) z
+                                                                                                                                                 liftPeek (Peek_MaybeImageFile_MaybeImageFile q
+                                                                                                                                                                                              z) = Peek_ReportImageView_MaybeImageFile (Path_ReportImageView__picThumbDeprecated q) z
+                                                                                                                                              in Node (Peek_ReportImageView_MaybeImageFile p (if null f
+                                                                                                                                                                                               then Just a
+                                                                                                                                                                                               else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Maybe ImageFile])
+                                                                           _ -> []) (pathsOf s (undefined :: Proxy (Maybe ImageFile))),
                                                    concatMap (\path -> case path of
-                                                                           p@(Path_ReportImageView__picEnlargedDeprecated _) -> map (\a -> let f = peek a
+                                                                           p@(Path_ReportImageView__picPrinterDeprecated wp) -> map (\a -> let f = peek a
                                                                                                                                             in let liftPeek (Peek_MaybeImageFile_String q
-                                                                                                                                                                                        z) = Peek_ReportImageView_String (Path_ReportImageView__picEnlargedDeprecated q) z
+                                                                                                                                                                                        z) = Peek_ReportImageView_String (Path_ReportImageView__picPrinterDeprecated q) z
                                                                                                                                                    liftPeek (Peek_MaybeImageFile_JSONText q
-                                                                                                                                                                                          z) = Peek_ReportImageView_JSONText (Path_ReportImageView__picEnlargedDeprecated q) z
+                                                                                                                                                                                          z) = Peek_ReportImageView_JSONText (Path_ReportImageView__picPrinterDeprecated q) z
                                                                                                                                                    liftPeek (Peek_MaybeImageFile_MaybeImageFile q
-                                                                                                                                                                                                z) = Peek_ReportImageView_MaybeImageFile (Path_ReportImageView__picEnlargedDeprecated q) z
+                                                                                                                                                                                                z) = Peek_ReportImageView_MaybeImageFile (Path_ReportImageView__picPrinterDeprecated q) z
                                                                                                                                                 in Node (Peek_ReportImageView_MaybeImageFile p (if null f
                                                                                                                                                                                                  then Just a
                                                                                                                                                                                                  else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Maybe ImageFile])
+                                                                           _ -> []) (pathsOf s (undefined :: Proxy (Maybe ImageFile))),
+                                                   concatMap (\path -> case path of
+                                                                           p@(Path_ReportImageView__picMustEnlarge wp) -> map (\a -> let f = peek a
+                                                                                                                                      in let liftPeek (Peek_Bool_String q z) = Peek_ReportImageView_String (Path_ReportImageView__picMustEnlarge q) z
+                                                                                                                                             liftPeek (Peek_Bool_Bool q z) = Peek_ReportImageView_Bool (Path_ReportImageView__picMustEnlarge q) z
+                                                                                                                                             liftPeek (Peek_Bool_JSONText q z) = Peek_ReportImageView_JSONText (Path_ReportImageView__picMustEnlarge q) z
+                                                                                                                                          in Node (Peek_ReportImageView_Bool p (if null f
+                                                                                                                                                                                 then Just a
+                                                                                                                                                                                 else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Bool])
+                                                                           _ -> []) (pathsOf s (undefined :: Proxy Bool)),
+                                                   concatMap (\path -> case path of
+                                                                           p@(Path_ReportImageView__picEnlargedDeprecated wp) -> map (\a -> let f = peek a
+                                                                                                                                             in let liftPeek (Peek_MaybeImageFile_String q
+                                                                                                                                                                                         z) = Peek_ReportImageView_String (Path_ReportImageView__picEnlargedDeprecated q) z
+                                                                                                                                                    liftPeek (Peek_MaybeImageFile_JSONText q
+                                                                                                                                                                                           z) = Peek_ReportImageView_JSONText (Path_ReportImageView__picEnlargedDeprecated q) z
+                                                                                                                                                    liftPeek (Peek_MaybeImageFile_MaybeImageFile q
+                                                                                                                                                                                                 z) = Peek_ReportImageView_MaybeImageFile (Path_ReportImageView__picEnlargedDeprecated q) z
+                                                                                                                                                 in Node (Peek_ReportImageView_MaybeImageFile p (if null f
+                                                                                                                                                                                                  then Just a
+                                                                                                                                                                                                  else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Maybe ImageFile])
                                                                            _ -> []) (pathsOf s (undefined :: Proxy (Maybe ImageFile)))] :: Forest (Peek ReportImageView)
           hop (s@(ReportImageView {})) = mconcat [concatMap (\path -> case path of
-                                                                          p@(Path_ReportImageView__picSize _) -> map (\a -> Node (Peek_ReportImageView_SaneSizeImageSize p (Just a)) []) (toListOf (toLens p) s :: [SaneSize ImageSize])
+                                                                          p@(Path_ReportImageView__picSize wp) -> map (\a -> Node (Peek_ReportImageView_SaneSizeImageSize p (Just a)) []) (toListOf (toLens p) s :: [SaneSize ImageSize])
                                                                           _ -> []) (pathsOf s (undefined :: Proxy (SaneSize ImageSize))),
                                                   concatMap (\path -> case path of
-                                                                          p@(Path_ReportImageView__picCrop _) -> map (\a -> Node (Peek_ReportImageView_ImageCrop p (Just a)) []) (toListOf (toLens p) s :: [ImageCrop])
+                                                                          p@(Path_ReportImageView__picCrop wp) -> map (\a -> Node (Peek_ReportImageView_ImageCrop p (Just a)) []) (toListOf (toLens p) s :: [ImageCrop])
                                                                           _ -> []) (pathsOf s (undefined :: Proxy ImageCrop)),
                                                   concatMap (\path -> case path of
-                                                                          p@(Path_ReportImageView__picCaption _) -> map (\a -> Node (Peek_ReportImageView_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
+                                                                          p@(Path_ReportImageView__picCaption wp) -> map (\a -> Node (Peek_ReportImageView_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
                                                                           _ -> []) (pathsOf s (undefined :: Proxy Markup)),
                                                   concatMap (\path -> case path of
-                                                                          p@(Path_ReportImageView__picOriginal _) -> map (\a -> Node (Peek_ReportImageView_MEUI p (Just a)) []) (toListOf (toLens p) s :: [Maybe (Either URI ImageFile)])
+                                                                          p@(Path_ReportImageView__picOriginal wp) -> map (\a -> Node (Peek_ReportImageView_MEUI p (Just a)) []) (toListOf (toLens p) s :: [Maybe (Either URI ImageFile)])
                                                                           _ -> []) (pathsOf s (undefined :: Proxy (Maybe (Either URI ImageFile)))),
                                                   concatMap (\path -> case path of
-                                                                          p@(Path_ReportImageView__picEditedDeprecated _) -> map (\a -> Node (Peek_ReportImageView_MaybeImageFile p (Just a)) []) (toListOf (toLens p) s :: [Maybe ImageFile])
+                                                                          p@(Path_ReportImageView__picEditedDeprecated wp) -> map (\a -> Node (Peek_ReportImageView_MaybeImageFile p (Just a)) []) (toListOf (toLens p) s :: [Maybe ImageFile])
                                                                           _ -> []) (pathsOf s (undefined :: Proxy (Maybe ImageFile))),
                                                   concatMap (\path -> case path of
-                                                                          p@(Path_ReportImageView__picThumbDeprecated _) -> map (\a -> Node (Peek_ReportImageView_MaybeImageFile p (Just a)) []) (toListOf (toLens p) s :: [Maybe ImageFile])
+                                                                          p@(Path_ReportImageView__picThumbDeprecated wp) -> map (\a -> Node (Peek_ReportImageView_MaybeImageFile p (Just a)) []) (toListOf (toLens p) s :: [Maybe ImageFile])
                                                                           _ -> []) (pathsOf s (undefined :: Proxy (Maybe ImageFile))),
                                                   concatMap (\path -> case path of
-                                                                          p@(Path_ReportImageView__picPrinterDeprecated _) -> map (\a -> Node (Peek_ReportImageView_MaybeImageFile p (Just a)) []) (toListOf (toLens p) s :: [Maybe ImageFile])
+                                                                          p@(Path_ReportImageView__picPrinterDeprecated wp) -> map (\a -> Node (Peek_ReportImageView_MaybeImageFile p (Just a)) []) (toListOf (toLens p) s :: [Maybe ImageFile])
                                                                           _ -> []) (pathsOf s (undefined :: Proxy (Maybe ImageFile))),
                                                   concatMap (\path -> case path of
-                                                                          p@(Path_ReportImageView__picMustEnlarge _) -> map (\a -> Node (Peek_ReportImageView_Bool p (Just a)) []) (toListOf (toLens p) s :: [Bool])
+                                                                          p@(Path_ReportImageView__picMustEnlarge wp) -> map (\a -> Node (Peek_ReportImageView_Bool p (Just a)) []) (toListOf (toLens p) s :: [Bool])
                                                                           _ -> []) (pathsOf s (undefined :: Proxy Bool)),
                                                   concatMap (\path -> case path of
-                                                                          p@(Path_ReportImageView__picEnlargedDeprecated _) -> map (\a -> Node (Peek_ReportImageView_MaybeImageFile p (Just a)) []) (toListOf (toLens p) s :: [Maybe ImageFile])
+                                                                          p@(Path_ReportImageView__picEnlargedDeprecated wp) -> map (\a -> Node (Peek_ReportImageView_MaybeImageFile p (Just a)) []) (toListOf (toLens p) s :: [Maybe ImageFile])
                                                                           _ -> []) (pathsOf s (undefined :: Proxy (Maybe ImageFile)))] :: Forest (Peek ReportImageView)
 instance IsPathStart ReportView
     where data Peek ReportView
@@ -10950,295 +11786,309 @@ instance IsPathStart ReportView
               | Peek_ReportView_UUID (Path ReportView UUID) (Maybe UUID)
               deriving (Eq, Show)
           peek (s@(ReportView {})) = mconcat [concatMap (\path -> case path of
-                                                                      p@(Path_ReportView__reportFolder _) -> map (\a -> let f = peek a
-                                                                                                                         in let liftPeek (Peek_ReadOnlyFilePath_String q z) = Peek_ReportView_String (Path_ReportView__reportFolder q) z
-                                                                                                                                liftPeek (Peek_ReadOnlyFilePath_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportFolder q) z
-                                                                                                                                liftPeek (Peek_ReadOnlyFilePath_ReadOnlyFilePath q
-                                                                                                                                                                                 z) = Peek_ReportView_ReadOnlyFilePath (Path_ReportView__reportFolder q) z
-                                                                                                                             in Node (Peek_ReportView_ReadOnlyFilePath p (if null f
-                                                                                                                                                                           then Just a
-                                                                                                                                                                           else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [ReadOnly ([Char])])
+                                                                      p@(Path_ReportView__reportFolder wp) -> map (\a -> let f = peek a
+                                                                                                                          in let liftPeek (Peek_ReadOnlyFilePath_String q z) = Peek_ReportView_String (Path_ReportView__reportFolder q) z
+                                                                                                                                 liftPeek (Peek_ReadOnlyFilePath_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportFolder q) z
+                                                                                                                                 liftPeek (Peek_ReadOnlyFilePath_ReadOnlyFilePath q
+                                                                                                                                                                                  z) = Peek_ReportView_ReadOnlyFilePath (Path_ReportView__reportFolder q) z
+                                                                                                                              in Node (Peek_ReportView_ReadOnlyFilePath p (if null f
+                                                                                                                                                                            then Just a
+                                                                                                                                                                            else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [ReadOnly ([Char])])
                                                                       _ -> []) (pathsOf s (undefined :: Proxy (ReadOnly ([Char])))),
                                               concatMap (\path -> case path of
-                                                                      p@(Path_ReportView__reportName _) -> map (\a -> let f = peek a
-                                                                                                                       in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportName q) z
-                                                                                                                              liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportName q) z
-                                                                                                                              liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportName q) z
-                                                                                                                           in Node (Peek_ReportView_Markup p (if null f
-                                                                                                                                                               then Just a
-                                                                                                                                                               else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
-                                                                      _ -> []) (pathsOf s (undefined :: Proxy Markup)),
-                                              concatMap (\path -> case path of
-                                                                      p@(Path_ReportView__reportDate _) -> map (\a -> let f = peek a
-                                                                                                                       in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportDate q) z
-                                                                                                                              liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportDate q) z
-                                                                                                                              liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportDate q) z
-                                                                                                                           in Node (Peek_ReportView_Markup p (if null f
-                                                                                                                                                               then Just a
-                                                                                                                                                               else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
-                                                                      _ -> []) (pathsOf s (undefined :: Proxy Markup)),
-                                              concatMap (\path -> case path of
-                                                                      p@(Path_ReportView__reportContractDate _) -> map (\a -> let f = peek a
-                                                                                                                               in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportContractDate q) z
-                                                                                                                                      liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportContractDate q) z
-                                                                                                                                      liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportContractDate q) z
-                                                                                                                                   in Node (Peek_ReportView_Markup p (if null f
-                                                                                                                                                                       then Just a
-                                                                                                                                                                       else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
-                                                                      _ -> []) (pathsOf s (undefined :: Proxy Markup)),
-                                              concatMap (\path -> case path of
-                                                                      p@(Path_ReportView__reportInspectionDate _) -> map (\a -> let f = peek a
-                                                                                                                                 in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportInspectionDate q) z
-                                                                                                                                        liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportInspectionDate q) z
-                                                                                                                                        liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportInspectionDate q) z
-                                                                                                                                     in Node (Peek_ReportView_Markup p (if null f
-                                                                                                                                                                         then Just a
-                                                                                                                                                                         else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
-                                                                      _ -> []) (pathsOf s (undefined :: Proxy Markup)),
-                                              concatMap (\path -> case path of
-                                                                      p@(Path_ReportView__reportEffectiveDate _) -> map (\a -> let f = peek a
-                                                                                                                                in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportEffectiveDate q) z
-                                                                                                                                       liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportEffectiveDate q) z
-                                                                                                                                       liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportEffectiveDate q) z
-                                                                                                                                    in Node (Peek_ReportView_Markup p (if null f
-                                                                                                                                                                        then Just a
-                                                                                                                                                                        else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
-                                                                      _ -> []) (pathsOf s (undefined :: Proxy Markup)),
-                                              concatMap (\path -> case path of
-                                                                      p@(Path_ReportView__reportAuthors _) -> map (\a -> let f = peek a
-                                                                                                                          in let liftPeek (Peek_Authors_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportAuthors q) z
-                                                                                                                                 liftPeek (Peek_Authors_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportAuthors q) z
-                                                                                                                                 liftPeek (Peek_Authors_Author q z) = Peek_ReportView_Author (Path_ReportView__reportAuthors q) z
-                                                                                                                                 liftPeek (Peek_Authors_Authors q z) = Peek_ReportView_Authors (Path_ReportView__reportAuthors q) z
-                                                                                                                                 liftPeek (Peek_Authors_Text q z) = Peek_ReportView_Text (Path_ReportView__reportAuthors q) z
-                                                                                                                              in Node (Peek_ReportView_Authors p (if null f
-                                                                                                                                                                   then Just a
-                                                                                                                                                                   else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Order AuthorID
-                                                                                                                                                                                                                                           Author])
-                                                                      _ -> []) (pathsOf s (undefined :: Proxy (Order AuthorID Author))),
-                                              concatMap (\path -> case path of
-                                                                      p@(Path_ReportView__reportPreparer _) -> map (\a -> let f = peek a
-                                                                                                                           in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportPreparer q) z
-                                                                                                                                  liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportPreparer q) z
-                                                                                                                                  liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportPreparer q) z
-                                                                                                                               in Node (Peek_ReportView_Markup p (if null f
-                                                                                                                                                                   then Just a
-                                                                                                                                                                   else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
-                                                                      _ -> []) (pathsOf s (undefined :: Proxy Markup)),
-                                              concatMap (\path -> case path of
-                                                                      p@(Path_ReportView__reportPreparerEIN _) -> map (\a -> let f = peek a
-                                                                                                                              in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportPreparerEIN q) z
-                                                                                                                                     liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportPreparerEIN q) z
-                                                                                                                                     liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportPreparerEIN q) z
-                                                                                                                                  in Node (Peek_ReportView_Markup p (if null f
-                                                                                                                                                                      then Just a
-                                                                                                                                                                      else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
-                                                                      _ -> []) (pathsOf s (undefined :: Proxy Markup)),
-                                              concatMap (\path -> case path of
-                                                                      p@(Path_ReportView__reportPreparerAddress _) -> map (\a -> let f = peek a
-                                                                                                                                  in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportPreparerAddress q) z
-                                                                                                                                         liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportPreparerAddress q) z
-                                                                                                                                         liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportPreparerAddress q) z
-                                                                                                                                      in Node (Peek_ReportView_Markup p (if null f
-                                                                                                                                                                          then Just a
-                                                                                                                                                                          else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
-                                                                      _ -> []) (pathsOf s (undefined :: Proxy Markup)),
-                                              concatMap (\path -> case path of
-                                                                      p@(Path_ReportView__reportPreparerEMail _) -> map (\a -> let f = peek a
-                                                                                                                                in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportPreparerEMail q) z
-                                                                                                                                       liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportPreparerEMail q) z
-                                                                                                                                       liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportPreparerEMail q) z
-                                                                                                                                    in Node (Peek_ReportView_Markup p (if null f
-                                                                                                                                                                        then Just a
-                                                                                                                                                                        else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
-                                                                      _ -> []) (pathsOf s (undefined :: Proxy Markup)),
-                                              concatMap (\path -> case path of
-                                                                      p@(Path_ReportView__reportPreparerWebsite _) -> map (\a -> let f = peek a
-                                                                                                                                  in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportPreparerWebsite q) z
-                                                                                                                                         liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportPreparerWebsite q) z
-                                                                                                                                         liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportPreparerWebsite q) z
-                                                                                                                                      in Node (Peek_ReportView_Markup p (if null f
-                                                                                                                                                                          then Just a
-                                                                                                                                                                          else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
-                                                                      _ -> []) (pathsOf s (undefined :: Proxy Markup)),
-                                              concatMap (\path -> case path of
-                                                                      p@(Path_ReportView__reportAbbrevs _) -> map (\a -> let f = peek a
-                                                                                                                          in let liftPeek (Peek_AbbrevPairs_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportAbbrevs q) z
-                                                                                                                                 liftPeek (Peek_AbbrevPairs_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportAbbrevs q) z
-                                                                                                                                 liftPeek (Peek_AbbrevPairs_AbbrevPair q z) = Peek_ReportView_AbbrevPair (Path_ReportView__reportAbbrevs q) z
-                                                                                                                                 liftPeek (Peek_AbbrevPairs_AbbrevPairs q z) = Peek_ReportView_AbbrevPairs (Path_ReportView__reportAbbrevs q) z
-                                                                                                                                 liftPeek (Peek_AbbrevPairs_CIString q z) = Peek_ReportView_CIString (Path_ReportView__reportAbbrevs q) z
-                                                                                                                                 liftPeek (Peek_AbbrevPairs_Text q z) = Peek_ReportView_Text (Path_ReportView__reportAbbrevs q) z
-                                                                                                                              in Node (Peek_ReportView_AbbrevPairs p (if null f
-                                                                                                                                                                       then Just a
-                                                                                                                                                                       else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Order AbbrevPairID
-                                                                                                                                                                                                                                               ((CIString,
-                                                                                                                                                                                                                                                 Markup))])
-                                                                      _ -> []) (pathsOf s (undefined :: Proxy (Order AbbrevPairID ((CIString, Markup))))),
-                                              concatMap (\path -> case path of
-                                                                      p@(Path_ReportView__reportTitle _) -> map (\a -> let f = peek a
-                                                                                                                        in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportTitle q) z
-                                                                                                                               liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportTitle q) z
-                                                                                                                               liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportTitle q) z
+                                                                      p@(Path_ReportView__reportName wp) -> map (\a -> let f = peek a
+                                                                                                                        in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportName q) z
+                                                                                                                               liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportName q) z
+                                                                                                                               liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportName q) z
                                                                                                                             in Node (Peek_ReportView_Markup p (if null f
                                                                                                                                                                 then Just a
                                                                                                                                                                 else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
                                                                       _ -> []) (pathsOf s (undefined :: Proxy Markup)),
                                               concatMap (\path -> case path of
-                                                                      p@(Path_ReportView__reportHeader _) -> map (\a -> let f = peek a
-                                                                                                                         in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportHeader q) z
-                                                                                                                                liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportHeader q) z
-                                                                                                                                liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportHeader q) z
-                                                                                                                             in Node (Peek_ReportView_Markup p (if null f
-                                                                                                                                                                 then Just a
-                                                                                                                                                                 else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
+                                                                      p@(Path_ReportView__reportDate wp) -> map (\a -> let f = peek a
+                                                                                                                        in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportDate q) z
+                                                                                                                               liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportDate q) z
+                                                                                                                               liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportDate q) z
+                                                                                                                            in Node (Peek_ReportView_Markup p (if null f
+                                                                                                                                                                then Just a
+                                                                                                                                                                else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
                                                                       _ -> []) (pathsOf s (undefined :: Proxy Markup)),
                                               concatMap (\path -> case path of
-                                                                      p@(Path_ReportView__reportFooter _) -> map (\a -> let f = peek a
-                                                                                                                         in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportFooter q) z
-                                                                                                                                liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportFooter q) z
-                                                                                                                                liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportFooter q) z
-                                                                                                                             in Node (Peek_ReportView_Markup p (if null f
-                                                                                                                                                                 then Just a
-                                                                                                                                                                 else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
-                                                                      _ -> []) (pathsOf s (undefined :: Proxy Markup)),
-                                              concatMap (\path -> case path of
-                                                                      p@(Path_ReportView__reportIntendedUse _) -> map (\a -> let f = peek a
-                                                                                                                              in let liftPeek (Peek_MaybeReportIntendedUse_String q z) = Peek_ReportView_String (Path_ReportView__reportIntendedUse q) z
-                                                                                                                                     liftPeek (Peek_MaybeReportIntendedUse_JSONText q
-                                                                                                                                                                                    z) = Peek_ReportView_JSONText (Path_ReportView__reportIntendedUse q) z
-                                                                                                                                     liftPeek (Peek_MaybeReportIntendedUse_MaybeReportIntendedUse q
-                                                                                                                                                                                                  z) = Peek_ReportView_MaybeReportIntendedUse (Path_ReportView__reportIntendedUse q) z
-                                                                                                                                  in Node (Peek_ReportView_MaybeReportIntendedUse p (if null f
-                                                                                                                                                                                      then Just a
-                                                                                                                                                                                      else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Maybe ReportIntendedUse])
-                                                                      _ -> []) (pathsOf s (undefined :: Proxy (Maybe ReportIntendedUse))),
-                                              concatMap (\path -> case path of
-                                                                      p@(Path_ReportView__reportValueTypeInfo _) -> map (\a -> let f = peek a
-                                                                                                                                in let liftPeek (Peek_ReportValueTypeInfo_JSONText q
-                                                                                                                                                                                   z) = Peek_ReportView_JSONText (Path_ReportView__reportValueTypeInfo q) z
-                                                                                                                                       liftPeek (Peek_ReportValueTypeInfo_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportValueTypeInfo q) z
-                                                                                                                                       liftPeek (Peek_ReportValueTypeInfo_ReportValueTypeInfo q
-                                                                                                                                                                                              z) = Peek_ReportView_ReportValueTypeInfo (Path_ReportView__reportValueTypeInfo q) z
-                                                                                                                                       liftPeek (Peek_ReportValueTypeInfo_Text q z) = Peek_ReportView_Text (Path_ReportView__reportValueTypeInfo q) z
-                                                                                                                                    in Node (Peek_ReportView_ReportValueTypeInfo p (if null f
-                                                                                                                                                                                     then Just a
-                                                                                                                                                                                     else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [ReportValueTypeInfo])
-                                                                      _ -> []) (pathsOf s (undefined :: Proxy ReportValueTypeInfo)),
-                                              concatMap (\path -> case path of
-                                                                      p@(Path_ReportView__reportValueApproachInfo _) -> map (\a -> let f = peek a
-                                                                                                                                    in let liftPeek (Peek_ReportValueApproachInfo_JSONText q
-                                                                                                                                                                                           z) = Peek_ReportView_JSONText (Path_ReportView__reportValueApproachInfo q) z
-                                                                                                                                           liftPeek (Peek_ReportValueApproachInfo_Markup q
-                                                                                                                                                                                         z) = Peek_ReportView_Markup (Path_ReportView__reportValueApproachInfo q) z
-                                                                                                                                           liftPeek (Peek_ReportValueApproachInfo_ReportValueApproachInfo q
-                                                                                                                                                                                                          z) = Peek_ReportView_ReportValueApproachInfo (Path_ReportView__reportValueApproachInfo q) z
-                                                                                                                                           liftPeek (Peek_ReportValueApproachInfo_Text q
-                                                                                                                                                                                       z) = Peek_ReportView_Text (Path_ReportView__reportValueApproachInfo q) z
-                                                                                                                                        in Node (Peek_ReportView_ReportValueApproachInfo p (if null f
-                                                                                                                                                                                             then Just a
-                                                                                                                                                                                             else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [ReportValueApproachInfo])
-                                                                      _ -> []) (pathsOf s (undefined :: Proxy ReportValueApproachInfo)),
-                                              concatMap (\path -> case path of
-                                                                      p@(Path_ReportView__reportClientName _) -> map (\a -> let f = peek a
-                                                                                                                             in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportClientName q) z
-                                                                                                                                    liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportClientName q) z
-                                                                                                                                    liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportClientName q) z
-                                                                                                                                 in Node (Peek_ReportView_Markup p (if null f
-                                                                                                                                                                     then Just a
-                                                                                                                                                                     else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
-                                                                      _ -> []) (pathsOf s (undefined :: Proxy Markup)),
-                                              concatMap (\path -> case path of
-                                                                      p@(Path_ReportView__reportClientAddress _) -> map (\a -> let f = peek a
-                                                                                                                                in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportClientAddress q) z
-                                                                                                                                       liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportClientAddress q) z
-                                                                                                                                       liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportClientAddress q) z
+                                                                      p@(Path_ReportView__reportContractDate wp) -> map (\a -> let f = peek a
+                                                                                                                                in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportContractDate q) z
+                                                                                                                                       liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportContractDate q) z
+                                                                                                                                       liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportContractDate q) z
                                                                                                                                     in Node (Peek_ReportView_Markup p (if null f
                                                                                                                                                                         then Just a
                                                                                                                                                                         else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
                                                                       _ -> []) (pathsOf s (undefined :: Proxy Markup)),
                                               concatMap (\path -> case path of
-                                                                      p@(Path_ReportView__reportClientGreeting _) -> map (\a -> let f = peek a
-                                                                                                                                 in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportClientGreeting q) z
-                                                                                                                                        liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportClientGreeting q) z
-                                                                                                                                        liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportClientGreeting q) z
+                                                                      p@(Path_ReportView__reportInspectionDate wp) -> map (\a -> let f = peek a
+                                                                                                                                  in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportInspectionDate q) z
+                                                                                                                                         liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportInspectionDate q) z
+                                                                                                                                         liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportInspectionDate q) z
+                                                                                                                                      in Node (Peek_ReportView_Markup p (if null f
+                                                                                                                                                                          then Just a
+                                                                                                                                                                          else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
+                                                                      _ -> []) (pathsOf s (undefined :: Proxy Markup)),
+                                              concatMap (\path -> case path of
+                                                                      p@(Path_ReportView__reportEffectiveDate wp) -> map (\a -> let f = peek a
+                                                                                                                                 in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportEffectiveDate q) z
+                                                                                                                                        liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportEffectiveDate q) z
+                                                                                                                                        liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportEffectiveDate q) z
                                                                                                                                      in Node (Peek_ReportView_Markup p (if null f
                                                                                                                                                                          then Just a
                                                                                                                                                                          else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
                                                                       _ -> []) (pathsOf s (undefined :: Proxy Markup)),
                                               concatMap (\path -> case path of
-                                                                      p@(Path_ReportView__reportItemsOwnerFull _) -> map (\a -> let f = peek a
-                                                                                                                                 in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportItemsOwnerFull q) z
-                                                                                                                                        liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportItemsOwnerFull q) z
-                                                                                                                                        liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportItemsOwnerFull q) z
-                                                                                                                                     in Node (Peek_ReportView_Markup p (if null f
-                                                                                                                                                                         then Just a
-                                                                                                                                                                         else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
-                                                                      _ -> []) (pathsOf s (undefined :: Proxy Markup)),
-                                              concatMap (\path -> case path of
-                                                                      p@(Path_ReportView__reportItemsOwner _) -> map (\a -> let f = peek a
-                                                                                                                             in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportItemsOwner q) z
-                                                                                                                                    liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportItemsOwner q) z
-                                                                                                                                    liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportItemsOwner q) z
-                                                                                                                                 in Node (Peek_ReportView_Markup p (if null f
-                                                                                                                                                                     then Just a
-                                                                                                                                                                     else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
-                                                                      _ -> []) (pathsOf s (undefined :: Proxy Markup)),
-                                              concatMap (\path -> case path of
-                                                                      p@(Path_ReportView__reportBriefItems _) -> map (\a -> let f = peek a
-                                                                                                                             in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportBriefItems q) z
-                                                                                                                                    liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportBriefItems q) z
-                                                                                                                                    liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportBriefItems q) z
-                                                                                                                                 in Node (Peek_ReportView_Markup p (if null f
-                                                                                                                                                                     then Just a
-                                                                                                                                                                     else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
-                                                                      _ -> []) (pathsOf s (undefined :: Proxy Markup)),
-                                              concatMap (\path -> case path of
-                                                                      p@(Path_ReportView__reportInspectionLocation _) -> map (\a -> let f = peek a
-                                                                                                                                     in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportInspectionLocation q) z
-                                                                                                                                            liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportInspectionLocation q) z
-                                                                                                                                            liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportInspectionLocation q) z
-                                                                                                                                         in Node (Peek_ReportView_Markup p (if null f
-                                                                                                                                                                             then Just a
-                                                                                                                                                                             else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
-                                                                      _ -> []) (pathsOf s (undefined :: Proxy Markup)),
-                                              concatMap (\path -> case path of
-                                                                      p@(Path_ReportView__reportBody _) -> map (\a -> let f = peek a
-                                                                                                                       in let liftPeek (Peek_ReportElems_String q z) = Peek_ReportView_String (Path_ReportView__reportBody q) z
-                                                                                                                              liftPeek (Peek_ReportElems_Bool q z) = Peek_ReportView_Bool (Path_ReportView__reportBody q) z
-                                                                                                                              liftPeek (Peek_ReportElems_Double q z) = Peek_ReportView_Double (Path_ReportView__reportBody q) z
-                                                                                                                              liftPeek (Peek_ReportElems_Dimension q z) = Peek_ReportView_Dimension (Path_ReportView__reportBody q) z
-                                                                                                                              liftPeek (Peek_ReportElems_ImageCrop q z) = Peek_ReportView_ImageCrop (Path_ReportView__reportBody q) z
-                                                                                                                              liftPeek (Peek_ReportElems_ImageSize q z) = Peek_ReportView_ImageSize (Path_ReportView__reportBody q) z
-                                                                                                                              liftPeek (Peek_ReportElems_Units q z) = Peek_ReportView_Units (Path_ReportView__reportBody q) z
-                                                                                                                              liftPeek (Peek_ReportElems_ImageFile q z) = Peek_ReportView_ImageFile (Path_ReportView__reportBody q) z
-                                                                                                                              liftPeek (Peek_ReportElems_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportBody q) z
-                                                                                                                              liftPeek (Peek_ReportElems_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportBody q) z
-                                                                                                                              liftPeek (Peek_ReportElems_ReportElem q z) = Peek_ReportView_ReportElem (Path_ReportView__reportBody q) z
-                                                                                                                              liftPeek (Peek_ReportElems_ReportElems q z) = Peek_ReportView_ReportElems (Path_ReportView__reportBody q) z
-                                                                                                                              liftPeek (Peek_ReportElems_EUI q z) = Peek_ReportView_EUI (Path_ReportView__reportBody q) z
-                                                                                                                              liftPeek (Peek_ReportElems_MEUI q z) = Peek_ReportView_MEUI (Path_ReportView__reportBody q) z
-                                                                                                                              liftPeek (Peek_ReportElems_MaybeImageFile q z) = Peek_ReportView_MaybeImageFile (Path_ReportView__reportBody q) z
-                                                                                                                              liftPeek (Peek_ReportElems_ReportImage q z) = Peek_ReportView_ReportImage (Path_ReportView__reportBody q) z
-                                                                                                                              liftPeek (Peek_ReportElems_ReportImages q z) = Peek_ReportView_ReportImages (Path_ReportView__reportBody q) z
-                                                                                                                              liftPeek (Peek_ReportElems_ReportImageView q z) = Peek_ReportView_ReportImageView (Path_ReportView__reportBody q) z
-                                                                                                                              liftPeek (Peek_ReportElems_SaneSizeImageSize q z) = Peek_ReportView_SaneSizeImageSize (Path_ReportView__reportBody q) z
-                                                                                                                              liftPeek (Peek_ReportElems_Item q z) = Peek_ReportView_Item (Path_ReportView__reportBody q) z
-                                                                                                                              liftPeek (Peek_ReportElems_MIM q z) = Peek_ReportView_MIM (Path_ReportView__reportBody q) z
-                                                                                                                              liftPeek (Peek_ReportElems_URI q z) = Peek_ReportView_URI (Path_ReportView__reportBody q) z
-                                                                                                                              liftPeek (Peek_ReportElems_Text q z) = Peek_ReportView_Text (Path_ReportView__reportBody q) z
-                                                                                                                           in Node (Peek_ReportView_ReportElems p (if null f
+                                                                      p@(Path_ReportView__reportAuthors wp) -> map (\a -> let f = peek a
+                                                                                                                           in let liftPeek (Peek_Authors_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportAuthors q) z
+                                                                                                                                  liftPeek (Peek_Authors_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportAuthors q) z
+                                                                                                                                  liftPeek (Peek_Authors_Author q z) = Peek_ReportView_Author (Path_ReportView__reportAuthors q) z
+                                                                                                                                  liftPeek (Peek_Authors_Authors q z) = Peek_ReportView_Authors (Path_ReportView__reportAuthors q) z
+                                                                                                                                  liftPeek (Peek_Authors_Text q z) = Peek_ReportView_Text (Path_ReportView__reportAuthors q) z
+                                                                                                                               in Node (Peek_ReportView_Authors p (if null f
                                                                                                                                                                     then Just a
-                                                                                                                                                                    else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Order ReportElemID
-                                                                                                                                                                                                                                            ReportElem])
+                                                                                                                                                                    else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Order AuthorID
+                                                                                                                                                                                                                                            Author])
+                                                                      _ -> []) (pathsOf s (undefined :: Proxy (Order AuthorID Author))),
+                                              concatMap (\path -> case path of
+                                                                      p@(Path_ReportView__reportPreparer wp) -> map (\a -> let f = peek a
+                                                                                                                            in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportPreparer q) z
+                                                                                                                                   liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportPreparer q) z
+                                                                                                                                   liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportPreparer q) z
+                                                                                                                                in Node (Peek_ReportView_Markup p (if null f
+                                                                                                                                                                    then Just a
+                                                                                                                                                                    else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
+                                                                      _ -> []) (pathsOf s (undefined :: Proxy Markup)),
+                                              concatMap (\path -> case path of
+                                                                      p@(Path_ReportView__reportPreparerEIN wp) -> map (\a -> let f = peek a
+                                                                                                                               in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportPreparerEIN q) z
+                                                                                                                                      liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportPreparerEIN q) z
+                                                                                                                                      liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportPreparerEIN q) z
+                                                                                                                                   in Node (Peek_ReportView_Markup p (if null f
+                                                                                                                                                                       then Just a
+                                                                                                                                                                       else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
+                                                                      _ -> []) (pathsOf s (undefined :: Proxy Markup)),
+                                              concatMap (\path -> case path of
+                                                                      p@(Path_ReportView__reportPreparerAddress wp) -> map (\a -> let f = peek a
+                                                                                                                                   in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportPreparerAddress q) z
+                                                                                                                                          liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportPreparerAddress q) z
+                                                                                                                                          liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportPreparerAddress q) z
+                                                                                                                                       in Node (Peek_ReportView_Markup p (if null f
+                                                                                                                                                                           then Just a
+                                                                                                                                                                           else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
+                                                                      _ -> []) (pathsOf s (undefined :: Proxy Markup)),
+                                              concatMap (\path -> case path of
+                                                                      p@(Path_ReportView__reportPreparerEMail wp) -> map (\a -> let f = peek a
+                                                                                                                                 in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportPreparerEMail q) z
+                                                                                                                                        liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportPreparerEMail q) z
+                                                                                                                                        liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportPreparerEMail q) z
+                                                                                                                                     in Node (Peek_ReportView_Markup p (if null f
+                                                                                                                                                                         then Just a
+                                                                                                                                                                         else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
+                                                                      _ -> []) (pathsOf s (undefined :: Proxy Markup)),
+                                              concatMap (\path -> case path of
+                                                                      p@(Path_ReportView__reportPreparerWebsite wp) -> map (\a -> let f = peek a
+                                                                                                                                   in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportPreparerWebsite q) z
+                                                                                                                                          liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportPreparerWebsite q) z
+                                                                                                                                          liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportPreparerWebsite q) z
+                                                                                                                                       in Node (Peek_ReportView_Markup p (if null f
+                                                                                                                                                                           then Just a
+                                                                                                                                                                           else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
+                                                                      _ -> []) (pathsOf s (undefined :: Proxy Markup)),
+                                              concatMap (\path -> case path of
+                                                                      p@(Path_ReportView__reportAbbrevs wp) -> map (\a -> let f = peek a
+                                                                                                                           in let liftPeek (Peek_AbbrevPairs_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportAbbrevs q) z
+                                                                                                                                  liftPeek (Peek_AbbrevPairs_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportAbbrevs q) z
+                                                                                                                                  liftPeek (Peek_AbbrevPairs_AbbrevPair q z) = Peek_ReportView_AbbrevPair (Path_ReportView__reportAbbrevs q) z
+                                                                                                                                  liftPeek (Peek_AbbrevPairs_AbbrevPairs q z) = Peek_ReportView_AbbrevPairs (Path_ReportView__reportAbbrevs q) z
+                                                                                                                                  liftPeek (Peek_AbbrevPairs_CIString q z) = Peek_ReportView_CIString (Path_ReportView__reportAbbrevs q) z
+                                                                                                                                  liftPeek (Peek_AbbrevPairs_Text q z) = Peek_ReportView_Text (Path_ReportView__reportAbbrevs q) z
+                                                                                                                               in Node (Peek_ReportView_AbbrevPairs p (if null f
+                                                                                                                                                                        then Just a
+                                                                                                                                                                        else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Order AbbrevPairID
+                                                                                                                                                                                                                                                ((CIString,
+                                                                                                                                                                                                                                                  Markup))])
+                                                                      _ -> []) (pathsOf s (undefined :: Proxy (Order AbbrevPairID ((CIString, Markup))))),
+                                              concatMap (\path -> case path of
+                                                                      p@(Path_ReportView__reportTitle wp) -> map (\a -> let f = peek a
+                                                                                                                         in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportTitle q) z
+                                                                                                                                liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportTitle q) z
+                                                                                                                                liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportTitle q) z
+                                                                                                                             in Node (Peek_ReportView_Markup p (if null f
+                                                                                                                                                                 then Just a
+                                                                                                                                                                 else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
+                                                                      _ -> []) (pathsOf s (undefined :: Proxy Markup)),
+                                              concatMap (\path -> case path of
+                                                                      p@(Path_ReportView__reportHeader wp) -> map (\a -> let f = peek a
+                                                                                                                          in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportHeader q) z
+                                                                                                                                 liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportHeader q) z
+                                                                                                                                 liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportHeader q) z
+                                                                                                                              in Node (Peek_ReportView_Markup p (if null f
+                                                                                                                                                                  then Just a
+                                                                                                                                                                  else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
+                                                                      _ -> []) (pathsOf s (undefined :: Proxy Markup)),
+                                              concatMap (\path -> case path of
+                                                                      p@(Path_ReportView__reportFooter wp) -> map (\a -> let f = peek a
+                                                                                                                          in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportFooter q) z
+                                                                                                                                 liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportFooter q) z
+                                                                                                                                 liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportFooter q) z
+                                                                                                                              in Node (Peek_ReportView_Markup p (if null f
+                                                                                                                                                                  then Just a
+                                                                                                                                                                  else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
+                                                                      _ -> []) (pathsOf s (undefined :: Proxy Markup)),
+                                              concatMap (\path -> case path of
+                                                                      p@(Path_ReportView__reportIntendedUse wp) -> map (\a -> let f = peek a
+                                                                                                                               in let liftPeek (Peek_MaybeReportIntendedUse_String q z) = Peek_ReportView_String (Path_ReportView__reportIntendedUse q) z
+                                                                                                                                      liftPeek (Peek_MaybeReportIntendedUse_JSONText q
+                                                                                                                                                                                     z) = Peek_ReportView_JSONText (Path_ReportView__reportIntendedUse q) z
+                                                                                                                                      liftPeek (Peek_MaybeReportIntendedUse_MaybeReportIntendedUse q
+                                                                                                                                                                                                   z) = Peek_ReportView_MaybeReportIntendedUse (Path_ReportView__reportIntendedUse q) z
+                                                                                                                                   in Node (Peek_ReportView_MaybeReportIntendedUse p (if null f
+                                                                                                                                                                                       then Just a
+                                                                                                                                                                                       else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Maybe ReportIntendedUse])
+                                                                      _ -> []) (pathsOf s (undefined :: Proxy (Maybe ReportIntendedUse))),
+                                              concatMap (\path -> case path of
+                                                                      p@(Path_ReportView__reportValueTypeInfo wp) -> map (\a -> let f = peek a
+                                                                                                                                 in let liftPeek (Peek_ReportValueTypeInfo_JSONText q
+                                                                                                                                                                                    z) = Peek_ReportView_JSONText (Path_ReportView__reportValueTypeInfo q) z
+                                                                                                                                        liftPeek (Peek_ReportValueTypeInfo_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportValueTypeInfo q) z
+                                                                                                                                        liftPeek (Peek_ReportValueTypeInfo_ReportValueTypeInfo q
+                                                                                                                                                                                               z) = Peek_ReportView_ReportValueTypeInfo (Path_ReportView__reportValueTypeInfo q) z
+                                                                                                                                        liftPeek (Peek_ReportValueTypeInfo_Text q z) = Peek_ReportView_Text (Path_ReportView__reportValueTypeInfo q) z
+                                                                                                                                     in Node (Peek_ReportView_ReportValueTypeInfo p (if null f
+                                                                                                                                                                                      then Just a
+                                                                                                                                                                                      else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [ReportValueTypeInfo])
+                                                                      _ -> []) (pathsOf s (undefined :: Proxy ReportValueTypeInfo)),
+                                              concatMap (\path -> case path of
+                                                                      p@(Path_ReportView__reportValueApproachInfo wp) -> map (\a -> let f = peek a
+                                                                                                                                     in let liftPeek (Peek_ReportValueApproachInfo_JSONText q
+                                                                                                                                                                                            z) = Peek_ReportView_JSONText (Path_ReportView__reportValueApproachInfo q) z
+                                                                                                                                            liftPeek (Peek_ReportValueApproachInfo_Markup q
+                                                                                                                                                                                          z) = Peek_ReportView_Markup (Path_ReportView__reportValueApproachInfo q) z
+                                                                                                                                            liftPeek (Peek_ReportValueApproachInfo_ReportValueApproachInfo q
+                                                                                                                                                                                                           z) = Peek_ReportView_ReportValueApproachInfo (Path_ReportView__reportValueApproachInfo q) z
+                                                                                                                                            liftPeek (Peek_ReportValueApproachInfo_Text q
+                                                                                                                                                                                        z) = Peek_ReportView_Text (Path_ReportView__reportValueApproachInfo q) z
+                                                                                                                                         in Node (Peek_ReportView_ReportValueApproachInfo p (if null f
+                                                                                                                                                                                              then Just a
+                                                                                                                                                                                              else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [ReportValueApproachInfo])
+                                                                      _ -> []) (pathsOf s (undefined :: Proxy ReportValueApproachInfo)),
+                                              concatMap (\path -> case path of
+                                                                      p@(Path_ReportView__reportClientName wp) -> map (\a -> let f = peek a
+                                                                                                                              in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportClientName q) z
+                                                                                                                                     liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportClientName q) z
+                                                                                                                                     liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportClientName q) z
+                                                                                                                                  in Node (Peek_ReportView_Markup p (if null f
+                                                                                                                                                                      then Just a
+                                                                                                                                                                      else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
+                                                                      _ -> []) (pathsOf s (undefined :: Proxy Markup)),
+                                              concatMap (\path -> case path of
+                                                                      p@(Path_ReportView__reportClientAddress wp) -> map (\a -> let f = peek a
+                                                                                                                                 in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportClientAddress q) z
+                                                                                                                                        liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportClientAddress q) z
+                                                                                                                                        liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportClientAddress q) z
+                                                                                                                                     in Node (Peek_ReportView_Markup p (if null f
+                                                                                                                                                                         then Just a
+                                                                                                                                                                         else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
+                                                                      _ -> []) (pathsOf s (undefined :: Proxy Markup)),
+                                              concatMap (\path -> case path of
+                                                                      p@(Path_ReportView__reportClientGreeting wp) -> map (\a -> let f = peek a
+                                                                                                                                  in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportClientGreeting q) z
+                                                                                                                                         liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportClientGreeting q) z
+                                                                                                                                         liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportClientGreeting q) z
+                                                                                                                                      in Node (Peek_ReportView_Markup p (if null f
+                                                                                                                                                                          then Just a
+                                                                                                                                                                          else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
+                                                                      _ -> []) (pathsOf s (undefined :: Proxy Markup)),
+                                              concatMap (\path -> case path of
+                                                                      p@(Path_ReportView__reportItemsOwnerFull wp) -> map (\a -> let f = peek a
+                                                                                                                                  in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportItemsOwnerFull q) z
+                                                                                                                                         liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportItemsOwnerFull q) z
+                                                                                                                                         liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportItemsOwnerFull q) z
+                                                                                                                                      in Node (Peek_ReportView_Markup p (if null f
+                                                                                                                                                                          then Just a
+                                                                                                                                                                          else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
+                                                                      _ -> []) (pathsOf s (undefined :: Proxy Markup)),
+                                              concatMap (\path -> case path of
+                                                                      p@(Path_ReportView__reportItemsOwner wp) -> map (\a -> let f = peek a
+                                                                                                                              in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportItemsOwner q) z
+                                                                                                                                     liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportItemsOwner q) z
+                                                                                                                                     liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportItemsOwner q) z
+                                                                                                                                  in Node (Peek_ReportView_Markup p (if null f
+                                                                                                                                                                      then Just a
+                                                                                                                                                                      else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
+                                                                      _ -> []) (pathsOf s (undefined :: Proxy Markup)),
+                                              concatMap (\path -> case path of
+                                                                      p@(Path_ReportView__reportBriefItems wp) -> map (\a -> let f = peek a
+                                                                                                                              in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportBriefItems q) z
+                                                                                                                                     liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportBriefItems q) z
+                                                                                                                                     liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportBriefItems q) z
+                                                                                                                                  in Node (Peek_ReportView_Markup p (if null f
+                                                                                                                                                                      then Just a
+                                                                                                                                                                      else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
+                                                                      _ -> []) (pathsOf s (undefined :: Proxy Markup)),
+                                              concatMap (\path -> case path of
+                                                                      p@(Path_ReportView__reportInspectionLocation wp) -> map (\a -> let f = peek a
+                                                                                                                                      in let liftPeek (Peek_Markup_JSONText q
+                                                                                                                                                                            z) = Peek_ReportView_JSONText (Path_ReportView__reportInspectionLocation q) z
+                                                                                                                                             liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportInspectionLocation q) z
+                                                                                                                                             liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportInspectionLocation q) z
+                                                                                                                                          in Node (Peek_ReportView_Markup p (if null f
+                                                                                                                                                                              then Just a
+                                                                                                                                                                              else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
+                                                                      _ -> []) (pathsOf s (undefined :: Proxy Markup)),
+                                              concatMap (\path -> case path of
+                                                                      p@(Path_ReportView__reportBody wp) -> map (\a -> let f = peek a
+                                                                                                                        in let liftPeek (Peek_ReportElems_String q z) = Peek_ReportView_String (Path_ReportView__reportBody q) z
+                                                                                                                               liftPeek (Peek_ReportElems_Bool q z) = Peek_ReportView_Bool (Path_ReportView__reportBody q) z
+                                                                                                                               liftPeek (Peek_ReportElems_Double q z) = Peek_ReportView_Double (Path_ReportView__reportBody q) z
+                                                                                                                               liftPeek (Peek_ReportElems_Dimension q z) = Peek_ReportView_Dimension (Path_ReportView__reportBody q) z
+                                                                                                                               liftPeek (Peek_ReportElems_ImageCrop q z) = Peek_ReportView_ImageCrop (Path_ReportView__reportBody q) z
+                                                                                                                               liftPeek (Peek_ReportElems_ImageSize q z) = Peek_ReportView_ImageSize (Path_ReportView__reportBody q) z
+                                                                                                                               liftPeek (Peek_ReportElems_Units q z) = Peek_ReportView_Units (Path_ReportView__reportBody q) z
+                                                                                                                               liftPeek (Peek_ReportElems_ImageFile q z) = Peek_ReportView_ImageFile (Path_ReportView__reportBody q) z
+                                                                                                                               liftPeek (Peek_ReportElems_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportBody q) z
+                                                                                                                               liftPeek (Peek_ReportElems_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportBody q) z
+                                                                                                                               liftPeek (Peek_ReportElems_ReportElem q z) = Peek_ReportView_ReportElem (Path_ReportView__reportBody q) z
+                                                                                                                               liftPeek (Peek_ReportElems_ReportElems q z) = Peek_ReportView_ReportElems (Path_ReportView__reportBody q) z
+                                                                                                                               liftPeek (Peek_ReportElems_EUI q z) = Peek_ReportView_EUI (Path_ReportView__reportBody q) z
+                                                                                                                               liftPeek (Peek_ReportElems_MEUI q z) = Peek_ReportView_MEUI (Path_ReportView__reportBody q) z
+                                                                                                                               liftPeek (Peek_ReportElems_MaybeImageFile q z) = Peek_ReportView_MaybeImageFile (Path_ReportView__reportBody q) z
+                                                                                                                               liftPeek (Peek_ReportElems_ReportImage q z) = Peek_ReportView_ReportImage (Path_ReportView__reportBody q) z
+                                                                                                                               liftPeek (Peek_ReportElems_ReportImages q z) = Peek_ReportView_ReportImages (Path_ReportView__reportBody q) z
+                                                                                                                               liftPeek (Peek_ReportElems_ReportImageView q z) = Peek_ReportView_ReportImageView (Path_ReportView__reportBody q) z
+                                                                                                                               liftPeek (Peek_ReportElems_SaneSizeImageSize q z) = Peek_ReportView_SaneSizeImageSize (Path_ReportView__reportBody q) z
+                                                                                                                               liftPeek (Peek_ReportElems_Item q z) = Peek_ReportView_Item (Path_ReportView__reportBody q) z
+                                                                                                                               liftPeek (Peek_ReportElems_MIM q z) = Peek_ReportView_MIM (Path_ReportView__reportBody q) z
+                                                                                                                               liftPeek (Peek_ReportElems_URI q z) = Peek_ReportView_URI (Path_ReportView__reportBody q) z
+                                                                                                                               liftPeek (Peek_ReportElems_Text q z) = Peek_ReportView_Text (Path_ReportView__reportBody q) z
+                                                                                                                            in Node (Peek_ReportView_ReportElems p (if null f
+                                                                                                                                                                     then Just a
+                                                                                                                                                                     else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Order ReportElemID
+                                                                                                                                                                                                                                             ReportElem])
                                                                       _ -> []) (pathsOf s (undefined :: Proxy (Order ReportElemID ReportElem))),
                                               concatMap (\path -> case path of
-                                                                      p@(Path_ReportView__reportGlossary _) -> map (\a -> let f = peek a
-                                                                                                                           in let liftPeek (Peek_MarkupPairs_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportGlossary q) z
-                                                                                                                                  liftPeek (Peek_MarkupPairs_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportGlossary q) z
-                                                                                                                                  liftPeek (Peek_MarkupPairs_MarkupPair q z) = Peek_ReportView_MarkupPair (Path_ReportView__reportGlossary q) z
-                                                                                                                                  liftPeek (Peek_MarkupPairs_MarkupPairs q z) = Peek_ReportView_MarkupPairs (Path_ReportView__reportGlossary q) z
-                                                                                                                                  liftPeek (Peek_MarkupPairs_Text q z) = Peek_ReportView_Text (Path_ReportView__reportGlossary q) z
+                                                                      p@(Path_ReportView__reportGlossary wp) -> map (\a -> let f = peek a
+                                                                                                                            in let liftPeek (Peek_MarkupPairs_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportGlossary q) z
+                                                                                                                                   liftPeek (Peek_MarkupPairs_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportGlossary q) z
+                                                                                                                                   liftPeek (Peek_MarkupPairs_MarkupPair q z) = Peek_ReportView_MarkupPair (Path_ReportView__reportGlossary q) z
+                                                                                                                                   liftPeek (Peek_MarkupPairs_MarkupPairs q z) = Peek_ReportView_MarkupPairs (Path_ReportView__reportGlossary q) z
+                                                                                                                                   liftPeek (Peek_MarkupPairs_Text q z) = Peek_ReportView_Text (Path_ReportView__reportGlossary q) z
+                                                                                                                                in Node (Peek_ReportView_MarkupPairs p (if null f
+                                                                                                                                                                         then Just a
+                                                                                                                                                                         else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Order MarkupPairID
+                                                                                                                                                                                                                                                 ((Markup,
+                                                                                                                                                                                                                                                   Markup))])
+                                                                      _ -> []) (pathsOf s (undefined :: Proxy (Order MarkupPairID ((Markup, Markup))))),
+                                              concatMap (\path -> case path of
+                                                                      p@(Path_ReportView__reportSources wp) -> map (\a -> let f = peek a
+                                                                                                                           in let liftPeek (Peek_MarkupPairs_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportSources q) z
+                                                                                                                                  liftPeek (Peek_MarkupPairs_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportSources q) z
+                                                                                                                                  liftPeek (Peek_MarkupPairs_MarkupPair q z) = Peek_ReportView_MarkupPair (Path_ReportView__reportSources q) z
+                                                                                                                                  liftPeek (Peek_MarkupPairs_MarkupPairs q z) = Peek_ReportView_MarkupPairs (Path_ReportView__reportSources q) z
+                                                                                                                                  liftPeek (Peek_MarkupPairs_Text q z) = Peek_ReportView_Text (Path_ReportView__reportSources q) z
                                                                                                                                in Node (Peek_ReportView_MarkupPairs p (if null f
                                                                                                                                                                         then Just a
                                                                                                                                                                         else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Order MarkupPairID
@@ -11246,299 +12096,289 @@ instance IsPathStart ReportView
                                                                                                                                                                                                                                                   Markup))])
                                                                       _ -> []) (pathsOf s (undefined :: Proxy (Order MarkupPairID ((Markup, Markup))))),
                                               concatMap (\path -> case path of
-                                                                      p@(Path_ReportView__reportSources _) -> map (\a -> let f = peek a
-                                                                                                                          in let liftPeek (Peek_MarkupPairs_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportSources q) z
-                                                                                                                                 liftPeek (Peek_MarkupPairs_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportSources q) z
-                                                                                                                                 liftPeek (Peek_MarkupPairs_MarkupPair q z) = Peek_ReportView_MarkupPair (Path_ReportView__reportSources q) z
-                                                                                                                                 liftPeek (Peek_MarkupPairs_MarkupPairs q z) = Peek_ReportView_MarkupPairs (Path_ReportView__reportSources q) z
-                                                                                                                                 liftPeek (Peek_MarkupPairs_Text q z) = Peek_ReportView_Text (Path_ReportView__reportSources q) z
-                                                                                                                              in Node (Peek_ReportView_MarkupPairs p (if null f
+                                                                      p@(Path_ReportView__reportLetterOfTransmittal wp) -> map (\a -> let f = peek a
+                                                                                                                                       in let liftPeek (Peek_Markup_JSONText q
+                                                                                                                                                                             z) = Peek_ReportView_JSONText (Path_ReportView__reportLetterOfTransmittal q) z
+                                                                                                                                              liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportLetterOfTransmittal q) z
+                                                                                                                                              liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportLetterOfTransmittal q) z
+                                                                                                                                           in Node (Peek_ReportView_Markup p (if null f
+                                                                                                                                                                               then Just a
+                                                                                                                                                                               else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
+                                                                      _ -> []) (pathsOf s (undefined :: Proxy Markup)),
+                                              concatMap (\path -> case path of
+                                                                      p@(Path_ReportView__reportScopeOfWork wp) -> map (\a -> let f = peek a
+                                                                                                                               in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportScopeOfWork q) z
+                                                                                                                                      liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportScopeOfWork q) z
+                                                                                                                                      liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportScopeOfWork q) z
+                                                                                                                                   in Node (Peek_ReportView_Markup p (if null f
                                                                                                                                                                        then Just a
-                                                                                                                                                                       else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Order MarkupPairID
-                                                                                                                                                                                                                                               ((Markup,
-                                                                                                                                                                                                                                                 Markup))])
-                                                                      _ -> []) (pathsOf s (undefined :: Proxy (Order MarkupPairID ((Markup, Markup))))),
-                                              concatMap (\path -> case path of
-                                                                      p@(Path_ReportView__reportLetterOfTransmittal _) -> map (\a -> let f = peek a
-                                                                                                                                      in let liftPeek (Peek_Markup_JSONText q
-                                                                                                                                                                            z) = Peek_ReportView_JSONText (Path_ReportView__reportLetterOfTransmittal q) z
-                                                                                                                                             liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportLetterOfTransmittal q) z
-                                                                                                                                             liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportLetterOfTransmittal q) z
-                                                                                                                                          in Node (Peek_ReportView_Markup p (if null f
-                                                                                                                                                                              then Just a
-                                                                                                                                                                              else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
+                                                                                                                                                                       else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
                                                                       _ -> []) (pathsOf s (undefined :: Proxy Markup)),
                                               concatMap (\path -> case path of
-                                                                      p@(Path_ReportView__reportScopeOfWork _) -> map (\a -> let f = peek a
-                                                                                                                              in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportScopeOfWork q) z
-                                                                                                                                     liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportScopeOfWork q) z
-                                                                                                                                     liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportScopeOfWork q) z
-                                                                                                                                  in Node (Peek_ReportView_Markup p (if null f
-                                                                                                                                                                      then Just a
-                                                                                                                                                                      else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
-                                                                      _ -> []) (pathsOf s (undefined :: Proxy Markup)),
+                                                                      p@(Path_ReportView__reportCertification wp) -> map (\a -> let f = peek a
+                                                                                                                                 in let liftPeek (Peek_Markups_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportCertification q) z
+                                                                                                                                        liftPeek (Peek_Markups_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportCertification q) z
+                                                                                                                                        liftPeek (Peek_Markups_Markups q z) = Peek_ReportView_Markups (Path_ReportView__reportCertification q) z
+                                                                                                                                        liftPeek (Peek_Markups_Text q z) = Peek_ReportView_Text (Path_ReportView__reportCertification q) z
+                                                                                                                                     in Node (Peek_ReportView_Markups p (if null f
+                                                                                                                                                                          then Just a
+                                                                                                                                                                          else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Order MarkupID
+                                                                                                                                                                                                                                                  Markup])
+                                                                      _ -> []) (pathsOf s (undefined :: Proxy (Order MarkupID Markup))),
                                               concatMap (\path -> case path of
-                                                                      p@(Path_ReportView__reportCertification _) -> map (\a -> let f = peek a
-                                                                                                                                in let liftPeek (Peek_Markups_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportCertification q) z
-                                                                                                                                       liftPeek (Peek_Markups_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportCertification q) z
-                                                                                                                                       liftPeek (Peek_Markups_Markups q z) = Peek_ReportView_Markups (Path_ReportView__reportCertification q) z
-                                                                                                                                       liftPeek (Peek_Markups_Text q z) = Peek_ReportView_Text (Path_ReportView__reportCertification q) z
-                                                                                                                                    in Node (Peek_ReportView_Markups p (if null f
+                                                                      p@(Path_ReportView__reportLimitingConditions wp) -> map (\a -> let f = peek a
+                                                                                                                                      in let liftPeek (Peek_Markups_JSONText q
+                                                                                                                                                                             z) = Peek_ReportView_JSONText (Path_ReportView__reportLimitingConditions q) z
+                                                                                                                                             liftPeek (Peek_Markups_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportLimitingConditions q) z
+                                                                                                                                             liftPeek (Peek_Markups_Markups q z) = Peek_ReportView_Markups (Path_ReportView__reportLimitingConditions q) z
+                                                                                                                                             liftPeek (Peek_Markups_Text q z) = Peek_ReportView_Text (Path_ReportView__reportLimitingConditions q) z
+                                                                                                                                          in Node (Peek_ReportView_Markups p (if null f
+                                                                                                                                                                               then Just a
+                                                                                                                                                                               else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Order MarkupID
+                                                                                                                                                                                                                                                       Markup])
+                                                                      _ -> []) (pathsOf s (undefined :: Proxy (Order MarkupID Markup))),
+                                              concatMap (\path -> case path of
+                                                                      p@(Path_ReportView__reportPrivacyPolicy wp) -> map (\a -> let f = peek a
+                                                                                                                                 in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportPrivacyPolicy q) z
+                                                                                                                                        liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportPrivacyPolicy q) z
+                                                                                                                                        liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportPrivacyPolicy q) z
+                                                                                                                                     in Node (Peek_ReportView_Markup p (if null f
                                                                                                                                                                          then Just a
-                                                                                                                                                                         else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Order MarkupID
-                                                                                                                                                                                                                                                 Markup])
-                                                                      _ -> []) (pathsOf s (undefined :: Proxy (Order MarkupID Markup))),
-                                              concatMap (\path -> case path of
-                                                                      p@(Path_ReportView__reportLimitingConditions _) -> map (\a -> let f = peek a
-                                                                                                                                     in let liftPeek (Peek_Markups_JSONText q
-                                                                                                                                                                            z) = Peek_ReportView_JSONText (Path_ReportView__reportLimitingConditions q) z
-                                                                                                                                            liftPeek (Peek_Markups_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportLimitingConditions q) z
-                                                                                                                                            liftPeek (Peek_Markups_Markups q z) = Peek_ReportView_Markups (Path_ReportView__reportLimitingConditions q) z
-                                                                                                                                            liftPeek (Peek_Markups_Text q z) = Peek_ReportView_Text (Path_ReportView__reportLimitingConditions q) z
-                                                                                                                                         in Node (Peek_ReportView_Markups p (if null f
-                                                                                                                                                                              then Just a
-                                                                                                                                                                              else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Order MarkupID
-                                                                                                                                                                                                                                                      Markup])
-                                                                      _ -> []) (pathsOf s (undefined :: Proxy (Order MarkupID Markup))),
-                                              concatMap (\path -> case path of
-                                                                      p@(Path_ReportView__reportPrivacyPolicy _) -> map (\a -> let f = peek a
-                                                                                                                                in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportPrivacyPolicy q) z
-                                                                                                                                       liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportPrivacyPolicy q) z
-                                                                                                                                       liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportPrivacyPolicy q) z
-                                                                                                                                    in Node (Peek_ReportView_Markup p (if null f
-                                                                                                                                                                        then Just a
-                                                                                                                                                                        else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
+                                                                                                                                                                         else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Markup])
                                                                       _ -> []) (pathsOf s (undefined :: Proxy Markup)),
                                               concatMap (\path -> case path of
-                                                                      p@(Path_ReportView__reportPerms _) -> map (\a -> let f = peek a
-                                                                                                                        in let liftPeek (Peek_Permissions_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportPerms q) z
-                                                                                                                               liftPeek (Peek_Permissions_Permissions q z) = Peek_ReportView_Permissions (Path_ReportView__reportPerms q) z
-                                                                                                                               liftPeek (Peek_Permissions_UserIds q z) = Peek_ReportView_UserIds (Path_ReportView__reportPerms q) z
-                                                                                                                               liftPeek (Peek_Permissions_Text q z) = Peek_ReportView_Text (Path_ReportView__reportPerms q) z
-                                                                                                                               liftPeek (Peek_Permissions_UserId q z) = Peek_ReportView_UserId (Path_ReportView__reportPerms q) z
-                                                                                                                            in Node (Peek_ReportView_Permissions p (if null f
-                                                                                                                                                                     then Just a
-                                                                                                                                                                     else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Permissions])
+                                                                      p@(Path_ReportView__reportPerms wp) -> map (\a -> let f = peek a
+                                                                                                                         in let liftPeek (Peek_Permissions_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportPerms q) z
+                                                                                                                                liftPeek (Peek_Permissions_Permissions q z) = Peek_ReportView_Permissions (Path_ReportView__reportPerms q) z
+                                                                                                                                liftPeek (Peek_Permissions_UserIds q z) = Peek_ReportView_UserIds (Path_ReportView__reportPerms q) z
+                                                                                                                                liftPeek (Peek_Permissions_Text q z) = Peek_ReportView_Text (Path_ReportView__reportPerms q) z
+                                                                                                                                liftPeek (Peek_Permissions_UserId q z) = Peek_ReportView_UserId (Path_ReportView__reportPerms q) z
+                                                                                                                             in Node (Peek_ReportView_Permissions p (if null f
+                                                                                                                                                                      then Just a
+                                                                                                                                                                      else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Permissions])
                                                                       _ -> []) (pathsOf s (undefined :: Proxy Permissions)),
                                               concatMap (\path -> case path of
-                                                                      p@(Path_ReportView__reportRevision _) -> map (\a -> let f = peek a
-                                                                                                                           in let liftPeek (Peek_Integer_Integer q z) = Peek_ReportView_Integer (Path_ReportView__reportRevision q) z
-                                                                                                                               in Node (Peek_ReportView_Integer p (if null f
-                                                                                                                                                                    then Just a
-                                                                                                                                                                    else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Integer])
+                                                                      p@(Path_ReportView__reportRevision wp) -> map (\a -> let f = peek a
+                                                                                                                            in let liftPeek (Peek_Integer_Integer q z) = Peek_ReportView_Integer (Path_ReportView__reportRevision q) z
+                                                                                                                                in Node (Peek_ReportView_Integer p (if null f
+                                                                                                                                                                     then Just a
+                                                                                                                                                                     else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Integer])
                                                                       _ -> []) (pathsOf s (undefined :: Proxy Integer)),
                                               concatMap (\path -> case path of
-                                                                      p@(Path_ReportView__reportCreated _) -> map (\a -> let f = peek a
-                                                                                                                          in let liftPeek (Peek_Int64_Int64 q z) = Peek_ReportView_Int64 (Path_ReportView__reportCreated q) z
-                                                                                                                              in Node (Peek_ReportView_Int64 p (if null f
-                                                                                                                                                                 then Just a
-                                                                                                                                                                 else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Int64])
+                                                                      p@(Path_ReportView__reportCreated wp) -> map (\a -> let f = peek a
+                                                                                                                           in let liftPeek (Peek_Int64_Int64 q z) = Peek_ReportView_Int64 (Path_ReportView__reportCreated q) z
+                                                                                                                               in Node (Peek_ReportView_Int64 p (if null f
+                                                                                                                                                                  then Just a
+                                                                                                                                                                  else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Int64])
                                                                       _ -> []) (pathsOf s (undefined :: Proxy Int64)),
                                               concatMap (\path -> case path of
-                                                                      p@(Path_ReportView__reportBranding _) -> map (\a -> let f = peek a
-                                                                                                                           in let liftPeek (Peek_Branding_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportBranding q) z
-                                                                                                                                  liftPeek (Peek_Branding_Branding q z) = Peek_ReportView_Branding (Path_ReportView__reportBranding q) z
-                                                                                                                                  liftPeek (Peek_Branding_Text q z) = Peek_ReportView_Text (Path_ReportView__reportBranding q) z
-                                                                                                                               in Node (Peek_ReportView_Branding p (if null f
-                                                                                                                                                                     then Just a
-                                                                                                                                                                     else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Branding])
+                                                                      p@(Path_ReportView__reportBranding wp) -> map (\a -> let f = peek a
+                                                                                                                            in let liftPeek (Peek_Branding_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportBranding q) z
+                                                                                                                                   liftPeek (Peek_Branding_Branding q z) = Peek_ReportView_Branding (Path_ReportView__reportBranding q) z
+                                                                                                                                   liftPeek (Peek_Branding_Text q z) = Peek_ReportView_Text (Path_ReportView__reportBranding q) z
+                                                                                                                                in Node (Peek_ReportView_Branding p (if null f
+                                                                                                                                                                      then Just a
+                                                                                                                                                                      else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Branding])
                                                                       _ -> []) (pathsOf s (undefined :: Proxy Branding)),
                                               concatMap (\path -> case path of
-                                                                      p@(Path_ReportView__reportStatus _) -> map (\a -> let f = peek a
-                                                                                                                         in let liftPeek (Peek_ReportStatus_String q z) = Peek_ReportView_String (Path_ReportView__reportStatus q) z
-                                                                                                                                liftPeek (Peek_ReportStatus_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportStatus q) z
-                                                                                                                                liftPeek (Peek_ReportStatus_ReportStatus q z) = Peek_ReportView_ReportStatus (Path_ReportView__reportStatus q) z
-                                                                                                                             in Node (Peek_ReportView_ReportStatus p (if null f
-                                                                                                                                                                       then Just a
-                                                                                                                                                                       else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [ReportStatus])
+                                                                      p@(Path_ReportView__reportStatus wp) -> map (\a -> let f = peek a
+                                                                                                                          in let liftPeek (Peek_ReportStatus_String q z) = Peek_ReportView_String (Path_ReportView__reportStatus q) z
+                                                                                                                                 liftPeek (Peek_ReportStatus_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportStatus q) z
+                                                                                                                                 liftPeek (Peek_ReportStatus_ReportStatus q z) = Peek_ReportView_ReportStatus (Path_ReportView__reportStatus q) z
+                                                                                                                              in Node (Peek_ReportView_ReportStatus p (if null f
+                                                                                                                                                                        then Just a
+                                                                                                                                                                        else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [ReportStatus])
                                                                       _ -> []) (pathsOf s (undefined :: Proxy ReportStatus)),
                                               concatMap (\path -> case path of
-                                                                      p@(Path_ReportView__reportRedacted _) -> map (\a -> let f = peek a
-                                                                                                                           in let liftPeek (Peek_Bool_String q z) = Peek_ReportView_String (Path_ReportView__reportRedacted q) z
-                                                                                                                                  liftPeek (Peek_Bool_Bool q z) = Peek_ReportView_Bool (Path_ReportView__reportRedacted q) z
-                                                                                                                                  liftPeek (Peek_Bool_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportRedacted q) z
-                                                                                                                               in Node (Peek_ReportView_Bool p (if null f
-                                                                                                                                                                 then Just a
-                                                                                                                                                                 else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Bool])
+                                                                      p@(Path_ReportView__reportRedacted wp) -> map (\a -> let f = peek a
+                                                                                                                            in let liftPeek (Peek_Bool_String q z) = Peek_ReportView_String (Path_ReportView__reportRedacted q) z
+                                                                                                                                   liftPeek (Peek_Bool_Bool q z) = Peek_ReportView_Bool (Path_ReportView__reportRedacted q) z
+                                                                                                                                   liftPeek (Peek_Bool_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportRedacted q) z
+                                                                                                                                in Node (Peek_ReportView_Bool p (if null f
+                                                                                                                                                                  then Just a
+                                                                                                                                                                  else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Bool])
                                                                       _ -> []) (pathsOf s (undefined :: Proxy Bool)),
                                               concatMap (\path -> case path of
-                                                                      p@(Path_ReportView__reportFlags _) -> map (\a -> let f = peek a
-                                                                                                                        in let liftPeek (Peek_ReportFlags_String q z) = Peek_ReportView_String (Path_ReportView__reportFlags q) z
-                                                                                                                               liftPeek (Peek_ReportFlags_Bool q z) = Peek_ReportView_Bool (Path_ReportView__reportFlags q) z
-                                                                                                                               liftPeek (Peek_ReportFlags_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportFlags q) z
-                                                                                                                               liftPeek (Peek_ReportFlags_ReportFlags q z) = Peek_ReportView_ReportFlags (Path_ReportView__reportFlags q) z
-                                                                                                                            in Node (Peek_ReportView_ReportFlags p (if null f
-                                                                                                                                                                     then Just a
-                                                                                                                                                                     else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [ReportFlags])
+                                                                      p@(Path_ReportView__reportFlags wp) -> map (\a -> let f = peek a
+                                                                                                                         in let liftPeek (Peek_ReportFlags_String q z) = Peek_ReportView_String (Path_ReportView__reportFlags q) z
+                                                                                                                                liftPeek (Peek_ReportFlags_Bool q z) = Peek_ReportView_Bool (Path_ReportView__reportFlags q) z
+                                                                                                                                liftPeek (Peek_ReportFlags_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportFlags q) z
+                                                                                                                                liftPeek (Peek_ReportFlags_ReportFlags q z) = Peek_ReportView_ReportFlags (Path_ReportView__reportFlags q) z
+                                                                                                                             in Node (Peek_ReportView_ReportFlags p (if null f
+                                                                                                                                                                      then Just a
+                                                                                                                                                                      else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [ReportFlags])
                                                                       _ -> []) (pathsOf s (undefined :: Proxy ReportFlags)),
                                               concatMap (\path -> case path of
-                                                                      p@(Path_ReportView__reportUUID _) -> map (\a -> let f = peek a
-                                                                                                                       in let liftPeek (Peek_UUID_UUID q z) = Peek_ReportView_UUID (Path_ReportView__reportUUID q) z
-                                                                                                                           in Node (Peek_ReportView_UUID p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [UUID])
+                                                                      p@(Path_ReportView__reportUUID wp) -> map (\a -> let f = peek a
+                                                                                                                        in let liftPeek (Peek_UUID_UUID q z) = Peek_ReportView_UUID (Path_ReportView__reportUUID q) z
+                                                                                                                            in Node (Peek_ReportView_UUID p (if null f
+                                                                                                                                                              then Just a
+                                                                                                                                                              else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [UUID])
                                                                       _ -> []) (pathsOf s (undefined :: Proxy UUID)),
                                               concatMap (\path -> case path of
-                                                                      p@(Path_ReportView__reportOrderByItemName _) -> map (\a -> let f = peek a
-                                                                                                                                  in let liftPeek (Peek_Bool_String q z) = Peek_ReportView_String (Path_ReportView__reportOrderByItemName q) z
-                                                                                                                                         liftPeek (Peek_Bool_Bool q z) = Peek_ReportView_Bool (Path_ReportView__reportOrderByItemName q) z
-                                                                                                                                         liftPeek (Peek_Bool_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportOrderByItemName q) z
-                                                                                                                                      in Node (Peek_ReportView_Bool p (if null f
-                                                                                                                                                                        then Just a
-                                                                                                                                                                        else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Bool])
+                                                                      p@(Path_ReportView__reportOrderByItemName wp) -> map (\a -> let f = peek a
+                                                                                                                                   in let liftPeek (Peek_Bool_String q z) = Peek_ReportView_String (Path_ReportView__reportOrderByItemName q) z
+                                                                                                                                          liftPeek (Peek_Bool_Bool q z) = Peek_ReportView_Bool (Path_ReportView__reportOrderByItemName q) z
+                                                                                                                                          liftPeek (Peek_Bool_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportOrderByItemName q) z
+                                                                                                                                       in Node (Peek_ReportView_Bool p (if null f
+                                                                                                                                                                         then Just a
+                                                                                                                                                                         else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Bool])
                                                                       _ -> []) (pathsOf s (undefined :: Proxy Bool)),
                                               concatMap (\path -> case path of
-                                                                      p@(Path_ReportView__reportDisplayItemName _) -> map (\a -> let f = peek a
-                                                                                                                                  in let liftPeek (Peek_Bool_String q z) = Peek_ReportView_String (Path_ReportView__reportDisplayItemName q) z
-                                                                                                                                         liftPeek (Peek_Bool_Bool q z) = Peek_ReportView_Bool (Path_ReportView__reportDisplayItemName q) z
-                                                                                                                                         liftPeek (Peek_Bool_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportDisplayItemName q) z
-                                                                                                                                      in Node (Peek_ReportView_Bool p (if null f
-                                                                                                                                                                        then Just a
-                                                                                                                                                                        else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Bool])
+                                                                      p@(Path_ReportView__reportDisplayItemName wp) -> map (\a -> let f = peek a
+                                                                                                                                   in let liftPeek (Peek_Bool_String q z) = Peek_ReportView_String (Path_ReportView__reportDisplayItemName q) z
+                                                                                                                                          liftPeek (Peek_Bool_Bool q z) = Peek_ReportView_Bool (Path_ReportView__reportDisplayItemName q) z
+                                                                                                                                          liftPeek (Peek_Bool_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportDisplayItemName q) z
+                                                                                                                                       in Node (Peek_ReportView_Bool p (if null f
+                                                                                                                                                                         then Just a
+                                                                                                                                                                         else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Bool])
                                                                       _ -> []) (pathsOf s (undefined :: Proxy Bool)),
                                               concatMap (\path -> case path of
-                                                                      p@(Path_ReportView__reportStandardsVersion _) -> map (\a -> let f = peek a
-                                                                                                                                   in let liftPeek (Peek_ReportStandard_Int q z) = Peek_ReportView_Int (Path_ReportView__reportStandardsVersion q) z
-                                                                                                                                          liftPeek (Peek_ReportStandard_ReportStandard q
-                                                                                                                                                                                       z) = Peek_ReportView_ReportStandard (Path_ReportView__reportStandardsVersion q) z
-                                                                                                                                       in Node (Peek_ReportView_ReportStandard p (if null f
-                                                                                                                                                                                   then Just a
-                                                                                                                                                                                   else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [ReportStandard])
+                                                                      p@(Path_ReportView__reportStandardsVersion wp) -> map (\a -> let f = peek a
+                                                                                                                                    in let liftPeek (Peek_ReportStandard_Int q z) = Peek_ReportView_Int (Path_ReportView__reportStandardsVersion q) z
+                                                                                                                                           liftPeek (Peek_ReportStandard_ReportStandard q
+                                                                                                                                                                                        z) = Peek_ReportView_ReportStandard (Path_ReportView__reportStandardsVersion q) z
+                                                                                                                                        in Node (Peek_ReportView_ReportStandard p (if null f
+                                                                                                                                                                                    then Just a
+                                                                                                                                                                                    else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [ReportStandard])
                                                                       _ -> []) (pathsOf s (undefined :: Proxy ReportStandard))] :: Forest (Peek ReportView)
           hop (s@(ReportView {})) = mconcat [concatMap (\path -> case path of
-                                                                     p@(Path_ReportView__reportFolder _) -> map (\a -> Node (Peek_ReportView_ReadOnlyFilePath p (Just a)) []) (toListOf (toLens p) s :: [ReadOnly ([Char])])
+                                                                     p@(Path_ReportView__reportFolder wp) -> map (\a -> Node (Peek_ReportView_ReadOnlyFilePath p (Just a)) []) (toListOf (toLens p) s :: [ReadOnly ([Char])])
                                                                      _ -> []) (pathsOf s (undefined :: Proxy (ReadOnly ([Char])))),
                                              concatMap (\path -> case path of
-                                                                     p@(Path_ReportView__reportName _) -> map (\a -> Node (Peek_ReportView_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
+                                                                     p@(Path_ReportView__reportName wp) -> map (\a -> Node (Peek_ReportView_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
                                                                      _ -> []) (pathsOf s (undefined :: Proxy Markup)),
                                              concatMap (\path -> case path of
-                                                                     p@(Path_ReportView__reportDate _) -> map (\a -> Node (Peek_ReportView_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
+                                                                     p@(Path_ReportView__reportDate wp) -> map (\a -> Node (Peek_ReportView_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
                                                                      _ -> []) (pathsOf s (undefined :: Proxy Markup)),
                                              concatMap (\path -> case path of
-                                                                     p@(Path_ReportView__reportContractDate _) -> map (\a -> Node (Peek_ReportView_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
+                                                                     p@(Path_ReportView__reportContractDate wp) -> map (\a -> Node (Peek_ReportView_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
                                                                      _ -> []) (pathsOf s (undefined :: Proxy Markup)),
                                              concatMap (\path -> case path of
-                                                                     p@(Path_ReportView__reportInspectionDate _) -> map (\a -> Node (Peek_ReportView_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
+                                                                     p@(Path_ReportView__reportInspectionDate wp) -> map (\a -> Node (Peek_ReportView_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
                                                                      _ -> []) (pathsOf s (undefined :: Proxy Markup)),
                                              concatMap (\path -> case path of
-                                                                     p@(Path_ReportView__reportEffectiveDate _) -> map (\a -> Node (Peek_ReportView_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
+                                                                     p@(Path_ReportView__reportEffectiveDate wp) -> map (\a -> Node (Peek_ReportView_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
                                                                      _ -> []) (pathsOf s (undefined :: Proxy Markup)),
                                              concatMap (\path -> case path of
-                                                                     p@(Path_ReportView__reportAuthors _) -> map (\a -> Node (Peek_ReportView_Authors p (Just a)) []) (toListOf (toLens p) s :: [Order AuthorID Author])
+                                                                     p@(Path_ReportView__reportAuthors wp) -> map (\a -> Node (Peek_ReportView_Authors p (Just a)) []) (toListOf (toLens p) s :: [Order AuthorID Author])
                                                                      _ -> []) (pathsOf s (undefined :: Proxy (Order AuthorID Author))),
                                              concatMap (\path -> case path of
-                                                                     p@(Path_ReportView__reportPreparer _) -> map (\a -> Node (Peek_ReportView_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
+                                                                     p@(Path_ReportView__reportPreparer wp) -> map (\a -> Node (Peek_ReportView_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
                                                                      _ -> []) (pathsOf s (undefined :: Proxy Markup)),
                                              concatMap (\path -> case path of
-                                                                     p@(Path_ReportView__reportPreparerEIN _) -> map (\a -> Node (Peek_ReportView_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
+                                                                     p@(Path_ReportView__reportPreparerEIN wp) -> map (\a -> Node (Peek_ReportView_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
                                                                      _ -> []) (pathsOf s (undefined :: Proxy Markup)),
                                              concatMap (\path -> case path of
-                                                                     p@(Path_ReportView__reportPreparerAddress _) -> map (\a -> Node (Peek_ReportView_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
+                                                                     p@(Path_ReportView__reportPreparerAddress wp) -> map (\a -> Node (Peek_ReportView_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
                                                                      _ -> []) (pathsOf s (undefined :: Proxy Markup)),
                                              concatMap (\path -> case path of
-                                                                     p@(Path_ReportView__reportPreparerEMail _) -> map (\a -> Node (Peek_ReportView_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
+                                                                     p@(Path_ReportView__reportPreparerEMail wp) -> map (\a -> Node (Peek_ReportView_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
                                                                      _ -> []) (pathsOf s (undefined :: Proxy Markup)),
                                              concatMap (\path -> case path of
-                                                                     p@(Path_ReportView__reportPreparerWebsite _) -> map (\a -> Node (Peek_ReportView_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
+                                                                     p@(Path_ReportView__reportPreparerWebsite wp) -> map (\a -> Node (Peek_ReportView_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
                                                                      _ -> []) (pathsOf s (undefined :: Proxy Markup)),
                                              concatMap (\path -> case path of
-                                                                     p@(Path_ReportView__reportAbbrevs _) -> map (\a -> Node (Peek_ReportView_AbbrevPairs p (Just a)) []) (toListOf (toLens p) s :: [Order AbbrevPairID
-                                                                                                                                                                                                           ((CIString, Markup))])
+                                                                     p@(Path_ReportView__reportAbbrevs wp) -> map (\a -> Node (Peek_ReportView_AbbrevPairs p (Just a)) []) (toListOf (toLens p) s :: [Order AbbrevPairID
+                                                                                                                                                                                                            ((CIString, Markup))])
                                                                      _ -> []) (pathsOf s (undefined :: Proxy (Order AbbrevPairID ((CIString, Markup))))),
                                              concatMap (\path -> case path of
-                                                                     p@(Path_ReportView__reportTitle _) -> map (\a -> Node (Peek_ReportView_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
+                                                                     p@(Path_ReportView__reportTitle wp) -> map (\a -> Node (Peek_ReportView_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
                                                                      _ -> []) (pathsOf s (undefined :: Proxy Markup)),
                                              concatMap (\path -> case path of
-                                                                     p@(Path_ReportView__reportHeader _) -> map (\a -> Node (Peek_ReportView_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
+                                                                     p@(Path_ReportView__reportHeader wp) -> map (\a -> Node (Peek_ReportView_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
                                                                      _ -> []) (pathsOf s (undefined :: Proxy Markup)),
                                              concatMap (\path -> case path of
-                                                                     p@(Path_ReportView__reportFooter _) -> map (\a -> Node (Peek_ReportView_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
+                                                                     p@(Path_ReportView__reportFooter wp) -> map (\a -> Node (Peek_ReportView_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
                                                                      _ -> []) (pathsOf s (undefined :: Proxy Markup)),
                                              concatMap (\path -> case path of
-                                                                     p@(Path_ReportView__reportIntendedUse _) -> map (\a -> Node (Peek_ReportView_MaybeReportIntendedUse p (Just a)) []) (toListOf (toLens p) s :: [Maybe ReportIntendedUse])
+                                                                     p@(Path_ReportView__reportIntendedUse wp) -> map (\a -> Node (Peek_ReportView_MaybeReportIntendedUse p (Just a)) []) (toListOf (toLens p) s :: [Maybe ReportIntendedUse])
                                                                      _ -> []) (pathsOf s (undefined :: Proxy (Maybe ReportIntendedUse))),
                                              concatMap (\path -> case path of
-                                                                     p@(Path_ReportView__reportValueTypeInfo _) -> map (\a -> Node (Peek_ReportView_ReportValueTypeInfo p (Just a)) []) (toListOf (toLens p) s :: [ReportValueTypeInfo])
+                                                                     p@(Path_ReportView__reportValueTypeInfo wp) -> map (\a -> Node (Peek_ReportView_ReportValueTypeInfo p (Just a)) []) (toListOf (toLens p) s :: [ReportValueTypeInfo])
                                                                      _ -> []) (pathsOf s (undefined :: Proxy ReportValueTypeInfo)),
                                              concatMap (\path -> case path of
-                                                                     p@(Path_ReportView__reportValueApproachInfo _) -> map (\a -> Node (Peek_ReportView_ReportValueApproachInfo p (Just a)) []) (toListOf (toLens p) s :: [ReportValueApproachInfo])
+                                                                     p@(Path_ReportView__reportValueApproachInfo wp) -> map (\a -> Node (Peek_ReportView_ReportValueApproachInfo p (Just a)) []) (toListOf (toLens p) s :: [ReportValueApproachInfo])
                                                                      _ -> []) (pathsOf s (undefined :: Proxy ReportValueApproachInfo)),
                                              concatMap (\path -> case path of
-                                                                     p@(Path_ReportView__reportClientName _) -> map (\a -> Node (Peek_ReportView_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
+                                                                     p@(Path_ReportView__reportClientName wp) -> map (\a -> Node (Peek_ReportView_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
                                                                      _ -> []) (pathsOf s (undefined :: Proxy Markup)),
                                              concatMap (\path -> case path of
-                                                                     p@(Path_ReportView__reportClientAddress _) -> map (\a -> Node (Peek_ReportView_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
+                                                                     p@(Path_ReportView__reportClientAddress wp) -> map (\a -> Node (Peek_ReportView_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
                                                                      _ -> []) (pathsOf s (undefined :: Proxy Markup)),
                                              concatMap (\path -> case path of
-                                                                     p@(Path_ReportView__reportClientGreeting _) -> map (\a -> Node (Peek_ReportView_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
+                                                                     p@(Path_ReportView__reportClientGreeting wp) -> map (\a -> Node (Peek_ReportView_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
                                                                      _ -> []) (pathsOf s (undefined :: Proxy Markup)),
                                              concatMap (\path -> case path of
-                                                                     p@(Path_ReportView__reportItemsOwnerFull _) -> map (\a -> Node (Peek_ReportView_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
+                                                                     p@(Path_ReportView__reportItemsOwnerFull wp) -> map (\a -> Node (Peek_ReportView_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
                                                                      _ -> []) (pathsOf s (undefined :: Proxy Markup)),
                                              concatMap (\path -> case path of
-                                                                     p@(Path_ReportView__reportItemsOwner _) -> map (\a -> Node (Peek_ReportView_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
+                                                                     p@(Path_ReportView__reportItemsOwner wp) -> map (\a -> Node (Peek_ReportView_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
                                                                      _ -> []) (pathsOf s (undefined :: Proxy Markup)),
                                              concatMap (\path -> case path of
-                                                                     p@(Path_ReportView__reportBriefItems _) -> map (\a -> Node (Peek_ReportView_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
+                                                                     p@(Path_ReportView__reportBriefItems wp) -> map (\a -> Node (Peek_ReportView_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
                                                                      _ -> []) (pathsOf s (undefined :: Proxy Markup)),
                                              concatMap (\path -> case path of
-                                                                     p@(Path_ReportView__reportInspectionLocation _) -> map (\a -> Node (Peek_ReportView_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
+                                                                     p@(Path_ReportView__reportInspectionLocation wp) -> map (\a -> Node (Peek_ReportView_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
                                                                      _ -> []) (pathsOf s (undefined :: Proxy Markup)),
                                              concatMap (\path -> case path of
-                                                                     p@(Path_ReportView__reportBody _) -> map (\a -> Node (Peek_ReportView_ReportElems p (Just a)) []) (toListOf (toLens p) s :: [Order ReportElemID ReportElem])
+                                                                     p@(Path_ReportView__reportBody wp) -> map (\a -> Node (Peek_ReportView_ReportElems p (Just a)) []) (toListOf (toLens p) s :: [Order ReportElemID ReportElem])
                                                                      _ -> []) (pathsOf s (undefined :: Proxy (Order ReportElemID ReportElem))),
                                              concatMap (\path -> case path of
-                                                                     p@(Path_ReportView__reportGlossary _) -> map (\a -> Node (Peek_ReportView_MarkupPairs p (Just a)) []) (toListOf (toLens p) s :: [Order MarkupPairID
+                                                                     p@(Path_ReportView__reportGlossary wp) -> map (\a -> Node (Peek_ReportView_MarkupPairs p (Just a)) []) (toListOf (toLens p) s :: [Order MarkupPairID
+                                                                                                                                                                                                             ((Markup, Markup))])
+                                                                     _ -> []) (pathsOf s (undefined :: Proxy (Order MarkupPairID ((Markup, Markup))))),
+                                             concatMap (\path -> case path of
+                                                                     p@(Path_ReportView__reportSources wp) -> map (\a -> Node (Peek_ReportView_MarkupPairs p (Just a)) []) (toListOf (toLens p) s :: [Order MarkupPairID
                                                                                                                                                                                                             ((Markup, Markup))])
                                                                      _ -> []) (pathsOf s (undefined :: Proxy (Order MarkupPairID ((Markup, Markup))))),
                                              concatMap (\path -> case path of
-                                                                     p@(Path_ReportView__reportSources _) -> map (\a -> Node (Peek_ReportView_MarkupPairs p (Just a)) []) (toListOf (toLens p) s :: [Order MarkupPairID ((Markup, Markup))])
-                                                                     _ -> []) (pathsOf s (undefined :: Proxy (Order MarkupPairID ((Markup, Markup))))),
-                                             concatMap (\path -> case path of
-                                                                     p@(Path_ReportView__reportLetterOfTransmittal _) -> map (\a -> Node (Peek_ReportView_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
+                                                                     p@(Path_ReportView__reportLetterOfTransmittal wp) -> map (\a -> Node (Peek_ReportView_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
                                                                      _ -> []) (pathsOf s (undefined :: Proxy Markup)),
                                              concatMap (\path -> case path of
-                                                                     p@(Path_ReportView__reportScopeOfWork _) -> map (\a -> Node (Peek_ReportView_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
+                                                                     p@(Path_ReportView__reportScopeOfWork wp) -> map (\a -> Node (Peek_ReportView_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
                                                                      _ -> []) (pathsOf s (undefined :: Proxy Markup)),
                                              concatMap (\path -> case path of
-                                                                     p@(Path_ReportView__reportCertification _) -> map (\a -> Node (Peek_ReportView_Markups p (Just a)) []) (toListOf (toLens p) s :: [Order MarkupID Markup])
+                                                                     p@(Path_ReportView__reportCertification wp) -> map (\a -> Node (Peek_ReportView_Markups p (Just a)) []) (toListOf (toLens p) s :: [Order MarkupID Markup])
                                                                      _ -> []) (pathsOf s (undefined :: Proxy (Order MarkupID Markup))),
                                              concatMap (\path -> case path of
-                                                                     p@(Path_ReportView__reportLimitingConditions _) -> map (\a -> Node (Peek_ReportView_Markups p (Just a)) []) (toListOf (toLens p) s :: [Order MarkupID Markup])
+                                                                     p@(Path_ReportView__reportLimitingConditions wp) -> map (\a -> Node (Peek_ReportView_Markups p (Just a)) []) (toListOf (toLens p) s :: [Order MarkupID Markup])
                                                                      _ -> []) (pathsOf s (undefined :: Proxy (Order MarkupID Markup))),
                                              concatMap (\path -> case path of
-                                                                     p@(Path_ReportView__reportPrivacyPolicy _) -> map (\a -> Node (Peek_ReportView_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
+                                                                     p@(Path_ReportView__reportPrivacyPolicy wp) -> map (\a -> Node (Peek_ReportView_Markup p (Just a)) []) (toListOf (toLens p) s :: [Markup])
                                                                      _ -> []) (pathsOf s (undefined :: Proxy Markup)),
                                              concatMap (\path -> case path of
-                                                                     p@(Path_ReportView__reportPerms _) -> map (\a -> Node (Peek_ReportView_Permissions p (Just a)) []) (toListOf (toLens p) s :: [Permissions])
+                                                                     p@(Path_ReportView__reportPerms wp) -> map (\a -> Node (Peek_ReportView_Permissions p (Just a)) []) (toListOf (toLens p) s :: [Permissions])
                                                                      _ -> []) (pathsOf s (undefined :: Proxy Permissions)),
                                              concatMap (\path -> case path of
-                                                                     p@(Path_ReportView__reportRevision _) -> map (\a -> Node (Peek_ReportView_Integer p (Just a)) []) (toListOf (toLens p) s :: [Integer])
+                                                                     p@(Path_ReportView__reportRevision wp) -> map (\a -> Node (Peek_ReportView_Integer p (Just a)) []) (toListOf (toLens p) s :: [Integer])
                                                                      _ -> []) (pathsOf s (undefined :: Proxy Integer)),
                                              concatMap (\path -> case path of
-                                                                     p@(Path_ReportView__reportCreated _) -> map (\a -> Node (Peek_ReportView_Int64 p (Just a)) []) (toListOf (toLens p) s :: [Int64])
+                                                                     p@(Path_ReportView__reportCreated wp) -> map (\a -> Node (Peek_ReportView_Int64 p (Just a)) []) (toListOf (toLens p) s :: [Int64])
                                                                      _ -> []) (pathsOf s (undefined :: Proxy Int64)),
                                              concatMap (\path -> case path of
-                                                                     p@(Path_ReportView__reportBranding _) -> map (\a -> Node (Peek_ReportView_Branding p (Just a)) []) (toListOf (toLens p) s :: [Branding])
+                                                                     p@(Path_ReportView__reportBranding wp) -> map (\a -> Node (Peek_ReportView_Branding p (Just a)) []) (toListOf (toLens p) s :: [Branding])
                                                                      _ -> []) (pathsOf s (undefined :: Proxy Branding)),
                                              concatMap (\path -> case path of
-                                                                     p@(Path_ReportView__reportStatus _) -> map (\a -> Node (Peek_ReportView_ReportStatus p (Just a)) []) (toListOf (toLens p) s :: [ReportStatus])
+                                                                     p@(Path_ReportView__reportStatus wp) -> map (\a -> Node (Peek_ReportView_ReportStatus p (Just a)) []) (toListOf (toLens p) s :: [ReportStatus])
                                                                      _ -> []) (pathsOf s (undefined :: Proxy ReportStatus)),
                                              concatMap (\path -> case path of
-                                                                     p@(Path_ReportView__reportRedacted _) -> map (\a -> Node (Peek_ReportView_Bool p (Just a)) []) (toListOf (toLens p) s :: [Bool])
+                                                                     p@(Path_ReportView__reportRedacted wp) -> map (\a -> Node (Peek_ReportView_Bool p (Just a)) []) (toListOf (toLens p) s :: [Bool])
                                                                      _ -> []) (pathsOf s (undefined :: Proxy Bool)),
                                              concatMap (\path -> case path of
-                                                                     p@(Path_ReportView__reportFlags _) -> map (\a -> Node (Peek_ReportView_ReportFlags p (Just a)) []) (toListOf (toLens p) s :: [ReportFlags])
+                                                                     p@(Path_ReportView__reportFlags wp) -> map (\a -> Node (Peek_ReportView_ReportFlags p (Just a)) []) (toListOf (toLens p) s :: [ReportFlags])
                                                                      _ -> []) (pathsOf s (undefined :: Proxy ReportFlags)),
                                              concatMap (\path -> case path of
-                                                                     p@(Path_ReportView__reportUUID _) -> map (\a -> Node (Peek_ReportView_UUID p (Just a)) []) (toListOf (toLens p) s :: [UUID])
+                                                                     p@(Path_ReportView__reportUUID wp) -> map (\a -> Node (Peek_ReportView_UUID p (Just a)) []) (toListOf (toLens p) s :: [UUID])
                                                                      _ -> []) (pathsOf s (undefined :: Proxy UUID)),
                                              concatMap (\path -> case path of
-                                                                     p@(Path_ReportView__reportOrderByItemName _) -> map (\a -> Node (Peek_ReportView_Bool p (Just a)) []) (toListOf (toLens p) s :: [Bool])
+                                                                     p@(Path_ReportView__reportOrderByItemName wp) -> map (\a -> Node (Peek_ReportView_Bool p (Just a)) []) (toListOf (toLens p) s :: [Bool])
                                                                      _ -> []) (pathsOf s (undefined :: Proxy Bool)),
                                              concatMap (\path -> case path of
-                                                                     p@(Path_ReportView__reportDisplayItemName _) -> map (\a -> Node (Peek_ReportView_Bool p (Just a)) []) (toListOf (toLens p) s :: [Bool])
+                                                                     p@(Path_ReportView__reportDisplayItemName wp) -> map (\a -> Node (Peek_ReportView_Bool p (Just a)) []) (toListOf (toLens p) s :: [Bool])
                                                                      _ -> []) (pathsOf s (undefined :: Proxy Bool)),
                                              concatMap (\path -> case path of
-                                                                     p@(Path_ReportView__reportStandardsVersion _) -> map (\a -> Node (Peek_ReportView_ReportStandard p (Just a)) []) (toListOf (toLens p) s :: [ReportStandard])
+                                                                     p@(Path_ReportView__reportStandardsVersion wp) -> map (\a -> Node (Peek_ReportView_ReportStandard p (Just a)) []) (toListOf (toLens p) s :: [ReportStandard])
                                                                      _ -> []) (pathsOf s (undefined :: Proxy ReportStandard))] :: Forest (Peek ReportView)
 instance IsPathStart Item
     where data Peek Item
@@ -11565,51 +12405,51 @@ instance IsPathStart Item
               | Peek_Item_Text (Path Item Text) (Maybe Text)
               deriving (Eq, Show)
           peek (s@(Item {})) = mconcat [concatMap (\path -> case path of
-                                                                p@(Path_Item_itemName _) -> map (\a -> let f = peek a
-                                                                                                        in let liftPeek (Peek_Text_JSONText q z) = Peek_Item_JSONText (Path_Item_itemName q) z
-                                                                                                               liftPeek (Peek_Text_Text q z) = Peek_Item_Text (Path_Item_itemName q) z
-                                                                                                            in Node (Peek_Item_Text p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Text])
+                                                                p@(Path_Item_itemName wp) -> map (\a -> let f = peek a
+                                                                                                         in let liftPeek (Peek_Text_JSONText q z) = Peek_Item_JSONText (Path_Item_itemName q) z
+                                                                                                                liftPeek (Peek_Text_Text q z) = Peek_Item_Text (Path_Item_itemName q) z
+                                                                                                             in Node (Peek_Item_Text p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Text])
                                                                 _ -> []) (pathsOf s (undefined :: Proxy Text)),
                                         concatMap (\path -> case path of
-                                                                p@(Path_Item_fields _) -> map (\a -> let f = peek a
-                                                                                                      in let liftPeek (Peek_MIM_JSONText q z) = Peek_Item_JSONText (Path_Item_fields q) z
-                                                                                                             liftPeek (Peek_MIM_Markup q z) = Peek_Item_Markup (Path_Item_fields q) z
-                                                                                                             liftPeek (Peek_MIM_MIM q z) = Peek_Item_MIM (Path_Item_fields q) z
-                                                                                                             liftPeek (Peek_MIM_Text q z) = Peek_Item_Text (Path_Item_fields q) z
-                                                                                                          in Node (Peek_Item_MIM p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Map ItemFieldName Markup])
+                                                                p@(Path_Item_fields wp) -> map (\a -> let f = peek a
+                                                                                                       in let liftPeek (Peek_MIM_JSONText q z) = Peek_Item_JSONText (Path_Item_fields q) z
+                                                                                                              liftPeek (Peek_MIM_Markup q z) = Peek_Item_Markup (Path_Item_fields q) z
+                                                                                                              liftPeek (Peek_MIM_MIM q z) = Peek_Item_MIM (Path_Item_fields q) z
+                                                                                                              liftPeek (Peek_MIM_Text q z) = Peek_Item_Text (Path_Item_fields q) z
+                                                                                                           in Node (Peek_Item_MIM p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Map ItemFieldName Markup])
                                                                 _ -> []) (pathsOf s (undefined :: Proxy (Map ItemFieldName Markup))),
                                         concatMap (\path -> case path of
-                                                                p@(Path_Item_images _) -> map (\a -> let f = peek a
-                                                                                                      in let liftPeek (Peek_ReportImages_String q z) = Peek_Item_String (Path_Item_images q) z
-                                                                                                             liftPeek (Peek_ReportImages_Bool q z) = Peek_Item_Bool (Path_Item_images q) z
-                                                                                                             liftPeek (Peek_ReportImages_Double q z) = Peek_Item_Double (Path_Item_images q) z
-                                                                                                             liftPeek (Peek_ReportImages_Dimension q z) = Peek_Item_Dimension (Path_Item_images q) z
-                                                                                                             liftPeek (Peek_ReportImages_ImageCrop q z) = Peek_Item_ImageCrop (Path_Item_images q) z
-                                                                                                             liftPeek (Peek_ReportImages_ImageSize q z) = Peek_Item_ImageSize (Path_Item_images q) z
-                                                                                                             liftPeek (Peek_ReportImages_Units q z) = Peek_Item_Units (Path_Item_images q) z
-                                                                                                             liftPeek (Peek_ReportImages_ImageFile q z) = Peek_Item_ImageFile (Path_Item_images q) z
-                                                                                                             liftPeek (Peek_ReportImages_JSONText q z) = Peek_Item_JSONText (Path_Item_images q) z
-                                                                                                             liftPeek (Peek_ReportImages_Markup q z) = Peek_Item_Markup (Path_Item_images q) z
-                                                                                                             liftPeek (Peek_ReportImages_EUI q z) = Peek_Item_EUI (Path_Item_images q) z
-                                                                                                             liftPeek (Peek_ReportImages_MEUI q z) = Peek_Item_MEUI (Path_Item_images q) z
-                                                                                                             liftPeek (Peek_ReportImages_MaybeImageFile q z) = Peek_Item_MaybeImageFile (Path_Item_images q) z
-                                                                                                             liftPeek (Peek_ReportImages_ReportImage q z) = Peek_Item_ReportImage (Path_Item_images q) z
-                                                                                                             liftPeek (Peek_ReportImages_ReportImages q z) = Peek_Item_ReportImages (Path_Item_images q) z
-                                                                                                             liftPeek (Peek_ReportImages_ReportImageView q z) = Peek_Item_ReportImageView (Path_Item_images q) z
-                                                                                                             liftPeek (Peek_ReportImages_SaneSizeImageSize q z) = Peek_Item_SaneSizeImageSize (Path_Item_images q) z
-                                                                                                             liftPeek (Peek_ReportImages_URI q z) = Peek_Item_URI (Path_Item_images q) z
-                                                                                                             liftPeek (Peek_ReportImages_Text q z) = Peek_Item_Text (Path_Item_images q) z
-                                                                                                          in Node (Peek_Item_ReportImages p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Order ReportImageID
-                                                                                                                                                                                                                                           ReportImage])
+                                                                p@(Path_Item_images wp) -> map (\a -> let f = peek a
+                                                                                                       in let liftPeek (Peek_ReportImages_String q z) = Peek_Item_String (Path_Item_images q) z
+                                                                                                              liftPeek (Peek_ReportImages_Bool q z) = Peek_Item_Bool (Path_Item_images q) z
+                                                                                                              liftPeek (Peek_ReportImages_Double q z) = Peek_Item_Double (Path_Item_images q) z
+                                                                                                              liftPeek (Peek_ReportImages_Dimension q z) = Peek_Item_Dimension (Path_Item_images q) z
+                                                                                                              liftPeek (Peek_ReportImages_ImageCrop q z) = Peek_Item_ImageCrop (Path_Item_images q) z
+                                                                                                              liftPeek (Peek_ReportImages_ImageSize q z) = Peek_Item_ImageSize (Path_Item_images q) z
+                                                                                                              liftPeek (Peek_ReportImages_Units q z) = Peek_Item_Units (Path_Item_images q) z
+                                                                                                              liftPeek (Peek_ReportImages_ImageFile q z) = Peek_Item_ImageFile (Path_Item_images q) z
+                                                                                                              liftPeek (Peek_ReportImages_JSONText q z) = Peek_Item_JSONText (Path_Item_images q) z
+                                                                                                              liftPeek (Peek_ReportImages_Markup q z) = Peek_Item_Markup (Path_Item_images q) z
+                                                                                                              liftPeek (Peek_ReportImages_EUI q z) = Peek_Item_EUI (Path_Item_images q) z
+                                                                                                              liftPeek (Peek_ReportImages_MEUI q z) = Peek_Item_MEUI (Path_Item_images q) z
+                                                                                                              liftPeek (Peek_ReportImages_MaybeImageFile q z) = Peek_Item_MaybeImageFile (Path_Item_images q) z
+                                                                                                              liftPeek (Peek_ReportImages_ReportImage q z) = Peek_Item_ReportImage (Path_Item_images q) z
+                                                                                                              liftPeek (Peek_ReportImages_ReportImages q z) = Peek_Item_ReportImages (Path_Item_images q) z
+                                                                                                              liftPeek (Peek_ReportImages_ReportImageView q z) = Peek_Item_ReportImageView (Path_Item_images q) z
+                                                                                                              liftPeek (Peek_ReportImages_SaneSizeImageSize q z) = Peek_Item_SaneSizeImageSize (Path_Item_images q) z
+                                                                                                              liftPeek (Peek_ReportImages_URI q z) = Peek_Item_URI (Path_Item_images q) z
+                                                                                                              liftPeek (Peek_ReportImages_Text q z) = Peek_Item_Text (Path_Item_images q) z
+                                                                                                           in Node (Peek_Item_ReportImages p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Order ReportImageID
+                                                                                                                                                                                                                                            ReportImage])
                                                                 _ -> []) (pathsOf s (undefined :: Proxy (Order ReportImageID ReportImage)))] :: Forest (Peek Item)
           hop (s@(Item {})) = mconcat [concatMap (\path -> case path of
-                                                               p@(Path_Item_itemName _) -> map (\a -> Node (Peek_Item_Text p (Just a)) []) (toListOf (toLens p) s :: [Text])
+                                                               p@(Path_Item_itemName wp) -> map (\a -> Node (Peek_Item_Text p (Just a)) []) (toListOf (toLens p) s :: [Text])
                                                                _ -> []) (pathsOf s (undefined :: Proxy Text)),
                                        concatMap (\path -> case path of
-                                                               p@(Path_Item_fields _) -> map (\a -> Node (Peek_Item_MIM p (Just a)) []) (toListOf (toLens p) s :: [Map ItemFieldName Markup])
+                                                               p@(Path_Item_fields wp) -> map (\a -> Node (Peek_Item_MIM p (Just a)) []) (toListOf (toLens p) s :: [Map ItemFieldName Markup])
                                                                _ -> []) (pathsOf s (undefined :: Proxy (Map ItemFieldName Markup))),
                                        concatMap (\path -> case path of
-                                                               p@(Path_Item_images _) -> map (\a -> Node (Peek_Item_ReportImages p (Just a)) []) (toListOf (toLens p) s :: [Order ReportImageID ReportImage])
+                                                               p@(Path_Item_images wp) -> map (\a -> Node (Peek_Item_ReportImages p (Just a)) []) (toListOf (toLens p) s :: [Order ReportImageID ReportImage])
                                                                _ -> []) (pathsOf s (undefined :: Proxy (Order ReportImageID ReportImage)))] :: Forest (Peek Item)
 instance IsPathStart ReportMap
     where data Peek ReportMap
@@ -11665,61 +12505,61 @@ instance IsPathStart ReportMap
               | Peek_ReportMap_UUID (Path ReportMap UUID) (Maybe UUID)
               deriving (Eq, Show)
           peek (s@(ReportMap {})) = concatMap (\path -> case path of
-                                                            p@(Path_ReportMap_unReportMap _) -> map (\a -> let f = peek a
-                                                                                                            in let liftPeek (Peek_MRR_String q z) = Peek_ReportMap_String (Path_ReportMap_unReportMap q) z
-                                                                                                                   liftPeek (Peek_MRR_Int64 q z) = Peek_ReportMap_Int64 (Path_ReportMap_unReportMap q) z
-                                                                                                                   liftPeek (Peek_MRR_Int q z) = Peek_ReportMap_Int (Path_ReportMap_unReportMap q) z
-                                                                                                                   liftPeek (Peek_MRR_Bool q z) = Peek_ReportMap_Bool (Path_ReportMap_unReportMap q) z
-                                                                                                                   liftPeek (Peek_MRR_Double q z) = Peek_ReportMap_Double (Path_ReportMap_unReportMap q) z
-                                                                                                                   liftPeek (Peek_MRR_Dimension q z) = Peek_ReportMap_Dimension (Path_ReportMap_unReportMap q) z
-                                                                                                                   liftPeek (Peek_MRR_ImageCrop q z) = Peek_ReportMap_ImageCrop (Path_ReportMap_unReportMap q) z
-                                                                                                                   liftPeek (Peek_MRR_ImageSize q z) = Peek_ReportMap_ImageSize (Path_ReportMap_unReportMap q) z
-                                                                                                                   liftPeek (Peek_MRR_Units q z) = Peek_ReportMap_Units (Path_ReportMap_unReportMap q) z
-                                                                                                                   liftPeek (Peek_MRR_ImageFile q z) = Peek_ReportMap_ImageFile (Path_ReportMap_unReportMap q) z
-                                                                                                                   liftPeek (Peek_MRR_Integer q z) = Peek_ReportMap_Integer (Path_ReportMap_unReportMap q) z
-                                                                                                                   liftPeek (Peek_MRR_JSONText q z) = Peek_ReportMap_JSONText (Path_ReportMap_unReportMap q) z
-                                                                                                                   liftPeek (Peek_MRR_Markup q z) = Peek_ReportMap_Markup (Path_ReportMap_unReportMap q) z
-                                                                                                                   liftPeek (Peek_MRR_Permissions q z) = Peek_ReportMap_Permissions (Path_ReportMap_unReportMap q) z
-                                                                                                                   liftPeek (Peek_MRR_UserIds q z) = Peek_ReportMap_UserIds (Path_ReportMap_unReportMap q) z
-                                                                                                                   liftPeek (Peek_MRR_AbbrevPair q z) = Peek_ReportMap_AbbrevPair (Path_ReportMap_unReportMap q) z
-                                                                                                                   liftPeek (Peek_MRR_AbbrevPairs q z) = Peek_ReportMap_AbbrevPairs (Path_ReportMap_unReportMap q) z
-                                                                                                                   liftPeek (Peek_MRR_Author q z) = Peek_ReportMap_Author (Path_ReportMap_unReportMap q) z
-                                                                                                                   liftPeek (Peek_MRR_Authors q z) = Peek_ReportMap_Authors (Path_ReportMap_unReportMap q) z
-                                                                                                                   liftPeek (Peek_MRR_Branding q z) = Peek_ReportMap_Branding (Path_ReportMap_unReportMap q) z
-                                                                                                                   liftPeek (Peek_MRR_MarkupPair q z) = Peek_ReportMap_MarkupPair (Path_ReportMap_unReportMap q) z
-                                                                                                                   liftPeek (Peek_MRR_MarkupPairs q z) = Peek_ReportMap_MarkupPairs (Path_ReportMap_unReportMap q) z
-                                                                                                                   liftPeek (Peek_MRR_Markups q z) = Peek_ReportMap_Markups (Path_ReportMap_unReportMap q) z
-                                                                                                                   liftPeek (Peek_MRR_MaybeReportIntendedUse q z) = Peek_ReportMap_MaybeReportIntendedUse (Path_ReportMap_unReportMap q) z
-                                                                                                                   liftPeek (Peek_MRR_Report q z) = Peek_ReportMap_Report (Path_ReportMap_unReportMap q) z
-                                                                                                                   liftPeek (Peek_MRR_ReportElem q z) = Peek_ReportMap_ReportElem (Path_ReportMap_unReportMap q) z
-                                                                                                                   liftPeek (Peek_MRR_ReportElems q z) = Peek_ReportMap_ReportElems (Path_ReportMap_unReportMap q) z
-                                                                                                                   liftPeek (Peek_MRR_ReportFlags q z) = Peek_ReportMap_ReportFlags (Path_ReportMap_unReportMap q) z
-                                                                                                                   liftPeek (Peek_MRR_ReportStandard q z) = Peek_ReportMap_ReportStandard (Path_ReportMap_unReportMap q) z
-                                                                                                                   liftPeek (Peek_MRR_ReportStatus q z) = Peek_ReportMap_ReportStatus (Path_ReportMap_unReportMap q) z
-                                                                                                                   liftPeek (Peek_MRR_ReportValueApproachInfo q z) = Peek_ReportMap_ReportValueApproachInfo (Path_ReportMap_unReportMap q) z
-                                                                                                                   liftPeek (Peek_MRR_ReportValueTypeInfo q z) = Peek_ReportMap_ReportValueTypeInfo (Path_ReportMap_unReportMap q) z
-                                                                                                                   liftPeek (Peek_MRR_EUI q z) = Peek_ReportMap_EUI (Path_ReportMap_unReportMap q) z
-                                                                                                                   liftPeek (Peek_MRR_MEUI q z) = Peek_ReportMap_MEUI (Path_ReportMap_unReportMap q) z
-                                                                                                                   liftPeek (Peek_MRR_MaybeImageFile q z) = Peek_ReportMap_MaybeImageFile (Path_ReportMap_unReportMap q) z
-                                                                                                                   liftPeek (Peek_MRR_ReportImage q z) = Peek_ReportMap_ReportImage (Path_ReportMap_unReportMap q) z
-                                                                                                                   liftPeek (Peek_MRR_ReportImages q z) = Peek_ReportMap_ReportImages (Path_ReportMap_unReportMap q) z
-                                                                                                                   liftPeek (Peek_MRR_ReadOnlyFilePath q z) = Peek_ReportMap_ReadOnlyFilePath (Path_ReportMap_unReportMap q) z
-                                                                                                                   liftPeek (Peek_MRR_ReportImageView q z) = Peek_ReportMap_ReportImageView (Path_ReportMap_unReportMap q) z
-                                                                                                                   liftPeek (Peek_MRR_ReportView q z) = Peek_ReportMap_ReportView (Path_ReportMap_unReportMap q) z
-                                                                                                                   liftPeek (Peek_MRR_SaneSizeImageSize q z) = Peek_ReportMap_SaneSizeImageSize (Path_ReportMap_unReportMap q) z
-                                                                                                                   liftPeek (Peek_MRR_Item q z) = Peek_ReportMap_Item (Path_ReportMap_unReportMap q) z
-                                                                                                                   liftPeek (Peek_MRR_MIM q z) = Peek_ReportMap_MIM (Path_ReportMap_unReportMap q) z
-                                                                                                                   liftPeek (Peek_MRR_MRR q z) = Peek_ReportMap_MRR (Path_ReportMap_unReportMap q) z
-                                                                                                                   liftPeek (Peek_MRR_CIString q z) = Peek_ReportMap_CIString (Path_ReportMap_unReportMap q) z
-                                                                                                                   liftPeek (Peek_MRR_URI q z) = Peek_ReportMap_URI (Path_ReportMap_unReportMap q) z
-                                                                                                                   liftPeek (Peek_MRR_Text q z) = Peek_ReportMap_Text (Path_ReportMap_unReportMap q) z
-                                                                                                                   liftPeek (Peek_MRR_UserId q z) = Peek_ReportMap_UserId (Path_ReportMap_unReportMap q) z
-                                                                                                                   liftPeek (Peek_MRR_UUID q z) = Peek_ReportMap_UUID (Path_ReportMap_unReportMap q) z
-                                                                                                                in Node (Peek_ReportMap_MRR p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Map ReportID
-                                                                                                                                                                                                                                           Report])
+                                                            p@(Path_ReportMap_unReportMap wp) -> map (\a -> let f = peek a
+                                                                                                             in let liftPeek (Peek_MRR_String q z) = Peek_ReportMap_String (Path_ReportMap_unReportMap q) z
+                                                                                                                    liftPeek (Peek_MRR_Int64 q z) = Peek_ReportMap_Int64 (Path_ReportMap_unReportMap q) z
+                                                                                                                    liftPeek (Peek_MRR_Int q z) = Peek_ReportMap_Int (Path_ReportMap_unReportMap q) z
+                                                                                                                    liftPeek (Peek_MRR_Bool q z) = Peek_ReportMap_Bool (Path_ReportMap_unReportMap q) z
+                                                                                                                    liftPeek (Peek_MRR_Double q z) = Peek_ReportMap_Double (Path_ReportMap_unReportMap q) z
+                                                                                                                    liftPeek (Peek_MRR_Dimension q z) = Peek_ReportMap_Dimension (Path_ReportMap_unReportMap q) z
+                                                                                                                    liftPeek (Peek_MRR_ImageCrop q z) = Peek_ReportMap_ImageCrop (Path_ReportMap_unReportMap q) z
+                                                                                                                    liftPeek (Peek_MRR_ImageSize q z) = Peek_ReportMap_ImageSize (Path_ReportMap_unReportMap q) z
+                                                                                                                    liftPeek (Peek_MRR_Units q z) = Peek_ReportMap_Units (Path_ReportMap_unReportMap q) z
+                                                                                                                    liftPeek (Peek_MRR_ImageFile q z) = Peek_ReportMap_ImageFile (Path_ReportMap_unReportMap q) z
+                                                                                                                    liftPeek (Peek_MRR_Integer q z) = Peek_ReportMap_Integer (Path_ReportMap_unReportMap q) z
+                                                                                                                    liftPeek (Peek_MRR_JSONText q z) = Peek_ReportMap_JSONText (Path_ReportMap_unReportMap q) z
+                                                                                                                    liftPeek (Peek_MRR_Markup q z) = Peek_ReportMap_Markup (Path_ReportMap_unReportMap q) z
+                                                                                                                    liftPeek (Peek_MRR_Permissions q z) = Peek_ReportMap_Permissions (Path_ReportMap_unReportMap q) z
+                                                                                                                    liftPeek (Peek_MRR_UserIds q z) = Peek_ReportMap_UserIds (Path_ReportMap_unReportMap q) z
+                                                                                                                    liftPeek (Peek_MRR_AbbrevPair q z) = Peek_ReportMap_AbbrevPair (Path_ReportMap_unReportMap q) z
+                                                                                                                    liftPeek (Peek_MRR_AbbrevPairs q z) = Peek_ReportMap_AbbrevPairs (Path_ReportMap_unReportMap q) z
+                                                                                                                    liftPeek (Peek_MRR_Author q z) = Peek_ReportMap_Author (Path_ReportMap_unReportMap q) z
+                                                                                                                    liftPeek (Peek_MRR_Authors q z) = Peek_ReportMap_Authors (Path_ReportMap_unReportMap q) z
+                                                                                                                    liftPeek (Peek_MRR_Branding q z) = Peek_ReportMap_Branding (Path_ReportMap_unReportMap q) z
+                                                                                                                    liftPeek (Peek_MRR_MarkupPair q z) = Peek_ReportMap_MarkupPair (Path_ReportMap_unReportMap q) z
+                                                                                                                    liftPeek (Peek_MRR_MarkupPairs q z) = Peek_ReportMap_MarkupPairs (Path_ReportMap_unReportMap q) z
+                                                                                                                    liftPeek (Peek_MRR_Markups q z) = Peek_ReportMap_Markups (Path_ReportMap_unReportMap q) z
+                                                                                                                    liftPeek (Peek_MRR_MaybeReportIntendedUse q z) = Peek_ReportMap_MaybeReportIntendedUse (Path_ReportMap_unReportMap q) z
+                                                                                                                    liftPeek (Peek_MRR_Report q z) = Peek_ReportMap_Report (Path_ReportMap_unReportMap q) z
+                                                                                                                    liftPeek (Peek_MRR_ReportElem q z) = Peek_ReportMap_ReportElem (Path_ReportMap_unReportMap q) z
+                                                                                                                    liftPeek (Peek_MRR_ReportElems q z) = Peek_ReportMap_ReportElems (Path_ReportMap_unReportMap q) z
+                                                                                                                    liftPeek (Peek_MRR_ReportFlags q z) = Peek_ReportMap_ReportFlags (Path_ReportMap_unReportMap q) z
+                                                                                                                    liftPeek (Peek_MRR_ReportStandard q z) = Peek_ReportMap_ReportStandard (Path_ReportMap_unReportMap q) z
+                                                                                                                    liftPeek (Peek_MRR_ReportStatus q z) = Peek_ReportMap_ReportStatus (Path_ReportMap_unReportMap q) z
+                                                                                                                    liftPeek (Peek_MRR_ReportValueApproachInfo q z) = Peek_ReportMap_ReportValueApproachInfo (Path_ReportMap_unReportMap q) z
+                                                                                                                    liftPeek (Peek_MRR_ReportValueTypeInfo q z) = Peek_ReportMap_ReportValueTypeInfo (Path_ReportMap_unReportMap q) z
+                                                                                                                    liftPeek (Peek_MRR_EUI q z) = Peek_ReportMap_EUI (Path_ReportMap_unReportMap q) z
+                                                                                                                    liftPeek (Peek_MRR_MEUI q z) = Peek_ReportMap_MEUI (Path_ReportMap_unReportMap q) z
+                                                                                                                    liftPeek (Peek_MRR_MaybeImageFile q z) = Peek_ReportMap_MaybeImageFile (Path_ReportMap_unReportMap q) z
+                                                                                                                    liftPeek (Peek_MRR_ReportImage q z) = Peek_ReportMap_ReportImage (Path_ReportMap_unReportMap q) z
+                                                                                                                    liftPeek (Peek_MRR_ReportImages q z) = Peek_ReportMap_ReportImages (Path_ReportMap_unReportMap q) z
+                                                                                                                    liftPeek (Peek_MRR_ReadOnlyFilePath q z) = Peek_ReportMap_ReadOnlyFilePath (Path_ReportMap_unReportMap q) z
+                                                                                                                    liftPeek (Peek_MRR_ReportImageView q z) = Peek_ReportMap_ReportImageView (Path_ReportMap_unReportMap q) z
+                                                                                                                    liftPeek (Peek_MRR_ReportView q z) = Peek_ReportMap_ReportView (Path_ReportMap_unReportMap q) z
+                                                                                                                    liftPeek (Peek_MRR_SaneSizeImageSize q z) = Peek_ReportMap_SaneSizeImageSize (Path_ReportMap_unReportMap q) z
+                                                                                                                    liftPeek (Peek_MRR_Item q z) = Peek_ReportMap_Item (Path_ReportMap_unReportMap q) z
+                                                                                                                    liftPeek (Peek_MRR_MIM q z) = Peek_ReportMap_MIM (Path_ReportMap_unReportMap q) z
+                                                                                                                    liftPeek (Peek_MRR_MRR q z) = Peek_ReportMap_MRR (Path_ReportMap_unReportMap q) z
+                                                                                                                    liftPeek (Peek_MRR_CIString q z) = Peek_ReportMap_CIString (Path_ReportMap_unReportMap q) z
+                                                                                                                    liftPeek (Peek_MRR_URI q z) = Peek_ReportMap_URI (Path_ReportMap_unReportMap q) z
+                                                                                                                    liftPeek (Peek_MRR_Text q z) = Peek_ReportMap_Text (Path_ReportMap_unReportMap q) z
+                                                                                                                    liftPeek (Peek_MRR_UserId q z) = Peek_ReportMap_UserId (Path_ReportMap_unReportMap q) z
+                                                                                                                    liftPeek (Peek_MRR_UUID q z) = Peek_ReportMap_UUID (Path_ReportMap_unReportMap q) z
+                                                                                                                 in Node (Peek_ReportMap_MRR p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Map ReportID
+                                                                                                                                                                                                                                            Report])
                                                             _ -> []) (pathsOf s (undefined :: Proxy (Map ReportID Report))) :: Forest (Peek ReportMap)
           hop (s@(ReportMap {})) = concatMap (\path -> case path of
-                                                           p@(Path_ReportMap_unReportMap _) -> map (\a -> Node (Peek_ReportMap_MRR p (Just a)) []) (toListOf (toLens p) s :: [Map ReportID Report])
+                                                           p@(Path_ReportMap_unReportMap wp) -> map (\a -> Node (Peek_ReportMap_MRR p (Just a)) []) (toListOf (toLens p) s :: [Map ReportID Report])
                                                            _ -> []) (pathsOf s (undefined :: Proxy (Map ReportID Report))) :: Forest (Peek ReportMap)
 instance IsPathStart CIString
     where data Peek CIString
@@ -11728,13 +12568,13 @@ instance IsPathStart CIString
               | Peek_CIString_Text (Path CIString Text) (Maybe Text)
               deriving (Eq, Show)
           peek s = concatMap (\path -> case path of
-                                           p@(Path_CIString_View _) -> map (\a -> let f = peek a
-                                                                                   in let liftPeek (Peek_Text_JSONText q z) = Peek_CIString_JSONText (Path_CIString_View q) z
-                                                                                          liftPeek (Peek_Text_Text q z) = Peek_CIString_Text (Path_CIString_View q) z
-                                                                                       in Node (Peek_CIString_Text p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Text])
+                                           p@(Path_CIString_View wp) -> map (\a -> let f = peek a
+                                                                                    in let liftPeek (Peek_Text_JSONText q z) = Peek_CIString_JSONText (Path_CIString_View q) z
+                                                                                           liftPeek (Peek_Text_Text q z) = Peek_CIString_Text (Path_CIString_View q) z
+                                                                                        in Node (Peek_CIString_Text p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [Text])
                                            _ -> []) (pathsOf s (undefined :: Proxy Text)) :: Forest (Peek CIString)
           hop s = concatMap (\path -> case path of
-                                          p@(Path_CIString_View _) -> map (\a -> Node (Peek_CIString_Text p (Just a)) []) (toListOf (toLens p) s :: [Text])
+                                          p@(Path_CIString_View wp) -> map (\a -> Node (Peek_CIString_Text p (Just a)) []) (toListOf (toLens p) s :: [Text])
                                           _ -> []) (pathsOf s (undefined :: Proxy Text)) :: Forest (Peek CIString)
 instance IsPathStart URI
     where data Peek URI = Peek_URI_URI (Path URI URI) (Maybe URI) deriving (Eq, Show)
@@ -11743,12 +12583,12 @@ instance IsPathStart URI
 instance IsPathStart Text
     where data Peek Text = Peek_Text_JSONText (Path Text JSONText) (Maybe JSONText) | Peek_Text_Text (Path Text Text) (Maybe Text) deriving (Eq, Show)
           peek s = concatMap (\path -> case path of
-                                           p@(Path_Text_View _) -> map (\a -> let f = peek a
-                                                                               in let liftPeek (Peek_JSONText_JSONText q z) = Peek_Text_JSONText (Path_Text_View q) z
-                                                                                   in Node (Peek_Text_JSONText p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [JSONText])
+                                           p@(Path_Text_View wp) -> map (\a -> let f = peek a
+                                                                                in let liftPeek (Peek_JSONText_JSONText q z) = Peek_Text_JSONText (Path_Text_View q) z
+                                                                                    in Node (Peek_Text_JSONText p (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens p) s :: [JSONText])
                                            _ -> []) (pathsOf s (undefined :: Proxy JSONText)) :: Forest (Peek Text)
           hop s = concatMap (\path -> case path of
-                                          p@(Path_Text_View _) -> map (\a -> Node (Peek_Text_JSONText p (Just a)) []) (toListOf (toLens p) s :: [JSONText])
+                                          p@(Path_Text_View wp) -> map (\a -> Node (Peek_Text_JSONText p (Just a)) []) (toListOf (toLens p) s :: [JSONText])
                                           _ -> []) (pathsOf s (undefined :: Proxy JSONText)) :: Forest (Peek Text)
 instance IsPathStart UserId
     where data Peek UserId = Peek_UserId_UserId (Path UserId UserId) (Maybe UserId) deriving (Eq, Show)

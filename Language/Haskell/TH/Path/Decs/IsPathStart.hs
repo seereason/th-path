@@ -22,7 +22,6 @@ import Control.Monad.Writer (execWriterT, MonadWriter, tell)
 import Data.Char (isUpper, toUpper)
 import Data.Foldable as Foldable
 import Data.List as List (groupBy, map)
-import Data.Maybe (fromMaybe)
 import Data.Proxy
 import Data.Tree (Tree(Node), Forest)
 import Language.Haskell.TH
@@ -37,7 +36,8 @@ import Language.Haskell.TH.Path.Core (IsPathStart(Peek, peek, hop), HasPaths(..)
 import Language.Haskell.TH.Path.Graph (TypeGraphM)
 import Language.Haskell.TH.Path.Order (Path_OMap(..))
 import Language.Haskell.TH.Path.Traverse (asP', Control(..), doType, finishConc, finishEither, finishPair)
-import Language.Haskell.TH.TypeGraph.TypeGraph (pathKeys, pathKeys', tgv, tgvSimple)
+import Language.Haskell.TH.TypeGraph.Shape (reifyField {- instance Lift Field -})
+import Language.Haskell.TH.TypeGraph.TypeGraph (pathKeys, pathKeys', simplify, tgv, tgvSimple)
 import Language.Haskell.TH.TypeGraph.Vertex (TGV, field, TGVSimple)
 
 newtype PeekType = PeekType {unPeekType :: Name} deriving (Eq, Ord, Show) -- e.g. Peek_AbbrevPairs
@@ -82,7 +82,7 @@ peekDecs v =
                ],
               instanceD (cxt []) (appT (conT ''Describe) [t|Peek $(asTypeQ v)|])
                [funD 'describe (case dcs of
-                                  [] -> [clause [wildP] (normalB [| [] |]) []]
+                                  [] -> [clause [wildP, wildP] (normalB [|Nothing|]) []]
                                   _ -> dcs)]
              ]
     where
@@ -93,28 +93,28 @@ peekDecs v =
                           [(,) <$> notStrict <*> [t|Path $(asTypeQ v) $(asTypeQ g)|],
                            (,) <$> notStrict <*> [t|Maybe $(asTypeQ g)|] ]]
 
-isPathControl :: forall m. (TypeGraphM m, MonadWriter [ClauseType] m) => TGVSimple -> Name -> Control m (TGV, PatQ, ExpQ) () ()
-isPathControl v x =
+isPathControl :: forall m. (TypeGraphM m, MonadWriter [ClauseType] m) => TGVSimple -> Name -> Name -> Control m (TGV, PatQ, ExpQ) () ()
+isPathControl v x wPathVar =
     let control :: Control m (TGV, PatQ, ExpQ) () ()
-        control = isPathControl v x in
+        control = isPathControl v x wPathVar in
     Control { _doSimple = pure ()
             , _doSelf = pure ()
             , _doView =
                 \typ ->
                     do w <- tgvSimple typ >>= tgv Nothing
-                       let pcname = makePathCon (makePathType (ModelType (asName v))) "View"
-                       alt <- _doConcs control wildP [(w, conP (asName pcname) [wildP], conE (asName pcname))]
+                       let vPathConName = makePathCon (makePathType (ModelType (asName v))) "View"
+                       alt <- _doConcs control wildP [(w, conP (asName vPathConName) [varP wPathVar], conE (asName vPathConName))]
                        _doAlts control [alt]
             , _doOrder =
                 \_i typ ->
                     do w <- tgvSimple typ >>= tgv Nothing
                        k <- runQ $ newName "k"
-                       finishConc control (w, conP 'Path_At [varP k, wildP], [|Path_At $(varE k)|])
+                       finishConc control (w, conP 'Path_At [varP k, varP wPathVar], [|Path_At $(varE k)|])
             , _doMap =
                 \_i typ ->
                     do w <- tgvSimple typ >>= tgv Nothing
                        k <- runQ $ newName "k"
-                       finishConc control (w, conP 'Path_Look [varP k, wildP], [|Path_Look $(varE k)|])
+                       finishConc control (w, conP 'Path_Look [varP k, varP wPathVar], [|Path_Look $(varE k)|])
             , _doList =
                 \_e -> pure ()
             , _doPair =
@@ -122,24 +122,24 @@ isPathControl v x =
                     do f <- tgvSimple ftyp >>= tgv Nothing
                        s <- tgvSimple styp >>= tgv Nothing
                        finishPair control
-                               (f, conP 'Path_First [wildP], [|Path_First|])
-                               (s, conP 'Path_Second [wildP], [|Path_Second|])
+                               (f, conP 'Path_First [varP wPathVar], [|Path_First|])
+                               (s, conP 'Path_Second [varP wPathVar], [|Path_Second|])
             , _doMaybe =
                 \typ ->
                     do w <- tgvSimple typ >>= tgv Nothing
-                       finishConc control (w, conP 'Path_Just [wildP], [|Path_Just|])
+                       finishConc control (w, conP 'Path_Just [varP wPathVar], [|Path_Just|])
             , _doEither =
                 \ltyp rtyp ->
                     do l <- tgvSimple ltyp >>= tgv Nothing
                        r <- tgvSimple rtyp >>= tgv Nothing
-                       let lconc = (l, conP 'Path_Left [wildP], [|Path_Left|])
-                           rconc = (r, conP 'Path_Right [wildP], [|Path_Right|])
+                       let lconc = (l, conP 'Path_Left [varP wPathVar], [|Path_Left|])
+                           rconc = (r, conP 'Path_Right [varP wPathVar], [|Path_Right|])
                        finishEither control lconc rconc
             , _doField =
                 \fld typ ->
                     do f <- tgvSimple typ >>= tgv (Just fld)
-                       let pcname = maybe (error $ "Not a field: " ++ show f) id (makeFieldCon f)
-                       pure (f, conP (asName pcname) [wildP], asConQ pcname)
+                       let fieldPathConName = maybe (error $ "Not a field: " ++ show f) id (makeFieldCon f)
+                       pure (f, conP (asName fieldPathConName) [varP wPathVar], asConQ fieldPathConName)
             , _doConcs =
                 \xpat concs -> do
                   rs <- mapM (\conc@(w, ppat, pcon) ->
@@ -151,7 +151,7 @@ isPathControl v x =
                                                                      _ -> [])
                                                          (pathsOf $(varE x) (undefined :: Proxy $(asTypeQ w))
                                                              {-:: [$(asTypeQ (makePathType (ModelType (asName v)))) $(asTypeQ w)]-}) |]
-                                     describeConc v conc
+                                     describeConc v wPathVar conc
                                      p <- runQ $ newName "p"
                                      hf <- doHop v w p pcon >>= liftPeek p
                                      pf <- doPeek v w p pcon >>= liftPeek p
@@ -168,8 +168,9 @@ isPathControl v x =
 peekClauses :: forall m conc alt. (TypeGraphM m, MonadWriter [ClauseType] m, conc ~ (TGV, PatQ, ExpQ), alt ~ (PatQ, [conc])) =>
                TGVSimple -> m ()
 peekClauses v = do
-  x <- runQ (newName "s")
-  doType (isPathControl v x) (asType v)
+  x <- runQ $ newName "s"
+  wPathVar <- runQ $ newName "wp"
+  doType (isPathControl v x wPathVar) (asType v)
 
 concatMapQ :: [ExpQ] -> ExpQ
 concatMapQ [] = [|mempty|]
@@ -202,25 +203,30 @@ doGoal v w pcon g =
               []
 
 describeConc :: forall m. (TypeGraphM m, MonadWriter [ClauseType] m) =>
-                TGVSimple -> (TGV, PatQ, ExpQ) -> m ()
-describeConc v (w, ppat, _pcon) =
+                TGVSimple -> Name -> (TGV, PatQ, ExpQ) -> m ()
+describeConc v wPathVar (w, ppat, _pcon) =
     do p <- runQ $ newName "p"
        x <- runQ $ newName "x"
-       hasDescribeInstance <- (not . null) <$> reifyInstancesWithContext ''Describe [asType w]
+       hasDescribeInstance <- (not . null) <$> reifyInstancesWithContext ''Describe [AppT (ConT ''Proxy) (asType w)]
        pathKeys' w >>= mapM_ (doGoal' p x hasDescribeInstance)
     where
+      doGoal' :: Name -> Name -> Bool -> TGVSimple -> m ()
       doGoal' p x hasDescribeInstance g = do
-        let PeekCon n = makePeekCon (ModelType (asName v)) (ModelType (asName g))
+        w' <- simplify w
+        let PeekCon vn = makePeekCon (ModelType (asName v)) (ModelType (asName g))
+            PeekCon wn = makePeekCon (ModelType (asName w)) (ModelType (asName g))
+            next =
+                if w' == g
+                then [|Nothing|]
+                else [|describe $(lift (view (_2 . field) w)) ($(conE wn) $(varE wPathVar) undefined)|]
+            custom =
+                if hasDescribeInstance
+                then [|describe $(lift (view (_2 . field) w)) (Proxy :: Proxy $(asTypeQ w))|]
+                else [|Nothing|]
         tell [DescClause $
                 clause
-                  [wildP, conP n [asP p ppat, varP x]]
-                  (normalB (case hasDescribeInstance of
-                              True -> [|fromMaybe
-                                          (Just $(lift (toDescription w)))
-                                          (describe
-                                             $(lift (view (_2 . field) w))
-                                             (Proxy :: Proxy $(asTypeQ w)))|]
-                              False -> [|Just $(lift (toDescription w))|]))
+                  [wildP, conP vn [asP p ppat, varP x]]
+                  (normalB [| maybe (Just $(lift (toDescription w))) Just (maybe $custom Just $next) |])
                   []]
 
 toDescription :: TGV -> String
