@@ -19,7 +19,7 @@ module Language.Haskell.TH.Path.Core
       -- * Type classes and associated types
     , HasPaths(pathsOf, Path)
     , HasIdPath(idPath)
-    , IsPathStart(Peek, peek, hop, describe')
+    , IsPathStart(Peek, peek, hop)
     , ToLens(S, A, toLens)
     , (:.:)(..)
 
@@ -82,6 +82,7 @@ import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Syntax (qReify)
 import Language.Haskell.TH.TypeGraph.Prelude (pprint1)
+import Language.Haskell.TH.TypeGraph.Shape (Field)
 import Prelude hiding (exp)
 import Safe (readMay)
 import Web.Routes.TH (derivePathInfo)
@@ -116,7 +117,7 @@ class IsPathStart s where
     -- ^ This signature is exactly the same as peek, but the list
     -- indicates that no recurive peek calls are made, so only one
     -- layer of the forest is returned
-    describe' :: Peek s -> String
+    -- describe' :: Peek s -> String
 
 class ToLens p where
     type S p
@@ -178,10 +179,11 @@ class HideType a
 -- it.
 class SelfPath a
 
--- | Override the default description of a type @a@, based on the
--- constructor and field of the parent type in which it is embedded.
+-- | Override the default description associated with the type of @a@.
+-- The @Maybe Field@ argument can be used to optionally signify that
+-- the @a@ is contained in a particular field of a record.
 class Describe a where
-    describe :: Proxy a -> Maybe (Name, Name, Either Int Name) -> Maybe String
+    describe :: Maybe Field -> Proxy a -> Maybe String
 
 -- Primitive path types
 

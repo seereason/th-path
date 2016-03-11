@@ -32,7 +32,7 @@ import Language.Haskell.TH.Lift (lift)
 import Language.Haskell.TH.Path.Common (HasConQ(asConQ), HasCon(asCon), HasName(asName), HasType(asType), HasTypeQ(asTypeQ),
                                         makeFieldCon, makePathCon, makePathType,
                                         ModelType(ModelType), tells)
-import Language.Haskell.TH.Path.Core (IsPathStart(Peek, peek, hop, describe'), HasPaths(..), ToLens(toLens),
+import Language.Haskell.TH.Path.Core (IsPathStart(Peek, peek, hop), HasPaths(..), ToLens(toLens),
                                       Describe(describe), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..), forestMap)
 import Language.Haskell.TH.Path.Graph (TypeGraphM)
 import Language.Haskell.TH.Path.Order (Path_OMap(..))
@@ -78,11 +78,13 @@ peekDecs v =
                               _ -> pcs),
                 funD 'hop (case hcs of
                               [] -> [clause [wildP] (normalB [| [] |]) []]
-                              _ -> hcs),
-                funD 'describe' (case dcs of
-                                   [] -> [clause [wildP] (normalB [| [] |]) []]
-                                   _ -> dcs)
-               ]]
+                              _ -> hcs)
+               ],
+              instanceD (cxt []) (appT (conT ''Describe) [t|Peek $(asTypeQ v)|])
+               [funD 'describe (case dcs of
+                                  [] -> [clause [wildP] (normalB [| [] |]) []]
+                                  _ -> dcs)]
+             ]
     where
       peekCons :: m [ConQ]
       peekCons = (concat . List.map doPair . toList) <$> (pathKeys v)
@@ -211,12 +213,15 @@ describeConc v (w, ppat, _pcon) =
         let PeekCon n = makePeekCon (ModelType (asName v)) (ModelType (asName g))
         tell [DescClause $
                 clause
-                  [conP n [asP p ppat, varP x]]
+                  [wildP, conP n [asP p ppat, varP x]]
                   (normalB (case hasDescribeInstance of
                               True -> [|fromMaybe
-                                          $(lift (toDescription w))
-                                          (describe (Proxy :: Proxy $(asTypeQ w)) $(lift (view (_2 . field) w)))|]
-                              False -> lift (toDescription w))) []]
+                                          (Just $(lift (toDescription w)))
+                                          (describe
+                                             $(lift (view (_2 . field) w))
+                                             (Proxy :: Proxy $(asTypeQ w)))|]
+                              False -> [|Just $(lift (toDescription w))|]))
+                  []]
 
 toDescription :: TGV -> String
 toDescription w =

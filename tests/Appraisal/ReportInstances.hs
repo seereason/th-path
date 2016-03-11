@@ -130,7 +130,7 @@ data ReportView
     deriving (Read, Show, Eq, Ord, Typeable, Data)
 
 instance Describe Markup where
-    describe Proxy loc
+    describe loc Proxy
         | loc == Just ('ReportView, 'ReportView, Right '_reportLetterOfTransmittal) = Just "Letter of Transmittal"
         | otherwise = Nothing
 
