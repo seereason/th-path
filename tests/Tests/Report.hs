@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Report (report, image) where
+module Tests.Report (report, image) where
 
 import Appraisal.Markup (rawMarkdown, rawHtml)
 import Appraisal.Permissions (Permissions(Permissions, owner, writers, readers))
