@@ -5,7 +5,7 @@ module Appraisal.Markup
     (
     -- Don't export the constructors, we need to be careful how we
     -- construct Markup values.
-      Markup
+      Markup(..)
     , foldMarkup
     , markupText -- Retire in favor of foldMarkup?
     , markupNull
@@ -32,14 +32,10 @@ module Appraisal.Markup
     , lens_CIString_Text
 
     , htmlify
-
-    -- For testing
-    , Markup(..)
     ) where
 
 import Appraisal.Utils.CIString
 import Appraisal.LaTeX ({- Ord, Data, Read -})
-import Appraisal.Unicode as U (Unicode'(Unicode'))
 import Appraisal.Utils.IsText (fromText)
 import Appraisal.Utils.Pandoc (pandocFromMarkdown)
 import Control.Monad.Identity (Identity, runIdentity)

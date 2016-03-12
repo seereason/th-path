@@ -161,6 +161,8 @@ test-suite th-path-tests
     uuid,
     uuid-orphans,
     uuid-types
+  other-modules:
+    Tests.Data
   if impl(ghcjs)
     build-depends: microlens-compat
   else
