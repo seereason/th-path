@@ -37,57 +37,58 @@ import Language.Haskell.TH.Path.Graph (TypeGraphM)
 import Language.Haskell.TH.Path.Order (Order)
 import Language.Haskell.TH.Path.View (viewInstanceType)
 import Language.Haskell.TH.Syntax
+import Language.Haskell.TH.TypeGraph.Prelude (pprint1)
 import Language.Haskell.TH.TypeGraph.Shape (Field)
-import Language.Haskell.TH.TypeGraph.TypeGraph
+import Language.Haskell.TH.TypeGraph.TypeGraph (tgvSimple')
+import Language.Haskell.TH.TypeGraph.Vertex (TGVSimple)
 
 data Control m conc alt r
     = Control
       { _doSimple :: m r
       , _doSelf :: m r
       , _doSyn :: Name -> Type -> m r
-      , _doView :: Type -> m r
-      , _doOrder :: Type -> Type -> m r
-      , _doMap :: Type -> Type -> m r
-      , _doList :: Type -> m r
-      , _doPair :: Type -> Type -> m r
-      , _doMaybe :: Type -> m r
-      , _doEither :: Type -> Type -> m r
+      , _doView :: TGVSimple -> m r
+      , _doOrder :: Type -> TGVSimple -> m r
+      , _doMap :: Type -> TGVSimple -> m r
+      , _doList :: TGVSimple -> m r
+      , _doPair :: TGVSimple -> TGVSimple -> m r
+      , _doMaybe :: TGVSimple -> m r
+      , _doEither :: TGVSimple -> TGVSimple -> m r
       , _doField :: Field -> Type -> m conc
       , _doConcs :: PatQ -> [conc] -> m alt
       , _doAlts :: [alt] -> m r
       }
 
-doType :: forall m conc alt r. (Quasi m, TypeGraphM m) => Control m conc alt r -> Type -> m r
-doType control typ =
-  do v <- tgvSimple typ
-     selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [asType v]
+doType :: forall m conc alt r. (Quasi m, TypeGraphM m) => Control m conc alt r -> TGVSimple -> m r
+doType control v =
+  do selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [asType v]
      simplePath <- (not . null) <$> reifyInstancesWithContext ''SinkType [asType v]
      viewTypeMaybe <- viewInstanceType (asType v)
      case () of
-       _ | selfPath -> _doSelf control
-         | simplePath -> _doSimple control
-         | isJust viewTypeMaybe ->
+       _ | isJust viewTypeMaybe ->
              do let Just viewtyp = viewTypeMaybe
-                _doView control viewtyp
-       _ -> doType' typ []
+                _doView control =<< tgvSimple' 1 v viewtyp
+         | selfPath -> _doSelf control
+         | simplePath -> _doSimple control
+       _ -> doType' (asType v) []
     where
       doType' :: Type -> [Type] -> m r
       doType' (AppT t1 t2) tps = doType' t1 (t2 : tps)
-      doType' (ConT tname) [ityp, vtyp] | tname == ''Order = _doOrder control ityp vtyp
-      doType' (ConT tname) [ktyp, vtyp] | tname == ''Map = _doMap control ktyp vtyp
-      doType' (TupleT 2) [ftyp, styp] = _doPair control ftyp styp
-      doType' (ConT tname) [etyp] | tname == ''Maybe = _doMaybe control etyp
+      doType' (ConT tname) [ityp, vtyp] | tname == ''Order = uncurry (_doOrder control) =<< ((,) <$> pure ityp <*> tgvSimple' 3 v vtyp)
+      doType' (ConT tname) [ktyp, vtyp] | tname == ''Map = uncurry (_doMap control) =<< ((,) <$> pure ktyp <*> tgvSimple' 5 v vtyp)
+      doType' (TupleT 2) [ftyp, styp] = uncurry (_doPair control) =<< ((,) <$> tgvSimple' 6 v ftyp <*> tgvSimple' 7 v styp)
+      doType' (ConT tname) [etyp] | tname == ''Maybe = _doMaybe control =<< (tgvSimple' 8 v etyp)
       doType' (ConT tname) [ltyp, rtyp]
           | tname == ''Either =
 #if 0
               _doEither control l r >>= \(lconc, rconc) -> doAlts [(conP 'Left [wildP], [lconc]),
                                                                    (conP 'Right [wildP], [rconc])]
 #else
-              _doEither control ltyp rtyp
+              uncurry (_doEither control) =<< ((,) <$> tgvSimple' 9 v ltyp <*> tgvSimple' 10 v rtyp)
 #endif
       doType' (ConT tname) tps = doName tps tname
-      doType' ListT [etyp] = _doList control etyp
-      doType' _ _ = error $ "doType: unexpected type: " ++ show typ
+      doType' ListT [etyp] = _doList control =<< (tgvSimple' 11 v etyp)
+      doType' typ _ = error $ "doType: unexpected type: " ++ pprint1 typ ++ " (in " ++ pprint1 (asType v) ++ ")"
 
       doName :: [Type] -> Name -> m r
       doName tps tname = qReify tname >>= doInfo tps

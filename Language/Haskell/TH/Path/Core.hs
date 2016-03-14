@@ -180,8 +180,8 @@ class HideType a
 class SelfPath a
 
 -- | Override the default description associated with the type of @a@.
--- The @Maybe Field@ argument can be used to optionally signify that
--- the @a@ is contained in a particular field of a record.
+-- The first argument indicates the field of the parent record that
+-- contains the @a@ value, if any.
 class Describe a where
     describe :: Maybe Field -> a -> Maybe String
 

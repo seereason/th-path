@@ -49,7 +49,7 @@ import Language.Haskell.TH.TypeGraph.Edges ({-cut, cutEdgesM,-} cutEdges, cutM, 
 import Language.Haskell.TH.TypeGraph.Expand (E(E, _unE), unE, ExpandMap, expandType)
 import Language.Haskell.TH.TypeGraph.Free (freeTypeVars)
 import Language.Haskell.TH.TypeGraph.Prelude ({-OverTypes(overTypes),-} unlifted)
-import Language.Haskell.TH.TypeGraph.TypeGraph (allPathKeys, graphFromMap, makeTypeGraph, tgvSimple', TypeGraph)
+import Language.Haskell.TH.TypeGraph.TypeGraph (allPathKeys, graphFromMap, makeTypeGraph, tgvSimple, TypeGraph)
 import Language.Haskell.TH.TypeGraph.TypeInfo (makeTypeInfo, startTypes, TypeInfo, typeVertex, typeVertex')
 import Language.Haskell.TH.TypeGraph.Vertex (etype, TGV'(TGV', _vsimple), vsimple, TGVSimple'(TGVSimple', _etype), TGVSimple)
 import Prelude hiding (any, concat, concatMap, elem, exp, foldr, mapM_, null, or)
@@ -201,7 +201,7 @@ pruneTypeGraph edges =
 -- "no Path instance" errors.
 testIsPath :: TypeGraphM m => Type -> TGVSimple -> m Bool
 testIsPath typ gkey = do
-  mkey <- tgvSimple' typ
+  mkey <- tgvSimple typ
   case mkey of
     Nothing -> pure False
     Just v -> (maybe False (Set.member gkey) . Map.lookup v) <$> allPathKeys

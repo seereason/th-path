@@ -2,6 +2,7 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeSynonymInstances #-}
@@ -20,6 +21,7 @@ import Appraisal.ReportInstances (startTypes)
 --import Appraisal.ReportItem
 --import Appraisal.ReportMap (ReportMap(ReportMap), ReportID)
 --import Appraisal.Utils.CIString (CIString(..))
+import Control.Exception (throw, try)
 --import Control.Lens (Lens', Traversal', iso, _Just, _1, _2, _Left, _Right)
 import Control.Monad (filterM)
 --import Control.Monad.Writer (execWriterT)
@@ -33,8 +35,9 @@ import Data.List (isSuffixOf)
 import Data.Monoid ((<>))
 --import Data.Text (Text)
 --import Data.UserId (UserId)
---import Data.UUID (UUID)
+-- import Data.UUID (UUID)
 import Data.UUID.Orphans ()
+import GHC.IO.Exception (IOException, ioe_type, IOErrorType(NoSuchThing))
 import Language.Haskell.TH (Dec, runIO)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Lift (lift)
@@ -57,7 +60,7 @@ import System.FilePath ((</>))
 import Data.List (sort)
 import Language.Haskell.TH.TypeGraph.Prelude (friendlyNames, pprintW)
 import Prelude hiding (readFile)
---import System.Directory (removeFile)
+import System.Directory (removeFile)
 --import qualified System.IO as IO
 --import System.IO.Error (isDoesNotExistError)
 --import System.Posix.Files (getFdStatus, fileMode, setFdMode, unionFileModes, ownerReadMode, groupReadMode, otherReadMode)
@@ -73,12 +76,17 @@ decs = $(do let regular path = runIO $ isRegularFile <$> getSymbolicLinkStatus p
                         mapM_ (addDependentFile)
             mapM_ dir ["Language/Haskell/TH/Path", "Language/Haskell/TH/Path/Decs"]
             decs' <- startTypes >>= runTypeGraphT allDecs -- >>= lift
-            let code = (unlines . map (pprintW . friendlyNames) . sort) decs'
+            let code = (unlines . map pprintW . sort . map friendlyNames) decs'
             let hdr = UTF8.toString $(embedFile "tests/ReportHead.hs")
                 old = UTF8.toString $(embedFile "tests/ReportDecs.hs")
                 new = hdr <> code
             case (new == old) of
-              True -> lift decs'
+              True ->
+                  do runIO (try (removeFile "tests/ReportDecs.hs.new") >>=
+                            either (\(e :: IOException) -> case ioe_type e of
+                                                             NoSuchThing -> pure ()
+                                                             _ -> throw e) pure)
+                     lift decs'
               False ->
                   do runIO (writeFile "tests/ReportDecs.hs.new" new)
                      error "Generated tests/ReportDecs.hs does not match existing")

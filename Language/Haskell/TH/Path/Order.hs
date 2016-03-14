@@ -55,6 +55,8 @@ import Data.Typeable (Typeable)
 import GHC.Generics (Generic)
 import Language.Haskell.TH
 import Language.Haskell.TH.Path.Core (HasIdPath(idPath))
+import Language.Haskell.TH.Path.GHCJS (SafeCopy(..), base, contain, deriveSafeCopy, safeGet, safePut)
+import Language.Haskell.TH.Lift (deriveLiftMany)
 import Prelude hiding (init)
 import Web.Routes.TH (derivePathInfo)
 
@@ -160,15 +162,6 @@ instance (Ord k, Enum k, Monoid (Order k a)) => LL.FoldableLL (Order k a) a wher
     foldl f r0 xs = List.foldl f r0 (toList xs)
     foldr f r0 xs = List.foldr f r0 (toList xs)
 
-instance (Ord k, Enum k, SafeCopy k, SafeCopy a) => SafeCopy (Order k a) where
-    putCopy m = contain $ do safePut (elems m)
-                             safePut (order m)
-                             safePut (next m)
-    getCopy = contain $ do elems_ <- safeGet
-                           order_ <- safeGet
-                           next_ <- safeGet
-                           return $ Order {elems = elems_, order = order_, next = next_}
-
 -- | Remove the element at k if present.
 deleteItem :: (Ord k, Enum k) => k -> Order k v -> Order k v
 deleteItem k m = maybe m snd (view k m)
@@ -253,6 +246,16 @@ deriveOrder ityp t supers = do
   omtype <- tySynD mpname [] [t|Order $(conT idname) $(conT t)|]
   return $ [idtype, omtype] ++ insts
 
+instance (Ord k, Enum k, SafeCopy k, SafeCopy a) => SafeCopy (Order k a) where
+    putCopy m = contain $ do safePut (elems m)
+                             safePut (order m)
+                             safePut (next m)
+    getCopy = contain $ do elems_ <- safeGet
+                           order_ <- safeGet
+                           next_ <- safeGet
+                           return $ Order {elems = elems_, order = order_, next = next_}
+
 $(derivePathInfo ''Path_OMap)
 $(deriveSafeCopy 0 'base ''Path_OMap)
+$(deriveLiftMany [''Order])
 #endif

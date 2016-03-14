@@ -64,13 +64,18 @@ import Data.Map as Map (lookup)
 import Data.Maybe (catMaybes)
 import Data.Text as T (Text, groupBy, pack, unpack, strip, uncons, empty)
 import Debug.Trace (trace)
-import Language.Haskell.TH.Path.Core (lens_mrs, readShowLens, SelfPath)
+import Language.Haskell.TH.Path.Core (lens_mrs, readShowLens, SelfPath, SinkType)
 import Language.Haskell.TH.Path.Order as Order (toList, asList)
 import Language.Haskell.TH.Path.View (View(ViewType, viewLens))
 import Data.UUID.Orphans ()
 import Prelude hiding (read)
 import System.FilePath ((</>))
 import Text.PrettyPrint.HughesPJClass (Pretty(pPrint), text)
+
+-- We can't move this into the UUID library, so move it to where UUID
+-- is used in this library.
+instance SinkType UUID
+instance SinkType Integer
 
 data ReportFieldLabel
     = ReportName

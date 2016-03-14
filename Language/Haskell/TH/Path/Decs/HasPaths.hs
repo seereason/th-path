@@ -51,7 +51,7 @@ pathDecs' v gkey = do
   g <- runQ (newName "g")
   poc <- case v == gkey of
            True -> pure [clause [wildP, wildP] (normalB [| [idPath] |]) []]
-           False -> execWriterT (doType (hasPathControl v gkey g x) (asType v))
+           False -> execWriterT (doType (hasPathControl v gkey g x) v)
   when (not (null poc))
        (tells [ instanceD (pure []) [t|HasPaths $(pure (bestType v)) $(pure (bestType gkey))|]
                 [ tySynInstD ''Path (tySynEqn [pure (bestType v), pure (bestType gkey)] (pure ptyp))

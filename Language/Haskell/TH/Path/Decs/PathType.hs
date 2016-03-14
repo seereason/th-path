@@ -34,7 +34,7 @@ import Language.Haskell.TH.Path.Order (Order, Path_OMap(..))
 import Language.Haskell.TH.Path.Traverse (Control(..))
 import Language.Haskell.TH.Path.View (viewInstanceType)
 import Language.Haskell.TH.TypeGraph.Prelude (pprint1)
-import Language.Haskell.TH.TypeGraph.TypeGraph (reachableFromSimple, tgvSimple)
+import Language.Haskell.TH.TypeGraph.TypeGraph (reachableFromSimple, tgvSimple, tgvSimple')
 import Language.Haskell.TH.TypeGraph.Vertex (TGVSimple)
 
 pathTypeControl :: (TypeGraphM m) => TypeQ -> TGVSimple -> Control m () () Type
@@ -45,38 +45,29 @@ pathTypeControl gtyp key =
     , _doView = \_ -> runQ [t|$(asTypeQ (bestPathTypeName key)) $gtyp|]
     , _doOrder =
         \ityp etyp ->
-            do ipath <- tgvSimple ityp >>= pathType gtyp
-               epath <- tgvSimple etyp >>= pathType gtyp
-               runQ [t|Path_OMap $(return ipath) $(return epath)|]
-{-
-        \ityp w ->
-            do ipath <- tgvSimple ityp >>= pathType gtyp
-               epath <- simplify w >>= pathType gtyp
-               runQ [t|Path_OMap $ityp $(return epath)|]
--}
+            do epath <- pathType gtyp etyp
+               runQ [t|Path_OMap $(pure ityp) $(pure epath)|]
     , _doMap =
         \ktyp vtyp ->
-            do kpath <- tgvSimple ktyp >>= pathType gtyp
-               vpath <- tgvSimple vtyp >>= pathType gtyp
-               runQ [t| Path_Map $(return kpath) $(return vpath)|]
+            do vpath <- pathType gtyp vtyp
+               runQ [t| Path_Map $(pure ktyp) $(pure vpath)|]
     , _doList =
         \etyp ->
-            do epath <- tgvSimple etyp >>= pathType gtyp
+            do epath <- pathType gtyp etyp
                runQ [t|Path_List $(return epath)|]
     , _doPair =
         \ftyp styp ->
-            do fpath <- tgvSimple ftyp >>= pathType gtyp
-               spath <- tgvSimple styp >>= pathType gtyp
+            do fpath <- pathType gtyp ftyp
+               spath <- pathType gtyp styp
                runQ [t| Path_Pair $(return fpath) $(return spath) |]
     , _doMaybe =
         \typ ->
-            do w' <- tgvSimple typ
-               epath <- pathType gtyp w'
+            do epath <- pathType gtyp typ
                runQ [t|Path_Maybe $(pure epath)|]
     , _doEither =
         \ltyp rtyp ->
-            do lpath <- tgvSimple ltyp >>= pathType gtyp
-               rpath <- tgvSimple rtyp >>= pathType gtyp
+            do lpath <- pathType gtyp ltyp
+               rpath <- pathType gtyp rtyp
                runQ [t| Path_Either $(return lpath) $(return rpath) |]
     , _doField = \_ _ -> pure ()
     , _doConcs = \_ _ -> pure ()
@@ -108,25 +99,25 @@ pathType' control gtyp key = do
       | simplePath -> _doSimple control
       | isJust viewTypeMaybe ->
           do let Just viewType = viewTypeMaybe
-             _doView control viewType
+             _doView control =<< tgvSimple' 13 key viewType
     ConT tname ->
         runQ $ [t|$(asTypeQ (makePathType (ModelType tname))) $gtyp|]
     AppT (AppT mtyp ityp) etyp
         | mtyp == ConT ''Order ->
-            _doOrder control ityp etyp
+            uncurry (_doOrder control) =<< ((,) <$> pure ityp <*> tgvSimple' 15 key etyp)
     AppT ListT etyp ->
-        _doList control etyp
+        _doList control =<< tgvSimple' 16 key etyp
     AppT (AppT t3 ktyp) vtyp
         | t3 == ConT ''Map ->
-            _doMap control ktyp vtyp
+            uncurry (_doMap control) =<< ((,) <$> pure ktyp <*> tgvSimple' 18 key vtyp)
     AppT (AppT (TupleT 2) ftyp) styp ->
-        _doPair control ftyp styp
+        uncurry (_doPair control) =<< ((,) <$> tgvSimple' 19 key ftyp <*> tgvSimple' 20 key styp)
     AppT t1 vtyp
         | t1 == ConT ''Maybe ->
-            _doMaybe control vtyp
+            _doMaybe control =<< tgvSimple' 21 key vtyp
     AppT (AppT t3 ltyp) rtyp
         | t3 == ConT ''Either ->
-            _doEither control ltyp rtyp
+            uncurry (_doEither control) =<< ((,) <$> tgvSimple' 22 key ltyp <*> tgvSimple' 23 key rtyp)
     _ -> do ks <- reachableFromSimple key
             error $ "pathType otherf: " ++ pprint1 key ++ "\n" ++
                     intercalate "\n  " ("reachable from:" : List.map pprint1 (Foldable.toList ks))

@@ -36,8 +36,7 @@ import Language.Haskell.TH.Path.Core (IsPathStart(Peek, peek, hop), HasPaths(..)
 import Language.Haskell.TH.Path.Graph (TypeGraphM)
 import Language.Haskell.TH.Path.Order (Path_OMap(..))
 import Language.Haskell.TH.Path.Traverse (asP', Control(..), doType, finishConc, finishEither, finishPair)
-import Language.Haskell.TH.TypeGraph.Shape (reifyField {- instance Lift Field -})
-import Language.Haskell.TH.TypeGraph.TypeGraph (pathKeys, pathKeys', simplify, tgv, tgvSimple)
+import Language.Haskell.TH.TypeGraph.TypeGraph (pathKeys, pathKeys', simplify, tgv, tgvSimple, tgvSimple')
 import Language.Haskell.TH.TypeGraph.Vertex (TGV, field, TGVSimple)
 
 newtype PeekType = PeekType {unPeekType :: Name} deriving (Eq, Ord, Show) -- e.g. Peek_AbbrevPairs
@@ -101,43 +100,43 @@ isPathControl v x wPathVar =
             , _doSelf = pure ()
             , _doView =
                 \typ ->
-                    do w <- tgvSimple typ >>= tgv Nothing
+                    do w <- tgv Nothing typ
                        let vPathConName = makePathCon (makePathType (ModelType (asName v))) "View"
                        alt <- _doConcs control wildP [(w, conP (asName vPathConName) [varP wPathVar], conE (asName vPathConName))]
                        _doAlts control [alt]
             , _doOrder =
                 \_i typ ->
-                    do w <- tgvSimple typ >>= tgv Nothing
+                    do w <- tgv Nothing typ
                        k <- runQ $ newName "k"
                        finishConc control (w, conP 'Path_At [varP k, varP wPathVar], [|Path_At $(varE k)|])
             , _doMap =
                 \_i typ ->
-                    do w <- tgvSimple typ >>= tgv Nothing
+                    do w <- tgv Nothing typ
                        k <- runQ $ newName "k"
                        finishConc control (w, conP 'Path_Look [varP k, varP wPathVar], [|Path_Look $(varE k)|])
             , _doList =
                 \_e -> pure ()
             , _doPair =
                 \ftyp styp ->
-                    do f <- tgvSimple ftyp >>= tgv Nothing
-                       s <- tgvSimple styp >>= tgv Nothing
+                    do f <- tgv Nothing ftyp
+                       s <- tgv Nothing styp
                        finishPair control
                                (f, conP 'Path_First [varP wPathVar], [|Path_First|])
                                (s, conP 'Path_Second [varP wPathVar], [|Path_Second|])
             , _doMaybe =
                 \typ ->
-                    do w <- tgvSimple typ >>= tgv Nothing
+                    do w <- tgv Nothing typ
                        finishConc control (w, conP 'Path_Just [varP wPathVar], [|Path_Just|])
             , _doEither =
                 \ltyp rtyp ->
-                    do l <- tgvSimple ltyp >>= tgv Nothing
-                       r <- tgvSimple rtyp >>= tgv Nothing
+                    do l <- tgv Nothing ltyp
+                       r <- tgv Nothing rtyp
                        let lconc = (l, conP 'Path_Left [varP wPathVar], [|Path_Left|])
                            rconc = (r, conP 'Path_Right [varP wPathVar], [|Path_Right|])
                        finishEither control lconc rconc
             , _doField =
                 \fld typ ->
-                    do f <- tgvSimple typ >>= tgv (Just fld)
+                    do f <- tgvSimple' 12 v typ >>= tgv (Just fld)
                        let fieldPathConName = maybe (error $ "Not a field: " ++ show f) id (makeFieldCon f)
                        pure (f, conP (asName fieldPathConName) [varP wPathVar], asConQ fieldPathConName)
             , _doConcs =
@@ -170,7 +169,7 @@ peekClauses :: forall m conc alt. (TypeGraphM m, MonadWriter [ClauseType] m, con
 peekClauses v = do
   x <- runQ $ newName "s"
   wPathVar <- runQ $ newName "wp"
-  doType (isPathControl v x wPathVar) (asType v)
+  doType (isPathControl v x wPathVar) v
 
 concatMapQ :: [ExpQ] -> ExpQ
 concatMapQ [] = [|mempty|]

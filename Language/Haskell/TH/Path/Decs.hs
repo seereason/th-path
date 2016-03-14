@@ -28,6 +28,7 @@ import Language.Haskell.TH.Path.Decs.PathTypeDecs (pathTypeDecs)
 import Language.Haskell.TH.Path.Decs.ToLens (toLensDecs)
 import Language.Haskell.TH.Path.Graph (runTypeGraphT, TypeGraphM)
 import Language.Haskell.TH.Path.Instances ()
+import Language.Haskell.TH.TypeGraph.Prelude (pprint1)
 import Language.Haskell.TH.TypeGraph.TypeGraph (allPathStarts, tgvSimple)
 import Language.Haskell.TH.TypeGraph.Vertex (TGVSimple)
 
@@ -39,7 +40,7 @@ allDecs :: forall m. (TypeGraphM m) => m [Dec]
 allDecs = execWriterT $ allPathStarts >>= mapM_ doNode
 
 doType :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => Type -> m ()
-doType t = tgvSimple t >>= doNode
+doType t = tgvSimple t >>= maybe (error $ "doType: No node for " ++ pprint1 t) doNode
 
 doNode :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TGVSimple -> m ()
 doNode v = do

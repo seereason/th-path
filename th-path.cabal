@@ -1,5 +1,5 @@
 name:               th-path
-version:            0.28
+version:            0.29
 cabal-version:      >= 1.10
 build-type:         Simple
 license:            BSD3
@@ -34,7 +34,6 @@ library
     base-compat,
     containers,
     data-default,
-    filemanip-extra >= 0.4,
     haskell-src-exts,
     ListLike,
     mtl,
@@ -107,7 +106,57 @@ library
 --                     th-context, th-desugar, th-orphans, th-reify-many, th-typegraph >= 0.20
 --   default-language: Haskell2010
 
+test-suite th-path-quick-tests
+  type: exitcode-stdio-1.0
+  hs-source-dirs:   tests
+  main-is: Quick.hs
+  ghc-options:      -Wall -O2
+  if !impl(ghcjs)
+    Default-Extensions: TemplateHaskell
+  build-depends:
+    aeson,
+    base >= 4.8 && < 5,
+    binary,
+    bytestring,
+    containers,
+    directory,
+    exceptions,
+    filepath,
+    filemanip-extra,
+    HaTeX,
+    hslogger,
+    HUnit,
+    jmacro,
+    json,
+    lens,
+    ListLike,
+    mtl,
+    network-uri,
+    pandoc,
+    pureMD5,
+    pretty,
+    process,
+    process-extras,
+    regex-compat,
+    safecopy,
+    sr-extra,
+    syb,
+    template-haskell,
+    text,
+    th-lift,
+    th-orphans,
+    transformers,
+    unix,
+    Unixutils,
+    utf8-string
+  if flag(local-th-typegraph)
+    build-depends: mtl-unleashed, th-desugar, haskell-src-exts, data-default, set-extra, atp-haskell, userid, applicative-extras, web-routes-th, th-kinds-fork, base-compat, safe, sr-revision, uuid-orphans, uuid-types, groom
+    hs-source-dirs: ../image-cache, ../th-typegraph, ../th-context, .
+  else
+    build-depends: image-cache, th-path
+
 test-suite th-path-tests
+  Buildable: True
   type:             exitcode-stdio-1.0
   hs-source-dirs:   tests
   main-is:          Tests.hs
@@ -131,7 +180,6 @@ test-suite th-path-tests
     haskell-src-exts,
     HaTeX,
     HUnit,
-    image-cache,
     jmacro,
     json,
     ListLike,
@@ -153,7 +201,6 @@ test-suite th-path-tests
     th-kinds-fork,
     th-lift,
     th-orphans,
-    th-path,
     transformers,
     unix,
     userid,
@@ -168,8 +215,11 @@ test-suite th-path-tests
   else
     build-depends: lens
   default-language: Haskell2010
-  if !flag(local-th-typegraph)
-    Build-Depends: th-context, th-typegraph
+  if flag(local-th-typegraph)
+    hs-source-dirs: ../image-cache, ../th-typegraph, ../th-context, .
+    build-depends: process-extras, pureMD5, Unixutils, exceptions, process, hslogger, atp-haskell, data-default, web-routes-th, safecopy
+  else
+    Build-Depends: image-cache, th-context, th-typegraph, th-path
 
 source-repository head
   type:     git
