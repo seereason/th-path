@@ -12,6 +12,7 @@ module Language.Haskell.TH.Path.GHCJS
 #if __GHCJS__
 import Data.SafeCopy hiding (deriveSafeCopy)
 import Web.Routes.TH hiding (derivePathInfo)
+import Language.Haskell.TH
 
 deriveSafeCopy :: Name -> Name -> Q [Dec]
 deriveSafeCopy _ _ = pure []
