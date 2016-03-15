@@ -26,7 +26,8 @@ import Language.Haskell.TH.TypeGraph.TypeGraph (TypeGraph)
 import System.Exit
 import Test.HUnit
 
-$([t|ReportImage|] >>= runTypeGraphT (do askPoly >>= \(g :: TypeGraph) -> (runQ . runIO . putStrLn . pprint) g
+$(let printTree = askPoly >>= \(g :: TypeGraph) -> (runQ . runIO . putStrLn . pprint) g in
+  [t|ReportImage|] >>= runTypeGraphT (do printTree
                                          allDecs) . (: []))
 
 image :: ReportImage

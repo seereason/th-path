@@ -1,3 +1,5 @@
+-- | View, SinkType, and Describe instances that modify the graph
+-- generated for the Report types.
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE FlexibleContexts #-}
@@ -9,7 +11,7 @@
 {-# OPTIONS -fno-warn-orphans #-}
 module Appraisal.ReportInstances where
 
-import Appraisal.File (URI)
+import Appraisal.File (File, URI)
 import Appraisal.Image (Dimension, ImageCrop, ImageSize, lens_saneSize, Units)
 import Appraisal.ImageFile (ImageFile)
 import Appraisal.IntJS (IntJS, gjsonLens, JSONText)
@@ -162,6 +164,9 @@ instance View Report where
                      a31 a32 a33 a34 a35 a36 a37 a38 a39 a40
                      a41 a42 a43 a44 a45
 
+instance SinkType File
+instance SinkType ImageCrop
+instance SinkType ImageFile
 instance SinkType Int64
 instance SinkType IntJS
 instance SinkType Int

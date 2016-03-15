@@ -68,9 +68,7 @@ pathTypeDecs v = do
   -- e.g. type Path_EpochMilli a = Path_Int64 a
   runQ (mapM (\psyn -> newName "a" >>= \a -> tySynD (asName psyn) [PlainTV a] (appT (asTypeQ pname) (varT a))) (toList psyns)) >>= tell
   case () of
-    _ | selfPath -> pure ()
-      | simplePath -> doSimplePath v
-      | isJust viewTypeMaybe ->
+    _ | isJust viewTypeMaybe ->
           do let Just viewType = viewTypeMaybe
              skey <- tgvSimple' 24 v viewType
              a <- runQ $ newName "a"
@@ -83,6 +81,8 @@ pathTypeDecs v = do
                     , normalC (asName pname) []
                     ] supers]
              telld [d|instance HasIdPath ($(asTypeQ pname) a) where idPath = $(asConQ pname)|]
+      | selfPath -> pure ()
+      | simplePath -> doSimplePath v
     _ -> doNames v
 
 doNames :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TGVSimple -> m ()

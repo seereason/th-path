@@ -95,11 +95,11 @@ pathType' control gtyp key = do
   simplePath <- (not . null) <$> reifyInstancesWithContext ''SinkType [asType key]
   viewTypeMaybe <- viewInstanceType (asType key)
   case asType key of
-    _ | selfPath -> _doSelf control
-      | simplePath -> _doSimple control
-      | isJust viewTypeMaybe ->
+    _ | isJust viewTypeMaybe ->
           do let Just viewType = viewTypeMaybe
              _doView control =<< tgvSimple' 13 key viewType
+      | selfPath -> _doSelf control
+      | simplePath -> _doSimple control
     ConT tname ->
         runQ $ [t|$(asTypeQ (makePathType (ModelType tname))) $gtyp|]
     AppT (AppT mtyp ityp) etyp
