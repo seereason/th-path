@@ -107,56 +107,6 @@ library
 --                     th-context, th-desugar, th-orphans, th-reify-many, th-typegraph >= 0.20
 --   default-language: Haskell2010
 
-test-suite th-path-quick-tests
-  Buildable: True
-  type: exitcode-stdio-1.0
-  hs-source-dirs:   tests
-  main-is: Quick.hs
-  ghc-options:      -Wall -O2
-  if !impl(ghcjs)
-    Default-Extensions: TemplateHaskell
-  build-depends:
-    aeson,
-    base >= 4.8 && < 5,
-    binary,
-    bytestring,
-    containers,
-    directory,
-    exceptions,
-    filepath,
-    filemanip-extra,
-    HaTeX,
-    hslogger,
-    HUnit,
-    jmacro,
-    json,
-    lens,
-    ListLike,
-    mtl,
-    network-uri,
-    pandoc,
-    pureMD5,
-    pretty,
-    process,
-    process-extras,
-    regex-compat,
-    safecopy,
-    sr-extra,
-    syb,
-    template-haskell,
-    text,
-    th-lift,
-    th-orphans,
-    transformers,
-    unix,
-    Unixutils,
-    utf8-string
-  if flag(local-th-typegraph)
-    build-depends: mtl-unleashed, th-desugar, haskell-src-exts, data-default, set-extra, atp-haskell, userid, applicative-extras, web-routes-th, th-kinds-fork, base-compat, safe, sr-revision, uuid-orphans, uuid-types, groom
-    hs-source-dirs: ../image-cache, ../th-typegraph, ../th-context, .
-  else
-    build-depends: image-cache, th-path
-
 test-suite th-path-tests
   Buildable: True
   type:             exitcode-stdio-1.0
@@ -226,3 +176,53 @@ test-suite th-path-tests
 source-repository head
   type:     git
   location: git://github.com/seereason/th-path.git
+
+test-suite th-path-quick-tests
+  Buildable: True
+  type: exitcode-stdio-1.0
+  hs-source-dirs:   tests
+  main-is: Quick.hs
+  ghc-options:      -Wall -O2
+  if !impl(ghcjs)
+    Default-Extensions: TemplateHaskell
+  build-depends:
+    aeson,
+    base >= 4.8 && < 5,
+    binary,
+    bytestring,
+    containers,
+    directory,
+    exceptions,
+    filepath,
+    filemanip-extra,
+    HaTeX,
+    hslogger,
+    HUnit,
+    jmacro,
+    json,
+    lens,
+    ListLike,
+    mtl,
+    network-uri,
+    pandoc,
+    pureMD5,
+    pretty,
+    process,
+    process-extras,
+    regex-compat,
+    safecopy,
+    sr-extra,
+    syb,
+    template-haskell,
+    text,
+    th-lift,
+    th-orphans,
+    transformers,
+    unix,
+    Unixutils,
+    utf8-string
+  if flag(local-th-typegraph)
+    build-depends: mtl-unleashed, th-desugar, haskell-src-exts, data-default, set-extra, atp-haskell, userid, applicative-extras, web-routes-th, th-kinds-fork, base-compat, safe, sr-revision, uuid-orphans, uuid-types, groom
+    hs-source-dirs: ../image-cache, ../th-typegraph, ../th-context, .
+  else
+    build-depends: image-cache, th-path
