@@ -20,12 +20,12 @@ import Appraisal.Image (ImageCrop, Units, Dimension, ImageSize)
 import Appraisal.File (File, FileSource)
 import Appraisal.Markup (Markup)
 import Appraisal.Permissions (Permissions)
-import Appraisal.ReportTH (decs)
 import Appraisal.ReportImage (ReportImageID, ReportImage)
 import Appraisal.Report (ReportStatus, ReportValueTypeInfo, ReportValueApproachInfo, ReportStandard, ReportIntendedUse,
                          ReportFlags, ReportElemID, ReportElem, Report, MarkupPairID, MarkupID, Branding, AuthorID, Author, AbbrevPairID)
 import Appraisal.ReportItem (Item, ItemFieldName)
 import Appraisal.ReportInstances (SaneSize, ReportView, ReportImageView, ReadOnly)
+import Appraisal.ReportMap (ReportMap)
 import Appraisal.Utils.CIString (CIString)
 import Data.UserId (UserId)
 import Data.UUID (UUID)
@@ -33,6 +33,7 @@ import Data.Text (unpack)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Lift (Lift(lift), deriveLiftMany)
 import Language.Haskell.TH.Path.Core (Path_Pair, Path_Map, Path_Maybe, Path_Either)
+import Language.Haskell.TH.Path.Decs (allDecsToFile)
 import Language.Haskell.TH.Path.Order (Order, Path_OMap)
 import Network.URI (URIAuth, URI)
 import Text.LaTeX hiding (lift)
@@ -40,7 +41,7 @@ import Text.LaTeX.Base.Syntax
 import Text.Pandoc (Pandoc, Meta, MetaValue, QuoteType, Inline, Format, MathType, Citation,
                     CitationMode, Block, ListNumberStyle, ListNumberDelim, Alignment)
 
-$(pure decs)
+$(allDecsToFile [ [t|ReportMap|] ] (Just "tests/ReportHead.hs") Nothing "tests/ReportDecs.hs")
 
 instance Lift Text where
     lift = lift . unpack
