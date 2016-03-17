@@ -36,7 +36,7 @@ import Language.Haskell.TH.Path.Core (IsPathStart(Peek, peek, hop), HasPaths(..)
 import Language.Haskell.TH.Path.Graph (TypeGraphM)
 import Language.Haskell.TH.Path.Order (Path_OMap(..))
 import Language.Haskell.TH.Path.Traverse (asP', Control(..), doType, finishConc, finishEither, finishPair)
-import Language.Haskell.TH.TypeGraph.TypeGraph (pathKeys, pathKeys', simplify, tgv, tgvSimple, tgvSimple')
+import Language.Haskell.TH.TypeGraph.TypeGraph (pathKeys, pathKeys', simplify, tgv, tgvSimple')
 import Language.Haskell.TH.TypeGraph.Vertex (TGV, field, TGVSimple)
 
 newtype PeekType = PeekType {unPeekType :: Name} deriving (Eq, Ord, Show) -- e.g. Peek_AbbrevPairs
@@ -107,12 +107,12 @@ isPathControl v x wPathVar =
             , _doOrder =
                 \_i typ ->
                     do w <- tgv Nothing typ
-                       k <- runQ $ newName "k"
+                       k <- runQ $ newName "_k"
                        finishConc control (w, conP 'Path_At [varP k, varP wPathVar], [|Path_At $(varE k)|])
             , _doMap =
                 \_i typ ->
                     do w <- tgv Nothing typ
-                       k <- runQ $ newName "k"
+                       k <- runQ $ newName "_k"
                        finishConc control (w, conP 'Path_Look [varP k, varP wPathVar], [|Path_Look $(varE k)|])
             , _doList =
                 \_e -> pure ()
@@ -144,14 +144,14 @@ isPathControl v x wPathVar =
                   rs <- mapM (\conc@(w, ppat, pcon) ->
                                   do let liftPeek p node =
                                              pure [| concatMap
-                                                         (\path -> case path of
+                                                         (\pth -> case pth of
                                                                      $(asP p ppat) ->
                                                                          map $node (toListOf (toLens $(varE p)) $(varE x) :: [$(asTypeQ w)])
                                                                      _ -> [])
                                                          (pathsOf $(varE x) (undefined :: Proxy $(asTypeQ w))
                                                              {-:: [$(asTypeQ (makePathType (ModelType (asName v)))) $(asTypeQ w)]-}) |]
                                      describeConc v wPathVar conc
-                                     p <- runQ $ newName "p"
+                                     p <- runQ $ newName "_pp"
                                      hf <- doHop v w p pcon >>= liftPeek p
                                      pf <- doPeek v w p pcon >>= liftPeek p
                                      return (hf, pf))
@@ -167,8 +167,8 @@ isPathControl v x wPathVar =
 peekClauses :: forall m conc alt. (TypeGraphM m, MonadWriter [ClauseType] m, conc ~ (TGV, PatQ, ExpQ), alt ~ (PatQ, [conc])) =>
                TGVSimple -> m ()
 peekClauses v = do
-  x <- runQ $ newName "s"
-  wPathVar <- runQ $ newName "wp"
+  x <- runQ $ newName "_s"
+  wPathVar <- runQ $ newName "_wp"
   doType (isPathControl v x wPathVar) v
 
 concatMapQ :: [ExpQ] -> ExpQ
@@ -204,8 +204,8 @@ doGoal v w pcon g =
 describeConc :: forall m. (TypeGraphM m, MonadWriter [ClauseType] m) =>
                 TGVSimple -> Name -> (TGV, PatQ, ExpQ) -> m ()
 describeConc v wPathVar (w, ppat, _pcon) =
-    do p <- runQ $ newName "p"
-       x <- runQ $ newName "x"
+    do p <- runQ $ newName "_p"
+       x <- runQ $ newName "_x"
        hasDescribeInstance <- (not . null) <$> reifyInstancesWithContext ''Describe [AppT (ConT ''Proxy) (asType w)]
        pathKeys' w >>= mapM_ (doGoal' p x hasDescribeInstance)
     where
@@ -214,6 +214,7 @@ describeConc v wPathVar (w, ppat, _pcon) =
         w' <- simplify w
         let PeekCon vn = makePeekCon (ModelType (asName v)) (ModelType (asName g))
             PeekCon wn = makePeekCon (ModelType (asName w)) (ModelType (asName g))
+            -- Describe the next hop on the path.
             next =
                 if w' == g
                 then [|Nothing|]

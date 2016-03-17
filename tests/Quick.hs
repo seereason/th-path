@@ -5,30 +5,31 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeSynonymInstances #-}
+{-# OPTIONS_GHC -fno-warn-orphans #-}
 
 import Appraisal.File
 import Appraisal.Image
 import Appraisal.ImageFile
-import Appraisal.LaTeX
+-- import Appraisal.LaTeX
 import Appraisal.Markup
 import Appraisal.ReportImage
 import Appraisal.ReportInstances
 import Control.Lens (toListOf, view)
 import Control.Monad.Readers (askPoly)
-import Text.LaTeX (LaTeX)
-import Data.UUID.Types (UUID)
+-- import Text.LaTeX (LaTeX)
+-- import Data.UUID.Types (UUID)
 import Language.Haskell.TH (pprint, runQ, runIO)
 import Language.Haskell.TH.Path.Core
-import Language.Haskell.TH.Path.Decs (allDecs)
+import Language.Haskell.TH.Path.Decs (allDecsToFile)
 import Language.Haskell.TH.Path.Graph (runTypeGraphT)
 import Language.Haskell.TH.Path.View (viewLens)
 import Language.Haskell.TH.TypeGraph.TypeGraph (TypeGraph)
 import System.Exit
 import Test.HUnit
 
-$(let printTree = askPoly >>= \(g :: TypeGraph) -> (runQ . runIO . putStrLn . pprint) g in
-  [t|ReportImage|] >>= runTypeGraphT (do printTree
-                                         allDecs) . (: []))
+$(do let printTree = askPoly >>= \(g :: TypeGraph) -> (runQ . runIO . putStrLn . pprint) g
+     sequence [ [t|ReportImage|] ] >>= runTypeGraphT printTree
+     allDecsToFile [ [t|ReportImage|] ] (Just "tests/QuickHead.hs") (Just "tests/QuickTail.hs") "tests/QuickDecs.hs")
 
 image :: ReportImage
 image = Pic {picSize = ImageSize {dim = TheArea, size = 6.0, units = Inches}, picCrop = ImageCrop {topCrop = 0, bottomCrop = 0, leftCrop = 0, rightCrop = 0, rotation = 0}, picCaption = rawMarkdown "", picOriginal = Just (Right (ImageFile {imageFile = File {fileSource = Nothing, fileChksum = "b2ba73ef42b951e095eb927c0fc4d45b", fileMessages = []}, imageFileType = JPEG, imageFileWidth = 2048, imageFileHeight = 1536, imageFileMaxVal = 255})), picEditedDeprecated = Nothing, picThumbDeprecated = Nothing, picPrinterDeprecated = Nothing, picMustEnlarge = False, picEnlargedDeprecated = Nothing}
@@ -53,5 +54,5 @@ main = do
 
 assertEqual' :: (Eq a, Show a) => String -> a -> a -> Test
 assertEqual' label expected actual = TestLabel label $ TestCase $ assertEqual label expected actual
-assertString' :: String -> String -> Test
-assertString' label string = TestLabel label $ TestCase $ assertString string
+-- assertString' :: String -> String -> Test
+-- assertString' label string = TestLabel label $ TestCase $ assertString string

@@ -39,18 +39,20 @@ import ReportPaths
 import Tests.Data (peekReportView, peekAbbrevPairs)
 import Tests.Report as Report (report, image)
 
+{-
 newtype F a = F {unF :: a}
 
 instance Show a => TH.Ppr (F (Forest a)) where
     ppr = TH.text . drawForest . forestMap show . unF
+-}
 
 instance Show a => TH.Ppr (Tree a) where
     ppr = TH.text . drawTree . treeMap show
 
 assertEqual' :: (Eq a, Show a) => String -> a -> a -> Test
 assertEqual' label expected actual = TestLabel label $ TestCase $ assertEqual label expected actual
-assertString' :: String -> String -> Test
-assertString' label string = TestLabel label $ TestCase $ assertString string
+-- assertString' :: String -> String -> Test
+-- assertString' label string = TestLabel label $ TestCase $ assertString string
 
 testReportElems :: Test
 testReportElems =

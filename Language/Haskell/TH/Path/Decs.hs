@@ -19,13 +19,12 @@ module Language.Haskell.TH.Path.Decs
     , allDecsToFile
     ) where
 
-import Control.Exception as E (catch, IOException, throw, try)
+import Control.Exception as E (IOException, throw, try)
 import Control.Monad.Writer (MonadWriter, execWriterT)
-import Data.List (sort)
+--import Data.List (sort)
 import Data.Monoid ((<>))
 import Language.Haskell.TH
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.Lift (lift)
 import Language.Haskell.TH.Path.Decs.HasPaths (pathDecs)
 import Language.Haskell.TH.Path.Decs.IsPathStart (peekDecs)
 import Language.Haskell.TH.Path.Decs.Lens (lensDecs)
@@ -59,7 +58,7 @@ allDecsToFile st hd tl dest = do
                                                  False -> throw e) (pure . Just))
   st' <- runQ $ sequence st
   decs <- runTypeGraphT allDecs st'
-  let code = (unlines . map pprintW . sort . map friendlyNames) decs
+  let code = (unlines . map pprintW . {-sort .-} map friendlyNames) decs
       removeFileMaybe :: FilePath -> IO ()
       removeFileMaybe path =
           try (removeFile path) >>=
@@ -67,7 +66,7 @@ allDecsToFile st hd tl dest = do
                                            True -> pure ()
                                            False -> throw e) pure
       new = hdText <> code <> tlText
-  case Just new == old of
+  case maybe True (== new) old of
     True -> runQ $ runIO $ do
       removeFileMaybe dest
       removeFileMaybe $ dest <> ".new"
@@ -82,8 +81,8 @@ doType t = tgvSimple t >>= maybe (error $ "doType: No node for " ++ pprint1 t) d
 
 doNode :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TGVSimple -> m ()
 doNode v = do
-  lensDecs v      -- generate lenses using makeClassyFor
   pathTypeDecs v  -- generate Path types and the HasIdPath instances
-  toLensDecs v    -- generate ToLens instances
+  lensDecs v      -- generate lenses using makeClassyFor
   pathDecs v      -- generate HasPaths instances
   peekDecs v      -- generate IsPathStart instances
+  toLensDecs v    -- generate ToLens instances

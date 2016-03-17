@@ -47,8 +47,8 @@ pathDecs' :: (TypeGraphM m, MonadWriter [Dec] m) =>
              TGVSimple -> TGVSimple -> m ()
 pathDecs' v gkey = do
   ptyp <- pathType (pure (bestType gkey)) v
-  x <- runQ (newName "s")
-  g <- runQ (newName "g")
+  x <- runQ (newName "_s")
+  g <- runQ (newName "_g")
   poc <- case v == gkey of
            True -> pure [clause [wildP, wildP] (normalB [| [idPath] |]) []]
            False -> execWriterT (doType (hasPathControl v gkey g x) v)

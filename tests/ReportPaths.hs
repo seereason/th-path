@@ -17,7 +17,6 @@ module ReportPaths where
 import Appraisal.IntJS (JSONText)
 import Appraisal.ImageFile (ImageFile, ImageType)
 import Appraisal.Image (ImageCrop, Units, Dimension, ImageSize)
-import Appraisal.File (File, FileSource)
 import Appraisal.Markup (Markup)
 import Appraisal.Permissions (Permissions)
 import Appraisal.ReportImage (ReportImageID, ReportImage)
@@ -34,8 +33,7 @@ import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Lift (Lift(lift), deriveLiftMany)
 import Language.Haskell.TH.Path.Core (Path_Pair, Path_Map, Path_Maybe, Path_Either)
 import Language.Haskell.TH.Path.Decs (allDecsToFile)
-import Language.Haskell.TH.Path.Order (Order, Path_OMap)
-import Network.URI (URIAuth, URI)
+import Language.Haskell.TH.Path.Order (Path_OMap)
 import Text.LaTeX hiding (lift)
 import Text.LaTeX.Base.Syntax
 import Text.Pandoc (Pandoc, Meta, MetaValue, QuoteType, Inline, Format, MathType, Citation,
