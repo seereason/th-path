@@ -15,7 +15,7 @@
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeSynonymInstances #-}
-module Language.Haskell.TH.Path.Decs.HasPaths (pathDecs) where
+module Language.Haskell.TH.Path.Decs.Paths (pathDecs) where
 
 import Control.Lens hiding (cons, Strict)
 import Control.Monad (when)
@@ -26,7 +26,7 @@ import Data.Set.Extra as Set (mapM_)
 import Language.Haskell.TH
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Common (asConQ, asType, asTypeQ, HasName(asName), makePathCon, makePathType, mconcatQ, ModelType(ModelType), tells)
-import Language.Haskell.TH.Path.Core (HasIdPath(idPath), HasPaths(..), ToLens(..), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
+import Language.Haskell.TH.Path.Core (IdPath(idPath), Paths(..), ToLens(..), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
 import Language.Haskell.TH.Path.Decs.PathType (pathType)
 import Language.Haskell.TH.Path.Graph (testIsPath, TypeGraphM)
 import Language.Haskell.TH.Path.Instances ()
@@ -53,9 +53,9 @@ pathDecs' v gkey = do
            True -> pure [clause [wildP, wildP] (normalB [| [idPath] |]) []]
            False -> execWriterT (doType (hasPathControl v gkey g x) v)
   when (not (null poc))
-       (tells [ instanceD (pure []) [t|HasPaths $(pure (bestType v)) $(pure (bestType gkey))|]
-                [ tySynInstD ''Path (tySynEqn [pure (bestType v), pure (bestType gkey)] (pure ptyp))
-                , funD 'pathsOf poc
+       (tells [ instanceD (pure []) [t|Paths $(pure (bestType v)) $(pure (bestType gkey))|]
+                [ tySynInstD ''FromTo (tySynEqn [pure (bestType v), pure (bestType gkey)] (pure ptyp))
+                , funD 'paths poc
                 ]])
 
 hasPathControl :: (TypeGraphM m, MonadWriter [ClauseQ] m) => TGVSimple -> TGVSimple -> Name -> Name -> Control m (Type, ExpQ) () ()
@@ -67,8 +67,8 @@ hasPathControl v gkey g x =
                 \w -> do
                   let pcname = makePathCon (makePathType (ModelType (asName v))) "View"
                   alt <- _doConcs control wildP
-                             [(asType w, [|map (\a' -> ($(asConQ pcname) {-:: Path $(asTypeQ w) $(asTypeQ gkey) -> Path $(asTypeQ v) $(asTypeQ gkey)-}, a'))
-                                               (toListOf (toLens ($(asConQ pcname) (idPath :: Path $(asTypeQ w) $(asTypeQ w)))) $(varE x)) |])]
+                             [(asType w, [|map (\a' -> ($(asConQ pcname) {-:: FromTo $(asTypeQ w) $(asTypeQ gkey) -> FromTo $(asTypeQ v) $(asTypeQ gkey)-}, a'))
+                                               (toListOf (toLens ($(asConQ pcname) (idPath :: FromTo $(asTypeQ w) $(asTypeQ w)))) $(varE x)) |])]
                   _doAlts control [alt]
             , _doOrder =
                 \_i w -> do
@@ -113,8 +113,8 @@ hasPathControl v gkey g x =
                                        case isPath of
                                          False -> pure [| [] |]
                                          True -> pure [| List.concatMap
-                                                           (\(p, a') -> (List.map p (pathsOf (a' :: $(pure typ)) $(varE g) {-:: [Path $(pure typ) $(asTypeQ gkey)]-})) {-:: [Path $(pure styp) $(asTypeQ gkey)]-})
-                                                           ($asList {-:: [(Path $(pure typ) $(asTypeQ gkey) -> Path $(pure styp) $(asTypeQ gkey), $(pure typ))]-}) |])
+                                                           (\(p, a') -> (List.map p (paths (a' :: $(pure typ)) $(varE g) {-:: [FromTo $(pure typ) $(asTypeQ gkey)]-})) {-:: [FromTo $(pure styp) $(asTypeQ gkey)]-})
+                                                           ($asList {-:: [(FromTo $(pure typ) $(asTypeQ gkey) -> FromTo $(pure styp) $(asTypeQ gkey), $(pure typ))]-}) |])
                                concs
                   tell [clause [asP' x xpat, varP g] (normalB (mconcatQ exps)) []]
             , _doSyn =

@@ -25,9 +25,9 @@ import Control.Monad.Writer (MonadWriter, execWriterT)
 import Data.Monoid ((<>))
 import Language.Haskell.TH
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.Path.Decs.HasPaths (pathDecs)
-import Language.Haskell.TH.Path.Decs.IsPathStart (peekDecs)
 import Language.Haskell.TH.Path.Decs.Lens (lensDecs)
+import Language.Haskell.TH.Path.Decs.Paths (pathDecs)
+import Language.Haskell.TH.Path.Decs.PathStart (peekDecs)
 import Language.Haskell.TH.Path.Decs.PathTypeDecs (pathTypeDecs)
 import Language.Haskell.TH.Path.Decs.ToLens (toLensDecs)
 import Language.Haskell.TH.Path.Graph (runTypeGraphT, TypeGraphM)
@@ -81,8 +81,8 @@ doType t = tgvSimple t >>= maybe (error $ "doType: No node for " ++ pprint1 t) d
 
 doNode :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TGVSimple -> m ()
 doNode v = do
-  pathTypeDecs v  -- generate Path types and the HasIdPath instances
+  pathTypeDecs v  -- generate Path types and the IdPath instances
   lensDecs v      -- generate lenses using makeClassyFor
   pathDecs v      -- generate HasPaths instances
-  peekDecs v      -- generate IsPathStart instances
+  peekDecs v      -- generate PathStart instances
   toLensDecs v    -- generate ToLens instances

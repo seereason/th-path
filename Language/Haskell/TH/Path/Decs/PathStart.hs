@@ -15,7 +15,7 @@
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeSynonymInstances #-}
-module Language.Haskell.TH.Path.Decs.IsPathStart (peekDecs) where
+module Language.Haskell.TH.Path.Decs.PathStart (peekDecs) where
 
 import Control.Lens hiding (cons, Strict)
 import Control.Monad.Writer (execWriterT, MonadWriter, tell)
@@ -31,7 +31,7 @@ import Language.Haskell.TH.Lift (lift)
 import Language.Haskell.TH.Path.Common (HasConQ(asConQ), HasCon(asCon), HasName(asName), HasType(asType), HasTypeQ(asTypeQ),
                                         makeFieldCon, makePathCon, makePathType,
                                         ModelType(ModelType), tells)
-import Language.Haskell.TH.Path.Core (IsPathStart(Peek, peek, hop), HasPaths(..), ToLens(toLens),
+import Language.Haskell.TH.Path.Core (PathStart(Peek, peek, hop), Paths(..), ToLens(toLens),
                                       Describe(describe), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..), forestMap)
 import Language.Haskell.TH.Path.Graph (TypeGraphM)
 import Language.Haskell.TH.Path.Order (Path_OMap(..))
@@ -70,7 +70,7 @@ peekDecs v =
     do (clauses :: [ClauseType]) <- execWriterT (peekClauses v)
        let (pcs, hcs, dcs) = partitionClauses clauses
        (cons :: [ConQ]) <- peekCons
-       tells [instanceD (cxt []) (appT (conT ''IsPathStart) (asTypeQ v))
+       tells [instanceD (cxt []) (appT (conT ''PathStart) (asTypeQ v))
                [dataInstD (cxt []) ''Peek [asTypeQ v] cons [''Eq, ''Show],
                 funD 'peek (case pcs of
                               [] -> [clause [wildP] (normalB [| [] |]) []]
@@ -89,7 +89,7 @@ peekDecs v =
       peekCons = (concat . List.map doPair . toList) <$> (pathKeys v)
       doPair :: TGVSimple -> [ConQ]
       doPair g = [normalC (asName (makePeekCon (ModelType (asName v)) (ModelType (asName g))))
-                          [(,) <$> notStrict <*> [t|Path $(asTypeQ v) $(asTypeQ g)|],
+                          [(,) <$> notStrict <*> [t|FromTo $(asTypeQ v) $(asTypeQ g)|],
                            (,) <$> notStrict <*> [t|Maybe $(asTypeQ g)|] ]]
 
 isPathControl :: forall m. (TypeGraphM m, MonadWriter [ClauseType] m) => TGVSimple -> Name -> Name -> Control m (TGV, PatQ, ExpQ) () ()
@@ -148,7 +148,7 @@ isPathControl v x wPathVar =
                                                                      $(asP p ppat) ->
                                                                          map $node (toListOf (toLens $(varE p)) $(varE x) :: [$(asTypeQ w)])
                                                                      _ -> [])
-                                                         (pathsOf $(varE x) (undefined :: Proxy $(asTypeQ w))
+                                                         (paths $(varE x) (undefined :: Proxy $(asTypeQ w))
                                                              {-:: [$(asTypeQ (makePathType (ModelType (asName v)))) $(asTypeQ w)]-}) |]
                                      describeConc v wPathVar conc
                                      p <- runQ $ newName "_pp"
@@ -197,8 +197,8 @@ doGoal v w pcon g =
        q <- newName "q"
        clause [conP (asName (makePeekCon (ModelType (asName w)) (ModelType (asName g)))) [varP q, varP z]]
               (normalB [|$(asConQ (makePeekCon (ModelType (asName v)) (ModelType (asName g))))
-                         (($pcon {- :: Path $(asTypeQ w) $(asTypeQ g) ->
-                                     Path $(asTypeQ v) $(asTypeQ g) -}) $(varE q)) $(varE z)|])
+                         (($pcon {- :: FromTo $(asTypeQ w) $(asTypeQ g) ->
+                                       FromTo $(asTypeQ v) $(asTypeQ g) -}) $(varE q)) $(varE z)|])
               []
 
 describeConc :: forall m. (TypeGraphM m, MonadWriter [ClauseType] m) =>

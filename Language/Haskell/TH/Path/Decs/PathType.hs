@@ -34,7 +34,7 @@ import Language.Haskell.TH.Path.Order (Order, Path_OMap(..))
 import Language.Haskell.TH.Path.Traverse (Control(..))
 import Language.Haskell.TH.Path.View (viewInstanceType)
 import Language.Haskell.TH.TypeGraph.Prelude (pprint1)
-import Language.Haskell.TH.TypeGraph.TypeGraph (reachableFromSimple, tgvSimple, tgvSimple')
+import Language.Haskell.TH.TypeGraph.TypeGraph (reachableFromSimple, tgvSimple')
 import Language.Haskell.TH.TypeGraph.Vertex (TGVSimple)
 
 pathTypeControl :: (TypeGraphM m) => TypeQ -> TGVSimple -> Control m () () Type

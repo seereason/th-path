@@ -17,9 +17,9 @@ module Language.Haskell.TH.Path.Core
     ( treeMap
     , forestMap
       -- * Type classes and associated types
-    , HasPaths(pathsOf, Path)
-    , HasIdPath(idPath)
-    , IsPathStart(Peek, peek, hop)
+    , Paths(paths, FromTo)
+    , IdPath(idPath)
+    , PathStart(Peek, peek, hop)
     , ToLens(S, A, toLens)
     , (:.:)(..)
 
@@ -95,7 +95,7 @@ forestMap f = List.map (treeMap f)
 
 -- | Every path type must have an identity value, such that 'toLens'
 -- 'idPath' is just 'id'.
-class HasIdPath p where
+class IdPath p where
     idPath :: p -- ^ The identity value for path type @p@.  Obeys the law
                 -- @toLens idPath == iso id id@.
 
@@ -103,7 +103,7 @@ class HasIdPath p where
 -- returns all the paths starting from a particular value of type @s@,
 -- along with the value found at the end of that path.  The 'Peek'
 -- type is constructed to be able to represent this result.
-class IsPathStart s where
+class PathStart s where
     data Peek s
     -- ^ 'Peek' is a type function that maps a type to the union of
     -- all paths that start at that type, and (maybe) the value found
@@ -135,35 +135,35 @@ instance (ToLens f, ToLens g, A f ~ S g {-, B f ~ T g-}) => ToLens (f :.: g) whe
   -- ^ Function to turn a path value of type @p@ into a lens to access
   -- (one of) the @A p@ values in an @S p@.
 
--- | For any two types @s@ and @a@, there is an instance of @HasPaths
+-- | For any two types @s@ and @a@, there is an instance of @Paths
 -- s a@ if there is any path from @s@ to @a@.  The @Path@ type
--- function maps @s@ and @a@ to a path type, and 'pathsOf' returns all
+-- function maps @s@ and @a@ to a path type, and 'paths' returns all
 -- possible path values from @s@ to @a@.
 --
--- For example, there is one instance of @HasPaths (Int, Int) Int@.
+-- For example, there is one instance of @Paths (Int, Int) Int@.
 -- In this case the type function @Path s a@ would return @Path_Pair
--- (Path_Int Int) (Path_Int Int)@. The 'pathsOf' function would return
+-- (Path_Int Int) (Path_Int Int)@. The 'paths' function would return
 -- the two possible values of this type: @Path_First Path_Int@ and
 -- @Path_Second Path_Int@.  @Path_Pair@ has a third constructor,
 -- eponymously named @Path_Pair@, but that is the identity
 -- constructor, so it can not represent a path from @(Int, Int)@ to
 -- @Int@.
-class (IsPathStart s, HasIdPath (Path s a), ToLens (Path s a), S (Path s a) ~ s, A (Path s a) ~ a) => HasPaths s a where
-    type Path s a
+class (PathStart s, IdPath (FromTo s a), ToLens (FromTo s a), S (FromTo s a) ~ s, A (FromTo s a) ~ a) => Paths s a where
+    type FromTo s a
     -- ^ Each instance defines this type function which returns the
     -- path type.  Each value of this type represents a different way
     -- of obtaining the @a@ from the @s@.  For example, if @s@ is a
     -- record with two fields of type 'Int', the type @PathType s Int@
     -- would have distinct values for those two fields, and the lenses
     -- returned by 'toLens would access those two fields.
-    pathsOf :: s -> Proxy a -> [Path s a]
+    paths :: s -> Proxy a -> [FromTo s a]
     -- ^ Build the paths corresponding to a particular @s@ value and a
     -- particular @a@ type.  Returns a list because there may be
     -- several @a@ reachable from this @s@.  This function will freak
     -- out if called with types for which there is no instance
-    -- @HasPaths s a@.
+    -- @Paths s a@.
 
--- | 'Path' instances can be customized by declaring types to be
+-- | Nodes along a path can be customized by declaring types to be
 -- instances of this class and the ones that follow.  If a type is an
 -- instance of 'SinkType', no paths that lead to the internal stucture
 -- of the value will be created - the value is considered atomic.
@@ -196,11 +196,11 @@ data Path_Maybe a = Path_Just a | Path_Maybe deriving (Eq, Ord, Read, Show, Type
 data Path_Map k v = Path_Look k v | Path_Map  deriving (Eq, Ord, Read, Show, Typeable, Data)
 data Path_List a = Path_List deriving (Eq, Ord, Read, Show, Typeable, Data) -- No element lookup path - too dangerous, use OMap
 
-instance HasIdPath (Path_Pair a b) where idPath = Path_Pair
-instance HasIdPath (Path_Maybe a) where idPath = Path_Maybe
-instance HasIdPath (Path_Either a b) where idPath = Path_Either
-instance HasIdPath (Path_Map k v) where idPath = Path_Map
-instance HasIdPath (Path_List a) where idPath = Path_List
+instance IdPath (Path_Pair a b) where idPath = Path_Pair
+instance IdPath (Path_Maybe a) where idPath = Path_Maybe
+instance IdPath (Path_Either a b) where idPath = Path_Either
+instance IdPath (Path_Map k v) where idPath = Path_Map
+instance IdPath (Path_List a) where idPath = Path_List
 
 #if !__GHCJS__
 $(derivePathInfo ''Path_Pair)
@@ -357,7 +357,7 @@ lens_UserIds_Text = iso (encode') (decode')
 -- | Find all the names of the path types.
 pathTypeNames :: DsMonad m => m (Set Name)
 pathTypeNames = do
-  (FamilyI (FamilyD TypeFam _pathtype [_,_] (Just StarT)) tySynInsts) <- qReify ''Path
+  (FamilyI (FamilyD TypeFam _pathtype [_,_] (Just StarT)) tySynInsts) <- qReify ''FromTo
   return . {-flip Set.difference primitivePathTypeNames .-} Set.fromList . List.map (\(TySynInstD _ (TySynEqn _ typ)) -> doTySyn typ) $ tySynInsts
     where
       doTySyn (AppT x _) = doTySyn x

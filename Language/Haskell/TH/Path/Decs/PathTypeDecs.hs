@@ -29,14 +29,14 @@ import Language.Haskell.TH.Context (reifyInstancesWithContext)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Common (allPathTypeNames, asConQ, asName, asType, asTypeQ, bestPathTypeName, ModelType(ModelType),
                                         makeFieldCon, makePathCon, makePathType, telld, tells)
-import Language.Haskell.TH.Path.Core (HasIdPath(idPath), SelfPath, SinkType)
+import Language.Haskell.TH.Path.Core (IdPath(idPath), SelfPath, SinkType)
 import Language.Haskell.TH.Path.Decs.PathType (pathType)
 import Language.Haskell.TH.Path.Graph (TypeGraphM)
 import Language.Haskell.TH.Path.Traverse (Control(..))
 import Language.Haskell.TH.Path.View (viewInstanceType)
 import Language.Haskell.TH.Syntax as TH (VarStrictType)
 import Language.Haskell.TH.TypeGraph.Prelude (pprint1)
-import Language.Haskell.TH.TypeGraph.TypeGraph (tgv, tgvSimple, tgvSimple')
+import Language.Haskell.TH.TypeGraph.TypeGraph (tgv, tgvSimple')
 import Language.Haskell.TH.TypeGraph.Vertex (TGVSimple, typeNames)
 
 pathTypeDecControl :: (TypeGraphM m) => TGVSimple -> Control m () () ()
@@ -80,7 +80,7 @@ pathTypeDecs v = do
                     [ normalC (asName (makePathCon pname "View")) [strictType notStrict (pure ptype)]
                     , normalC (asName pname) []
                     ] supers]
-             telld [d|instance HasIdPath ($(asTypeQ pname) a) where idPath = $(asConQ pname)|]
+             telld [d|instance IdPath ($(asTypeQ pname) a) where idPath = $(asConQ pname)|]
       | selfPath -> pure ()
       | simplePath -> doSimplePath v
     _ -> doNames v
@@ -156,7 +156,7 @@ doNames v = mapM_ (\tname -> runQ (reify tname) >>= doInfo) (typeNames v)
                     --      Path_Permissions
                     --    deriving (Eq, Ord, Read, Show, Typeable, Data)
                     do tells [dataD (cxt []) (asName pname) [PlainTV a] (List.map return (pcons ++ [NormalC (asName pname) []])) supers]
-                       telld [d|instance HasIdPath ($(asTypeQ pname) a) where idPath = $(asConQ pname)|])
+                       telld [d|instance IdPath ($(asTypeQ pname) a) where idPath = $(asConQ pname)|])
                 (Set.map makePathType . Set.map ModelType . typeNames $ v)
 
 doSimplePath :: forall m. (TypeGraphM m, MonadWriter [Dec] m) =>
@@ -166,7 +166,7 @@ doSimplePath v = do
   a <- runQ $ newName "a"
   -- e.g. data Path_Int a = Path_Int deriving (Eq, Ord, Read, Show, Typeable, Data)
   tells [dataD (pure []) (asName pname) [PlainTV a] [normalC (asName pname) []] supers]
-  telld [d|instance HasIdPath ($(asTypeQ pname) a) where idPath = $(asConQ pname)|]
+  telld [d|instance IdPath ($(asTypeQ pname) a) where idPath = $(asConQ pname)|]
 
 supers :: [Name]
 supers = [''Eq, ''Ord, ''Read, ''Show, ''Typeable, ''Data]
