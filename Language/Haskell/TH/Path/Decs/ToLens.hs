@@ -31,8 +31,8 @@ import Language.Haskell.TH.Path.Graph (TypeGraphM)
 import Language.Haskell.TH.Path.Order (lens_omat, Path_OMap(..))
 import Language.Haskell.TH.Path.Traverse (Control(..), doType)
 import Language.Haskell.TH.Path.View (viewLens)
-import Language.Haskell.TH.TypeGraph.TypeGraph (goalReachableSimple, pathKeys, tgv, tgvSimple')
-import Language.Haskell.TH.TypeGraph.Vertex (field, TGVSimple, TypeGraphVertex(bestType))
+import Language.Haskell.TH.TypeGraph.TypeGraph (goalReachableSimple, pathKeys', simplify, tgv, tgvSimple')
+import Language.Haskell.TH.TypeGraph.Vertex (field, TGV, TGVSimple, TypeGraphVertex(bestType))
 
 toLensControl :: (TypeGraphM m, MonadWriter [ClauseQ] m) => TGVSimple -> TGVSimple -> Name -> Control m () () ()
 toLensControl key gkey x =
@@ -98,13 +98,14 @@ toLensControl key gkey x =
     , _doAlts = \_ -> pure ()
     }
 
-toLensDecs :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TGVSimple -> m ()
+toLensDecs :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TGV -> m ()
 toLensDecs v =
-    pathKeys v >>= Set.mapM_ (toLensDecs' v)
+    pathKeys' v >>= Set.mapM_ (toLensDecs' v)
 
-toLensDecs' :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TGVSimple -> TGVSimple -> m ()
+toLensDecs' :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TGV -> TGVSimple -> m ()
 toLensDecs' key gkey = do
-  ptyp <- pathType (pure (bestType gkey)) key
+  key' <- simplify key
+  ptyp <- pathType (pure (bestType gkey)) key'
   tlc <- execWriterT $ toLensClauses key gkey
   when (not (null tlc)) $
        (runQ $ sequence
@@ -116,21 +117,22 @@ toLensDecs' key gkey = do
 
 
 toLensClauses :: forall m. (TypeGraphM m, MonadWriter [ClauseQ] m) =>
-                 TGVSimple -- ^ the type whose clauses we are generating
+                 TGV -- ^ the type whose clauses we are generating
               -> TGVSimple -- ^ the goal type key
               -> m ()
-toLensClauses key gkey
-    | key == gkey =
-        tell [clause [wildP] (normalB [|id|]) []]
-toLensClauses key gkey =
-  -- Use this to raise errors when the path patterns aren't exhaustive.
-  -- That is supposed to be impossible, so this is debugging code.
-  -- toLensClauses key gkey ptyp = do
-  --   r <- foldPath control key
-  --   return $ r ++ [clause [varP x] (normalB [|error ("toLens' (" ++ $(lift (pprint' key)) ++ ") -> (" ++ $(lift (pprint' gkey)) ++ ") - unmatched: " ++ show $(varE x))|]) []]
-  do x <- runQ (newName "_x")
-     let control = toLensControl key gkey x :: Control m () () ()
-     doType control key
+toLensClauses key gkey = do
+  key' <- simplify key
+  case key' == gkey of
+    True -> tell [clause [wildP] (normalB [|id|]) []]
+    False -> do
+      -- Use this to raise errors when the path patterns aren't exhaustive.
+      -- That is supposed to be impossible, so this is debugging code.
+      -- toLensClauses key gkey ptyp = do
+      --   r <- foldPath control key
+      --   return $ r ++ [clause [varP x] (normalB [|error ("toLens' (" ++ $(lift (pprint' key)) ++ ") -> (" ++ $(lift (pprint' gkey)) ++ ") - unmatched: " ++ show $(varE x))|]) []]
+      x <- runQ (newName "_x")
+      let control = toLensControl key' gkey x :: Control m () () ()
+      doType control key
 
 -- | Given a function pfunc that modifies a pattern, add a
 -- 'Language.Haskell.TH.Clause' (a function with a typically incomplete

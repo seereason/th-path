@@ -34,8 +34,8 @@ import Language.Haskell.TH.Path.Graph (runTypeGraphT, TypeGraphM)
 import Language.Haskell.TH.Path.Instances ()
 import Language.Haskell.TH.Syntax (addDependentFile)
 import Language.Haskell.TH.TypeGraph.Prelude (friendlyNames, pprint1, pprintW)
-import Language.Haskell.TH.TypeGraph.TypeGraph (allPathStarts, tgvSimple)
-import Language.Haskell.TH.TypeGraph.Vertex (TGVSimple)
+import Language.Haskell.TH.TypeGraph.TypeGraph (allPathStarts, simplify, tgv, tgvSimple)
+import Language.Haskell.TH.TypeGraph.Vertex (TGV, TGVSimple)
 import System.Directory (removeFile)
 import System.IO.Error (isDoesNotExistError)
 
@@ -44,7 +44,7 @@ derivePaths topTypes thisType =
     runTypeGraphT (execWriterT . doType =<< runQ thisType) =<< sequence topTypes
 
 allDecs :: forall m. (TypeGraphM m) => m [Dec]
-allDecs = execWriterT $ allPathStarts >>= mapM_ doNode
+allDecs = execWriterT $ allPathStarts >>= mapM_ (\v -> tgv Nothing v >>= doNode)
 
 allDecsToFile :: [TypeQ] -> Maybe FilePath -> Maybe FilePath -> FilePath -> Q [Dec]
 allDecsToFile st hd tl dest = do
@@ -77,12 +77,13 @@ allDecsToFile st hd tl dest = do
   pure decs
 
 doType :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => Type -> m ()
-doType t = tgvSimple t >>= maybe (error $ "doType: No node for " ++ pprint1 t) doNode
+doType t = tgvSimple t >>= maybe (error $ "doType: No node for " ++ pprint1 t) (\v -> tgv Nothing v >>= doNode)
 
-doNode :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TGVSimple -> m ()
+doNode :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TGV -> m ()
 doNode v = do
-  pathTypeDecs v  -- generate Path types and the IdPath instances
-  lensDecs v      -- generate lenses using makeClassyFor
+  v' <- simplify v
+  pathTypeDecs v'  -- generate Path types and the IdPath instances
+  lensDecs v'      -- generate lenses using makeClassyFor
   pathDecs v      -- generate HasPaths instances
   peekDecs v      -- generate PathStart instances
   toLensDecs v    -- generate ToLens instances
