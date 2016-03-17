@@ -28,6 +28,7 @@ module Language.Haskell.TH.Path.Core
     , HideType
     , SelfPath
     , Describe(describe)
+    , fieldStrings
 
     -- * Basic Path Types
     , Path_Pair(..)
@@ -80,9 +81,9 @@ import GHC.Generics (Generic)
 import Language.Haskell.TH
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.Syntax (qReify)
+import Language.Haskell.TH.Lift (Lift (lift))
+import Language.Haskell.TH.Syntax (liftString, qReify)
 import Language.Haskell.TH.TypeGraph.Prelude (pprint1)
-import Language.Haskell.TH.TypeGraph.Shape (Field)
 import Prelude hiding (exp)
 import Safe (readMay)
 import Web.Routes.TH (derivePathInfo)
@@ -183,7 +184,13 @@ class SelfPath a
 -- The first argument indicates the field of the parent record that
 -- contains the @a@ value, if any.
 class Describe a where
-    describe :: Maybe Field -> a -> Maybe String
+    describe :: Maybe (String, String, Either Int String) -> a -> Maybe String
+
+-- | Convert a 'Language.Haskell.TH.TypeGraph.Shape.Field' into the argument used by 'describe'.
+fieldStrings :: (Name, Name, Either Int Name) -> ExpQ
+fieldStrings (tname, cname, f) = [|($(liftString (nameBase tname)),
+                                    $(liftString (nameBase cname)),
+                                    $(either (\i -> [|Left $(lift i)|]) (\n -> [|Right $(liftString (nameBase n))|]) f))|]
 
 -- Primitive path types
 

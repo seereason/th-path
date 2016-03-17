@@ -30,7 +30,7 @@ import Data.Text as T (Text)
 import Data.UserId (UserId(..))
 import Data.Word (Word32)
 import Language.Haskell.TH
-import Language.Haskell.TH.Path.Core (lens_mrs, lens_UserIds_Text, readOnlyLens, readShowLens, SinkType, Describe(describe))
+import Language.Haskell.TH.Path.Core (fieldStrings, lens_mrs, lens_UserIds_Text, readOnlyLens, readShowLens, SinkType, Describe(describe))
 import Language.Haskell.TH.Path.View (View(ViewType, viewLens))
 import Text.LaTeX (LaTeX)
 import Text.Pandoc (Pandoc, Meta)
@@ -133,11 +133,15 @@ data ReportView
 
 instance Describe (Proxy Markup) where
     describe loc Proxy
-        | loc == Just (''ReportView, 'ReportView, Right '_reportLetterOfTransmittal) = Just "Letter of Transmittal"
+        | loc == Just $(fieldStrings (''ReportView, 'ReportView, Right '_reportLetterOfTransmittal)) = Just "Letter of Transmittal"
         | otherwise = Nothing
 
 -- | Primitive types whose names do not make good labels.
 instance Describe (Proxy JSONText) where describe _ Proxy = Nothing
+instance Describe (Proxy String) where describe _ Proxy = Nothing
+instance Describe (Proxy Text) where describe _ Proxy = Nothing
+instance Describe (Proxy Bool) where describe _ Proxy = Nothing
+instance Describe (Proxy Double) where describe _ Proxy = Nothing
 
 instance View Report where
     type ViewType Report = ReportView

@@ -31,7 +31,7 @@ import Language.Haskell.TH.Lift (lift)
 import Language.Haskell.TH.Path.Common (HasConQ(asConQ), HasCon(asCon), HasName(asName), HasType(asType), HasTypeQ(asTypeQ),
                                         makeFieldCon, makePathCon, makePathType,
                                         ModelType(ModelType))
-import Language.Haskell.TH.Path.Core (PathStart(Peek, peek, hop), Paths(..), ToLens(toLens),
+import Language.Haskell.TH.Path.Core (fieldStrings, PathStart(Peek, peek, hop), Paths(..), ToLens(toLens),
                                       Describe(describe), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..), forestMap)
 import Language.Haskell.TH.Path.Graph (TypeGraphM)
 import Language.Haskell.TH.Path.Order (Path_OMap(..))
@@ -209,6 +209,9 @@ doGoal v w pcon g =
                                        FromTo $(asTypeQ v) $(asTypeQ g) -}) $(varE q)) $(varE z)|])
               []
 
+-- | Generate clauses of the 'Describe' instance for v.  Because the
+-- description is based entirely on the types, we can generate a
+-- string literal here.
 describeConc :: forall m. (TypeGraphM m, MonadWriter [ClauseType] m) =>
                 TGV -> Name -> (TGV, PatQ, ExpQ) -> m ()
 describeConc v wPathVar (w, ppat, _pcon) =
@@ -226,10 +229,10 @@ describeConc v wPathVar (w, ppat, _pcon) =
             next =
                 if w' == g
                 then [|Nothing|]
-                else [|describe $(lift (view (_2 . field) w)) ($(conE wn) $(varE wPathVar) undefined)|]
+                else [|describe $(maybe [|Nothing|] (\fld -> [|Just $(fieldStrings fld)|]) (view (_2 . field) w)) ($(conE wn) $(varE wPathVar) undefined)|]
             custom =
                 if hasDescribeInstance
-                then [|describe $(lift (view (_2 . field) w)) (Proxy :: Proxy $(asTypeQ w))|]
+                then [|describe $(maybe [|Nothing|] (\fld -> [|Just $(fieldStrings fld)|]) (view (_2 . field) w)) (Proxy :: Proxy $(asTypeQ w))|]
                 else [|Nothing|]
         tell [DescClause $
                 clause
