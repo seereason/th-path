@@ -234,7 +234,7 @@ describeConc v wPathVar (w, ppat, _pcon) =
         tell [DescClause $
                 clause
                   [wildP, conP vn [asP p ppat, varP x]]
-                  (normalB [| maybe (Just $(lift (toDescription w))) Just (maybe $custom Just $next) |])
+                  (normalB [| maybe (Just $(lift (toDescription v))) Just (maybe $custom Just $next) |])
                   []]
 
 toDescription :: TGV -> String

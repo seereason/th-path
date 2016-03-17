@@ -136,8 +136,8 @@ instance Describe (Proxy Markup) where
         | loc == Just (''ReportView, 'ReportView, Right '_reportLetterOfTransmittal) = Just "Letter of Transmittal"
         | otherwise = Nothing
 
-instance Describe (Proxy JSONText) where
-    describe _ Proxy = Nothing
+-- | Primitive types whose names do not make good labels.
+instance Describe (Proxy JSONText) where describe _ Proxy = Nothing
 
 instance View Report where
     type ViewType Report = ReportView
