@@ -85,5 +85,5 @@ doNode v = do
   pathTypeDecs v'  -- generate Path types and the IdPath instances
   lensDecs v'      -- generate lenses using makeClassyFor
   pathDecs v      -- generate HasPaths instances
-  peekDecs v      -- generate PathStart instances
+  peekDecs v'      -- generate PathStart instances
   toLensDecs v    -- generate ToLens instances

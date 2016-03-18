@@ -195,6 +195,7 @@ test-suite th-path-quick-tests
     exceptions,
     filepath,
     filemanip-extra,
+    groom,
     HaTeX,
     hslogger,
     HUnit,
@@ -203,6 +204,7 @@ test-suite th-path-quick-tests
     lens,
     ListLike,
     mtl,
+    mtl-unleashed,
     network-uri,
     pandoc,
     pureMD5,
@@ -212,15 +214,20 @@ test-suite th-path-quick-tests
     regex-compat,
     safecopy,
     sr-extra,
+    sr-revision,
     syb,
     template-haskell,
     text,
     th-lift,
     th-orphans,
+    th-typegraph,
     transformers,
     unix,
     Unixutils,
-    utf8-string
+    userid,
+    utf8-string,
+    uuid-orphans,
+    uuid-types
   if flag(local-th-typegraph)
     build-depends: mtl-unleashed, th-desugar, haskell-src-exts, data-default, set-extra, atp-haskell, userid, applicative-extras, web-routes-th, th-kinds-fork, base-compat, safe, sr-revision, uuid-orphans, uuid-types, groom
     hs-source-dirs: ../image-cache, ../th-typegraph, ../th-context, .

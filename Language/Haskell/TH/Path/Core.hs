@@ -61,12 +61,14 @@ module Language.Haskell.TH.Path.Core
 #if !__GHCJS__
     , pathTypeNames
 #endif
+    , camelWords
     ) where
 
 import Control.Applicative.Error (maybeRead)
 import Control.Lens hiding (at) -- (set, Traversal', Lens', _Just, iso, lens, view, view)
+import Data.Char (isUpper, toUpper)
 import Data.Generics (Data, Typeable)
-import Data.List as List (map)
+import Data.List as List (groupBy, map)
 import qualified Data.Map as M (Map, insert, lookup)
 import Data.Maybe (catMaybes)
 import Data.Monoid
@@ -374,3 +376,16 @@ pathTypeNames = do
 -- primitivePathTypeNames :: Set Name
 -- primitivePathTypeNames = Set.fromList [''Path_Pair, ''Path_List, ''Path_Either, ''Path_Map, ''Path_OMap, ''Path_Maybe]
 #endif
+
+-- | Convert a camel case string (no whitespace) into a natural
+-- language looking phrase:
+--   camelWords3 "aCamelCaseFOObar123" -> "A Camel Case FOObar123"
+camelWords :: String -> String
+camelWords s =
+    case groupBy (\ a b -> isUpper a == isUpper b) (dropWhile (== '_') s) of -- "aCamelCaseFOObar123"
+      (x : xs) -> concat $ capitalize x : map (\ (c : cs) -> if isUpper c then ' ' : c : cs else c : cs) xs
+      [] -> ""
+
+capitalize :: String -> String
+capitalize [] = []
+capitalize (c:cs) = (toUpper c) : cs

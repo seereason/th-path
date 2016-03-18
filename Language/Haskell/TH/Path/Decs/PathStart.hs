@@ -19,24 +19,24 @@ module Language.Haskell.TH.Path.Decs.PathStart (peekDecs) where
 
 import Control.Lens hiding (cons, Strict)
 import Control.Monad.Writer (execWriterT, MonadWriter, tell)
-import Data.Char (isUpper, toUpper)
+import Data.Bool (bool)
 import Data.Foldable as Foldable
-import Data.List as List (groupBy, map)
+import Data.List as List (map)
 import Data.Proxy
 import Data.Tree (Tree(Node), Forest)
 import Language.Haskell.TH
 import Language.Haskell.TH.Context (reifyInstancesWithContext)
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.Lift (lift)
 import Language.Haskell.TH.Path.Common (HasConQ(asConQ), HasCon(asCon), HasName(asName), HasType(asType), HasTypeQ(asTypeQ),
                                         makeFieldCon, makePathCon, makePathType,
                                         ModelType(ModelType))
-import Language.Haskell.TH.Path.Core (fieldStrings, PathStart(Peek, peek, hop), Paths(..), ToLens(toLens),
+import Language.Haskell.TH.Path.Core (camelWords, fieldStrings, PathStart(Peek, peek, hop), Paths(..), ToLens(toLens),
                                       Describe(describe), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..), forestMap)
 import Language.Haskell.TH.Path.Graph (TypeGraphM)
 import Language.Haskell.TH.Path.Order (Path_OMap(..))
 import Language.Haskell.TH.Path.Traverse (asP', Control(..), doType, finishConc, finishEither, finishPair)
-import Language.Haskell.TH.TypeGraph.TypeGraph (pathKeys', simplify, tgv, tgvSimple')
+import Language.Haskell.TH.Syntax (lift, liftString)
+import Language.Haskell.TH.TypeGraph.TypeGraph (pathKeys, pathKeys', simplify, tgv, tgvSimple')
 import Language.Haskell.TH.TypeGraph.Vertex (TGV, field, TGVSimple)
 
 newtype PeekType = PeekType {unPeekType :: Name} deriving (Eq, Ord, Show) -- e.g. Peek_AbbrevPairs
@@ -76,7 +76,7 @@ dataInstD' cxt' name params cons supers =
 funD' :: (TypeGraphM m, MonadWriter [Dec] m) => Name -> m [ClauseQ] -> m DecQ
 funD' name clauses = funD name <$> clauses
 
-peekDecs :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TGV -> m ()
+peekDecs :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TGVSimple -> m ()
 peekDecs v =
     do (clauses :: [ClauseType]) <- execWriterT (peekClauses v)
        let (pcs, hcs, dcs) = partitionClauses clauses
@@ -87,7 +87,7 @@ peekDecs v =
                         List.map (\g -> [normalC (asName (makePeekCon (ModelType (asName v)) (ModelType (asName g))))
                                                  [(,) <$> notStrict <*> [t|FromTo $(asTypeQ v) $(asTypeQ g)|],
                                                   (,) <$> notStrict <*> [t|Maybe $(asTypeQ g)|] ]]) .
-                        toList) <$> (pathKeys' v)) [''Eq, ''Show],
+                        toList) <$> (pathKeys v)) [''Eq, ''Show],
            funD' 'peek (case pcs of
                           [] -> pure [clause [wildP] (normalB [| [] |]) []]
                           _ -> pure pcs),
@@ -100,10 +100,10 @@ peekDecs v =
                                            _ -> dcs)])
 
 
-isPathControl :: forall m. (TypeGraphM m, MonadWriter [ClauseType] m) => TGV -> Name -> Name -> Control m (TGV, PatQ, ExpQ) () ()
-isPathControl v x wPathVar =
-    let control :: Control m (TGV, PatQ, ExpQ) () ()
-        control = isPathControl v x wPathVar in
+isPathControl :: forall m. (TypeGraphM m, MonadWriter [ClauseType] m) => TGVSimple -> Name -> Name -> Control m (TGV, PatQ, ExpQ) () ()
+isPathControl v x wPathVar = do
+  let control :: Control m (TGV, PatQ, ExpQ) () ()
+      control = isPathControl v x wPathVar in
     Control { _doSimple = pure ()
             , _doSelf = pure ()
             , _doView =
@@ -173,7 +173,7 @@ isPathControl v x wPathVar =
             }
 
 peekClauses :: forall m conc alt. (TypeGraphM m, MonadWriter [ClauseType] m, conc ~ (TGV, PatQ, ExpQ), alt ~ (PatQ, [conc])) =>
-               TGV -> m ()
+               TGVSimple -> m ()
 peekClauses v = do
   x <- runQ $ newName "_s"
   wPathVar <- runQ $ newName "_wp"
@@ -184,11 +184,11 @@ concatMapQ [] = [|mempty|]
 concatMapQ [x] = x
 concatMapQ xs = [|mconcat $(listE xs)|]
 
-doHop :: forall m. (TypeGraphM m) => TGV -> TGV -> Name -> ExpQ -> m ExpQ
+doHop :: forall m. (TypeGraphM m) => TGVSimple -> TGV -> Name -> ExpQ -> m ExpQ
 doHop v w p _pcon =
     pure [| \a -> Node ($(asConQ (makePeekCon (ModelType (asName v)) (ModelType (asName w)))) $(varE p) (Just a)) [] |]
 
-doPeek :: forall m. (TypeGraphM m) => TGV -> TGV -> Name -> ExpQ -> m ExpQ
+doPeek :: forall m. (TypeGraphM m) => TGVSimple -> TGV -> Name -> ExpQ -> m ExpQ
 doPeek v w p pcon = do
   gs <- pathKeys' w
   let liftPeek = mkName "liftPeek"
@@ -199,7 +199,7 @@ doPeek v w p pcon = do
                               -- can lift the forest of type AbbrevPair to be a forest of type AbbrevPairs.
                               (forestMap $(varE liftPeek) f) |]) |]
 
-doGoal :: TGV -> TGV -> ExpQ -> TGVSimple -> ClauseQ
+doGoal :: TGVSimple -> TGV -> ExpQ -> TGVSimple -> ClauseQ
 doGoal v w pcon g =
     do z <- newName "z"
        q <- newName "q"
@@ -209,54 +209,54 @@ doGoal v w pcon g =
                                        FromTo $(asTypeQ v) $(asTypeQ g) -}) $(varE q)) $(varE z)|])
               []
 
+-- Insert a string into an expression by applying an id function
+-- tag :: String -> ExpQ -> ExpQ
+-- tag s e = [|bool (undefined $(lift s)) $e True|]
+
 -- | Generate clauses of the 'Describe' instance for v.  Because the
 -- description is based entirely on the types, we can generate a
--- string literal here.
+-- string literal here.  Example:
+--    v = TGV {tgvSimple = ReportView, field = _reportLetterOfTransmittal :: Markup}
+--    w = Markup
+--    ppat = Path_ReportView__reportLetterOfTransmittal _wp
 describeConc :: forall m. (TypeGraphM m, MonadWriter [ClauseType] m) =>
-                TGV -> Name -> (TGV, PatQ, ExpQ) -> m ()
+                TGVSimple -> Name -> (TGV, PatQ, ExpQ) -> m ()
 describeConc v wPathVar (w, ppat, _pcon) =
     do p <- runQ $ newName "_p"
        x <- runQ $ newName "_x"
-       hasDescribeInstance <- (not . null) <$> reifyInstancesWithContext ''Describe [AppT (ConT ''Proxy) (asType w)]
-       pathKeys' w >>= mapM_ (doGoal' p x hasDescribeInstance)
+       f <- runQ $ newName "_f"
+       pathKeys' w >>= mapM_ (doGoal' p x f)
+       -- Is there a custom describe instance for Proxy (asType v)?
+       -- if so it overrides the default label we build using camelWords.
     where
-      doGoal' :: Name -> Name -> Bool -> TGVSimple -> m ()
-      doGoal' p x hasDescribeInstance g = do
-        w' <- simplify w
+      doGoal' :: Name -> Name -> Name -> TGVSimple -> m ()
+      doGoal' p x f g = do
+        -- w' <- simplify w
         let PeekCon vn = makePeekCon (ModelType (asName v)) (ModelType (asName g))
             PeekCon wn = makePeekCon (ModelType (asName w)) (ModelType (asName g))
-            -- Describe the next hop on the path.
-            next =
-                if w' == g
-                then [|Nothing|]
-                else [|describe $(maybe [|Nothing|] (\fld -> [|Just $(fieldStrings fld)|]) (view (_2 . field) w)) ($(conE wn) $(varE wPathVar) undefined)|]
-            custom =
-                if hasDescribeInstance
-                then [|describe $(maybe [|Nothing|] (\fld -> [|Just $(fieldStrings fld)|]) (view (_2 . field) w)) (Proxy :: Proxy $(asTypeQ w))|]
-                else [|Nothing|]
+            -- Describe the next hop on the path:
+            --   1. If there is a custom instance for asType w, use that
+            --   2. If the next hop in the path returns anything, use that
+            --   3. Otherwise construct a description from asType v and its context f
+        proxyW <- runQ $ [t|Proxy $(asTypeQ w)|]
+        hasCustomInstance <- (not . null) <$> reifyInstancesWithContext ''Describe [proxyW]
         tell [DescClause $
-                clause
-                  [wildP, conP vn [asP p ppat, varP x]]
-                  (normalB [| maybe (Just $(lift (toDescription v))) Just (maybe $custom Just $next) |])
-                  []]
+              -- f contains the context in which v appears, while we can tell
+              -- the context in which w appears from the path constructor.
+              clause [varP f, conP vn [asP p ppat, varP x]]
+                     (normalB ({-tag ("hasCustomInstance " ++ show v ++ " -> " ++ show hasCustomInstance)-}
+                               [| let wfld = $(maybe [|Nothing|] (\x -> [|Just $(fieldStrings x)|]) (view (_2 . field) w))
+                                      custom = $(if hasCustomInstance
+                                                 then [|describe wfld (Proxy :: $(pure proxyW))|]
+                                                 else [|Nothing|])
+                                      next = describe wfld ($(conE wn) $(varE wPathVar) undefined)
+                                      top = Just $(toDescription (varE f) v) in
+                                  maybe top Just (maybe next Just custom) |]))
+                     []]
 
-toDescription :: TGV -> String
-toDescription w =
-    camelWords $
-    case view (_2 . field) w of
-      Just (_, _, Right fname) -> nameBase fname
-      Just (_, _, Left fpos) -> nameBase (asName w) ++ "[" ++ show fpos ++ "]"
-      Nothing -> nameBase (asName w)
-
--- | Convert a camel case string (no whitespace) into a natural
--- language looking phrase:
---   camelWords3 "aCamelCaseFOObar123" -> "A Camel Case FOObar123"
-camelWords :: String -> String
-camelWords s =
-    case groupBy (\ a b -> isUpper a == isUpper b) (dropWhile (== '_') s) of -- "aCamelCaseFOObar123"
-      (x : xs) -> concat $ capitalize x : map (\ (c : cs) -> if isUpper c then ' ' : c : cs else c : cs) xs
-      [] -> ""
-
-capitalize :: String -> String
-capitalize [] = []
-capitalize (c:cs) = (toUpper c) : cs
+toDescription :: ExpQ -> TGVSimple -> ExpQ
+toDescription f v =
+    [| case $f of
+         Nothing -> $(liftString (camelWords (nameBase (asName v))))
+         Just (_tname, _cname, Right fname) -> camelWords fname
+         Just (_tname, cname, Left fpos) -> camelWords $ cname ++ "[" ++ show fpos ++ "]" |]

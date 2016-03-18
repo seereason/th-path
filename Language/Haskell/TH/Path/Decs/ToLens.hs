@@ -132,7 +132,7 @@ toLensClauses key gkey = do
       --   return $ r ++ [clause [varP x] (normalB [|error ("toLens' (" ++ $(lift (pprint' key)) ++ ") -> (" ++ $(lift (pprint' gkey)) ++ ") - unmatched: " ++ show $(varE x))|]) []]
       x <- runQ (newName "_x")
       let control = toLensControl key' gkey x :: Control m () () ()
-      doType control key
+      doType control key'
 
 -- | Given a function pfunc that modifies a pattern, add a
 -- 'Language.Haskell.TH.Clause' (a function with a typically incomplete
