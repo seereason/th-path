@@ -247,31 +247,17 @@ describeConc v wPathVar (w, ppat, _pcon) =
         let PeekCon vn = makePeekCon (ModelType (asName v)) (ModelType (asName g))
             PeekCon wn = makePeekCon (ModelType (asName w)) (ModelType (asName g))
             -- Describe the next hop on the path:
-            --   1. If there is a custom instance for asType w, use that
-            --   2. If the next hop in the path returns anything, use that
-            --   3. Otherwise construct a description from asType v and its context f
-        proxyW <- runQ $ [t|Proxy $(asTypeQ w)|]
-        -- hasCustomInstance <- (not . null) <$> reifyInstancesWithContext ''Describe [proxyW]
+            --   1. If the next hop in the path returns anything, use that
+            --   2. Otherwise construct a description from asType v and its context f
         tell [DescClause $
               -- f contains the context in which v appears, while we can tell
               -- the context in which w appears from the path constructor.
               clause [varP f, conP vn [asP p ppat, varP x]]
-                     (normalB ({-tag ("hasCustomInstance " ++ show v ++ " -> " ++ show hasCustomInstance)-}
-                               [| let wfld = $(maybe [|Nothing|] (\y -> [|Just $(fieldStrings y)|]) (view (_2 . field) w))
-                                      custom = describe wfld (Proxy :: $(pure proxyW))
-                                               {-$(if hasCustomInstance
-                                                 then [|describe wfld (Proxy :: $(pure proxyW))|]
-                                                 else [|Nothing|])-}
+                     (normalB ([| let -- The context in which the w value appears
+                                      wfld = $(maybe [|Nothing|] (\y -> [|Just $(fieldStrings y)|]) (view (_2 . field) w))
+                                      -- The label for the next hop along the path
                                       next = describe wfld ($(conE wn) $(varE wPathVar) undefined)
+                                      -- The label for the current node
                                       top = describe $(varE f) (Proxy :: Proxy $(asTypeQ v)) in
-                                  maybe top Just (maybe next Just custom) |]))
+                                  maybe top Just next |]))
                      []]
-
-{-
-toDescription :: ExpQ -> TGVSimple -> ExpQ
-toDescription f v =
-    [| case $f of
-         Nothing -> describe Nothing (Proxy :: Proxy $(asTypeQ v)) -- $(liftString (camelWords (nameBase (asName v))))
-         Just (_tname, _cname, Right fname) -> Just (camelWords fname)
-         Just (_tname, cname, Left fpos) -> Just (camelWords $ cname ++ "[" ++ show fpos ++ "]") |]
--}
