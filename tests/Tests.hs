@@ -134,9 +134,13 @@ main = do
          , assertEqual' "toLens8" ((Path_ReportImage_View (idPath :: Path_ReportImageView Bool) :.: Path_ReportImage_View (idPath :: Path_ReportImageView Bool)) ==
                                    (Path_ReportImage_View (idPath :: Path_ReportImageView Bool) :.: Path_ReportImage_View (idPath :: Path_ReportImageView Bool))) True
          , assertEqual' "label 1" (Just "Report Intended Use") (describe Nothing (Peek_Report_MaybeReportIntendedUse (Path_Report_View (Path_ReportView__reportIntendedUse Path_MaybeReportIntendedUse)) Nothing))
+         -- There is a custom Describe instance for Markup that returns Nothing, so
+         --    > describe (Just ("ReportView","ReportView",Right "_reportFooter")) (Peek_Markup_Markup Path_Markup undefined)
+         -- returns Nothing.
          , assertEqual' "label 2" (Just "Report Footer") (describe Nothing (Peek_Report_Markup (Path_Report_View (Path_ReportView__reportFooter Path_Markup)) Nothing))
          , assertEqual' "label 3" (Just "Letter of Transmittal") (describe Nothing
                                                                            (Peek_Report_Text (Path_Report_View (Path_ReportView__reportLetterOfTransmittal (Path_Markup_markdownText Path_Text))) Nothing))
+         , assertEqual' "label 4" (Just "Letter of Transmittal") (describe Nothing (Peek_ReportView_Text (Path_ReportView__reportLetterOfTransmittal (Path_Markup_markdownText Path_Text)) Nothing))
          , assertEqual' "Report letter of transmittal field"
                                   (Just "Letter of Transmittal") (describe (Just $(fieldStrings (''ReportView, 'ReportView, Right '_reportLetterOfTransmittal)))
                                                                            (Peek_ReportView_JSONText (Path_ReportView__reportLetterOfTransmittal (Path_Markup_markdownText (Path_Text_View Path_JSONText))) Nothing))

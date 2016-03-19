@@ -256,13 +256,10 @@ describeConc v wPathVar (w, ppat, _pcon) =
                      (normalB ([| let -- The context in which the w value appears
                                       wfld :: Maybe (String, String, Either Int String)
                                       wfld = ($(maybe [|Nothing|] (\y -> [|Just $(fieldStrings y)|]) (view (_2 . field) w)))
-                                      wlab = maybe Nothing
-                                                   (Just . (\(_tname, cname, fld) -> either (\fpos -> (camelWords $ cname ++ "[" ++ show fpos ++ "]"))
-                                                                                          (\fname -> (camelWords fname)) fld))
-                                                   wfld
                                       -- The label for the next hop along the path
-                                      next = maybe wlab Just (describe wfld ($(conE wn) $(varE wPathVar) undefined))
-                                      -- The label for the current node
+                                      next = describe wfld ($(conE wn) $(varE wPathVar) undefined)
+                                      -- The label for the current node.  This will call the custom
+                                      -- instance if there is one, otherwise one will have been generated.
                                       top = describe $(varE f) (Proxy :: Proxy $(asTypeQ v)) in
                                   maybe top Just next |]))
                      []]
