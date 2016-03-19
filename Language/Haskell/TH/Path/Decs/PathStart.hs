@@ -254,9 +254,14 @@ describeConc v wPathVar (w, ppat, _pcon) =
               -- the context in which w appears from the path constructor.
               clause [varP f, conP vn [asP p ppat, varP x]]
                      (normalB ([| let -- The context in which the w value appears
-                                      wfld = $(maybe [|Nothing|] (\y -> [|Just $(fieldStrings y)|]) (view (_2 . field) w))
+                                      wfld :: Maybe (String, String, Either Int String)
+                                      wfld = ($(maybe [|Nothing|] (\y -> [|Just $(fieldStrings y)|]) (view (_2 . field) w)))
+                                      wlab = maybe Nothing
+                                                   (Just . (\(_tname, cname, fld) -> either (\fpos -> (camelWords $ cname ++ "[" ++ show fpos ++ "]"))
+                                                                                          (\fname -> (camelWords fname)) fld))
+                                                   wfld
                                       -- The label for the next hop along the path
-                                      next = describe wfld ($(conE wn) $(varE wPathVar) undefined)
+                                      next = maybe wlab Just (describe wfld ($(conE wn) $(varE wPathVar) undefined))
                                       -- The label for the current node
                                       top = describe $(varE f) (Proxy :: Proxy $(asTypeQ v)) in
                                   maybe top Just next |]))
