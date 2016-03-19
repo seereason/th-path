@@ -35,8 +35,7 @@ import Language.Haskell.TH.PprLib as TH (text)
 import System.Exit
 import Test.HUnit
 
--- import ReportPaths
-import ReportDecs
+import ReportPaths
 import Tests.Data (peekReportView, peekAbbrevPairs)
 import Tests.Report as Report (report, image)
 

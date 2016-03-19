@@ -26,7 +26,7 @@ import Data.Set.Extra as Set (mapM_)
 import Language.Haskell.TH
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Common (asConQ, asType, asTypeQ, HasName(asName), makePathCon, makePathType, mconcatQ, ModelType(ModelType), tells)
-import Language.Haskell.TH.Path.Core (IdPath(idPath), Paths(..), ToLens(..), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
+import Language.Haskell.TH.Path.Core (Describe(..), IdPath(idPath), Paths(..), ToLens(..), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
 import Language.Haskell.TH.Path.Decs.PathType (pathType)
 import Language.Haskell.TH.Path.Graph (testIsPath, TypeGraphM)
 import Language.Haskell.TH.Path.Instances ()
@@ -39,6 +39,17 @@ pathDecs :: (TypeGraphM m, MonadWriter [Dec] m) => TGV -> m ()
 pathDecs v =
     pathKeys' v >>= Set.mapM_ (pathDecs' v)
 
+data ClauseType
+    = PathClause ClauseQ
+    | DescClause ClauseQ
+
+partitionClauses :: [ClauseType] -> ([ClauseQ], [ClauseQ])
+partitionClauses xs =
+    foldr f ([], []) xs
+    where
+      f (PathClause c) (pcs, dcs) = (c : pcs, dcs)
+      f (DescClause c) (pcs, dcs) = (pcs, c : dcs)
+
 -- | For a given pair of TGVSimples, compute the declaration of the
 -- corresponding Path instance.  Each clause matches some possible value
 -- of the path type, and returns a lens that extracts the value the
@@ -50,16 +61,20 @@ pathDecs' v gkey = do
   ptyp <- pathType (pure (bestType gkey)) v'
   x <- runQ (newName "_s")
   g <- runQ (newName "_g")
-  poc <- case v' == gkey of
-           True -> pure [clause [wildP, wildP] (normalB [| [idPath] |]) []]
-           False -> execWriterT (doType (hasPathControl v gkey g x) v')
-  when (not (null poc))
-       (tells [ instanceD (pure []) [t|Paths $(pure (bestType v)) $(pure (bestType gkey))|]
-                [ tySynInstD ''FromTo (tySynEqn [pure (bestType v), pure (bestType gkey)] (pure ptyp))
-                , funD 'paths poc
-                ]])
+  (pcs, dcs) <-
+      partitionClauses <$>
+      case v' == gkey of
+        True -> pure [PathClause $ clause [wildP, wildP] (normalB [| [idPath] |]) []]
+        False -> execWriterT (doType (hasPathControl v gkey g x) v')
+  when (not (null pcs))
+       (tells [instanceD (pure []) [t|Paths $(pure (bestType v)) $(pure (bestType gkey))|]
+                 [ tySynInstD ''FromTo (tySynEqn [pure (bestType v), pure (bestType gkey)] (pure ptyp))
+                 , funD 'paths pcs ]])
+  when (not (null dcs))
+       (tells [instanceD (pure []) [t|Describe $(asTypeQ v) $(asTypeQ gkey)|]
+                [ funD 'describe dcs ]])
 
-hasPathControl :: (TypeGraphM m, MonadWriter [ClauseQ] m) => TGV -> TGVSimple -> Name -> Name -> Control m (Type, ExpQ) () ()
+hasPathControl :: (TypeGraphM m, MonadWriter [ClauseType] m) => TGV -> TGVSimple -> Name -> Name -> Control m (Type, ExpQ) () ()
 hasPathControl v gkey g x =
     let control = hasPathControl v gkey g x in
     Control { _doSimple = pure ()
@@ -91,13 +106,6 @@ hasPathControl v gkey g x =
                     do let lconc = (asType l, [| case $(varE x) of Left a' -> [(Path_Left, a')]; Right _ -> []|])
                            rconc = (asType r, [| case $(varE x) of Left _ -> []; Right a' -> [(Path_Right, a')]|])
                        finishEither control lconc rconc
-                       -- lalt <- _doConcs control (conP 'Left [wildP]) [lconc]
-                       -- ralt <- _doConcs control (conP 'Right [wildP]) [rconc]
-                       -- _doAlts control [lalt, ralt]
-{-
-                    do pure ((asType l, [| case $(varE x) of Left a' -> [(Path_Left, a')]; Right _ -> []|]),
-                             (asType r, [| case $(varE x) of Left _ -> []; Right a' -> [(Path_Right, a')]|]))
--}
             , _doField =
                 \fld typ ->
                     case fld of
@@ -109,15 +117,18 @@ hasPathControl v gkey g x =
                                                     lamE (replicate (fpos-1) wildP ++ [varP p] ++ replicate (2-fpos) wildP) (varE p)) $(varE x))] |])
             , _doConcs =
                 \xpat concs -> do
-                  exps <- mapM (\(typ, asList) ->
+                  exps <- concat <$>
+                          mapM (\(typ, asList) ->
                                     do isPath <- testIsPath typ gkey
+                                       let _nextPathType = [t|FromTo $(pure typ) $(asTypeQ gkey)|]
+                                           _thisPathType = [t|FromTo $(asTypeQ v) $(asTypeQ gkey)|]
                                        case isPath of
-                                         False -> pure [| [] |]
-                                         True -> pure [| List.concatMap
-                                                           (\(p, a') -> (List.map p (paths (a' :: $(pure typ)) $(varE g) {-:: [FromTo $(pure typ) $(asTypeQ gkey)]-})) {-:: [FromTo $(pure styp) $(asTypeQ gkey)]-})
-                                                           ($asList {-:: [(FromTo $(pure typ) $(asTypeQ gkey) -> FromTo $(pure styp) $(asTypeQ gkey), $(pure typ))]-}) |])
+                                         False -> pure []
+                                         True -> pure [ [| List.concatMap
+                                                             (\(p, a') -> (List.map p (paths (a' :: $(pure typ)) $(varE g) {-:: [$_nextPathType]-})) {-:: [$_thisPathType]-})
+                                                             ($asList {-:: [($_nextPathType -> $_thisPathType, $(pure typ))]-}) |] ])
                                concs
-                  tell [clause [asP' x xpat, varP g] (normalB (mconcatQ exps)) []]
+                  tell [PathClause $ clause [asP' x xpat, varP g] (normalB (mconcatQ exps)) []]
             , _doSyn =
                 \_tname _typ -> pure ()
             , _doAlts = \_ -> pure ()
