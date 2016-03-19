@@ -35,7 +35,8 @@ import Language.Haskell.TH.PprLib as TH (text)
 import System.Exit
 import Test.HUnit
 
-import ReportPaths
+-- import ReportPaths
+import ReportDecs
 import Tests.Data (peekReportView, peekAbbrevPairs)
 import Tests.Report as Report (report, image)
 
@@ -87,6 +88,15 @@ testPeekReportView =
       actual :: Forest (Peek ReportView)
       actual = peek (head (toListOf (toLens (Path_Report_View (idPath :: Path_ReportView ReportView))) Report.report) :: ReportView)
 
+testLabels :: Test
+testLabels =
+    assertEqual' "peek labels" expected actual
+    where
+      expected :: Forest (Maybe String)
+      expected = [] -- peekReportView
+      actual :: Forest (Maybe String)
+      actual = map (fmap (describe Nothing)) peekReportView
+
 testPeekReport :: Test
 testPeekReport =
     assertEqual' "Peek_Report_ReportElem" expected actual
@@ -113,6 +123,7 @@ main = do
          [ testReportElems
          , testShowInstance
          , testPeekReportView
+         , testLabels
          , testPeekReport
          , testPeekOrder
          , assertEqual' "toLens3" (toListOf (toLens (Path_ImageSize_dim (idPath :: Path_Dimension Dimension))) (picSize image)) [dim (picSize image) :: Dimension]
@@ -123,6 +134,10 @@ main = do
                                                      (Path_ReportImageView__picCrop (idPath :: Path_ImageCrop ImageCrop)))) image) [picCrop image]
          , assertEqual' "toLens8" ((Path_ReportImage_View (idPath :: Path_ReportImageView Bool) :.: Path_ReportImage_View (idPath :: Path_ReportImageView Bool)) ==
                                    (Path_ReportImage_View (idPath :: Path_ReportImageView Bool) :.: Path_ReportImage_View (idPath :: Path_ReportImageView Bool))) True
+         , assertEqual' "Report letter of transmittal field"
+             (Just "Letter of Transmittal")
+             (describe (Just $(fieldStrings (''ReportView, 'ReportView, Right '_reportLetterOfTransmittal)))
+                       (Peek_ReportView_JSONText (Path_ReportView__reportLetterOfTransmittal (Path_Markup_markdownText (Path_Text_View Path_JSONText))) Nothing))
          ]
 
   case r of

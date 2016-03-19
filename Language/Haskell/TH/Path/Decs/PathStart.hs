@@ -94,10 +94,10 @@ peekDecs v =
            funD' 'hop (case hcs of
                          [] -> pure [clause [wildP] (normalB [| [] |]) []]
                          _ -> pure hcs)])
-       instanceD' (cxt []) (appT (conT ''Describe) [t|Peek $(asTypeQ v)|])
+       instanceD' (cxt []) [t|Describe (Peek $(asTypeQ v))|]
                   (pure [funD 'describe (case dcs of
                                            [] -> [clause [wildP, wildP] (normalB [|Nothing|]) []]
-                                           _ -> dcs)])
+                                           _ -> dcs ++ [newName "p" >>= \p -> clause [wildP, varP p] (normalB [|error $ "describe - unexpected peek: " ++ show $(varE p) |]) []])])
 
 
 isPathControl :: forall m. (TypeGraphM m, MonadWriter [ClauseType] m) => TGVSimple -> Name -> Name -> Control m (TGV, PatQ, ExpQ) () ()
@@ -156,7 +156,7 @@ isPathControl v x wPathVar = do
                                                                      $(asP p ppat) ->
                                                                          map $node (toListOf (toLens $(varE p)) $(varE x) :: [$(asTypeQ w)])
                                                                      _ -> [])
-                                                         (paths $(varE x) (undefined :: Proxy $(asTypeQ w))
+                                                         (paths $(varE x) (Proxy :: Proxy $(asTypeQ w))
                                                              {-:: [$(asTypeQ (makePathType (ModelType (asName v)))) $(asTypeQ w)]-}) |]
                                      describeConc v wPathVar conc
                                      p <- runQ $ newName "_pp"

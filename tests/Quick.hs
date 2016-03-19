@@ -22,6 +22,7 @@ import Language.Haskell.TH (pprint, runQ, runIO)
 import Language.Haskell.TH.Path.Core
 import Language.Haskell.TH.Path.Decs (allDecsToFile)
 import Language.Haskell.TH.Path.Graph (runTypeGraphT)
+import Language.Haskell.TH.Path.Order hiding (view)
 import Language.Haskell.TH.Path.View (viewLens)
 import Language.Haskell.TH.TypeGraph.TypeGraph (TypeGraph)
 import System.Exit
@@ -45,9 +46,7 @@ main = do
                                                      (Path_ReportImageView__picCrop (idPath :: Path_ImageCrop ImageCrop)))) image) [picCrop image]
          , assertEqual' "toLens8" ((Path_ReportImage_View (idPath :: Path_ReportImageView Bool) :.: Path_ReportImage_View (idPath :: Path_ReportImageView Bool)) ==
                                    (Path_ReportImage_View (idPath :: Path_ReportImageView Bool) :.: Path_ReportImage_View (idPath :: Path_ReportImageView Bool))) True
-         , assertEqual' "label01"
-             (Just "Letter of Transmittal")
-             (describe (Just $(fieldStrings (''ReportView, 'ReportView, Right '_reportLetterOfTransmittal))) (Peek_ReportView_JSONText (Path_ReportView__reportLetterOfTransmittal (Path_Markup_markdownText (Path_Text_View Path_JSONText))) Nothing)) ]
+         ]
   case r of
     Counts {errors = 0, failures = 0} -> exitWith ExitSuccess
     _ -> error $ showCounts r

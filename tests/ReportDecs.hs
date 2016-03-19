@@ -16,7 +16,7 @@ import Appraisal.File (File)
 import Appraisal.Image
 import Appraisal.ImageFile
 import Appraisal.IntJS
-import Appraisal.Markup (Markup(..))
+import Appraisal.Markup (Markup(..), rawMarkdown)
 import Appraisal.Permissions
 import Appraisal.Report
 import Appraisal.ReportImage
@@ -24,20 +24,26 @@ import Appraisal.ReportInstances
 import Appraisal.ReportItem
 import Appraisal.ReportMap (ReportID(..), ReportMap(..), MRR)
 import Appraisal.Utils.CIString (CIString(..))
-import Control.Lens (iso, _Just, _1, _2, _Left, _Right, Lens', toListOf, Traversal')
+import Control.Lens (iso, _Just, _1, _2, _Left, _Right, Lens', toListOf, Traversal', view)
 import Data.Generics (Data, Typeable)
 import Data.Int (Int64)
 import Data.Map (Map, toList)
 import Data.Proxy
 import Data.Text (Text)
-import Data.Tree (Tree(Node), Forest)
+import Data.Tree (drawTree, Tree(Node), Forest)
 import Data.UserId (UserId(UserId))
 import Data.UUID (UUID)
 import Data.UUID.Orphans ()
 import Language.Haskell.TH.Path.Core
 import Language.Haskell.TH.Path.Order (lens_omat, Order, Path_OMap(Path_At), toPairs)
 import Language.Haskell.TH.Path.View (View(viewLens))
+import Language.Haskell.TH.Ppr as TH (Ppr(ppr))
 import Network.URI (URI(URI), URIAuth)
+import System.Exit (ExitCode(ExitSuccess), exitWith)
+import Test.HUnit
+-- import Tests.Data (peekReportView, peekAbbrevPairs)
+import Tests.Report as Report (report, image)
+import Text.PrettyPrint (text)
 
 type Path_Checksum a = Path_String a
 type Path_FilePath a = Path_String a
@@ -72,6 +78,7 @@ instance Describe (Peek ([Char]))
                                                                                                    Just (_tname, _cname, Right fname) -> camelWords fname
                                                                                                    Just (_tname, cname, Left fpos) -> camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))}
                                                                                in maybe top Just (maybe next Just custom)
+          describe _ p = error $ ("describe - unexpected peek: " ++ show p)
 instance ToLens (Path_String String)
     where type S (Path_String String) = String
           type A (Path_String String) = String
@@ -172,6 +179,7 @@ instance Describe (Peek Bool)
                                                                                                Just (_tname, _cname, Right fname) -> camelWords fname
                                                                                                Just (_tname, cname, Left fpos) -> camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))}
                                                                            in maybe top Just (maybe next Just custom)
+          describe _ p = error $ ("describe - unexpected peek: " ++ show p)
 instance ToLens (Path_Bool String)
     where type S (Path_Bool String) = Bool
           type A (Path_Bool String) = String
@@ -234,6 +242,7 @@ instance Describe (Peek Double)
                                                                                                    Just (_tname, _cname, Right fname) -> camelWords fname
                                                                                                    Just (_tname, cname, Left fpos) -> camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))}
                                                                                in maybe top Just (maybe next Just custom)
+          describe _ p = error $ ("describe - unexpected peek: " ++ show p)
 instance ToLens (Path_Double String)
     where type S (Path_Double String) = Double
           type A (Path_Double String) = String
@@ -281,6 +290,7 @@ instance Describe (Peek Dimension)
                                                                                                          Just (_tname, _cname, Right fname) -> camelWords fname
                                                                                                          Just (_tname, cname, Left fpos) -> camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))}
                                                                                      in maybe top Just (maybe next Just custom)
+          describe _ p = error $ ("describe - unexpected peek: " ++ show p)
 instance ToLens (Path_Dimension Dimension)
     where type S (Path_Dimension Dimension) = Dimension
           type A (Path_Dimension Dimension) = Dimension
@@ -478,6 +488,7 @@ instance Describe (Peek ImageSize)
                                                                                                           Just (_tname, _cname, Right fname) -> camelWords fname
                                                                                                           Just (_tname, cname, Left fpos) -> camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))}
                                                                                       in maybe top Just (maybe next Just custom)
+          describe _ p = error $ ("describe - unexpected peek: " ++ show p)
 instance ToLens (Path_ImageSize String)
     where type S (Path_ImageSize String) = ImageSize
           type A (Path_ImageSize String) = String
@@ -537,6 +548,7 @@ instance Describe (Peek Units)
                                                                                                  Just (_tname, _cname, Right fname) -> camelWords fname
                                                                                                  Just (_tname, cname, Left fpos) -> camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))}
                                                                              in maybe top Just (maybe next Just custom)
+          describe _ p = error $ ("describe - unexpected peek: " ++ show p)
 instance ToLens (Path_Units Units)
     where type S (Path_Units Units) = Units
           type A (Path_Units Units) = Units
@@ -740,6 +752,7 @@ instance Describe (Peek Markup)
                                                                                                    Just (_tname, _cname, Right fname) -> camelWords fname
                                                                                                    Just (_tname, cname, Left fpos) -> camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))}
                                                                                in maybe top Just (maybe next Just custom)
+          describe _ p = error $ ("describe - unexpected peek: " ++ show p)
 instance ToLens (Path_Markup JSONText)
     where type S (Path_Markup JSONText) = Markup
           type A (Path_Markup JSONText) = JSONText
@@ -898,6 +911,7 @@ instance Describe (Peek Permissions)
                                                                                                             Just (_tname, _cname, Right fname) -> camelWords fname
                                                                                                             Just (_tname, cname, Left fpos) -> camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))}
                                                                                         in maybe top Just (maybe next Just custom)
+          describe _ p = error $ ("describe - unexpected peek: " ++ show p)
 instance ToLens (Path_Permissions JSONText)
     where type S (Path_Permissions JSONText) = Permissions
           type A (Path_Permissions JSONText) = JSONText
@@ -967,6 +981,7 @@ instance Describe (Peek ([UserId]))
                                                                                                  Just (_tname, _cname, Right fname) -> camelWords fname
                                                                                                  Just (_tname, cname, Left fpos) -> camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))}
                                                                              in maybe top Just (maybe next Just custom)
+          describe _ p = error $ ("describe - unexpected peek: " ++ show p)
 instance ToLens (Path_UserIds JSONText)
     where type S (Path_UserIds JSONText) = UserIds
           type A (Path_UserIds JSONText) = JSONText
@@ -1074,6 +1089,7 @@ instance Describe (Peek ((CIString, Markup)))
                                                                                               Just (_tname, _cname, Right fname) -> camelWords fname
                                                                                               Just (_tname, cname, Left fpos) -> camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))}
                                                                           in maybe top Just (maybe next Just custom)
+          describe _ p = error $ ("describe - unexpected peek: " ++ show p)
 instance ToLens (Path_Pair (Path_CIString JSONText) (Path_Markup JSONText))
     where type S (Path_Pair (Path_CIString JSONText) (Path_Markup JSONText)) = AbbrevPair
           type A (Path_Pair (Path_CIString JSONText) (Path_Markup JSONText)) = JSONText
@@ -1178,6 +1194,7 @@ instance Describe (Peek (Order AbbrevPairID ((CIString, Markup))))
                                                                                               Just (_tname, _cname, Right fname) -> camelWords fname
                                                                                               Just (_tname, cname, Left fpos) -> camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))}
                                                                           in maybe top Just (maybe next Just custom)
+          describe _ p = error $ ("describe - unexpected peek: " ++ show p)
 instance ToLens (Path_OMap AbbrevPairID (Path_Pair (Path_CIString JSONText) (Path_Markup JSONText)))
     where type S (Path_OMap AbbrevPairID (Path_Pair (Path_CIString JSONText) (Path_Markup JSONText))) = AbbrevPairs
           type A (Path_OMap AbbrevPairID (Path_Pair (Path_CIString JSONText) (Path_Markup JSONText))) = JSONText
@@ -1314,6 +1331,7 @@ instance Describe (Peek Author)
                                                                                                             Just (_tname, _cname, Right fname) -> camelWords fname
                                                                                                             Just (_tname, cname, Left fpos) -> camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))}
                                                                                         in maybe top Just (maybe next Just custom)
+          describe _ p = error $ ("describe - unexpected peek: " ++ show p)
 instance ToLens (Path_Author JSONText)
     where type S (Path_Author JSONText) = Author
           type A (Path_Author JSONText) = JSONText
@@ -1401,6 +1419,7 @@ instance Describe (Peek (Order AuthorID Author))
                                                                                           Just (_tname, _cname, Right fname) -> camelWords fname
                                                                                           Just (_tname, cname, Left fpos) -> camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))}
                                                                       in maybe top Just (maybe next Just custom)
+          describe _ p = error $ ("describe - unexpected peek: " ++ show p)
 instance ToLens (Path_OMap AuthorID (Path_Author JSONText))
     where type S (Path_OMap AuthorID (Path_Author JSONText)) = Authors
           type A (Path_OMap AuthorID (Path_Author JSONText)) = JSONText
@@ -1471,6 +1490,7 @@ instance Describe (Peek Branding)
                                                                                                    Just (_tname, _cname, Right fname) -> camelWords fname
                                                                                                    Just (_tname, cname, Left fpos) -> camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))}
                                                                                in maybe top Just (maybe next Just custom)
+          describe _ p = error $ ("describe - unexpected peek: " ++ show p)
 instance ToLens (Path_Branding JSONText)
     where type S (Path_Branding JSONText) = Branding
           type A (Path_Branding JSONText) = JSONText
@@ -1575,6 +1595,7 @@ instance Describe (Peek ((Markup, Markup)))
                                                                                               Just (_tname, _cname, Right fname) -> camelWords fname
                                                                                               Just (_tname, cname, Left fpos) -> camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))}
                                                                           in maybe top Just (maybe next Just custom)
+          describe _ p = error $ ("describe - unexpected peek: " ++ show p)
 instance ToLens (Path_Pair (Path_Markup JSONText) (Path_Markup JSONText))
     where type S (Path_Pair (Path_Markup JSONText) (Path_Markup JSONText)) = MarkupPair
           type A (Path_Pair (Path_Markup JSONText) (Path_Markup JSONText)) = JSONText
@@ -1662,6 +1683,7 @@ instance Describe (Peek (Order MarkupPairID ((Markup, Markup))))
                                                                                               Just (_tname, _cname, Right fname) -> camelWords fname
                                                                                               Just (_tname, cname, Left fpos) -> camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))}
                                                                           in maybe top Just (maybe next Just custom)
+          describe _ p = error $ ("describe - unexpected peek: " ++ show p)
 instance ToLens (Path_OMap MarkupPairID (Path_Pair (Path_Markup JSONText) (Path_Markup JSONText)))
     where type S (Path_OMap MarkupPairID (Path_Pair (Path_Markup JSONText) (Path_Markup JSONText))) = MarkupPairs
           type A (Path_OMap MarkupPairID (Path_Pair (Path_Markup JSONText) (Path_Markup JSONText))) = JSONText
@@ -1737,6 +1759,7 @@ instance Describe (Peek (Order MarkupID Markup))
                                                                                           Just (_tname, _cname, Right fname) -> camelWords fname
                                                                                           Just (_tname, cname, Left fpos) -> camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))}
                                                                       in maybe top Just (maybe next Just custom)
+          describe _ p = error $ ("describe - unexpected peek: " ++ show p)
 instance ToLens (Path_OMap MarkupID (Path_Markup JSONText))
     where type S (Path_OMap MarkupID (Path_Markup JSONText)) = Markups
           type A (Path_OMap MarkupID (Path_Markup JSONText)) = JSONText
@@ -1801,6 +1824,7 @@ instance Describe (Peek (Maybe ReportIntendedUse))
                                                                                                                                    Just (_tname, _cname, Right fname) -> camelWords fname
                                                                                                                                    Just (_tname, cname, Left fpos) -> camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))}
                                                                                                                in maybe top Just (maybe next Just custom)
+          describe _ p = error $ ("describe - unexpected peek: " ++ show p)
 instance ToLens (Path_MaybeReportIntendedUse String)
     where type S (Path_MaybeReportIntendedUse String) = MaybeReportIntendedUse
           type A (Path_MaybeReportIntendedUse String) = String
@@ -4698,6 +4722,7 @@ instance Describe (Peek Report)
                                                                                                Just (_tname, _cname, Right fname) -> camelWords fname
                                                                                                Just (_tname, cname, Left fpos) -> camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))}
                                                                            in maybe top Just (maybe next Just custom)
+          describe _ p = error $ ("describe - unexpected peek: " ++ show p)
 instance ToLens (Path_Report String)
     where type S (Path_Report String) = Report
           type A (Path_Report String) = String
@@ -5281,6 +5306,7 @@ instance Describe (Peek ReportElem)
                                                                                                            Just (_tname, _cname, Right fname) -> camelWords fname
                                                                                                            Just (_tname, cname, Left fpos) -> camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))}
                                                                                        in maybe top Just (maybe next Just custom)
+          describe _ p = error $ ("describe - unexpected peek: " ++ show p)
 instance ToLens (Path_ReportElem String)
     where type S (Path_ReportElem String) = ReportElem
           type A (Path_ReportElem String) = String
@@ -5674,6 +5700,7 @@ instance Describe (Peek (Order ReportElemID ReportElem))
                                                                                               Just (_tname, _cname, Right fname) -> camelWords fname
                                                                                               Just (_tname, cname, Left fpos) -> camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))}
                                                                           in maybe top Just (maybe next Just custom)
+          describe _ p = error $ ("describe - unexpected peek: " ++ show p)
 instance ToLens (Path_OMap ReportElemID (Path_ReportElem String))
     where type S (Path_OMap ReportElemID (Path_ReportElem String)) = ReportElems
           type A (Path_OMap ReportElemID (Path_ReportElem String)) = String
@@ -5838,6 +5865,7 @@ instance Describe (Peek ReportFlags)
                                                                                                                             Just (_tname, _cname, Right fname) -> camelWords fname
                                                                                                                             Just (_tname, cname, Left fpos) -> camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))}
                                                                                                         in maybe top Just (maybe next Just custom)
+          describe _ p = error $ ("describe - unexpected peek: " ++ show p)
 instance ToLens (Path_ReportFlags String)
     where type S (Path_ReportFlags String) = ReportFlags
           type A (Path_ReportFlags String) = String
@@ -5904,6 +5932,7 @@ instance Describe (Peek ReportIntendedUse)
                                                                                                                          Just (_tname, _cname, Right fname) -> camelWords fname
                                                                                                                          Just (_tname, cname, Left fpos) -> camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))}
                                                                                                      in maybe top Just (maybe next Just custom)
+          describe _ p = error $ ("describe - unexpected peek: " ++ show p)
 instance ToLens (Path_ReportIntendedUse String)
     where type S (Path_ReportIntendedUse String) = ReportIntendedUse
           type A (Path_ReportIntendedUse String) = String
@@ -5959,6 +5988,7 @@ instance Describe (Peek ReportStandard)
                                                                                                                           Just (_tname, _cname, Right fname) -> camelWords fname
                                                                                                                           Just (_tname, cname, Left fpos) -> camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))}
                                                                                                       in maybe top Just (maybe next Just custom)
+          describe _ p = error $ ("describe - unexpected peek: " ++ show p)
 instance ToLens (Path_ReportStandard Int)
     where type S (Path_ReportStandard Int) = ReportStandard
           type A (Path_ReportStandard Int) = Int
@@ -6017,6 +6047,7 @@ instance Describe (Peek ReportStatus)
                                                                                                                Just (_tname, _cname, Right fname) -> camelWords fname
                                                                                                                Just (_tname, cname, Left fpos) -> camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))}
                                                                                            in maybe top Just (maybe next Just custom)
+          describe _ p = error $ ("describe - unexpected peek: " ++ show p)
 instance ToLens (Path_ReportStatus String)
     where type S (Path_ReportStatus String) = ReportStatus
           type A (Path_ReportStatus String) = String
@@ -6162,6 +6193,7 @@ instance Describe (Peek ReportValueApproachInfo)
                                                                                     Just (_tname, _cname, Right fname) -> camelWords fname
                                                                                     Just (_tname, cname, Left fpos) -> camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))}
                                                                 in maybe top Just (maybe next Just custom)
+          describe _ p = error $ ("describe - unexpected peek: " ++ show p)
 instance ToLens (Path_ReportValueApproachInfo JSONText)
     where type S (Path_ReportValueApproachInfo JSONText) = ReportValueApproachInfo
           type A (Path_ReportValueApproachInfo JSONText) = JSONText
@@ -6372,6 +6404,7 @@ instance Describe (Peek ReportValueTypeInfo)
                                                                                                                                               Just (_tname, _cname, Right fname) -> camelWords fname
                                                                                                                                               Just (_tname, cname, Left fpos) -> camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))}
                                                                                                                           in maybe top Just (maybe next Just custom)
+          describe _ p = error $ ("describe - unexpected peek: " ++ show p)
 instance ToLens (Path_ReportValueTypeInfo JSONText)
     where type S (Path_ReportValueTypeInfo JSONText) = ReportValueTypeInfo
           type A (Path_ReportValueTypeInfo JSONText) = JSONText
@@ -6449,6 +6482,7 @@ instance Describe (Peek (Either URI ImageFile))
                                                                                            Just (_tname, _cname, Right fname) -> camelWords fname
                                                                                            Just (_tname, cname, Left fpos) -> camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))}
                                                                        in maybe top Just (maybe next Just custom)
+          describe _ p = error $ ("describe - unexpected peek: " ++ show p)
 instance ToLens (Path_Either (Path_URI ImageFile) (Path_ImageFile ImageFile))
     where type S (Path_Either (Path_URI ImageFile) (Path_ImageFile ImageFile)) = EUI
           type A (Path_Either (Path_URI ImageFile) (Path_ImageFile ImageFile)) = ImageFile
@@ -6522,6 +6556,7 @@ instance Describe (Peek (Maybe (Either URI ImageFile)))
                                                                                      Just (_tname, _cname, Right fname) -> camelWords fname
                                                                                      Just (_tname, cname, Left fpos) -> camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))}
                                                                  in maybe top Just (maybe next Just custom)
+          describe _ p = error $ ("describe - unexpected peek: " ++ show p)
 instance ToLens (Path_Maybe (Path_Either (Path_URI ImageFile) (Path_ImageFile ImageFile)))
     where type S (Path_Maybe (Path_Either (Path_URI ImageFile) (Path_ImageFile ImageFile))) = MEUI
           type A (Path_Maybe (Path_Either (Path_URI ImageFile) (Path_ImageFile ImageFile))) = ImageFile
@@ -6584,6 +6619,7 @@ instance Describe (Peek (Maybe ImageFile))
                                                                                                                    Just (_tname, _cname, Right fname) -> camelWords fname
                                                                                                                    Just (_tname, cname, Left fpos) -> camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))}
                                                                                                in maybe top Just (maybe next Just custom)
+          describe _ p = error $ ("describe - unexpected peek: " ++ show p)
 instance ToLens (Path_MaybeImageFile String)
     where type S (Path_MaybeImageFile String) = MaybeImageFile
           type A (Path_MaybeImageFile String) = String
@@ -6901,6 +6937,7 @@ instance Describe (Peek ReportImage)
                                                                                                          Just (_tname, _cname, Right fname) -> camelWords fname
                                                                                                          Just (_tname, cname, Left fpos) -> camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))}
                                                                                      in maybe top Just (maybe next Just custom)
+          describe _ p = error $ ("describe - unexpected peek: " ++ show p)
 instance ToLens (Path_ReportImage String)
     where type S (Path_ReportImage String) = ReportImage
           type A (Path_ReportImage String) = String
@@ -7223,6 +7260,7 @@ instance Describe (Peek (Order ReportImageID ReportImage))
                                                                                                Just (_tname, _cname, Right fname) -> camelWords fname
                                                                                                Just (_tname, cname, Left fpos) -> camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))}
                                                                            in maybe top Just (maybe next Just custom)
+          describe _ p = error $ ("describe - unexpected peek: " ++ show p)
 instance ToLens (Path_OMap ReportImageID (Path_ReportImage String))
     where type S (Path_OMap ReportImageID (Path_ReportImage String)) = ReportImages
           type A (Path_OMap ReportImageID (Path_ReportImage String)) = String
@@ -7345,6 +7383,7 @@ instance Describe (Peek (ReadOnly ([Char])))
                                                                                                                        Just (_tname, _cname, Right fname) -> camelWords fname
                                                                                                                        Just (_tname, cname, Left fpos) -> camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))}
                                                                                                    in maybe top Just (maybe next Just custom)
+          describe _ p = error $ ("describe - unexpected peek: " ++ show p)
 instance ToLens (Path_ReadOnlyFilePath String)
     where type S (Path_ReadOnlyFilePath String) = ReadOnlyFilePath
           type A (Path_ReadOnlyFilePath String) = String
@@ -8032,6 +8071,7 @@ instance Describe (Peek ReportImageView)
                                                                                                                                              Just (_tname, _cname, Right fname) -> camelWords fname
                                                                                                                                              Just (_tname, cname, Left fpos) -> camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))}
                                                                                                                          in maybe top Just (maybe next Just custom)
+          describe _ p = error $ ("describe - unexpected peek: " ++ show p)
 instance ToLens (Path_ReportImageView String)
     where type S (Path_ReportImageView String) = ReportImageView
           type A (Path_ReportImageView String) = String
@@ -14585,6 +14625,7 @@ instance Describe (Peek ReportView)
                                                                                                                                     Just (_tname, _cname, Right fname) -> camelWords fname
                                                                                                                                     Just (_tname, cname, Left fpos) -> camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))}
                                                                                                                 in maybe top Just (maybe next Just custom)
+          describe _ p = error $ ("describe - unexpected peek: " ++ show p)
 instance ToLens (Path_ReportView String)
     where type S (Path_ReportView String) = ReportView
           type A (Path_ReportView String) = String
@@ -14993,6 +15034,7 @@ instance Describe (Peek (SaneSize ImageSize))
                                                                                                                          Just (_tname, _cname, Right fname) -> camelWords fname
                                                                                                                          Just (_tname, cname, Left fpos) -> camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))}
                                                                                                      in maybe top Just (maybe next Just custom)
+          describe _ p = error $ ("describe - unexpected peek: " ++ show p)
 instance ToLens (Path_SaneSizeImageSize String)
     where type S (Path_SaneSizeImageSize String) = SaneSizeImageSize
           type A (Path_SaneSizeImageSize String) = String
@@ -15388,6 +15430,7 @@ instance Describe (Peek Item)
                                                                                              Just (_tname, _cname, Right fname) -> camelWords fname
                                                                                              Just (_tname, cname, Left fpos) -> camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))}
                                                                          in maybe top Just (maybe next Just custom)
+          describe _ p = error $ ("describe - unexpected peek: " ++ show p)
 instance ToLens (Path_Item String)
     where type S (Path_Item String) = Item
           type A (Path_Item String) = String
@@ -15532,6 +15575,7 @@ instance Describe (Peek (Map ItemFieldName Markup))
                                                                                         Just (_tname, _cname, Right fname) -> camelWords fname
                                                                                         Just (_tname, cname, Left fpos) -> camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))}
                                                                     in maybe top Just (maybe next Just custom)
+          describe _ p = error $ ("describe - unexpected peek: " ++ show p)
 instance ToLens (Path_Map ItemFieldName (Path_Markup JSONText))
     where type S (Path_Map ItemFieldName (Path_Markup JSONText)) = MIM
           type A (Path_Map ItemFieldName (Path_Markup JSONText)) = JSONText
@@ -16188,6 +16232,7 @@ instance Describe (Peek (Map ReportID Report))
                                                                                         Just (_tname, _cname, Right fname) -> camelWords fname
                                                                                         Just (_tname, cname, Left fpos) -> camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))}
                                                                     in maybe top Just (maybe next Just custom)
+          describe _ p = error $ ("describe - unexpected peek: " ++ show p)
 instance ToLens (Path_Map ReportID (Path_Report String))
     where type S (Path_Map ReportID (Path_Report String)) = MRR
           type A (Path_Map ReportID (Path_Report String)) = String
@@ -17050,6 +17095,7 @@ instance Describe (Peek ReportMap)
                                                                                                             Just (_tname, _cname, Right fname) -> camelWords fname
                                                                                                             Just (_tname, cname, Left fpos) -> camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))}
                                                                                         in maybe top Just (maybe next Just custom)
+          describe _ p = error $ ("describe - unexpected peek: " ++ show p)
 instance ToLens (Path_ReportMap String)
     where type S (Path_ReportMap String) = ReportMap
           type A (Path_ReportMap String) = String
@@ -17305,6 +17351,7 @@ instance Describe (Peek CIString)
                                                                                                    Just (_tname, _cname, Right fname) -> camelWords fname
                                                                                                    Just (_tname, cname, Left fpos) -> camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))}
                                                                                in maybe top Just (maybe next Just custom)
+          describe _ p = error $ ("describe - unexpected peek: " ++ show p)
 instance ToLens (Path_CIString JSONText)
     where type S (Path_CIString JSONText) = CIString
           type A (Path_CIString JSONText) = JSONText
@@ -17395,6 +17442,7 @@ instance Describe (Peek Text)
                                                                                                Just (_tname, _cname, Right fname) -> camelWords fname
                                                                                                Just (_tname, cname, Left fpos) -> camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))}
                                                                            in maybe top Just (maybe next Just custom)
+          describe _ p = error $ ("describe - unexpected peek: " ++ show p)
 instance ToLens (Path_Text JSONText)
     where type S (Path_Text JSONText) = Text
           type A (Path_Text JSONText) = JSONText
