@@ -36,7 +36,7 @@ import System.Exit
 import Test.HUnit
 
 import ReportPaths
-import Tests.Data (peekReportView, peekAbbrevPairs)
+import Tests.Data (peekReportView, peekAbbrevPairs, peekLabels)
 import Tests.Report as Report (report, image)
 
 {-
@@ -92,7 +92,7 @@ testLabels =
     assertEqual' "peek labels" expected actual
     where
       expected :: Forest (Maybe String)
-      expected = [] -- peekReportView
+      expected = peekLabels
       actual :: Forest (Maybe String)
       actual = map (fmap (describe Nothing)) peekReportView
 
