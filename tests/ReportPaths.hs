@@ -34,12 +34,15 @@ import Language.Haskell.TH.Lift (Lift(lift), deriveLiftMany)
 import Language.Haskell.TH.Path.Core (Path_Pair, Path_Map, Path_Maybe, Path_Either)
 import Language.Haskell.TH.Path.Decs (allDecsToFile)
 import Language.Haskell.TH.Path.Order (Path_OMap)
+import Language.Haskell.TH.Syntax (runIO, runQ)
+import System.FilePath.Find (find, always, extension, (==?))
 import Text.LaTeX hiding (lift)
 import Text.LaTeX.Base.Syntax
 import Text.Pandoc (Pandoc, Meta, MetaValue, QuoteType, Inline, Format, MathType, Citation,
                     CitationMode, Block, ListNumberStyle, ListNumberDelim, Alignment)
 
-$(allDecsToFile [ [t|ReportMap|] ] (Just "tests/ReportHead.hs") Nothing "tests/ReportDecs.hs")
+$(runQ (runIO (find always (extension ==? ".hs") "Language/Haskell/TH/Path")) >>=
+  allDecsToFile [ [t|ReportMap|] ] (Just "tests/ReportHead.hs") Nothing "tests/ReportDecs.hs")
 
 instance Lift Text where
     lift = lift . unpack

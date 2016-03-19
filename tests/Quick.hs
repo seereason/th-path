@@ -9,7 +9,7 @@
 
 import Appraisal.File
 import Appraisal.Image
-import Appraisal.ImageFile
+import Appraisal.ImageFile hiding (extension)
 -- import Appraisal.LaTeX
 import Appraisal.Markup
 import Appraisal.ReportImage
@@ -22,15 +22,18 @@ import Language.Haskell.TH (pprint, runQ, runIO)
 import Language.Haskell.TH.Path.Core
 import Language.Haskell.TH.Path.Decs (allDecsToFile)
 import Language.Haskell.TH.Path.Graph (runTypeGraphT)
-import Language.Haskell.TH.Path.Order hiding (view)
+import Language.Haskell.TH.Path.Order hiding (find, view)
 import Language.Haskell.TH.Path.View (viewLens)
+import Language.Haskell.TH.Syntax (runIO, runQ)
 import Language.Haskell.TH.TypeGraph.TypeGraph (TypeGraph)
 import System.Exit
+import System.FilePath.Find (find, always, extension, (==?))
 import Test.HUnit
 
 $(do let printTree = askPoly >>= \(g :: TypeGraph) -> (runQ . runIO . putStrLn . pprint) g
      sequence [ [t|ReportImage|] ] >>= runTypeGraphT printTree
-     allDecsToFile [ [t|ReportImage|] ] (Just "tests/QuickHead.hs") (Just "tests/QuickTail.hs") "tests/QuickDecs.hs")
+     deps <- runQ $ runIO $ find always (extension ==? ".hs") "Language/Haskell/TH/Path"
+     allDecsToFile [ [t|ReportImage|] ] (Just "tests/QuickHead.hs") (Just "tests/QuickTail.hs") "tests/QuickDecs.hs" deps)
 
 image :: ReportImage
 image = Pic {picSize = ImageSize {dim = TheArea, size = 6.0, units = Inches}, picCrop = ImageCrop {topCrop = 0, bottomCrop = 0, leftCrop = 0, rightCrop = 0, rotation = 0}, picCaption = rawMarkdown "", picOriginal = Just (Right (ImageFile {imageFile = File {fileSource = Nothing, fileChksum = "b2ba73ef42b951e095eb927c0fc4d45b", fileMessages = []}, imageFileType = JPEG, imageFileWidth = 2048, imageFileHeight = 1536, imageFileMaxVal = 255})), picEditedDeprecated = Nothing, picThumbDeprecated = Nothing, picPrinterDeprecated = Nothing, picMustEnlarge = False, picEnlargedDeprecated = Nothing}

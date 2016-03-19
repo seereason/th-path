@@ -18,8 +18,8 @@
 module Language.Haskell.TH.Path.Decs.PathStart (peekDecs) where
 
 import Control.Lens hiding (cons, Strict)
+import Control.Monad (when)
 import Control.Monad.Writer (execWriterT, MonadWriter, tell)
-import Data.Bool (bool)
 import Data.Foldable as Foldable
 import Data.List as List (map)
 import Data.Proxy
@@ -35,8 +35,8 @@ import Language.Haskell.TH.Path.Core (camelWords, fieldStrings, PathStart(Peek, 
 import Language.Haskell.TH.Path.Graph (TypeGraphM)
 import Language.Haskell.TH.Path.Order (Path_OMap(..))
 import Language.Haskell.TH.Path.Traverse (asP', Control(..), doType, finishConc, finishEither, finishPair)
-import Language.Haskell.TH.Syntax (lift, liftString)
-import Language.Haskell.TH.TypeGraph.TypeGraph (pathKeys, pathKeys', simplify, tgv, tgvSimple')
+import Language.Haskell.TH.Syntax (liftString)
+import Language.Haskell.TH.TypeGraph.TypeGraph (pathKeys, pathKeys', tgv, tgvSimple')
 import Language.Haskell.TH.TypeGraph.Vertex (TGV, field, TGVSimple)
 
 newtype PeekType = PeekType {unPeekType :: Name} deriving (Eq, Ord, Show) -- e.g. Peek_AbbrevPairs
@@ -97,7 +97,19 @@ peekDecs v =
        instanceD' (cxt []) [t|Describe (Peek $(asTypeQ v))|]
                   (pure [funD 'describe (case dcs of
                                            [] -> [clause [wildP, wildP] (normalB [|Nothing|]) []]
-                                           _ -> dcs ++ [newName "p" >>= \p -> clause [wildP, varP p] (normalB [|error $ "describe - unexpected peek: " ++ show $(varE p) |]) []])])
+                                           _ -> dcs ++ [newName "_f" >>= \f -> clause [varP f, wildP] (normalB [|describe $(varE f) (Proxy :: Proxy $(asTypeQ v))|]) []])])
+       proxyV <- runQ $ [t|Proxy $(asTypeQ v)|]
+       hasCustomInstance <- (not . null) <$> reifyInstancesWithContext ''Describe [proxyV]
+       when (not hasCustomInstance)
+            (instanceD' (cxt []) [t|Describe (Proxy $(asTypeQ v))|]
+               (pure [newName "_f" >>= \f ->
+                      funD 'describe
+                        [clause [varP f, wildP]
+                           (normalB [| case $(varE f) of
+                                         Nothing -> Just $(liftString (camelWords (nameBase (asName v))))
+                                         Just (_tname, _cname, Right fname) -> Just (camelWords fname)
+                                         Just (_tname, cname, Left fpos) -> Just (camelWords $ cname ++ "[" ++ show fpos ++ "]")
+                                     |]) []]]))
 
 
 isPathControl :: forall m. (TypeGraphM m, MonadWriter [ClauseType] m) => TGVSimple -> Name -> Name -> Control m (TGV, PatQ, ExpQ) () ()
@@ -239,24 +251,27 @@ describeConc v wPathVar (w, ppat, _pcon) =
             --   2. If the next hop in the path returns anything, use that
             --   3. Otherwise construct a description from asType v and its context f
         proxyW <- runQ $ [t|Proxy $(asTypeQ w)|]
-        hasCustomInstance <- (not . null) <$> reifyInstancesWithContext ''Describe [proxyW]
+        -- hasCustomInstance <- (not . null) <$> reifyInstancesWithContext ''Describe [proxyW]
         tell [DescClause $
               -- f contains the context in which v appears, while we can tell
               -- the context in which w appears from the path constructor.
               clause [varP f, conP vn [asP p ppat, varP x]]
                      (normalB ({-tag ("hasCustomInstance " ++ show v ++ " -> " ++ show hasCustomInstance)-}
-                               [| let wfld = $(maybe [|Nothing|] (\x -> [|Just $(fieldStrings x)|]) (view (_2 . field) w))
-                                      custom = $(if hasCustomInstance
+                               [| let wfld = $(maybe [|Nothing|] (\y -> [|Just $(fieldStrings y)|]) (view (_2 . field) w))
+                                      custom = describe wfld (Proxy :: $(pure proxyW))
+                                               {-$(if hasCustomInstance
                                                  then [|describe wfld (Proxy :: $(pure proxyW))|]
-                                                 else [|Nothing|])
+                                                 else [|Nothing|])-}
                                       next = describe wfld ($(conE wn) $(varE wPathVar) undefined)
-                                      top = Just $(toDescription (varE f) v) in
+                                      top = describe $(varE f) (Proxy :: Proxy $(asTypeQ v)) in
                                   maybe top Just (maybe next Just custom) |]))
                      []]
 
+{-
 toDescription :: ExpQ -> TGVSimple -> ExpQ
 toDescription f v =
     [| case $f of
-         Nothing -> $(liftString (camelWords (nameBase (asName v))))
-         Just (_tname, _cname, Right fname) -> camelWords fname
-         Just (_tname, cname, Left fpos) -> camelWords $ cname ++ "[" ++ show fpos ++ "]" |]
+         Nothing -> describe Nothing (Proxy :: Proxy $(asTypeQ v)) -- $(liftString (camelWords (nameBase (asName v))))
+         Just (_tname, _cname, Right fname) -> Just (camelWords fname)
+         Just (_tname, cname, Left fpos) -> Just (camelWords $ cname ++ "[" ++ show fpos ++ "]") |]
+-}

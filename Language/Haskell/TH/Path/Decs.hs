@@ -21,7 +21,7 @@ module Language.Haskell.TH.Path.Decs
 
 import Control.Exception as E (IOException, throw, try)
 import Control.Monad.Writer (MonadWriter, execWriterT)
---import Data.List (sort)
+import Data.Maybe (catMaybes)
 import Data.Monoid ((<>))
 import Language.Haskell.TH
 import Language.Haskell.TH.Instances ()
@@ -46,10 +46,9 @@ derivePaths topTypes thisType =
 allDecs :: forall m. (TypeGraphM m) => m [Dec]
 allDecs = execWriterT $ allPathStarts >>= mapM_ (\v -> tgv Nothing v >>= doNode)
 
-allDecsToFile :: [TypeQ] -> Maybe FilePath -> Maybe FilePath -> FilePath -> Q [Dec]
-allDecsToFile st hd tl dest = do
-  runQ $ maybe (pure ()) addDependentFile hd
-  runQ $ maybe (pure ()) addDependentFile tl
+allDecsToFile :: [TypeQ] -> Maybe FilePath -> Maybe FilePath -> FilePath -> [FilePath] -> Q [Dec]
+allDecsToFile st hd tl dest deps = do
+  runQ $ mapM_ addDependentFile $ catMaybes [hd, tl] ++ deps
   hdText <- runQ $ runIO $ maybe (pure mempty) readFile hd
   tlText <- runQ $ runIO $ maybe (pure mempty) readFile tl
   old <- runQ $ runIO (try (readFile dest) >>=
