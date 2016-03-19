@@ -18,7 +18,7 @@ module Language.Haskell.TH.Path.Core
     ( treeMap
     , forestMap
       -- * Type classes and associated types
-    , Paths(paths, FromTo)
+    , Paths(paths, Path)
     , IdPath(idPath)
     , PathStart(Peek, peek, hop)
     , ToLens(S, A, toLens)
@@ -152,15 +152,15 @@ instance (ToLens f, ToLens g, A f ~ S g {-, B f ~ T g-}) => ToLens (f :.: g) whe
 -- eponymously named @Path_Pair@, but that is the identity
 -- constructor, so it can not represent a path from @(Int, Int)@ to
 -- @Int@.
-class (PathStart s, IdPath (FromTo s a), ToLens (FromTo s a), S (FromTo s a) ~ s, A (FromTo s a) ~ a) => Paths s a where
-    type FromTo s a
+class (PathStart s, IdPath (Path s a), ToLens (Path s a), S (Path s a) ~ s, A (Path s a) ~ a) => Paths s a where
+    type Path s a
     -- ^ Each instance defines this type function which returns the
     -- path type.  Each value of this type represents a different way
     -- of obtaining the @a@ from the @s@.  For example, if @s@ is a
     -- record with two fields of type 'Int', the type @PathType s Int@
     -- would have distinct values for those two fields, and the lenses
     -- returned by 'toLens would access those two fields.
-    paths :: s -> Proxy a -> [FromTo s a]
+    paths :: s -> Proxy a -> [Path s a]
     -- ^ Build the paths corresponding to a particular @s@ value and a
     -- particular @a@ type.  Returns a list because there may be
     -- several @a@ reachable from this @s@.  This function will freak
@@ -367,7 +367,7 @@ lens_UserIds_Text = iso (encode') (decode')
 -- | Find all the names of the path types.
 pathTypeNames :: DsMonad m => m (Set Name)
 pathTypeNames = do
-  (FamilyI (FamilyD TypeFam _pathtype [_,_] (Just StarT)) tySynInsts) <- qReify ''FromTo
+  (FamilyI (FamilyD TypeFam _pathtype [_,_] (Just StarT)) tySynInsts) <- qReify ''Path
   return . {-flip Set.difference primitivePathTypeNames .-} Set.fromList . List.map (\(TySynInstD _ (TySynEqn _ typ)) -> doTySyn typ) $ tySynInsts
     where
       doTySyn (AppT x _) = doTySyn x

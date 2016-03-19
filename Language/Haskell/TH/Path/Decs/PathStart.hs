@@ -85,7 +85,7 @@ peekDecs v =
           [dataInstD' (cxt []) ''Peek [asTypeQ v]
                       ((concat .
                         List.map (\g -> [normalC (asName (makePeekCon (ModelType (asName v)) (ModelType (asName g))))
-                                                 [(,) <$> notStrict <*> [t|FromTo $(asTypeQ v) $(asTypeQ g)|],
+                                                 [(,) <$> notStrict <*> [t|Path $(asTypeQ v) $(asTypeQ g)|],
                                                   (,) <$> notStrict <*> [t|Maybe $(asTypeQ g)|] ]]) .
                         toList) <$> (pathKeys v)) [''Eq, ''Show],
            funD' 'peek (case pcs of
@@ -217,8 +217,8 @@ doGoal v w pcon g =
        q <- newName "q"
        clause [conP (asName (makePeekCon (ModelType (asName w)) (ModelType (asName g)))) [varP q, varP z]]
               (normalB [|$(asConQ (makePeekCon (ModelType (asName v)) (ModelType (asName g))))
-                         (($pcon {- :: FromTo $(asTypeQ w) $(asTypeQ g) ->
-                                       FromTo $(asTypeQ v) $(asTypeQ g) -}) $(varE q)) $(varE z)|])
+                         (($pcon {- :: Path $(asTypeQ w) $(asTypeQ g) ->
+                                       Path $(asTypeQ v) $(asTypeQ g) -}) $(varE q)) $(varE z)|])
               []
 
 -- Insert a string into an expression by applying an id function

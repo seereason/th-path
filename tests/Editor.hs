@@ -21,7 +21,7 @@ import Data.Tree
 import Debug.Trace (trace)
 import Language.Haskell.TH
 import Language.Haskell.TH.Lift (lift)
-import Language.Haskell.TH.Path.Core (Paths(paths, FromTo), ToLens(toLens), IdPath(idPath))
+import Language.Haskell.TH.Path.Core (Paths(paths, Path), ToLens(toLens), IdPath(idPath))
 import Language.Haskell.TH.Path.Graph (TypeGraphM)
 import Language.Haskell.TH.Path.View (viewInstanceType)
 import Language.Haskell.TH.TypeGraph.Expand (E(E), expandType)

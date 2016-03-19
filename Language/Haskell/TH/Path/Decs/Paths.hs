@@ -68,7 +68,7 @@ pathDecs' v gkey = do
         False -> execWriterT (doType (hasPathControl v gkey g x) v')
   when (not (null pcs))
        (tells [instanceD (pure []) [t|Paths $(pure (bestType v)) $(pure (bestType gkey))|]
-                 [ tySynInstD ''FromTo (tySynEqn [pure (bestType v), pure (bestType gkey)] (pure ptyp))
+                 [ tySynInstD ''Path (tySynEqn [pure (bestType v), pure (bestType gkey)] (pure ptyp))
                  , funD 'paths pcs ]])
   when (not (null dcs))
        (tells [instanceD (pure []) [t|Describe $(asTypeQ v) $(asTypeQ gkey)|]
@@ -83,8 +83,8 @@ hasPathControl v gkey g x =
                 \w -> do
                   let pcname = makePathCon (makePathType (ModelType (asName v))) "View"
                   alt <- _doConcs control wildP
-                             [(asType w, [|map (\a' -> ($(asConQ pcname) {-:: FromTo $(asTypeQ w) $(asTypeQ gkey) -> FromTo $(asTypeQ v) $(asTypeQ gkey)-}, a'))
-                                               (toListOf (toLens ($(asConQ pcname) (idPath :: FromTo $(asTypeQ w) $(asTypeQ w)))) $(varE x)) |])]
+                             [(asType w, [|map (\a' -> ($(asConQ pcname) {-:: Path $(asTypeQ w) $(asTypeQ gkey) -> Path $(asTypeQ v) $(asTypeQ gkey)-}, a'))
+                                               (toListOf (toLens ($(asConQ pcname) (idPath :: Path $(asTypeQ w) $(asTypeQ w)))) $(varE x)) |])]
                   _doAlts control [alt]
             , _doOrder =
                 \_i w -> do
@@ -120,8 +120,8 @@ hasPathControl v gkey g x =
                   exps <- concat <$>
                           mapM (\(typ, asList) ->
                                     do isPath <- testIsPath typ gkey
-                                       let _nextPathType = [t|FromTo $(pure typ) $(asTypeQ gkey)|]
-                                           _thisPathType = [t|FromTo $(asTypeQ v) $(asTypeQ gkey)|]
+                                       let _nextPathType = [t|Path $(pure typ) $(asTypeQ gkey)|]
+                                           _thisPathType = [t|Path $(asTypeQ v) $(asTypeQ gkey)|]
                                        case isPath of
                                          False -> pure []
                                          True -> pure [ [| List.concatMap
