@@ -30,7 +30,7 @@ import Data.Text as T (Text)
 import Data.UserId (UserId(..))
 import Data.Word (Word32)
 import Language.Haskell.TH
-import Language.Haskell.TH.Path.Core (camelWords, lens_mrs, lens_UserIds_Text, readOnlyLens, readShowLens, SinkType, Describe(describe))
+import Language.Haskell.TH.Path.Core (camelWords, lens_mrs, lens_UserIds_Text, readOnlyLens, readShowLens, SinkType, Describe(describe'))
 import Language.Haskell.TH.Path.View (View(ViewType, viewLens))
 import Text.LaTeX (LaTeX)
 import Text.Pandoc (Pandoc, Meta)
@@ -132,16 +132,16 @@ data ReportView
     deriving (Read, Show, Eq, Ord, Typeable, Data)
 
 instance Describe (Proxy Markup) where
-    describe (Just (_, _, Right fname)) Proxy | fname == nameBase '_reportLetterOfTransmittal = Just "Letter of Transmittal"
-    describe (Just (_, _, Right fname)) Proxy = Just (camelWords fname)
-    describe _ _ = Nothing
+    describe' (Just (_, _, Right fname)) Proxy | fname == nameBase '_reportLetterOfTransmittal = Just "Letter of Transmittal"
+    describe' (Just (_, _, Right fname)) Proxy = Just (camelWords fname)
+    describe' _ _ = Nothing
 
 -- | Primitive types whose names do not make good labels.
-instance Describe (Proxy JSONText) where describe _ Proxy = Nothing
-instance Describe (Proxy String) where describe _ Proxy = Nothing
-instance Describe (Proxy Text) where describe _ Proxy = Nothing
-instance Describe (Proxy Bool) where describe _ Proxy = Nothing
-instance Describe (Proxy Double) where describe _ Proxy = Nothing
+instance Describe (Proxy JSONText) where describe' _ Proxy = Nothing
+instance Describe (Proxy String) where describe' _ Proxy = Nothing
+instance Describe (Proxy Text) where describe' _ Proxy = Nothing
+instance Describe (Proxy Bool) where describe' _ Proxy = Nothing
+instance Describe (Proxy Double) where describe' _ Proxy = Nothing
 
 instance View Report where
     type ViewType Report = ReportView

@@ -72,7 +72,7 @@ pathDecs' v gkey = do
                  , funD 'paths pcs ]])
   when (not (null dcs))
        (tells [instanceD (pure []) [t|Describe $(asTypeQ v) $(asTypeQ gkey)|]
-                [ funD 'describe dcs ]])
+                [ funD 'describe' dcs ]])
 
 hasPathControl :: (TypeGraphM m, MonadWriter [ClauseType] m) => TGV -> TGVSimple -> Name -> Name -> Control m (Type, ExpQ) () ()
 hasPathControl v gkey g x =

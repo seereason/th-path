@@ -31,7 +31,7 @@ import Language.Haskell.TH.Path.Common (HasConQ(asConQ), HasCon(asCon), HasName(
                                         makeFieldCon, makePathCon, makePathType,
                                         ModelType(ModelType))
 import Language.Haskell.TH.Path.Core (camelWords, fieldStrings, PathStart(Peek, peek, hop), Paths(..), ToLens(toLens),
-                                      Describe(describe), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..), forestMap)
+                                      Describe(describe'), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..), forestMap)
 import Language.Haskell.TH.Path.Graph (TypeGraphM)
 import Language.Haskell.TH.Path.Order (Path_OMap(..))
 import Language.Haskell.TH.Path.Traverse (asP', Control(..), doType, finishConc, finishEither, finishPair)
@@ -95,15 +95,15 @@ peekDecs v =
                          [] -> pure [clause [wildP] (normalB [| [] |]) []]
                          _ -> pure hcs)])
        instanceD' (cxt []) [t|Describe (Peek $(asTypeQ v))|]
-                  (pure [funD 'describe (case dcs of
+                  (pure [funD 'describe' (case dcs of
                                            [] -> [clause [wildP, wildP] (normalB [|Nothing|]) []]
-                                           _ -> dcs ++ [newName "_f" >>= \f -> clause [varP f, wildP] (normalB [|describe $(varE f) (Proxy :: Proxy $(asTypeQ v))|]) []])])
+                                           _ -> dcs ++ [newName "_f" >>= \f -> clause [varP f, wildP] (normalB [|describe' $(varE f) (Proxy :: Proxy $(asTypeQ v))|]) []])])
        proxyV <- runQ $ [t|Proxy $(asTypeQ v)|]
        hasCustomInstance <- (not . null) <$> reifyInstancesWithContext ''Describe [proxyV]
        when (not hasCustomInstance)
             (instanceD' (cxt []) [t|Describe (Proxy $(asTypeQ v))|]
                (pure [newName "_f" >>= \f ->
-                      funD 'describe
+                      funD 'describe'
                         [clause [varP f, wildP]
                            (normalB [| case $(varE f) of
                                          Nothing -> Just $(liftString (camelWords (nameBase (asName v))))
@@ -257,9 +257,9 @@ describeConc v wPathVar (w, ppat, _pcon) =
                                       wfld :: Maybe (String, String, Either Int String)
                                       wfld = ($(maybe [|Nothing|] (\y -> [|Just $(fieldStrings y)|]) (view (_2 . field) w)))
                                       -- The label for the next hop along the path
-                                      next = describe wfld ($(conE wn) $(varE wPathVar) undefined)
+                                      next = describe' wfld ($(conE wn) $(varE wPathVar) undefined)
                                       -- The label for the current node.  This will call the custom
                                       -- instance if there is one, otherwise one will have been generated.
-                                      top = describe $(varE f) (Proxy :: Proxy $(asTypeQ v)) in
+                                      top = describe' $(varE f) (Proxy :: Proxy $(asTypeQ v)) in
                                   maybe top Just next |]))
                      []]

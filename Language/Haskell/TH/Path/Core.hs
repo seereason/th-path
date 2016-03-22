@@ -28,7 +28,8 @@ module Language.Haskell.TH.Path.Core
     , SinkType
     , HideType
     , SelfPath
-    , Describe(describe)
+    , Describe(describe')
+    , describe
     , fieldStrings
 
     -- * Basic Path Types
@@ -121,7 +122,6 @@ class PathStart s where
     -- ^ This signature is exactly the same as peek, but the list
     -- indicates that no recurive peek calls are made, so only one
     -- layer of the forest is returned
-    -- describe' :: Peek s -> String
 
 class ToLens p where
     type S p
@@ -187,9 +187,12 @@ class SelfPath a
 -- The first argument indicates the field of the parent record that
 -- contains the @a@ value, if any.
 class Describe a where
-    describe :: Maybe (String, String, Either Int String) -> a -> Maybe String
+    describe' :: Maybe (String, String, Either Int String) -> a -> Maybe String
 
--- | Convert a 'Language.Haskell.TH.TypeGraph.Shape.Field' into the argument used by 'describe'.
+describe :: Describe a => a -> Maybe String
+describe = describe' Nothing
+
+-- | Convert a 'Language.Haskell.TH.TypeGraph.Shape.Field' into the argument used by describe'.
 fieldStrings :: (Name, Name, Either Int Name) -> ExpQ
 fieldStrings (tname, cname, f) = [|($(liftString (nameBase tname)),
                                     $(liftString (nameBase cname)),
