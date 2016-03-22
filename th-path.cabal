@@ -35,6 +35,7 @@ library
     containers,
     data-default,
     directory,
+    extra,
     haskell-src-exts,
     ListLike,
     mtl,
@@ -73,10 +74,9 @@ library
       Language.Haskell.TH.Path.Graph
       Language.Haskell.TH.Path.Instances
       Language.Haskell.TH.Path.Traverse
-      Language.Haskell.TH.Path.View
   default-language: Haskell2010
   if flag (local-th-typegraph)
-    Hs-Source-Dirs: ../th-typegraph, ../th-context
+    Hs-Source-Dirs: ../th-typegraph, ../th-context, ../image-cache
     Build-Depends: pretty
     Exposed-Modules:
       -- th-context
@@ -94,6 +94,13 @@ library
       Language.Haskell.TH.TypeGraph.TypeGraph
       Language.Haskell.TH.TypeGraph.TypeInfo
       Language.Haskell.TH.TypeGraph.Vertex
+      Appraisal.Cache
+      Appraisal.Exif
+      Appraisal.File
+      Appraisal.Image
+      Appraisal.ImageCache
+      Appraisal.ImageFile
+      Appraisal.Utils.ErrorWithIO
   else
     Build-Depends:
       th-context >= 0.23.1,
@@ -154,6 +161,7 @@ test-suite th-path-tests
     th-desugar,
     th-kinds-fork,
     th-lift,
+    th-path,
     th-orphans,
     transformers,
     unix,
@@ -170,7 +178,6 @@ test-suite th-path-tests
     build-depends: lens
   default-language: Haskell2010
   if flag(local-th-typegraph)
-    hs-source-dirs: ../image-cache, ../th-typegraph, ../th-context, .
     build-depends: process-extras, pureMD5, Unixutils, exceptions, process, hslogger, atp-haskell, data-default, web-routes-th, safecopy
   else
     Build-Depends: image-cache, th-context, th-typegraph, th-path
