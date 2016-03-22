@@ -32,12 +32,12 @@ import Language.Haskell.TH.Path.Graph (testIsPath, TypeGraphM)
 import Language.Haskell.TH.Path.Instances ()
 import Language.Haskell.TH.Path.Order (Path_OMap(..), toPairs)
 import Language.Haskell.TH.Path.Traverse (asP', Control(..), doType, finishConc, finishEither, finishPair)
-import Language.Haskell.TH.TypeGraph.TypeGraph (pathKeys', simplify)
-import Language.Haskell.TH.TypeGraph.Vertex (TGV, TGVSimple, TypeGraphVertex(bestType))
+import Language.Haskell.TH.TypeGraph.TypeGraph (pathKeys)
+import Language.Haskell.TH.TypeGraph.Vertex (TGVSimple, TypeGraphVertex(bestType))
 
-pathDecs :: (TypeGraphM m, MonadWriter [Dec] m) => TGV -> m ()
+pathDecs :: (TypeGraphM m, MonadWriter [Dec] m) => TGVSimple -> m ()
 pathDecs v =
-    pathKeys' v >>= Set.mapM_ (pathDecs' v)
+    pathKeys v >>= Set.mapM_ (pathDecs' v)
 
 data ClauseType
     = PathClause ClauseQ
@@ -55,17 +55,16 @@ partitionClauses xs =
 -- of the path type, and returns a lens that extracts the value the
 -- path type value specifies.
 pathDecs' :: (TypeGraphM m, MonadWriter [Dec] m) =>
-             TGV -> TGVSimple -> m ()
+             TGVSimple -> TGVSimple -> m ()
 pathDecs' v gkey = do
-  v' <- simplify v
-  ptyp <- pathType (pure (bestType gkey)) v'
+  ptyp <- pathType (pure (bestType gkey)) v
   x <- runQ (newName "_s")
   g <- runQ (newName "_g")
   (pcs, dcs) <-
       partitionClauses <$>
-      case v' == gkey of
+      case v == gkey of
         True -> pure [PathClause $ clause [wildP, wildP] (normalB [| [idPath] |]) []]
-        False -> execWriterT (doType (hasPathControl v gkey g x) v')
+        False -> execWriterT (doType (hasPathControl v gkey g x) v)
   when (not (null pcs))
        (tells [instanceD (pure []) [t|Paths $(pure (bestType v)) $(pure (bestType gkey))|]
                  [ tySynInstD ''Path (tySynEqn [pure (bestType v), pure (bestType gkey)] (pure ptyp))
@@ -74,7 +73,7 @@ pathDecs' v gkey = do
        (tells [instanceD (pure []) [t|Describe $(asTypeQ v) $(asTypeQ gkey)|]
                 [ funD 'describe' dcs ]])
 
-hasPathControl :: (TypeGraphM m, MonadWriter [ClauseType] m) => TGV -> TGVSimple -> Name -> Name -> Control m (Type, ExpQ) () ()
+hasPathControl :: (TypeGraphM m, MonadWriter [ClauseType] m) => TGVSimple -> TGVSimple -> Name -> Name -> Control m (Type, ExpQ) () ()
 hasPathControl v gkey g x =
     let control = hasPathControl v gkey g x in
     Control { _doSimple = pure ()
