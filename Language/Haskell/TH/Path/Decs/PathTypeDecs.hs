@@ -70,7 +70,7 @@ pathTypeDecs v = do
   case () of
     _ | isJust viewTypeMaybe ->
           do let Just viewType = viewTypeMaybe
-             skey <- tgvSimple' 24 v viewType
+             skey <- tgvSimple' viewType
              a <- runQ $ newName "a"
              ptype <- pathType (varT a) skey
              -- data Path_MaybeImageFile a =
@@ -97,7 +97,7 @@ doNames v = mapM_ (\tname -> runQ (reify tname) >>= doInfo) (typeNames v)
       -- If we have a type synonym, we can create a path type synonym
       doDec (TySynD _ _ typ') =
           do a <- runQ $ newName "a"
-             key' <- tgvSimple' 25 v typ'
+             key' <- tgvSimple' typ'
              ptype <- pathType (varT a) key'
              mapM (\pname -> runQ (tySynD (asName pname) [PlainTV a] (pure ptype))) (toList . Set.map makePathType . Set.map ModelType . typeNames $ v) >>= tell
       doDec (NewtypeD _ tname _ con _) = doDataD tname [con]
@@ -129,7 +129,7 @@ doNames v = mapM_ (\tname -> runQ (reify tname) >>= doInfo) (typeNames v)
       -- of some piece of the field value.  FIXME: This exact code is in PathTypes.hs
       doField :: Name -> Name -> Name -> VarStrictType -> m [Con]
       doField a tname cname (fname', _, ftype) =
-          do skey' <- tgvSimple' 26 v ftype
+          do skey' <- tgvSimple' ftype
              key' <- tgv (Just (tname, cname, Right fname')) skey'
              let Just pcname = makeFieldCon key'
              ptype <- case ftype of

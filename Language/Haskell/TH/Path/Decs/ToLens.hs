@@ -74,7 +74,7 @@ toLensControl key gkey x =
                pure def
     , _doField =
         \fld typ -> do
-          skey <- tgvSimple' 27 key typ
+          skey <- tgvSimple' typ
           fkey <- tgv (Just fld) skey
           ok <- goalReachableSimple gkey skey
           case (ok, view (_2 . field) fkey) of

@@ -156,7 +156,7 @@ isPathControl v x wPathVar = do
                        finishEither control lconc rconc
             , _doField =
                 \fld typ ->
-                    do f <- tgvSimple' 12 v typ >>= tgv (Just fld)
+                    do f <- tgvSimple' typ >>= tgv (Just fld)
                        let fieldPathConName = maybe (error $ "Not a field: " ++ show f) id (makeFieldCon f)
                        pure (f, conP (asName fieldPathConName) [varP wPathVar], asConQ fieldPathConName)
             , _doConcs =

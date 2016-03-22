@@ -67,27 +67,27 @@ doType control v =
      case () of
        _ | isJust viewTypeMaybe ->
              do let Just viewtyp = viewTypeMaybe
-                _doView control =<< tgvSimple' 1 v viewtyp
+                _doView control =<< tgvSimple' viewtyp
          | selfPath -> _doSelf control
          | simplePath -> _doSimple control
        _ -> doType' (asType v) []
     where
       doType' :: Type -> [Type] -> m r
       doType' (AppT t1 t2) tps = doType' t1 (t2 : tps)
-      doType' (ConT tname) [ityp, vtyp] | tname == ''Order = uncurry (_doOrder control) =<< ((,) <$> pure ityp <*> tgvSimple' 3 v vtyp)
-      doType' (ConT tname) [ktyp, vtyp] | tname == ''Map = uncurry (_doMap control) =<< ((,) <$> pure ktyp <*> tgvSimple' 5 v vtyp)
-      doType' (TupleT 2) [ftyp, styp] = uncurry (_doPair control) =<< ((,) <$> tgvSimple' 6 v ftyp <*> tgvSimple' 7 v styp)
-      doType' (ConT tname) [etyp] | tname == ''Maybe = _doMaybe control =<< (tgvSimple' 8 v etyp)
+      doType' (ConT tname) [ityp, vtyp] | tname == ''Order = uncurry (_doOrder control) =<< ((,) <$> pure ityp <*> tgvSimple' vtyp)
+      doType' (ConT tname) [ktyp, vtyp] | tname == ''Map = uncurry (_doMap control) =<< ((,) <$> pure ktyp <*> tgvSimple' vtyp)
+      doType' (TupleT 2) [ftyp, styp] = uncurry (_doPair control) =<< ((,) <$> tgvSimple' ftyp <*> tgvSimple' styp)
+      doType' (ConT tname) [etyp] | tname == ''Maybe = _doMaybe control =<< (tgvSimple' etyp)
       doType' (ConT tname) [ltyp, rtyp]
           | tname == ''Either =
 #if 0
               _doEither control l r >>= \(lconc, rconc) -> doAlts [(conP 'Left [wildP], [lconc]),
                                                                    (conP 'Right [wildP], [rconc])]
 #else
-              uncurry (_doEither control) =<< ((,) <$> tgvSimple' 9 v ltyp <*> tgvSimple' 10 v rtyp)
+              uncurry (_doEither control) =<< ((,) <$> tgvSimple' ltyp <*> tgvSimple' rtyp)
 #endif
       doType' (ConT tname) tps = doName tps tname
-      doType' ListT [etyp] = _doList control =<< (tgvSimple' 11 v etyp)
+      doType' ListT [etyp] = _doList control =<< (tgvSimple' etyp)
       doType' typ _ = error $ "doType: unexpected type: " ++ pprint1 typ ++ " (in " ++ pprint1 (asType v) ++ ")"
 
       doName :: [Type] -> Name -> m r

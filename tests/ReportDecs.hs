@@ -242,6 +242,31 @@ instance ToLens (Path_Double JSONText)
     where type S (Path_Double JSONText) = Double
           type A (Path_Double JSONText) = JSONText
           toLens (Path_Double_View v) = (viewLens :: Lens' Double ([Char])) . toLens v
+data Path_Integer a = Path_Integer deriving (Eq, Ord, Read, Show, Typeable, Data)
+instance IdPath (Path_Integer a)
+    where idPath = Path_Integer
+class HasInteger c
+    where lens_integer :: Lens' c Integer
+instance HasInteger Integer
+    where lens_integer = id
+instance Paths Integer Integer
+    where type Path Integer Integer = Path_Integer Integer
+          paths _ _ = [idPath]
+instance PathStart Integer
+    where data Peek Integer = Peek_Integer_Integer (Path Integer Integer) (Maybe Integer) deriving (Eq, Show)
+          peek _ = []
+          hop _ = []
+instance Describe (Peek Integer)
+    where describe _ _ = Nothing
+instance Describe (Proxy Integer)
+    where describe _f _ = case _f of
+                              Nothing -> Just "Integer"
+                              Just (_tname, _cname, Right fname) -> Just (camelWords fname)
+                              Just (_tname, cname, Left fpos) -> Just (camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))
+instance ToLens (Path_Integer Integer)
+    where type S (Path_Integer Integer) = Integer
+          type A (Path_Integer Integer) = Integer
+          toLens _ = id
 data Path_Dimension a = Path_Dimension_View (Path_JSONText a) | Path_Dimension deriving (Eq, Ord, Read, Show, Typeable, Data)
 instance IdPath (Path_Dimension a)
     where idPath = Path_Dimension
@@ -586,31 +611,6 @@ instance Describe (Proxy ImageFile)
 instance ToLens (Path_ImageFile ImageFile)
     where type S (Path_ImageFile ImageFile) = ImageFile
           type A (Path_ImageFile ImageFile) = ImageFile
-          toLens _ = id
-data Path_Integer a = Path_Integer deriving (Eq, Ord, Read, Show, Typeable, Data)
-instance IdPath (Path_Integer a)
-    where idPath = Path_Integer
-class HasInteger c
-    where lens_integer :: Lens' c Integer
-instance HasInteger Integer
-    where lens_integer = id
-instance Paths Integer Integer
-    where type Path Integer Integer = Path_Integer Integer
-          paths _ _ = [idPath]
-instance PathStart Integer
-    where data Peek Integer = Peek_Integer_Integer (Path Integer Integer) (Maybe Integer) deriving (Eq, Show)
-          peek _ = []
-          hop _ = []
-instance Describe (Peek Integer)
-    where describe _ _ = Nothing
-instance Describe (Proxy Integer)
-    where describe _f _ = case _f of
-                              Nothing -> Just "Integer"
-                              Just (_tname, _cname, Right fname) -> Just (camelWords fname)
-                              Just (_tname, cname, Left fpos) -> Just (camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))
-instance ToLens (Path_Integer Integer)
-    where type S (Path_Integer Integer) = Integer
-          type A (Path_Integer Integer) = Integer
           toLens _ = id
 data Path_JSONText a = Path_JSONText deriving (Eq, Ord, Read, Show, Typeable, Data)
 instance IdPath (Path_JSONText a)
@@ -3958,6 +3958,10 @@ instance Paths Report Double
     where type Path Report Double = Path_Report Double
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
+instance Paths Report Integer
+    where type Path Report Integer = Path_Report Integer
+          paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
+                                                                                                  a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
 instance Paths Report Dimension
     where type Path Report Dimension = Path_Report Dimension
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
@@ -3976,10 +3980,6 @@ instance Paths Report Units
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
 instance Paths Report ImageFile
     where type Path Report ImageFile = Path_Report ImageFile
-          paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
-                                                                                                  a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
-instance Paths Report Integer
-    where type Path Report Integer = Path_Report Integer
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
 instance Paths Report JSONText
@@ -4136,12 +4136,12 @@ instance PathStart Report
               | Peek_Report_Int (Path Report Int) (Maybe Int)
               | Peek_Report_Bool (Path Report Bool) (Maybe Bool)
               | Peek_Report_Double (Path Report Double) (Maybe Double)
+              | Peek_Report_Integer (Path Report Integer) (Maybe Integer)
               | Peek_Report_Dimension (Path Report Dimension) (Maybe Dimension)
               | Peek_Report_ImageCrop (Path Report ImageCrop) (Maybe ImageCrop)
               | Peek_Report_ImageSize (Path Report ImageSize) (Maybe ImageSize)
               | Peek_Report_Units (Path Report Units) (Maybe Units)
               | Peek_Report_ImageFile (Path Report ImageFile) (Maybe ImageFile)
-              | Peek_Report_Integer (Path Report Integer) (Maybe Integer)
               | Peek_Report_JSONText (Path Report JSONText) (Maybe JSONText)
               | Peek_Report_Markup (Path Report Markup) (Maybe Markup)
               | Peek_Report_Permissions (Path Report Permissions) (Maybe Permissions)
@@ -4187,12 +4187,12 @@ instance PathStart Report
                                                                                             liftPeek (Peek_ReportView_Int q z) = Peek_Report_Int (Path_Report_View q) z
                                                                                             liftPeek (Peek_ReportView_Bool q z) = Peek_Report_Bool (Path_Report_View q) z
                                                                                             liftPeek (Peek_ReportView_Double q z) = Peek_Report_Double (Path_Report_View q) z
+                                                                                            liftPeek (Peek_ReportView_Integer q z) = Peek_Report_Integer (Path_Report_View q) z
                                                                                             liftPeek (Peek_ReportView_Dimension q z) = Peek_Report_Dimension (Path_Report_View q) z
                                                                                             liftPeek (Peek_ReportView_ImageCrop q z) = Peek_Report_ImageCrop (Path_Report_View q) z
                                                                                             liftPeek (Peek_ReportView_ImageSize q z) = Peek_Report_ImageSize (Path_Report_View q) z
                                                                                             liftPeek (Peek_ReportView_Units q z) = Peek_Report_Units (Path_Report_View q) z
                                                                                             liftPeek (Peek_ReportView_ImageFile q z) = Peek_Report_ImageFile (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_Integer q z) = Peek_Report_Integer (Path_Report_View q) z
                                                                                             liftPeek (Peek_ReportView_JSONText q z) = Peek_Report_JSONText (Path_Report_View q) z
                                                                                             liftPeek (Peek_ReportView_Markup q z) = Peek_Report_Markup (Path_Report_View q) z
                                                                                             liftPeek (Peek_ReportView_Permissions q z) = Peek_Report_Permissions (Path_Report_View q) z
@@ -4260,6 +4260,11 @@ instance Describe (Peek Report)
                                                                                  next = describe wfld (Peek_ReportView_Double _wp undefined);
                                                                                  top = describe _f (Proxy :: Proxy Report)}
                                                                              in maybe top Just next
+          describe _f (Peek_Report_Integer (_p@(Path_Report_View _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                  wfld = Nothing;
+                                                                                  next = describe wfld (Peek_ReportView_Integer _wp undefined);
+                                                                                  top = describe _f (Proxy :: Proxy Report)}
+                                                                              in maybe top Just next
           describe _f (Peek_Report_Dimension (_p@(Path_Report_View _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
                                                                                     wfld = Nothing;
                                                                                     next = describe wfld (Peek_ReportView_Dimension _wp undefined);
@@ -4285,11 +4290,6 @@ instance Describe (Peek Report)
                                                                                     next = describe wfld (Peek_ReportView_ImageFile _wp undefined);
                                                                                     top = describe _f (Proxy :: Proxy Report)}
                                                                                 in maybe top Just next
-          describe _f (Peek_Report_Integer (_p@(Path_Report_View _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                  wfld = Nothing;
-                                                                                  next = describe wfld (Peek_ReportView_Integer _wp undefined);
-                                                                                  top = describe _f (Proxy :: Proxy Report)}
-                                                                              in maybe top Just next
           describe _f (Peek_Report_JSONText (_p@(Path_Report_View _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
                                                                                    wfld = Nothing;
                                                                                    next = describe wfld (Peek_ReportView_JSONText _wp undefined);
@@ -4496,6 +4496,10 @@ instance ToLens (Path_Report Double)
     where type S (Path_Report Double) = Report
           type A (Path_Report Double) = Double
           toLens (Path_Report_View v) = (viewLens :: Lens' Report ReportView) . toLens v
+instance ToLens (Path_Report Integer)
+    where type S (Path_Report Integer) = Report
+          type A (Path_Report Integer) = Integer
+          toLens (Path_Report_View v) = (viewLens :: Lens' Report ReportView) . toLens v
 instance ToLens (Path_Report Dimension)
     where type S (Path_Report Dimension) = Report
           type A (Path_Report Dimension) = Dimension
@@ -4515,10 +4519,6 @@ instance ToLens (Path_Report Units)
 instance ToLens (Path_Report ImageFile)
     where type S (Path_Report ImageFile) = Report
           type A (Path_Report ImageFile) = ImageFile
-          toLens (Path_Report_View v) = (viewLens :: Lens' Report ReportView) . toLens v
-instance ToLens (Path_Report Integer)
-    where type S (Path_Report Integer) = Report
-          type A (Path_Report Integer) = Integer
           toLens (Path_Report_View v) = (viewLens :: Lens' Report ReportView) . toLens v
 instance ToLens (Path_Report JSONText)
     where type S (Path_Report JSONText) = Report
@@ -9681,6 +9681,9 @@ instance Paths ReportView Bool
 instance Paths ReportView Double
     where type Path ReportView Double = Path_ReportView Double
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElems) _g)) [(Path_ReportView__reportBody, _reportBody _s)]
+instance Paths ReportView Integer
+    where type Path ReportView Integer = Path_ReportView Integer
+          paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Integer) _g)) [(Path_ReportView__reportRevision, _reportRevision _s)]
 instance Paths ReportView Dimension
     where type Path ReportView Dimension = Path_ReportView Dimension
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElems) _g)) [(Path_ReportView__reportBody, _reportBody _s)]
@@ -9696,9 +9699,6 @@ instance Paths ReportView Units
 instance Paths ReportView ImageFile
     where type Path ReportView ImageFile = Path_ReportView ImageFile
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElems) _g)) [(Path_ReportView__reportBody, _reportBody _s)]
-instance Paths ReportView Integer
-    where type Path ReportView Integer = Path_ReportView Integer
-          paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Integer) _g)) [(Path_ReportView__reportRevision, _reportRevision _s)]
 instance Paths ReportView JSONText
     where type Path ReportView JSONText = Path_ReportView JSONText
           paths (_s@(ReportView {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: ReadOnlyFilePath) _g)) [(Path_ReportView__reportFolder, _reportFolder _s)],
@@ -9922,12 +9922,12 @@ instance PathStart ReportView
               | Peek_ReportView_Int (Path ReportView Int) (Maybe Int)
               | Peek_ReportView_Bool (Path ReportView Bool) (Maybe Bool)
               | Peek_ReportView_Double (Path ReportView Double) (Maybe Double)
+              | Peek_ReportView_Integer (Path ReportView Integer) (Maybe Integer)
               | Peek_ReportView_Dimension (Path ReportView Dimension) (Maybe Dimension)
               | Peek_ReportView_ImageCrop (Path ReportView ImageCrop) (Maybe ImageCrop)
               | Peek_ReportView_ImageSize (Path ReportView ImageSize) (Maybe ImageSize)
               | Peek_ReportView_Units (Path ReportView Units) (Maybe Units)
               | Peek_ReportView_ImageFile (Path ReportView ImageFile) (Maybe ImageFile)
-              | Peek_ReportView_Integer (Path ReportView Integer) (Maybe Integer)
               | Peek_ReportView_JSONText (Path ReportView JSONText) (Maybe JSONText)
               | Peek_ReportView_Markup (Path ReportView Markup) (Maybe Markup)
               | Peek_ReportView_Permissions (Path ReportView Permissions) (Maybe Permissions)
@@ -11425,6 +11425,10 @@ instance ToLens (Path_ReportView Double)
     where type S (Path_ReportView Double) = ReportView
           type A (Path_ReportView Double) = Double
           toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
+instance ToLens (Path_ReportView Integer)
+    where type S (Path_ReportView Integer) = ReportView
+          type A (Path_ReportView Integer) = Integer
+          toLens (Path_ReportView__reportRevision _x) = lens_ReportView__reportRevision
 instance ToLens (Path_ReportView Dimension)
     where type S (Path_ReportView Dimension) = ReportView
           type A (Path_ReportView Dimension) = Dimension
@@ -11445,10 +11449,6 @@ instance ToLens (Path_ReportView ImageFile)
     where type S (Path_ReportView ImageFile) = ReportView
           type A (Path_ReportView ImageFile) = ImageFile
           toLens (Path_ReportView__reportBody _x) = lens_ReportView__reportBody . toLens _x
-instance ToLens (Path_ReportView Integer)
-    where type S (Path_ReportView Integer) = ReportView
-          type A (Path_ReportView Integer) = Integer
-          toLens (Path_ReportView__reportRevision _x) = lens_ReportView__reportRevision
 instance ToLens (Path_ReportView JSONText)
     where type S (Path_ReportView JSONText) = ReportView
           type A (Path_ReportView JSONText) = JSONText
@@ -12288,6 +12288,9 @@ instance Paths MRR Bool
 instance Paths MRR Double
     where type Path MRR Double = Path_Map ReportID (Path_Report Double)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
+instance Paths MRR Integer
+    where type Path MRR Integer = Path_Map ReportID (Path_Report Integer)
+          paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
 instance Paths MRR Dimension
     where type Path MRR Dimension = Path_Map ReportID (Path_Report Dimension)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
@@ -12302,9 +12305,6 @@ instance Paths MRR Units
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
 instance Paths MRR ImageFile
     where type Path MRR ImageFile = Path_Map ReportID (Path_Report ImageFile)
-          paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
-instance Paths MRR Integer
-    where type Path MRR Integer = Path_Map ReportID (Path_Report Integer)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
 instance Paths MRR JSONText
     where type Path MRR JSONText = Path_Map ReportID (Path_Report JSONText)
@@ -12427,12 +12427,12 @@ instance PathStart (Map ReportID Report)
               | Peek_MRR_Int (Path (Map ReportID Report) Int) (Maybe Int)
               | Peek_MRR_Bool (Path (Map ReportID Report) Bool) (Maybe Bool)
               | Peek_MRR_Double (Path (Map ReportID Report) Double) (Maybe Double)
+              | Peek_MRR_Integer (Path (Map ReportID Report) Integer) (Maybe Integer)
               | Peek_MRR_Dimension (Path (Map ReportID Report) Dimension) (Maybe Dimension)
               | Peek_MRR_ImageCrop (Path (Map ReportID Report) ImageCrop) (Maybe ImageCrop)
               | Peek_MRR_ImageSize (Path (Map ReportID Report) ImageSize) (Maybe ImageSize)
               | Peek_MRR_Units (Path (Map ReportID Report) Units) (Maybe Units)
               | Peek_MRR_ImageFile (Path (Map ReportID Report) ImageFile) (Maybe ImageFile)
-              | Peek_MRR_Integer (Path (Map ReportID Report) Integer) (Maybe Integer)
               | Peek_MRR_JSONText (Path (Map ReportID Report) JSONText) (Maybe JSONText)
               | Peek_MRR_Markup (Path (Map ReportID Report) Markup) (Maybe Markup)
               | Peek_MRR_Permissions (Path (Map ReportID Report) Permissions) (Maybe Permissions)
@@ -12479,12 +12479,12 @@ instance PathStart (Map ReportID Report)
                                                                                         liftPeek (Peek_Report_Int q z) = Peek_MRR_Int (Path_Look _k q) z
                                                                                         liftPeek (Peek_Report_Bool q z) = Peek_MRR_Bool (Path_Look _k q) z
                                                                                         liftPeek (Peek_Report_Double q z) = Peek_MRR_Double (Path_Look _k q) z
+                                                                                        liftPeek (Peek_Report_Integer q z) = Peek_MRR_Integer (Path_Look _k q) z
                                                                                         liftPeek (Peek_Report_Dimension q z) = Peek_MRR_Dimension (Path_Look _k q) z
                                                                                         liftPeek (Peek_Report_ImageCrop q z) = Peek_MRR_ImageCrop (Path_Look _k q) z
                                                                                         liftPeek (Peek_Report_ImageSize q z) = Peek_MRR_ImageSize (Path_Look _k q) z
                                                                                         liftPeek (Peek_Report_Units q z) = Peek_MRR_Units (Path_Look _k q) z
                                                                                         liftPeek (Peek_Report_ImageFile q z) = Peek_MRR_ImageFile (Path_Look _k q) z
-                                                                                        liftPeek (Peek_Report_Integer q z) = Peek_MRR_Integer (Path_Look _k q) z
                                                                                         liftPeek (Peek_Report_JSONText q z) = Peek_MRR_JSONText (Path_Look _k q) z
                                                                                         liftPeek (Peek_Report_Markup q z) = Peek_MRR_Markup (Path_Look _k q) z
                                                                                         liftPeek (Peek_Report_Permissions q z) = Peek_MRR_Permissions (Path_Look _k q) z
@@ -12553,6 +12553,11 @@ instance Describe (Peek (Map ReportID Report))
                                                                           next = describe wfld (Peek_Report_Double _wp undefined);
                                                                           top = describe _f (Proxy :: Proxy (Map ReportID Report))}
                                                                       in maybe top Just next
+          describe _f (Peek_MRR_Integer (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                           wfld = Nothing;
+                                                                           next = describe wfld (Peek_Report_Integer _wp undefined);
+                                                                           top = describe _f (Proxy :: Proxy (Map ReportID Report))}
+                                                                       in maybe top Just next
           describe _f (Peek_MRR_Dimension (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
                                                                              wfld = Nothing;
                                                                              next = describe wfld (Peek_Report_Dimension _wp undefined);
@@ -12578,11 +12583,6 @@ instance Describe (Peek (Map ReportID Report))
                                                                              next = describe wfld (Peek_Report_ImageFile _wp undefined);
                                                                              top = describe _f (Proxy :: Proxy (Map ReportID Report))}
                                                                          in maybe top Just next
-          describe _f (Peek_MRR_Integer (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                           wfld = Nothing;
-                                                                           next = describe wfld (Peek_Report_Integer _wp undefined);
-                                                                           top = describe _f (Proxy :: Proxy (Map ReportID Report))}
-                                                                       in maybe top Just next
           describe _f (Peek_MRR_JSONText (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
                                                                             wfld = Nothing;
                                                                             next = describe wfld (Peek_Report_JSONText _wp undefined);
@@ -12794,6 +12794,10 @@ instance ToLens (Path_Map ReportID (Path_Report Double))
     where type S (Path_Map ReportID (Path_Report Double)) = MRR
           type A (Path_Map ReportID (Path_Report Double)) = Double
           toLens (Path_Look k v) = mat k . toLens v
+instance ToLens (Path_Map ReportID (Path_Report Integer))
+    where type S (Path_Map ReportID (Path_Report Integer)) = MRR
+          type A (Path_Map ReportID (Path_Report Integer)) = Integer
+          toLens (Path_Look k v) = mat k . toLens v
 instance ToLens (Path_Map ReportID (Path_Report Dimension))
     where type S (Path_Map ReportID (Path_Report Dimension)) = MRR
           type A (Path_Map ReportID (Path_Report Dimension)) = Dimension
@@ -12813,10 +12817,6 @@ instance ToLens (Path_Map ReportID (Path_Report Units))
 instance ToLens (Path_Map ReportID (Path_Report ImageFile))
     where type S (Path_Map ReportID (Path_Report ImageFile)) = MRR
           type A (Path_Map ReportID (Path_Report ImageFile)) = ImageFile
-          toLens (Path_Look k v) = mat k . toLens v
-instance ToLens (Path_Map ReportID (Path_Report Integer))
-    where type S (Path_Map ReportID (Path_Report Integer)) = MRR
-          type A (Path_Map ReportID (Path_Report Integer)) = Integer
           toLens (Path_Look k v) = mat k . toLens v
 instance ToLens (Path_Map ReportID (Path_Report JSONText))
     where type S (Path_Map ReportID (Path_Report JSONText)) = MRR
@@ -12997,6 +12997,9 @@ instance Paths ReportMap Bool
 instance Paths ReportMap Double
     where type Path ReportMap Double = Path_ReportMap Double
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
+instance Paths ReportMap Integer
+    where type Path ReportMap Integer = Path_ReportMap Integer
+          paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
 instance Paths ReportMap Dimension
     where type Path ReportMap Dimension = Path_ReportMap Dimension
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
@@ -13011,9 +13014,6 @@ instance Paths ReportMap Units
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
 instance Paths ReportMap ImageFile
     where type Path ReportMap ImageFile = Path_ReportMap ImageFile
-          paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
-instance Paths ReportMap Integer
-    where type Path ReportMap Integer = Path_ReportMap Integer
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
 instance Paths ReportMap JSONText
     where type Path ReportMap JSONText = Path_ReportMap JSONText
@@ -13139,12 +13139,12 @@ instance PathStart ReportMap
               | Peek_ReportMap_Int (Path ReportMap Int) (Maybe Int)
               | Peek_ReportMap_Bool (Path ReportMap Bool) (Maybe Bool)
               | Peek_ReportMap_Double (Path ReportMap Double) (Maybe Double)
+              | Peek_ReportMap_Integer (Path ReportMap Integer) (Maybe Integer)
               | Peek_ReportMap_Dimension (Path ReportMap Dimension) (Maybe Dimension)
               | Peek_ReportMap_ImageCrop (Path ReportMap ImageCrop) (Maybe ImageCrop)
               | Peek_ReportMap_ImageSize (Path ReportMap ImageSize) (Maybe ImageSize)
               | Peek_ReportMap_Units (Path ReportMap Units) (Maybe Units)
               | Peek_ReportMap_ImageFile (Path ReportMap ImageFile) (Maybe ImageFile)
-              | Peek_ReportMap_Integer (Path ReportMap Integer) (Maybe Integer)
               | Peek_ReportMap_JSONText (Path ReportMap JSONText) (Maybe JSONText)
               | Peek_ReportMap_Markup (Path ReportMap Markup) (Maybe Markup)
               | Peek_ReportMap_Permissions (Path ReportMap Permissions) (Maybe Permissions)
@@ -13192,12 +13192,12 @@ instance PathStart ReportMap
                                                                                                                        liftPeek (Peek_MRR_Int q z) = Peek_ReportMap_Int (Path_ReportMap_unReportMap q) z
                                                                                                                        liftPeek (Peek_MRR_Bool q z) = Peek_ReportMap_Bool (Path_ReportMap_unReportMap q) z
                                                                                                                        liftPeek (Peek_MRR_Double q z) = Peek_ReportMap_Double (Path_ReportMap_unReportMap q) z
+                                                                                                                       liftPeek (Peek_MRR_Integer q z) = Peek_ReportMap_Integer (Path_ReportMap_unReportMap q) z
                                                                                                                        liftPeek (Peek_MRR_Dimension q z) = Peek_ReportMap_Dimension (Path_ReportMap_unReportMap q) z
                                                                                                                        liftPeek (Peek_MRR_ImageCrop q z) = Peek_ReportMap_ImageCrop (Path_ReportMap_unReportMap q) z
                                                                                                                        liftPeek (Peek_MRR_ImageSize q z) = Peek_ReportMap_ImageSize (Path_ReportMap_unReportMap q) z
                                                                                                                        liftPeek (Peek_MRR_Units q z) = Peek_ReportMap_Units (Path_ReportMap_unReportMap q) z
                                                                                                                        liftPeek (Peek_MRR_ImageFile q z) = Peek_ReportMap_ImageFile (Path_ReportMap_unReportMap q) z
-                                                                                                                       liftPeek (Peek_MRR_Integer q z) = Peek_ReportMap_Integer (Path_ReportMap_unReportMap q) z
                                                                                                                        liftPeek (Peek_MRR_JSONText q z) = Peek_ReportMap_JSONText (Path_ReportMap_unReportMap q) z
                                                                                                                        liftPeek (Peek_MRR_Markup q z) = Peek_ReportMap_Markup (Path_ReportMap_unReportMap q) z
                                                                                                                        liftPeek (Peek_MRR_Permissions q z) = Peek_ReportMap_Permissions (Path_ReportMap_unReportMap q) z
@@ -13269,6 +13269,11 @@ instance Describe (Peek ReportMap)
                                                                                               next = describe wfld (Peek_MRR_Double _wp undefined);
                                                                                               top = describe _f (Proxy :: Proxy ReportMap)}
                                                                                           in maybe top Just next
+          describe _f (Peek_ReportMap_Integer (_p@(Path_ReportMap_unReportMap _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                               wfld = Just ("ReportMap", "ReportMap", Right "unReportMap");
+                                                                                               next = describe wfld (Peek_MRR_Integer _wp undefined);
+                                                                                               top = describe _f (Proxy :: Proxy ReportMap)}
+                                                                                           in maybe top Just next
           describe _f (Peek_ReportMap_Dimension (_p@(Path_ReportMap_unReportMap _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
                                                                                                  wfld = Just ("ReportMap", "ReportMap", Right "unReportMap");
                                                                                                  next = describe wfld (Peek_MRR_Dimension _wp undefined);
@@ -13294,11 +13299,6 @@ instance Describe (Peek ReportMap)
                                                                                                  next = describe wfld (Peek_MRR_ImageFile _wp undefined);
                                                                                                  top = describe _f (Proxy :: Proxy ReportMap)}
                                                                                              in maybe top Just next
-          describe _f (Peek_ReportMap_Integer (_p@(Path_ReportMap_unReportMap _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                               wfld = Just ("ReportMap", "ReportMap", Right "unReportMap");
-                                                                                               next = describe wfld (Peek_MRR_Integer _wp undefined);
-                                                                                               top = describe _f (Proxy :: Proxy ReportMap)}
-                                                                                           in maybe top Just next
           describe _f (Peek_ReportMap_JSONText (_p@(Path_ReportMap_unReportMap _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
                                                                                                 wfld = Just ("ReportMap", "ReportMap", Right "unReportMap");
                                                                                                 next = describe wfld (Peek_MRR_JSONText _wp undefined);
@@ -13515,6 +13515,10 @@ instance ToLens (Path_ReportMap Double)
     where type S (Path_ReportMap Double) = ReportMap
           type A (Path_ReportMap Double) = Double
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
+instance ToLens (Path_ReportMap Integer)
+    where type S (Path_ReportMap Integer) = ReportMap
+          type A (Path_ReportMap Integer) = Integer
+          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
 instance ToLens (Path_ReportMap Dimension)
     where type S (Path_ReportMap Dimension) = ReportMap
           type A (Path_ReportMap Dimension) = Dimension
@@ -13534,10 +13538,6 @@ instance ToLens (Path_ReportMap Units)
 instance ToLens (Path_ReportMap ImageFile)
     where type S (Path_ReportMap ImageFile) = ReportMap
           type A (Path_ReportMap ImageFile) = ImageFile
-          toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
-instance ToLens (Path_ReportMap Integer)
-    where type S (Path_ReportMap Integer) = ReportMap
-          type A (Path_ReportMap Integer) = Integer
           toLens (Path_ReportMap_unReportMap _x) = lens_ReportMap_unReportMap . toLens _x
 instance ToLens (Path_ReportMap JSONText)
     where type S (Path_ReportMap JSONText) = ReportMap

@@ -97,27 +97,27 @@ pathType' control gtyp key = do
   case asType key of
     _ | isJust viewTypeMaybe ->
           do let Just viewType = viewTypeMaybe
-             _doView control =<< tgvSimple' 13 key viewType
+             _doView control =<< tgvSimple' viewType
       | selfPath -> _doSelf control
       | simplePath -> _doSimple control
     ConT tname ->
         runQ $ [t|$(asTypeQ (makePathType (ModelType tname))) $gtyp|]
     AppT (AppT mtyp ityp) etyp
         | mtyp == ConT ''Order ->
-            uncurry (_doOrder control) =<< ((,) <$> pure ityp <*> tgvSimple' 15 key etyp)
+            uncurry (_doOrder control) =<< ((,) <$> pure ityp <*> tgvSimple' etyp)
     AppT ListT etyp ->
-        _doList control =<< tgvSimple' 16 key etyp
+        _doList control =<< tgvSimple' etyp
     AppT (AppT t3 ktyp) vtyp
         | t3 == ConT ''Map ->
-            uncurry (_doMap control) =<< ((,) <$> pure ktyp <*> tgvSimple' 18 key vtyp)
+            uncurry (_doMap control) =<< ((,) <$> pure ktyp <*> tgvSimple' vtyp)
     AppT (AppT (TupleT 2) ftyp) styp ->
-        uncurry (_doPair control) =<< ((,) <$> tgvSimple' 19 key ftyp <*> tgvSimple' 20 key styp)
+        uncurry (_doPair control) =<< ((,) <$> tgvSimple' ftyp <*> tgvSimple' styp)
     AppT t1 vtyp
         | t1 == ConT ''Maybe ->
-            _doMaybe control =<< tgvSimple' 21 key vtyp
+            _doMaybe control =<< tgvSimple' vtyp
     AppT (AppT t3 ltyp) rtyp
         | t3 == ConT ''Either ->
-            uncurry (_doEither control) =<< ((,) <$> tgvSimple' 22 key ltyp <*> tgvSimple' 23 key rtyp)
+            uncurry (_doEither control) =<< ((,) <$> tgvSimple' ltyp <*> tgvSimple' rtyp)
     _ -> do ks <- reachableFromSimple key
             error $ "pathType otherf: " ++ pprint1 key ++ "\n" ++
                     intercalate "\n  " ("reachable from:" : List.map pprint1 (Foldable.toList ks))
