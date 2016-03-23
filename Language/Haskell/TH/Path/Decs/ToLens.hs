@@ -96,6 +96,7 @@ toLensControl key gkey x =
     , _doConcs = \_ _ -> pure ()
     , _doSyn = \_tname _typ -> pure ()
     , _doAlts = \_ -> pure ()
+    , _doSyns = \() _ -> pure ()
     }
 
 toLensDecs :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TGVSimple -> m ()

@@ -1,7 +1,6 @@
 -- | Return the declarations that implement the IsPath instances, the
 -- toLens methods, the PathType types, and the universal path type.
 
-{-# LANGUAGE CPP #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
@@ -109,6 +108,7 @@ pathTypeDecControl v a =
               ptype <- pathType (varT a) skey
               dec <- runQ $ tySynD (asName (makePathType (ModelType tname))) [PlainTV a] {-(appT (asTypeQ pname) (varT a))-} (pure ptype)
               tells [pure dec]
+    , _doSyns = \() _ -> pure ()
     }
 
 supers :: [Name]

@@ -1,7 +1,6 @@
 -- | Return the declarations that implement the IsPath instances, the
 -- toLens methods, the PathType types, and the universal path type.
 
-{-# LANGUAGE CPP #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
@@ -131,4 +130,5 @@ hasPathControl v gkey g x =
             , _doSyn =
                 \_tname _typ -> pure ()
             , _doAlts = \_ -> pure ()
+            , _doSyns = \() _ -> pure ()
             }

@@ -19,7 +19,8 @@ module Language.Haskell.TH.Path.Decs.PathType
     ) where
 
 import Data.Foldable as Foldable
-import Data.List as List (intercalate, map)
+import Data.Function (on)
+import Data.List as List (intercalate, map, nub, sortBy)
 import Data.Map as Map (Map)
 import Data.Maybe (isJust)
 import Language.Haskell.TH
@@ -31,11 +32,18 @@ import Language.Haskell.TH.Path.Core (SelfPath, SinkType,
                                       Path_List, Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
 import Language.Haskell.TH.Path.Graph (TypeGraphM)
 import Language.Haskell.TH.Path.Order (Order, Path_OMap(..))
-import Language.Haskell.TH.Path.Traverse (Control(..))
+import Language.Haskell.TH.Path.Traverse (Control(..), doNode)
 import Language.Haskell.TH.Path.View (viewInstanceType)
 import Language.Haskell.TH.TypeGraph.Prelude (pprint1)
 import Language.Haskell.TH.TypeGraph.TypeGraph (reachableFromSimple, tgvSimple')
 import Language.Haskell.TH.TypeGraph.Vertex (TGVSimple)
+
+-- | Given a type, compute the corresponding path type.
+pathType :: forall m. TypeGraphM m =>
+            TypeQ
+         -> TGVSimple -- ^ The type to convert to a path type
+         -> m Type
+pathType gtyp key = doNode (pathTypeControl gtyp key) key
 
 pathTypeControl :: (TypeGraphM m) => TypeQ -> TGVSimple -> Control m () () Type
 pathTypeControl gtyp key =
@@ -72,52 +80,9 @@ pathTypeControl gtyp key =
     , _doField = \_ _ -> pure ()
     , _doConcs = \_ _ -> pure ()
     , _doSyn =
-        \name typ ->
-            error $ "PathType _doSyn " ++ show name ++ " " ++ show typ
+        \tname typ ->
+            runQ $ [t|$(asTypeQ (makePathType (ModelType tname))) $gtyp|]
     , _doAlts =
         \_ -> runQ $ [t|$(asTypeQ (makePathType (ModelType (asName key)))) $gtyp|]
+    , _doSyns = \r0 rs -> pure r0
     }
-
--- | Given a type, compute the corresponding path type.
-pathType :: forall m. TypeGraphM m =>
-            TypeQ
-         -> TGVSimple -- ^ The type to convert to a path type
-         -> m Type
-pathType gtyp key = pathType' (pathTypeControl gtyp key) gtyp key
-
-pathType' :: forall m. TypeGraphM m =>
-             Control m () () Type
-          -> TypeQ
-          -> TGVSimple -- ^ The type to convert to a path type
-          -> m Type
-pathType' control gtyp key = do
-  selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [asType key]
-  simplePath <- (not . null) <$> reifyInstancesWithContext ''SinkType [asType key]
-  viewTypeMaybe <- viewInstanceType (asType key)
-  case asType key of
-    _ | isJust viewTypeMaybe ->
-          do let Just viewType = viewTypeMaybe
-             _doView control =<< tgvSimple' viewType
-      | selfPath -> _doSelf control
-      | simplePath -> _doSimple control
-    ConT tname ->
-        runQ $ [t|$(asTypeQ (makePathType (ModelType tname))) $gtyp|]
-    AppT (AppT mtyp ityp) etyp
-        | mtyp == ConT ''Order ->
-            uncurry (_doOrder control) =<< ((,) <$> pure ityp <*> tgvSimple' etyp)
-    AppT ListT etyp ->
-        _doList control =<< tgvSimple' etyp
-    AppT (AppT t3 ktyp) vtyp
-        | t3 == ConT ''Map ->
-            uncurry (_doMap control) =<< ((,) <$> pure ktyp <*> tgvSimple' vtyp)
-    AppT (AppT (TupleT 2) ftyp) styp ->
-        uncurry (_doPair control) =<< ((,) <$> tgvSimple' ftyp <*> tgvSimple' styp)
-    AppT t1 vtyp
-        | t1 == ConT ''Maybe ->
-            _doMaybe control =<< tgvSimple' vtyp
-    AppT (AppT t3 ltyp) rtyp
-        | t3 == ConT ''Either ->
-            uncurry (_doEither control) =<< ((,) <$> tgvSimple' ltyp <*> tgvSimple' rtyp)
-    _ -> do ks <- reachableFromSimple key
-            error $ "pathType otherf: " ++ pprint1 key ++ "\n" ++
-                    intercalate "\n  " ("reachable from:" : List.map pprint1 (Foldable.toList ks))

@@ -30,7 +30,7 @@ import Control.Lens (_2, view)
 import Data.Generics (Data, everywhere, mkT)
 import Data.Map as Map (fromList, lookup, Map)
 import Data.Maybe (isJust)
-import Data.Set.Extra as Set (insert, map, toList)
+import Data.Set.Extra as Set (delete, map, toList)
 import Language.Haskell.TH
 import Language.Haskell.TH.Context (reifyInstancesWithContext)
 import Language.Haskell.TH.Path.Common
@@ -60,9 +60,10 @@ data Control m conc alt r
       , _doField :: Field -> Type -> m conc
       , _doConcs :: PatQ -> [conc] -> m alt
       , _doAlts :: [alt] -> m r
+      , _doSyns :: r -> [r] -> m r
       }
 
-doNode :: forall m conc alt r. (Quasi m, TypeGraphM m, Monoid r) => Control m conc alt r -> TGVSimple -> m r
+doNode :: forall m conc alt r. (Quasi m, TypeGraphM m) => Control m conc alt r -> TGVSimple -> m r
 doNode control v =
   do selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [asType v]
      simplePath <- (not . null) <$> reifyInstancesWithContext ''SinkType [asType v]
@@ -73,7 +74,12 @@ doNode control v =
                 _doView control =<< tgvSimple' viewtyp
          | selfPath -> _doSelf control
          | simplePath -> _doSimple control
-       _ -> mconcat <$> mapM (flip doType' []) (Set.toList (Set.insert (view (_2 . etype . unE) v) (Set.map ConT (typeNames v))))
+       _ -> do
+         let t0 = view (_2 . etype . unE) v
+             ts = Set.toList $ Set.delete t0 $ Set.map ConT $ typeNames v
+         r0 <- doType' t0 []
+         rs <- mapM (flip doType' []) ts
+         _doSyns control r0 rs
     where
       doType' :: Type -> [Type] -> m r
       doType' (AppT t1 t2) tps = doType' t1 (t2 : tps)
@@ -83,12 +89,7 @@ doNode control v =
       doType' (ConT tname) [etyp] | tname == ''Maybe = _doMaybe control =<< (tgvSimple' etyp)
       doType' (ConT tname) [ltyp, rtyp]
           | tname == ''Either =
-#if 0
-              _doEither control l r >>= \(lconc, rconc) -> doAlts [(conP 'Left [wildP], [lconc]),
-                                                                   (conP 'Right [wildP], [rconc])]
-#else
               uncurry (_doEither control) =<< ((,) <$> tgvSimple' ltyp <*> tgvSimple' rtyp)
-#endif
       doType' (ConT tname) tps = doName tps tname
       doType' ListT [etyp] = _doList control =<< (tgvSimple' etyp)
       doType' typ _ = error $ "doType: unexpected type: " ++ pprint1 typ ++ " (in " ++ pprint1 (asType v) ++ ")"
