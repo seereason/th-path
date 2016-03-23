@@ -26,9 +26,11 @@ module Language.Haskell.TH.Path.Traverse
     , finishEither
     ) where
 
+import Control.Lens (_2, view)
 import Data.Generics (Data, everywhere, mkT)
 import Data.Map as Map (fromList, lookup, Map)
 import Data.Maybe (isJust)
+import Data.Set.Extra as Set (insert, map, toList)
 import Language.Haskell.TH
 import Language.Haskell.TH.Context (reifyInstancesWithContext)
 import Language.Haskell.TH.Path.Common
@@ -37,10 +39,11 @@ import Language.Haskell.TH.Path.Graph (TypeGraphM)
 import Language.Haskell.TH.Path.Order (Order)
 import Language.Haskell.TH.Path.View (viewInstanceType)
 import Language.Haskell.TH.Syntax
+import Language.Haskell.TH.TypeGraph.Expand (unE)
 import Language.Haskell.TH.TypeGraph.Prelude (pprint1)
 import Language.Haskell.TH.TypeGraph.Shape (Field)
 import Language.Haskell.TH.TypeGraph.TypeGraph (tgvSimple')
-import Language.Haskell.TH.TypeGraph.Vertex (TGVSimple)
+import Language.Haskell.TH.TypeGraph.Vertex (etype, TGVSimple, typeNames)
 
 data Control m conc alt r
     = Control
@@ -59,7 +62,7 @@ data Control m conc alt r
       , _doAlts :: [alt] -> m r
       }
 
-doNode :: forall m conc alt r. (Quasi m, TypeGraphM m) => Control m conc alt r -> TGVSimple -> m r
+doNode :: forall m conc alt r. (Quasi m, TypeGraphM m, Monoid r) => Control m conc alt r -> TGVSimple -> m r
 doNode control v =
   do selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [asType v]
      simplePath <- (not . null) <$> reifyInstancesWithContext ''SinkType [asType v]
@@ -70,7 +73,7 @@ doNode control v =
                 _doView control =<< tgvSimple' viewtyp
          | selfPath -> _doSelf control
          | simplePath -> _doSimple control
-       _ -> doType' (asType v) []
+       _ -> mconcat <$> mapM (flip doType' []) (Set.toList (Set.insert (view (_2 . etype . unE) v) (Set.map ConT (typeNames v))))
     where
       doType' :: Type -> [Type] -> m r
       doType' (AppT t1 t2) tps = doType' t1 (t2 : tps)
@@ -102,14 +105,14 @@ doNode control v =
           | length tps /= length binds =
               error $ "Arity mismatch: binds: " ++ show binds ++ ", types: " ++ show tps
       doDec tps (DataD _cx tname binds cons _supers) = do
-        let bindings = Map.fromList (zip (map asName binds) tps)
+        let bindings = Map.fromList (zip (Prelude.map asName binds) tps)
             subst = substG bindings
         doCons subst tname cons
       doDec tps (TySynD _tname binds _typ)
           | length tps /= length binds =
               error $ "Arity mismatch: binds: " ++ show binds ++ ", types: " ++ show tps
       doDec tps (TySynD tname binds syntyp) = do
-        let bindings = Map.fromList (zip (map asName binds) tps)
+        let bindings = Map.fromList (zip (Prelude.map asName binds) tps)
             subst = substG bindings
         _doSyn control tname (subst syntyp)
       doDec _tps dec = error $ "Unexpected dec: " ++ pprint dec
