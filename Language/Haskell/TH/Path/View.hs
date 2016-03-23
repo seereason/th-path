@@ -2,6 +2,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeFamilies #-}
 module Language.Haskell.TH.Path.View
     ( View(viewLens, ViewType)
@@ -12,7 +13,7 @@ module Language.Haskell.TH.Path.View
     ) where
 
 import Control.Lens (Lens')
-import Control.Monad.State (execState, get, modify, put, StateT)
+import Control.Monad.State (execStateT, get, modify, put, StateT)
 import Control.Monad.States (MonadStates)
 import Data.Generics (everywhere, mkT)
 -- import Data.Logic.ATP.FOL (subst)
@@ -26,6 +27,7 @@ import Debug.Trace (trace)
 import Language.Haskell.TH hiding (prim)
 import Language.Haskell.TH.Context (InstMap)
 import Language.Haskell.TH.Desugar as DS (DsMonad)
+import Language.Haskell.TH.Syntax (qReify)
 import Language.Haskell.TH.TypeGraph.Arity (typeArity)
 import Language.Haskell.TH.TypeGraph.Expand (E(E), ExpandMap, expandType)
 import Language.Haskell.TH.TypeGraph.Prelude (unlifted)
@@ -55,27 +57,41 @@ viewInstanceType typ =
              [TySynInstD _ (TySynEqn [type1] type2)] ->
                  do (E type1') <- expandType type1
                     (E type2') <- expandType type2
+                    u <- fakeunify (E typ) (E type1')
                     -- Unify the original type with type1, and apply
                     -- the resulting bindings to type2.
-                    case execState (fakeunify (E typ) (E type1')) (Just mempty) of
+                    case u of
                       Nothing -> return Nothing
                       Just bindings -> return $ Just (everywhere (mkT (expandBindings bindings)) type2')
              [] -> return Nothing
              _ -> error $ "Unexpected view instance(s): " ++ show vInsts
          _ -> return Nothing
+
+-- This is a dangerously weak imitation of unification.  We
+-- ought to implement unify for Type in atp-haskell and use that.
+fakeunify :: forall m. DsMonad m => E Type -> E Type -> m (Maybe (Map Type Type))
+fakeunify (E a0) (E b0) =
+    execStateT (unify a0 b0) (Just mempty)
     where
       -- This is a dangerously weak imitation of unification.  We
       -- ought to implement unify for Type in atp-haskell and use that.
-      fakeunify :: Monad m => E Type -> E Type -> StateT (Maybe (Map Type Type)) m ()
-      fakeunify (E (AppT a b)) (E (AppT c d)) = fakeunify (E a) (E c) >> fakeunify (E b) (E d)
-      fakeunify (E (ConT a)) (E (ConT b)) | a == b = return ()
-      fakeunify (E a@(VarT _)) (E b) = do
+      unify :: Monad m => Type -> Type -> StateT (Maybe (Map Type Type)) m ()
+      unify (AppT a b) (AppT c d) = unify a c >> unify b d
+      unify (ConT a) (ConT b) | a == b = return ()
+      unify a@(VarT _) b = do
         binding <- maybe Nothing (Map.lookup a) <$> get
         -- We ought to ensure that unexpended bindings don't appear in b
-        maybe (modify (fmap (Map.insert a b))) (\a' -> fakeunify (E a') (E b)) binding
-      fakeunify (E a) (E b@(VarT _)) = fakeunify (E b) (E a)
-      fakeunify (E a) (E b) | a == b = return ()
-      fakeunify (E a) (E b) = trace ("Could not unify: " ++ pprint (AppT (AppT EqualityT a) b)) (put Nothing)
+        maybe (modify (fmap (Map.insert a b))) (\a' -> unify a' b) binding
+      unify a b@(VarT _) = unify b a
+      unify a b | a == b = return ()
+      unify (ConT a) b = qReify a >>= unifyInfo b
+      unify a (ConT b) = qReify b >>= unifyInfo a
+      unify a b = trace ("Could not unify: " ++ pprint (AppT (AppT EqualityT a) b)) (put Nothing)
+
+      unifyInfo a (TyConI dec) = unifyDec a dec
+      unifyInfo _a _b = trace ("Could not unify: " ++ pprint (AppT (AppT EqualityT a0) b0)) (put Nothing)
+      unifyDec a (TySynD tname [] b) = modify (fmap (Map.insert (ConT tname) b)) >> unify a b
+      unifyDec _a _b = trace ("Could not unify: " ++ pprint (AppT (AppT EqualityT a0) b0)) (put Nothing)
 
 expandBindings :: Map Pred Pred -> Pred -> Pred
 expandBindings mp x@(VarT _) = fromMaybe x (Map.lookup x mp)
