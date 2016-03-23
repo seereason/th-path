@@ -36,16 +36,18 @@ module Language.Haskell.TH.Path.Common
     , tells
     , telld
     , mconcatQ
+    , tagExp
     ) where
 
 import Control.Lens hiding (cons, Strict)
 import Control.Monad.Writer (MonadWriter, tell)
+import Data.Bool (bool)
 import Data.List as List (map)
 import Data.Set as Set (map, minView, Set)
 import Language.Haskell.TH
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Instances ()
-import Language.Haskell.TH.Syntax (Quasi)
+import Language.Haskell.TH.Syntax (lift, Quasi)
 import Language.Haskell.TH.TypeGraph.Expand (E, unE)
 import Language.Haskell.TH.TypeGraph.TypeGraph (HasTGV(asTGV))
 import Language.Haskell.TH.TypeGraph.Vertex (etype, field, syns,
@@ -195,3 +197,7 @@ mconcatQ :: [ExpQ] -> ExpQ
 mconcatQ [] = [| mempty |]
 mconcatQ [x] = x
 mconcatQ xs = [|mconcat $(listE xs)|]
+
+-- | Insert a string into an expression by applying an id function
+tagExp :: String -> ExpQ -> ExpQ
+tagExp s e = [|bool (undefined $(lift s)) $e True|]
