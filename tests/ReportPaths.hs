@@ -26,6 +26,7 @@ import Appraisal.ReportItem (Item, ItemFieldName)
 import Appraisal.ReportInstances (SaneSize, ReportView, ReportImageView, ReadOnly)
 import Appraisal.ReportMap (ReportMap)
 import Appraisal.Utils.CIString (CIString)
+import Data.List (sort)
 import Data.UserId (UserId)
 import Data.UUID (UUID)
 import Data.Text (unpack)
@@ -42,7 +43,7 @@ import Text.Pandoc (Pandoc, Meta, MetaValue, QuoteType, Inline, Format, MathType
                     CitationMode, Block, ListNumberStyle, ListNumberDelim, Alignment)
 
 $(runQ (runIO (find always (extension ==? ".hs") "Language/Haskell/TH/Path")) >>=
-  allDecsToFile [ [t|ReportMap|] ] (Just "tests/ReportHead.hs") Nothing "tests/ReportDecs.hs")
+  allDecsToFile sort [ [t|ReportMap|] ] (Just "tests/ReportHead.hs") Nothing "tests/ReportDecs.hs")
 
 instance Lift Text where
     lift = lift . unpack

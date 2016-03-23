@@ -43,11 +43,11 @@ derivePaths :: [TypeQ] -> TypeQ -> Q [Dec]
 derivePaths topTypes thisType =
     runTypeGraphT (execWriterT . doType =<< runQ thisType) =<< sequence topTypes
 
-allDecs :: forall m. (TypeGraphM m) => m [Dec]
-allDecs = execWriterT $ allPathStarts >>= mapM_ doNode
+allDecs :: forall m. (TypeGraphM m) => ([Dec] -> [Dec]) -> m [Dec]
+allDecs order = order <$> execWriterT (allPathStarts >>= mapM_ doNode) >>= pure . order
 
-allDecsToFile :: [TypeQ] -> Maybe FilePath -> Maybe FilePath -> FilePath -> [FilePath] -> Q [Dec]
-allDecsToFile st hd tl dest deps = do
+allDecsToFile :: ([Dec] -> [Dec]) -> [TypeQ] -> Maybe FilePath -> Maybe FilePath -> FilePath -> [FilePath] -> Q [Dec]
+allDecsToFile order st hd tl dest deps = do
   runQ $ mapM_ addDependentFile $ catMaybes [hd, tl] ++ deps
   hdText <- runQ $ runIO $ maybe (pure mempty) readFile hd
   tlText <- runQ $ runIO $ maybe (pure mempty) readFile tl
@@ -56,7 +56,7 @@ allDecsToFile st hd tl dest deps = do
                                                  True -> pure Nothing
                                                  False -> throw e) (pure . Just))
   st' <- runQ $ sequence st
-  decs <- runTypeGraphT allDecs st'
+  decs <- runTypeGraphT (allDecs order) st'
   let code = (unlines . map pprintW . {-sort .-} map friendlyNames) decs
       removeFileMaybe :: FilePath -> IO ()
       removeFileMaybe path =
