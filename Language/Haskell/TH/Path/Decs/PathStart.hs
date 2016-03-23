@@ -34,7 +34,7 @@ import Language.Haskell.TH.Path.Core (camelWords, fieldStrings, PathStart(Peek, 
                                       Describe(describe'), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..), forestMap)
 import Language.Haskell.TH.Path.Graph (TypeGraphM)
 import Language.Haskell.TH.Path.Order (Path_OMap(..))
-import Language.Haskell.TH.Path.Traverse (asP', Control(..), doType, finishConc, finishEither, finishPair)
+import Language.Haskell.TH.Path.Traverse (asP', Control(..), doNode, finishConc, finishEither, finishPair)
 import Language.Haskell.TH.Syntax (liftString)
 import Language.Haskell.TH.TypeGraph.TypeGraph (pathKeys, pathKeys', tgv, tgvSimple')
 import Language.Haskell.TH.TypeGraph.Vertex (TGV, field, TGVSimple)
@@ -189,7 +189,7 @@ peekClauses :: forall m conc alt. (TypeGraphM m, MonadWriter [ClauseType] m, con
 peekClauses v = do
   x <- runQ $ newName "_s"
   wPathVar <- runQ $ newName "_wp"
-  doType (isPathControl v x wPathVar) v
+  doNode (isPathControl v x wPathVar) v
 
 concatMapQ :: [ExpQ] -> ExpQ
 concatMapQ [] = [|mempty|]

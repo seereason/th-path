@@ -19,7 +19,7 @@
 module Language.Haskell.TH.Path.Traverse
     ( asP'
     , Control(..)
-    , doType
+    , doNode
     , substG
     , finishConc
     , finishPair
@@ -59,8 +59,8 @@ data Control m conc alt r
       , _doAlts :: [alt] -> m r
       }
 
-doType :: forall m conc alt r. (Quasi m, TypeGraphM m) => Control m conc alt r -> TGVSimple -> m r
-doType control v =
+doNode :: forall m conc alt r. (Quasi m, TypeGraphM m) => Control m conc alt r -> TGVSimple -> m r
+doNode control v =
   do selfPath <- (not . null) <$> reifyInstancesWithContext ''SelfPath [asType v]
      simplePath <- (not . null) <$> reifyInstancesWithContext ''SinkType [asType v]
      viewTypeMaybe <- viewInstanceType (asType v)
