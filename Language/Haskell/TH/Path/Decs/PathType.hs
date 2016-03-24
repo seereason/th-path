@@ -18,24 +18,14 @@ module Language.Haskell.TH.Path.Decs.PathType
     ( pathType
     ) where
 
-import Data.Foldable as Foldable
-import Data.Function (on)
-import Data.List as List (intercalate, map, nub, sortBy)
-import Data.Map as Map (Map)
-import Data.Maybe (isJust)
 import Language.Haskell.TH
-import Language.Haskell.TH.Context (reifyInstancesWithContext)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Common (asName, asType, asTypeQ, bestPathTypeName, ModelType(ModelType),
                                         makePathType)
-import Language.Haskell.TH.Path.Core (SelfPath, SinkType,
-                                      Path_List, Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
+import Language.Haskell.TH.Path.Core (Path_List, Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
 import Language.Haskell.TH.Path.Graph (TypeGraphM)
-import Language.Haskell.TH.Path.Order (Order, Path_OMap(..))
+import Language.Haskell.TH.Path.Order (Path_OMap(..))
 import Language.Haskell.TH.Path.Traverse (Control(..), doNode)
-import Language.Haskell.TH.Path.View (viewInstanceType)
-import Language.Haskell.TH.TypeGraph.Prelude (pprint1)
-import Language.Haskell.TH.TypeGraph.TypeGraph (reachableFromSimple, tgvSimple')
 import Language.Haskell.TH.TypeGraph.Vertex (TGVSimple)
 
 -- | Given a type, compute the corresponding path type.
@@ -80,9 +70,9 @@ pathTypeControl gtyp key =
     , _doField = \_ _ -> pure ()
     , _doConcs = \_ _ -> pure ()
     , _doSyn =
-        \tname typ ->
+        \tname _typ ->
             runQ $ [t|$(asTypeQ (makePathType (ModelType tname))) $gtyp|]
     , _doAlts =
         \_ -> runQ $ [t|$(asTypeQ (makePathType (ModelType (asName key)))) $gtyp|]
-    , _doSyns = \r0 rs -> pure r0
+    , _doSyns = \r0 _rs -> pure r0
     }
