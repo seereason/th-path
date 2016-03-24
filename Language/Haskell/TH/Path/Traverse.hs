@@ -21,9 +21,7 @@ module Language.Haskell.TH.Path.Traverse
     , Control(..)
     , doNode
     , substG
-    , finishConc
-    , finishPair
-    , finishEither
+    , finishConcs
     ) where
 
 import Control.Lens (_2, view)
@@ -170,14 +168,5 @@ asP' name patQ = do
     AsP name' _ | name == name' -> patQ
     _ -> asP name patQ
 
-finishConc :: Monad m => Control m conc alt r -> conc -> m r
-finishConc control conc = _doConcs control wildP [conc] >>= \alt -> _doAlts control [alt]
-
-finishPair :: Monad m => Control m conc alt r -> conc -> conc -> m r
-finishPair control fconc sconc = _doConcs control wildP [fconc, sconc] >>= \alt -> _doAlts control [alt]
-
-finishEither :: Monad m => Control m conc alt r -> conc -> conc -> m r
-finishEither control lconc rconc =
-    do lalt <- _doConcs control (conP 'Left [wildP]) [lconc]
-       ralt <- _doConcs control (conP 'Right [wildP]) [rconc]
-       _doAlts control [lalt, ralt]
+finishConcs :: Monad m => Control m conc alt r -> [(PatQ, [conc])] -> m r
+finishConcs control concs = mapM (uncurry (_doConcs control)) concs >>= _doAlts control

@@ -30,7 +30,7 @@ import Language.Haskell.TH.Path.Decs.PathType (pathType)
 import Language.Haskell.TH.Path.Graph (testIsPath, TypeGraphM)
 import Language.Haskell.TH.Path.Instances ()
 import Language.Haskell.TH.Path.Order (Path_OMap(..), toPairs)
-import Language.Haskell.TH.Path.Traverse (asP', Control(..), doNode, finishConc, finishEither, finishPair)
+import Language.Haskell.TH.Path.Traverse (asP', Control(..), doNode, finishConcs)
 import Language.Haskell.TH.TypeGraph.TypeGraph (pathKeys)
 import Language.Haskell.TH.TypeGraph.Vertex (TGVSimple, TypeGraphVertex(bestType))
 
@@ -86,24 +86,24 @@ hasPathControl v gkey g x =
                   _doAlts control [alt]
             , _doOrder =
                 \_i w -> do
-                  finishConc control (asType w, [| map (\(idx, val) -> (Path_At idx, val)) (toPairs $(varE x)) |])
+                  finishConcs control [(wildP, [(asType w, [| map (\(idx, val) -> (Path_At idx, val)) (toPairs $(varE x)) |])])]
             , _doMap =
                 \_i w -> do
-                  finishConc control (asType w, [| map (\(idx, val) -> (Path_Look idx, val)) (Map.toList $(varE x)) |])
+                  finishConcs control [(wildP, [(asType w, [| map (\(idx, val) -> (Path_Look idx, val)) (Map.toList $(varE x)) |])])]
             , _doList =
                 \_e -> pure ()
             , _doPair =
-                \f s -> finishPair control
-                                   (asType f, [| [(Path_First, fst $(varE x))] |])
-                                   (asType s, [| [(Path_Second, snd $(varE x))] |])
+                \f s -> finishConcs control
+                                   [(wildP, [(asType f, [| [(Path_First, fst $(varE x))] |]),
+                                             (asType s, [| [(Path_Second, snd $(varE x))] |])])]
             , _doMaybe =
                 \w -> do
-                  finishConc control (asType w, [| case $(varE x) of Nothing -> []; Just a' -> [(Path_Just, a')]|])
+                  finishConcs control [(wildP, [(asType w, [| case $(varE x) of Nothing -> []; Just a' -> [(Path_Just, a')]|])])]
             , _doEither =
                 \l r ->
                     do let lconc = (asType l, [| case $(varE x) of Left a' -> [(Path_Left, a')]; Right _ -> []|])
                            rconc = (asType r, [| case $(varE x) of Left _ -> []; Right a' -> [(Path_Right, a')]|])
-                       finishEither control lconc rconc
+                       finishConcs control [(conP 'Left [wildP], [lconc]), (conP 'Right [wildP], [rconc])]
             , _doField =
                 \fld typ ->
                     case fld of
@@ -118,8 +118,8 @@ hasPathControl v gkey g x =
                   exps <- concat <$>
                           mapM (\(typ, asList) ->
                                     do isPath <- testIsPath typ gkey
-                                       let _nextPathType = [t|Path $(pure typ) $(asTypeQ gkey)|]
-                                           _thisPathType = [t|Path $(asTypeQ v) $(asTypeQ gkey)|]
+                                       {- let _nextPathType = [t|Path $(pure typ) $(asTypeQ gkey)|]
+                                              _thisPathType = [t|Path $(asTypeQ v) $(asTypeQ gkey)|] -}
                                        case isPath of
                                          False -> pure []
                                          True -> pure [ [| List.concatMap
