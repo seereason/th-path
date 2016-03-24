@@ -27,8 +27,7 @@ import Language.Haskell.TH
 import Language.Haskell.TH.Context (reifyInstancesWithContext)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Common (HasConQ(asConQ), HasCon(asCon), HasName(asName), HasType(asType), HasTypeQ(asTypeQ),
-                                        makeFieldCon, makePathCon, makePathType,
-                                        ModelType(ModelType))
+                                        makeFieldCon, makePathCon, makePathType, ModelType(ModelType), tells)
 import Language.Haskell.TH.Path.Core (camelWords, fieldStrings, PathStart(Peek, peek, hop), Paths(..), ToLens(toLens),
                                       Describe(describe'), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..), forestMap)
 import Language.Haskell.TH.Path.Graph (TypeGraphM)
@@ -48,37 +47,25 @@ instance HasName PeekCon where asName = unPeekCon
 instance HasCon PeekCon where asCon = ConE . unPeekCon
 instance HasConQ PeekCon where asConQ = conE . unPeekCon
 
-data ClauseType
+data WriterType
     = PeekClause ClauseQ
     | HopClause ClauseQ
     | DescClause ClauseQ
+    | PathDec DecQ
 
-partitionClauses :: [ClauseType] -> ([ClauseQ], [ClauseQ], [ClauseQ])
+partitionClauses :: [WriterType] -> ([ClauseQ], [ClauseQ], [ClauseQ], [DecQ])
 partitionClauses xs =
-    foldr f ([], [], []) xs
+    foldr f ([], [], [], []) xs
         where
-          f (PeekClause c) (pcs, hcs, dcs) = (c : pcs, hcs, dcs)
-          f (HopClause c) (pcs, hcs, dcs) = (pcs, c : hcs, dcs)
-          f (DescClause c) (pcs, hcs, dcs) = (pcs, hcs, c : dcs)
-
-makePeekCon :: (HasName s, HasName g) => ModelType s -> ModelType g -> PeekCon
-makePeekCon (ModelType s) (ModelType g) = PeekCon (mkName ("Peek_" ++ nameBase (asName s) ++ "_" ++ nameBase (asName g)))
-
-instanceD' :: (TypeGraphM m, MonadWriter [Dec] m) => CxtQ -> TypeQ -> m [DecQ] -> m ()
-instanceD' cxt' typ decs =
-    instanceD cxt' typ <$> decs >>= runQ >>= tell . (: [])
-
-dataInstD' :: (TypeGraphM m, MonadWriter [Dec] m) => CxtQ -> Name -> [TypeQ] -> m [ConQ] -> [Name] -> m DecQ
-dataInstD' cxt' name params cons supers =
-    dataInstD cxt' name params <$> cons <*> pure supers
-
-funD' :: (TypeGraphM m, MonadWriter [Dec] m) => Name -> m [ClauseQ] -> m DecQ
-funD' name clauses = funD name <$> clauses
+          f (PeekClause x) (pcs, hcs, dcs, pds) = (x : pcs, hcs, dcs, pds)
+          f (HopClause x) (pcs, hcs, dcs, pds) = (pcs, x : hcs, dcs, pds)
+          f (DescClause x) (pcs, hcs, dcs, pds) = (pcs, hcs, x : dcs, pds)
+          f (PathDec x) (pcs, hcs, dcs, pds) = (pcs, hcs, dcs, x : pds)
 
 peekDecs :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TGVSimple -> m ()
 peekDecs v =
-    do (clauses :: [ClauseType]) <- execWriterT (peekClauses v)
-       let (pcs, hcs, dcs) = partitionClauses clauses
+    do (clauses :: [WriterType]) <- execWriterT (peekClauses v)
+       let (pcs, hcs, dcs, pds) = partitionClauses clauses
        instanceD' (cxt []) (appT (conT ''PathStart) (asTypeQ v))
          (sequence
           [dataInstD' (cxt []) ''Peek [asTypeQ v]
@@ -93,6 +80,7 @@ peekDecs v =
            funD' 'hop (case hcs of
                          [] -> pure [clause [wildP] (normalB [| [] |]) []]
                          _ -> pure hcs)])
+       tells pds
        instanceD' (cxt []) [t|Describe (Peek $(asTypeQ v))|]
                   (pure [funD 'describe' (case dcs of
                                            [] -> [clause [wildP, wildP] (normalB [|Nothing|]) []]
@@ -110,8 +98,28 @@ peekDecs v =
                                          Just (_tname, cname, Left fpos) -> Just (camelWords $ cname ++ "[" ++ show fpos ++ "]")
                                      |]) []]]))
 
+makePeekCon :: (HasName s, HasName g) => ModelType s -> ModelType g -> PeekCon
+makePeekCon (ModelType s) (ModelType g) = PeekCon (mkName ("Peek_" ++ nameBase (asName s) ++ "_" ++ nameBase (asName g)))
 
-isPathControl :: forall m. (TypeGraphM m, MonadWriter [ClauseType] m) => TGVSimple -> Name -> Name -> Control m (TGV, PatQ, ExpQ) () ()
+instanceD' :: (TypeGraphM m, MonadWriter [Dec] m) => CxtQ -> TypeQ -> m [DecQ] -> m ()
+instanceD' cxt' typ decs =
+    instanceD cxt' typ <$> decs >>= runQ >>= tell . (: [])
+
+dataInstD' :: (TypeGraphM m, MonadWriter [Dec] m) => CxtQ -> Name -> [TypeQ] -> m [ConQ] -> [Name] -> m DecQ
+dataInstD' cxt' name params cons supers =
+    dataInstD cxt' name params <$> cons <*> pure supers
+
+funD' :: (TypeGraphM m, MonadWriter [Dec] m) => Name -> m [ClauseQ] -> m DecQ
+funD' name clauses = funD name <$> clauses
+
+peekClauses :: forall m conc alt. (TypeGraphM m, MonadWriter [WriterType] m, conc ~ (TGV, PatQ, ExpQ), alt ~ (PatQ, [conc])) =>
+               TGVSimple -> m ()
+peekClauses v = do
+  x <- runQ $ newName "_s"
+  wPathVar <- runQ $ newName "_wp"
+  doNode (isPathControl v x wPathVar) v
+
+isPathControl :: forall m. (TypeGraphM m, MonadWriter [WriterType] m) => TGVSimple -> Name -> Name -> Control m (TGV, PatQ, ExpQ) () ()
 isPathControl v x wPathVar = do
   let control :: Control m (TGV, PatQ, ExpQ) () ()
       control = isPathControl v x wPathVar in
@@ -161,18 +169,10 @@ isPathControl v x wPathVar = do
             , _doConcs =
                 \xpat concs -> do
                   rs <- mapM (\conc@(w, ppat, pcon) ->
-                                  do let liftPeek p node =
-                                             pure [| concatMap
-                                                         (\pth -> case pth of
-                                                                     $(asP p ppat) ->
-                                                                         map $node (toListOf (toLens $(varE p)) $(varE x) :: [$(asTypeQ w)])
-                                                                     _ -> [])
-                                                         (paths $(varE x) (Proxy :: Proxy $(asTypeQ w))
-                                                             {-:: [$(asTypeQ (makePathType (ModelType (asName v)))) $(asTypeQ w)]-}) |]
-                                     describeConc v wPathVar conc
+                                  do describeConc v wPathVar conc
                                      p <- runQ $ newName "_pp"
-                                     hf <- doHop v w p pcon >>= liftPeek p
-                                     pf <- doPeek v w p pcon >>= liftPeek p
+                                     hf <- doHop v w p pcon >>= liftPeek x p w ppat
+                                     pf <- doPeek v w p pcon >>= liftPeek x p w ppat
                                      return (hf, pf))
                              concs
                   let (hfs, pfs) = unzip rs
@@ -183,13 +183,6 @@ isPathControl v x wPathVar = do
             , _doAlts = \_ -> pure ()
             , _doSyns = \() _ -> pure ()
             }
-
-peekClauses :: forall m conc alt. (TypeGraphM m, MonadWriter [ClauseType] m, conc ~ (TGV, PatQ, ExpQ), alt ~ (PatQ, [conc])) =>
-               TGVSimple -> m ()
-peekClauses v = do
-  x <- runQ $ newName "_s"
-  wPathVar <- runQ $ newName "_wp"
-  doNode (isPathControl v x wPathVar) v
 
 concatMapQ :: [ExpQ] -> ExpQ
 concatMapQ [] = [|mempty|]
@@ -203,13 +196,23 @@ doHop v w p _pcon =
 doPeek :: forall m. (TypeGraphM m) => TGVSimple -> TGV -> Name -> ExpQ -> m ExpQ
 doPeek v w p pcon = do
   gs <- pathKeys' w
-  let liftPeek = mkName "liftPeek"
+  let lp = mkName "liftPeek"
   pure [| \a -> let f = peek a {-:: Forest (Peek $(asTypeQ w))-} in
-                $(letE [funD liftPeek (map (doGoal v w pcon) (Foldable.toList gs))]
+                $(letE [funD lp (map (doGoal v w pcon) (Foldable.toList gs))]
                        [|Node ($(asConQ (makePeekCon (ModelType (asName v)) (ModelType (asName w)))) $(varE p) (if null f then Just a else Nothing))
                               -- Build a function with type such as Peek_AbbrevPair -> Peek_AbbrevPairs, so we
                               -- can lift the forest of type AbbrevPair to be a forest of type AbbrevPairs.
-                              (forestMap $(varE liftPeek) f) |]) |]
+                              (forestMap $(varE lp) f) |]) |]
+
+liftPeek :: TypeGraphM m => Name -> Name -> TGV -> PatQ -> ExpQ -> m ExpQ
+liftPeek x p w ppat node =
+    pure [| concatMap
+              (\pth -> case pth of
+                         $(asP p ppat) ->
+                             map $node (toListOf (toLens $(varE p)) $(varE x) :: [$(asTypeQ w)])
+                         _ -> [])
+              (paths $(varE x) (Proxy :: Proxy $(asTypeQ w))
+                 {-:: [$(asTypeQ (makePathType (ModelType (asName v)))) $(asTypeQ w)]-}) |]
 
 doGoal :: TGVSimple -> TGV -> ExpQ -> TGVSimple -> ClauseQ
 doGoal v w pcon g =
@@ -231,7 +234,7 @@ doGoal v w pcon g =
 --    v = TGV {tgvSimple = ReportView, field = _reportLetterOfTransmittal :: Markup}
 --    w = Markup
 --    ppat = Path_ReportView__reportLetterOfTransmittal _wp
-describeConc :: forall m. (TypeGraphM m, MonadWriter [ClauseType] m) =>
+describeConc :: forall m. (TypeGraphM m, MonadWriter [WriterType] m) =>
                 TGVSimple -> Name -> (TGV, PatQ, ExpQ) -> m ()
 describeConc v wPathVar (w, ppat, _pcon) =
     do p <- runQ $ newName "_p"
