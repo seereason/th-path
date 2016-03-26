@@ -37,6 +37,7 @@ library
     directory,
     extra,
     haskell-src-exts,
+    lens,
     ListLike,
     mtl,
     mtl-unleashed >= 0.5,
@@ -52,10 +53,6 @@ library
     th-orphans,
     userid,
     web-routes-th
-  if impl(ghcjs)
-    build-depends: microlens-compat
-  else
-    build-depends: lens
   ghc-options:      -Wall -O2
   exposed-modules:
     Language.Haskell.TH.Path.Core
@@ -143,6 +140,7 @@ test-suite th-path-tests
     HUnit,
     jmacro,
     json,
+    lens,
     ListLike,
     mtl,
     mtl-unleashed,
@@ -172,10 +170,6 @@ test-suite th-path-tests
     uuid-types
   other-modules:
     Tests.Data
-  if impl(ghcjs)
-    build-depends: microlens-compat
-  else
-    build-depends: lens
   default-language: Haskell2010
   if flag(local-th-typegraph)
     build-depends: process-extras, pureMD5, Unixutils, exceptions, process, hslogger, atp-haskell, data-default, web-routes-th, safecopy
