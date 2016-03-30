@@ -688,107 +688,155 @@ instance Paths String String
     where type Path String String = Path_String String
           paths _ _ = [idPath]
           peek _ _ = undefined "idpeek" :: Peek String
+          peekPath (Peek_String_String _p _) = _p :: Path String String
+          peekValue (Peek_String_String _ _x) = _x :: Maybe String
 instance Paths String JSONText
     where type Path String JSONText = Path_String JSONText
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: JSONText) _g)) (map (\a' -> (Path_String_View,
                                                                                                 a')) (toListOf (toLens (Path_String_View (idPath :: Path JSONText JSONText))) _s))
           peek _p _s = undefined :: Peek String
+          peekPath (Peek_String_JSONText _p _) = _p :: Path String JSONText
+          peekValue (Peek_String_JSONText _ _x) = _x :: Maybe JSONText
 instance Paths Int64 Int64
     where type Path Int64 Int64 = Path_Int64 Int64
           paths _ _ = [idPath]
           peek _ _ = undefined "idpeek" :: Peek Int64
+          peekPath (Peek_Int64_Int64 _p _) = _p :: Path Int64 Int64
+          peekValue (Peek_Int64_Int64 _ _x) = _x :: Maybe Int64
 instance Paths Bool String
     where type Path Bool String = Path_Bool String
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: String) _g)) (map (\a' -> (Path_Bool_View, a')) (toListOf (toLens (Path_Bool_View (idPath :: Path String
                                                                                                                                                                      String))) _s))
           peek _p _s = undefined :: Peek Bool
+          peekPath (Peek_Bool_String _p _) = _p :: Path Bool String
+          peekValue (Peek_Bool_String _ _x) = _x :: Maybe String
 instance Paths Bool Bool
     where type Path Bool Bool = Path_Bool Bool
           paths _ _ = [idPath]
           peek _ _ = undefined "idpeek" :: Peek Bool
+          peekPath (Peek_Bool_Bool _p _) = _p :: Path Bool Bool
+          peekValue (Peek_Bool_Bool _ _x) = _x :: Maybe Bool
 instance Paths Bool JSONText
     where type Path Bool JSONText = Path_Bool JSONText
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: String) _g)) (map (\a' -> (Path_Bool_View, a')) (toListOf (toLens (Path_Bool_View (idPath :: Path String
                                                                                                                                                                      String))) _s))
           peek _p _s = undefined :: Peek Bool
+          peekPath (Peek_Bool_JSONText _p _) = _p :: Path Bool JSONText
+          peekValue (Peek_Bool_JSONText _ _x) = _x :: Maybe JSONText
 instance Paths Double String
     where type Path Double String = Path_Double String
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: String) _g)) (map (\a' -> (Path_Double_View, a')) (toListOf (toLens (Path_Double_View (idPath :: Path String
                                                                                                                                                                          String))) _s))
           peek _p _s = undefined :: Peek Double
+          peekPath (Peek_Double_String _p _) = _p :: Path Double String
+          peekValue (Peek_Double_String _ _x) = _x :: Maybe String
 instance Paths Double Double
     where type Path Double Double = Path_Double Double
           paths _ _ = [idPath]
           peek _ _ = undefined "idpeek" :: Peek Double
+          peekPath (Peek_Double_Double _p _) = _p :: Path Double Double
+          peekValue (Peek_Double_Double _ _x) = _x :: Maybe Double
 instance Paths Double JSONText
     where type Path Double JSONText = Path_Double JSONText
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: String) _g)) (map (\a' -> (Path_Double_View, a')) (toListOf (toLens (Path_Double_View (idPath :: Path String
                                                                                                                                                                          String))) _s))
           peek _p _s = undefined :: Peek Double
+          peekPath (Peek_Double_JSONText _p _) = _p :: Path Double JSONText
+          peekValue (Peek_Double_JSONText _ _x) = _x :: Maybe JSONText
 instance Paths Int Int
     where type Path Int Int = Path_Int Int
           paths _ _ = [idPath]
           peek _ _ = undefined "idpeek" :: Peek Int
+          peekPath (Peek_Int_Int _p _) = _p :: Path Int Int
+          peekValue (Peek_Int_Int _ _x) = _x :: Maybe Int
 instance Paths Dimension Dimension
     where type Path Dimension Dimension = Path_Dimension Dimension
           paths _ _ = [idPath]
           peek _ _ = undefined "idpeek" :: Peek Dimension
+          peekPath (Peek_Dimension_Dimension _p _) = _p :: Path Dimension Dimension
+          peekValue (Peek_Dimension_Dimension _ _x) = _x :: Maybe Dimension
 instance Paths Dimension JSONText
     where type Path Dimension JSONText = Path_Dimension JSONText
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: JSONText) _g)) (map (\a' -> (Path_Dimension_View,
                                                                                                 a')) (toListOf (toLens (Path_Dimension_View (idPath :: Path JSONText JSONText))) _s))
           peek _p _s = undefined :: Peek Dimension
+          peekPath (Peek_Dimension_JSONText _p _) = _p :: Path Dimension JSONText
+          peekValue (Peek_Dimension_JSONText _ _x) = _x :: Maybe JSONText
 instance Paths ImageCrop ImageCrop
     where type Path ImageCrop ImageCrop = Path_ImageCrop ImageCrop
           paths _ _ = [idPath]
           peek _ _ = undefined "idpeek" :: Peek ImageCrop
+          peekPath (Peek_ImageCrop_ImageCrop _p _) = _p :: Path ImageCrop ImageCrop
+          peekValue (Peek_ImageCrop_ImageCrop _ _x) = _x :: Maybe ImageCrop
 instance Paths ImageSize String
     where type Path ImageSize String = Path_ImageSize String
           paths (_s@(ImageSize {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Double) _g)) [(Path_ImageSize_size, size _s)]
           peek _p (_s@(ImageSize {})) = undefined :: Peek ImageSize
+          peekPath (Peek_ImageSize_String _p _) = _p :: Path ImageSize String
+          peekValue (Peek_ImageSize_String _ _x) = _x :: Maybe String
 instance Paths ImageSize Double
     where type Path ImageSize Double = Path_ImageSize Double
           paths (_s@(ImageSize {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Double) _g)) [(Path_ImageSize_size, size _s)]
           peek _p (_s@(ImageSize {})) = undefined :: Peek ImageSize
+          peekPath (Peek_ImageSize_Double _p _) = _p :: Path ImageSize Double
+          peekValue (Peek_ImageSize_Double _ _x) = _x :: Maybe Double
 instance Paths ImageSize Dimension
     where type Path ImageSize Dimension = Path_ImageSize Dimension
           paths (_s@(ImageSize {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Dimension) _g)) [(Path_ImageSize_dim, dim _s)]
           peek _p (_s@(ImageSize {})) = undefined :: Peek ImageSize
+          peekPath (Peek_ImageSize_Dimension _p _) = _p :: Path ImageSize Dimension
+          peekValue (Peek_ImageSize_Dimension _ _x) = _x :: Maybe Dimension
 instance Paths ImageSize ImageSize
     where type Path ImageSize ImageSize = Path_ImageSize ImageSize
           paths _ _ = [idPath]
           peek _ _ = undefined "idpeek" :: Peek ImageSize
+          peekPath (Peek_ImageSize_ImageSize _p _) = _p :: Path ImageSize ImageSize
+          peekValue (Peek_ImageSize_ImageSize _ _x) = _x :: Maybe ImageSize
 instance Paths ImageSize Units
     where type Path ImageSize Units = Path_ImageSize Units
           paths (_s@(ImageSize {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Units) _g)) [(Path_ImageSize_units, units _s)]
           peek _p (_s@(ImageSize {})) = undefined :: Peek ImageSize
+          peekPath (Peek_ImageSize_Units _p _) = _p :: Path ImageSize Units
+          peekValue (Peek_ImageSize_Units _ _x) = _x :: Maybe Units
 instance Paths ImageSize JSONText
     where type Path ImageSize JSONText = Path_ImageSize JSONText
           paths (_s@(ImageSize {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: Dimension) _g)) [(Path_ImageSize_dim, dim _s)],
                                                   concatMap (\(p, a') -> map p (paths (a' :: Double) _g)) [(Path_ImageSize_size, size _s)],
                                                   concatMap (\(p, a') -> map p (paths (a' :: Units) _g)) [(Path_ImageSize_units, units _s)]]
           peek _p (_s@(ImageSize {})) = undefined :: Peek ImageSize
+          peekPath (Peek_ImageSize_JSONText _p _) = _p :: Path ImageSize JSONText
+          peekValue (Peek_ImageSize_JSONText _ _x) = _x :: Maybe JSONText
 instance Paths Units Units
     where type Path Units Units = Path_Units Units
           paths _ _ = [idPath]
           peek _ _ = undefined "idpeek" :: Peek Units
+          peekPath (Peek_Units_Units _p _) = _p :: Path Units Units
+          peekValue (Peek_Units_Units _ _x) = _x :: Maybe Units
 instance Paths Units JSONText
     where type Path Units JSONText = Path_Units JSONText
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: JSONText) _g)) (map (\a' -> (Path_Units_View, a')) (toListOf (toLens (Path_Units_View (idPath :: Path JSONText
                                                                                                                                                                          JSONText))) _s))
           peek _p _s = undefined :: Peek Units
+          peekPath (Peek_Units_JSONText _p _) = _p :: Path Units JSONText
+          peekValue (Peek_Units_JSONText _ _x) = _x :: Maybe JSONText
 instance Paths ImageFile ImageFile
     where type Path ImageFile ImageFile = Path_ImageFile ImageFile
           paths _ _ = [idPath]
           peek _ _ = undefined "idpeek" :: Peek ImageFile
+          peekPath (Peek_ImageFile_ImageFile _p _) = _p :: Path ImageFile ImageFile
+          peekValue (Peek_ImageFile_ImageFile _ _x) = _x :: Maybe ImageFile
 instance Paths Integer Integer
     where type Path Integer Integer = Path_Integer Integer
           paths _ _ = [idPath]
           peek _ _ = undefined "idpeek" :: Peek Integer
+          peekPath (Peek_Integer_Integer _p _) = _p :: Path Integer Integer
+          peekValue (Peek_Integer_Integer _ _x) = _x :: Maybe Integer
 instance Paths JSONText JSONText
     where type Path JSONText JSONText = Path_JSONText JSONText
           paths _ _ = [idPath]
           peek _ _ = undefined "idpeek" :: Peek JSONText
+          peekPath (Peek_JSONText_JSONText _p _) = _p :: Path JSONText JSONText
+          peekValue (Peek_JSONText_JSONText _ _x) = _x :: Maybe JSONText
 instance Paths Markup JSONText
     where type Path Markup JSONText = Path_Markup JSONText
           paths (_s@(Markdown {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Text) _g)) [(Path_Markup_markdownText, markdownText _s)]
@@ -801,10 +849,14 @@ instance Paths Markup JSONText
           peek _p (_s@(LaTeX {})) = undefined :: Peek Markup
           peek _p (_s@(Pandoc {})) = undefined :: Peek Markup
           peek _p (_s@(Markup {})) = undefined :: Peek Markup
+          peekPath (Peek_Markup_JSONText _p _) = _p :: Path Markup JSONText
+          peekValue (Peek_Markup_JSONText _ _x) = _x :: Maybe JSONText
 instance Paths Markup Markup
     where type Path Markup Markup = Path_Markup Markup
           paths _ _ = [idPath]
           peek _ _ = undefined "idpeek" :: Peek Markup
+          peekPath (Peek_Markup_Markup _p _) = _p :: Path Markup Markup
+          peekValue (Peek_Markup_Markup _ _x) = _x :: Maybe Markup
 instance Paths Markup Text
     where type Path Markup Text = Path_Markup Text
           paths (_s@(Markdown {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Text) _g)) [(Path_Markup_markdownText, markdownText _s)]
@@ -817,450 +869,642 @@ instance Paths Markup Text
           peek _p (_s@(LaTeX {})) = undefined :: Peek Markup
           peek _p (_s@(Pandoc {})) = undefined :: Peek Markup
           peek _p (_s@(Markup {})) = undefined :: Peek Markup
+          peekPath (Peek_Markup_Text _p _) = _p :: Path Markup Text
+          peekValue (Peek_Markup_Text _ _x) = _x :: Maybe Text
 instance Paths Permissions JSONText
     where type Path Permissions JSONText = Path_Permissions JSONText
           paths (_s@(Permissions {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: UserIds) _g)) [(Path_Permissions_writers, writers _s)],
                                                     concatMap (\(p, a') -> map p (paths (a' :: UserIds) _g)) [(Path_Permissions_readers, readers _s)]]
           peek _p (_s@(Permissions {})) = undefined :: Peek Permissions
+          peekPath (Peek_Permissions_JSONText _p _) = _p :: Path Permissions JSONText
+          peekValue (Peek_Permissions_JSONText _ _x) = _x :: Maybe JSONText
 instance Paths Permissions Permissions
     where type Path Permissions Permissions = Path_Permissions Permissions
           paths _ _ = [idPath]
           peek _ _ = undefined "idpeek" :: Peek Permissions
+          peekPath (Peek_Permissions_Permissions _p _) = _p :: Path Permissions Permissions
+          peekValue (Peek_Permissions_Permissions _ _x) = _x :: Maybe Permissions
 instance Paths Permissions UserIds
     where type Path Permissions UserIds = Path_Permissions UserIds
           paths (_s@(Permissions {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: UserIds) _g)) [(Path_Permissions_writers, writers _s)],
                                                     concatMap (\(p, a') -> map p (paths (a' :: UserIds) _g)) [(Path_Permissions_readers, readers _s)]]
           peek _p (_s@(Permissions {})) = undefined :: Peek Permissions
+          peekPath (Peek_Permissions_UserIds _p _) = _p :: Path Permissions UserIds
+          peekValue (Peek_Permissions_UserIds _ _x) = _x :: Maybe UserIds
 instance Paths Permissions Text
     where type Path Permissions Text = Path_Permissions Text
           paths (_s@(Permissions {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: UserIds) _g)) [(Path_Permissions_writers, writers _s)],
                                                     concatMap (\(p, a') -> map p (paths (a' :: UserIds) _g)) [(Path_Permissions_readers, readers _s)]]
           peek _p (_s@(Permissions {})) = undefined :: Peek Permissions
+          peekPath (Peek_Permissions_Text _p _) = _p :: Path Permissions Text
+          peekValue (Peek_Permissions_Text _ _x) = _x :: Maybe Text
 instance Paths Permissions UserId
     where type Path Permissions UserId = Path_Permissions UserId
           paths (_s@(Permissions {})) _g = concatMap (\(p, a') -> map p (paths (a' :: UserId) _g)) [(Path_Permissions_owner, owner _s)]
           peek _p (_s@(Permissions {})) = undefined :: Peek Permissions
+          peekPath (Peek_Permissions_UserId _p _) = _p :: Path Permissions UserId
+          peekValue (Peek_Permissions_UserId _ _x) = _x :: Maybe UserId
 instance Paths UserIds JSONText
     where type Path UserIds JSONText = Path_UserIds JSONText
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Text) _g)) (map (\a' -> (Path_UserIds_View, a')) (toListOf (toLens (Path_UserIds_View (idPath :: Path Text
                                                                                                                                                                          Text))) _s))
           peek _p _s = undefined :: Peek UserIds
+          peekPath (Peek_UserIds_JSONText _p _) = _p :: Path UserIds JSONText
+          peekValue (Peek_UserIds_JSONText _ _x) = _x :: Maybe JSONText
 instance Paths UserIds UserIds
     where type Path UserIds UserIds = Path_UserIds UserIds
           paths _ _ = [idPath]
           peek _ _ = undefined "idpeek" :: Peek UserIds
+          peekPath (Peek_UserIds_UserIds _p _) = _p :: Path UserIds UserIds
+          peekValue (Peek_UserIds_UserIds _ _x) = _x :: Maybe UserIds
 instance Paths UserIds Text
     where type Path UserIds Text = Path_UserIds Text
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Text) _g)) (map (\a' -> (Path_UserIds_View, a')) (toListOf (toLens (Path_UserIds_View (idPath :: Path Text
                                                                                                                                                                          Text))) _s))
           peek _p _s = undefined :: Peek UserIds
+          peekPath (Peek_UserIds_Text _p _) = _p :: Path UserIds Text
+          peekValue (Peek_UserIds_Text _ _x) = _x :: Maybe Text
 instance Paths AbbrevPair JSONText
     where type Path AbbrevPair JSONText = Path_Pair (Path_CIString JSONText) (Path_Markup JSONText)
           paths _s _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: CIString) _g)) [(Path_First, fst _s)],
                                  concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_Second, snd _s)]]
           peek _p _s = undefined :: Peek AbbrevPair
+          peekPath (Peek_AbbrevPair_JSONText _p _) = _p :: Path AbbrevPair JSONText
+          peekValue (Peek_AbbrevPair_JSONText _ _x) = _x :: Maybe JSONText
 instance Paths AbbrevPair Markup
     where type Path AbbrevPair Markup = Path_Pair (Path_CIString Markup) (Path_Markup Markup)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_Second, snd _s)]
           peek _p _s = undefined :: Peek AbbrevPair
+          peekPath (Peek_AbbrevPair_Markup _p _) = _p :: Path AbbrevPair Markup
+          peekValue (Peek_AbbrevPair_Markup _ _x) = _x :: Maybe Markup
 instance Paths AbbrevPair AbbrevPair
     where type Path AbbrevPair AbbrevPair = Path_Pair (Path_CIString AbbrevPair) (Path_Markup AbbrevPair)
           paths _ _ = [idPath]
           peek _ _ = undefined "idpeek" :: Peek AbbrevPair
+          peekPath (Peek_AbbrevPair_AbbrevPair _p _) = _p :: Path AbbrevPair AbbrevPair
+          peekValue (Peek_AbbrevPair_AbbrevPair _ _x) = _x :: Maybe AbbrevPair
 instance Paths AbbrevPair CIString
     where type Path AbbrevPair CIString = Path_Pair (Path_CIString CIString) (Path_Markup CIString)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: CIString) _g)) [(Path_First, fst _s)]
           peek _p _s = undefined :: Peek AbbrevPair
+          peekPath (Peek_AbbrevPair_CIString _p _) = _p :: Path AbbrevPair CIString
+          peekValue (Peek_AbbrevPair_CIString _ _x) = _x :: Maybe CIString
 instance Paths AbbrevPair Text
     where type Path AbbrevPair Text = Path_Pair (Path_CIString Text) (Path_Markup Text)
           paths _s _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: CIString) _g)) [(Path_First, fst _s)],
                                  concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_Second, snd _s)]]
           peek _p _s = undefined :: Peek AbbrevPair
+          peekPath (Peek_AbbrevPair_Text _p _) = _p :: Path AbbrevPair Text
+          peekValue (Peek_AbbrevPair_Text _ _x) = _x :: Maybe Text
 instance Paths AbbrevPairs JSONText
     where type Path AbbrevPairs JSONText = Path_OMap AbbrevPairID (Path_Pair (Path_CIString JSONText) (Path_Markup JSONText))
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: AbbrevPair) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
           peek _p _s = undefined :: Peek AbbrevPairs
+          peekPath (Peek_AbbrevPairs_JSONText _p _) = _p :: Path AbbrevPairs JSONText
+          peekValue (Peek_AbbrevPairs_JSONText _ _x) = _x :: Maybe JSONText
 instance Paths AbbrevPairs Markup
     where type Path AbbrevPairs Markup = Path_OMap AbbrevPairID (Path_Pair (Path_CIString Markup) (Path_Markup Markup))
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: AbbrevPair) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
           peek _p _s = undefined :: Peek AbbrevPairs
+          peekPath (Peek_AbbrevPairs_Markup _p _) = _p :: Path AbbrevPairs Markup
+          peekValue (Peek_AbbrevPairs_Markup _ _x) = _x :: Maybe Markup
 instance Paths AbbrevPairs AbbrevPair
     where type Path AbbrevPairs AbbrevPair = Path_OMap AbbrevPairID (Path_Pair (Path_CIString AbbrevPair) (Path_Markup AbbrevPair))
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: AbbrevPair) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
           peek _p _s = undefined :: Peek AbbrevPairs
+          peekPath (Peek_AbbrevPairs_AbbrevPair _p _) = _p :: Path AbbrevPairs AbbrevPair
+          peekValue (Peek_AbbrevPairs_AbbrevPair _ _x) = _x :: Maybe AbbrevPair
 instance Paths AbbrevPairs AbbrevPairs
     where type Path AbbrevPairs AbbrevPairs = Path_OMap AbbrevPairID (Path_Pair (Path_CIString AbbrevPairs) (Path_Markup AbbrevPairs))
           paths _ _ = [idPath]
           peek _ _ = undefined "idpeek" :: Peek AbbrevPairs
+          peekPath (Peek_AbbrevPairs_AbbrevPairs _p _) = _p :: Path AbbrevPairs AbbrevPairs
+          peekValue (Peek_AbbrevPairs_AbbrevPairs _ _x) = _x :: Maybe AbbrevPairs
 instance Paths AbbrevPairs CIString
     where type Path AbbrevPairs CIString = Path_OMap AbbrevPairID (Path_Pair (Path_CIString CIString) (Path_Markup CIString))
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: AbbrevPair) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
           peek _p _s = undefined :: Peek AbbrevPairs
+          peekPath (Peek_AbbrevPairs_CIString _p _) = _p :: Path AbbrevPairs CIString
+          peekValue (Peek_AbbrevPairs_CIString _ _x) = _x :: Maybe CIString
 instance Paths AbbrevPairs Text
     where type Path AbbrevPairs Text = Path_OMap AbbrevPairID (Path_Pair (Path_CIString Text) (Path_Markup Text))
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: AbbrevPair) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
           peek _p _s = undefined :: Peek AbbrevPairs
+          peekPath (Peek_AbbrevPairs_Text _p _) = _p :: Path AbbrevPairs Text
+          peekValue (Peek_AbbrevPairs_Text _ _x) = _x :: Maybe Text
 instance Paths Author JSONText
     where type Path Author JSONText = Path_Author JSONText
           paths (_s@(Author {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_Author_authorName, authorName _s)],
                                                concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_Author_authorCredentials, authorCredentials _s)]]
           peek _p (_s@(Author {})) = undefined :: Peek Author
+          peekPath (Peek_Author_JSONText _p _) = _p :: Path Author JSONText
+          peekValue (Peek_Author_JSONText _ _x) = _x :: Maybe JSONText
 instance Paths Author Markup
     where type Path Author Markup = Path_Author Markup
           paths (_s@(Author {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_Author_authorName, authorName _s)],
                                                concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_Author_authorCredentials, authorCredentials _s)]]
           peek _p (_s@(Author {})) = undefined :: Peek Author
+          peekPath (Peek_Author_Markup _p _) = _p :: Path Author Markup
+          peekValue (Peek_Author_Markup _ _x) = _x :: Maybe Markup
 instance Paths Author Author
     where type Path Author Author = Path_Author Author
           paths _ _ = [idPath]
           peek _ _ = undefined "idpeek" :: Peek Author
+          peekPath (Peek_Author_Author _p _) = _p :: Path Author Author
+          peekValue (Peek_Author_Author _ _x) = _x :: Maybe Author
 instance Paths Author Text
     where type Path Author Text = Path_Author Text
           paths (_s@(Author {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_Author_authorName, authorName _s)],
                                                concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_Author_authorCredentials, authorCredentials _s)]]
           peek _p (_s@(Author {})) = undefined :: Peek Author
+          peekPath (Peek_Author_Text _p _) = _p :: Path Author Text
+          peekValue (Peek_Author_Text _ _x) = _x :: Maybe Text
 instance Paths Authors JSONText
     where type Path Authors JSONText = Path_OMap AuthorID (Path_Author JSONText)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Author) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
           peek _p _s = undefined :: Peek Authors
+          peekPath (Peek_Authors_JSONText _p _) = _p :: Path Authors JSONText
+          peekValue (Peek_Authors_JSONText _ _x) = _x :: Maybe JSONText
 instance Paths Authors Markup
     where type Path Authors Markup = Path_OMap AuthorID (Path_Author Markup)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Author) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
           peek _p _s = undefined :: Peek Authors
+          peekPath (Peek_Authors_Markup _p _) = _p :: Path Authors Markup
+          peekValue (Peek_Authors_Markup _ _x) = _x :: Maybe Markup
 instance Paths Authors Author
     where type Path Authors Author = Path_OMap AuthorID (Path_Author Author)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Author) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
           peek _p _s = undefined :: Peek Authors
+          peekPath (Peek_Authors_Author _p _) = _p :: Path Authors Author
+          peekValue (Peek_Authors_Author _ _x) = _x :: Maybe Author
 instance Paths Authors Authors
     where type Path Authors Authors = Path_OMap AuthorID (Path_Author Authors)
           paths _ _ = [idPath]
           peek _ _ = undefined "idpeek" :: Peek Authors
+          peekPath (Peek_Authors_Authors _p _) = _p :: Path Authors Authors
+          peekValue (Peek_Authors_Authors _ _x) = _x :: Maybe Authors
 instance Paths Authors Text
     where type Path Authors Text = Path_OMap AuthorID (Path_Author Text)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Author) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
           peek _p _s = undefined :: Peek Authors
+          peekPath (Peek_Authors_Text _p _) = _p :: Path Authors Text
+          peekValue (Peek_Authors_Text _ _x) = _x :: Maybe Text
 instance Paths Branding JSONText
     where type Path Branding JSONText = Path_Branding JSONText
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Text) _g)) (map (\a' -> (Path_Branding_View, a')) (toListOf (toLens (Path_Branding_View (idPath :: Path Text
                                                                                                                                                                            Text))) _s))
           peek _p _s = undefined :: Peek Branding
+          peekPath (Peek_Branding_JSONText _p _) = _p :: Path Branding JSONText
+          peekValue (Peek_Branding_JSONText _ _x) = _x :: Maybe JSONText
 instance Paths Branding Branding
     where type Path Branding Branding = Path_Branding Branding
           paths _ _ = [idPath]
           peek _ _ = undefined "idpeek" :: Peek Branding
+          peekPath (Peek_Branding_Branding _p _) = _p :: Path Branding Branding
+          peekValue (Peek_Branding_Branding _ _x) = _x :: Maybe Branding
 instance Paths Branding Text
     where type Path Branding Text = Path_Branding Text
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Text) _g)) (map (\a' -> (Path_Branding_View, a')) (toListOf (toLens (Path_Branding_View (idPath :: Path Text
                                                                                                                                                                            Text))) _s))
           peek _p _s = undefined :: Peek Branding
+          peekPath (Peek_Branding_Text _p _) = _p :: Path Branding Text
+          peekValue (Peek_Branding_Text _ _x) = _x :: Maybe Text
 instance Paths MarkupPair JSONText
     where type Path MarkupPair JSONText = Path_Pair (Path_Markup JSONText) (Path_Markup JSONText)
           paths _s _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_First, fst _s)],
                                  concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_Second, snd _s)]]
           peek _p _s = undefined :: Peek MarkupPair
+          peekPath (Peek_MarkupPair_JSONText _p _) = _p :: Path MarkupPair JSONText
+          peekValue (Peek_MarkupPair_JSONText _ _x) = _x :: Maybe JSONText
 instance Paths MarkupPair Markup
     where type Path MarkupPair Markup = Path_Pair (Path_Markup Markup) (Path_Markup Markup)
           paths _s _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_First, fst _s)],
                                  concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_Second, snd _s)]]
           peek _p _s = undefined :: Peek MarkupPair
+          peekPath (Peek_MarkupPair_Markup _p _) = _p :: Path MarkupPair Markup
+          peekValue (Peek_MarkupPair_Markup _ _x) = _x :: Maybe Markup
 instance Paths MarkupPair MarkupPair
     where type Path MarkupPair MarkupPair = Path_Pair (Path_Markup MarkupPair) (Path_Markup MarkupPair)
           paths _ _ = [idPath]
           peek _ _ = undefined "idpeek" :: Peek MarkupPair
+          peekPath (Peek_MarkupPair_MarkupPair _p _) = _p :: Path MarkupPair MarkupPair
+          peekValue (Peek_MarkupPair_MarkupPair _ _x) = _x :: Maybe MarkupPair
 instance Paths MarkupPair Text
     where type Path MarkupPair Text = Path_Pair (Path_Markup Text) (Path_Markup Text)
           paths _s _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_First, fst _s)],
                                  concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_Second, snd _s)]]
           peek _p _s = undefined :: Peek MarkupPair
+          peekPath (Peek_MarkupPair_Text _p _) = _p :: Path MarkupPair Text
+          peekValue (Peek_MarkupPair_Text _ _x) = _x :: Maybe Text
 instance Paths MarkupPairs JSONText
     where type Path MarkupPairs JSONText = Path_OMap MarkupPairID (Path_Pair (Path_Markup JSONText) (Path_Markup JSONText))
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: MarkupPair) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
           peek _p _s = undefined :: Peek MarkupPairs
+          peekPath (Peek_MarkupPairs_JSONText _p _) = _p :: Path MarkupPairs JSONText
+          peekValue (Peek_MarkupPairs_JSONText _ _x) = _x :: Maybe JSONText
 instance Paths MarkupPairs Markup
     where type Path MarkupPairs Markup = Path_OMap MarkupPairID (Path_Pair (Path_Markup Markup) (Path_Markup Markup))
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: MarkupPair) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
           peek _p _s = undefined :: Peek MarkupPairs
+          peekPath (Peek_MarkupPairs_Markup _p _) = _p :: Path MarkupPairs Markup
+          peekValue (Peek_MarkupPairs_Markup _ _x) = _x :: Maybe Markup
 instance Paths MarkupPairs MarkupPair
     where type Path MarkupPairs MarkupPair = Path_OMap MarkupPairID (Path_Pair (Path_Markup MarkupPair) (Path_Markup MarkupPair))
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: MarkupPair) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
           peek _p _s = undefined :: Peek MarkupPairs
+          peekPath (Peek_MarkupPairs_MarkupPair _p _) = _p :: Path MarkupPairs MarkupPair
+          peekValue (Peek_MarkupPairs_MarkupPair _ _x) = _x :: Maybe MarkupPair
 instance Paths MarkupPairs MarkupPairs
     where type Path MarkupPairs MarkupPairs = Path_OMap MarkupPairID (Path_Pair (Path_Markup MarkupPairs) (Path_Markup MarkupPairs))
           paths _ _ = [idPath]
           peek _ _ = undefined "idpeek" :: Peek MarkupPairs
+          peekPath (Peek_MarkupPairs_MarkupPairs _p _) = _p :: Path MarkupPairs MarkupPairs
+          peekValue (Peek_MarkupPairs_MarkupPairs _ _x) = _x :: Maybe MarkupPairs
 instance Paths MarkupPairs Text
     where type Path MarkupPairs Text = Path_OMap MarkupPairID (Path_Pair (Path_Markup Text) (Path_Markup Text))
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: MarkupPair) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
           peek _p _s = undefined :: Peek MarkupPairs
+          peekPath (Peek_MarkupPairs_Text _p _) = _p :: Path MarkupPairs Text
+          peekValue (Peek_MarkupPairs_Text _ _x) = _x :: Maybe Text
 instance Paths Markups JSONText
     where type Path Markups JSONText = Path_OMap MarkupID (Path_Markup JSONText)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
           peek _p _s = undefined :: Peek Markups
+          peekPath (Peek_Markups_JSONText _p _) = _p :: Path Markups JSONText
+          peekValue (Peek_Markups_JSONText _ _x) = _x :: Maybe JSONText
 instance Paths Markups Markup
     where type Path Markups Markup = Path_OMap MarkupID (Path_Markup Markup)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
           peek _p _s = undefined :: Peek Markups
+          peekPath (Peek_Markups_Markup _p _) = _p :: Path Markups Markup
+          peekValue (Peek_Markups_Markup _ _x) = _x :: Maybe Markup
 instance Paths Markups Markups
     where type Path Markups Markups = Path_OMap MarkupID (Path_Markup Markups)
           paths _ _ = [idPath]
           peek _ _ = undefined "idpeek" :: Peek Markups
+          peekPath (Peek_Markups_Markups _p _) = _p :: Path Markups Markups
+          peekValue (Peek_Markups_Markups _ _x) = _x :: Maybe Markups
 instance Paths Markups Text
     where type Path Markups Text = Path_OMap MarkupID (Path_Markup Text)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
           peek _p _s = undefined :: Peek Markups
+          peekPath (Peek_Markups_Text _p _) = _p :: Path Markups Text
+          peekValue (Peek_Markups_Text _ _x) = _x :: Maybe Text
 instance Paths MaybeReportIntendedUse String
     where type Path MaybeReportIntendedUse String = Path_MaybeReportIntendedUse String
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: String) _g)) (map (\a' -> (Path_MaybeReportIntendedUse_View,
                                                                                               a')) (toListOf (toLens (Path_MaybeReportIntendedUse_View (idPath :: Path String String))) _s))
           peek _p _s = undefined :: Peek MaybeReportIntendedUse
+          peekPath (Peek_MaybeReportIntendedUse_String _p _) = _p :: Path MaybeReportIntendedUse String
+          peekValue (Peek_MaybeReportIntendedUse_String _ _x) = _x :: Maybe String
 instance Paths MaybeReportIntendedUse JSONText
     where type Path MaybeReportIntendedUse JSONText = Path_MaybeReportIntendedUse JSONText
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: String) _g)) (map (\a' -> (Path_MaybeReportIntendedUse_View,
                                                                                               a')) (toListOf (toLens (Path_MaybeReportIntendedUse_View (idPath :: Path String String))) _s))
           peek _p _s = undefined :: Peek MaybeReportIntendedUse
+          peekPath (Peek_MaybeReportIntendedUse_JSONText _p _) = _p :: Path MaybeReportIntendedUse JSONText
+          peekValue (Peek_MaybeReportIntendedUse_JSONText _ _x) = _x :: Maybe JSONText
 instance Paths MaybeReportIntendedUse MaybeReportIntendedUse
     where type Path MaybeReportIntendedUse MaybeReportIntendedUse = Path_MaybeReportIntendedUse MaybeReportIntendedUse
           paths _ _ = [idPath]
           peek _ _ = undefined "idpeek" :: Peek MaybeReportIntendedUse
+          peekPath (Peek_MaybeReportIntendedUse_MaybeReportIntendedUse _p _) = _p :: Path MaybeReportIntendedUse MaybeReportIntendedUse
+          peekValue (Peek_MaybeReportIntendedUse_MaybeReportIntendedUse _ _x) = _x :: Maybe MaybeReportIntendedUse
 instance Paths Report String
     where type Path Report String = Path_Report String
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
           peek _p _s = undefined :: Peek Report
+          peekPath (Peek_Report_String _p _) = _p :: Path Report String
+          peekValue (Peek_Report_String _ _x) = _x :: Maybe String
 instance Paths Report Int64
     where type Path Report Int64 = Path_Report Int64
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
           peek _p _s = undefined :: Peek Report
+          peekPath (Peek_Report_Int64 _p _) = _p :: Path Report Int64
+          peekValue (Peek_Report_Int64 _ _x) = _x :: Maybe Int64
 instance Paths Report Bool
     where type Path Report Bool = Path_Report Bool
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
           peek _p _s = undefined :: Peek Report
+          peekPath (Peek_Report_Bool _p _) = _p :: Path Report Bool
+          peekValue (Peek_Report_Bool _ _x) = _x :: Maybe Bool
 instance Paths Report Double
     where type Path Report Double = Path_Report Double
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
           peek _p _s = undefined :: Peek Report
+          peekPath (Peek_Report_Double _p _) = _p :: Path Report Double
+          peekValue (Peek_Report_Double _ _x) = _x :: Maybe Double
 instance Paths Report Int
     where type Path Report Int = Path_Report Int
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
           peek _p _s = undefined :: Peek Report
+          peekPath (Peek_Report_Int _p _) = _p :: Path Report Int
+          peekValue (Peek_Report_Int _ _x) = _x :: Maybe Int
 instance Paths Report Dimension
     where type Path Report Dimension = Path_Report Dimension
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
           peek _p _s = undefined :: Peek Report
+          peekPath (Peek_Report_Dimension _p _) = _p :: Path Report Dimension
+          peekValue (Peek_Report_Dimension _ _x) = _x :: Maybe Dimension
 instance Paths Report ImageCrop
     where type Path Report ImageCrop = Path_Report ImageCrop
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
           peek _p _s = undefined :: Peek Report
+          peekPath (Peek_Report_ImageCrop _p _) = _p :: Path Report ImageCrop
+          peekValue (Peek_Report_ImageCrop _ _x) = _x :: Maybe ImageCrop
 instance Paths Report ImageSize
     where type Path Report ImageSize = Path_Report ImageSize
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
           peek _p _s = undefined :: Peek Report
+          peekPath (Peek_Report_ImageSize _p _) = _p :: Path Report ImageSize
+          peekValue (Peek_Report_ImageSize _ _x) = _x :: Maybe ImageSize
 instance Paths Report Units
     where type Path Report Units = Path_Report Units
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
           peek _p _s = undefined :: Peek Report
+          peekPath (Peek_Report_Units _p _) = _p :: Path Report Units
+          peekValue (Peek_Report_Units _ _x) = _x :: Maybe Units
 instance Paths Report ImageFile
     where type Path Report ImageFile = Path_Report ImageFile
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
           peek _p _s = undefined :: Peek Report
+          peekPath (Peek_Report_ImageFile _p _) = _p :: Path Report ImageFile
+          peekValue (Peek_Report_ImageFile _ _x) = _x :: Maybe ImageFile
 instance Paths Report Integer
     where type Path Report Integer = Path_Report Integer
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
           peek _p _s = undefined :: Peek Report
+          peekPath (Peek_Report_Integer _p _) = _p :: Path Report Integer
+          peekValue (Peek_Report_Integer _ _x) = _x :: Maybe Integer
 instance Paths Report JSONText
     where type Path Report JSONText = Path_Report JSONText
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
           peek _p _s = undefined :: Peek Report
+          peekPath (Peek_Report_JSONText _p _) = _p :: Path Report JSONText
+          peekValue (Peek_Report_JSONText _ _x) = _x :: Maybe JSONText
 instance Paths Report Markup
     where type Path Report Markup = Path_Report Markup
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
           peek _p _s = undefined :: Peek Report
+          peekPath (Peek_Report_Markup _p _) = _p :: Path Report Markup
+          peekValue (Peek_Report_Markup _ _x) = _x :: Maybe Markup
 instance Paths Report Permissions
     where type Path Report Permissions = Path_Report Permissions
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
           peek _p _s = undefined :: Peek Report
+          peekPath (Peek_Report_Permissions _p _) = _p :: Path Report Permissions
+          peekValue (Peek_Report_Permissions _ _x) = _x :: Maybe Permissions
 instance Paths Report UserIds
     where type Path Report UserIds = Path_Report UserIds
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
           peek _p _s = undefined :: Peek Report
+          peekPath (Peek_Report_UserIds _p _) = _p :: Path Report UserIds
+          peekValue (Peek_Report_UserIds _ _x) = _x :: Maybe UserIds
 instance Paths Report AbbrevPair
     where type Path Report AbbrevPair = Path_Report AbbrevPair
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
           peek _p _s = undefined :: Peek Report
+          peekPath (Peek_Report_AbbrevPair _p _) = _p :: Path Report AbbrevPair
+          peekValue (Peek_Report_AbbrevPair _ _x) = _x :: Maybe AbbrevPair
 instance Paths Report AbbrevPairs
     where type Path Report AbbrevPairs = Path_Report AbbrevPairs
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
           peek _p _s = undefined :: Peek Report
+          peekPath (Peek_Report_AbbrevPairs _p _) = _p :: Path Report AbbrevPairs
+          peekValue (Peek_Report_AbbrevPairs _ _x) = _x :: Maybe AbbrevPairs
 instance Paths Report Author
     where type Path Report Author = Path_Report Author
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
           peek _p _s = undefined :: Peek Report
+          peekPath (Peek_Report_Author _p _) = _p :: Path Report Author
+          peekValue (Peek_Report_Author _ _x) = _x :: Maybe Author
 instance Paths Report Authors
     where type Path Report Authors = Path_Report Authors
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
           peek _p _s = undefined :: Peek Report
+          peekPath (Peek_Report_Authors _p _) = _p :: Path Report Authors
+          peekValue (Peek_Report_Authors _ _x) = _x :: Maybe Authors
 instance Paths Report Branding
     where type Path Report Branding = Path_Report Branding
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
           peek _p _s = undefined :: Peek Report
+          peekPath (Peek_Report_Branding _p _) = _p :: Path Report Branding
+          peekValue (Peek_Report_Branding _ _x) = _x :: Maybe Branding
 instance Paths Report MarkupPair
     where type Path Report MarkupPair = Path_Report MarkupPair
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
           peek _p _s = undefined :: Peek Report
+          peekPath (Peek_Report_MarkupPair _p _) = _p :: Path Report MarkupPair
+          peekValue (Peek_Report_MarkupPair _ _x) = _x :: Maybe MarkupPair
 instance Paths Report MarkupPairs
     where type Path Report MarkupPairs = Path_Report MarkupPairs
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
           peek _p _s = undefined :: Peek Report
+          peekPath (Peek_Report_MarkupPairs _p _) = _p :: Path Report MarkupPairs
+          peekValue (Peek_Report_MarkupPairs _ _x) = _x :: Maybe MarkupPairs
 instance Paths Report Markups
     where type Path Report Markups = Path_Report Markups
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
           peek _p _s = undefined :: Peek Report
+          peekPath (Peek_Report_Markups _p _) = _p :: Path Report Markups
+          peekValue (Peek_Report_Markups _ _x) = _x :: Maybe Markups
 instance Paths Report MaybeReportIntendedUse
     where type Path Report MaybeReportIntendedUse = Path_Report MaybeReportIntendedUse
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
           peek _p _s = undefined :: Peek Report
+          peekPath (Peek_Report_MaybeReportIntendedUse _p _) = _p :: Path Report MaybeReportIntendedUse
+          peekValue (Peek_Report_MaybeReportIntendedUse _ _x) = _x :: Maybe MaybeReportIntendedUse
 instance Paths Report Report
     where type Path Report Report = Path_Report Report
           paths _ _ = [idPath]
           peek _ _ = undefined "idpeek" :: Peek Report
+          peekPath (Peek_Report_Report _p _) = _p :: Path Report Report
+          peekValue (Peek_Report_Report _ _x) = _x :: Maybe Report
 instance Paths Report ReportElem
     where type Path Report ReportElem = Path_Report ReportElem
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
           peek _p _s = undefined :: Peek Report
+          peekPath (Peek_Report_ReportElem _p _) = _p :: Path Report ReportElem
+          peekValue (Peek_Report_ReportElem _ _x) = _x :: Maybe ReportElem
 instance Paths Report ReportElems
     where type Path Report ReportElems = Path_Report ReportElems
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
           peek _p _s = undefined :: Peek Report
+          peekPath (Peek_Report_ReportElems _p _) = _p :: Path Report ReportElems
+          peekValue (Peek_Report_ReportElems _ _x) = _x :: Maybe ReportElems
 instance Paths Report ReportFlags
     where type Path Report ReportFlags = Path_Report ReportFlags
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
           peek _p _s = undefined :: Peek Report
+          peekPath (Peek_Report_ReportFlags _p _) = _p :: Path Report ReportFlags
+          peekValue (Peek_Report_ReportFlags _ _x) = _x :: Maybe ReportFlags
 instance Paths Report ReportStandard
     where type Path Report ReportStandard = Path_Report ReportStandard
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
           peek _p _s = undefined :: Peek Report
+          peekPath (Peek_Report_ReportStandard _p _) = _p :: Path Report ReportStandard
+          peekValue (Peek_Report_ReportStandard _ _x) = _x :: Maybe ReportStandard
 instance Paths Report ReportStatus
     where type Path Report ReportStatus = Path_Report ReportStatus
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
           peek _p _s = undefined :: Peek Report
+          peekPath (Peek_Report_ReportStatus _p _) = _p :: Path Report ReportStatus
+          peekValue (Peek_Report_ReportStatus _ _x) = _x :: Maybe ReportStatus
 instance Paths Report ReportValueApproachInfo
     where type Path Report ReportValueApproachInfo = Path_Report ReportValueApproachInfo
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
           peek _p _s = undefined :: Peek Report
+          peekPath (Peek_Report_ReportValueApproachInfo _p _) = _p :: Path Report ReportValueApproachInfo
+          peekValue (Peek_Report_ReportValueApproachInfo _ _x) = _x :: Maybe ReportValueApproachInfo
 instance Paths Report ReportValueTypeInfo
     where type Path Report ReportValueTypeInfo = Path_Report ReportValueTypeInfo
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
           peek _p _s = undefined :: Peek Report
+          peekPath (Peek_Report_ReportValueTypeInfo _p _) = _p :: Path Report ReportValueTypeInfo
+          peekValue (Peek_Report_ReportValueTypeInfo _ _x) = _x :: Maybe ReportValueTypeInfo
 instance Paths Report EUI
     where type Path Report EUI = Path_Report EUI
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
           peek _p _s = undefined :: Peek Report
+          peekPath (Peek_Report_EUI _p _) = _p :: Path Report EUI
+          peekValue (Peek_Report_EUI _ _x) = _x :: Maybe EUI
 instance Paths Report MEUI
     where type Path Report MEUI = Path_Report MEUI
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
           peek _p _s = undefined :: Peek Report
+          peekPath (Peek_Report_MEUI _p _) = _p :: Path Report MEUI
+          peekValue (Peek_Report_MEUI _ _x) = _x :: Maybe MEUI
 instance Paths Report MaybeImageFile
     where type Path Report MaybeImageFile = Path_Report MaybeImageFile
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
           peek _p _s = undefined :: Peek Report
+          peekPath (Peek_Report_MaybeImageFile _p _) = _p :: Path Report MaybeImageFile
+          peekValue (Peek_Report_MaybeImageFile _ _x) = _x :: Maybe MaybeImageFile
 instance Paths Report ReportImage
     where type Path Report ReportImage = Path_Report ReportImage
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
           peek _p _s = undefined :: Peek Report
+          peekPath (Peek_Report_ReportImage _p _) = _p :: Path Report ReportImage
+          peekValue (Peek_Report_ReportImage _ _x) = _x :: Maybe ReportImage
 instance Paths Report ReportImages
     where type Path Report ReportImages = Path_Report ReportImages
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
           peek _p _s = undefined :: Peek Report
+          peekPath (Peek_Report_ReportImages _p _) = _p :: Path Report ReportImages
+          peekValue (Peek_Report_ReportImages _ _x) = _x :: Maybe ReportImages
 instance Paths Report ReadOnlyFilePath
     where type Path Report ReadOnlyFilePath = Path_Report ReadOnlyFilePath
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
           peek _p _s = undefined :: Peek Report
+          peekPath (Peek_Report_ReadOnlyFilePath _p _) = _p :: Path Report ReadOnlyFilePath
+          peekValue (Peek_Report_ReadOnlyFilePath _ _x) = _x :: Maybe ReadOnlyFilePath
 instance Paths Report ReportImageView
     where type Path Report ReportImageView = Path_Report ReportImageView
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
           peek _p _s = undefined :: Peek Report
+          peekPath (Peek_Report_ReportImageView _p _) = _p :: Path Report ReportImageView
+          peekValue (Peek_Report_ReportImageView _ _x) = _x :: Maybe ReportImageView
 instance Paths Report ReportView
     where type Path Report ReportView = Path_Report ReportView
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
           peek _p _s = undefined :: Peek Report
+          peekPath (Peek_Report_ReportView _p _) = _p :: Path Report ReportView
+          peekValue (Peek_Report_ReportView _ _x) = _x :: Maybe ReportView
 instance Paths Report SaneSizeImageSize
     where type Path Report SaneSizeImageSize = Path_Report SaneSizeImageSize
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
           peek _p _s = undefined :: Peek Report
+          peekPath (Peek_Report_SaneSizeImageSize _p _) = _p :: Path Report SaneSizeImageSize
+          peekValue (Peek_Report_SaneSizeImageSize _ _x) = _x :: Maybe SaneSizeImageSize
 instance Paths Report Item
     where type Path Report Item = Path_Report Item
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
           peek _p _s = undefined :: Peek Report
+          peekPath (Peek_Report_Item _p _) = _p :: Path Report Item
+          peekValue (Peek_Report_Item _ _x) = _x :: Maybe Item
 instance Paths Report MIM
     where type Path Report MIM = Path_Report MIM
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
           peek _p _s = undefined :: Peek Report
+          peekPath (Peek_Report_MIM _p _) = _p :: Path Report MIM
+          peekValue (Peek_Report_MIM _ _x) = _x :: Maybe MIM
 instance Paths Report CIString
     where type Path Report CIString = Path_Report CIString
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
           peek _p _s = undefined :: Peek Report
+          peekPath (Peek_Report_CIString _p _) = _p :: Path Report CIString
+          peekValue (Peek_Report_CIString _ _x) = _x :: Maybe CIString
 instance Paths Report URI
     where type Path Report URI = Path_Report URI
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
           peek _p _s = undefined :: Peek Report
+          peekPath (Peek_Report_URI _p _) = _p :: Path Report URI
+          peekValue (Peek_Report_URI _ _x) = _x :: Maybe URI
 instance Paths Report Text
     where type Path Report Text = Path_Report Text
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
           peek _p _s = undefined :: Peek Report
+          peekPath (Peek_Report_Text _p _) = _p :: Path Report Text
+          peekValue (Peek_Report_Text _ _x) = _x :: Maybe Text
 instance Paths Report UserId
     where type Path Report UserId = Path_Report UserId
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
           peek _p _s = undefined :: Peek Report
+          peekPath (Peek_Report_UserId _p _) = _p :: Path Report UserId
+          peekValue (Peek_Report_UserId _ _x) = _x :: Maybe UserId
 instance Paths Report UUID
     where type Path Report UUID = Path_Report UUID
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
           peek _p _s = undefined :: Peek Report
+          peekPath (Peek_Report_UUID _p _) = _p :: Path Report UUID
+          peekValue (Peek_Report_UUID _ _x) = _x :: Maybe UUID
 instance Paths ReportElem String
     where type Path ReportElem String = Path_ReportElem String
           paths (_s@(ReportItem {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Item) _g)) [(Path_ReportElem_elemItem, elemItem _s)]
@@ -1269,6 +1513,8 @@ instance Paths ReportElem String
           peek _p (_s@(ReportItem {})) = undefined :: Peek ReportElem
           peek _p (_s@(ReportParagraph {})) = undefined :: Peek ReportElem
           peek _p (_s@(ReportUndecided {})) = undefined :: Peek ReportElem
+          peekPath (Peek_ReportElem_String _p _) = _p :: Path ReportElem String
+          peekValue (Peek_ReportElem_String _ _x) = _x :: Maybe String
 instance Paths ReportElem Bool
     where type Path ReportElem Bool = Path_ReportElem Bool
           paths (_s@(ReportItem {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Item) _g)) [(Path_ReportElem_elemItem, elemItem _s)]
@@ -1277,6 +1523,8 @@ instance Paths ReportElem Bool
           peek _p (_s@(ReportItem {})) = undefined :: Peek ReportElem
           peek _p (_s@(ReportParagraph {})) = undefined :: Peek ReportElem
           peek _p (_s@(ReportUndecided {})) = undefined :: Peek ReportElem
+          peekPath (Peek_ReportElem_Bool _p _) = _p :: Path ReportElem Bool
+          peekValue (Peek_ReportElem_Bool _ _x) = _x :: Maybe Bool
 instance Paths ReportElem Double
     where type Path ReportElem Double = Path_ReportElem Double
           paths (_s@(ReportItem {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Item) _g)) [(Path_ReportElem_elemItem, elemItem _s)]
@@ -1285,6 +1533,8 @@ instance Paths ReportElem Double
           peek _p (_s@(ReportItem {})) = undefined :: Peek ReportElem
           peek _p (_s@(ReportParagraph {})) = undefined :: Peek ReportElem
           peek _p (_s@(ReportUndecided {})) = undefined :: Peek ReportElem
+          peekPath (Peek_ReportElem_Double _p _) = _p :: Path ReportElem Double
+          peekValue (Peek_ReportElem_Double _ _x) = _x :: Maybe Double
 instance Paths ReportElem Dimension
     where type Path ReportElem Dimension = Path_ReportElem Dimension
           paths (_s@(ReportItem {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Item) _g)) [(Path_ReportElem_elemItem, elemItem _s)]
@@ -1293,6 +1543,8 @@ instance Paths ReportElem Dimension
           peek _p (_s@(ReportItem {})) = undefined :: Peek ReportElem
           peek _p (_s@(ReportParagraph {})) = undefined :: Peek ReportElem
           peek _p (_s@(ReportUndecided {})) = undefined :: Peek ReportElem
+          peekPath (Peek_ReportElem_Dimension _p _) = _p :: Path ReportElem Dimension
+          peekValue (Peek_ReportElem_Dimension _ _x) = _x :: Maybe Dimension
 instance Paths ReportElem ImageCrop
     where type Path ReportElem ImageCrop = Path_ReportElem ImageCrop
           paths (_s@(ReportItem {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Item) _g)) [(Path_ReportElem_elemItem, elemItem _s)]
@@ -1301,6 +1553,8 @@ instance Paths ReportElem ImageCrop
           peek _p (_s@(ReportItem {})) = undefined :: Peek ReportElem
           peek _p (_s@(ReportParagraph {})) = undefined :: Peek ReportElem
           peek _p (_s@(ReportUndecided {})) = undefined :: Peek ReportElem
+          peekPath (Peek_ReportElem_ImageCrop _p _) = _p :: Path ReportElem ImageCrop
+          peekValue (Peek_ReportElem_ImageCrop _ _x) = _x :: Maybe ImageCrop
 instance Paths ReportElem ImageSize
     where type Path ReportElem ImageSize = Path_ReportElem ImageSize
           paths (_s@(ReportItem {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Item) _g)) [(Path_ReportElem_elemItem, elemItem _s)]
@@ -1309,6 +1563,8 @@ instance Paths ReportElem ImageSize
           peek _p (_s@(ReportItem {})) = undefined :: Peek ReportElem
           peek _p (_s@(ReportParagraph {})) = undefined :: Peek ReportElem
           peek _p (_s@(ReportUndecided {})) = undefined :: Peek ReportElem
+          peekPath (Peek_ReportElem_ImageSize _p _) = _p :: Path ReportElem ImageSize
+          peekValue (Peek_ReportElem_ImageSize _ _x) = _x :: Maybe ImageSize
 instance Paths ReportElem Units
     where type Path ReportElem Units = Path_ReportElem Units
           paths (_s@(ReportItem {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Item) _g)) [(Path_ReportElem_elemItem, elemItem _s)]
@@ -1317,6 +1573,8 @@ instance Paths ReportElem Units
           peek _p (_s@(ReportItem {})) = undefined :: Peek ReportElem
           peek _p (_s@(ReportParagraph {})) = undefined :: Peek ReportElem
           peek _p (_s@(ReportUndecided {})) = undefined :: Peek ReportElem
+          peekPath (Peek_ReportElem_Units _p _) = _p :: Path ReportElem Units
+          peekValue (Peek_ReportElem_Units _ _x) = _x :: Maybe Units
 instance Paths ReportElem ImageFile
     where type Path ReportElem ImageFile = Path_ReportElem ImageFile
           paths (_s@(ReportItem {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Item) _g)) [(Path_ReportElem_elemItem, elemItem _s)]
@@ -1325,6 +1583,8 @@ instance Paths ReportElem ImageFile
           peek _p (_s@(ReportItem {})) = undefined :: Peek ReportElem
           peek _p (_s@(ReportParagraph {})) = undefined :: Peek ReportElem
           peek _p (_s@(ReportUndecided {})) = undefined :: Peek ReportElem
+          peekPath (Peek_ReportElem_ImageFile _p _) = _p :: Path ReportElem ImageFile
+          peekValue (Peek_ReportElem_ImageFile _ _x) = _x :: Maybe ImageFile
 instance Paths ReportElem JSONText
     where type Path ReportElem JSONText = Path_ReportElem JSONText
           paths (_s@(ReportItem {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Item) _g)) [(Path_ReportElem_elemItem, elemItem _s)]
@@ -1333,6 +1593,8 @@ instance Paths ReportElem JSONText
           peek _p (_s@(ReportItem {})) = undefined :: Peek ReportElem
           peek _p (_s@(ReportParagraph {})) = undefined :: Peek ReportElem
           peek _p (_s@(ReportUndecided {})) = undefined :: Peek ReportElem
+          peekPath (Peek_ReportElem_JSONText _p _) = _p :: Path ReportElem JSONText
+          peekValue (Peek_ReportElem_JSONText _ _x) = _x :: Maybe JSONText
 instance Paths ReportElem Markup
     where type Path ReportElem Markup = Path_ReportElem Markup
           paths (_s@(ReportItem {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Item) _g)) [(Path_ReportElem_elemItem, elemItem _s)]
@@ -1341,10 +1603,14 @@ instance Paths ReportElem Markup
           peek _p (_s@(ReportItem {})) = undefined :: Peek ReportElem
           peek _p (_s@(ReportParagraph {})) = undefined :: Peek ReportElem
           peek _p (_s@(ReportUndecided {})) = undefined :: Peek ReportElem
+          peekPath (Peek_ReportElem_Markup _p _) = _p :: Path ReportElem Markup
+          peekValue (Peek_ReportElem_Markup _ _x) = _x :: Maybe Markup
 instance Paths ReportElem ReportElem
     where type Path ReportElem ReportElem = Path_ReportElem ReportElem
           paths _ _ = [idPath]
           peek _ _ = undefined "idpeek" :: Peek ReportElem
+          peekPath (Peek_ReportElem_ReportElem _p _) = _p :: Path ReportElem ReportElem
+          peekValue (Peek_ReportElem_ReportElem _ _x) = _x :: Maybe ReportElem
 instance Paths ReportElem EUI
     where type Path ReportElem EUI = Path_ReportElem EUI
           paths (_s@(ReportItem {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Item) _g)) [(Path_ReportElem_elemItem, elemItem _s)]
@@ -1353,6 +1619,8 @@ instance Paths ReportElem EUI
           peek _p (_s@(ReportItem {})) = undefined :: Peek ReportElem
           peek _p (_s@(ReportParagraph {})) = undefined :: Peek ReportElem
           peek _p (_s@(ReportUndecided {})) = undefined :: Peek ReportElem
+          peekPath (Peek_ReportElem_EUI _p _) = _p :: Path ReportElem EUI
+          peekValue (Peek_ReportElem_EUI _ _x) = _x :: Maybe EUI
 instance Paths ReportElem MEUI
     where type Path ReportElem MEUI = Path_ReportElem MEUI
           paths (_s@(ReportItem {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Item) _g)) [(Path_ReportElem_elemItem, elemItem _s)]
@@ -1361,6 +1629,8 @@ instance Paths ReportElem MEUI
           peek _p (_s@(ReportItem {})) = undefined :: Peek ReportElem
           peek _p (_s@(ReportParagraph {})) = undefined :: Peek ReportElem
           peek _p (_s@(ReportUndecided {})) = undefined :: Peek ReportElem
+          peekPath (Peek_ReportElem_MEUI _p _) = _p :: Path ReportElem MEUI
+          peekValue (Peek_ReportElem_MEUI _ _x) = _x :: Maybe MEUI
 instance Paths ReportElem MaybeImageFile
     where type Path ReportElem MaybeImageFile = Path_ReportElem MaybeImageFile
           paths (_s@(ReportItem {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Item) _g)) [(Path_ReportElem_elemItem, elemItem _s)]
@@ -1369,6 +1639,8 @@ instance Paths ReportElem MaybeImageFile
           peek _p (_s@(ReportItem {})) = undefined :: Peek ReportElem
           peek _p (_s@(ReportParagraph {})) = undefined :: Peek ReportElem
           peek _p (_s@(ReportUndecided {})) = undefined :: Peek ReportElem
+          peekPath (Peek_ReportElem_MaybeImageFile _p _) = _p :: Path ReportElem MaybeImageFile
+          peekValue (Peek_ReportElem_MaybeImageFile _ _x) = _x :: Maybe MaybeImageFile
 instance Paths ReportElem ReportImage
     where type Path ReportElem ReportImage = Path_ReportElem ReportImage
           paths (_s@(ReportItem {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Item) _g)) [(Path_ReportElem_elemItem, elemItem _s)]
@@ -1377,6 +1649,8 @@ instance Paths ReportElem ReportImage
           peek _p (_s@(ReportItem {})) = undefined :: Peek ReportElem
           peek _p (_s@(ReportParagraph {})) = undefined :: Peek ReportElem
           peek _p (_s@(ReportUndecided {})) = undefined :: Peek ReportElem
+          peekPath (Peek_ReportElem_ReportImage _p _) = _p :: Path ReportElem ReportImage
+          peekValue (Peek_ReportElem_ReportImage _ _x) = _x :: Maybe ReportImage
 instance Paths ReportElem ReportImages
     where type Path ReportElem ReportImages = Path_ReportElem ReportImages
           paths (_s@(ReportItem {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Item) _g)) [(Path_ReportElem_elemItem, elemItem _s)]
@@ -1385,6 +1659,8 @@ instance Paths ReportElem ReportImages
           peek _p (_s@(ReportItem {})) = undefined :: Peek ReportElem
           peek _p (_s@(ReportParagraph {})) = undefined :: Peek ReportElem
           peek _p (_s@(ReportUndecided {})) = undefined :: Peek ReportElem
+          peekPath (Peek_ReportElem_ReportImages _p _) = _p :: Path ReportElem ReportImages
+          peekValue (Peek_ReportElem_ReportImages _ _x) = _x :: Maybe ReportImages
 instance Paths ReportElem ReportImageView
     where type Path ReportElem ReportImageView = Path_ReportElem ReportImageView
           paths (_s@(ReportItem {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Item) _g)) [(Path_ReportElem_elemItem, elemItem _s)]
@@ -1393,6 +1669,8 @@ instance Paths ReportElem ReportImageView
           peek _p (_s@(ReportItem {})) = undefined :: Peek ReportElem
           peek _p (_s@(ReportParagraph {})) = undefined :: Peek ReportElem
           peek _p (_s@(ReportUndecided {})) = undefined :: Peek ReportElem
+          peekPath (Peek_ReportElem_ReportImageView _p _) = _p :: Path ReportElem ReportImageView
+          peekValue (Peek_ReportElem_ReportImageView _ _x) = _x :: Maybe ReportImageView
 instance Paths ReportElem SaneSizeImageSize
     where type Path ReportElem SaneSizeImageSize = Path_ReportElem SaneSizeImageSize
           paths (_s@(ReportItem {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Item) _g)) [(Path_ReportElem_elemItem, elemItem _s)]
@@ -1401,6 +1679,8 @@ instance Paths ReportElem SaneSizeImageSize
           peek _p (_s@(ReportItem {})) = undefined :: Peek ReportElem
           peek _p (_s@(ReportParagraph {})) = undefined :: Peek ReportElem
           peek _p (_s@(ReportUndecided {})) = undefined :: Peek ReportElem
+          peekPath (Peek_ReportElem_SaneSizeImageSize _p _) = _p :: Path ReportElem SaneSizeImageSize
+          peekValue (Peek_ReportElem_SaneSizeImageSize _ _x) = _x :: Maybe SaneSizeImageSize
 instance Paths ReportElem Item
     where type Path ReportElem Item = Path_ReportElem Item
           paths (_s@(ReportItem {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Item) _g)) [(Path_ReportElem_elemItem, elemItem _s)]
@@ -1409,6 +1689,8 @@ instance Paths ReportElem Item
           peek _p (_s@(ReportItem {})) = undefined :: Peek ReportElem
           peek _p (_s@(ReportParagraph {})) = undefined :: Peek ReportElem
           peek _p (_s@(ReportUndecided {})) = undefined :: Peek ReportElem
+          peekPath (Peek_ReportElem_Item _p _) = _p :: Path ReportElem Item
+          peekValue (Peek_ReportElem_Item _ _x) = _x :: Maybe Item
 instance Paths ReportElem MIM
     where type Path ReportElem MIM = Path_ReportElem MIM
           paths (_s@(ReportItem {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Item) _g)) [(Path_ReportElem_elemItem, elemItem _s)]
@@ -1417,6 +1699,8 @@ instance Paths ReportElem MIM
           peek _p (_s@(ReportItem {})) = undefined :: Peek ReportElem
           peek _p (_s@(ReportParagraph {})) = undefined :: Peek ReportElem
           peek _p (_s@(ReportUndecided {})) = undefined :: Peek ReportElem
+          peekPath (Peek_ReportElem_MIM _p _) = _p :: Path ReportElem MIM
+          peekValue (Peek_ReportElem_MIM _ _x) = _x :: Maybe MIM
 instance Paths ReportElem URI
     where type Path ReportElem URI = Path_ReportElem URI
           paths (_s@(ReportItem {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Item) _g)) [(Path_ReportElem_elemItem, elemItem _s)]
@@ -1425,6 +1709,8 @@ instance Paths ReportElem URI
           peek _p (_s@(ReportItem {})) = undefined :: Peek ReportElem
           peek _p (_s@(ReportParagraph {})) = undefined :: Peek ReportElem
           peek _p (_s@(ReportUndecided {})) = undefined :: Peek ReportElem
+          peekPath (Peek_ReportElem_URI _p _) = _p :: Path ReportElem URI
+          peekValue (Peek_ReportElem_URI _ _x) = _x :: Maybe URI
 instance Paths ReportElem Text
     where type Path ReportElem Text = Path_ReportElem Text
           paths (_s@(ReportItem {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Item) _g)) [(Path_ReportElem_elemItem, elemItem _s)]
@@ -1433,172 +1719,252 @@ instance Paths ReportElem Text
           peek _p (_s@(ReportItem {})) = undefined :: Peek ReportElem
           peek _p (_s@(ReportParagraph {})) = undefined :: Peek ReportElem
           peek _p (_s@(ReportUndecided {})) = undefined :: Peek ReportElem
+          peekPath (Peek_ReportElem_Text _p _) = _p :: Path ReportElem Text
+          peekValue (Peek_ReportElem_Text _ _x) = _x :: Maybe Text
 instance Paths ReportElems String
     where type Path ReportElems String = Path_OMap ReportElemID (Path_ReportElem String)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
           peek _p _s = undefined :: Peek ReportElems
+          peekPath (Peek_ReportElems_String _p _) = _p :: Path ReportElems String
+          peekValue (Peek_ReportElems_String _ _x) = _x :: Maybe String
 instance Paths ReportElems Bool
     where type Path ReportElems Bool = Path_OMap ReportElemID (Path_ReportElem Bool)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
           peek _p _s = undefined :: Peek ReportElems
+          peekPath (Peek_ReportElems_Bool _p _) = _p :: Path ReportElems Bool
+          peekValue (Peek_ReportElems_Bool _ _x) = _x :: Maybe Bool
 instance Paths ReportElems Double
     where type Path ReportElems Double = Path_OMap ReportElemID (Path_ReportElem Double)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
           peek _p _s = undefined :: Peek ReportElems
+          peekPath (Peek_ReportElems_Double _p _) = _p :: Path ReportElems Double
+          peekValue (Peek_ReportElems_Double _ _x) = _x :: Maybe Double
 instance Paths ReportElems Dimension
     where type Path ReportElems Dimension = Path_OMap ReportElemID (Path_ReportElem Dimension)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
           peek _p _s = undefined :: Peek ReportElems
+          peekPath (Peek_ReportElems_Dimension _p _) = _p :: Path ReportElems Dimension
+          peekValue (Peek_ReportElems_Dimension _ _x) = _x :: Maybe Dimension
 instance Paths ReportElems ImageCrop
     where type Path ReportElems ImageCrop = Path_OMap ReportElemID (Path_ReportElem ImageCrop)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
           peek _p _s = undefined :: Peek ReportElems
+          peekPath (Peek_ReportElems_ImageCrop _p _) = _p :: Path ReportElems ImageCrop
+          peekValue (Peek_ReportElems_ImageCrop _ _x) = _x :: Maybe ImageCrop
 instance Paths ReportElems ImageSize
     where type Path ReportElems ImageSize = Path_OMap ReportElemID (Path_ReportElem ImageSize)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
           peek _p _s = undefined :: Peek ReportElems
+          peekPath (Peek_ReportElems_ImageSize _p _) = _p :: Path ReportElems ImageSize
+          peekValue (Peek_ReportElems_ImageSize _ _x) = _x :: Maybe ImageSize
 instance Paths ReportElems Units
     where type Path ReportElems Units = Path_OMap ReportElemID (Path_ReportElem Units)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
           peek _p _s = undefined :: Peek ReportElems
+          peekPath (Peek_ReportElems_Units _p _) = _p :: Path ReportElems Units
+          peekValue (Peek_ReportElems_Units _ _x) = _x :: Maybe Units
 instance Paths ReportElems ImageFile
     where type Path ReportElems ImageFile = Path_OMap ReportElemID (Path_ReportElem ImageFile)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
           peek _p _s = undefined :: Peek ReportElems
+          peekPath (Peek_ReportElems_ImageFile _p _) = _p :: Path ReportElems ImageFile
+          peekValue (Peek_ReportElems_ImageFile _ _x) = _x :: Maybe ImageFile
 instance Paths ReportElems JSONText
     where type Path ReportElems JSONText = Path_OMap ReportElemID (Path_ReportElem JSONText)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
           peek _p _s = undefined :: Peek ReportElems
+          peekPath (Peek_ReportElems_JSONText _p _) = _p :: Path ReportElems JSONText
+          peekValue (Peek_ReportElems_JSONText _ _x) = _x :: Maybe JSONText
 instance Paths ReportElems Markup
     where type Path ReportElems Markup = Path_OMap ReportElemID (Path_ReportElem Markup)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
           peek _p _s = undefined :: Peek ReportElems
+          peekPath (Peek_ReportElems_Markup _p _) = _p :: Path ReportElems Markup
+          peekValue (Peek_ReportElems_Markup _ _x) = _x :: Maybe Markup
 instance Paths ReportElems ReportElem
     where type Path ReportElems ReportElem = Path_OMap ReportElemID (Path_ReportElem ReportElem)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
           peek _p _s = undefined :: Peek ReportElems
+          peekPath (Peek_ReportElems_ReportElem _p _) = _p :: Path ReportElems ReportElem
+          peekValue (Peek_ReportElems_ReportElem _ _x) = _x :: Maybe ReportElem
 instance Paths ReportElems ReportElems
     where type Path ReportElems ReportElems = Path_OMap ReportElemID (Path_ReportElem ReportElems)
           paths _ _ = [idPath]
           peek _ _ = undefined "idpeek" :: Peek ReportElems
+          peekPath (Peek_ReportElems_ReportElems _p _) = _p :: Path ReportElems ReportElems
+          peekValue (Peek_ReportElems_ReportElems _ _x) = _x :: Maybe ReportElems
 instance Paths ReportElems EUI
     where type Path ReportElems EUI = Path_OMap ReportElemID (Path_ReportElem EUI)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
           peek _p _s = undefined :: Peek ReportElems
+          peekPath (Peek_ReportElems_EUI _p _) = _p :: Path ReportElems EUI
+          peekValue (Peek_ReportElems_EUI _ _x) = _x :: Maybe EUI
 instance Paths ReportElems MEUI
     where type Path ReportElems MEUI = Path_OMap ReportElemID (Path_ReportElem MEUI)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
           peek _p _s = undefined :: Peek ReportElems
+          peekPath (Peek_ReportElems_MEUI _p _) = _p :: Path ReportElems MEUI
+          peekValue (Peek_ReportElems_MEUI _ _x) = _x :: Maybe MEUI
 instance Paths ReportElems MaybeImageFile
     where type Path ReportElems MaybeImageFile = Path_OMap ReportElemID (Path_ReportElem MaybeImageFile)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
           peek _p _s = undefined :: Peek ReportElems
+          peekPath (Peek_ReportElems_MaybeImageFile _p _) = _p :: Path ReportElems MaybeImageFile
+          peekValue (Peek_ReportElems_MaybeImageFile _ _x) = _x :: Maybe MaybeImageFile
 instance Paths ReportElems ReportImage
     where type Path ReportElems ReportImage = Path_OMap ReportElemID (Path_ReportElem ReportImage)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
           peek _p _s = undefined :: Peek ReportElems
+          peekPath (Peek_ReportElems_ReportImage _p _) = _p :: Path ReportElems ReportImage
+          peekValue (Peek_ReportElems_ReportImage _ _x) = _x :: Maybe ReportImage
 instance Paths ReportElems ReportImages
     where type Path ReportElems ReportImages = Path_OMap ReportElemID (Path_ReportElem ReportImages)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
           peek _p _s = undefined :: Peek ReportElems
+          peekPath (Peek_ReportElems_ReportImages _p _) = _p :: Path ReportElems ReportImages
+          peekValue (Peek_ReportElems_ReportImages _ _x) = _x :: Maybe ReportImages
 instance Paths ReportElems ReportImageView
     where type Path ReportElems ReportImageView = Path_OMap ReportElemID (Path_ReportElem ReportImageView)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
           peek _p _s = undefined :: Peek ReportElems
+          peekPath (Peek_ReportElems_ReportImageView _p _) = _p :: Path ReportElems ReportImageView
+          peekValue (Peek_ReportElems_ReportImageView _ _x) = _x :: Maybe ReportImageView
 instance Paths ReportElems SaneSizeImageSize
     where type Path ReportElems SaneSizeImageSize = Path_OMap ReportElemID (Path_ReportElem SaneSizeImageSize)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
           peek _p _s = undefined :: Peek ReportElems
+          peekPath (Peek_ReportElems_SaneSizeImageSize _p _) = _p :: Path ReportElems SaneSizeImageSize
+          peekValue (Peek_ReportElems_SaneSizeImageSize _ _x) = _x :: Maybe SaneSizeImageSize
 instance Paths ReportElems Item
     where type Path ReportElems Item = Path_OMap ReportElemID (Path_ReportElem Item)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
           peek _p _s = undefined :: Peek ReportElems
+          peekPath (Peek_ReportElems_Item _p _) = _p :: Path ReportElems Item
+          peekValue (Peek_ReportElems_Item _ _x) = _x :: Maybe Item
 instance Paths ReportElems MIM
     where type Path ReportElems MIM = Path_OMap ReportElemID (Path_ReportElem MIM)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
           peek _p _s = undefined :: Peek ReportElems
+          peekPath (Peek_ReportElems_MIM _p _) = _p :: Path ReportElems MIM
+          peekValue (Peek_ReportElems_MIM _ _x) = _x :: Maybe MIM
 instance Paths ReportElems URI
     where type Path ReportElems URI = Path_OMap ReportElemID (Path_ReportElem URI)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
           peek _p _s = undefined :: Peek ReportElems
+          peekPath (Peek_ReportElems_URI _p _) = _p :: Path ReportElems URI
+          peekValue (Peek_ReportElems_URI _ _x) = _x :: Maybe URI
 instance Paths ReportElems Text
     where type Path ReportElems Text = Path_OMap ReportElemID (Path_ReportElem Text)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
           peek _p _s = undefined :: Peek ReportElems
+          peekPath (Peek_ReportElems_Text _p _) = _p :: Path ReportElems Text
+          peekValue (Peek_ReportElems_Text _ _x) = _x :: Maybe Text
 instance Paths ReportFlags String
     where type Path ReportFlags String = Path_ReportFlags String
           paths (_s@(ReportFlags {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Bool) _g)) [(Path_ReportFlags_hideEmptyItemFields, hideEmptyItemFields _s)]
           peek _p (_s@(ReportFlags {})) = undefined :: Peek ReportFlags
+          peekPath (Peek_ReportFlags_String _p _) = _p :: Path ReportFlags String
+          peekValue (Peek_ReportFlags_String _ _x) = _x :: Maybe String
 instance Paths ReportFlags Bool
     where type Path ReportFlags Bool = Path_ReportFlags Bool
           paths (_s@(ReportFlags {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Bool) _g)) [(Path_ReportFlags_hideEmptyItemFields, hideEmptyItemFields _s)]
           peek _p (_s@(ReportFlags {})) = undefined :: Peek ReportFlags
+          peekPath (Peek_ReportFlags_Bool _p _) = _p :: Path ReportFlags Bool
+          peekValue (Peek_ReportFlags_Bool _ _x) = _x :: Maybe Bool
 instance Paths ReportFlags JSONText
     where type Path ReportFlags JSONText = Path_ReportFlags JSONText
           paths (_s@(ReportFlags {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Bool) _g)) [(Path_ReportFlags_hideEmptyItemFields, hideEmptyItemFields _s)]
           peek _p (_s@(ReportFlags {})) = undefined :: Peek ReportFlags
+          peekPath (Peek_ReportFlags_JSONText _p _) = _p :: Path ReportFlags JSONText
+          peekValue (Peek_ReportFlags_JSONText _ _x) = _x :: Maybe JSONText
 instance Paths ReportFlags ReportFlags
     where type Path ReportFlags ReportFlags = Path_ReportFlags ReportFlags
           paths _ _ = [idPath]
           peek _ _ = undefined "idpeek" :: Peek ReportFlags
+          peekPath (Peek_ReportFlags_ReportFlags _p _) = _p :: Path ReportFlags ReportFlags
+          peekValue (Peek_ReportFlags_ReportFlags _ _x) = _x :: Maybe ReportFlags
 instance Paths ReportIntendedUse String
     where type Path ReportIntendedUse String = Path_ReportIntendedUse String
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: String) _g)) (map (\a' -> (Path_ReportIntendedUse_View,
                                                                                               a')) (toListOf (toLens (Path_ReportIntendedUse_View (idPath :: Path String String))) _s))
           peek _p _s = undefined :: Peek ReportIntendedUse
+          peekPath (Peek_ReportIntendedUse_String _p _) = _p :: Path ReportIntendedUse String
+          peekValue (Peek_ReportIntendedUse_String _ _x) = _x :: Maybe String
 instance Paths ReportIntendedUse JSONText
     where type Path ReportIntendedUse JSONText = Path_ReportIntendedUse JSONText
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: String) _g)) (map (\a' -> (Path_ReportIntendedUse_View,
                                                                                               a')) (toListOf (toLens (Path_ReportIntendedUse_View (idPath :: Path String String))) _s))
           peek _p _s = undefined :: Peek ReportIntendedUse
+          peekPath (Peek_ReportIntendedUse_JSONText _p _) = _p :: Path ReportIntendedUse JSONText
+          peekValue (Peek_ReportIntendedUse_JSONText _ _x) = _x :: Maybe JSONText
 instance Paths ReportIntendedUse ReportIntendedUse
     where type Path ReportIntendedUse ReportIntendedUse = Path_ReportIntendedUse ReportIntendedUse
           paths _ _ = [idPath]
           peek _ _ = undefined "idpeek" :: Peek ReportIntendedUse
+          peekPath (Peek_ReportIntendedUse_ReportIntendedUse _p _) = _p :: Path ReportIntendedUse ReportIntendedUse
+          peekValue (Peek_ReportIntendedUse_ReportIntendedUse _ _x) = _x :: Maybe ReportIntendedUse
 instance Paths ReportStandard Int
     where type Path ReportStandard Int = Path_ReportStandard Int
           paths (_s@(ReportStandard {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Int) _g)) [(Path_ReportStandard_unReportStandard, unReportStandard _s)]
           peek _p (_s@(ReportStandard {})) = undefined :: Peek ReportStandard
+          peekPath (Peek_ReportStandard_Int _p _) = _p :: Path ReportStandard Int
+          peekValue (Peek_ReportStandard_Int _ _x) = _x :: Maybe Int
 instance Paths ReportStandard ReportStandard
     where type Path ReportStandard ReportStandard = Path_ReportStandard ReportStandard
           paths _ _ = [idPath]
           peek _ _ = undefined "idpeek" :: Peek ReportStandard
+          peekPath (Peek_ReportStandard_ReportStandard _p _) = _p :: Path ReportStandard ReportStandard
+          peekValue (Peek_ReportStandard_ReportStandard _ _x) = _x :: Maybe ReportStandard
 instance Paths ReportStatus String
     where type Path ReportStatus String = Path_ReportStatus String
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: String) _g)) (map (\a' -> (Path_ReportStatus_View,
                                                                                               a')) (toListOf (toLens (Path_ReportStatus_View (idPath :: Path String String))) _s))
           peek _p _s = undefined :: Peek ReportStatus
+          peekPath (Peek_ReportStatus_String _p _) = _p :: Path ReportStatus String
+          peekValue (Peek_ReportStatus_String _ _x) = _x :: Maybe String
 instance Paths ReportStatus JSONText
     where type Path ReportStatus JSONText = Path_ReportStatus JSONText
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: String) _g)) (map (\a' -> (Path_ReportStatus_View,
                                                                                               a')) (toListOf (toLens (Path_ReportStatus_View (idPath :: Path String String))) _s))
           peek _p _s = undefined :: Peek ReportStatus
+          peekPath (Peek_ReportStatus_JSONText _p _) = _p :: Path ReportStatus JSONText
+          peekValue (Peek_ReportStatus_JSONText _ _x) = _x :: Maybe JSONText
 instance Paths ReportStatus ReportStatus
     where type Path ReportStatus ReportStatus = Path_ReportStatus ReportStatus
           paths _ _ = [idPath]
           peek _ _ = undefined "idpeek" :: Peek ReportStatus
+          peekPath (Peek_ReportStatus_ReportStatus _p _) = _p :: Path ReportStatus ReportStatus
+          peekValue (Peek_ReportStatus_ReportStatus _ _x) = _x :: Maybe ReportStatus
 instance Paths ReportValueApproachInfo JSONText
     where type Path ReportValueApproachInfo JSONText = Path_ReportValueApproachInfo JSONText
           paths (_s@(ReportValueApproachInfo {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_ReportValueApproachInfo_reportValueApproachName,
                                                                                                                           reportValueApproachName _s)],
                                                                 concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_ReportValueApproachInfo_reportValueApproachDescription, reportValueApproachDescription _s)]]
           peek _p (_s@(ReportValueApproachInfo {})) = undefined :: Peek ReportValueApproachInfo
+          peekPath (Peek_ReportValueApproachInfo_JSONText _p _) = _p :: Path ReportValueApproachInfo JSONText
+          peekValue (Peek_ReportValueApproachInfo_JSONText _ _x) = _x :: Maybe JSONText
 instance Paths ReportValueApproachInfo Markup
     where type Path ReportValueApproachInfo Markup = Path_ReportValueApproachInfo Markup
           paths (_s@(ReportValueApproachInfo {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_ReportValueApproachInfo_reportValueApproachName,
                                                                                                                           reportValueApproachName _s)],
                                                                 concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_ReportValueApproachInfo_reportValueApproachDescription, reportValueApproachDescription _s)]]
           peek _p (_s@(ReportValueApproachInfo {})) = undefined :: Peek ReportValueApproachInfo
+          peekPath (Peek_ReportValueApproachInfo_Markup _p _) = _p :: Path ReportValueApproachInfo Markup
+          peekValue (Peek_ReportValueApproachInfo_Markup _ _x) = _x :: Maybe Markup
 instance Paths ReportValueApproachInfo ReportValueApproachInfo
     where type Path ReportValueApproachInfo ReportValueApproachInfo = Path_ReportValueApproachInfo ReportValueApproachInfo
           paths _ _ = [idPath]
           peek _ _ = undefined "idpeek" :: Peek ReportValueApproachInfo
+          peekPath (Peek_ReportValueApproachInfo_ReportValueApproachInfo _p _) = _p :: Path ReportValueApproachInfo ReportValueApproachInfo
+          peekValue (Peek_ReportValueApproachInfo_ReportValueApproachInfo _ _x) = _x :: Maybe ReportValueApproachInfo
 instance Paths ReportValueApproachInfo Text
     where type Path ReportValueApproachInfo Text = Path_ReportValueApproachInfo Text
           paths (_s@(ReportValueApproachInfo {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_ReportValueApproachInfo_reportValueApproachName,
                                                                                                                           reportValueApproachName _s)],
                                                                 concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_ReportValueApproachInfo_reportValueApproachDescription, reportValueApproachDescription _s)]]
           peek _p (_s@(ReportValueApproachInfo {})) = undefined :: Peek ReportValueApproachInfo
+          peekPath (Peek_ReportValueApproachInfo_Text _p _) = _p :: Path ReportValueApproachInfo Text
+          peekValue (Peek_ReportValueApproachInfo_Text _ _x) = _x :: Maybe Text
 instance Paths ReportValueTypeInfo JSONText
     where type Path ReportValueTypeInfo JSONText = Path_ReportValueTypeInfo JSONText
           paths (_s@(ReportValueTypeInfo {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_ReportValueTypeInfo_reportValueTypeName,
@@ -1606,6 +1972,8 @@ instance Paths ReportValueTypeInfo JSONText
                                                             concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_ReportValueTypeInfo_reportValueTypeDescription, reportValueTypeDescription _s)],
                                                             concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_ReportValueTypeInfo_reportValueTypeDefinition, reportValueTypeDefinition _s)]]
           peek _p (_s@(ReportValueTypeInfo {})) = undefined :: Peek ReportValueTypeInfo
+          peekPath (Peek_ReportValueTypeInfo_JSONText _p _) = _p :: Path ReportValueTypeInfo JSONText
+          peekValue (Peek_ReportValueTypeInfo_JSONText _ _x) = _x :: Maybe JSONText
 instance Paths ReportValueTypeInfo Markup
     where type Path ReportValueTypeInfo Markup = Path_ReportValueTypeInfo Markup
           paths (_s@(ReportValueTypeInfo {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_ReportValueTypeInfo_reportValueTypeName,
@@ -1613,10 +1981,14 @@ instance Paths ReportValueTypeInfo Markup
                                                             concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_ReportValueTypeInfo_reportValueTypeDescription, reportValueTypeDescription _s)],
                                                             concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_ReportValueTypeInfo_reportValueTypeDefinition, reportValueTypeDefinition _s)]]
           peek _p (_s@(ReportValueTypeInfo {})) = undefined :: Peek ReportValueTypeInfo
+          peekPath (Peek_ReportValueTypeInfo_Markup _p _) = _p :: Path ReportValueTypeInfo Markup
+          peekValue (Peek_ReportValueTypeInfo_Markup _ _x) = _x :: Maybe Markup
 instance Paths ReportValueTypeInfo ReportValueTypeInfo
     where type Path ReportValueTypeInfo ReportValueTypeInfo = Path_ReportValueTypeInfo ReportValueTypeInfo
           paths _ _ = [idPath]
           peek _ _ = undefined "idpeek" :: Peek ReportValueTypeInfo
+          peekPath (Peek_ReportValueTypeInfo_ReportValueTypeInfo _p _) = _p :: Path ReportValueTypeInfo ReportValueTypeInfo
+          peekValue (Peek_ReportValueTypeInfo_ReportValueTypeInfo _ _x) = _x :: Maybe ReportValueTypeInfo
 instance Paths ReportValueTypeInfo Text
     where type Path ReportValueTypeInfo Text = Path_ReportValueTypeInfo Text
           paths (_s@(ReportValueTypeInfo {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_ReportValueTypeInfo_reportValueTypeName,
@@ -1624,6 +1996,8 @@ instance Paths ReportValueTypeInfo Text
                                                             concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_ReportValueTypeInfo_reportValueTypeDescription, reportValueTypeDescription _s)],
                                                             concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_ReportValueTypeInfo_reportValueTypeDefinition, reportValueTypeDefinition _s)]]
           peek _p (_s@(ReportValueTypeInfo {})) = undefined :: Peek ReportValueTypeInfo
+          peekPath (Peek_ReportValueTypeInfo_Text _p _) = _p :: Path ReportValueTypeInfo Text
+          peekValue (Peek_ReportValueTypeInfo_Text _ _x) = _x :: Maybe Text
 instance Paths EUI ImageFile
     where type Path EUI ImageFile = Path_Either (Path_URI ImageFile) (Path_ImageFile ImageFile)
           paths (_s@(Left _)) _g = mempty
@@ -1632,10 +2006,14 @@ instance Paths EUI ImageFile
                                                                                                     Right a' -> [(Path_Right, a')])
           peek _p (_s@(Left _)) = undefined :: Peek EUI
           peek _p (_s@(Right _)) = undefined :: Peek EUI
+          peekPath (Peek_EUI_ImageFile _p _) = _p :: Path EUI ImageFile
+          peekValue (Peek_EUI_ImageFile _ _x) = _x :: Maybe ImageFile
 instance Paths EUI EUI
     where type Path EUI EUI = Path_Either (Path_URI EUI) (Path_ImageFile EUI)
           paths _ _ = [idPath]
           peek _ _ = undefined "idpeek" :: Peek EUI
+          peekPath (Peek_EUI_EUI _p _) = _p :: Path EUI EUI
+          peekValue (Peek_EUI_EUI _ _x) = _x :: Maybe EUI
 instance Paths EUI URI
     where type Path EUI URI = Path_Either (Path_URI URI) (Path_ImageFile URI)
           paths (_s@(Left _)) _g = concatMap (\(p, a') -> map p (paths (a' :: URI) _g)) (case _s of
@@ -1644,221 +2022,317 @@ instance Paths EUI URI
           paths (_s@(Right _)) _g = mempty
           peek _p (_s@(Left _)) = undefined :: Peek EUI
           peek _p (_s@(Right _)) = undefined :: Peek EUI
+          peekPath (Peek_EUI_URI _p _) = _p :: Path EUI URI
+          peekValue (Peek_EUI_URI _ _x) = _x :: Maybe URI
 instance Paths MEUI ImageFile
     where type Path MEUI ImageFile = Path_Maybe (Path_Either (Path_URI ImageFile) (Path_ImageFile ImageFile))
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: EUI) _g)) (case _s of
                                                                                   Nothing -> []
                                                                                   Just a' -> [(Path_Just, a')])
           peek _p _s = undefined :: Peek MEUI
+          peekPath (Peek_MEUI_ImageFile _p _) = _p :: Path MEUI ImageFile
+          peekValue (Peek_MEUI_ImageFile _ _x) = _x :: Maybe ImageFile
 instance Paths MEUI EUI
     where type Path MEUI EUI = Path_Maybe (Path_Either (Path_URI EUI) (Path_ImageFile EUI))
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: EUI) _g)) (case _s of
                                                                                   Nothing -> []
                                                                                   Just a' -> [(Path_Just, a')])
           peek _p _s = undefined :: Peek MEUI
+          peekPath (Peek_MEUI_EUI _p _) = _p :: Path MEUI EUI
+          peekValue (Peek_MEUI_EUI _ _x) = _x :: Maybe EUI
 instance Paths MEUI MEUI
     where type Path MEUI MEUI = Path_Maybe (Path_Either (Path_URI MEUI) (Path_ImageFile MEUI))
           paths _ _ = [idPath]
           peek _ _ = undefined "idpeek" :: Peek MEUI
+          peekPath (Peek_MEUI_MEUI _p _) = _p :: Path MEUI MEUI
+          peekValue (Peek_MEUI_MEUI _ _x) = _x :: Maybe MEUI
 instance Paths MEUI URI
     where type Path MEUI URI = Path_Maybe (Path_Either (Path_URI URI) (Path_ImageFile URI))
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: EUI) _g)) (case _s of
                                                                                   Nothing -> []
                                                                                   Just a' -> [(Path_Just, a')])
           peek _p _s = undefined :: Peek MEUI
+          peekPath (Peek_MEUI_URI _p _) = _p :: Path MEUI URI
+          peekValue (Peek_MEUI_URI _ _x) = _x :: Maybe URI
 instance Paths MaybeImageFile String
     where type Path MaybeImageFile String = Path_MaybeImageFile String
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: String) _g)) (map (\a' -> (Path_MaybeImageFile_View,
                                                                                               a')) (toListOf (toLens (Path_MaybeImageFile_View (idPath :: Path String String))) _s))
           peek _p _s = undefined :: Peek MaybeImageFile
+          peekPath (Peek_MaybeImageFile_String _p _) = _p :: Path MaybeImageFile String
+          peekValue (Peek_MaybeImageFile_String _ _x) = _x :: Maybe String
 instance Paths MaybeImageFile JSONText
     where type Path MaybeImageFile JSONText = Path_MaybeImageFile JSONText
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: String) _g)) (map (\a' -> (Path_MaybeImageFile_View,
                                                                                               a')) (toListOf (toLens (Path_MaybeImageFile_View (idPath :: Path String String))) _s))
           peek _p _s = undefined :: Peek MaybeImageFile
+          peekPath (Peek_MaybeImageFile_JSONText _p _) = _p :: Path MaybeImageFile JSONText
+          peekValue (Peek_MaybeImageFile_JSONText _ _x) = _x :: Maybe JSONText
 instance Paths MaybeImageFile MaybeImageFile
     where type Path MaybeImageFile MaybeImageFile = Path_MaybeImageFile MaybeImageFile
           paths _ _ = [idPath]
           peek _ _ = undefined "idpeek" :: Peek MaybeImageFile
+          peekPath (Peek_MaybeImageFile_MaybeImageFile _p _) = _p :: Path MaybeImageFile MaybeImageFile
+          peekValue (Peek_MaybeImageFile_MaybeImageFile _ _x) = _x :: Maybe MaybeImageFile
 instance Paths ReportImage String
     where type Path ReportImage String = Path_ReportImage String
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImageView) _g)) (map (\a' -> (Path_ReportImage_View,
                                                                                                        a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView ReportImageView))) _s))
           peek _p _s = undefined :: Peek ReportImage
+          peekPath (Peek_ReportImage_String _p _) = _p :: Path ReportImage String
+          peekValue (Peek_ReportImage_String _ _x) = _x :: Maybe String
 instance Paths ReportImage Bool
     where type Path ReportImage Bool = Path_ReportImage Bool
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImageView) _g)) (map (\a' -> (Path_ReportImage_View,
                                                                                                        a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView ReportImageView))) _s))
           peek _p _s = undefined :: Peek ReportImage
+          peekPath (Peek_ReportImage_Bool _p _) = _p :: Path ReportImage Bool
+          peekValue (Peek_ReportImage_Bool _ _x) = _x :: Maybe Bool
 instance Paths ReportImage Double
     where type Path ReportImage Double = Path_ReportImage Double
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImageView) _g)) (map (\a' -> (Path_ReportImage_View,
                                                                                                        a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView ReportImageView))) _s))
           peek _p _s = undefined :: Peek ReportImage
+          peekPath (Peek_ReportImage_Double _p _) = _p :: Path ReportImage Double
+          peekValue (Peek_ReportImage_Double _ _x) = _x :: Maybe Double
 instance Paths ReportImage Dimension
     where type Path ReportImage Dimension = Path_ReportImage Dimension
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImageView) _g)) (map (\a' -> (Path_ReportImage_View,
                                                                                                        a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView ReportImageView))) _s))
           peek _p _s = undefined :: Peek ReportImage
+          peekPath (Peek_ReportImage_Dimension _p _) = _p :: Path ReportImage Dimension
+          peekValue (Peek_ReportImage_Dimension _ _x) = _x :: Maybe Dimension
 instance Paths ReportImage ImageCrop
     where type Path ReportImage ImageCrop = Path_ReportImage ImageCrop
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImageView) _g)) (map (\a' -> (Path_ReportImage_View,
                                                                                                        a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView ReportImageView))) _s))
           peek _p _s = undefined :: Peek ReportImage
+          peekPath (Peek_ReportImage_ImageCrop _p _) = _p :: Path ReportImage ImageCrop
+          peekValue (Peek_ReportImage_ImageCrop _ _x) = _x :: Maybe ImageCrop
 instance Paths ReportImage ImageSize
     where type Path ReportImage ImageSize = Path_ReportImage ImageSize
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImageView) _g)) (map (\a' -> (Path_ReportImage_View,
                                                                                                        a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView ReportImageView))) _s))
           peek _p _s = undefined :: Peek ReportImage
+          peekPath (Peek_ReportImage_ImageSize _p _) = _p :: Path ReportImage ImageSize
+          peekValue (Peek_ReportImage_ImageSize _ _x) = _x :: Maybe ImageSize
 instance Paths ReportImage Units
     where type Path ReportImage Units = Path_ReportImage Units
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImageView) _g)) (map (\a' -> (Path_ReportImage_View,
                                                                                                        a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView ReportImageView))) _s))
           peek _p _s = undefined :: Peek ReportImage
+          peekPath (Peek_ReportImage_Units _p _) = _p :: Path ReportImage Units
+          peekValue (Peek_ReportImage_Units _ _x) = _x :: Maybe Units
 instance Paths ReportImage ImageFile
     where type Path ReportImage ImageFile = Path_ReportImage ImageFile
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImageView) _g)) (map (\a' -> (Path_ReportImage_View,
                                                                                                        a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView ReportImageView))) _s))
           peek _p _s = undefined :: Peek ReportImage
+          peekPath (Peek_ReportImage_ImageFile _p _) = _p :: Path ReportImage ImageFile
+          peekValue (Peek_ReportImage_ImageFile _ _x) = _x :: Maybe ImageFile
 instance Paths ReportImage JSONText
     where type Path ReportImage JSONText = Path_ReportImage JSONText
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImageView) _g)) (map (\a' -> (Path_ReportImage_View,
                                                                                                        a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView ReportImageView))) _s))
           peek _p _s = undefined :: Peek ReportImage
+          peekPath (Peek_ReportImage_JSONText _p _) = _p :: Path ReportImage JSONText
+          peekValue (Peek_ReportImage_JSONText _ _x) = _x :: Maybe JSONText
 instance Paths ReportImage Markup
     where type Path ReportImage Markup = Path_ReportImage Markup
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImageView) _g)) (map (\a' -> (Path_ReportImage_View,
                                                                                                        a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView ReportImageView))) _s))
           peek _p _s = undefined :: Peek ReportImage
+          peekPath (Peek_ReportImage_Markup _p _) = _p :: Path ReportImage Markup
+          peekValue (Peek_ReportImage_Markup _ _x) = _x :: Maybe Markup
 instance Paths ReportImage EUI
     where type Path ReportImage EUI = Path_ReportImage EUI
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImageView) _g)) (map (\a' -> (Path_ReportImage_View,
                                                                                                        a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView ReportImageView))) _s))
           peek _p _s = undefined :: Peek ReportImage
+          peekPath (Peek_ReportImage_EUI _p _) = _p :: Path ReportImage EUI
+          peekValue (Peek_ReportImage_EUI _ _x) = _x :: Maybe EUI
 instance Paths ReportImage MEUI
     where type Path ReportImage MEUI = Path_ReportImage MEUI
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImageView) _g)) (map (\a' -> (Path_ReportImage_View,
                                                                                                        a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView ReportImageView))) _s))
           peek _p _s = undefined :: Peek ReportImage
+          peekPath (Peek_ReportImage_MEUI _p _) = _p :: Path ReportImage MEUI
+          peekValue (Peek_ReportImage_MEUI _ _x) = _x :: Maybe MEUI
 instance Paths ReportImage MaybeImageFile
     where type Path ReportImage MaybeImageFile = Path_ReportImage MaybeImageFile
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImageView) _g)) (map (\a' -> (Path_ReportImage_View,
                                                                                                        a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView ReportImageView))) _s))
           peek _p _s = undefined :: Peek ReportImage
+          peekPath (Peek_ReportImage_MaybeImageFile _p _) = _p :: Path ReportImage MaybeImageFile
+          peekValue (Peek_ReportImage_MaybeImageFile _ _x) = _x :: Maybe MaybeImageFile
 instance Paths ReportImage ReportImage
     where type Path ReportImage ReportImage = Path_ReportImage ReportImage
           paths _ _ = [idPath]
           peek _ _ = undefined "idpeek" :: Peek ReportImage
+          peekPath (Peek_ReportImage_ReportImage _p _) = _p :: Path ReportImage ReportImage
+          peekValue (Peek_ReportImage_ReportImage _ _x) = _x :: Maybe ReportImage
 instance Paths ReportImage ReportImageView
     where type Path ReportImage ReportImageView = Path_ReportImage ReportImageView
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImageView) _g)) (map (\a' -> (Path_ReportImage_View,
                                                                                                        a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView ReportImageView))) _s))
           peek _p _s = undefined :: Peek ReportImage
+          peekPath (Peek_ReportImage_ReportImageView _p _) = _p :: Path ReportImage ReportImageView
+          peekValue (Peek_ReportImage_ReportImageView _ _x) = _x :: Maybe ReportImageView
 instance Paths ReportImage SaneSizeImageSize
     where type Path ReportImage SaneSizeImageSize = Path_ReportImage SaneSizeImageSize
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImageView) _g)) (map (\a' -> (Path_ReportImage_View,
                                                                                                        a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView ReportImageView))) _s))
           peek _p _s = undefined :: Peek ReportImage
+          peekPath (Peek_ReportImage_SaneSizeImageSize _p _) = _p :: Path ReportImage SaneSizeImageSize
+          peekValue (Peek_ReportImage_SaneSizeImageSize _ _x) = _x :: Maybe SaneSizeImageSize
 instance Paths ReportImage URI
     where type Path ReportImage URI = Path_ReportImage URI
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImageView) _g)) (map (\a' -> (Path_ReportImage_View,
                                                                                                        a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView ReportImageView))) _s))
           peek _p _s = undefined :: Peek ReportImage
+          peekPath (Peek_ReportImage_URI _p _) = _p :: Path ReportImage URI
+          peekValue (Peek_ReportImage_URI _ _x) = _x :: Maybe URI
 instance Paths ReportImage Text
     where type Path ReportImage Text = Path_ReportImage Text
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImageView) _g)) (map (\a' -> (Path_ReportImage_View,
                                                                                                        a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView ReportImageView))) _s))
           peek _p _s = undefined :: Peek ReportImage
+          peekPath (Peek_ReportImage_Text _p _) = _p :: Path ReportImage Text
+          peekValue (Peek_ReportImage_Text _ _x) = _x :: Maybe Text
 instance Paths ReportImages String
     where type Path ReportImages String = Path_OMap ReportImageID (Path_ReportImage String)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImage) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
           peek _p _s = undefined :: Peek ReportImages
+          peekPath (Peek_ReportImages_String _p _) = _p :: Path ReportImages String
+          peekValue (Peek_ReportImages_String _ _x) = _x :: Maybe String
 instance Paths ReportImages Bool
     where type Path ReportImages Bool = Path_OMap ReportImageID (Path_ReportImage Bool)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImage) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
           peek _p _s = undefined :: Peek ReportImages
+          peekPath (Peek_ReportImages_Bool _p _) = _p :: Path ReportImages Bool
+          peekValue (Peek_ReportImages_Bool _ _x) = _x :: Maybe Bool
 instance Paths ReportImages Double
     where type Path ReportImages Double = Path_OMap ReportImageID (Path_ReportImage Double)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImage) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
           peek _p _s = undefined :: Peek ReportImages
+          peekPath (Peek_ReportImages_Double _p _) = _p :: Path ReportImages Double
+          peekValue (Peek_ReportImages_Double _ _x) = _x :: Maybe Double
 instance Paths ReportImages Dimension
     where type Path ReportImages Dimension = Path_OMap ReportImageID (Path_ReportImage Dimension)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImage) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
           peek _p _s = undefined :: Peek ReportImages
+          peekPath (Peek_ReportImages_Dimension _p _) = _p :: Path ReportImages Dimension
+          peekValue (Peek_ReportImages_Dimension _ _x) = _x :: Maybe Dimension
 instance Paths ReportImages ImageCrop
     where type Path ReportImages ImageCrop = Path_OMap ReportImageID (Path_ReportImage ImageCrop)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImage) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
           peek _p _s = undefined :: Peek ReportImages
+          peekPath (Peek_ReportImages_ImageCrop _p _) = _p :: Path ReportImages ImageCrop
+          peekValue (Peek_ReportImages_ImageCrop _ _x) = _x :: Maybe ImageCrop
 instance Paths ReportImages ImageSize
     where type Path ReportImages ImageSize = Path_OMap ReportImageID (Path_ReportImage ImageSize)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImage) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
           peek _p _s = undefined :: Peek ReportImages
+          peekPath (Peek_ReportImages_ImageSize _p _) = _p :: Path ReportImages ImageSize
+          peekValue (Peek_ReportImages_ImageSize _ _x) = _x :: Maybe ImageSize
 instance Paths ReportImages Units
     where type Path ReportImages Units = Path_OMap ReportImageID (Path_ReportImage Units)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImage) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
           peek _p _s = undefined :: Peek ReportImages
+          peekPath (Peek_ReportImages_Units _p _) = _p :: Path ReportImages Units
+          peekValue (Peek_ReportImages_Units _ _x) = _x :: Maybe Units
 instance Paths ReportImages ImageFile
     where type Path ReportImages ImageFile = Path_OMap ReportImageID (Path_ReportImage ImageFile)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImage) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
           peek _p _s = undefined :: Peek ReportImages
+          peekPath (Peek_ReportImages_ImageFile _p _) = _p :: Path ReportImages ImageFile
+          peekValue (Peek_ReportImages_ImageFile _ _x) = _x :: Maybe ImageFile
 instance Paths ReportImages JSONText
     where type Path ReportImages JSONText = Path_OMap ReportImageID (Path_ReportImage JSONText)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImage) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
           peek _p _s = undefined :: Peek ReportImages
+          peekPath (Peek_ReportImages_JSONText _p _) = _p :: Path ReportImages JSONText
+          peekValue (Peek_ReportImages_JSONText _ _x) = _x :: Maybe JSONText
 instance Paths ReportImages Markup
     where type Path ReportImages Markup = Path_OMap ReportImageID (Path_ReportImage Markup)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImage) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
           peek _p _s = undefined :: Peek ReportImages
+          peekPath (Peek_ReportImages_Markup _p _) = _p :: Path ReportImages Markup
+          peekValue (Peek_ReportImages_Markup _ _x) = _x :: Maybe Markup
 instance Paths ReportImages EUI
     where type Path ReportImages EUI = Path_OMap ReportImageID (Path_ReportImage EUI)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImage) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
           peek _p _s = undefined :: Peek ReportImages
+          peekPath (Peek_ReportImages_EUI _p _) = _p :: Path ReportImages EUI
+          peekValue (Peek_ReportImages_EUI _ _x) = _x :: Maybe EUI
 instance Paths ReportImages MEUI
     where type Path ReportImages MEUI = Path_OMap ReportImageID (Path_ReportImage MEUI)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImage) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
           peek _p _s = undefined :: Peek ReportImages
+          peekPath (Peek_ReportImages_MEUI _p _) = _p :: Path ReportImages MEUI
+          peekValue (Peek_ReportImages_MEUI _ _x) = _x :: Maybe MEUI
 instance Paths ReportImages MaybeImageFile
     where type Path ReportImages MaybeImageFile = Path_OMap ReportImageID (Path_ReportImage MaybeImageFile)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImage) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
           peek _p _s = undefined :: Peek ReportImages
+          peekPath (Peek_ReportImages_MaybeImageFile _p _) = _p :: Path ReportImages MaybeImageFile
+          peekValue (Peek_ReportImages_MaybeImageFile _ _x) = _x :: Maybe MaybeImageFile
 instance Paths ReportImages ReportImage
     where type Path ReportImages ReportImage = Path_OMap ReportImageID (Path_ReportImage ReportImage)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImage) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
           peek _p _s = undefined :: Peek ReportImages
+          peekPath (Peek_ReportImages_ReportImage _p _) = _p :: Path ReportImages ReportImage
+          peekValue (Peek_ReportImages_ReportImage _ _x) = _x :: Maybe ReportImage
 instance Paths ReportImages ReportImages
     where type Path ReportImages ReportImages = Path_OMap ReportImageID (Path_ReportImage ReportImages)
           paths _ _ = [idPath]
           peek _ _ = undefined "idpeek" :: Peek ReportImages
+          peekPath (Peek_ReportImages_ReportImages _p _) = _p :: Path ReportImages ReportImages
+          peekValue (Peek_ReportImages_ReportImages _ _x) = _x :: Maybe ReportImages
 instance Paths ReportImages ReportImageView
     where type Path ReportImages ReportImageView = Path_OMap ReportImageID (Path_ReportImage ReportImageView)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImage) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
           peek _p _s = undefined :: Peek ReportImages
+          peekPath (Peek_ReportImages_ReportImageView _p _) = _p :: Path ReportImages ReportImageView
+          peekValue (Peek_ReportImages_ReportImageView _ _x) = _x :: Maybe ReportImageView
 instance Paths ReportImages SaneSizeImageSize
     where type Path ReportImages SaneSizeImageSize = Path_OMap ReportImageID (Path_ReportImage SaneSizeImageSize)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImage) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
           peek _p _s = undefined :: Peek ReportImages
+          peekPath (Peek_ReportImages_SaneSizeImageSize _p _) = _p :: Path ReportImages SaneSizeImageSize
+          peekValue (Peek_ReportImages_SaneSizeImageSize _ _x) = _x :: Maybe SaneSizeImageSize
 instance Paths ReportImages URI
     where type Path ReportImages URI = Path_OMap ReportImageID (Path_ReportImage URI)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImage) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
           peek _p _s = undefined :: Peek ReportImages
+          peekPath (Peek_ReportImages_URI _p _) = _p :: Path ReportImages URI
+          peekValue (Peek_ReportImages_URI _ _x) = _x :: Maybe URI
 instance Paths ReportImages Text
     where type Path ReportImages Text = Path_OMap ReportImageID (Path_ReportImage Text)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImage) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
           peek _p _s = undefined :: Peek ReportImages
+          peekPath (Peek_ReportImages_Text _p _) = _p :: Path ReportImages Text
+          peekValue (Peek_ReportImages_Text _ _x) = _x :: Maybe Text
 instance Paths ReadOnlyFilePath String
     where type Path ReadOnlyFilePath String = Path_ReadOnlyFilePath String
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: String) _g)) (map (\a' -> (Path_ReadOnlyFilePath_View,
                                                                                               a')) (toListOf (toLens (Path_ReadOnlyFilePath_View (idPath :: Path String String))) _s))
           peek _p _s = undefined :: Peek ReadOnlyFilePath
+          peekPath (Peek_ReadOnlyFilePath_String _p _) = _p :: Path ReadOnlyFilePath String
+          peekValue (Peek_ReadOnlyFilePath_String _ _x) = _x :: Maybe String
 instance Paths ReadOnlyFilePath JSONText
     where type Path ReadOnlyFilePath JSONText = Path_ReadOnlyFilePath JSONText
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: String) _g)) (map (\a' -> (Path_ReadOnlyFilePath_View,
                                                                                               a')) (toListOf (toLens (Path_ReadOnlyFilePath_View (idPath :: Path String String))) _s))
           peek _p _s = undefined :: Peek ReadOnlyFilePath
+          peekPath (Peek_ReadOnlyFilePath_JSONText _p _) = _p :: Path ReadOnlyFilePath JSONText
+          peekValue (Peek_ReadOnlyFilePath_JSONText _ _x) = _x :: Maybe JSONText
 instance Paths ReadOnlyFilePath ReadOnlyFilePath
     where type Path ReadOnlyFilePath ReadOnlyFilePath = Path_ReadOnlyFilePath ReadOnlyFilePath
           paths _ _ = [idPath]
           peek _ _ = undefined "idpeek" :: Peek ReadOnlyFilePath
+          peekPath (Peek_ReadOnlyFilePath_ReadOnlyFilePath _p _) = _p :: Path ReadOnlyFilePath ReadOnlyFilePath
+          peekValue (Peek_ReadOnlyFilePath_ReadOnlyFilePath _ _x) = _x :: Maybe ReadOnlyFilePath
 instance Paths ReportImageView String
     where type Path ReportImageView String = Path_ReportImageView String
           paths (_s@(ReportImageView {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: SaneSizeImageSize) _g)) [(Path_ReportImageView__picSize, _picSize _s)],
@@ -1868,35 +2342,51 @@ instance Paths ReportImageView String
                                                         concatMap (\(p, a') -> map p (paths (a' :: Bool) _g)) [(Path_ReportImageView__picMustEnlarge, _picMustEnlarge _s)],
                                                         concatMap (\(p, a') -> map p (paths (a' :: MaybeImageFile) _g)) [(Path_ReportImageView__picEnlargedDeprecated, _picEnlargedDeprecated _s)]]
           peek _p (_s@(ReportImageView {})) = undefined :: Peek ReportImageView
+          peekPath (Peek_ReportImageView_String _p _) = _p :: Path ReportImageView String
+          peekValue (Peek_ReportImageView_String _ _x) = _x :: Maybe String
 instance Paths ReportImageView Bool
     where type Path ReportImageView Bool = Path_ReportImageView Bool
           paths (_s@(ReportImageView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Bool) _g)) [(Path_ReportImageView__picMustEnlarge, _picMustEnlarge _s)]
           peek _p (_s@(ReportImageView {})) = undefined :: Peek ReportImageView
+          peekPath (Peek_ReportImageView_Bool _p _) = _p :: Path ReportImageView Bool
+          peekValue (Peek_ReportImageView_Bool _ _x) = _x :: Maybe Bool
 instance Paths ReportImageView Double
     where type Path ReportImageView Double = Path_ReportImageView Double
           paths (_s@(ReportImageView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: SaneSizeImageSize) _g)) [(Path_ReportImageView__picSize, _picSize _s)]
           peek _p (_s@(ReportImageView {})) = undefined :: Peek ReportImageView
+          peekPath (Peek_ReportImageView_Double _p _) = _p :: Path ReportImageView Double
+          peekValue (Peek_ReportImageView_Double _ _x) = _x :: Maybe Double
 instance Paths ReportImageView Dimension
     where type Path ReportImageView Dimension = Path_ReportImageView Dimension
           paths (_s@(ReportImageView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: SaneSizeImageSize) _g)) [(Path_ReportImageView__picSize, _picSize _s)]
           peek _p (_s@(ReportImageView {})) = undefined :: Peek ReportImageView
+          peekPath (Peek_ReportImageView_Dimension _p _) = _p :: Path ReportImageView Dimension
+          peekValue (Peek_ReportImageView_Dimension _ _x) = _x :: Maybe Dimension
 instance Paths ReportImageView ImageCrop
     where type Path ReportImageView ImageCrop = Path_ReportImageView ImageCrop
           paths (_s@(ReportImageView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ImageCrop) _g)) [(Path_ReportImageView__picCrop, _picCrop _s)]
           peek _p (_s@(ReportImageView {})) = undefined :: Peek ReportImageView
+          peekPath (Peek_ReportImageView_ImageCrop _p _) = _p :: Path ReportImageView ImageCrop
+          peekValue (Peek_ReportImageView_ImageCrop _ _x) = _x :: Maybe ImageCrop
 instance Paths ReportImageView ImageSize
     where type Path ReportImageView ImageSize = Path_ReportImageView ImageSize
           paths (_s@(ReportImageView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: SaneSizeImageSize) _g)) [(Path_ReportImageView__picSize, _picSize _s)]
           peek _p (_s@(ReportImageView {})) = undefined :: Peek ReportImageView
+          peekPath (Peek_ReportImageView_ImageSize _p _) = _p :: Path ReportImageView ImageSize
+          peekValue (Peek_ReportImageView_ImageSize _ _x) = _x :: Maybe ImageSize
 instance Paths ReportImageView Units
     where type Path ReportImageView Units = Path_ReportImageView Units
           paths (_s@(ReportImageView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: SaneSizeImageSize) _g)) [(Path_ReportImageView__picSize, _picSize _s)]
           peek _p (_s@(ReportImageView {})) = undefined :: Peek ReportImageView
+          peekPath (Peek_ReportImageView_Units _p _) = _p :: Path ReportImageView Units
+          peekValue (Peek_ReportImageView_Units _ _x) = _x :: Maybe Units
 instance Paths ReportImageView ImageFile
     where type Path ReportImageView ImageFile = Path_ReportImageView ImageFile
           paths (_s@(ReportImageView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Maybe (Either URI ImageFile)) _g)) [(Path_ReportImageView__picOriginal,
                                                                                                                                _picOriginal _s)]
           peek _p (_s@(ReportImageView {})) = undefined :: Peek ReportImageView
+          peekPath (Peek_ReportImageView_ImageFile _p _) = _p :: Path ReportImageView ImageFile
+          peekValue (Peek_ReportImageView_ImageFile _ _x) = _x :: Maybe ImageFile
 instance Paths ReportImageView JSONText
     where type Path ReportImageView JSONText = Path_ReportImageView JSONText
           paths (_s@(ReportImageView {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: SaneSizeImageSize) _g)) [(Path_ReportImageView__picSize, _picSize _s)],
@@ -1907,20 +2397,28 @@ instance Paths ReportImageView JSONText
                                                         concatMap (\(p, a') -> map p (paths (a' :: Bool) _g)) [(Path_ReportImageView__picMustEnlarge, _picMustEnlarge _s)],
                                                         concatMap (\(p, a') -> map p (paths (a' :: MaybeImageFile) _g)) [(Path_ReportImageView__picEnlargedDeprecated, _picEnlargedDeprecated _s)]]
           peek _p (_s@(ReportImageView {})) = undefined :: Peek ReportImageView
+          peekPath (Peek_ReportImageView_JSONText _p _) = _p :: Path ReportImageView JSONText
+          peekValue (Peek_ReportImageView_JSONText _ _x) = _x :: Maybe JSONText
 instance Paths ReportImageView Markup
     where type Path ReportImageView Markup = Path_ReportImageView Markup
           paths (_s@(ReportImageView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_ReportImageView__picCaption, _picCaption _s)]
           peek _p (_s@(ReportImageView {})) = undefined :: Peek ReportImageView
+          peekPath (Peek_ReportImageView_Markup _p _) = _p :: Path ReportImageView Markup
+          peekValue (Peek_ReportImageView_Markup _ _x) = _x :: Maybe Markup
 instance Paths ReportImageView EUI
     where type Path ReportImageView EUI = Path_ReportImageView EUI
           paths (_s@(ReportImageView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Maybe (Either URI ImageFile)) _g)) [(Path_ReportImageView__picOriginal,
                                                                                                                                _picOriginal _s)]
           peek _p (_s@(ReportImageView {})) = undefined :: Peek ReportImageView
+          peekPath (Peek_ReportImageView_EUI _p _) = _p :: Path ReportImageView EUI
+          peekValue (Peek_ReportImageView_EUI _ _x) = _x :: Maybe EUI
 instance Paths ReportImageView MEUI
     where type Path ReportImageView MEUI = Path_ReportImageView MEUI
           paths (_s@(ReportImageView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Maybe (Either URI ImageFile)) _g)) [(Path_ReportImageView__picOriginal,
                                                                                                                                _picOriginal _s)]
           peek _p (_s@(ReportImageView {})) = undefined :: Peek ReportImageView
+          peekPath (Peek_ReportImageView_MEUI _p _) = _p :: Path ReportImageView MEUI
+          peekValue (Peek_ReportImageView_MEUI _ _x) = _x :: Maybe MEUI
 instance Paths ReportImageView MaybeImageFile
     where type Path ReportImageView MaybeImageFile = Path_ReportImageView MaybeImageFile
           paths (_s@(ReportImageView {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: MaybeImageFile) _g)) [(Path_ReportImageView__picEditedDeprecated,
@@ -1929,23 +2427,33 @@ instance Paths ReportImageView MaybeImageFile
                                                         concatMap (\(p, a') -> map p (paths (a' :: MaybeImageFile) _g)) [(Path_ReportImageView__picPrinterDeprecated, _picPrinterDeprecated _s)],
                                                         concatMap (\(p, a') -> map p (paths (a' :: MaybeImageFile) _g)) [(Path_ReportImageView__picEnlargedDeprecated, _picEnlargedDeprecated _s)]]
           peek _p (_s@(ReportImageView {})) = undefined :: Peek ReportImageView
+          peekPath (Peek_ReportImageView_MaybeImageFile _p _) = _p :: Path ReportImageView MaybeImageFile
+          peekValue (Peek_ReportImageView_MaybeImageFile _ _x) = _x :: Maybe MaybeImageFile
 instance Paths ReportImageView ReportImageView
     where type Path ReportImageView ReportImageView = Path_ReportImageView ReportImageView
           paths _ _ = [idPath]
           peek _ _ = undefined "idpeek" :: Peek ReportImageView
+          peekPath (Peek_ReportImageView_ReportImageView _p _) = _p :: Path ReportImageView ReportImageView
+          peekValue (Peek_ReportImageView_ReportImageView _ _x) = _x :: Maybe ReportImageView
 instance Paths ReportImageView SaneSizeImageSize
     where type Path ReportImageView SaneSizeImageSize = Path_ReportImageView SaneSizeImageSize
           paths (_s@(ReportImageView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: SaneSizeImageSize) _g)) [(Path_ReportImageView__picSize, _picSize _s)]
           peek _p (_s@(ReportImageView {})) = undefined :: Peek ReportImageView
+          peekPath (Peek_ReportImageView_SaneSizeImageSize _p _) = _p :: Path ReportImageView SaneSizeImageSize
+          peekValue (Peek_ReportImageView_SaneSizeImageSize _ _x) = _x :: Maybe SaneSizeImageSize
 instance Paths ReportImageView URI
     where type Path ReportImageView URI = Path_ReportImageView URI
           paths (_s@(ReportImageView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Maybe (Either URI ImageFile)) _g)) [(Path_ReportImageView__picOriginal,
                                                                                                                                _picOriginal _s)]
           peek _p (_s@(ReportImageView {})) = undefined :: Peek ReportImageView
+          peekPath (Peek_ReportImageView_URI _p _) = _p :: Path ReportImageView URI
+          peekValue (Peek_ReportImageView_URI _ _x) = _x :: Maybe URI
 instance Paths ReportImageView Text
     where type Path ReportImageView Text = Path_ReportImageView Text
           paths (_s@(ReportImageView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_ReportImageView__picCaption, _picCaption _s)]
           peek _p (_s@(ReportImageView {})) = undefined :: Peek ReportImageView
+          peekPath (Peek_ReportImageView_Text _p _) = _p :: Path ReportImageView Text
+          peekValue (Peek_ReportImageView_Text _ _x) = _x :: Maybe Text
 instance Paths ReportView String
     where type Path ReportView String = Path_ReportView String
           paths (_s@(ReportView {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: ReadOnlyFilePath) _g)) [(Path_ReportView__reportFolder, _reportFolder _s)],
@@ -1957,10 +2465,14 @@ instance Paths ReportView String
                                                    concatMap (\(p, a') -> map p (paths (a' :: Bool) _g)) [(Path_ReportView__reportOrderByItemName, _reportOrderByItemName _s)],
                                                    concatMap (\(p, a') -> map p (paths (a' :: Bool) _g)) [(Path_ReportView__reportDisplayItemName, _reportDisplayItemName _s)]]
           peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
+          peekPath (Peek_ReportView_String _p _) = _p :: Path ReportView String
+          peekValue (Peek_ReportView_String _ _x) = _x :: Maybe String
 instance Paths ReportView Int64
     where type Path ReportView Int64 = Path_ReportView Int64
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: EpochMilli) _g)) [(Path_ReportView__reportCreated, _reportCreated _s)]
           peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
+          peekPath (Peek_ReportView_Int64 _p _) = _p :: Path ReportView Int64
+          peekValue (Peek_ReportView_Int64 _ _x) = _x :: Maybe Int64
 instance Paths ReportView Bool
     where type Path ReportView Bool = Path_ReportView Bool
           paths (_s@(ReportView {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: ReportElems) _g)) [(Path_ReportView__reportBody, _reportBody _s)],
@@ -1969,38 +2481,56 @@ instance Paths ReportView Bool
                                                    concatMap (\(p, a') -> map p (paths (a' :: Bool) _g)) [(Path_ReportView__reportOrderByItemName, _reportOrderByItemName _s)],
                                                    concatMap (\(p, a') -> map p (paths (a' :: Bool) _g)) [(Path_ReportView__reportDisplayItemName, _reportDisplayItemName _s)]]
           peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
+          peekPath (Peek_ReportView_Bool _p _) = _p :: Path ReportView Bool
+          peekValue (Peek_ReportView_Bool _ _x) = _x :: Maybe Bool
 instance Paths ReportView Double
     where type Path ReportView Double = Path_ReportView Double
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElems) _g)) [(Path_ReportView__reportBody, _reportBody _s)]
           peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
+          peekPath (Peek_ReportView_Double _p _) = _p :: Path ReportView Double
+          peekValue (Peek_ReportView_Double _ _x) = _x :: Maybe Double
 instance Paths ReportView Int
     where type Path ReportView Int = Path_ReportView Int
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportStandard) _g)) [(Path_ReportView__reportStandardsVersion, _reportStandardsVersion _s)]
           peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
+          peekPath (Peek_ReportView_Int _p _) = _p :: Path ReportView Int
+          peekValue (Peek_ReportView_Int _ _x) = _x :: Maybe Int
 instance Paths ReportView Dimension
     where type Path ReportView Dimension = Path_ReportView Dimension
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElems) _g)) [(Path_ReportView__reportBody, _reportBody _s)]
           peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
+          peekPath (Peek_ReportView_Dimension _p _) = _p :: Path ReportView Dimension
+          peekValue (Peek_ReportView_Dimension _ _x) = _x :: Maybe Dimension
 instance Paths ReportView ImageCrop
     where type Path ReportView ImageCrop = Path_ReportView ImageCrop
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElems) _g)) [(Path_ReportView__reportBody, _reportBody _s)]
           peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
+          peekPath (Peek_ReportView_ImageCrop _p _) = _p :: Path ReportView ImageCrop
+          peekValue (Peek_ReportView_ImageCrop _ _x) = _x :: Maybe ImageCrop
 instance Paths ReportView ImageSize
     where type Path ReportView ImageSize = Path_ReportView ImageSize
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElems) _g)) [(Path_ReportView__reportBody, _reportBody _s)]
           peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
+          peekPath (Peek_ReportView_ImageSize _p _) = _p :: Path ReportView ImageSize
+          peekValue (Peek_ReportView_ImageSize _ _x) = _x :: Maybe ImageSize
 instance Paths ReportView Units
     where type Path ReportView Units = Path_ReportView Units
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElems) _g)) [(Path_ReportView__reportBody, _reportBody _s)]
           peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
+          peekPath (Peek_ReportView_Units _p _) = _p :: Path ReportView Units
+          peekValue (Peek_ReportView_Units _ _x) = _x :: Maybe Units
 instance Paths ReportView ImageFile
     where type Path ReportView ImageFile = Path_ReportView ImageFile
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElems) _g)) [(Path_ReportView__reportBody, _reportBody _s)]
           peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
+          peekPath (Peek_ReportView_ImageFile _p _) = _p :: Path ReportView ImageFile
+          peekValue (Peek_ReportView_ImageFile _ _x) = _x :: Maybe ImageFile
 instance Paths ReportView Integer
     where type Path ReportView Integer = Path_ReportView Integer
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Integer) _g)) [(Path_ReportView__reportRevision, _reportRevision _s)]
           peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
+          peekPath (Peek_ReportView_Integer _p _) = _p :: Path ReportView Integer
+          peekValue (Peek_ReportView_Integer _ _x) = _x :: Maybe Integer
 instance Paths ReportView JSONText
     where type Path ReportView JSONText = Path_ReportView JSONText
           paths (_s@(ReportView {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: ReadOnlyFilePath) _g)) [(Path_ReportView__reportFolder, _reportFolder _s)],
@@ -2045,6 +2575,8 @@ instance Paths ReportView JSONText
                                                    concatMap (\(p, a') -> map p (paths (a' :: Bool) _g)) [(Path_ReportView__reportOrderByItemName, _reportOrderByItemName _s)],
                                                    concatMap (\(p, a') -> map p (paths (a' :: Bool) _g)) [(Path_ReportView__reportDisplayItemName, _reportDisplayItemName _s)]]
           peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
+          peekPath (Peek_ReportView_JSONText _p _) = _p :: Path ReportView JSONText
+          peekValue (Peek_ReportView_JSONText _ _x) = _x :: Maybe JSONText
 instance Paths ReportView Markup
     where type Path ReportView Markup = Path_ReportView Markup
           paths (_s@(ReportView {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_ReportView__reportName, _reportName _s)],
@@ -2080,134 +2612,198 @@ instance Paths ReportView Markup
                                                    concatMap (\(p, a') -> map p (paths (a' :: Markups) _g)) [(Path_ReportView__reportLimitingConditions, _reportLimitingConditions _s)],
                                                    concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_ReportView__reportPrivacyPolicy, _reportPrivacyPolicy _s)]]
           peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
+          peekPath (Peek_ReportView_Markup _p _) = _p :: Path ReportView Markup
+          peekValue (Peek_ReportView_Markup _ _x) = _x :: Maybe Markup
 instance Paths ReportView Permissions
     where type Path ReportView Permissions = Path_ReportView Permissions
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Permissions) _g)) [(Path_ReportView__reportPerms, _reportPerms _s)]
           peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
+          peekPath (Peek_ReportView_Permissions _p _) = _p :: Path ReportView Permissions
+          peekValue (Peek_ReportView_Permissions _ _x) = _x :: Maybe Permissions
 instance Paths ReportView UserIds
     where type Path ReportView UserIds = Path_ReportView UserIds
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Permissions) _g)) [(Path_ReportView__reportPerms, _reportPerms _s)]
           peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
+          peekPath (Peek_ReportView_UserIds _p _) = _p :: Path ReportView UserIds
+          peekValue (Peek_ReportView_UserIds _ _x) = _x :: Maybe UserIds
 instance Paths ReportView AbbrevPair
     where type Path ReportView AbbrevPair = Path_ReportView AbbrevPair
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: AbbrevPairs) _g)) [(Path_ReportView__reportAbbrevs, _reportAbbrevs _s)]
           peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
+          peekPath (Peek_ReportView_AbbrevPair _p _) = _p :: Path ReportView AbbrevPair
+          peekValue (Peek_ReportView_AbbrevPair _ _x) = _x :: Maybe AbbrevPair
 instance Paths ReportView AbbrevPairs
     where type Path ReportView AbbrevPairs = Path_ReportView AbbrevPairs
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: AbbrevPairs) _g)) [(Path_ReportView__reportAbbrevs, _reportAbbrevs _s)]
           peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
+          peekPath (Peek_ReportView_AbbrevPairs _p _) = _p :: Path ReportView AbbrevPairs
+          peekValue (Peek_ReportView_AbbrevPairs _ _x) = _x :: Maybe AbbrevPairs
 instance Paths ReportView Author
     where type Path ReportView Author = Path_ReportView Author
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Authors) _g)) [(Path_ReportView__reportAuthors, _reportAuthors _s)]
           peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
+          peekPath (Peek_ReportView_Author _p _) = _p :: Path ReportView Author
+          peekValue (Peek_ReportView_Author _ _x) = _x :: Maybe Author
 instance Paths ReportView Authors
     where type Path ReportView Authors = Path_ReportView Authors
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Authors) _g)) [(Path_ReportView__reportAuthors, _reportAuthors _s)]
           peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
+          peekPath (Peek_ReportView_Authors _p _) = _p :: Path ReportView Authors
+          peekValue (Peek_ReportView_Authors _ _x) = _x :: Maybe Authors
 instance Paths ReportView Branding
     where type Path ReportView Branding = Path_ReportView Branding
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Branding) _g)) [(Path_ReportView__reportBranding, _reportBranding _s)]
           peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
+          peekPath (Peek_ReportView_Branding _p _) = _p :: Path ReportView Branding
+          peekValue (Peek_ReportView_Branding _ _x) = _x :: Maybe Branding
 instance Paths ReportView MarkupPair
     where type Path ReportView MarkupPair = Path_ReportView MarkupPair
           paths (_s@(ReportView {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: MarkupPairs) _g)) [(Path_ReportView__reportGlossary, _reportGlossary _s)],
                                                    concatMap (\(p, a') -> map p (paths (a' :: MarkupPairs) _g)) [(Path_ReportView__reportSources, _reportSources _s)]]
           peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
+          peekPath (Peek_ReportView_MarkupPair _p _) = _p :: Path ReportView MarkupPair
+          peekValue (Peek_ReportView_MarkupPair _ _x) = _x :: Maybe MarkupPair
 instance Paths ReportView MarkupPairs
     where type Path ReportView MarkupPairs = Path_ReportView MarkupPairs
           paths (_s@(ReportView {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: MarkupPairs) _g)) [(Path_ReportView__reportGlossary, _reportGlossary _s)],
                                                    concatMap (\(p, a') -> map p (paths (a' :: MarkupPairs) _g)) [(Path_ReportView__reportSources, _reportSources _s)]]
           peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
+          peekPath (Peek_ReportView_MarkupPairs _p _) = _p :: Path ReportView MarkupPairs
+          peekValue (Peek_ReportView_MarkupPairs _ _x) = _x :: Maybe MarkupPairs
 instance Paths ReportView Markups
     where type Path ReportView Markups = Path_ReportView Markups
           paths (_s@(ReportView {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: Markups) _g)) [(Path_ReportView__reportCertification, _reportCertification _s)],
                                                    concatMap (\(p, a') -> map p (paths (a' :: Markups) _g)) [(Path_ReportView__reportLimitingConditions, _reportLimitingConditions _s)]]
           peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
+          peekPath (Peek_ReportView_Markups _p _) = _p :: Path ReportView Markups
+          peekValue (Peek_ReportView_Markups _ _x) = _x :: Maybe Markups
 instance Paths ReportView MaybeReportIntendedUse
     where type Path ReportView MaybeReportIntendedUse = Path_ReportView MaybeReportIntendedUse
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MaybeReportIntendedUse) _g)) [(Path_ReportView__reportIntendedUse, _reportIntendedUse _s)]
           peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
+          peekPath (Peek_ReportView_MaybeReportIntendedUse _p _) = _p :: Path ReportView MaybeReportIntendedUse
+          peekValue (Peek_ReportView_MaybeReportIntendedUse _ _x) = _x :: Maybe MaybeReportIntendedUse
 instance Paths ReportView ReportElem
     where type Path ReportView ReportElem = Path_ReportView ReportElem
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElems) _g)) [(Path_ReportView__reportBody, _reportBody _s)]
           peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
+          peekPath (Peek_ReportView_ReportElem _p _) = _p :: Path ReportView ReportElem
+          peekValue (Peek_ReportView_ReportElem _ _x) = _x :: Maybe ReportElem
 instance Paths ReportView ReportElems
     where type Path ReportView ReportElems = Path_ReportView ReportElems
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElems) _g)) [(Path_ReportView__reportBody, _reportBody _s)]
           peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
+          peekPath (Peek_ReportView_ReportElems _p _) = _p :: Path ReportView ReportElems
+          peekValue (Peek_ReportView_ReportElems _ _x) = _x :: Maybe ReportElems
 instance Paths ReportView ReportFlags
     where type Path ReportView ReportFlags = Path_ReportView ReportFlags
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportFlags) _g)) [(Path_ReportView__reportFlags, _reportFlags _s)]
           peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
+          peekPath (Peek_ReportView_ReportFlags _p _) = _p :: Path ReportView ReportFlags
+          peekValue (Peek_ReportView_ReportFlags _ _x) = _x :: Maybe ReportFlags
 instance Paths ReportView ReportStandard
     where type Path ReportView ReportStandard = Path_ReportView ReportStandard
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportStandard) _g)) [(Path_ReportView__reportStandardsVersion, _reportStandardsVersion _s)]
           peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
+          peekPath (Peek_ReportView_ReportStandard _p _) = _p :: Path ReportView ReportStandard
+          peekValue (Peek_ReportView_ReportStandard _ _x) = _x :: Maybe ReportStandard
 instance Paths ReportView ReportStatus
     where type Path ReportView ReportStatus = Path_ReportView ReportStatus
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportStatus) _g)) [(Path_ReportView__reportStatus, _reportStatus _s)]
           peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
+          peekPath (Peek_ReportView_ReportStatus _p _) = _p :: Path ReportView ReportStatus
+          peekValue (Peek_ReportView_ReportStatus _ _x) = _x :: Maybe ReportStatus
 instance Paths ReportView ReportValueApproachInfo
     where type Path ReportView ReportValueApproachInfo = Path_ReportView ReportValueApproachInfo
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportValueApproachInfo) _g)) [(Path_ReportView__reportValueApproachInfo,
                                                                                                                      _reportValueApproachInfo _s)]
           peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
+          peekPath (Peek_ReportView_ReportValueApproachInfo _p _) = _p :: Path ReportView ReportValueApproachInfo
+          peekValue (Peek_ReportView_ReportValueApproachInfo _ _x) = _x :: Maybe ReportValueApproachInfo
 instance Paths ReportView ReportValueTypeInfo
     where type Path ReportView ReportValueTypeInfo = Path_ReportView ReportValueTypeInfo
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportValueTypeInfo) _g)) [(Path_ReportView__reportValueTypeInfo, _reportValueTypeInfo _s)]
           peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
+          peekPath (Peek_ReportView_ReportValueTypeInfo _p _) = _p :: Path ReportView ReportValueTypeInfo
+          peekValue (Peek_ReportView_ReportValueTypeInfo _ _x) = _x :: Maybe ReportValueTypeInfo
 instance Paths ReportView EUI
     where type Path ReportView EUI = Path_ReportView EUI
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElems) _g)) [(Path_ReportView__reportBody, _reportBody _s)]
           peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
+          peekPath (Peek_ReportView_EUI _p _) = _p :: Path ReportView EUI
+          peekValue (Peek_ReportView_EUI _ _x) = _x :: Maybe EUI
 instance Paths ReportView MEUI
     where type Path ReportView MEUI = Path_ReportView MEUI
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElems) _g)) [(Path_ReportView__reportBody, _reportBody _s)]
           peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
+          peekPath (Peek_ReportView_MEUI _p _) = _p :: Path ReportView MEUI
+          peekValue (Peek_ReportView_MEUI _ _x) = _x :: Maybe MEUI
 instance Paths ReportView MaybeImageFile
     where type Path ReportView MaybeImageFile = Path_ReportView MaybeImageFile
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElems) _g)) [(Path_ReportView__reportBody, _reportBody _s)]
           peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
+          peekPath (Peek_ReportView_MaybeImageFile _p _) = _p :: Path ReportView MaybeImageFile
+          peekValue (Peek_ReportView_MaybeImageFile _ _x) = _x :: Maybe MaybeImageFile
 instance Paths ReportView ReportImage
     where type Path ReportView ReportImage = Path_ReportView ReportImage
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElems) _g)) [(Path_ReportView__reportBody, _reportBody _s)]
           peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
+          peekPath (Peek_ReportView_ReportImage _p _) = _p :: Path ReportView ReportImage
+          peekValue (Peek_ReportView_ReportImage _ _x) = _x :: Maybe ReportImage
 instance Paths ReportView ReportImages
     where type Path ReportView ReportImages = Path_ReportView ReportImages
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElems) _g)) [(Path_ReportView__reportBody, _reportBody _s)]
           peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
+          peekPath (Peek_ReportView_ReportImages _p _) = _p :: Path ReportView ReportImages
+          peekValue (Peek_ReportView_ReportImages _ _x) = _x :: Maybe ReportImages
 instance Paths ReportView ReadOnlyFilePath
     where type Path ReportView ReadOnlyFilePath = Path_ReportView ReadOnlyFilePath
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReadOnlyFilePath) _g)) [(Path_ReportView__reportFolder, _reportFolder _s)]
           peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
+          peekPath (Peek_ReportView_ReadOnlyFilePath _p _) = _p :: Path ReportView ReadOnlyFilePath
+          peekValue (Peek_ReportView_ReadOnlyFilePath _ _x) = _x :: Maybe ReadOnlyFilePath
 instance Paths ReportView ReportImageView
     where type Path ReportView ReportImageView = Path_ReportView ReportImageView
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElems) _g)) [(Path_ReportView__reportBody, _reportBody _s)]
           peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
+          peekPath (Peek_ReportView_ReportImageView _p _) = _p :: Path ReportView ReportImageView
+          peekValue (Peek_ReportView_ReportImageView _ _x) = _x :: Maybe ReportImageView
 instance Paths ReportView ReportView
     where type Path ReportView ReportView = Path_ReportView ReportView
           paths _ _ = [idPath]
           peek _ _ = undefined "idpeek" :: Peek ReportView
+          peekPath (Peek_ReportView_ReportView _p _) = _p :: Path ReportView ReportView
+          peekValue (Peek_ReportView_ReportView _ _x) = _x :: Maybe ReportView
 instance Paths ReportView SaneSizeImageSize
     where type Path ReportView SaneSizeImageSize = Path_ReportView SaneSizeImageSize
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElems) _g)) [(Path_ReportView__reportBody, _reportBody _s)]
           peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
+          peekPath (Peek_ReportView_SaneSizeImageSize _p _) = _p :: Path ReportView SaneSizeImageSize
+          peekValue (Peek_ReportView_SaneSizeImageSize _ _x) = _x :: Maybe SaneSizeImageSize
 instance Paths ReportView Item
     where type Path ReportView Item = Path_ReportView Item
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElems) _g)) [(Path_ReportView__reportBody, _reportBody _s)]
           peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
+          peekPath (Peek_ReportView_Item _p _) = _p :: Path ReportView Item
+          peekValue (Peek_ReportView_Item _ _x) = _x :: Maybe Item
 instance Paths ReportView MIM
     where type Path ReportView MIM = Path_ReportView MIM
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElems) _g)) [(Path_ReportView__reportBody, _reportBody _s)]
           peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
+          peekPath (Peek_ReportView_MIM _p _) = _p :: Path ReportView MIM
+          peekValue (Peek_ReportView_MIM _ _x) = _x :: Maybe MIM
 instance Paths ReportView CIString
     where type Path ReportView CIString = Path_ReportView CIString
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: AbbrevPairs) _g)) [(Path_ReportView__reportAbbrevs, _reportAbbrevs _s)]
           peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
+          peekPath (Peek_ReportView_CIString _p _) = _p :: Path ReportView CIString
+          peekValue (Peek_ReportView_CIString _ _x) = _x :: Maybe CIString
 instance Paths ReportView URI
     where type Path ReportView URI = Path_ReportView URI
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElems) _g)) [(Path_ReportView__reportBody, _reportBody _s)]
           peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
+          peekPath (Peek_ReportView_URI _p _) = _p :: Path ReportView URI
+          peekValue (Peek_ReportView_URI _ _x) = _x :: Maybe URI
 instance Paths ReportView Text
     where type Path ReportView Text = Path_ReportView Text
           paths (_s@(ReportView {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_ReportView__reportName, _reportName _s)],
@@ -2245,584 +2841,868 @@ instance Paths ReportView Text
                                                    concatMap (\(p, a') -> map p (paths (a' :: Permissions) _g)) [(Path_ReportView__reportPerms, _reportPerms _s)],
                                                    concatMap (\(p, a') -> map p (paths (a' :: Branding) _g)) [(Path_ReportView__reportBranding, _reportBranding _s)]]
           peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
+          peekPath (Peek_ReportView_Text _p _) = _p :: Path ReportView Text
+          peekValue (Peek_ReportView_Text _ _x) = _x :: Maybe Text
 instance Paths ReportView UserId
     where type Path ReportView UserId = Path_ReportView UserId
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Permissions) _g)) [(Path_ReportView__reportPerms, _reportPerms _s)]
           peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
+          peekPath (Peek_ReportView_UserId _p _) = _p :: Path ReportView UserId
+          peekValue (Peek_ReportView_UserId _ _x) = _x :: Maybe UserId
 instance Paths ReportView UUID
     where type Path ReportView UUID = Path_ReportView UUID
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: UUID) _g)) [(Path_ReportView__reportUUID, _reportUUID _s)]
           peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
+          peekPath (Peek_ReportView_UUID _p _) = _p :: Path ReportView UUID
+          peekValue (Peek_ReportView_UUID _ _x) = _x :: Maybe UUID
 instance Paths SaneSizeImageSize String
     where type Path SaneSizeImageSize String = Path_SaneSizeImageSize String
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ImageSize) _g)) (map (\a' -> (Path_SaneSizeImageSize_View,
                                                                                                  a')) (toListOf (toLens (Path_SaneSizeImageSize_View (idPath :: Path ImageSize ImageSize))) _s))
           peek _p _s = undefined :: Peek SaneSizeImageSize
+          peekPath (Peek_SaneSizeImageSize_String _p _) = _p :: Path SaneSizeImageSize String
+          peekValue (Peek_SaneSizeImageSize_String _ _x) = _x :: Maybe String
 instance Paths SaneSizeImageSize Double
     where type Path SaneSizeImageSize Double = Path_SaneSizeImageSize Double
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ImageSize) _g)) (map (\a' -> (Path_SaneSizeImageSize_View,
                                                                                                  a')) (toListOf (toLens (Path_SaneSizeImageSize_View (idPath :: Path ImageSize ImageSize))) _s))
           peek _p _s = undefined :: Peek SaneSizeImageSize
+          peekPath (Peek_SaneSizeImageSize_Double _p _) = _p :: Path SaneSizeImageSize Double
+          peekValue (Peek_SaneSizeImageSize_Double _ _x) = _x :: Maybe Double
 instance Paths SaneSizeImageSize Dimension
     where type Path SaneSizeImageSize Dimension = Path_SaneSizeImageSize Dimension
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ImageSize) _g)) (map (\a' -> (Path_SaneSizeImageSize_View,
                                                                                                  a')) (toListOf (toLens (Path_SaneSizeImageSize_View (idPath :: Path ImageSize ImageSize))) _s))
           peek _p _s = undefined :: Peek SaneSizeImageSize
+          peekPath (Peek_SaneSizeImageSize_Dimension _p _) = _p :: Path SaneSizeImageSize Dimension
+          peekValue (Peek_SaneSizeImageSize_Dimension _ _x) = _x :: Maybe Dimension
 instance Paths SaneSizeImageSize ImageSize
     where type Path SaneSizeImageSize ImageSize = Path_SaneSizeImageSize ImageSize
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ImageSize) _g)) (map (\a' -> (Path_SaneSizeImageSize_View,
                                                                                                  a')) (toListOf (toLens (Path_SaneSizeImageSize_View (idPath :: Path ImageSize ImageSize))) _s))
           peek _p _s = undefined :: Peek SaneSizeImageSize
+          peekPath (Peek_SaneSizeImageSize_ImageSize _p _) = _p :: Path SaneSizeImageSize ImageSize
+          peekValue (Peek_SaneSizeImageSize_ImageSize _ _x) = _x :: Maybe ImageSize
 instance Paths SaneSizeImageSize Units
     where type Path SaneSizeImageSize Units = Path_SaneSizeImageSize Units
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ImageSize) _g)) (map (\a' -> (Path_SaneSizeImageSize_View,
                                                                                                  a')) (toListOf (toLens (Path_SaneSizeImageSize_View (idPath :: Path ImageSize ImageSize))) _s))
           peek _p _s = undefined :: Peek SaneSizeImageSize
+          peekPath (Peek_SaneSizeImageSize_Units _p _) = _p :: Path SaneSizeImageSize Units
+          peekValue (Peek_SaneSizeImageSize_Units _ _x) = _x :: Maybe Units
 instance Paths SaneSizeImageSize JSONText
     where type Path SaneSizeImageSize JSONText = Path_SaneSizeImageSize JSONText
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ImageSize) _g)) (map (\a' -> (Path_SaneSizeImageSize_View,
                                                                                                  a')) (toListOf (toLens (Path_SaneSizeImageSize_View (idPath :: Path ImageSize ImageSize))) _s))
           peek _p _s = undefined :: Peek SaneSizeImageSize
+          peekPath (Peek_SaneSizeImageSize_JSONText _p _) = _p :: Path SaneSizeImageSize JSONText
+          peekValue (Peek_SaneSizeImageSize_JSONText _ _x) = _x :: Maybe JSONText
 instance Paths SaneSizeImageSize SaneSizeImageSize
     where type Path SaneSizeImageSize SaneSizeImageSize = Path_SaneSizeImageSize SaneSizeImageSize
           paths _ _ = [idPath]
           peek _ _ = undefined "idpeek" :: Peek SaneSizeImageSize
+          peekPath (Peek_SaneSizeImageSize_SaneSizeImageSize _p _) = _p :: Path SaneSizeImageSize SaneSizeImageSize
+          peekValue (Peek_SaneSizeImageSize_SaneSizeImageSize _ _x) = _x :: Maybe SaneSizeImageSize
 instance Paths Item String
     where type Path Item String = Path_Item String
           paths (_s@(Item {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImages) _g)) [(Path_Item_images, images _s)]
           peek _p (_s@(Item {})) = undefined :: Peek Item
+          peekPath (Peek_Item_String _p _) = _p :: Path Item String
+          peekValue (Peek_Item_String _ _x) = _x :: Maybe String
 instance Paths Item Bool
     where type Path Item Bool = Path_Item Bool
           paths (_s@(Item {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImages) _g)) [(Path_Item_images, images _s)]
           peek _p (_s@(Item {})) = undefined :: Peek Item
+          peekPath (Peek_Item_Bool _p _) = _p :: Path Item Bool
+          peekValue (Peek_Item_Bool _ _x) = _x :: Maybe Bool
 instance Paths Item Double
     where type Path Item Double = Path_Item Double
           paths (_s@(Item {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImages) _g)) [(Path_Item_images, images _s)]
           peek _p (_s@(Item {})) = undefined :: Peek Item
+          peekPath (Peek_Item_Double _p _) = _p :: Path Item Double
+          peekValue (Peek_Item_Double _ _x) = _x :: Maybe Double
 instance Paths Item Dimension
     where type Path Item Dimension = Path_Item Dimension
           paths (_s@(Item {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImages) _g)) [(Path_Item_images, images _s)]
           peek _p (_s@(Item {})) = undefined :: Peek Item
+          peekPath (Peek_Item_Dimension _p _) = _p :: Path Item Dimension
+          peekValue (Peek_Item_Dimension _ _x) = _x :: Maybe Dimension
 instance Paths Item ImageCrop
     where type Path Item ImageCrop = Path_Item ImageCrop
           paths (_s@(Item {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImages) _g)) [(Path_Item_images, images _s)]
           peek _p (_s@(Item {})) = undefined :: Peek Item
+          peekPath (Peek_Item_ImageCrop _p _) = _p :: Path Item ImageCrop
+          peekValue (Peek_Item_ImageCrop _ _x) = _x :: Maybe ImageCrop
 instance Paths Item ImageSize
     where type Path Item ImageSize = Path_Item ImageSize
           paths (_s@(Item {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImages) _g)) [(Path_Item_images, images _s)]
           peek _p (_s@(Item {})) = undefined :: Peek Item
+          peekPath (Peek_Item_ImageSize _p _) = _p :: Path Item ImageSize
+          peekValue (Peek_Item_ImageSize _ _x) = _x :: Maybe ImageSize
 instance Paths Item Units
     where type Path Item Units = Path_Item Units
           paths (_s@(Item {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImages) _g)) [(Path_Item_images, images _s)]
           peek _p (_s@(Item {})) = undefined :: Peek Item
+          peekPath (Peek_Item_Units _p _) = _p :: Path Item Units
+          peekValue (Peek_Item_Units _ _x) = _x :: Maybe Units
 instance Paths Item ImageFile
     where type Path Item ImageFile = Path_Item ImageFile
           paths (_s@(Item {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImages) _g)) [(Path_Item_images, images _s)]
           peek _p (_s@(Item {})) = undefined :: Peek Item
+          peekPath (Peek_Item_ImageFile _p _) = _p :: Path Item ImageFile
+          peekValue (Peek_Item_ImageFile _ _x) = _x :: Maybe ImageFile
 instance Paths Item JSONText
     where type Path Item JSONText = Path_Item JSONText
           paths (_s@(Item {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: Text) _g)) [(Path_Item_itemName, itemName _s)],
                                              concatMap (\(p, a') -> map p (paths (a' :: MIM) _g)) [(Path_Item_fields, fields _s)],
                                              concatMap (\(p, a') -> map p (paths (a' :: ReportImages) _g)) [(Path_Item_images, images _s)]]
           peek _p (_s@(Item {})) = undefined :: Peek Item
+          peekPath (Peek_Item_JSONText _p _) = _p :: Path Item JSONText
+          peekValue (Peek_Item_JSONText _ _x) = _x :: Maybe JSONText
 instance Paths Item Markup
     where type Path Item Markup = Path_Item Markup
           paths (_s@(Item {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: MIM) _g)) [(Path_Item_fields, fields _s)],
                                              concatMap (\(p, a') -> map p (paths (a' :: ReportImages) _g)) [(Path_Item_images, images _s)]]
           peek _p (_s@(Item {})) = undefined :: Peek Item
+          peekPath (Peek_Item_Markup _p _) = _p :: Path Item Markup
+          peekValue (Peek_Item_Markup _ _x) = _x :: Maybe Markup
 instance Paths Item EUI
     where type Path Item EUI = Path_Item EUI
           paths (_s@(Item {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImages) _g)) [(Path_Item_images, images _s)]
           peek _p (_s@(Item {})) = undefined :: Peek Item
+          peekPath (Peek_Item_EUI _p _) = _p :: Path Item EUI
+          peekValue (Peek_Item_EUI _ _x) = _x :: Maybe EUI
 instance Paths Item MEUI
     where type Path Item MEUI = Path_Item MEUI
           paths (_s@(Item {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImages) _g)) [(Path_Item_images, images _s)]
           peek _p (_s@(Item {})) = undefined :: Peek Item
+          peekPath (Peek_Item_MEUI _p _) = _p :: Path Item MEUI
+          peekValue (Peek_Item_MEUI _ _x) = _x :: Maybe MEUI
 instance Paths Item MaybeImageFile
     where type Path Item MaybeImageFile = Path_Item MaybeImageFile
           paths (_s@(Item {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImages) _g)) [(Path_Item_images, images _s)]
           peek _p (_s@(Item {})) = undefined :: Peek Item
+          peekPath (Peek_Item_MaybeImageFile _p _) = _p :: Path Item MaybeImageFile
+          peekValue (Peek_Item_MaybeImageFile _ _x) = _x :: Maybe MaybeImageFile
 instance Paths Item ReportImage
     where type Path Item ReportImage = Path_Item ReportImage
           paths (_s@(Item {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImages) _g)) [(Path_Item_images, images _s)]
           peek _p (_s@(Item {})) = undefined :: Peek Item
+          peekPath (Peek_Item_ReportImage _p _) = _p :: Path Item ReportImage
+          peekValue (Peek_Item_ReportImage _ _x) = _x :: Maybe ReportImage
 instance Paths Item ReportImages
     where type Path Item ReportImages = Path_Item ReportImages
           paths (_s@(Item {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImages) _g)) [(Path_Item_images, images _s)]
           peek _p (_s@(Item {})) = undefined :: Peek Item
+          peekPath (Peek_Item_ReportImages _p _) = _p :: Path Item ReportImages
+          peekValue (Peek_Item_ReportImages _ _x) = _x :: Maybe ReportImages
 instance Paths Item ReportImageView
     where type Path Item ReportImageView = Path_Item ReportImageView
           paths (_s@(Item {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImages) _g)) [(Path_Item_images, images _s)]
           peek _p (_s@(Item {})) = undefined :: Peek Item
+          peekPath (Peek_Item_ReportImageView _p _) = _p :: Path Item ReportImageView
+          peekValue (Peek_Item_ReportImageView _ _x) = _x :: Maybe ReportImageView
 instance Paths Item SaneSizeImageSize
     where type Path Item SaneSizeImageSize = Path_Item SaneSizeImageSize
           paths (_s@(Item {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImages) _g)) [(Path_Item_images, images _s)]
           peek _p (_s@(Item {})) = undefined :: Peek Item
+          peekPath (Peek_Item_SaneSizeImageSize _p _) = _p :: Path Item SaneSizeImageSize
+          peekValue (Peek_Item_SaneSizeImageSize _ _x) = _x :: Maybe SaneSizeImageSize
 instance Paths Item Item
     where type Path Item Item = Path_Item Item
           paths _ _ = [idPath]
           peek _ _ = undefined "idpeek" :: Peek Item
+          peekPath (Peek_Item_Item _p _) = _p :: Path Item Item
+          peekValue (Peek_Item_Item _ _x) = _x :: Maybe Item
 instance Paths Item MIM
     where type Path Item MIM = Path_Item MIM
           paths (_s@(Item {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MIM) _g)) [(Path_Item_fields, fields _s)]
           peek _p (_s@(Item {})) = undefined :: Peek Item
+          peekPath (Peek_Item_MIM _p _) = _p :: Path Item MIM
+          peekValue (Peek_Item_MIM _ _x) = _x :: Maybe MIM
 instance Paths Item URI
     where type Path Item URI = Path_Item URI
           paths (_s@(Item {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImages) _g)) [(Path_Item_images, images _s)]
           peek _p (_s@(Item {})) = undefined :: Peek Item
+          peekPath (Peek_Item_URI _p _) = _p :: Path Item URI
+          peekValue (Peek_Item_URI _ _x) = _x :: Maybe URI
 instance Paths Item Text
     where type Path Item Text = Path_Item Text
           paths (_s@(Item {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: Text) _g)) [(Path_Item_itemName, itemName _s)],
                                              concatMap (\(p, a') -> map p (paths (a' :: MIM) _g)) [(Path_Item_fields, fields _s)],
                                              concatMap (\(p, a') -> map p (paths (a' :: ReportImages) _g)) [(Path_Item_images, images _s)]]
           peek _p (_s@(Item {})) = undefined :: Peek Item
+          peekPath (Peek_Item_Text _p _) = _p :: Path Item Text
+          peekValue (Peek_Item_Text _ _x) = _x :: Maybe Text
 instance Paths MIM JSONText
     where type Path MIM JSONText = Path_Map ItemFieldName (Path_Markup JSONText)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
           peek _p _s = undefined :: Peek MIM
+          peekPath (Peek_MIM_JSONText _p _) = _p :: Path MIM JSONText
+          peekValue (Peek_MIM_JSONText _ _x) = _x :: Maybe JSONText
 instance Paths MIM Markup
     where type Path MIM Markup = Path_Map ItemFieldName (Path_Markup Markup)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
           peek _p _s = undefined :: Peek MIM
+          peekPath (Peek_MIM_Markup _p _) = _p :: Path MIM Markup
+          peekValue (Peek_MIM_Markup _ _x) = _x :: Maybe Markup
 instance Paths MIM MIM
     where type Path MIM MIM = Path_Map ItemFieldName (Path_Markup MIM)
           paths _ _ = [idPath]
           peek _ _ = undefined "idpeek" :: Peek MIM
+          peekPath (Peek_MIM_MIM _p _) = _p :: Path MIM MIM
+          peekValue (Peek_MIM_MIM _ _x) = _x :: Maybe MIM
 instance Paths MIM Text
     where type Path MIM Text = Path_Map ItemFieldName (Path_Markup Text)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
           peek _p _s = undefined :: Peek MIM
+          peekPath (Peek_MIM_Text _p _) = _p :: Path MIM Text
+          peekValue (Peek_MIM_Text _ _x) = _x :: Maybe Text
 instance Paths MRR String
     where type Path MRR String = Path_Map ReportID (Path_Report String)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
           peek _p _s = undefined :: Peek MRR
+          peekPath (Peek_MRR_String _p _) = _p :: Path MRR String
+          peekValue (Peek_MRR_String _ _x) = _x :: Maybe String
 instance Paths MRR Int64
     where type Path MRR Int64 = Path_Map ReportID (Path_Report Int64)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
           peek _p _s = undefined :: Peek MRR
+          peekPath (Peek_MRR_Int64 _p _) = _p :: Path MRR Int64
+          peekValue (Peek_MRR_Int64 _ _x) = _x :: Maybe Int64
 instance Paths MRR Bool
     where type Path MRR Bool = Path_Map ReportID (Path_Report Bool)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
           peek _p _s = undefined :: Peek MRR
+          peekPath (Peek_MRR_Bool _p _) = _p :: Path MRR Bool
+          peekValue (Peek_MRR_Bool _ _x) = _x :: Maybe Bool
 instance Paths MRR Double
     where type Path MRR Double = Path_Map ReportID (Path_Report Double)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
           peek _p _s = undefined :: Peek MRR
+          peekPath (Peek_MRR_Double _p _) = _p :: Path MRR Double
+          peekValue (Peek_MRR_Double _ _x) = _x :: Maybe Double
 instance Paths MRR Int
     where type Path MRR Int = Path_Map ReportID (Path_Report Int)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
           peek _p _s = undefined :: Peek MRR
+          peekPath (Peek_MRR_Int _p _) = _p :: Path MRR Int
+          peekValue (Peek_MRR_Int _ _x) = _x :: Maybe Int
 instance Paths MRR Dimension
     where type Path MRR Dimension = Path_Map ReportID (Path_Report Dimension)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
           peek _p _s = undefined :: Peek MRR
+          peekPath (Peek_MRR_Dimension _p _) = _p :: Path MRR Dimension
+          peekValue (Peek_MRR_Dimension _ _x) = _x :: Maybe Dimension
 instance Paths MRR ImageCrop
     where type Path MRR ImageCrop = Path_Map ReportID (Path_Report ImageCrop)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
           peek _p _s = undefined :: Peek MRR
+          peekPath (Peek_MRR_ImageCrop _p _) = _p :: Path MRR ImageCrop
+          peekValue (Peek_MRR_ImageCrop _ _x) = _x :: Maybe ImageCrop
 instance Paths MRR ImageSize
     where type Path MRR ImageSize = Path_Map ReportID (Path_Report ImageSize)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
           peek _p _s = undefined :: Peek MRR
+          peekPath (Peek_MRR_ImageSize _p _) = _p :: Path MRR ImageSize
+          peekValue (Peek_MRR_ImageSize _ _x) = _x :: Maybe ImageSize
 instance Paths MRR Units
     where type Path MRR Units = Path_Map ReportID (Path_Report Units)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
           peek _p _s = undefined :: Peek MRR
+          peekPath (Peek_MRR_Units _p _) = _p :: Path MRR Units
+          peekValue (Peek_MRR_Units _ _x) = _x :: Maybe Units
 instance Paths MRR ImageFile
     where type Path MRR ImageFile = Path_Map ReportID (Path_Report ImageFile)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
           peek _p _s = undefined :: Peek MRR
+          peekPath (Peek_MRR_ImageFile _p _) = _p :: Path MRR ImageFile
+          peekValue (Peek_MRR_ImageFile _ _x) = _x :: Maybe ImageFile
 instance Paths MRR Integer
     where type Path MRR Integer = Path_Map ReportID (Path_Report Integer)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
           peek _p _s = undefined :: Peek MRR
+          peekPath (Peek_MRR_Integer _p _) = _p :: Path MRR Integer
+          peekValue (Peek_MRR_Integer _ _x) = _x :: Maybe Integer
 instance Paths MRR JSONText
     where type Path MRR JSONText = Path_Map ReportID (Path_Report JSONText)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
           peek _p _s = undefined :: Peek MRR
+          peekPath (Peek_MRR_JSONText _p _) = _p :: Path MRR JSONText
+          peekValue (Peek_MRR_JSONText _ _x) = _x :: Maybe JSONText
 instance Paths MRR Markup
     where type Path MRR Markup = Path_Map ReportID (Path_Report Markup)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
           peek _p _s = undefined :: Peek MRR
+          peekPath (Peek_MRR_Markup _p _) = _p :: Path MRR Markup
+          peekValue (Peek_MRR_Markup _ _x) = _x :: Maybe Markup
 instance Paths MRR Permissions
     where type Path MRR Permissions = Path_Map ReportID (Path_Report Permissions)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
           peek _p _s = undefined :: Peek MRR
+          peekPath (Peek_MRR_Permissions _p _) = _p :: Path MRR Permissions
+          peekValue (Peek_MRR_Permissions _ _x) = _x :: Maybe Permissions
 instance Paths MRR UserIds
     where type Path MRR UserIds = Path_Map ReportID (Path_Report UserIds)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
           peek _p _s = undefined :: Peek MRR
+          peekPath (Peek_MRR_UserIds _p _) = _p :: Path MRR UserIds
+          peekValue (Peek_MRR_UserIds _ _x) = _x :: Maybe UserIds
 instance Paths MRR AbbrevPair
     where type Path MRR AbbrevPair = Path_Map ReportID (Path_Report AbbrevPair)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
           peek _p _s = undefined :: Peek MRR
+          peekPath (Peek_MRR_AbbrevPair _p _) = _p :: Path MRR AbbrevPair
+          peekValue (Peek_MRR_AbbrevPair _ _x) = _x :: Maybe AbbrevPair
 instance Paths MRR AbbrevPairs
     where type Path MRR AbbrevPairs = Path_Map ReportID (Path_Report AbbrevPairs)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
           peek _p _s = undefined :: Peek MRR
+          peekPath (Peek_MRR_AbbrevPairs _p _) = _p :: Path MRR AbbrevPairs
+          peekValue (Peek_MRR_AbbrevPairs _ _x) = _x :: Maybe AbbrevPairs
 instance Paths MRR Author
     where type Path MRR Author = Path_Map ReportID (Path_Report Author)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
           peek _p _s = undefined :: Peek MRR
+          peekPath (Peek_MRR_Author _p _) = _p :: Path MRR Author
+          peekValue (Peek_MRR_Author _ _x) = _x :: Maybe Author
 instance Paths MRR Authors
     where type Path MRR Authors = Path_Map ReportID (Path_Report Authors)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
           peek _p _s = undefined :: Peek MRR
+          peekPath (Peek_MRR_Authors _p _) = _p :: Path MRR Authors
+          peekValue (Peek_MRR_Authors _ _x) = _x :: Maybe Authors
 instance Paths MRR Branding
     where type Path MRR Branding = Path_Map ReportID (Path_Report Branding)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
           peek _p _s = undefined :: Peek MRR
+          peekPath (Peek_MRR_Branding _p _) = _p :: Path MRR Branding
+          peekValue (Peek_MRR_Branding _ _x) = _x :: Maybe Branding
 instance Paths MRR MarkupPair
     where type Path MRR MarkupPair = Path_Map ReportID (Path_Report MarkupPair)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
           peek _p _s = undefined :: Peek MRR
+          peekPath (Peek_MRR_MarkupPair _p _) = _p :: Path MRR MarkupPair
+          peekValue (Peek_MRR_MarkupPair _ _x) = _x :: Maybe MarkupPair
 instance Paths MRR MarkupPairs
     where type Path MRR MarkupPairs = Path_Map ReportID (Path_Report MarkupPairs)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
           peek _p _s = undefined :: Peek MRR
+          peekPath (Peek_MRR_MarkupPairs _p _) = _p :: Path MRR MarkupPairs
+          peekValue (Peek_MRR_MarkupPairs _ _x) = _x :: Maybe MarkupPairs
 instance Paths MRR Markups
     where type Path MRR Markups = Path_Map ReportID (Path_Report Markups)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
           peek _p _s = undefined :: Peek MRR
+          peekPath (Peek_MRR_Markups _p _) = _p :: Path MRR Markups
+          peekValue (Peek_MRR_Markups _ _x) = _x :: Maybe Markups
 instance Paths MRR MaybeReportIntendedUse
     where type Path MRR MaybeReportIntendedUse = Path_Map ReportID (Path_Report MaybeReportIntendedUse)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
           peek _p _s = undefined :: Peek MRR
+          peekPath (Peek_MRR_MaybeReportIntendedUse _p _) = _p :: Path MRR MaybeReportIntendedUse
+          peekValue (Peek_MRR_MaybeReportIntendedUse _ _x) = _x :: Maybe MaybeReportIntendedUse
 instance Paths MRR Report
     where type Path MRR Report = Path_Map ReportID (Path_Report Report)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
           peek _p _s = undefined :: Peek MRR
+          peekPath (Peek_MRR_Report _p _) = _p :: Path MRR Report
+          peekValue (Peek_MRR_Report _ _x) = _x :: Maybe Report
 instance Paths MRR ReportElem
     where type Path MRR ReportElem = Path_Map ReportID (Path_Report ReportElem)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
           peek _p _s = undefined :: Peek MRR
+          peekPath (Peek_MRR_ReportElem _p _) = _p :: Path MRR ReportElem
+          peekValue (Peek_MRR_ReportElem _ _x) = _x :: Maybe ReportElem
 instance Paths MRR ReportElems
     where type Path MRR ReportElems = Path_Map ReportID (Path_Report ReportElems)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
           peek _p _s = undefined :: Peek MRR
+          peekPath (Peek_MRR_ReportElems _p _) = _p :: Path MRR ReportElems
+          peekValue (Peek_MRR_ReportElems _ _x) = _x :: Maybe ReportElems
 instance Paths MRR ReportFlags
     where type Path MRR ReportFlags = Path_Map ReportID (Path_Report ReportFlags)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
           peek _p _s = undefined :: Peek MRR
+          peekPath (Peek_MRR_ReportFlags _p _) = _p :: Path MRR ReportFlags
+          peekValue (Peek_MRR_ReportFlags _ _x) = _x :: Maybe ReportFlags
 instance Paths MRR ReportStandard
     where type Path MRR ReportStandard = Path_Map ReportID (Path_Report ReportStandard)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
           peek _p _s = undefined :: Peek MRR
+          peekPath (Peek_MRR_ReportStandard _p _) = _p :: Path MRR ReportStandard
+          peekValue (Peek_MRR_ReportStandard _ _x) = _x :: Maybe ReportStandard
 instance Paths MRR ReportStatus
     where type Path MRR ReportStatus = Path_Map ReportID (Path_Report ReportStatus)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
           peek _p _s = undefined :: Peek MRR
+          peekPath (Peek_MRR_ReportStatus _p _) = _p :: Path MRR ReportStatus
+          peekValue (Peek_MRR_ReportStatus _ _x) = _x :: Maybe ReportStatus
 instance Paths MRR ReportValueApproachInfo
     where type Path MRR ReportValueApproachInfo = Path_Map ReportID (Path_Report ReportValueApproachInfo)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
           peek _p _s = undefined :: Peek MRR
+          peekPath (Peek_MRR_ReportValueApproachInfo _p _) = _p :: Path MRR ReportValueApproachInfo
+          peekValue (Peek_MRR_ReportValueApproachInfo _ _x) = _x :: Maybe ReportValueApproachInfo
 instance Paths MRR ReportValueTypeInfo
     where type Path MRR ReportValueTypeInfo = Path_Map ReportID (Path_Report ReportValueTypeInfo)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
           peek _p _s = undefined :: Peek MRR
+          peekPath (Peek_MRR_ReportValueTypeInfo _p _) = _p :: Path MRR ReportValueTypeInfo
+          peekValue (Peek_MRR_ReportValueTypeInfo _ _x) = _x :: Maybe ReportValueTypeInfo
 instance Paths MRR EUI
     where type Path MRR EUI = Path_Map ReportID (Path_Report EUI)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
           peek _p _s = undefined :: Peek MRR
+          peekPath (Peek_MRR_EUI _p _) = _p :: Path MRR EUI
+          peekValue (Peek_MRR_EUI _ _x) = _x :: Maybe EUI
 instance Paths MRR MEUI
     where type Path MRR MEUI = Path_Map ReportID (Path_Report MEUI)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
           peek _p _s = undefined :: Peek MRR
+          peekPath (Peek_MRR_MEUI _p _) = _p :: Path MRR MEUI
+          peekValue (Peek_MRR_MEUI _ _x) = _x :: Maybe MEUI
 instance Paths MRR MaybeImageFile
     where type Path MRR MaybeImageFile = Path_Map ReportID (Path_Report MaybeImageFile)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
           peek _p _s = undefined :: Peek MRR
+          peekPath (Peek_MRR_MaybeImageFile _p _) = _p :: Path MRR MaybeImageFile
+          peekValue (Peek_MRR_MaybeImageFile _ _x) = _x :: Maybe MaybeImageFile
 instance Paths MRR ReportImage
     where type Path MRR ReportImage = Path_Map ReportID (Path_Report ReportImage)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
           peek _p _s = undefined :: Peek MRR
+          peekPath (Peek_MRR_ReportImage _p _) = _p :: Path MRR ReportImage
+          peekValue (Peek_MRR_ReportImage _ _x) = _x :: Maybe ReportImage
 instance Paths MRR ReportImages
     where type Path MRR ReportImages = Path_Map ReportID (Path_Report ReportImages)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
           peek _p _s = undefined :: Peek MRR
+          peekPath (Peek_MRR_ReportImages _p _) = _p :: Path MRR ReportImages
+          peekValue (Peek_MRR_ReportImages _ _x) = _x :: Maybe ReportImages
 instance Paths MRR ReadOnlyFilePath
     where type Path MRR ReadOnlyFilePath = Path_Map ReportID (Path_Report ReadOnlyFilePath)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
           peek _p _s = undefined :: Peek MRR
+          peekPath (Peek_MRR_ReadOnlyFilePath _p _) = _p :: Path MRR ReadOnlyFilePath
+          peekValue (Peek_MRR_ReadOnlyFilePath _ _x) = _x :: Maybe ReadOnlyFilePath
 instance Paths MRR ReportImageView
     where type Path MRR ReportImageView = Path_Map ReportID (Path_Report ReportImageView)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
           peek _p _s = undefined :: Peek MRR
+          peekPath (Peek_MRR_ReportImageView _p _) = _p :: Path MRR ReportImageView
+          peekValue (Peek_MRR_ReportImageView _ _x) = _x :: Maybe ReportImageView
 instance Paths MRR ReportView
     where type Path MRR ReportView = Path_Map ReportID (Path_Report ReportView)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
           peek _p _s = undefined :: Peek MRR
+          peekPath (Peek_MRR_ReportView _p _) = _p :: Path MRR ReportView
+          peekValue (Peek_MRR_ReportView _ _x) = _x :: Maybe ReportView
 instance Paths MRR SaneSizeImageSize
     where type Path MRR SaneSizeImageSize = Path_Map ReportID (Path_Report SaneSizeImageSize)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
           peek _p _s = undefined :: Peek MRR
+          peekPath (Peek_MRR_SaneSizeImageSize _p _) = _p :: Path MRR SaneSizeImageSize
+          peekValue (Peek_MRR_SaneSizeImageSize _ _x) = _x :: Maybe SaneSizeImageSize
 instance Paths MRR Item
     where type Path MRR Item = Path_Map ReportID (Path_Report Item)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
           peek _p _s = undefined :: Peek MRR
+          peekPath (Peek_MRR_Item _p _) = _p :: Path MRR Item
+          peekValue (Peek_MRR_Item _ _x) = _x :: Maybe Item
 instance Paths MRR MIM
     where type Path MRR MIM = Path_Map ReportID (Path_Report MIM)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
           peek _p _s = undefined :: Peek MRR
+          peekPath (Peek_MRR_MIM _p _) = _p :: Path MRR MIM
+          peekValue (Peek_MRR_MIM _ _x) = _x :: Maybe MIM
 instance Paths MRR MRR
     where type Path MRR MRR = Path_Map ReportID (Path_Report MRR)
           paths _ _ = [idPath]
           peek _ _ = undefined "idpeek" :: Peek MRR
+          peekPath (Peek_MRR_MRR _p _) = _p :: Path MRR MRR
+          peekValue (Peek_MRR_MRR _ _x) = _x :: Maybe MRR
 instance Paths MRR CIString
     where type Path MRR CIString = Path_Map ReportID (Path_Report CIString)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
           peek _p _s = undefined :: Peek MRR
+          peekPath (Peek_MRR_CIString _p _) = _p :: Path MRR CIString
+          peekValue (Peek_MRR_CIString _ _x) = _x :: Maybe CIString
 instance Paths MRR URI
     where type Path MRR URI = Path_Map ReportID (Path_Report URI)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
           peek _p _s = undefined :: Peek MRR
+          peekPath (Peek_MRR_URI _p _) = _p :: Path MRR URI
+          peekValue (Peek_MRR_URI _ _x) = _x :: Maybe URI
 instance Paths MRR Text
     where type Path MRR Text = Path_Map ReportID (Path_Report Text)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
           peek _p _s = undefined :: Peek MRR
+          peekPath (Peek_MRR_Text _p _) = _p :: Path MRR Text
+          peekValue (Peek_MRR_Text _ _x) = _x :: Maybe Text
 instance Paths MRR UserId
     where type Path MRR UserId = Path_Map ReportID (Path_Report UserId)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
           peek _p _s = undefined :: Peek MRR
+          peekPath (Peek_MRR_UserId _p _) = _p :: Path MRR UserId
+          peekValue (Peek_MRR_UserId _ _x) = _x :: Maybe UserId
 instance Paths MRR UUID
     where type Path MRR UUID = Path_Map ReportID (Path_Report UUID)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
           peek _p _s = undefined :: Peek MRR
+          peekPath (Peek_MRR_UUID _p _) = _p :: Path MRR UUID
+          peekValue (Peek_MRR_UUID _ _x) = _x :: Maybe UUID
 instance Paths ReportMap String
     where type Path ReportMap String = Path_ReportMap String
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
           peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
+          peekPath (Peek_ReportMap_String _p _) = _p :: Path ReportMap String
+          peekValue (Peek_ReportMap_String _ _x) = _x :: Maybe String
 instance Paths ReportMap Int64
     where type Path ReportMap Int64 = Path_ReportMap Int64
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
           peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
+          peekPath (Peek_ReportMap_Int64 _p _) = _p :: Path ReportMap Int64
+          peekValue (Peek_ReportMap_Int64 _ _x) = _x :: Maybe Int64
 instance Paths ReportMap Bool
     where type Path ReportMap Bool = Path_ReportMap Bool
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
           peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
+          peekPath (Peek_ReportMap_Bool _p _) = _p :: Path ReportMap Bool
+          peekValue (Peek_ReportMap_Bool _ _x) = _x :: Maybe Bool
 instance Paths ReportMap Double
     where type Path ReportMap Double = Path_ReportMap Double
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
           peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
+          peekPath (Peek_ReportMap_Double _p _) = _p :: Path ReportMap Double
+          peekValue (Peek_ReportMap_Double _ _x) = _x :: Maybe Double
 instance Paths ReportMap Int
     where type Path ReportMap Int = Path_ReportMap Int
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
           peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
+          peekPath (Peek_ReportMap_Int _p _) = _p :: Path ReportMap Int
+          peekValue (Peek_ReportMap_Int _ _x) = _x :: Maybe Int
 instance Paths ReportMap Dimension
     where type Path ReportMap Dimension = Path_ReportMap Dimension
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
           peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
+          peekPath (Peek_ReportMap_Dimension _p _) = _p :: Path ReportMap Dimension
+          peekValue (Peek_ReportMap_Dimension _ _x) = _x :: Maybe Dimension
 instance Paths ReportMap ImageCrop
     where type Path ReportMap ImageCrop = Path_ReportMap ImageCrop
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
           peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
+          peekPath (Peek_ReportMap_ImageCrop _p _) = _p :: Path ReportMap ImageCrop
+          peekValue (Peek_ReportMap_ImageCrop _ _x) = _x :: Maybe ImageCrop
 instance Paths ReportMap ImageSize
     where type Path ReportMap ImageSize = Path_ReportMap ImageSize
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
           peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
+          peekPath (Peek_ReportMap_ImageSize _p _) = _p :: Path ReportMap ImageSize
+          peekValue (Peek_ReportMap_ImageSize _ _x) = _x :: Maybe ImageSize
 instance Paths ReportMap Units
     where type Path ReportMap Units = Path_ReportMap Units
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
           peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
+          peekPath (Peek_ReportMap_Units _p _) = _p :: Path ReportMap Units
+          peekValue (Peek_ReportMap_Units _ _x) = _x :: Maybe Units
 instance Paths ReportMap ImageFile
     where type Path ReportMap ImageFile = Path_ReportMap ImageFile
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
           peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
+          peekPath (Peek_ReportMap_ImageFile _p _) = _p :: Path ReportMap ImageFile
+          peekValue (Peek_ReportMap_ImageFile _ _x) = _x :: Maybe ImageFile
 instance Paths ReportMap Integer
     where type Path ReportMap Integer = Path_ReportMap Integer
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
           peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
+          peekPath (Peek_ReportMap_Integer _p _) = _p :: Path ReportMap Integer
+          peekValue (Peek_ReportMap_Integer _ _x) = _x :: Maybe Integer
 instance Paths ReportMap JSONText
     where type Path ReportMap JSONText = Path_ReportMap JSONText
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
           peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
+          peekPath (Peek_ReportMap_JSONText _p _) = _p :: Path ReportMap JSONText
+          peekValue (Peek_ReportMap_JSONText _ _x) = _x :: Maybe JSONText
 instance Paths ReportMap Markup
     where type Path ReportMap Markup = Path_ReportMap Markup
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
           peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
+          peekPath (Peek_ReportMap_Markup _p _) = _p :: Path ReportMap Markup
+          peekValue (Peek_ReportMap_Markup _ _x) = _x :: Maybe Markup
 instance Paths ReportMap Permissions
     where type Path ReportMap Permissions = Path_ReportMap Permissions
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
           peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
+          peekPath (Peek_ReportMap_Permissions _p _) = _p :: Path ReportMap Permissions
+          peekValue (Peek_ReportMap_Permissions _ _x) = _x :: Maybe Permissions
 instance Paths ReportMap UserIds
     where type Path ReportMap UserIds = Path_ReportMap UserIds
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
           peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
+          peekPath (Peek_ReportMap_UserIds _p _) = _p :: Path ReportMap UserIds
+          peekValue (Peek_ReportMap_UserIds _ _x) = _x :: Maybe UserIds
 instance Paths ReportMap AbbrevPair
     where type Path ReportMap AbbrevPair = Path_ReportMap AbbrevPair
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
           peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
+          peekPath (Peek_ReportMap_AbbrevPair _p _) = _p :: Path ReportMap AbbrevPair
+          peekValue (Peek_ReportMap_AbbrevPair _ _x) = _x :: Maybe AbbrevPair
 instance Paths ReportMap AbbrevPairs
     where type Path ReportMap AbbrevPairs = Path_ReportMap AbbrevPairs
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
           peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
+          peekPath (Peek_ReportMap_AbbrevPairs _p _) = _p :: Path ReportMap AbbrevPairs
+          peekValue (Peek_ReportMap_AbbrevPairs _ _x) = _x :: Maybe AbbrevPairs
 instance Paths ReportMap Author
     where type Path ReportMap Author = Path_ReportMap Author
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
           peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
+          peekPath (Peek_ReportMap_Author _p _) = _p :: Path ReportMap Author
+          peekValue (Peek_ReportMap_Author _ _x) = _x :: Maybe Author
 instance Paths ReportMap Authors
     where type Path ReportMap Authors = Path_ReportMap Authors
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
           peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
+          peekPath (Peek_ReportMap_Authors _p _) = _p :: Path ReportMap Authors
+          peekValue (Peek_ReportMap_Authors _ _x) = _x :: Maybe Authors
 instance Paths ReportMap Branding
     where type Path ReportMap Branding = Path_ReportMap Branding
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
           peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
+          peekPath (Peek_ReportMap_Branding _p _) = _p :: Path ReportMap Branding
+          peekValue (Peek_ReportMap_Branding _ _x) = _x :: Maybe Branding
 instance Paths ReportMap MarkupPair
     where type Path ReportMap MarkupPair = Path_ReportMap MarkupPair
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
           peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
+          peekPath (Peek_ReportMap_MarkupPair _p _) = _p :: Path ReportMap MarkupPair
+          peekValue (Peek_ReportMap_MarkupPair _ _x) = _x :: Maybe MarkupPair
 instance Paths ReportMap MarkupPairs
     where type Path ReportMap MarkupPairs = Path_ReportMap MarkupPairs
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
           peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
+          peekPath (Peek_ReportMap_MarkupPairs _p _) = _p :: Path ReportMap MarkupPairs
+          peekValue (Peek_ReportMap_MarkupPairs _ _x) = _x :: Maybe MarkupPairs
 instance Paths ReportMap Markups
     where type Path ReportMap Markups = Path_ReportMap Markups
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
           peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
+          peekPath (Peek_ReportMap_Markups _p _) = _p :: Path ReportMap Markups
+          peekValue (Peek_ReportMap_Markups _ _x) = _x :: Maybe Markups
 instance Paths ReportMap MaybeReportIntendedUse
     where type Path ReportMap MaybeReportIntendedUse = Path_ReportMap MaybeReportIntendedUse
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
           peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
+          peekPath (Peek_ReportMap_MaybeReportIntendedUse _p _) = _p :: Path ReportMap MaybeReportIntendedUse
+          peekValue (Peek_ReportMap_MaybeReportIntendedUse _ _x) = _x :: Maybe MaybeReportIntendedUse
 instance Paths ReportMap Report
     where type Path ReportMap Report = Path_ReportMap Report
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
           peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
+          peekPath (Peek_ReportMap_Report _p _) = _p :: Path ReportMap Report
+          peekValue (Peek_ReportMap_Report _ _x) = _x :: Maybe Report
 instance Paths ReportMap ReportElem
     where type Path ReportMap ReportElem = Path_ReportMap ReportElem
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
           peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
+          peekPath (Peek_ReportMap_ReportElem _p _) = _p :: Path ReportMap ReportElem
+          peekValue (Peek_ReportMap_ReportElem _ _x) = _x :: Maybe ReportElem
 instance Paths ReportMap ReportElems
     where type Path ReportMap ReportElems = Path_ReportMap ReportElems
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
           peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
+          peekPath (Peek_ReportMap_ReportElems _p _) = _p :: Path ReportMap ReportElems
+          peekValue (Peek_ReportMap_ReportElems _ _x) = _x :: Maybe ReportElems
 instance Paths ReportMap ReportFlags
     where type Path ReportMap ReportFlags = Path_ReportMap ReportFlags
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
           peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
+          peekPath (Peek_ReportMap_ReportFlags _p _) = _p :: Path ReportMap ReportFlags
+          peekValue (Peek_ReportMap_ReportFlags _ _x) = _x :: Maybe ReportFlags
 instance Paths ReportMap ReportStandard
     where type Path ReportMap ReportStandard = Path_ReportMap ReportStandard
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
           peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
+          peekPath (Peek_ReportMap_ReportStandard _p _) = _p :: Path ReportMap ReportStandard
+          peekValue (Peek_ReportMap_ReportStandard _ _x) = _x :: Maybe ReportStandard
 instance Paths ReportMap ReportStatus
     where type Path ReportMap ReportStatus = Path_ReportMap ReportStatus
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
           peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
+          peekPath (Peek_ReportMap_ReportStatus _p _) = _p :: Path ReportMap ReportStatus
+          peekValue (Peek_ReportMap_ReportStatus _ _x) = _x :: Maybe ReportStatus
 instance Paths ReportMap ReportValueApproachInfo
     where type Path ReportMap ReportValueApproachInfo = Path_ReportMap ReportValueApproachInfo
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
           peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
+          peekPath (Peek_ReportMap_ReportValueApproachInfo _p _) = _p :: Path ReportMap ReportValueApproachInfo
+          peekValue (Peek_ReportMap_ReportValueApproachInfo _ _x) = _x :: Maybe ReportValueApproachInfo
 instance Paths ReportMap ReportValueTypeInfo
     where type Path ReportMap ReportValueTypeInfo = Path_ReportMap ReportValueTypeInfo
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
           peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
+          peekPath (Peek_ReportMap_ReportValueTypeInfo _p _) = _p :: Path ReportMap ReportValueTypeInfo
+          peekValue (Peek_ReportMap_ReportValueTypeInfo _ _x) = _x :: Maybe ReportValueTypeInfo
 instance Paths ReportMap EUI
     where type Path ReportMap EUI = Path_ReportMap EUI
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
           peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
+          peekPath (Peek_ReportMap_EUI _p _) = _p :: Path ReportMap EUI
+          peekValue (Peek_ReportMap_EUI _ _x) = _x :: Maybe EUI
 instance Paths ReportMap MEUI
     where type Path ReportMap MEUI = Path_ReportMap MEUI
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
           peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
+          peekPath (Peek_ReportMap_MEUI _p _) = _p :: Path ReportMap MEUI
+          peekValue (Peek_ReportMap_MEUI _ _x) = _x :: Maybe MEUI
 instance Paths ReportMap MaybeImageFile
     where type Path ReportMap MaybeImageFile = Path_ReportMap MaybeImageFile
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
           peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
+          peekPath (Peek_ReportMap_MaybeImageFile _p _) = _p :: Path ReportMap MaybeImageFile
+          peekValue (Peek_ReportMap_MaybeImageFile _ _x) = _x :: Maybe MaybeImageFile
 instance Paths ReportMap ReportImage
     where type Path ReportMap ReportImage = Path_ReportMap ReportImage
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
           peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
+          peekPath (Peek_ReportMap_ReportImage _p _) = _p :: Path ReportMap ReportImage
+          peekValue (Peek_ReportMap_ReportImage _ _x) = _x :: Maybe ReportImage
 instance Paths ReportMap ReportImages
     where type Path ReportMap ReportImages = Path_ReportMap ReportImages
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
           peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
+          peekPath (Peek_ReportMap_ReportImages _p _) = _p :: Path ReportMap ReportImages
+          peekValue (Peek_ReportMap_ReportImages _ _x) = _x :: Maybe ReportImages
 instance Paths ReportMap ReadOnlyFilePath
     where type Path ReportMap ReadOnlyFilePath = Path_ReportMap ReadOnlyFilePath
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
           peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
+          peekPath (Peek_ReportMap_ReadOnlyFilePath _p _) = _p :: Path ReportMap ReadOnlyFilePath
+          peekValue (Peek_ReportMap_ReadOnlyFilePath _ _x) = _x :: Maybe ReadOnlyFilePath
 instance Paths ReportMap ReportImageView
     where type Path ReportMap ReportImageView = Path_ReportMap ReportImageView
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
           peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
+          peekPath (Peek_ReportMap_ReportImageView _p _) = _p :: Path ReportMap ReportImageView
+          peekValue (Peek_ReportMap_ReportImageView _ _x) = _x :: Maybe ReportImageView
 instance Paths ReportMap ReportView
     where type Path ReportMap ReportView = Path_ReportMap ReportView
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
           peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
+          peekPath (Peek_ReportMap_ReportView _p _) = _p :: Path ReportMap ReportView
+          peekValue (Peek_ReportMap_ReportView _ _x) = _x :: Maybe ReportView
 instance Paths ReportMap SaneSizeImageSize
     where type Path ReportMap SaneSizeImageSize = Path_ReportMap SaneSizeImageSize
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
           peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
+          peekPath (Peek_ReportMap_SaneSizeImageSize _p _) = _p :: Path ReportMap SaneSizeImageSize
+          peekValue (Peek_ReportMap_SaneSizeImageSize _ _x) = _x :: Maybe SaneSizeImageSize
 instance Paths ReportMap Item
     where type Path ReportMap Item = Path_ReportMap Item
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
           peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
+          peekPath (Peek_ReportMap_Item _p _) = _p :: Path ReportMap Item
+          peekValue (Peek_ReportMap_Item _ _x) = _x :: Maybe Item
 instance Paths ReportMap MIM
     where type Path ReportMap MIM = Path_ReportMap MIM
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
           peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
+          peekPath (Peek_ReportMap_MIM _p _) = _p :: Path ReportMap MIM
+          peekValue (Peek_ReportMap_MIM _ _x) = _x :: Maybe MIM
 instance Paths ReportMap MRR
     where type Path ReportMap MRR = Path_ReportMap MRR
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
           peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
+          peekPath (Peek_ReportMap_MRR _p _) = _p :: Path ReportMap MRR
+          peekValue (Peek_ReportMap_MRR _ _x) = _x :: Maybe MRR
 instance Paths ReportMap ReportMap
     where type Path ReportMap ReportMap = Path_ReportMap ReportMap
           paths _ _ = [idPath]
           peek _ _ = undefined "idpeek" :: Peek ReportMap
+          peekPath (Peek_ReportMap_ReportMap _p _) = _p :: Path ReportMap ReportMap
+          peekValue (Peek_ReportMap_ReportMap _ _x) = _x :: Maybe ReportMap
 instance Paths ReportMap CIString
     where type Path ReportMap CIString = Path_ReportMap CIString
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
           peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
+          peekPath (Peek_ReportMap_CIString _p _) = _p :: Path ReportMap CIString
+          peekValue (Peek_ReportMap_CIString _ _x) = _x :: Maybe CIString
 instance Paths ReportMap URI
     where type Path ReportMap URI = Path_ReportMap URI
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
           peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
+          peekPath (Peek_ReportMap_URI _p _) = _p :: Path ReportMap URI
+          peekValue (Peek_ReportMap_URI _ _x) = _x :: Maybe URI
 instance Paths ReportMap Text
     where type Path ReportMap Text = Path_ReportMap Text
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
           peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
+          peekPath (Peek_ReportMap_Text _p _) = _p :: Path ReportMap Text
+          peekValue (Peek_ReportMap_Text _ _x) = _x :: Maybe Text
 instance Paths ReportMap UserId
     where type Path ReportMap UserId = Path_ReportMap UserId
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
           peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
+          peekPath (Peek_ReportMap_UserId _p _) = _p :: Path ReportMap UserId
+          peekValue (Peek_ReportMap_UserId _ _x) = _x :: Maybe UserId
 instance Paths ReportMap UUID
     where type Path ReportMap UUID = Path_ReportMap UUID
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
           peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
+          peekPath (Peek_ReportMap_UUID _p _) = _p :: Path ReportMap UUID
+          peekValue (Peek_ReportMap_UUID _ _x) = _x :: Maybe UUID
 instance Paths CIString JSONText
     where type Path CIString JSONText = Path_CIString JSONText
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Text) _g)) (map (\a' -> (Path_CIString_View, a')) (toListOf (toLens (Path_CIString_View (idPath :: Path Text
                                                                                                                                                                            Text))) _s))
           peek _p _s = undefined :: Peek CIString
+          peekPath (Peek_CIString_JSONText _p _) = _p :: Path CIString JSONText
+          peekValue (Peek_CIString_JSONText _ _x) = _x :: Maybe JSONText
 instance Paths CIString CIString
     where type Path CIString CIString = Path_CIString CIString
           paths _ _ = [idPath]
           peek _ _ = undefined "idpeek" :: Peek CIString
+          peekPath (Peek_CIString_CIString _p _) = _p :: Path CIString CIString
+          peekValue (Peek_CIString_CIString _ _x) = _x :: Maybe CIString
 instance Paths CIString Text
     where type Path CIString Text = Path_CIString Text
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Text) _g)) (map (\a' -> (Path_CIString_View, a')) (toListOf (toLens (Path_CIString_View (idPath :: Path Text
                                                                                                                                                                            Text))) _s))
           peek _p _s = undefined :: Peek CIString
+          peekPath (Peek_CIString_Text _p _) = _p :: Path CIString Text
+          peekValue (Peek_CIString_Text _ _x) = _x :: Maybe Text
 instance Paths URI URI
     where type Path URI URI = Path_URI URI
           paths _ _ = [idPath]
           peek _ _ = undefined "idpeek" :: Peek URI
+          peekPath (Peek_URI_URI _p _) = _p :: Path URI URI
+          peekValue (Peek_URI_URI _ _x) = _x :: Maybe URI
 instance Paths Text JSONText
     where type Path Text JSONText = Path_Text JSONText
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: JSONText) _g)) (map (\a' -> (Path_Text_View, a')) (toListOf (toLens (Path_Text_View (idPath :: Path JSONText
                                                                                                                                                                        JSONText))) _s))
           peek _p _s = undefined :: Peek Text
+          peekPath (Peek_Text_JSONText _p _) = _p :: Path Text JSONText
+          peekValue (Peek_Text_JSONText _ _x) = _x :: Maybe JSONText
 instance Paths Text Text
     where type Path Text Text = Path_Text Text
           paths _ _ = [idPath]
           peek _ _ = undefined "idpeek" :: Peek Text
+          peekPath (Peek_Text_Text _p _) = _p :: Path Text Text
+          peekValue (Peek_Text_Text _ _x) = _x :: Maybe Text
 instance Paths UserId UserId
     where type Path UserId UserId = Path_UserId UserId
           paths _ _ = [idPath]
           peek _ _ = undefined "idpeek" :: Peek UserId
+          peekPath (Peek_UserId_UserId _p _) = _p :: Path UserId UserId
+          peekValue (Peek_UserId_UserId _ _x) = _x :: Maybe UserId
 instance Paths UUID UUID
     where type Path UUID UUID = Path_UUID UUID
           paths _ _ = [idPath]
           peek _ _ = undefined "idpeek" :: Peek UUID
+          peekPath (Peek_UUID_UUID _p _) = _p :: Path UUID UUID
+          peekValue (Peek_UUID_UUID _ _x) = _x :: Maybe UUID
 instance HasAuthor Author
     where lens_author = id
           lens_Author_authorCredentials f (Author x1 x2) = fmap (\y1 -> Author x1 y1) (f x2)
