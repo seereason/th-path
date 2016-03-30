@@ -25,7 +25,7 @@ import Data.Set.Extra as Set (mapM_)
 import Language.Haskell.TH
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Common (asConQ, asType, asTypeQ, HasName(asName), makePathCon, makePathType, mconcatQ, ModelType(ModelType), tells)
-import Language.Haskell.TH.Path.Core (Describe(..), IdPath(idPath), Paths(..), ToLens(..), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
+import Language.Haskell.TH.Path.Core (Describe(..), IdPath(idPath), Paths(..), PathStart(Peek), ToLens(..), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
 import Language.Haskell.TH.Path.Decs.PathType (pathType)
 import Language.Haskell.TH.Path.Graph (testIsPath, TypeGraphM)
 import Language.Haskell.TH.Path.Instances ()
@@ -41,13 +41,15 @@ pathDecs v =
 data ClauseType
     = PathClause ClauseQ
     | DescClause ClauseQ
+    | PeekClause ClauseQ
 
-partitionClauses :: [ClauseType] -> ([ClauseQ], [ClauseQ])
+partitionClauses :: [ClauseType] -> ([ClauseQ], [ClauseQ], [ClauseQ])
 partitionClauses xs =
-    foldr f ([], []) xs
+    foldr f ([], [], []) xs
     where
-      f (PathClause c) (pcs, dcs) = (c : pcs, dcs)
-      f (DescClause c) (pcs, dcs) = (pcs, c : dcs)
+      f (PathClause c) (pcs, dcs, pkcs) = (c : pcs, dcs, pkcs)
+      f (DescClause c) (pcs, dcs, pkcs) = (pcs, c : dcs, pkcs)
+      f (PeekClause c) (pcs, dcs, pkcs) = (pcs, dcs, c : pkcs)
 
 -- | For a given pair of TGVSimples, compute the declaration of the
 -- corresponding Path instance.  Each clause matches some possible value
@@ -59,15 +61,17 @@ pathDecs' v gkey = do
   ptyp <- pathType (pure (bestType gkey)) v
   x <- runQ (newName "_s")
   g <- runQ (newName "_g")
-  (pcs, dcs) <-
+  (pcs, dcs, pkcs) <-
       partitionClauses <$>
       case v == gkey of
-        True -> pure [PathClause $ clause [wildP, wildP] (normalB [| [idPath] |]) []]
+        True -> pure [PathClause $ clause [wildP, wildP] (normalB [| [idPath] |]) [],
+                      PeekClause $ clause [wildP, wildP] (normalB [| undefined "idpeek" :: Peek $(asTypeQ v) |]) []]
         False -> execWriterT (doNode (hasPathControl v gkey g x) v)
   when (not (null pcs))
        (tells [instanceD (pure []) [t|Paths $(pure (bestType v)) $(pure (bestType gkey))|]
                  [ tySynInstD ''Path (tySynEqn [pure (bestType v), pure (bestType gkey)] (pure ptyp))
-                 , funD 'paths pcs ]])
+                 , funD 'paths pcs
+                 , funD 'peek pkcs ]])
   when (not (null dcs))
        (tells [instanceD (pure []) [t|Describe $(asTypeQ v) $(asTypeQ gkey)|]
                 [ funD 'describe' dcs ]])
@@ -126,7 +130,9 @@ hasPathControl v gkey g x =
                                                              (\(p, a') -> (List.map p (paths (a' :: $(pure typ)) $(varE g) {-:: [$_nextPathType]-})) {-:: [$_thisPathType]-})
                                                              ($asList {-:: [($_nextPathType -> $_thisPathType, $(pure typ))]-}) |] ])
                                concs
-                  tell [PathClause $ clause [asP' x xpat, varP g] (normalB (mconcatQ exps)) []]
+                  p <- runQ $ newName "_p"
+                  tell [PathClause $ clause [asP' x xpat, varP g] (normalB (mconcatQ exps)) [],
+                        PeekClause $ clause [varP p, asP' x xpat] (normalB [| undefined :: Peek $(asTypeQ v)|]) []]
             , _doSyn =
                 \_tname _typ -> pure ()
             , _doAlts = \_ -> pure ()

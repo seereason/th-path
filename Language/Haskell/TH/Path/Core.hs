@@ -18,9 +18,9 @@ module Language.Haskell.TH.Path.Core
     ( treeMap
     , forestMap
       -- * Type classes and associated types
-    , Paths(paths, Path)
+    , Paths(paths, Path, peek)
     , IdPath(idPath)
-    , PathStart(Peek, peek, hop)
+    , PathStart(Peek, peekTree, peekRow)
     , ToLens(S, A, toLens)
     , (:.:)(..)
 
@@ -113,15 +113,14 @@ class PathStart s where
     -- ^ 'Peek' is a type function that maps a type to the union of
     -- all paths that start at that type, and (maybe) the value found
     -- by following the path.
-    peek :: s -> Forest (Peek s)
+    peekTree :: s -> Forest (Peek s)
     -- ^ Given a value of type @s@, return a forest containing every
     -- 'Peek' that can be reached from it.  The order of the nodes in
     -- the forest reflects the order the elements were encountered
     -- during the traversal.
-    hop :: s -> [Tree (Peek s)]
-    -- ^ This signature is exactly the same as peek, but the list
-    -- indicates that no recurive peek calls are made, so only one
-    -- layer of the forest is returned
+    peekRow :: s -> [Peek s]
+    -- ^ In this function only one layer of the forest is returned, no
+    -- recursive peek calls are made.
 
 class ToLens p where
     type S p
@@ -166,6 +165,8 @@ class (PathStart s, IdPath (Path s a), ToLens (Path s a), S (Path s a) ~ s, A (P
     -- several @a@ reachable from this @s@.  This function will freak
     -- out if called with types for which there is no instance
     -- @Paths s a@.
+    peek :: Path s a -> s -> Peek s
+    -- ^ Build a 'Peek' @s@ value for a specific path from @s@ to @a@.
 
 -- | Nodes along a path can be customized by declaring types to be
 -- instances of this class and the ones that follow.  If a type is an

@@ -50,7 +50,7 @@ import Language.Haskell.TH.Path.Instances ()
 import Language.Haskell.TH.Syntax (lift, Quasi)
 import Language.Haskell.TH.TypeGraph.Expand (E, unE)
 import Language.Haskell.TH.TypeGraph.TypeGraph (HasTGV(asTGV))
-import Language.Haskell.TH.TypeGraph.Vertex (etype, field, syns,
+import Language.Haskell.TH.TypeGraph.Vertex (bestType, bestTypeQ, etype, field, syns,
                                              TGV', TGVSimple', TGV, TGVSimple, TypeGraphVertex, typeNames, vsimple)
 
 -- Naming conventions
@@ -148,14 +148,14 @@ instance HasName TGV where
                  Just (name, _) -> name
                  Nothing -> mkName ("T" ++ show v)
 
-instance HasType TGVSimple where asType = asType . snd
-instance HasType TGV where asType = asType . snd
+instance HasType TGVSimple where asType = bestType . snd -- asType . snd
+instance HasType TGV where asType = bestType . snd -- asType . snd
 instance HasType TGVSimple' where asType = asType . view etype
 instance HasType TGV' where asType = asType . view vsimple
 instance HasType (E Type) where asType = view unE
 instance HasType Type where asType = id
-instance HasTypeQ TGVSimple where asTypeQ = asTypeQ . snd
-instance HasTypeQ TGV where asTypeQ = asTypeQ . snd
+instance HasTypeQ TGVSimple where asTypeQ = bestTypeQ -- asTypeQ . snd
+instance HasTypeQ TGV where asTypeQ = bestTypeQ -- asTypeQ . snd
 instance HasTypeQ TGVSimple' where asTypeQ = pure . asType
 instance HasTypeQ TGV' where asTypeQ = pure . asType
 instance HasTypeQ (E Type) where asTypeQ = pure . asType

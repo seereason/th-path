@@ -28,7 +28,7 @@ import Language.Haskell.TH.Context (reifyInstancesWithContext)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Common (HasConQ(asConQ), HasCon(asCon), HasName(asName), HasType(asType), HasTypeQ(asTypeQ),
                                         makeFieldCon, makePathCon, makePathType, ModelType(ModelType), tells)
-import Language.Haskell.TH.Path.Core (camelWords, fieldStrings, PathStart(Peek, peek, hop), Paths(..), ToLens(toLens),
+import Language.Haskell.TH.Path.Core (camelWords, fieldStrings, PathStart(Peek, peekTree, peekRow), Paths(..), ToLens(toLens),
                                       Describe(describe'), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..), forestMap)
 import Language.Haskell.TH.Path.Graph (TypeGraphM)
 import Language.Haskell.TH.Path.Order (Path_OMap(..))
@@ -83,12 +83,12 @@ peekDecs v =
                                                  [(,) <$> notStrict <*> [t|Path $(asTypeQ v) $(asTypeQ g)|],
                                                   (,) <$> notStrict <*> [t|Maybe $(asTypeQ g)|] ]]) .
                         toList) <$> (pathKeys v)) [''Eq, ''Show],
-           funD' 'peek (case pcs of
-                          [] -> pure [clause [wildP] (normalB [| [] |]) []]
-                          _ -> pure pcs),
-           funD' 'hop (case hcs of
-                         [] -> pure [clause [wildP] (normalB [| [] |]) []]
-                         _ -> pure hcs)])
+           funD' 'peekTree (case pcs of
+                              [] -> pure [clause [wildP] (normalB [| [] |]) []]
+                              _ -> pure pcs),
+           funD' 'peekRow (case hcs of
+                             [] -> pure [clause [wildP] (normalB [| [] |]) []]
+                             _ -> pure hcs)])
        tells pds
        instanceD' (cxt []) [t|Describe (Peek $(asTypeQ v))|]
                   (pure [funD 'describe' (case dcs of
@@ -185,7 +185,7 @@ pathControl v x wPathVar = do
                      concs
           let (hfs, pfs) = unzip rs
           tell [PeekClause $ clause [asP' x xpat] (normalB [| $(concatMapQ pfs) :: Forest (Peek $(asTypeQ v)) |]) [],
-                HopClause $ clause [asP' x xpat] (normalB [| $(concatMapQ hfs) :: Forest (Peek $(asTypeQ v)) |]) []]
+                HopClause $ clause [asP' x xpat] (normalB [| $(concatMapQ hfs) :: [Peek $(asTypeQ v)] |]) []]
     , _doSyn =
         \_tname _typ -> pure ()
     , _doAlts = \_ -> pure ()
@@ -199,13 +199,13 @@ concatMapQ xs = [|mconcat $(listE xs)|]
 
 doHop :: forall m. (TypeGraphM m) => TGVSimple -> TGV -> Name -> ExpQ -> m ExpQ
 doHop v w p _pcon =
-    pure [| \a -> Node ($(asConQ (makePeekCon (ModelType (asName v)) (ModelType (asName w)))) $(varE p) (Just a)) [] |]
+    pure [| \a -> $(asConQ (makePeekCon (ModelType (asName v)) (ModelType (asName w)))) $(varE p) (Just a) |]
 
 doPeek :: forall m. (TypeGraphM m) => TGVSimple -> TGV -> Name -> ExpQ -> m ExpQ
 doPeek v w p pcon = do
   gs <- pathKeys' w
   let lp = mkName "liftPeek"
-  pure [| \a -> let f = peek a {-:: Forest (Peek $(asTypeQ w))-} in
+  pure [| \a -> let f = peekTree a {-:: Forest (Peek $(asTypeQ w))-} in
                 $(letE [funD lp (map (doGoal v w pcon) (Foldable.toList gs))]
                        [|Node ($(asConQ (makePeekCon (ModelType (asName v)) (ModelType (asName w)))) $(varE p) (if null f then Just a else Nothing))
                               -- Build a function with type such as Peek_AbbrevPair -> Peek_AbbrevPairs, so we

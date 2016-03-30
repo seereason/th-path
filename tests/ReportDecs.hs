@@ -687,84 +687,108 @@ class HasUserId c
 instance Paths String String
     where type Path String String = Path_String String
           paths _ _ = [idPath]
+          peek _ _ = undefined "idpeek" :: Peek String
 instance Paths String JSONText
     where type Path String JSONText = Path_String JSONText
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: JSONText) _g)) (map (\a' -> (Path_String_View,
                                                                                                 a')) (toListOf (toLens (Path_String_View (idPath :: Path JSONText JSONText))) _s))
+          peek _p _s = undefined :: Peek String
 instance Paths Int64 Int64
     where type Path Int64 Int64 = Path_Int64 Int64
           paths _ _ = [idPath]
+          peek _ _ = undefined "idpeek" :: Peek Int64
 instance Paths Bool String
     where type Path Bool String = Path_Bool String
-          paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: [Char]) _g)) (map (\a' -> (Path_Bool_View, a')) (toListOf (toLens (Path_Bool_View (idPath :: Path ([Char])
-                                                                                                                                                                     ([Char])))) _s))
+          paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: String) _g)) (map (\a' -> (Path_Bool_View, a')) (toListOf (toLens (Path_Bool_View (idPath :: Path String
+                                                                                                                                                                     String))) _s))
+          peek _p _s = undefined :: Peek Bool
 instance Paths Bool Bool
     where type Path Bool Bool = Path_Bool Bool
           paths _ _ = [idPath]
+          peek _ _ = undefined "idpeek" :: Peek Bool
 instance Paths Bool JSONText
     where type Path Bool JSONText = Path_Bool JSONText
-          paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: [Char]) _g)) (map (\a' -> (Path_Bool_View, a')) (toListOf (toLens (Path_Bool_View (idPath :: Path ([Char])
-                                                                                                                                                                     ([Char])))) _s))
+          paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: String) _g)) (map (\a' -> (Path_Bool_View, a')) (toListOf (toLens (Path_Bool_View (idPath :: Path String
+                                                                                                                                                                     String))) _s))
+          peek _p _s = undefined :: Peek Bool
 instance Paths Double String
     where type Path Double String = Path_Double String
-          paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: [Char]) _g)) (map (\a' -> (Path_Double_View, a')) (toListOf (toLens (Path_Double_View (idPath :: Path ([Char])
-                                                                                                                                                                         ([Char])))) _s))
+          paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: String) _g)) (map (\a' -> (Path_Double_View, a')) (toListOf (toLens (Path_Double_View (idPath :: Path String
+                                                                                                                                                                         String))) _s))
+          peek _p _s = undefined :: Peek Double
 instance Paths Double Double
     where type Path Double Double = Path_Double Double
           paths _ _ = [idPath]
+          peek _ _ = undefined "idpeek" :: Peek Double
 instance Paths Double JSONText
     where type Path Double JSONText = Path_Double JSONText
-          paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: [Char]) _g)) (map (\a' -> (Path_Double_View, a')) (toListOf (toLens (Path_Double_View (idPath :: Path ([Char])
-                                                                                                                                                                         ([Char])))) _s))
+          paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: String) _g)) (map (\a' -> (Path_Double_View, a')) (toListOf (toLens (Path_Double_View (idPath :: Path String
+                                                                                                                                                                         String))) _s))
+          peek _p _s = undefined :: Peek Double
 instance Paths Int Int
     where type Path Int Int = Path_Int Int
           paths _ _ = [idPath]
+          peek _ _ = undefined "idpeek" :: Peek Int
 instance Paths Dimension Dimension
     where type Path Dimension Dimension = Path_Dimension Dimension
           paths _ _ = [idPath]
+          peek _ _ = undefined "idpeek" :: Peek Dimension
 instance Paths Dimension JSONText
     where type Path Dimension JSONText = Path_Dimension JSONText
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: JSONText) _g)) (map (\a' -> (Path_Dimension_View,
                                                                                                 a')) (toListOf (toLens (Path_Dimension_View (idPath :: Path JSONText JSONText))) _s))
+          peek _p _s = undefined :: Peek Dimension
 instance Paths ImageCrop ImageCrop
     where type Path ImageCrop ImageCrop = Path_ImageCrop ImageCrop
           paths _ _ = [idPath]
+          peek _ _ = undefined "idpeek" :: Peek ImageCrop
 instance Paths ImageSize String
     where type Path ImageSize String = Path_ImageSize String
           paths (_s@(ImageSize {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Double) _g)) [(Path_ImageSize_size, size _s)]
+          peek _p (_s@(ImageSize {})) = undefined :: Peek ImageSize
 instance Paths ImageSize Double
     where type Path ImageSize Double = Path_ImageSize Double
           paths (_s@(ImageSize {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Double) _g)) [(Path_ImageSize_size, size _s)]
+          peek _p (_s@(ImageSize {})) = undefined :: Peek ImageSize
 instance Paths ImageSize Dimension
     where type Path ImageSize Dimension = Path_ImageSize Dimension
           paths (_s@(ImageSize {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Dimension) _g)) [(Path_ImageSize_dim, dim _s)]
+          peek _p (_s@(ImageSize {})) = undefined :: Peek ImageSize
 instance Paths ImageSize ImageSize
     where type Path ImageSize ImageSize = Path_ImageSize ImageSize
           paths _ _ = [idPath]
+          peek _ _ = undefined "idpeek" :: Peek ImageSize
 instance Paths ImageSize Units
     where type Path ImageSize Units = Path_ImageSize Units
           paths (_s@(ImageSize {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Units) _g)) [(Path_ImageSize_units, units _s)]
+          peek _p (_s@(ImageSize {})) = undefined :: Peek ImageSize
 instance Paths ImageSize JSONText
     where type Path ImageSize JSONText = Path_ImageSize JSONText
           paths (_s@(ImageSize {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: Dimension) _g)) [(Path_ImageSize_dim, dim _s)],
                                                   concatMap (\(p, a') -> map p (paths (a' :: Double) _g)) [(Path_ImageSize_size, size _s)],
                                                   concatMap (\(p, a') -> map p (paths (a' :: Units) _g)) [(Path_ImageSize_units, units _s)]]
+          peek _p (_s@(ImageSize {})) = undefined :: Peek ImageSize
 instance Paths Units Units
     where type Path Units Units = Path_Units Units
           paths _ _ = [idPath]
+          peek _ _ = undefined "idpeek" :: Peek Units
 instance Paths Units JSONText
     where type Path Units JSONText = Path_Units JSONText
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: JSONText) _g)) (map (\a' -> (Path_Units_View, a')) (toListOf (toLens (Path_Units_View (idPath :: Path JSONText
                                                                                                                                                                          JSONText))) _s))
+          peek _p _s = undefined :: Peek Units
 instance Paths ImageFile ImageFile
     where type Path ImageFile ImageFile = Path_ImageFile ImageFile
           paths _ _ = [idPath]
+          peek _ _ = undefined "idpeek" :: Peek ImageFile
 instance Paths Integer Integer
     where type Path Integer Integer = Path_Integer Integer
           paths _ _ = [idPath]
+          peek _ _ = undefined "idpeek" :: Peek Integer
 instance Paths JSONText JSONText
     where type Path JSONText JSONText = Path_JSONText JSONText
           paths _ _ = [idPath]
+          peek _ _ = undefined "idpeek" :: Peek JSONText
 instance Paths Markup JSONText
     where type Path Markup JSONText = Path_Markup JSONText
           paths (_s@(Markdown {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Text) _g)) [(Path_Markup_markdownText, markdownText _s)]
@@ -772,9 +796,15 @@ instance Paths Markup JSONText
           paths (_s@(LaTeX {})) _g = mempty
           paths (_s@(Pandoc {})) _g = mempty
           paths (_s@(Markup {})) _g = mempty
+          peek _p (_s@(Markdown {})) = undefined :: Peek Markup
+          peek _p (_s@(Html {})) = undefined :: Peek Markup
+          peek _p (_s@(LaTeX {})) = undefined :: Peek Markup
+          peek _p (_s@(Pandoc {})) = undefined :: Peek Markup
+          peek _p (_s@(Markup {})) = undefined :: Peek Markup
 instance Paths Markup Markup
     where type Path Markup Markup = Path_Markup Markup
           paths _ _ = [idPath]
+          peek _ _ = undefined "idpeek" :: Peek Markup
 instance Paths Markup Text
     where type Path Markup Text = Path_Markup Text
           paths (_s@(Markdown {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Text) _g)) [(Path_Markup_markdownText, markdownText _s)]
@@ -782,794 +812,1053 @@ instance Paths Markup Text
           paths (_s@(LaTeX {})) _g = mempty
           paths (_s@(Pandoc {})) _g = mempty
           paths (_s@(Markup {})) _g = mempty
+          peek _p (_s@(Markdown {})) = undefined :: Peek Markup
+          peek _p (_s@(Html {})) = undefined :: Peek Markup
+          peek _p (_s@(LaTeX {})) = undefined :: Peek Markup
+          peek _p (_s@(Pandoc {})) = undefined :: Peek Markup
+          peek _p (_s@(Markup {})) = undefined :: Peek Markup
 instance Paths Permissions JSONText
     where type Path Permissions JSONText = Path_Permissions JSONText
           paths (_s@(Permissions {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: UserIds) _g)) [(Path_Permissions_writers, writers _s)],
                                                     concatMap (\(p, a') -> map p (paths (a' :: UserIds) _g)) [(Path_Permissions_readers, readers _s)]]
+          peek _p (_s@(Permissions {})) = undefined :: Peek Permissions
 instance Paths Permissions Permissions
     where type Path Permissions Permissions = Path_Permissions Permissions
           paths _ _ = [idPath]
+          peek _ _ = undefined "idpeek" :: Peek Permissions
 instance Paths Permissions UserIds
     where type Path Permissions UserIds = Path_Permissions UserIds
           paths (_s@(Permissions {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: UserIds) _g)) [(Path_Permissions_writers, writers _s)],
                                                     concatMap (\(p, a') -> map p (paths (a' :: UserIds) _g)) [(Path_Permissions_readers, readers _s)]]
+          peek _p (_s@(Permissions {})) = undefined :: Peek Permissions
 instance Paths Permissions Text
     where type Path Permissions Text = Path_Permissions Text
           paths (_s@(Permissions {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: UserIds) _g)) [(Path_Permissions_writers, writers _s)],
                                                     concatMap (\(p, a') -> map p (paths (a' :: UserIds) _g)) [(Path_Permissions_readers, readers _s)]]
+          peek _p (_s@(Permissions {})) = undefined :: Peek Permissions
 instance Paths Permissions UserId
     where type Path Permissions UserId = Path_Permissions UserId
           paths (_s@(Permissions {})) _g = concatMap (\(p, a') -> map p (paths (a' :: UserId) _g)) [(Path_Permissions_owner, owner _s)]
+          peek _p (_s@(Permissions {})) = undefined :: Peek Permissions
 instance Paths UserIds JSONText
     where type Path UserIds JSONText = Path_UserIds JSONText
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Text) _g)) (map (\a' -> (Path_UserIds_View, a')) (toListOf (toLens (Path_UserIds_View (idPath :: Path Text
                                                                                                                                                                          Text))) _s))
+          peek _p _s = undefined :: Peek UserIds
 instance Paths UserIds UserIds
     where type Path UserIds UserIds = Path_UserIds UserIds
           paths _ _ = [idPath]
+          peek _ _ = undefined "idpeek" :: Peek UserIds
 instance Paths UserIds Text
     where type Path UserIds Text = Path_UserIds Text
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Text) _g)) (map (\a' -> (Path_UserIds_View, a')) (toListOf (toLens (Path_UserIds_View (idPath :: Path Text
                                                                                                                                                                          Text))) _s))
+          peek _p _s = undefined :: Peek UserIds
 instance Paths AbbrevPair JSONText
     where type Path AbbrevPair JSONText = Path_Pair (Path_CIString JSONText) (Path_Markup JSONText)
           paths _s _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: CIString) _g)) [(Path_First, fst _s)],
                                  concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_Second, snd _s)]]
+          peek _p _s = undefined :: Peek AbbrevPair
 instance Paths AbbrevPair Markup
     where type Path AbbrevPair Markup = Path_Pair (Path_CIString Markup) (Path_Markup Markup)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_Second, snd _s)]
+          peek _p _s = undefined :: Peek AbbrevPair
 instance Paths AbbrevPair AbbrevPair
     where type Path AbbrevPair AbbrevPair = Path_Pair (Path_CIString AbbrevPair) (Path_Markup AbbrevPair)
           paths _ _ = [idPath]
+          peek _ _ = undefined "idpeek" :: Peek AbbrevPair
 instance Paths AbbrevPair CIString
     where type Path AbbrevPair CIString = Path_Pair (Path_CIString CIString) (Path_Markup CIString)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: CIString) _g)) [(Path_First, fst _s)]
+          peek _p _s = undefined :: Peek AbbrevPair
 instance Paths AbbrevPair Text
     where type Path AbbrevPair Text = Path_Pair (Path_CIString Text) (Path_Markup Text)
           paths _s _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: CIString) _g)) [(Path_First, fst _s)],
                                  concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_Second, snd _s)]]
+          peek _p _s = undefined :: Peek AbbrevPair
 instance Paths AbbrevPairs JSONText
     where type Path AbbrevPairs JSONText = Path_OMap AbbrevPairID (Path_Pair (Path_CIString JSONText) (Path_Markup JSONText))
-          paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: (CIString, Markup)) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
+          paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: AbbrevPair) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
+          peek _p _s = undefined :: Peek AbbrevPairs
 instance Paths AbbrevPairs Markup
     where type Path AbbrevPairs Markup = Path_OMap AbbrevPairID (Path_Pair (Path_CIString Markup) (Path_Markup Markup))
-          paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: (CIString, Markup)) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
+          paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: AbbrevPair) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
+          peek _p _s = undefined :: Peek AbbrevPairs
 instance Paths AbbrevPairs AbbrevPair
     where type Path AbbrevPairs AbbrevPair = Path_OMap AbbrevPairID (Path_Pair (Path_CIString AbbrevPair) (Path_Markup AbbrevPair))
-          paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: (CIString, Markup)) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
+          paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: AbbrevPair) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
+          peek _p _s = undefined :: Peek AbbrevPairs
 instance Paths AbbrevPairs AbbrevPairs
     where type Path AbbrevPairs AbbrevPairs = Path_OMap AbbrevPairID (Path_Pair (Path_CIString AbbrevPairs) (Path_Markup AbbrevPairs))
           paths _ _ = [idPath]
+          peek _ _ = undefined "idpeek" :: Peek AbbrevPairs
 instance Paths AbbrevPairs CIString
     where type Path AbbrevPairs CIString = Path_OMap AbbrevPairID (Path_Pair (Path_CIString CIString) (Path_Markup CIString))
-          paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: (CIString, Markup)) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
+          paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: AbbrevPair) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
+          peek _p _s = undefined :: Peek AbbrevPairs
 instance Paths AbbrevPairs Text
     where type Path AbbrevPairs Text = Path_OMap AbbrevPairID (Path_Pair (Path_CIString Text) (Path_Markup Text))
-          paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: (CIString, Markup)) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
+          paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: AbbrevPair) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
+          peek _p _s = undefined :: Peek AbbrevPairs
 instance Paths Author JSONText
     where type Path Author JSONText = Path_Author JSONText
           paths (_s@(Author {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_Author_authorName, authorName _s)],
                                                concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_Author_authorCredentials, authorCredentials _s)]]
+          peek _p (_s@(Author {})) = undefined :: Peek Author
 instance Paths Author Markup
     where type Path Author Markup = Path_Author Markup
           paths (_s@(Author {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_Author_authorName, authorName _s)],
                                                concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_Author_authorCredentials, authorCredentials _s)]]
+          peek _p (_s@(Author {})) = undefined :: Peek Author
 instance Paths Author Author
     where type Path Author Author = Path_Author Author
           paths _ _ = [idPath]
+          peek _ _ = undefined "idpeek" :: Peek Author
 instance Paths Author Text
     where type Path Author Text = Path_Author Text
           paths (_s@(Author {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_Author_authorName, authorName _s)],
                                                concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_Author_authorCredentials, authorCredentials _s)]]
+          peek _p (_s@(Author {})) = undefined :: Peek Author
 instance Paths Authors JSONText
     where type Path Authors JSONText = Path_OMap AuthorID (Path_Author JSONText)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Author) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
+          peek _p _s = undefined :: Peek Authors
 instance Paths Authors Markup
     where type Path Authors Markup = Path_OMap AuthorID (Path_Author Markup)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Author) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
+          peek _p _s = undefined :: Peek Authors
 instance Paths Authors Author
     where type Path Authors Author = Path_OMap AuthorID (Path_Author Author)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Author) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
+          peek _p _s = undefined :: Peek Authors
 instance Paths Authors Authors
     where type Path Authors Authors = Path_OMap AuthorID (Path_Author Authors)
           paths _ _ = [idPath]
+          peek _ _ = undefined "idpeek" :: Peek Authors
 instance Paths Authors Text
     where type Path Authors Text = Path_OMap AuthorID (Path_Author Text)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Author) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
+          peek _p _s = undefined :: Peek Authors
 instance Paths Branding JSONText
     where type Path Branding JSONText = Path_Branding JSONText
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Text) _g)) (map (\a' -> (Path_Branding_View, a')) (toListOf (toLens (Path_Branding_View (idPath :: Path Text
                                                                                                                                                                            Text))) _s))
+          peek _p _s = undefined :: Peek Branding
 instance Paths Branding Branding
     where type Path Branding Branding = Path_Branding Branding
           paths _ _ = [idPath]
+          peek _ _ = undefined "idpeek" :: Peek Branding
 instance Paths Branding Text
     where type Path Branding Text = Path_Branding Text
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Text) _g)) (map (\a' -> (Path_Branding_View, a')) (toListOf (toLens (Path_Branding_View (idPath :: Path Text
                                                                                                                                                                            Text))) _s))
+          peek _p _s = undefined :: Peek Branding
 instance Paths MarkupPair JSONText
     where type Path MarkupPair JSONText = Path_Pair (Path_Markup JSONText) (Path_Markup JSONText)
           paths _s _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_First, fst _s)],
                                  concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_Second, snd _s)]]
+          peek _p _s = undefined :: Peek MarkupPair
 instance Paths MarkupPair Markup
     where type Path MarkupPair Markup = Path_Pair (Path_Markup Markup) (Path_Markup Markup)
           paths _s _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_First, fst _s)],
                                  concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_Second, snd _s)]]
+          peek _p _s = undefined :: Peek MarkupPair
 instance Paths MarkupPair MarkupPair
     where type Path MarkupPair MarkupPair = Path_Pair (Path_Markup MarkupPair) (Path_Markup MarkupPair)
           paths _ _ = [idPath]
+          peek _ _ = undefined "idpeek" :: Peek MarkupPair
 instance Paths MarkupPair Text
     where type Path MarkupPair Text = Path_Pair (Path_Markup Text) (Path_Markup Text)
           paths _s _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_First, fst _s)],
                                  concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_Second, snd _s)]]
+          peek _p _s = undefined :: Peek MarkupPair
 instance Paths MarkupPairs JSONText
     where type Path MarkupPairs JSONText = Path_OMap MarkupPairID (Path_Pair (Path_Markup JSONText) (Path_Markup JSONText))
-          paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: (Markup, Markup)) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
+          paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: MarkupPair) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
+          peek _p _s = undefined :: Peek MarkupPairs
 instance Paths MarkupPairs Markup
     where type Path MarkupPairs Markup = Path_OMap MarkupPairID (Path_Pair (Path_Markup Markup) (Path_Markup Markup))
-          paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: (Markup, Markup)) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
+          paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: MarkupPair) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
+          peek _p _s = undefined :: Peek MarkupPairs
 instance Paths MarkupPairs MarkupPair
     where type Path MarkupPairs MarkupPair = Path_OMap MarkupPairID (Path_Pair (Path_Markup MarkupPair) (Path_Markup MarkupPair))
-          paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: (Markup, Markup)) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
+          paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: MarkupPair) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
+          peek _p _s = undefined :: Peek MarkupPairs
 instance Paths MarkupPairs MarkupPairs
     where type Path MarkupPairs MarkupPairs = Path_OMap MarkupPairID (Path_Pair (Path_Markup MarkupPairs) (Path_Markup MarkupPairs))
           paths _ _ = [idPath]
+          peek _ _ = undefined "idpeek" :: Peek MarkupPairs
 instance Paths MarkupPairs Text
     where type Path MarkupPairs Text = Path_OMap MarkupPairID (Path_Pair (Path_Markup Text) (Path_Markup Text))
-          paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: (Markup, Markup)) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
+          paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: MarkupPair) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
+          peek _p _s = undefined :: Peek MarkupPairs
 instance Paths Markups JSONText
     where type Path Markups JSONText = Path_OMap MarkupID (Path_Markup JSONText)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
+          peek _p _s = undefined :: Peek Markups
 instance Paths Markups Markup
     where type Path Markups Markup = Path_OMap MarkupID (Path_Markup Markup)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
+          peek _p _s = undefined :: Peek Markups
 instance Paths Markups Markups
     where type Path Markups Markups = Path_OMap MarkupID (Path_Markup Markups)
           paths _ _ = [idPath]
+          peek _ _ = undefined "idpeek" :: Peek Markups
 instance Paths Markups Text
     where type Path Markups Text = Path_OMap MarkupID (Path_Markup Text)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
+          peek _p _s = undefined :: Peek Markups
 instance Paths MaybeReportIntendedUse String
     where type Path MaybeReportIntendedUse String = Path_MaybeReportIntendedUse String
-          paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: [Char]) _g)) (map (\a' -> (Path_MaybeReportIntendedUse_View,
-                                                                                              a')) (toListOf (toLens (Path_MaybeReportIntendedUse_View (idPath :: Path ([Char]) ([Char])))) _s))
+          paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: String) _g)) (map (\a' -> (Path_MaybeReportIntendedUse_View,
+                                                                                              a')) (toListOf (toLens (Path_MaybeReportIntendedUse_View (idPath :: Path String String))) _s))
+          peek _p _s = undefined :: Peek MaybeReportIntendedUse
 instance Paths MaybeReportIntendedUse JSONText
     where type Path MaybeReportIntendedUse JSONText = Path_MaybeReportIntendedUse JSONText
-          paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: [Char]) _g)) (map (\a' -> (Path_MaybeReportIntendedUse_View,
-                                                                                              a')) (toListOf (toLens (Path_MaybeReportIntendedUse_View (idPath :: Path ([Char]) ([Char])))) _s))
+          paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: String) _g)) (map (\a' -> (Path_MaybeReportIntendedUse_View,
+                                                                                              a')) (toListOf (toLens (Path_MaybeReportIntendedUse_View (idPath :: Path String String))) _s))
+          peek _p _s = undefined :: Peek MaybeReportIntendedUse
 instance Paths MaybeReportIntendedUse MaybeReportIntendedUse
     where type Path MaybeReportIntendedUse MaybeReportIntendedUse = Path_MaybeReportIntendedUse MaybeReportIntendedUse
           paths _ _ = [idPath]
+          peek _ _ = undefined "idpeek" :: Peek MaybeReportIntendedUse
 instance Paths Report String
     where type Path Report String = Path_Report String
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
+          peek _p _s = undefined :: Peek Report
 instance Paths Report Int64
     where type Path Report Int64 = Path_Report Int64
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
+          peek _p _s = undefined :: Peek Report
 instance Paths Report Bool
     where type Path Report Bool = Path_Report Bool
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
+          peek _p _s = undefined :: Peek Report
 instance Paths Report Double
     where type Path Report Double = Path_Report Double
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
+          peek _p _s = undefined :: Peek Report
 instance Paths Report Int
     where type Path Report Int = Path_Report Int
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
+          peek _p _s = undefined :: Peek Report
 instance Paths Report Dimension
     where type Path Report Dimension = Path_Report Dimension
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
+          peek _p _s = undefined :: Peek Report
 instance Paths Report ImageCrop
     where type Path Report ImageCrop = Path_Report ImageCrop
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
+          peek _p _s = undefined :: Peek Report
 instance Paths Report ImageSize
     where type Path Report ImageSize = Path_Report ImageSize
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
+          peek _p _s = undefined :: Peek Report
 instance Paths Report Units
     where type Path Report Units = Path_Report Units
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
+          peek _p _s = undefined :: Peek Report
 instance Paths Report ImageFile
     where type Path Report ImageFile = Path_Report ImageFile
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
+          peek _p _s = undefined :: Peek Report
 instance Paths Report Integer
     where type Path Report Integer = Path_Report Integer
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
+          peek _p _s = undefined :: Peek Report
 instance Paths Report JSONText
     where type Path Report JSONText = Path_Report JSONText
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
+          peek _p _s = undefined :: Peek Report
 instance Paths Report Markup
     where type Path Report Markup = Path_Report Markup
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
+          peek _p _s = undefined :: Peek Report
 instance Paths Report Permissions
     where type Path Report Permissions = Path_Report Permissions
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
+          peek _p _s = undefined :: Peek Report
 instance Paths Report UserIds
     where type Path Report UserIds = Path_Report UserIds
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
+          peek _p _s = undefined :: Peek Report
 instance Paths Report AbbrevPair
     where type Path Report AbbrevPair = Path_Report AbbrevPair
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
+          peek _p _s = undefined :: Peek Report
 instance Paths Report AbbrevPairs
     where type Path Report AbbrevPairs = Path_Report AbbrevPairs
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
+          peek _p _s = undefined :: Peek Report
 instance Paths Report Author
     where type Path Report Author = Path_Report Author
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
+          peek _p _s = undefined :: Peek Report
 instance Paths Report Authors
     where type Path Report Authors = Path_Report Authors
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
+          peek _p _s = undefined :: Peek Report
 instance Paths Report Branding
     where type Path Report Branding = Path_Report Branding
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
+          peek _p _s = undefined :: Peek Report
 instance Paths Report MarkupPair
     where type Path Report MarkupPair = Path_Report MarkupPair
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
+          peek _p _s = undefined :: Peek Report
 instance Paths Report MarkupPairs
     where type Path Report MarkupPairs = Path_Report MarkupPairs
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
+          peek _p _s = undefined :: Peek Report
 instance Paths Report Markups
     where type Path Report Markups = Path_Report Markups
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
+          peek _p _s = undefined :: Peek Report
 instance Paths Report MaybeReportIntendedUse
     where type Path Report MaybeReportIntendedUse = Path_Report MaybeReportIntendedUse
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
+          peek _p _s = undefined :: Peek Report
 instance Paths Report Report
     where type Path Report Report = Path_Report Report
           paths _ _ = [idPath]
+          peek _ _ = undefined "idpeek" :: Peek Report
 instance Paths Report ReportElem
     where type Path Report ReportElem = Path_Report ReportElem
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
+          peek _p _s = undefined :: Peek Report
 instance Paths Report ReportElems
     where type Path Report ReportElems = Path_Report ReportElems
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
+          peek _p _s = undefined :: Peek Report
 instance Paths Report ReportFlags
     where type Path Report ReportFlags = Path_Report ReportFlags
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
+          peek _p _s = undefined :: Peek Report
 instance Paths Report ReportStandard
     where type Path Report ReportStandard = Path_Report ReportStandard
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
+          peek _p _s = undefined :: Peek Report
 instance Paths Report ReportStatus
     where type Path Report ReportStatus = Path_Report ReportStatus
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
+          peek _p _s = undefined :: Peek Report
 instance Paths Report ReportValueApproachInfo
     where type Path Report ReportValueApproachInfo = Path_Report ReportValueApproachInfo
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
+          peek _p _s = undefined :: Peek Report
 instance Paths Report ReportValueTypeInfo
     where type Path Report ReportValueTypeInfo = Path_Report ReportValueTypeInfo
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
+          peek _p _s = undefined :: Peek Report
 instance Paths Report EUI
     where type Path Report EUI = Path_Report EUI
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
+          peek _p _s = undefined :: Peek Report
 instance Paths Report MEUI
     where type Path Report MEUI = Path_Report MEUI
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
+          peek _p _s = undefined :: Peek Report
 instance Paths Report MaybeImageFile
     where type Path Report MaybeImageFile = Path_Report MaybeImageFile
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
+          peek _p _s = undefined :: Peek Report
 instance Paths Report ReportImage
     where type Path Report ReportImage = Path_Report ReportImage
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
+          peek _p _s = undefined :: Peek Report
 instance Paths Report ReportImages
     where type Path Report ReportImages = Path_Report ReportImages
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
+          peek _p _s = undefined :: Peek Report
 instance Paths Report ReadOnlyFilePath
     where type Path Report ReadOnlyFilePath = Path_Report ReadOnlyFilePath
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
+          peek _p _s = undefined :: Peek Report
 instance Paths Report ReportImageView
     where type Path Report ReportImageView = Path_Report ReportImageView
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
+          peek _p _s = undefined :: Peek Report
 instance Paths Report ReportView
     where type Path Report ReportView = Path_Report ReportView
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
+          peek _p _s = undefined :: Peek Report
 instance Paths Report SaneSizeImageSize
     where type Path Report SaneSizeImageSize = Path_Report SaneSizeImageSize
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
+          peek _p _s = undefined :: Peek Report
 instance Paths Report Item
     where type Path Report Item = Path_Report Item
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
+          peek _p _s = undefined :: Peek Report
 instance Paths Report MIM
     where type Path Report MIM = Path_Report MIM
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
+          peek _p _s = undefined :: Peek Report
 instance Paths Report CIString
     where type Path Report CIString = Path_Report CIString
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
+          peek _p _s = undefined :: Peek Report
 instance Paths Report URI
     where type Path Report URI = Path_Report URI
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
+          peek _p _s = undefined :: Peek Report
 instance Paths Report Text
     where type Path Report Text = Path_Report Text
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
+          peek _p _s = undefined :: Peek Report
 instance Paths Report UserId
     where type Path Report UserId = Path_Report UserId
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
+          peek _p _s = undefined :: Peek Report
 instance Paths Report UUID
     where type Path Report UUID = Path_Report UUID
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
+          peek _p _s = undefined :: Peek Report
 instance Paths ReportElem String
     where type Path ReportElem String = Path_ReportElem String
           paths (_s@(ReportItem {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Item) _g)) [(Path_ReportElem_elemItem, elemItem _s)]
           paths (_s@(ReportParagraph {})) _g = mempty
           paths (_s@(ReportUndecided {})) _g = mempty
+          peek _p (_s@(ReportItem {})) = undefined :: Peek ReportElem
+          peek _p (_s@(ReportParagraph {})) = undefined :: Peek ReportElem
+          peek _p (_s@(ReportUndecided {})) = undefined :: Peek ReportElem
 instance Paths ReportElem Bool
     where type Path ReportElem Bool = Path_ReportElem Bool
           paths (_s@(ReportItem {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Item) _g)) [(Path_ReportElem_elemItem, elemItem _s)]
           paths (_s@(ReportParagraph {})) _g = mempty
           paths (_s@(ReportUndecided {})) _g = mempty
+          peek _p (_s@(ReportItem {})) = undefined :: Peek ReportElem
+          peek _p (_s@(ReportParagraph {})) = undefined :: Peek ReportElem
+          peek _p (_s@(ReportUndecided {})) = undefined :: Peek ReportElem
 instance Paths ReportElem Double
     where type Path ReportElem Double = Path_ReportElem Double
           paths (_s@(ReportItem {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Item) _g)) [(Path_ReportElem_elemItem, elemItem _s)]
           paths (_s@(ReportParagraph {})) _g = mempty
           paths (_s@(ReportUndecided {})) _g = mempty
+          peek _p (_s@(ReportItem {})) = undefined :: Peek ReportElem
+          peek _p (_s@(ReportParagraph {})) = undefined :: Peek ReportElem
+          peek _p (_s@(ReportUndecided {})) = undefined :: Peek ReportElem
 instance Paths ReportElem Dimension
     where type Path ReportElem Dimension = Path_ReportElem Dimension
           paths (_s@(ReportItem {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Item) _g)) [(Path_ReportElem_elemItem, elemItem _s)]
           paths (_s@(ReportParagraph {})) _g = mempty
           paths (_s@(ReportUndecided {})) _g = mempty
+          peek _p (_s@(ReportItem {})) = undefined :: Peek ReportElem
+          peek _p (_s@(ReportParagraph {})) = undefined :: Peek ReportElem
+          peek _p (_s@(ReportUndecided {})) = undefined :: Peek ReportElem
 instance Paths ReportElem ImageCrop
     where type Path ReportElem ImageCrop = Path_ReportElem ImageCrop
           paths (_s@(ReportItem {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Item) _g)) [(Path_ReportElem_elemItem, elemItem _s)]
           paths (_s@(ReportParagraph {})) _g = mempty
           paths (_s@(ReportUndecided {})) _g = mempty
+          peek _p (_s@(ReportItem {})) = undefined :: Peek ReportElem
+          peek _p (_s@(ReportParagraph {})) = undefined :: Peek ReportElem
+          peek _p (_s@(ReportUndecided {})) = undefined :: Peek ReportElem
 instance Paths ReportElem ImageSize
     where type Path ReportElem ImageSize = Path_ReportElem ImageSize
           paths (_s@(ReportItem {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Item) _g)) [(Path_ReportElem_elemItem, elemItem _s)]
           paths (_s@(ReportParagraph {})) _g = mempty
           paths (_s@(ReportUndecided {})) _g = mempty
+          peek _p (_s@(ReportItem {})) = undefined :: Peek ReportElem
+          peek _p (_s@(ReportParagraph {})) = undefined :: Peek ReportElem
+          peek _p (_s@(ReportUndecided {})) = undefined :: Peek ReportElem
 instance Paths ReportElem Units
     where type Path ReportElem Units = Path_ReportElem Units
           paths (_s@(ReportItem {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Item) _g)) [(Path_ReportElem_elemItem, elemItem _s)]
           paths (_s@(ReportParagraph {})) _g = mempty
           paths (_s@(ReportUndecided {})) _g = mempty
+          peek _p (_s@(ReportItem {})) = undefined :: Peek ReportElem
+          peek _p (_s@(ReportParagraph {})) = undefined :: Peek ReportElem
+          peek _p (_s@(ReportUndecided {})) = undefined :: Peek ReportElem
 instance Paths ReportElem ImageFile
     where type Path ReportElem ImageFile = Path_ReportElem ImageFile
           paths (_s@(ReportItem {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Item) _g)) [(Path_ReportElem_elemItem, elemItem _s)]
           paths (_s@(ReportParagraph {})) _g = mempty
           paths (_s@(ReportUndecided {})) _g = mempty
+          peek _p (_s@(ReportItem {})) = undefined :: Peek ReportElem
+          peek _p (_s@(ReportParagraph {})) = undefined :: Peek ReportElem
+          peek _p (_s@(ReportUndecided {})) = undefined :: Peek ReportElem
 instance Paths ReportElem JSONText
     where type Path ReportElem JSONText = Path_ReportElem JSONText
           paths (_s@(ReportItem {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Item) _g)) [(Path_ReportElem_elemItem, elemItem _s)]
           paths (_s@(ReportParagraph {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_ReportElem_elemText, elemText _s)]
           paths (_s@(ReportUndecided {})) _g = mempty
+          peek _p (_s@(ReportItem {})) = undefined :: Peek ReportElem
+          peek _p (_s@(ReportParagraph {})) = undefined :: Peek ReportElem
+          peek _p (_s@(ReportUndecided {})) = undefined :: Peek ReportElem
 instance Paths ReportElem Markup
     where type Path ReportElem Markup = Path_ReportElem Markup
           paths (_s@(ReportItem {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Item) _g)) [(Path_ReportElem_elemItem, elemItem _s)]
           paths (_s@(ReportParagraph {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_ReportElem_elemText, elemText _s)]
           paths (_s@(ReportUndecided {})) _g = mempty
+          peek _p (_s@(ReportItem {})) = undefined :: Peek ReportElem
+          peek _p (_s@(ReportParagraph {})) = undefined :: Peek ReportElem
+          peek _p (_s@(ReportUndecided {})) = undefined :: Peek ReportElem
 instance Paths ReportElem ReportElem
     where type Path ReportElem ReportElem = Path_ReportElem ReportElem
           paths _ _ = [idPath]
+          peek _ _ = undefined "idpeek" :: Peek ReportElem
 instance Paths ReportElem EUI
     where type Path ReportElem EUI = Path_ReportElem EUI
           paths (_s@(ReportItem {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Item) _g)) [(Path_ReportElem_elemItem, elemItem _s)]
           paths (_s@(ReportParagraph {})) _g = mempty
           paths (_s@(ReportUndecided {})) _g = mempty
+          peek _p (_s@(ReportItem {})) = undefined :: Peek ReportElem
+          peek _p (_s@(ReportParagraph {})) = undefined :: Peek ReportElem
+          peek _p (_s@(ReportUndecided {})) = undefined :: Peek ReportElem
 instance Paths ReportElem MEUI
     where type Path ReportElem MEUI = Path_ReportElem MEUI
           paths (_s@(ReportItem {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Item) _g)) [(Path_ReportElem_elemItem, elemItem _s)]
           paths (_s@(ReportParagraph {})) _g = mempty
           paths (_s@(ReportUndecided {})) _g = mempty
+          peek _p (_s@(ReportItem {})) = undefined :: Peek ReportElem
+          peek _p (_s@(ReportParagraph {})) = undefined :: Peek ReportElem
+          peek _p (_s@(ReportUndecided {})) = undefined :: Peek ReportElem
 instance Paths ReportElem MaybeImageFile
     where type Path ReportElem MaybeImageFile = Path_ReportElem MaybeImageFile
           paths (_s@(ReportItem {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Item) _g)) [(Path_ReportElem_elemItem, elemItem _s)]
           paths (_s@(ReportParagraph {})) _g = mempty
           paths (_s@(ReportUndecided {})) _g = mempty
+          peek _p (_s@(ReportItem {})) = undefined :: Peek ReportElem
+          peek _p (_s@(ReportParagraph {})) = undefined :: Peek ReportElem
+          peek _p (_s@(ReportUndecided {})) = undefined :: Peek ReportElem
 instance Paths ReportElem ReportImage
     where type Path ReportElem ReportImage = Path_ReportElem ReportImage
           paths (_s@(ReportItem {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Item) _g)) [(Path_ReportElem_elemItem, elemItem _s)]
           paths (_s@(ReportParagraph {})) _g = mempty
           paths (_s@(ReportUndecided {})) _g = mempty
+          peek _p (_s@(ReportItem {})) = undefined :: Peek ReportElem
+          peek _p (_s@(ReportParagraph {})) = undefined :: Peek ReportElem
+          peek _p (_s@(ReportUndecided {})) = undefined :: Peek ReportElem
 instance Paths ReportElem ReportImages
     where type Path ReportElem ReportImages = Path_ReportElem ReportImages
           paths (_s@(ReportItem {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Item) _g)) [(Path_ReportElem_elemItem, elemItem _s)]
           paths (_s@(ReportParagraph {})) _g = mempty
           paths (_s@(ReportUndecided {})) _g = mempty
+          peek _p (_s@(ReportItem {})) = undefined :: Peek ReportElem
+          peek _p (_s@(ReportParagraph {})) = undefined :: Peek ReportElem
+          peek _p (_s@(ReportUndecided {})) = undefined :: Peek ReportElem
 instance Paths ReportElem ReportImageView
     where type Path ReportElem ReportImageView = Path_ReportElem ReportImageView
           paths (_s@(ReportItem {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Item) _g)) [(Path_ReportElem_elemItem, elemItem _s)]
           paths (_s@(ReportParagraph {})) _g = mempty
           paths (_s@(ReportUndecided {})) _g = mempty
+          peek _p (_s@(ReportItem {})) = undefined :: Peek ReportElem
+          peek _p (_s@(ReportParagraph {})) = undefined :: Peek ReportElem
+          peek _p (_s@(ReportUndecided {})) = undefined :: Peek ReportElem
 instance Paths ReportElem SaneSizeImageSize
     where type Path ReportElem SaneSizeImageSize = Path_ReportElem SaneSizeImageSize
           paths (_s@(ReportItem {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Item) _g)) [(Path_ReportElem_elemItem, elemItem _s)]
           paths (_s@(ReportParagraph {})) _g = mempty
           paths (_s@(ReportUndecided {})) _g = mempty
+          peek _p (_s@(ReportItem {})) = undefined :: Peek ReportElem
+          peek _p (_s@(ReportParagraph {})) = undefined :: Peek ReportElem
+          peek _p (_s@(ReportUndecided {})) = undefined :: Peek ReportElem
 instance Paths ReportElem Item
     where type Path ReportElem Item = Path_ReportElem Item
           paths (_s@(ReportItem {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Item) _g)) [(Path_ReportElem_elemItem, elemItem _s)]
           paths (_s@(ReportParagraph {})) _g = mempty
           paths (_s@(ReportUndecided {})) _g = mempty
+          peek _p (_s@(ReportItem {})) = undefined :: Peek ReportElem
+          peek _p (_s@(ReportParagraph {})) = undefined :: Peek ReportElem
+          peek _p (_s@(ReportUndecided {})) = undefined :: Peek ReportElem
 instance Paths ReportElem MIM
     where type Path ReportElem MIM = Path_ReportElem MIM
           paths (_s@(ReportItem {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Item) _g)) [(Path_ReportElem_elemItem, elemItem _s)]
           paths (_s@(ReportParagraph {})) _g = mempty
           paths (_s@(ReportUndecided {})) _g = mempty
+          peek _p (_s@(ReportItem {})) = undefined :: Peek ReportElem
+          peek _p (_s@(ReportParagraph {})) = undefined :: Peek ReportElem
+          peek _p (_s@(ReportUndecided {})) = undefined :: Peek ReportElem
 instance Paths ReportElem URI
     where type Path ReportElem URI = Path_ReportElem URI
           paths (_s@(ReportItem {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Item) _g)) [(Path_ReportElem_elemItem, elemItem _s)]
           paths (_s@(ReportParagraph {})) _g = mempty
           paths (_s@(ReportUndecided {})) _g = mempty
+          peek _p (_s@(ReportItem {})) = undefined :: Peek ReportElem
+          peek _p (_s@(ReportParagraph {})) = undefined :: Peek ReportElem
+          peek _p (_s@(ReportUndecided {})) = undefined :: Peek ReportElem
 instance Paths ReportElem Text
     where type Path ReportElem Text = Path_ReportElem Text
           paths (_s@(ReportItem {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Item) _g)) [(Path_ReportElem_elemItem, elemItem _s)]
           paths (_s@(ReportParagraph {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_ReportElem_elemText, elemText _s)]
           paths (_s@(ReportUndecided {})) _g = mempty
+          peek _p (_s@(ReportItem {})) = undefined :: Peek ReportElem
+          peek _p (_s@(ReportParagraph {})) = undefined :: Peek ReportElem
+          peek _p (_s@(ReportUndecided {})) = undefined :: Peek ReportElem
 instance Paths ReportElems String
     where type Path ReportElems String = Path_OMap ReportElemID (Path_ReportElem String)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
+          peek _p _s = undefined :: Peek ReportElems
 instance Paths ReportElems Bool
     where type Path ReportElems Bool = Path_OMap ReportElemID (Path_ReportElem Bool)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
+          peek _p _s = undefined :: Peek ReportElems
 instance Paths ReportElems Double
     where type Path ReportElems Double = Path_OMap ReportElemID (Path_ReportElem Double)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
+          peek _p _s = undefined :: Peek ReportElems
 instance Paths ReportElems Dimension
     where type Path ReportElems Dimension = Path_OMap ReportElemID (Path_ReportElem Dimension)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
+          peek _p _s = undefined :: Peek ReportElems
 instance Paths ReportElems ImageCrop
     where type Path ReportElems ImageCrop = Path_OMap ReportElemID (Path_ReportElem ImageCrop)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
+          peek _p _s = undefined :: Peek ReportElems
 instance Paths ReportElems ImageSize
     where type Path ReportElems ImageSize = Path_OMap ReportElemID (Path_ReportElem ImageSize)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
+          peek _p _s = undefined :: Peek ReportElems
 instance Paths ReportElems Units
     where type Path ReportElems Units = Path_OMap ReportElemID (Path_ReportElem Units)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
+          peek _p _s = undefined :: Peek ReportElems
 instance Paths ReportElems ImageFile
     where type Path ReportElems ImageFile = Path_OMap ReportElemID (Path_ReportElem ImageFile)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
+          peek _p _s = undefined :: Peek ReportElems
 instance Paths ReportElems JSONText
     where type Path ReportElems JSONText = Path_OMap ReportElemID (Path_ReportElem JSONText)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
+          peek _p _s = undefined :: Peek ReportElems
 instance Paths ReportElems Markup
     where type Path ReportElems Markup = Path_OMap ReportElemID (Path_ReportElem Markup)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
+          peek _p _s = undefined :: Peek ReportElems
 instance Paths ReportElems ReportElem
     where type Path ReportElems ReportElem = Path_OMap ReportElemID (Path_ReportElem ReportElem)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
+          peek _p _s = undefined :: Peek ReportElems
 instance Paths ReportElems ReportElems
     where type Path ReportElems ReportElems = Path_OMap ReportElemID (Path_ReportElem ReportElems)
           paths _ _ = [idPath]
+          peek _ _ = undefined "idpeek" :: Peek ReportElems
 instance Paths ReportElems EUI
     where type Path ReportElems EUI = Path_OMap ReportElemID (Path_ReportElem EUI)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
+          peek _p _s = undefined :: Peek ReportElems
 instance Paths ReportElems MEUI
     where type Path ReportElems MEUI = Path_OMap ReportElemID (Path_ReportElem MEUI)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
+          peek _p _s = undefined :: Peek ReportElems
 instance Paths ReportElems MaybeImageFile
     where type Path ReportElems MaybeImageFile = Path_OMap ReportElemID (Path_ReportElem MaybeImageFile)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
+          peek _p _s = undefined :: Peek ReportElems
 instance Paths ReportElems ReportImage
     where type Path ReportElems ReportImage = Path_OMap ReportElemID (Path_ReportElem ReportImage)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
+          peek _p _s = undefined :: Peek ReportElems
 instance Paths ReportElems ReportImages
     where type Path ReportElems ReportImages = Path_OMap ReportElemID (Path_ReportElem ReportImages)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
+          peek _p _s = undefined :: Peek ReportElems
 instance Paths ReportElems ReportImageView
     where type Path ReportElems ReportImageView = Path_OMap ReportElemID (Path_ReportElem ReportImageView)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
+          peek _p _s = undefined :: Peek ReportElems
 instance Paths ReportElems SaneSizeImageSize
     where type Path ReportElems SaneSizeImageSize = Path_OMap ReportElemID (Path_ReportElem SaneSizeImageSize)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
+          peek _p _s = undefined :: Peek ReportElems
 instance Paths ReportElems Item
     where type Path ReportElems Item = Path_OMap ReportElemID (Path_ReportElem Item)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
+          peek _p _s = undefined :: Peek ReportElems
 instance Paths ReportElems MIM
     where type Path ReportElems MIM = Path_OMap ReportElemID (Path_ReportElem MIM)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
+          peek _p _s = undefined :: Peek ReportElems
 instance Paths ReportElems URI
     where type Path ReportElems URI = Path_OMap ReportElemID (Path_ReportElem URI)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
+          peek _p _s = undefined :: Peek ReportElems
 instance Paths ReportElems Text
     where type Path ReportElems Text = Path_OMap ReportElemID (Path_ReportElem Text)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
+          peek _p _s = undefined :: Peek ReportElems
 instance Paths ReportFlags String
     where type Path ReportFlags String = Path_ReportFlags String
           paths (_s@(ReportFlags {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Bool) _g)) [(Path_ReportFlags_hideEmptyItemFields, hideEmptyItemFields _s)]
+          peek _p (_s@(ReportFlags {})) = undefined :: Peek ReportFlags
 instance Paths ReportFlags Bool
     where type Path ReportFlags Bool = Path_ReportFlags Bool
           paths (_s@(ReportFlags {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Bool) _g)) [(Path_ReportFlags_hideEmptyItemFields, hideEmptyItemFields _s)]
+          peek _p (_s@(ReportFlags {})) = undefined :: Peek ReportFlags
 instance Paths ReportFlags JSONText
     where type Path ReportFlags JSONText = Path_ReportFlags JSONText
           paths (_s@(ReportFlags {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Bool) _g)) [(Path_ReportFlags_hideEmptyItemFields, hideEmptyItemFields _s)]
+          peek _p (_s@(ReportFlags {})) = undefined :: Peek ReportFlags
 instance Paths ReportFlags ReportFlags
     where type Path ReportFlags ReportFlags = Path_ReportFlags ReportFlags
           paths _ _ = [idPath]
+          peek _ _ = undefined "idpeek" :: Peek ReportFlags
 instance Paths ReportIntendedUse String
     where type Path ReportIntendedUse String = Path_ReportIntendedUse String
-          paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: [Char]) _g)) (map (\a' -> (Path_ReportIntendedUse_View,
-                                                                                              a')) (toListOf (toLens (Path_ReportIntendedUse_View (idPath :: Path ([Char]) ([Char])))) _s))
+          paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: String) _g)) (map (\a' -> (Path_ReportIntendedUse_View,
+                                                                                              a')) (toListOf (toLens (Path_ReportIntendedUse_View (idPath :: Path String String))) _s))
+          peek _p _s = undefined :: Peek ReportIntendedUse
 instance Paths ReportIntendedUse JSONText
     where type Path ReportIntendedUse JSONText = Path_ReportIntendedUse JSONText
-          paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: [Char]) _g)) (map (\a' -> (Path_ReportIntendedUse_View,
-                                                                                              a')) (toListOf (toLens (Path_ReportIntendedUse_View (idPath :: Path ([Char]) ([Char])))) _s))
+          paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: String) _g)) (map (\a' -> (Path_ReportIntendedUse_View,
+                                                                                              a')) (toListOf (toLens (Path_ReportIntendedUse_View (idPath :: Path String String))) _s))
+          peek _p _s = undefined :: Peek ReportIntendedUse
 instance Paths ReportIntendedUse ReportIntendedUse
     where type Path ReportIntendedUse ReportIntendedUse = Path_ReportIntendedUse ReportIntendedUse
           paths _ _ = [idPath]
+          peek _ _ = undefined "idpeek" :: Peek ReportIntendedUse
 instance Paths ReportStandard Int
     where type Path ReportStandard Int = Path_ReportStandard Int
           paths (_s@(ReportStandard {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Int) _g)) [(Path_ReportStandard_unReportStandard, unReportStandard _s)]
+          peek _p (_s@(ReportStandard {})) = undefined :: Peek ReportStandard
 instance Paths ReportStandard ReportStandard
     where type Path ReportStandard ReportStandard = Path_ReportStandard ReportStandard
           paths _ _ = [idPath]
+          peek _ _ = undefined "idpeek" :: Peek ReportStandard
 instance Paths ReportStatus String
     where type Path ReportStatus String = Path_ReportStatus String
-          paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: [Char]) _g)) (map (\a' -> (Path_ReportStatus_View,
-                                                                                              a')) (toListOf (toLens (Path_ReportStatus_View (idPath :: Path ([Char]) ([Char])))) _s))
+          paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: String) _g)) (map (\a' -> (Path_ReportStatus_View,
+                                                                                              a')) (toListOf (toLens (Path_ReportStatus_View (idPath :: Path String String))) _s))
+          peek _p _s = undefined :: Peek ReportStatus
 instance Paths ReportStatus JSONText
     where type Path ReportStatus JSONText = Path_ReportStatus JSONText
-          paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: [Char]) _g)) (map (\a' -> (Path_ReportStatus_View,
-                                                                                              a')) (toListOf (toLens (Path_ReportStatus_View (idPath :: Path ([Char]) ([Char])))) _s))
+          paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: String) _g)) (map (\a' -> (Path_ReportStatus_View,
+                                                                                              a')) (toListOf (toLens (Path_ReportStatus_View (idPath :: Path String String))) _s))
+          peek _p _s = undefined :: Peek ReportStatus
 instance Paths ReportStatus ReportStatus
     where type Path ReportStatus ReportStatus = Path_ReportStatus ReportStatus
           paths _ _ = [idPath]
+          peek _ _ = undefined "idpeek" :: Peek ReportStatus
 instance Paths ReportValueApproachInfo JSONText
     where type Path ReportValueApproachInfo JSONText = Path_ReportValueApproachInfo JSONText
           paths (_s@(ReportValueApproachInfo {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_ReportValueApproachInfo_reportValueApproachName,
                                                                                                                           reportValueApproachName _s)],
                                                                 concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_ReportValueApproachInfo_reportValueApproachDescription, reportValueApproachDescription _s)]]
+          peek _p (_s@(ReportValueApproachInfo {})) = undefined :: Peek ReportValueApproachInfo
 instance Paths ReportValueApproachInfo Markup
     where type Path ReportValueApproachInfo Markup = Path_ReportValueApproachInfo Markup
           paths (_s@(ReportValueApproachInfo {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_ReportValueApproachInfo_reportValueApproachName,
                                                                                                                           reportValueApproachName _s)],
                                                                 concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_ReportValueApproachInfo_reportValueApproachDescription, reportValueApproachDescription _s)]]
+          peek _p (_s@(ReportValueApproachInfo {})) = undefined :: Peek ReportValueApproachInfo
 instance Paths ReportValueApproachInfo ReportValueApproachInfo
     where type Path ReportValueApproachInfo ReportValueApproachInfo = Path_ReportValueApproachInfo ReportValueApproachInfo
           paths _ _ = [idPath]
+          peek _ _ = undefined "idpeek" :: Peek ReportValueApproachInfo
 instance Paths ReportValueApproachInfo Text
     where type Path ReportValueApproachInfo Text = Path_ReportValueApproachInfo Text
           paths (_s@(ReportValueApproachInfo {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_ReportValueApproachInfo_reportValueApproachName,
                                                                                                                           reportValueApproachName _s)],
                                                                 concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_ReportValueApproachInfo_reportValueApproachDescription, reportValueApproachDescription _s)]]
+          peek _p (_s@(ReportValueApproachInfo {})) = undefined :: Peek ReportValueApproachInfo
 instance Paths ReportValueTypeInfo JSONText
     where type Path ReportValueTypeInfo JSONText = Path_ReportValueTypeInfo JSONText
           paths (_s@(ReportValueTypeInfo {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_ReportValueTypeInfo_reportValueTypeName,
                                                                                                                       reportValueTypeName _s)],
                                                             concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_ReportValueTypeInfo_reportValueTypeDescription, reportValueTypeDescription _s)],
                                                             concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_ReportValueTypeInfo_reportValueTypeDefinition, reportValueTypeDefinition _s)]]
+          peek _p (_s@(ReportValueTypeInfo {})) = undefined :: Peek ReportValueTypeInfo
 instance Paths ReportValueTypeInfo Markup
     where type Path ReportValueTypeInfo Markup = Path_ReportValueTypeInfo Markup
           paths (_s@(ReportValueTypeInfo {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_ReportValueTypeInfo_reportValueTypeName,
                                                                                                                       reportValueTypeName _s)],
                                                             concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_ReportValueTypeInfo_reportValueTypeDescription, reportValueTypeDescription _s)],
                                                             concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_ReportValueTypeInfo_reportValueTypeDefinition, reportValueTypeDefinition _s)]]
+          peek _p (_s@(ReportValueTypeInfo {})) = undefined :: Peek ReportValueTypeInfo
 instance Paths ReportValueTypeInfo ReportValueTypeInfo
     where type Path ReportValueTypeInfo ReportValueTypeInfo = Path_ReportValueTypeInfo ReportValueTypeInfo
           paths _ _ = [idPath]
+          peek _ _ = undefined "idpeek" :: Peek ReportValueTypeInfo
 instance Paths ReportValueTypeInfo Text
     where type Path ReportValueTypeInfo Text = Path_ReportValueTypeInfo Text
           paths (_s@(ReportValueTypeInfo {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_ReportValueTypeInfo_reportValueTypeName,
                                                                                                                       reportValueTypeName _s)],
                                                             concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_ReportValueTypeInfo_reportValueTypeDescription, reportValueTypeDescription _s)],
                                                             concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_ReportValueTypeInfo_reportValueTypeDefinition, reportValueTypeDefinition _s)]]
+          peek _p (_s@(ReportValueTypeInfo {})) = undefined :: Peek ReportValueTypeInfo
 instance Paths EUI ImageFile
     where type Path EUI ImageFile = Path_Either (Path_URI ImageFile) (Path_ImageFile ImageFile)
           paths (_s@(Left _)) _g = mempty
           paths (_s@(Right _)) _g = concatMap (\(p, a') -> map p (paths (a' :: ImageFile) _g)) (case _s of
                                                                                                     Left _ -> []
                                                                                                     Right a' -> [(Path_Right, a')])
+          peek _p (_s@(Left _)) = undefined :: Peek EUI
+          peek _p (_s@(Right _)) = undefined :: Peek EUI
 instance Paths EUI EUI
     where type Path EUI EUI = Path_Either (Path_URI EUI) (Path_ImageFile EUI)
           paths _ _ = [idPath]
+          peek _ _ = undefined "idpeek" :: Peek EUI
 instance Paths EUI URI
     where type Path EUI URI = Path_Either (Path_URI URI) (Path_ImageFile URI)
           paths (_s@(Left _)) _g = concatMap (\(p, a') -> map p (paths (a' :: URI) _g)) (case _s of
                                                                                              Left a' -> [(Path_Left, a')]
                                                                                              Right _ -> [])
           paths (_s@(Right _)) _g = mempty
+          peek _p (_s@(Left _)) = undefined :: Peek EUI
+          peek _p (_s@(Right _)) = undefined :: Peek EUI
 instance Paths MEUI ImageFile
     where type Path MEUI ImageFile = Path_Maybe (Path_Either (Path_URI ImageFile) (Path_ImageFile ImageFile))
-          paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Either URI ImageFile) _g)) (case _s of
-                                                                                                   Nothing -> []
-                                                                                                   Just a' -> [(Path_Just, a')])
+          paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: EUI) _g)) (case _s of
+                                                                                  Nothing -> []
+                                                                                  Just a' -> [(Path_Just, a')])
+          peek _p _s = undefined :: Peek MEUI
 instance Paths MEUI EUI
     where type Path MEUI EUI = Path_Maybe (Path_Either (Path_URI EUI) (Path_ImageFile EUI))
-          paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Either URI ImageFile) _g)) (case _s of
-                                                                                                   Nothing -> []
-                                                                                                   Just a' -> [(Path_Just, a')])
+          paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: EUI) _g)) (case _s of
+                                                                                  Nothing -> []
+                                                                                  Just a' -> [(Path_Just, a')])
+          peek _p _s = undefined :: Peek MEUI
 instance Paths MEUI MEUI
     where type Path MEUI MEUI = Path_Maybe (Path_Either (Path_URI MEUI) (Path_ImageFile MEUI))
           paths _ _ = [idPath]
+          peek _ _ = undefined "idpeek" :: Peek MEUI
 instance Paths MEUI URI
     where type Path MEUI URI = Path_Maybe (Path_Either (Path_URI URI) (Path_ImageFile URI))
-          paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Either URI ImageFile) _g)) (case _s of
-                                                                                                   Nothing -> []
-                                                                                                   Just a' -> [(Path_Just, a')])
+          paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: EUI) _g)) (case _s of
+                                                                                  Nothing -> []
+                                                                                  Just a' -> [(Path_Just, a')])
+          peek _p _s = undefined :: Peek MEUI
 instance Paths MaybeImageFile String
     where type Path MaybeImageFile String = Path_MaybeImageFile String
-          paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: [Char]) _g)) (map (\a' -> (Path_MaybeImageFile_View,
-                                                                                              a')) (toListOf (toLens (Path_MaybeImageFile_View (idPath :: Path ([Char]) ([Char])))) _s))
+          paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: String) _g)) (map (\a' -> (Path_MaybeImageFile_View,
+                                                                                              a')) (toListOf (toLens (Path_MaybeImageFile_View (idPath :: Path String String))) _s))
+          peek _p _s = undefined :: Peek MaybeImageFile
 instance Paths MaybeImageFile JSONText
     where type Path MaybeImageFile JSONText = Path_MaybeImageFile JSONText
-          paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: [Char]) _g)) (map (\a' -> (Path_MaybeImageFile_View,
-                                                                                              a')) (toListOf (toLens (Path_MaybeImageFile_View (idPath :: Path ([Char]) ([Char])))) _s))
+          paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: String) _g)) (map (\a' -> (Path_MaybeImageFile_View,
+                                                                                              a')) (toListOf (toLens (Path_MaybeImageFile_View (idPath :: Path String String))) _s))
+          peek _p _s = undefined :: Peek MaybeImageFile
 instance Paths MaybeImageFile MaybeImageFile
     where type Path MaybeImageFile MaybeImageFile = Path_MaybeImageFile MaybeImageFile
           paths _ _ = [idPath]
+          peek _ _ = undefined "idpeek" :: Peek MaybeImageFile
 instance Paths ReportImage String
     where type Path ReportImage String = Path_ReportImage String
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImageView) _g)) (map (\a' -> (Path_ReportImage_View,
                                                                                                        a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView ReportImageView))) _s))
+          peek _p _s = undefined :: Peek ReportImage
 instance Paths ReportImage Bool
     where type Path ReportImage Bool = Path_ReportImage Bool
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImageView) _g)) (map (\a' -> (Path_ReportImage_View,
                                                                                                        a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView ReportImageView))) _s))
+          peek _p _s = undefined :: Peek ReportImage
 instance Paths ReportImage Double
     where type Path ReportImage Double = Path_ReportImage Double
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImageView) _g)) (map (\a' -> (Path_ReportImage_View,
                                                                                                        a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView ReportImageView))) _s))
+          peek _p _s = undefined :: Peek ReportImage
 instance Paths ReportImage Dimension
     where type Path ReportImage Dimension = Path_ReportImage Dimension
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImageView) _g)) (map (\a' -> (Path_ReportImage_View,
                                                                                                        a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView ReportImageView))) _s))
+          peek _p _s = undefined :: Peek ReportImage
 instance Paths ReportImage ImageCrop
     where type Path ReportImage ImageCrop = Path_ReportImage ImageCrop
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImageView) _g)) (map (\a' -> (Path_ReportImage_View,
                                                                                                        a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView ReportImageView))) _s))
+          peek _p _s = undefined :: Peek ReportImage
 instance Paths ReportImage ImageSize
     where type Path ReportImage ImageSize = Path_ReportImage ImageSize
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImageView) _g)) (map (\a' -> (Path_ReportImage_View,
                                                                                                        a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView ReportImageView))) _s))
+          peek _p _s = undefined :: Peek ReportImage
 instance Paths ReportImage Units
     where type Path ReportImage Units = Path_ReportImage Units
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImageView) _g)) (map (\a' -> (Path_ReportImage_View,
                                                                                                        a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView ReportImageView))) _s))
+          peek _p _s = undefined :: Peek ReportImage
 instance Paths ReportImage ImageFile
     where type Path ReportImage ImageFile = Path_ReportImage ImageFile
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImageView) _g)) (map (\a' -> (Path_ReportImage_View,
                                                                                                        a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView ReportImageView))) _s))
+          peek _p _s = undefined :: Peek ReportImage
 instance Paths ReportImage JSONText
     where type Path ReportImage JSONText = Path_ReportImage JSONText
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImageView) _g)) (map (\a' -> (Path_ReportImage_View,
                                                                                                        a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView ReportImageView))) _s))
+          peek _p _s = undefined :: Peek ReportImage
 instance Paths ReportImage Markup
     where type Path ReportImage Markup = Path_ReportImage Markup
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImageView) _g)) (map (\a' -> (Path_ReportImage_View,
                                                                                                        a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView ReportImageView))) _s))
+          peek _p _s = undefined :: Peek ReportImage
 instance Paths ReportImage EUI
     where type Path ReportImage EUI = Path_ReportImage EUI
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImageView) _g)) (map (\a' -> (Path_ReportImage_View,
                                                                                                        a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView ReportImageView))) _s))
+          peek _p _s = undefined :: Peek ReportImage
 instance Paths ReportImage MEUI
     where type Path ReportImage MEUI = Path_ReportImage MEUI
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImageView) _g)) (map (\a' -> (Path_ReportImage_View,
                                                                                                        a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView ReportImageView))) _s))
+          peek _p _s = undefined :: Peek ReportImage
 instance Paths ReportImage MaybeImageFile
     where type Path ReportImage MaybeImageFile = Path_ReportImage MaybeImageFile
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImageView) _g)) (map (\a' -> (Path_ReportImage_View,
                                                                                                        a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView ReportImageView))) _s))
+          peek _p _s = undefined :: Peek ReportImage
 instance Paths ReportImage ReportImage
     where type Path ReportImage ReportImage = Path_ReportImage ReportImage
           paths _ _ = [idPath]
+          peek _ _ = undefined "idpeek" :: Peek ReportImage
 instance Paths ReportImage ReportImageView
     where type Path ReportImage ReportImageView = Path_ReportImage ReportImageView
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImageView) _g)) (map (\a' -> (Path_ReportImage_View,
                                                                                                        a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView ReportImageView))) _s))
+          peek _p _s = undefined :: Peek ReportImage
 instance Paths ReportImage SaneSizeImageSize
     where type Path ReportImage SaneSizeImageSize = Path_ReportImage SaneSizeImageSize
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImageView) _g)) (map (\a' -> (Path_ReportImage_View,
                                                                                                        a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView ReportImageView))) _s))
+          peek _p _s = undefined :: Peek ReportImage
 instance Paths ReportImage URI
     where type Path ReportImage URI = Path_ReportImage URI
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImageView) _g)) (map (\a' -> (Path_ReportImage_View,
                                                                                                        a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView ReportImageView))) _s))
+          peek _p _s = undefined :: Peek ReportImage
 instance Paths ReportImage Text
     where type Path ReportImage Text = Path_ReportImage Text
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImageView) _g)) (map (\a' -> (Path_ReportImage_View,
                                                                                                        a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView ReportImageView))) _s))
+          peek _p _s = undefined :: Peek ReportImage
 instance Paths ReportImages String
     where type Path ReportImages String = Path_OMap ReportImageID (Path_ReportImage String)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImage) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
+          peek _p _s = undefined :: Peek ReportImages
 instance Paths ReportImages Bool
     where type Path ReportImages Bool = Path_OMap ReportImageID (Path_ReportImage Bool)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImage) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
+          peek _p _s = undefined :: Peek ReportImages
 instance Paths ReportImages Double
     where type Path ReportImages Double = Path_OMap ReportImageID (Path_ReportImage Double)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImage) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
+          peek _p _s = undefined :: Peek ReportImages
 instance Paths ReportImages Dimension
     where type Path ReportImages Dimension = Path_OMap ReportImageID (Path_ReportImage Dimension)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImage) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
+          peek _p _s = undefined :: Peek ReportImages
 instance Paths ReportImages ImageCrop
     where type Path ReportImages ImageCrop = Path_OMap ReportImageID (Path_ReportImage ImageCrop)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImage) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
+          peek _p _s = undefined :: Peek ReportImages
 instance Paths ReportImages ImageSize
     where type Path ReportImages ImageSize = Path_OMap ReportImageID (Path_ReportImage ImageSize)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImage) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
+          peek _p _s = undefined :: Peek ReportImages
 instance Paths ReportImages Units
     where type Path ReportImages Units = Path_OMap ReportImageID (Path_ReportImage Units)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImage) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
+          peek _p _s = undefined :: Peek ReportImages
 instance Paths ReportImages ImageFile
     where type Path ReportImages ImageFile = Path_OMap ReportImageID (Path_ReportImage ImageFile)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImage) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
+          peek _p _s = undefined :: Peek ReportImages
 instance Paths ReportImages JSONText
     where type Path ReportImages JSONText = Path_OMap ReportImageID (Path_ReportImage JSONText)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImage) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
+          peek _p _s = undefined :: Peek ReportImages
 instance Paths ReportImages Markup
     where type Path ReportImages Markup = Path_OMap ReportImageID (Path_ReportImage Markup)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImage) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
+          peek _p _s = undefined :: Peek ReportImages
 instance Paths ReportImages EUI
     where type Path ReportImages EUI = Path_OMap ReportImageID (Path_ReportImage EUI)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImage) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
+          peek _p _s = undefined :: Peek ReportImages
 instance Paths ReportImages MEUI
     where type Path ReportImages MEUI = Path_OMap ReportImageID (Path_ReportImage MEUI)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImage) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
+          peek _p _s = undefined :: Peek ReportImages
 instance Paths ReportImages MaybeImageFile
     where type Path ReportImages MaybeImageFile = Path_OMap ReportImageID (Path_ReportImage MaybeImageFile)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImage) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
+          peek _p _s = undefined :: Peek ReportImages
 instance Paths ReportImages ReportImage
     where type Path ReportImages ReportImage = Path_OMap ReportImageID (Path_ReportImage ReportImage)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImage) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
+          peek _p _s = undefined :: Peek ReportImages
 instance Paths ReportImages ReportImages
     where type Path ReportImages ReportImages = Path_OMap ReportImageID (Path_ReportImage ReportImages)
           paths _ _ = [idPath]
+          peek _ _ = undefined "idpeek" :: Peek ReportImages
 instance Paths ReportImages ReportImageView
     where type Path ReportImages ReportImageView = Path_OMap ReportImageID (Path_ReportImage ReportImageView)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImage) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
+          peek _p _s = undefined :: Peek ReportImages
 instance Paths ReportImages SaneSizeImageSize
     where type Path ReportImages SaneSizeImageSize = Path_OMap ReportImageID (Path_ReportImage SaneSizeImageSize)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImage) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
+          peek _p _s = undefined :: Peek ReportImages
 instance Paths ReportImages URI
     where type Path ReportImages URI = Path_OMap ReportImageID (Path_ReportImage URI)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImage) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
+          peek _p _s = undefined :: Peek ReportImages
 instance Paths ReportImages Text
     where type Path ReportImages Text = Path_OMap ReportImageID (Path_ReportImage Text)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImage) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
+          peek _p _s = undefined :: Peek ReportImages
 instance Paths ReadOnlyFilePath String
     where type Path ReadOnlyFilePath String = Path_ReadOnlyFilePath String
-          paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: [Char]) _g)) (map (\a' -> (Path_ReadOnlyFilePath_View,
-                                                                                              a')) (toListOf (toLens (Path_ReadOnlyFilePath_View (idPath :: Path ([Char]) ([Char])))) _s))
+          paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: String) _g)) (map (\a' -> (Path_ReadOnlyFilePath_View,
+                                                                                              a')) (toListOf (toLens (Path_ReadOnlyFilePath_View (idPath :: Path String String))) _s))
+          peek _p _s = undefined :: Peek ReadOnlyFilePath
 instance Paths ReadOnlyFilePath JSONText
     where type Path ReadOnlyFilePath JSONText = Path_ReadOnlyFilePath JSONText
-          paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: [Char]) _g)) (map (\a' -> (Path_ReadOnlyFilePath_View,
-                                                                                              a')) (toListOf (toLens (Path_ReadOnlyFilePath_View (idPath :: Path ([Char]) ([Char])))) _s))
+          paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: String) _g)) (map (\a' -> (Path_ReadOnlyFilePath_View,
+                                                                                              a')) (toListOf (toLens (Path_ReadOnlyFilePath_View (idPath :: Path String String))) _s))
+          peek _p _s = undefined :: Peek ReadOnlyFilePath
 instance Paths ReadOnlyFilePath ReadOnlyFilePath
     where type Path ReadOnlyFilePath ReadOnlyFilePath = Path_ReadOnlyFilePath ReadOnlyFilePath
           paths _ _ = [idPath]
+          peek _ _ = undefined "idpeek" :: Peek ReadOnlyFilePath
 instance Paths ReportImageView String
     where type Path ReportImageView String = Path_ReportImageView String
           paths (_s@(ReportImageView {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: SaneSizeImageSize) _g)) [(Path_ReportImageView__picSize, _picSize _s)],
@@ -1578,28 +1867,36 @@ instance Paths ReportImageView String
                                                         concatMap (\(p, a') -> map p (paths (a' :: MaybeImageFile) _g)) [(Path_ReportImageView__picPrinterDeprecated, _picPrinterDeprecated _s)],
                                                         concatMap (\(p, a') -> map p (paths (a' :: Bool) _g)) [(Path_ReportImageView__picMustEnlarge, _picMustEnlarge _s)],
                                                         concatMap (\(p, a') -> map p (paths (a' :: MaybeImageFile) _g)) [(Path_ReportImageView__picEnlargedDeprecated, _picEnlargedDeprecated _s)]]
+          peek _p (_s@(ReportImageView {})) = undefined :: Peek ReportImageView
 instance Paths ReportImageView Bool
     where type Path ReportImageView Bool = Path_ReportImageView Bool
           paths (_s@(ReportImageView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Bool) _g)) [(Path_ReportImageView__picMustEnlarge, _picMustEnlarge _s)]
+          peek _p (_s@(ReportImageView {})) = undefined :: Peek ReportImageView
 instance Paths ReportImageView Double
     where type Path ReportImageView Double = Path_ReportImageView Double
           paths (_s@(ReportImageView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: SaneSizeImageSize) _g)) [(Path_ReportImageView__picSize, _picSize _s)]
+          peek _p (_s@(ReportImageView {})) = undefined :: Peek ReportImageView
 instance Paths ReportImageView Dimension
     where type Path ReportImageView Dimension = Path_ReportImageView Dimension
           paths (_s@(ReportImageView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: SaneSizeImageSize) _g)) [(Path_ReportImageView__picSize, _picSize _s)]
+          peek _p (_s@(ReportImageView {})) = undefined :: Peek ReportImageView
 instance Paths ReportImageView ImageCrop
     where type Path ReportImageView ImageCrop = Path_ReportImageView ImageCrop
           paths (_s@(ReportImageView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ImageCrop) _g)) [(Path_ReportImageView__picCrop, _picCrop _s)]
+          peek _p (_s@(ReportImageView {})) = undefined :: Peek ReportImageView
 instance Paths ReportImageView ImageSize
     where type Path ReportImageView ImageSize = Path_ReportImageView ImageSize
           paths (_s@(ReportImageView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: SaneSizeImageSize) _g)) [(Path_ReportImageView__picSize, _picSize _s)]
+          peek _p (_s@(ReportImageView {})) = undefined :: Peek ReportImageView
 instance Paths ReportImageView Units
     where type Path ReportImageView Units = Path_ReportImageView Units
           paths (_s@(ReportImageView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: SaneSizeImageSize) _g)) [(Path_ReportImageView__picSize, _picSize _s)]
+          peek _p (_s@(ReportImageView {})) = undefined :: Peek ReportImageView
 instance Paths ReportImageView ImageFile
     where type Path ReportImageView ImageFile = Path_ReportImageView ImageFile
           paths (_s@(ReportImageView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Maybe (Either URI ImageFile)) _g)) [(Path_ReportImageView__picOriginal,
                                                                                                                                _picOriginal _s)]
+          peek _p (_s@(ReportImageView {})) = undefined :: Peek ReportImageView
 instance Paths ReportImageView JSONText
     where type Path ReportImageView JSONText = Path_ReportImageView JSONText
           paths (_s@(ReportImageView {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: SaneSizeImageSize) _g)) [(Path_ReportImageView__picSize, _picSize _s)],
@@ -1609,17 +1906,21 @@ instance Paths ReportImageView JSONText
                                                         concatMap (\(p, a') -> map p (paths (a' :: MaybeImageFile) _g)) [(Path_ReportImageView__picPrinterDeprecated, _picPrinterDeprecated _s)],
                                                         concatMap (\(p, a') -> map p (paths (a' :: Bool) _g)) [(Path_ReportImageView__picMustEnlarge, _picMustEnlarge _s)],
                                                         concatMap (\(p, a') -> map p (paths (a' :: MaybeImageFile) _g)) [(Path_ReportImageView__picEnlargedDeprecated, _picEnlargedDeprecated _s)]]
+          peek _p (_s@(ReportImageView {})) = undefined :: Peek ReportImageView
 instance Paths ReportImageView Markup
     where type Path ReportImageView Markup = Path_ReportImageView Markup
           paths (_s@(ReportImageView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_ReportImageView__picCaption, _picCaption _s)]
+          peek _p (_s@(ReportImageView {})) = undefined :: Peek ReportImageView
 instance Paths ReportImageView EUI
     where type Path ReportImageView EUI = Path_ReportImageView EUI
           paths (_s@(ReportImageView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Maybe (Either URI ImageFile)) _g)) [(Path_ReportImageView__picOriginal,
                                                                                                                                _picOriginal _s)]
+          peek _p (_s@(ReportImageView {})) = undefined :: Peek ReportImageView
 instance Paths ReportImageView MEUI
     where type Path ReportImageView MEUI = Path_ReportImageView MEUI
           paths (_s@(ReportImageView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Maybe (Either URI ImageFile)) _g)) [(Path_ReportImageView__picOriginal,
                                                                                                                                _picOriginal _s)]
+          peek _p (_s@(ReportImageView {})) = undefined :: Peek ReportImageView
 instance Paths ReportImageView MaybeImageFile
     where type Path ReportImageView MaybeImageFile = Path_ReportImageView MaybeImageFile
           paths (_s@(ReportImageView {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: MaybeImageFile) _g)) [(Path_ReportImageView__picEditedDeprecated,
@@ -1627,19 +1928,24 @@ instance Paths ReportImageView MaybeImageFile
                                                         concatMap (\(p, a') -> map p (paths (a' :: MaybeImageFile) _g)) [(Path_ReportImageView__picThumbDeprecated, _picThumbDeprecated _s)],
                                                         concatMap (\(p, a') -> map p (paths (a' :: MaybeImageFile) _g)) [(Path_ReportImageView__picPrinterDeprecated, _picPrinterDeprecated _s)],
                                                         concatMap (\(p, a') -> map p (paths (a' :: MaybeImageFile) _g)) [(Path_ReportImageView__picEnlargedDeprecated, _picEnlargedDeprecated _s)]]
+          peek _p (_s@(ReportImageView {})) = undefined :: Peek ReportImageView
 instance Paths ReportImageView ReportImageView
     where type Path ReportImageView ReportImageView = Path_ReportImageView ReportImageView
           paths _ _ = [idPath]
+          peek _ _ = undefined "idpeek" :: Peek ReportImageView
 instance Paths ReportImageView SaneSizeImageSize
     where type Path ReportImageView SaneSizeImageSize = Path_ReportImageView SaneSizeImageSize
           paths (_s@(ReportImageView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: SaneSizeImageSize) _g)) [(Path_ReportImageView__picSize, _picSize _s)]
+          peek _p (_s@(ReportImageView {})) = undefined :: Peek ReportImageView
 instance Paths ReportImageView URI
     where type Path ReportImageView URI = Path_ReportImageView URI
           paths (_s@(ReportImageView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Maybe (Either URI ImageFile)) _g)) [(Path_ReportImageView__picOriginal,
                                                                                                                                _picOriginal _s)]
+          peek _p (_s@(ReportImageView {})) = undefined :: Peek ReportImageView
 instance Paths ReportImageView Text
     where type Path ReportImageView Text = Path_ReportImageView Text
           paths (_s@(ReportImageView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_ReportImageView__picCaption, _picCaption _s)]
+          peek _p (_s@(ReportImageView {})) = undefined :: Peek ReportImageView
 instance Paths ReportView String
     where type Path ReportView String = Path_ReportView String
           paths (_s@(ReportView {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: ReadOnlyFilePath) _g)) [(Path_ReportView__reportFolder, _reportFolder _s)],
@@ -1650,9 +1956,11 @@ instance Paths ReportView String
                                                    concatMap (\(p, a') -> map p (paths (a' :: ReportFlags) _g)) [(Path_ReportView__reportFlags, _reportFlags _s)],
                                                    concatMap (\(p, a') -> map p (paths (a' :: Bool) _g)) [(Path_ReportView__reportOrderByItemName, _reportOrderByItemName _s)],
                                                    concatMap (\(p, a') -> map p (paths (a' :: Bool) _g)) [(Path_ReportView__reportDisplayItemName, _reportDisplayItemName _s)]]
+          peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
 instance Paths ReportView Int64
     where type Path ReportView Int64 = Path_ReportView Int64
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: EpochMilli) _g)) [(Path_ReportView__reportCreated, _reportCreated _s)]
+          peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
 instance Paths ReportView Bool
     where type Path ReportView Bool = Path_ReportView Bool
           paths (_s@(ReportView {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: ReportElems) _g)) [(Path_ReportView__reportBody, _reportBody _s)],
@@ -1660,30 +1968,39 @@ instance Paths ReportView Bool
                                                    concatMap (\(p, a') -> map p (paths (a' :: ReportFlags) _g)) [(Path_ReportView__reportFlags, _reportFlags _s)],
                                                    concatMap (\(p, a') -> map p (paths (a' :: Bool) _g)) [(Path_ReportView__reportOrderByItemName, _reportOrderByItemName _s)],
                                                    concatMap (\(p, a') -> map p (paths (a' :: Bool) _g)) [(Path_ReportView__reportDisplayItemName, _reportDisplayItemName _s)]]
+          peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
 instance Paths ReportView Double
     where type Path ReportView Double = Path_ReportView Double
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElems) _g)) [(Path_ReportView__reportBody, _reportBody _s)]
+          peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
 instance Paths ReportView Int
     where type Path ReportView Int = Path_ReportView Int
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportStandard) _g)) [(Path_ReportView__reportStandardsVersion, _reportStandardsVersion _s)]
+          peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
 instance Paths ReportView Dimension
     where type Path ReportView Dimension = Path_ReportView Dimension
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElems) _g)) [(Path_ReportView__reportBody, _reportBody _s)]
+          peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
 instance Paths ReportView ImageCrop
     where type Path ReportView ImageCrop = Path_ReportView ImageCrop
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElems) _g)) [(Path_ReportView__reportBody, _reportBody _s)]
+          peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
 instance Paths ReportView ImageSize
     where type Path ReportView ImageSize = Path_ReportView ImageSize
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElems) _g)) [(Path_ReportView__reportBody, _reportBody _s)]
+          peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
 instance Paths ReportView Units
     where type Path ReportView Units = Path_ReportView Units
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElems) _g)) [(Path_ReportView__reportBody, _reportBody _s)]
+          peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
 instance Paths ReportView ImageFile
     where type Path ReportView ImageFile = Path_ReportView ImageFile
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElems) _g)) [(Path_ReportView__reportBody, _reportBody _s)]
+          peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
 instance Paths ReportView Integer
     where type Path ReportView Integer = Path_ReportView Integer
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Integer) _g)) [(Path_ReportView__reportRevision, _reportRevision _s)]
+          peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
 instance Paths ReportView JSONText
     where type Path ReportView JSONText = Path_ReportView JSONText
           paths (_s@(ReportView {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: ReadOnlyFilePath) _g)) [(Path_ReportView__reportFolder, _reportFolder _s)],
@@ -1727,6 +2044,7 @@ instance Paths ReportView JSONText
                                                    concatMap (\(p, a') -> map p (paths (a' :: ReportFlags) _g)) [(Path_ReportView__reportFlags, _reportFlags _s)],
                                                    concatMap (\(p, a') -> map p (paths (a' :: Bool) _g)) [(Path_ReportView__reportOrderByItemName, _reportOrderByItemName _s)],
                                                    concatMap (\(p, a') -> map p (paths (a' :: Bool) _g)) [(Path_ReportView__reportDisplayItemName, _reportDisplayItemName _s)]]
+          peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
 instance Paths ReportView Markup
     where type Path ReportView Markup = Path_ReportView Markup
           paths (_s@(ReportView {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_ReportView__reportName, _reportName _s)],
@@ -1761,103 +2079,135 @@ instance Paths ReportView Markup
                                                    concatMap (\(p, a') -> map p (paths (a' :: Markups) _g)) [(Path_ReportView__reportCertification, _reportCertification _s)],
                                                    concatMap (\(p, a') -> map p (paths (a' :: Markups) _g)) [(Path_ReportView__reportLimitingConditions, _reportLimitingConditions _s)],
                                                    concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_ReportView__reportPrivacyPolicy, _reportPrivacyPolicy _s)]]
+          peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
 instance Paths ReportView Permissions
     where type Path ReportView Permissions = Path_ReportView Permissions
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Permissions) _g)) [(Path_ReportView__reportPerms, _reportPerms _s)]
+          peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
 instance Paths ReportView UserIds
     where type Path ReportView UserIds = Path_ReportView UserIds
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Permissions) _g)) [(Path_ReportView__reportPerms, _reportPerms _s)]
+          peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
 instance Paths ReportView AbbrevPair
     where type Path ReportView AbbrevPair = Path_ReportView AbbrevPair
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: AbbrevPairs) _g)) [(Path_ReportView__reportAbbrevs, _reportAbbrevs _s)]
+          peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
 instance Paths ReportView AbbrevPairs
     where type Path ReportView AbbrevPairs = Path_ReportView AbbrevPairs
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: AbbrevPairs) _g)) [(Path_ReportView__reportAbbrevs, _reportAbbrevs _s)]
+          peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
 instance Paths ReportView Author
     where type Path ReportView Author = Path_ReportView Author
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Authors) _g)) [(Path_ReportView__reportAuthors, _reportAuthors _s)]
+          peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
 instance Paths ReportView Authors
     where type Path ReportView Authors = Path_ReportView Authors
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Authors) _g)) [(Path_ReportView__reportAuthors, _reportAuthors _s)]
+          peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
 instance Paths ReportView Branding
     where type Path ReportView Branding = Path_ReportView Branding
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Branding) _g)) [(Path_ReportView__reportBranding, _reportBranding _s)]
+          peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
 instance Paths ReportView MarkupPair
     where type Path ReportView MarkupPair = Path_ReportView MarkupPair
           paths (_s@(ReportView {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: MarkupPairs) _g)) [(Path_ReportView__reportGlossary, _reportGlossary _s)],
                                                    concatMap (\(p, a') -> map p (paths (a' :: MarkupPairs) _g)) [(Path_ReportView__reportSources, _reportSources _s)]]
+          peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
 instance Paths ReportView MarkupPairs
     where type Path ReportView MarkupPairs = Path_ReportView MarkupPairs
           paths (_s@(ReportView {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: MarkupPairs) _g)) [(Path_ReportView__reportGlossary, _reportGlossary _s)],
                                                    concatMap (\(p, a') -> map p (paths (a' :: MarkupPairs) _g)) [(Path_ReportView__reportSources, _reportSources _s)]]
+          peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
 instance Paths ReportView Markups
     where type Path ReportView Markups = Path_ReportView Markups
           paths (_s@(ReportView {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: Markups) _g)) [(Path_ReportView__reportCertification, _reportCertification _s)],
                                                    concatMap (\(p, a') -> map p (paths (a' :: Markups) _g)) [(Path_ReportView__reportLimitingConditions, _reportLimitingConditions _s)]]
+          peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
 instance Paths ReportView MaybeReportIntendedUse
     where type Path ReportView MaybeReportIntendedUse = Path_ReportView MaybeReportIntendedUse
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MaybeReportIntendedUse) _g)) [(Path_ReportView__reportIntendedUse, _reportIntendedUse _s)]
+          peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
 instance Paths ReportView ReportElem
     where type Path ReportView ReportElem = Path_ReportView ReportElem
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElems) _g)) [(Path_ReportView__reportBody, _reportBody _s)]
+          peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
 instance Paths ReportView ReportElems
     where type Path ReportView ReportElems = Path_ReportView ReportElems
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElems) _g)) [(Path_ReportView__reportBody, _reportBody _s)]
+          peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
 instance Paths ReportView ReportFlags
     where type Path ReportView ReportFlags = Path_ReportView ReportFlags
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportFlags) _g)) [(Path_ReportView__reportFlags, _reportFlags _s)]
+          peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
 instance Paths ReportView ReportStandard
     where type Path ReportView ReportStandard = Path_ReportView ReportStandard
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportStandard) _g)) [(Path_ReportView__reportStandardsVersion, _reportStandardsVersion _s)]
+          peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
 instance Paths ReportView ReportStatus
     where type Path ReportView ReportStatus = Path_ReportView ReportStatus
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportStatus) _g)) [(Path_ReportView__reportStatus, _reportStatus _s)]
+          peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
 instance Paths ReportView ReportValueApproachInfo
     where type Path ReportView ReportValueApproachInfo = Path_ReportView ReportValueApproachInfo
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportValueApproachInfo) _g)) [(Path_ReportView__reportValueApproachInfo,
                                                                                                                      _reportValueApproachInfo _s)]
+          peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
 instance Paths ReportView ReportValueTypeInfo
     where type Path ReportView ReportValueTypeInfo = Path_ReportView ReportValueTypeInfo
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportValueTypeInfo) _g)) [(Path_ReportView__reportValueTypeInfo, _reportValueTypeInfo _s)]
+          peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
 instance Paths ReportView EUI
     where type Path ReportView EUI = Path_ReportView EUI
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElems) _g)) [(Path_ReportView__reportBody, _reportBody _s)]
+          peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
 instance Paths ReportView MEUI
     where type Path ReportView MEUI = Path_ReportView MEUI
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElems) _g)) [(Path_ReportView__reportBody, _reportBody _s)]
+          peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
 instance Paths ReportView MaybeImageFile
     where type Path ReportView MaybeImageFile = Path_ReportView MaybeImageFile
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElems) _g)) [(Path_ReportView__reportBody, _reportBody _s)]
+          peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
 instance Paths ReportView ReportImage
     where type Path ReportView ReportImage = Path_ReportView ReportImage
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElems) _g)) [(Path_ReportView__reportBody, _reportBody _s)]
+          peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
 instance Paths ReportView ReportImages
     where type Path ReportView ReportImages = Path_ReportView ReportImages
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElems) _g)) [(Path_ReportView__reportBody, _reportBody _s)]
+          peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
 instance Paths ReportView ReadOnlyFilePath
     where type Path ReportView ReadOnlyFilePath = Path_ReportView ReadOnlyFilePath
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReadOnlyFilePath) _g)) [(Path_ReportView__reportFolder, _reportFolder _s)]
+          peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
 instance Paths ReportView ReportImageView
     where type Path ReportView ReportImageView = Path_ReportView ReportImageView
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElems) _g)) [(Path_ReportView__reportBody, _reportBody _s)]
+          peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
 instance Paths ReportView ReportView
     where type Path ReportView ReportView = Path_ReportView ReportView
           paths _ _ = [idPath]
+          peek _ _ = undefined "idpeek" :: Peek ReportView
 instance Paths ReportView SaneSizeImageSize
     where type Path ReportView SaneSizeImageSize = Path_ReportView SaneSizeImageSize
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElems) _g)) [(Path_ReportView__reportBody, _reportBody _s)]
+          peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
 instance Paths ReportView Item
     where type Path ReportView Item = Path_ReportView Item
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElems) _g)) [(Path_ReportView__reportBody, _reportBody _s)]
+          peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
 instance Paths ReportView MIM
     where type Path ReportView MIM = Path_ReportView MIM
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElems) _g)) [(Path_ReportView__reportBody, _reportBody _s)]
+          peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
 instance Paths ReportView CIString
     where type Path ReportView CIString = Path_ReportView CIString
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: AbbrevPairs) _g)) [(Path_ReportView__reportAbbrevs, _reportAbbrevs _s)]
+          peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
 instance Paths ReportView URI
     where type Path ReportView URI = Path_ReportView URI
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElems) _g)) [(Path_ReportView__reportBody, _reportBody _s)]
+          peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
 instance Paths ReportView Text
     where type Path ReportView Text = Path_ReportView Text
           paths (_s@(ReportView {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_ReportView__reportName, _reportName _s)],
@@ -1894,443 +2244,585 @@ instance Paths ReportView Text
                                                    concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_ReportView__reportPrivacyPolicy, _reportPrivacyPolicy _s)],
                                                    concatMap (\(p, a') -> map p (paths (a' :: Permissions) _g)) [(Path_ReportView__reportPerms, _reportPerms _s)],
                                                    concatMap (\(p, a') -> map p (paths (a' :: Branding) _g)) [(Path_ReportView__reportBranding, _reportBranding _s)]]
+          peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
 instance Paths ReportView UserId
     where type Path ReportView UserId = Path_ReportView UserId
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Permissions) _g)) [(Path_ReportView__reportPerms, _reportPerms _s)]
+          peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
 instance Paths ReportView UUID
     where type Path ReportView UUID = Path_ReportView UUID
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: UUID) _g)) [(Path_ReportView__reportUUID, _reportUUID _s)]
+          peek _p (_s@(ReportView {})) = undefined :: Peek ReportView
 instance Paths SaneSizeImageSize String
     where type Path SaneSizeImageSize String = Path_SaneSizeImageSize String
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ImageSize) _g)) (map (\a' -> (Path_SaneSizeImageSize_View,
                                                                                                  a')) (toListOf (toLens (Path_SaneSizeImageSize_View (idPath :: Path ImageSize ImageSize))) _s))
+          peek _p _s = undefined :: Peek SaneSizeImageSize
 instance Paths SaneSizeImageSize Double
     where type Path SaneSizeImageSize Double = Path_SaneSizeImageSize Double
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ImageSize) _g)) (map (\a' -> (Path_SaneSizeImageSize_View,
                                                                                                  a')) (toListOf (toLens (Path_SaneSizeImageSize_View (idPath :: Path ImageSize ImageSize))) _s))
+          peek _p _s = undefined :: Peek SaneSizeImageSize
 instance Paths SaneSizeImageSize Dimension
     where type Path SaneSizeImageSize Dimension = Path_SaneSizeImageSize Dimension
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ImageSize) _g)) (map (\a' -> (Path_SaneSizeImageSize_View,
                                                                                                  a')) (toListOf (toLens (Path_SaneSizeImageSize_View (idPath :: Path ImageSize ImageSize))) _s))
+          peek _p _s = undefined :: Peek SaneSizeImageSize
 instance Paths SaneSizeImageSize ImageSize
     where type Path SaneSizeImageSize ImageSize = Path_SaneSizeImageSize ImageSize
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ImageSize) _g)) (map (\a' -> (Path_SaneSizeImageSize_View,
                                                                                                  a')) (toListOf (toLens (Path_SaneSizeImageSize_View (idPath :: Path ImageSize ImageSize))) _s))
+          peek _p _s = undefined :: Peek SaneSizeImageSize
 instance Paths SaneSizeImageSize Units
     where type Path SaneSizeImageSize Units = Path_SaneSizeImageSize Units
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ImageSize) _g)) (map (\a' -> (Path_SaneSizeImageSize_View,
                                                                                                  a')) (toListOf (toLens (Path_SaneSizeImageSize_View (idPath :: Path ImageSize ImageSize))) _s))
+          peek _p _s = undefined :: Peek SaneSizeImageSize
 instance Paths SaneSizeImageSize JSONText
     where type Path SaneSizeImageSize JSONText = Path_SaneSizeImageSize JSONText
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ImageSize) _g)) (map (\a' -> (Path_SaneSizeImageSize_View,
                                                                                                  a')) (toListOf (toLens (Path_SaneSizeImageSize_View (idPath :: Path ImageSize ImageSize))) _s))
+          peek _p _s = undefined :: Peek SaneSizeImageSize
 instance Paths SaneSizeImageSize SaneSizeImageSize
     where type Path SaneSizeImageSize SaneSizeImageSize = Path_SaneSizeImageSize SaneSizeImageSize
           paths _ _ = [idPath]
+          peek _ _ = undefined "idpeek" :: Peek SaneSizeImageSize
 instance Paths Item String
     where type Path Item String = Path_Item String
           paths (_s@(Item {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImages) _g)) [(Path_Item_images, images _s)]
+          peek _p (_s@(Item {})) = undefined :: Peek Item
 instance Paths Item Bool
     where type Path Item Bool = Path_Item Bool
           paths (_s@(Item {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImages) _g)) [(Path_Item_images, images _s)]
+          peek _p (_s@(Item {})) = undefined :: Peek Item
 instance Paths Item Double
     where type Path Item Double = Path_Item Double
           paths (_s@(Item {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImages) _g)) [(Path_Item_images, images _s)]
+          peek _p (_s@(Item {})) = undefined :: Peek Item
 instance Paths Item Dimension
     where type Path Item Dimension = Path_Item Dimension
           paths (_s@(Item {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImages) _g)) [(Path_Item_images, images _s)]
+          peek _p (_s@(Item {})) = undefined :: Peek Item
 instance Paths Item ImageCrop
     where type Path Item ImageCrop = Path_Item ImageCrop
           paths (_s@(Item {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImages) _g)) [(Path_Item_images, images _s)]
+          peek _p (_s@(Item {})) = undefined :: Peek Item
 instance Paths Item ImageSize
     where type Path Item ImageSize = Path_Item ImageSize
           paths (_s@(Item {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImages) _g)) [(Path_Item_images, images _s)]
+          peek _p (_s@(Item {})) = undefined :: Peek Item
 instance Paths Item Units
     where type Path Item Units = Path_Item Units
           paths (_s@(Item {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImages) _g)) [(Path_Item_images, images _s)]
+          peek _p (_s@(Item {})) = undefined :: Peek Item
 instance Paths Item ImageFile
     where type Path Item ImageFile = Path_Item ImageFile
           paths (_s@(Item {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImages) _g)) [(Path_Item_images, images _s)]
+          peek _p (_s@(Item {})) = undefined :: Peek Item
 instance Paths Item JSONText
     where type Path Item JSONText = Path_Item JSONText
           paths (_s@(Item {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: Text) _g)) [(Path_Item_itemName, itemName _s)],
                                              concatMap (\(p, a') -> map p (paths (a' :: MIM) _g)) [(Path_Item_fields, fields _s)],
                                              concatMap (\(p, a') -> map p (paths (a' :: ReportImages) _g)) [(Path_Item_images, images _s)]]
+          peek _p (_s@(Item {})) = undefined :: Peek Item
 instance Paths Item Markup
     where type Path Item Markup = Path_Item Markup
           paths (_s@(Item {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: MIM) _g)) [(Path_Item_fields, fields _s)],
                                              concatMap (\(p, a') -> map p (paths (a' :: ReportImages) _g)) [(Path_Item_images, images _s)]]
+          peek _p (_s@(Item {})) = undefined :: Peek Item
 instance Paths Item EUI
     where type Path Item EUI = Path_Item EUI
           paths (_s@(Item {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImages) _g)) [(Path_Item_images, images _s)]
+          peek _p (_s@(Item {})) = undefined :: Peek Item
 instance Paths Item MEUI
     where type Path Item MEUI = Path_Item MEUI
           paths (_s@(Item {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImages) _g)) [(Path_Item_images, images _s)]
+          peek _p (_s@(Item {})) = undefined :: Peek Item
 instance Paths Item MaybeImageFile
     where type Path Item MaybeImageFile = Path_Item MaybeImageFile
           paths (_s@(Item {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImages) _g)) [(Path_Item_images, images _s)]
+          peek _p (_s@(Item {})) = undefined :: Peek Item
 instance Paths Item ReportImage
     where type Path Item ReportImage = Path_Item ReportImage
           paths (_s@(Item {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImages) _g)) [(Path_Item_images, images _s)]
+          peek _p (_s@(Item {})) = undefined :: Peek Item
 instance Paths Item ReportImages
     where type Path Item ReportImages = Path_Item ReportImages
           paths (_s@(Item {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImages) _g)) [(Path_Item_images, images _s)]
+          peek _p (_s@(Item {})) = undefined :: Peek Item
 instance Paths Item ReportImageView
     where type Path Item ReportImageView = Path_Item ReportImageView
           paths (_s@(Item {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImages) _g)) [(Path_Item_images, images _s)]
+          peek _p (_s@(Item {})) = undefined :: Peek Item
 instance Paths Item SaneSizeImageSize
     where type Path Item SaneSizeImageSize = Path_Item SaneSizeImageSize
           paths (_s@(Item {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImages) _g)) [(Path_Item_images, images _s)]
+          peek _p (_s@(Item {})) = undefined :: Peek Item
 instance Paths Item Item
     where type Path Item Item = Path_Item Item
           paths _ _ = [idPath]
+          peek _ _ = undefined "idpeek" :: Peek Item
 instance Paths Item MIM
     where type Path Item MIM = Path_Item MIM
           paths (_s@(Item {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MIM) _g)) [(Path_Item_fields, fields _s)]
+          peek _p (_s@(Item {})) = undefined :: Peek Item
 instance Paths Item URI
     where type Path Item URI = Path_Item URI
           paths (_s@(Item {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImages) _g)) [(Path_Item_images, images _s)]
+          peek _p (_s@(Item {})) = undefined :: Peek Item
 instance Paths Item Text
     where type Path Item Text = Path_Item Text
           paths (_s@(Item {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: Text) _g)) [(Path_Item_itemName, itemName _s)],
                                              concatMap (\(p, a') -> map p (paths (a' :: MIM) _g)) [(Path_Item_fields, fields _s)],
                                              concatMap (\(p, a') -> map p (paths (a' :: ReportImages) _g)) [(Path_Item_images, images _s)]]
+          peek _p (_s@(Item {})) = undefined :: Peek Item
 instance Paths MIM JSONText
     where type Path MIM JSONText = Path_Map ItemFieldName (Path_Markup JSONText)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
+          peek _p _s = undefined :: Peek MIM
 instance Paths MIM Markup
     where type Path MIM Markup = Path_Map ItemFieldName (Path_Markup Markup)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
+          peek _p _s = undefined :: Peek MIM
 instance Paths MIM MIM
     where type Path MIM MIM = Path_Map ItemFieldName (Path_Markup MIM)
           paths _ _ = [idPath]
+          peek _ _ = undefined "idpeek" :: Peek MIM
 instance Paths MIM Text
     where type Path MIM Text = Path_Map ItemFieldName (Path_Markup Text)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
+          peek _p _s = undefined :: Peek MIM
 instance Paths MRR String
     where type Path MRR String = Path_Map ReportID (Path_Report String)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
+          peek _p _s = undefined :: Peek MRR
 instance Paths MRR Int64
     where type Path MRR Int64 = Path_Map ReportID (Path_Report Int64)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
+          peek _p _s = undefined :: Peek MRR
 instance Paths MRR Bool
     where type Path MRR Bool = Path_Map ReportID (Path_Report Bool)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
+          peek _p _s = undefined :: Peek MRR
 instance Paths MRR Double
     where type Path MRR Double = Path_Map ReportID (Path_Report Double)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
+          peek _p _s = undefined :: Peek MRR
 instance Paths MRR Int
     where type Path MRR Int = Path_Map ReportID (Path_Report Int)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
+          peek _p _s = undefined :: Peek MRR
 instance Paths MRR Dimension
     where type Path MRR Dimension = Path_Map ReportID (Path_Report Dimension)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
+          peek _p _s = undefined :: Peek MRR
 instance Paths MRR ImageCrop
     where type Path MRR ImageCrop = Path_Map ReportID (Path_Report ImageCrop)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
+          peek _p _s = undefined :: Peek MRR
 instance Paths MRR ImageSize
     where type Path MRR ImageSize = Path_Map ReportID (Path_Report ImageSize)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
+          peek _p _s = undefined :: Peek MRR
 instance Paths MRR Units
     where type Path MRR Units = Path_Map ReportID (Path_Report Units)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
+          peek _p _s = undefined :: Peek MRR
 instance Paths MRR ImageFile
     where type Path MRR ImageFile = Path_Map ReportID (Path_Report ImageFile)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
+          peek _p _s = undefined :: Peek MRR
 instance Paths MRR Integer
     where type Path MRR Integer = Path_Map ReportID (Path_Report Integer)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
+          peek _p _s = undefined :: Peek MRR
 instance Paths MRR JSONText
     where type Path MRR JSONText = Path_Map ReportID (Path_Report JSONText)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
+          peek _p _s = undefined :: Peek MRR
 instance Paths MRR Markup
     where type Path MRR Markup = Path_Map ReportID (Path_Report Markup)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
+          peek _p _s = undefined :: Peek MRR
 instance Paths MRR Permissions
     where type Path MRR Permissions = Path_Map ReportID (Path_Report Permissions)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
+          peek _p _s = undefined :: Peek MRR
 instance Paths MRR UserIds
     where type Path MRR UserIds = Path_Map ReportID (Path_Report UserIds)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
+          peek _p _s = undefined :: Peek MRR
 instance Paths MRR AbbrevPair
     where type Path MRR AbbrevPair = Path_Map ReportID (Path_Report AbbrevPair)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
+          peek _p _s = undefined :: Peek MRR
 instance Paths MRR AbbrevPairs
     where type Path MRR AbbrevPairs = Path_Map ReportID (Path_Report AbbrevPairs)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
+          peek _p _s = undefined :: Peek MRR
 instance Paths MRR Author
     where type Path MRR Author = Path_Map ReportID (Path_Report Author)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
+          peek _p _s = undefined :: Peek MRR
 instance Paths MRR Authors
     where type Path MRR Authors = Path_Map ReportID (Path_Report Authors)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
+          peek _p _s = undefined :: Peek MRR
 instance Paths MRR Branding
     where type Path MRR Branding = Path_Map ReportID (Path_Report Branding)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
+          peek _p _s = undefined :: Peek MRR
 instance Paths MRR MarkupPair
     where type Path MRR MarkupPair = Path_Map ReportID (Path_Report MarkupPair)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
+          peek _p _s = undefined :: Peek MRR
 instance Paths MRR MarkupPairs
     where type Path MRR MarkupPairs = Path_Map ReportID (Path_Report MarkupPairs)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
+          peek _p _s = undefined :: Peek MRR
 instance Paths MRR Markups
     where type Path MRR Markups = Path_Map ReportID (Path_Report Markups)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
+          peek _p _s = undefined :: Peek MRR
 instance Paths MRR MaybeReportIntendedUse
     where type Path MRR MaybeReportIntendedUse = Path_Map ReportID (Path_Report MaybeReportIntendedUse)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
+          peek _p _s = undefined :: Peek MRR
 instance Paths MRR Report
     where type Path MRR Report = Path_Map ReportID (Path_Report Report)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
+          peek _p _s = undefined :: Peek MRR
 instance Paths MRR ReportElem
     where type Path MRR ReportElem = Path_Map ReportID (Path_Report ReportElem)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
+          peek _p _s = undefined :: Peek MRR
 instance Paths MRR ReportElems
     where type Path MRR ReportElems = Path_Map ReportID (Path_Report ReportElems)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
+          peek _p _s = undefined :: Peek MRR
 instance Paths MRR ReportFlags
     where type Path MRR ReportFlags = Path_Map ReportID (Path_Report ReportFlags)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
+          peek _p _s = undefined :: Peek MRR
 instance Paths MRR ReportStandard
     where type Path MRR ReportStandard = Path_Map ReportID (Path_Report ReportStandard)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
+          peek _p _s = undefined :: Peek MRR
 instance Paths MRR ReportStatus
     where type Path MRR ReportStatus = Path_Map ReportID (Path_Report ReportStatus)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
+          peek _p _s = undefined :: Peek MRR
 instance Paths MRR ReportValueApproachInfo
     where type Path MRR ReportValueApproachInfo = Path_Map ReportID (Path_Report ReportValueApproachInfo)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
+          peek _p _s = undefined :: Peek MRR
 instance Paths MRR ReportValueTypeInfo
     where type Path MRR ReportValueTypeInfo = Path_Map ReportID (Path_Report ReportValueTypeInfo)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
+          peek _p _s = undefined :: Peek MRR
 instance Paths MRR EUI
     where type Path MRR EUI = Path_Map ReportID (Path_Report EUI)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
+          peek _p _s = undefined :: Peek MRR
 instance Paths MRR MEUI
     where type Path MRR MEUI = Path_Map ReportID (Path_Report MEUI)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
+          peek _p _s = undefined :: Peek MRR
 instance Paths MRR MaybeImageFile
     where type Path MRR MaybeImageFile = Path_Map ReportID (Path_Report MaybeImageFile)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
+          peek _p _s = undefined :: Peek MRR
 instance Paths MRR ReportImage
     where type Path MRR ReportImage = Path_Map ReportID (Path_Report ReportImage)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
+          peek _p _s = undefined :: Peek MRR
 instance Paths MRR ReportImages
     where type Path MRR ReportImages = Path_Map ReportID (Path_Report ReportImages)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
+          peek _p _s = undefined :: Peek MRR
 instance Paths MRR ReadOnlyFilePath
     where type Path MRR ReadOnlyFilePath = Path_Map ReportID (Path_Report ReadOnlyFilePath)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
+          peek _p _s = undefined :: Peek MRR
 instance Paths MRR ReportImageView
     where type Path MRR ReportImageView = Path_Map ReportID (Path_Report ReportImageView)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
+          peek _p _s = undefined :: Peek MRR
 instance Paths MRR ReportView
     where type Path MRR ReportView = Path_Map ReportID (Path_Report ReportView)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
+          peek _p _s = undefined :: Peek MRR
 instance Paths MRR SaneSizeImageSize
     where type Path MRR SaneSizeImageSize = Path_Map ReportID (Path_Report SaneSizeImageSize)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
+          peek _p _s = undefined :: Peek MRR
 instance Paths MRR Item
     where type Path MRR Item = Path_Map ReportID (Path_Report Item)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
+          peek _p _s = undefined :: Peek MRR
 instance Paths MRR MIM
     where type Path MRR MIM = Path_Map ReportID (Path_Report MIM)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
+          peek _p _s = undefined :: Peek MRR
 instance Paths MRR MRR
     where type Path MRR MRR = Path_Map ReportID (Path_Report MRR)
           paths _ _ = [idPath]
+          peek _ _ = undefined "idpeek" :: Peek MRR
 instance Paths MRR CIString
     where type Path MRR CIString = Path_Map ReportID (Path_Report CIString)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
+          peek _p _s = undefined :: Peek MRR
 instance Paths MRR URI
     where type Path MRR URI = Path_Map ReportID (Path_Report URI)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
+          peek _p _s = undefined :: Peek MRR
 instance Paths MRR Text
     where type Path MRR Text = Path_Map ReportID (Path_Report Text)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
+          peek _p _s = undefined :: Peek MRR
 instance Paths MRR UserId
     where type Path MRR UserId = Path_Map ReportID (Path_Report UserId)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
+          peek _p _s = undefined :: Peek MRR
 instance Paths MRR UUID
     where type Path MRR UUID = Path_Map ReportID (Path_Report UUID)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
+          peek _p _s = undefined :: Peek MRR
 instance Paths ReportMap String
     where type Path ReportMap String = Path_ReportMap String
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
+          peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
 instance Paths ReportMap Int64
     where type Path ReportMap Int64 = Path_ReportMap Int64
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
+          peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
 instance Paths ReportMap Bool
     where type Path ReportMap Bool = Path_ReportMap Bool
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
+          peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
 instance Paths ReportMap Double
     where type Path ReportMap Double = Path_ReportMap Double
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
+          peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
 instance Paths ReportMap Int
     where type Path ReportMap Int = Path_ReportMap Int
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
+          peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
 instance Paths ReportMap Dimension
     where type Path ReportMap Dimension = Path_ReportMap Dimension
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
+          peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
 instance Paths ReportMap ImageCrop
     where type Path ReportMap ImageCrop = Path_ReportMap ImageCrop
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
+          peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
 instance Paths ReportMap ImageSize
     where type Path ReportMap ImageSize = Path_ReportMap ImageSize
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
+          peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
 instance Paths ReportMap Units
     where type Path ReportMap Units = Path_ReportMap Units
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
+          peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
 instance Paths ReportMap ImageFile
     where type Path ReportMap ImageFile = Path_ReportMap ImageFile
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
+          peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
 instance Paths ReportMap Integer
     where type Path ReportMap Integer = Path_ReportMap Integer
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
+          peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
 instance Paths ReportMap JSONText
     where type Path ReportMap JSONText = Path_ReportMap JSONText
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
+          peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
 instance Paths ReportMap Markup
     where type Path ReportMap Markup = Path_ReportMap Markup
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
+          peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
 instance Paths ReportMap Permissions
     where type Path ReportMap Permissions = Path_ReportMap Permissions
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
+          peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
 instance Paths ReportMap UserIds
     where type Path ReportMap UserIds = Path_ReportMap UserIds
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
+          peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
 instance Paths ReportMap AbbrevPair
     where type Path ReportMap AbbrevPair = Path_ReportMap AbbrevPair
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
+          peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
 instance Paths ReportMap AbbrevPairs
     where type Path ReportMap AbbrevPairs = Path_ReportMap AbbrevPairs
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
+          peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
 instance Paths ReportMap Author
     where type Path ReportMap Author = Path_ReportMap Author
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
+          peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
 instance Paths ReportMap Authors
     where type Path ReportMap Authors = Path_ReportMap Authors
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
+          peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
 instance Paths ReportMap Branding
     where type Path ReportMap Branding = Path_ReportMap Branding
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
+          peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
 instance Paths ReportMap MarkupPair
     where type Path ReportMap MarkupPair = Path_ReportMap MarkupPair
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
+          peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
 instance Paths ReportMap MarkupPairs
     where type Path ReportMap MarkupPairs = Path_ReportMap MarkupPairs
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
+          peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
 instance Paths ReportMap Markups
     where type Path ReportMap Markups = Path_ReportMap Markups
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
+          peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
 instance Paths ReportMap MaybeReportIntendedUse
     where type Path ReportMap MaybeReportIntendedUse = Path_ReportMap MaybeReportIntendedUse
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
+          peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
 instance Paths ReportMap Report
     where type Path ReportMap Report = Path_ReportMap Report
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
+          peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
 instance Paths ReportMap ReportElem
     where type Path ReportMap ReportElem = Path_ReportMap ReportElem
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
+          peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
 instance Paths ReportMap ReportElems
     where type Path ReportMap ReportElems = Path_ReportMap ReportElems
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
+          peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
 instance Paths ReportMap ReportFlags
     where type Path ReportMap ReportFlags = Path_ReportMap ReportFlags
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
+          peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
 instance Paths ReportMap ReportStandard
     where type Path ReportMap ReportStandard = Path_ReportMap ReportStandard
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
+          peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
 instance Paths ReportMap ReportStatus
     where type Path ReportMap ReportStatus = Path_ReportMap ReportStatus
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
+          peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
 instance Paths ReportMap ReportValueApproachInfo
     where type Path ReportMap ReportValueApproachInfo = Path_ReportMap ReportValueApproachInfo
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
+          peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
 instance Paths ReportMap ReportValueTypeInfo
     where type Path ReportMap ReportValueTypeInfo = Path_ReportMap ReportValueTypeInfo
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
+          peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
 instance Paths ReportMap EUI
     where type Path ReportMap EUI = Path_ReportMap EUI
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
+          peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
 instance Paths ReportMap MEUI
     where type Path ReportMap MEUI = Path_ReportMap MEUI
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
+          peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
 instance Paths ReportMap MaybeImageFile
     where type Path ReportMap MaybeImageFile = Path_ReportMap MaybeImageFile
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
+          peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
 instance Paths ReportMap ReportImage
     where type Path ReportMap ReportImage = Path_ReportMap ReportImage
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
+          peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
 instance Paths ReportMap ReportImages
     where type Path ReportMap ReportImages = Path_ReportMap ReportImages
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
+          peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
 instance Paths ReportMap ReadOnlyFilePath
     where type Path ReportMap ReadOnlyFilePath = Path_ReportMap ReadOnlyFilePath
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
+          peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
 instance Paths ReportMap ReportImageView
     where type Path ReportMap ReportImageView = Path_ReportMap ReportImageView
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
+          peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
 instance Paths ReportMap ReportView
     where type Path ReportMap ReportView = Path_ReportMap ReportView
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
+          peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
 instance Paths ReportMap SaneSizeImageSize
     where type Path ReportMap SaneSizeImageSize = Path_ReportMap SaneSizeImageSize
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
+          peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
 instance Paths ReportMap Item
     where type Path ReportMap Item = Path_ReportMap Item
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
+          peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
 instance Paths ReportMap MIM
     where type Path ReportMap MIM = Path_ReportMap MIM
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
+          peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
 instance Paths ReportMap MRR
     where type Path ReportMap MRR = Path_ReportMap MRR
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
+          peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
 instance Paths ReportMap ReportMap
     where type Path ReportMap ReportMap = Path_ReportMap ReportMap
           paths _ _ = [idPath]
+          peek _ _ = undefined "idpeek" :: Peek ReportMap
 instance Paths ReportMap CIString
     where type Path ReportMap CIString = Path_ReportMap CIString
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
+          peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
 instance Paths ReportMap URI
     where type Path ReportMap URI = Path_ReportMap URI
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
+          peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
 instance Paths ReportMap Text
     where type Path ReportMap Text = Path_ReportMap Text
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
+          peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
 instance Paths ReportMap UserId
     where type Path ReportMap UserId = Path_ReportMap UserId
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
+          peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
 instance Paths ReportMap UUID
     where type Path ReportMap UUID = Path_ReportMap UUID
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
+          peek _p (_s@(ReportMap {})) = undefined :: Peek ReportMap
 instance Paths CIString JSONText
     where type Path CIString JSONText = Path_CIString JSONText
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Text) _g)) (map (\a' -> (Path_CIString_View, a')) (toListOf (toLens (Path_CIString_View (idPath :: Path Text
                                                                                                                                                                            Text))) _s))
+          peek _p _s = undefined :: Peek CIString
 instance Paths CIString CIString
     where type Path CIString CIString = Path_CIString CIString
           paths _ _ = [idPath]
+          peek _ _ = undefined "idpeek" :: Peek CIString
 instance Paths CIString Text
     where type Path CIString Text = Path_CIString Text
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Text) _g)) (map (\a' -> (Path_CIString_View, a')) (toListOf (toLens (Path_CIString_View (idPath :: Path Text
                                                                                                                                                                            Text))) _s))
+          peek _p _s = undefined :: Peek CIString
 instance Paths URI URI
     where type Path URI URI = Path_URI URI
           paths _ _ = [idPath]
+          peek _ _ = undefined "idpeek" :: Peek URI
 instance Paths Text JSONText
     where type Path Text JSONText = Path_Text JSONText
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: JSONText) _g)) (map (\a' -> (Path_Text_View, a')) (toListOf (toLens (Path_Text_View (idPath :: Path JSONText
                                                                                                                                                                        JSONText))) _s))
+          peek _p _s = undefined :: Peek Text
 instance Paths Text Text
     where type Path Text Text = Path_Text Text
           paths _ _ = [idPath]
+          peek _ _ = undefined "idpeek" :: Peek Text
 instance Paths UserId UserId
     where type Path UserId UserId = Path_UserId UserId
           paths _ _ = [idPath]
+          peek _ _ = undefined "idpeek" :: Peek UserId
 instance Paths UUID UUID
     where type Path UUID UUID = Path_UUID UUID
           paths _ _ = [idPath]
+          peek _ _ = undefined "idpeek" :: Peek UUID
 instance HasAuthor Author
     where lens_author = id
           lens_Author_authorCredentials f (Author x1 x2) = fmap (\y1 -> Author x1 y1) (f x2)
@@ -6667,91 +7159,6 @@ instance HasUserId UserId
     where lens_userId = id
           lens_UserId__unUserId = iso (\(UserId x) -> x) UserId
           {-# INLINE lens_UserId__unUserId #-}
-instance Describe (Proxy (Either URI ImageFile))
-    where describe' _f _ = case _f of
-                               Nothing -> Just "EUI"
-                               Just (_tname, _cname, Right fname) -> Just (camelWords fname)
-                               Just (_tname, cname, Left fpos) -> Just (camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))
-instance Describe (Proxy (Map ItemFieldName Markup))
-    where describe' _f _ = case _f of
-                               Nothing -> Just "MIM"
-                               Just (_tname, _cname, Right fname) -> Just (camelWords fname)
-                               Just (_tname, cname, Left fpos) -> Just (camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))
-instance Describe (Proxy (Map ReportID Report))
-    where describe' _f _ = case _f of
-                               Nothing -> Just "MRR"
-                               Just (_tname, _cname, Right fname) -> Just (camelWords fname)
-                               Just (_tname, cname, Left fpos) -> Just (camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))
-instance Describe (Proxy (Order AbbrevPairID ((CIString, Markup))))
-    where describe' _f _ = case _f of
-                               Nothing -> Just "Abbrev Pairs"
-                               Just (_tname, _cname, Right fname) -> Just (camelWords fname)
-                               Just (_tname, cname, Left fpos) -> Just (camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))
-instance Describe (Proxy (Order AuthorID Author))
-    where describe' _f _ = case _f of
-                               Nothing -> Just "Authors"
-                               Just (_tname, _cname, Right fname) -> Just (camelWords fname)
-                               Just (_tname, cname, Left fpos) -> Just (camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))
-instance Describe (Proxy (Order MarkupID Markup))
-    where describe' _f _ = case _f of
-                               Nothing -> Just "Markups"
-                               Just (_tname, _cname, Right fname) -> Just (camelWords fname)
-                               Just (_tname, cname, Left fpos) -> Just (camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))
-instance Describe (Proxy (Order MarkupPairID ((Markup, Markup))))
-    where describe' _f _ = case _f of
-                               Nothing -> Just "Markup Pairs"
-                               Just (_tname, _cname, Right fname) -> Just (camelWords fname)
-                               Just (_tname, cname, Left fpos) -> Just (camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))
-instance Describe (Proxy (Order ReportElemID ReportElem))
-    where describe' _f _ = case _f of
-                               Nothing -> Just "Report Elems"
-                               Just (_tname, _cname, Right fname) -> Just (camelWords fname)
-                               Just (_tname, cname, Left fpos) -> Just (camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))
-instance Describe (Proxy (Order ReportImageID ReportImage))
-    where describe' _f _ = case _f of
-                               Nothing -> Just "Report Images"
-                               Just (_tname, _cname, Right fname) -> Just (camelWords fname)
-                               Just (_tname, cname, Left fpos) -> Just (camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))
-instance Describe (Proxy ((Markup, Markup)))
-    where describe' _f _ = case _f of
-                               Nothing -> Just "Markup Pair"
-                               Just (_tname, _cname, Right fname) -> Just (camelWords fname)
-                               Just (_tname, cname, Left fpos) -> Just (camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))
-instance Describe (Proxy ((CIString, Markup)))
-    where describe' _f _ = case _f of
-                               Nothing -> Just "Abbrev Pair"
-                               Just (_tname, _cname, Right fname) -> Just (camelWords fname)
-                               Just (_tname, cname, Left fpos) -> Just (camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))
-instance Describe (Proxy (Maybe (Either URI ImageFile)))
-    where describe' _f _ = case _f of
-                               Nothing -> Just "MEUI"
-                               Just (_tname, _cname, Right fname) -> Just (camelWords fname)
-                               Just (_tname, cname, Left fpos) -> Just (camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))
-instance Describe (Proxy (Maybe ImageFile))
-    where describe' _f _ = case _f of
-                               Nothing -> Just "Maybe Image File"
-                               Just (_tname, _cname, Right fname) -> Just (camelWords fname)
-                               Just (_tname, cname, Left fpos) -> Just (camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))
-instance Describe (Proxy (Maybe ReportIntendedUse))
-    where describe' _f _ = case _f of
-                               Nothing -> Just "Maybe Report Intended Use"
-                               Just (_tname, _cname, Right fname) -> Just (camelWords fname)
-                               Just (_tname, cname, Left fpos) -> Just (camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))
-instance Describe (Proxy (ReadOnly ([Char])))
-    where describe' _f _ = case _f of
-                               Nothing -> Just "Read Only File Path"
-                               Just (_tname, _cname, Right fname) -> Just (camelWords fname)
-                               Just (_tname, cname, Left fpos) -> Just (camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))
-instance Describe (Proxy (SaneSize ImageSize))
-    where describe' _f _ = case _f of
-                               Nothing -> Just "Sane Size Image Size"
-                               Just (_tname, _cname, Right fname) -> Just (camelWords fname)
-                               Just (_tname, cname, Left fpos) -> Just (camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))
-instance Describe (Proxy ([UserId]))
-    where describe' _f _ = case _f of
-                               Nothing -> Just "User Ids"
-                               Just (_tname, _cname, Right fname) -> Just (camelWords fname)
-                               Just (_tname, cname, Left fpos) -> Just (camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))
 instance Describe (Proxy Int64)
     where describe' _f _ = case _f of
                                Nothing -> Just "Int64"
@@ -6797,14 +7204,54 @@ instance Describe (Proxy Permissions)
                                Nothing -> Just "Permissions"
                                Just (_tname, _cname, Right fname) -> Just (camelWords fname)
                                Just (_tname, cname, Left fpos) -> Just (camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))
+instance Describe (Proxy UserIds)
+    where describe' _f _ = case _f of
+                               Nothing -> Just "User Ids"
+                               Just (_tname, _cname, Right fname) -> Just (camelWords fname)
+                               Just (_tname, cname, Left fpos) -> Just (camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))
+instance Describe (Proxy AbbrevPair)
+    where describe' _f _ = case _f of
+                               Nothing -> Just "Abbrev Pair"
+                               Just (_tname, _cname, Right fname) -> Just (camelWords fname)
+                               Just (_tname, cname, Left fpos) -> Just (camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))
+instance Describe (Proxy AbbrevPairs)
+    where describe' _f _ = case _f of
+                               Nothing -> Just "Abbrev Pairs"
+                               Just (_tname, _cname, Right fname) -> Just (camelWords fname)
+                               Just (_tname, cname, Left fpos) -> Just (camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))
 instance Describe (Proxy Author)
     where describe' _f _ = case _f of
                                Nothing -> Just "Author"
                                Just (_tname, _cname, Right fname) -> Just (camelWords fname)
                                Just (_tname, cname, Left fpos) -> Just (camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))
+instance Describe (Proxy Authors)
+    where describe' _f _ = case _f of
+                               Nothing -> Just "Authors"
+                               Just (_tname, _cname, Right fname) -> Just (camelWords fname)
+                               Just (_tname, cname, Left fpos) -> Just (camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))
 instance Describe (Proxy Branding)
     where describe' _f _ = case _f of
                                Nothing -> Just "Branding"
+                               Just (_tname, _cname, Right fname) -> Just (camelWords fname)
+                               Just (_tname, cname, Left fpos) -> Just (camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))
+instance Describe (Proxy MarkupPair)
+    where describe' _f _ = case _f of
+                               Nothing -> Just "Markup Pair"
+                               Just (_tname, _cname, Right fname) -> Just (camelWords fname)
+                               Just (_tname, cname, Left fpos) -> Just (camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))
+instance Describe (Proxy MarkupPairs)
+    where describe' _f _ = case _f of
+                               Nothing -> Just "Markup Pairs"
+                               Just (_tname, _cname, Right fname) -> Just (camelWords fname)
+                               Just (_tname, cname, Left fpos) -> Just (camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))
+instance Describe (Proxy Markups)
+    where describe' _f _ = case _f of
+                               Nothing -> Just "Markups"
+                               Just (_tname, _cname, Right fname) -> Just (camelWords fname)
+                               Just (_tname, cname, Left fpos) -> Just (camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))
+instance Describe (Proxy MaybeReportIntendedUse)
+    where describe' _f _ = case _f of
+                               Nothing -> Just "Maybe Report Intended Use"
                                Just (_tname, _cname, Right fname) -> Just (camelWords fname)
                                Just (_tname, cname, Left fpos) -> Just (camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))
 instance Describe (Proxy Report)
@@ -6815,6 +7262,11 @@ instance Describe (Proxy Report)
 instance Describe (Proxy ReportElem)
     where describe' _f _ = case _f of
                                Nothing -> Just "Report Elem"
+                               Just (_tname, _cname, Right fname) -> Just (camelWords fname)
+                               Just (_tname, cname, Left fpos) -> Just (camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))
+instance Describe (Proxy ReportElems)
+    where describe' _f _ = case _f of
+                               Nothing -> Just "Report Elems"
                                Just (_tname, _cname, Right fname) -> Just (camelWords fname)
                                Just (_tname, cname, Left fpos) -> Just (camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))
 instance Describe (Proxy ReportFlags)
@@ -6847,9 +7299,34 @@ instance Describe (Proxy ReportValueTypeInfo)
                                Nothing -> Just "Report Value Type Info"
                                Just (_tname, _cname, Right fname) -> Just (camelWords fname)
                                Just (_tname, cname, Left fpos) -> Just (camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))
+instance Describe (Proxy EUI)
+    where describe' _f _ = case _f of
+                               Nothing -> Just "EUI"
+                               Just (_tname, _cname, Right fname) -> Just (camelWords fname)
+                               Just (_tname, cname, Left fpos) -> Just (camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))
+instance Describe (Proxy MEUI)
+    where describe' _f _ = case _f of
+                               Nothing -> Just "MEUI"
+                               Just (_tname, _cname, Right fname) -> Just (camelWords fname)
+                               Just (_tname, cname, Left fpos) -> Just (camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))
+instance Describe (Proxy MaybeImageFile)
+    where describe' _f _ = case _f of
+                               Nothing -> Just "Maybe Image File"
+                               Just (_tname, _cname, Right fname) -> Just (camelWords fname)
+                               Just (_tname, cname, Left fpos) -> Just (camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))
 instance Describe (Proxy ReportImage)
     where describe' _f _ = case _f of
                                Nothing -> Just "Report Image"
+                               Just (_tname, _cname, Right fname) -> Just (camelWords fname)
+                               Just (_tname, cname, Left fpos) -> Just (camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))
+instance Describe (Proxy ReportImages)
+    where describe' _f _ = case _f of
+                               Nothing -> Just "Report Images"
+                               Just (_tname, _cname, Right fname) -> Just (camelWords fname)
+                               Just (_tname, cname, Left fpos) -> Just (camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))
+instance Describe (Proxy ReadOnlyFilePath)
+    where describe' _f _ = case _f of
+                               Nothing -> Just "Read Only File Path"
                                Just (_tname, _cname, Right fname) -> Just (camelWords fname)
                                Just (_tname, cname, Left fpos) -> Just (camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))
 instance Describe (Proxy ReportImageView)
@@ -6862,9 +7339,24 @@ instance Describe (Proxy ReportView)
                                Nothing -> Just "Report View"
                                Just (_tname, _cname, Right fname) -> Just (camelWords fname)
                                Just (_tname, cname, Left fpos) -> Just (camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))
+instance Describe (Proxy SaneSizeImageSize)
+    where describe' _f _ = case _f of
+                               Nothing -> Just "Sane Size Image Size"
+                               Just (_tname, _cname, Right fname) -> Just (camelWords fname)
+                               Just (_tname, cname, Left fpos) -> Just (camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))
 instance Describe (Proxy Item)
     where describe' _f _ = case _f of
                                Nothing -> Just "Item"
+                               Just (_tname, _cname, Right fname) -> Just (camelWords fname)
+                               Just (_tname, cname, Left fpos) -> Just (camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))
+instance Describe (Proxy MIM)
+    where describe' _f _ = case _f of
+                               Nothing -> Just "MIM"
+                               Just (_tname, _cname, Right fname) -> Just (camelWords fname)
+                               Just (_tname, cname, Left fpos) -> Just (camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))
+instance Describe (Proxy MRR)
+    where describe' _f _ = case _f of
+                               Nothing -> Just "MRR"
                                Just (_tname, _cname, Right fname) -> Just (camelWords fname)
                                Just (_tname, cname, Left fpos) -> Just (camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))
 instance Describe (Proxy ReportMap)
@@ -6892,737 +7384,13 @@ instance Describe (Proxy UUID)
                                Nothing -> Just "UUID"
                                Just (_tname, _cname, Right fname) -> Just (camelWords fname)
                                Just (_tname, cname, Left fpos) -> Just (camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))
-instance Describe (Peek (Either URI ImageFile))
-    where describe' _f (Peek_EUI_URI (_p@(Path_Left _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                     wfld = Nothing;
-                                                                     next = describe' wfld (Peek_URI_URI _wp undefined);
-                                                                     top = describe' _f (Proxy :: Proxy (Either URI ImageFile))}
-                                                                 in maybe top Just next
-          describe' _f (Peek_EUI_ImageFile (_p@(Path_Right _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                            wfld = Nothing;
-                                                                            next = describe' wfld (Peek_ImageFile_ImageFile _wp undefined);
-                                                                            top = describe' _f (Proxy :: Proxy (Either URI ImageFile))}
-                                                                        in maybe top Just next
-          describe' _f _ = describe' _f (Proxy :: Proxy (Either URI ImageFile))
-instance Describe (Peek (Map ItemFieldName Markup))
-    where describe' _f (Peek_MIM_JSONText (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                             wfld = Nothing;
-                                                                             next = describe' wfld (Peek_Markup_JSONText _wp undefined);
-                                                                             top = describe' _f (Proxy :: Proxy (Map ItemFieldName Markup))}
-                                                                         in maybe top Just next
-          describe' _f (Peek_MIM_Markup (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                           wfld = Nothing;
-                                                                           next = describe' wfld (Peek_Markup_Markup _wp undefined);
-                                                                           top = describe' _f (Proxy :: Proxy (Map ItemFieldName Markup))}
-                                                                       in maybe top Just next
-          describe' _f (Peek_MIM_Text (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                         wfld = Nothing;
-                                                                         next = describe' wfld (Peek_Markup_Text _wp undefined);
-                                                                         top = describe' _f (Proxy :: Proxy (Map ItemFieldName Markup))}
-                                                                     in maybe top Just next
-          describe' _f _ = describe' _f (Proxy :: Proxy (Map ItemFieldName Markup))
-instance Describe (Peek (Map ReportID Report))
-    where describe' _f (Peek_MRR_String (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                           wfld = Nothing;
-                                                                           next = describe' wfld (Peek_Report_String _wp undefined);
-                                                                           top = describe' _f (Proxy :: Proxy (Map ReportID Report))}
-                                                                       in maybe top Just next
-          describe' _f (Peek_MRR_Int64 (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                          wfld = Nothing;
-                                                                          next = describe' wfld (Peek_Report_Int64 _wp undefined);
-                                                                          top = describe' _f (Proxy :: Proxy (Map ReportID Report))}
-                                                                      in maybe top Just next
-          describe' _f (Peek_MRR_Int (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                        wfld = Nothing;
-                                                                        next = describe' wfld (Peek_Report_Int _wp undefined);
-                                                                        top = describe' _f (Proxy :: Proxy (Map ReportID Report))}
-                                                                    in maybe top Just next
-          describe' _f (Peek_MRR_Bool (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                         wfld = Nothing;
-                                                                         next = describe' wfld (Peek_Report_Bool _wp undefined);
-                                                                         top = describe' _f (Proxy :: Proxy (Map ReportID Report))}
-                                                                     in maybe top Just next
-          describe' _f (Peek_MRR_Double (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                           wfld = Nothing;
-                                                                           next = describe' wfld (Peek_Report_Double _wp undefined);
-                                                                           top = describe' _f (Proxy :: Proxy (Map ReportID Report))}
-                                                                       in maybe top Just next
-          describe' _f (Peek_MRR_Dimension (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                              wfld = Nothing;
-                                                                              next = describe' wfld (Peek_Report_Dimension _wp undefined);
-                                                                              top = describe' _f (Proxy :: Proxy (Map ReportID Report))}
-                                                                          in maybe top Just next
-          describe' _f (Peek_MRR_ImageCrop (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                              wfld = Nothing;
-                                                                              next = describe' wfld (Peek_Report_ImageCrop _wp undefined);
-                                                                              top = describe' _f (Proxy :: Proxy (Map ReportID Report))}
-                                                                          in maybe top Just next
-          describe' _f (Peek_MRR_ImageSize (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                              wfld = Nothing;
-                                                                              next = describe' wfld (Peek_Report_ImageSize _wp undefined);
-                                                                              top = describe' _f (Proxy :: Proxy (Map ReportID Report))}
-                                                                          in maybe top Just next
-          describe' _f (Peek_MRR_Units (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                          wfld = Nothing;
-                                                                          next = describe' wfld (Peek_Report_Units _wp undefined);
-                                                                          top = describe' _f (Proxy :: Proxy (Map ReportID Report))}
-                                                                      in maybe top Just next
-          describe' _f (Peek_MRR_ImageFile (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                              wfld = Nothing;
-                                                                              next = describe' wfld (Peek_Report_ImageFile _wp undefined);
-                                                                              top = describe' _f (Proxy :: Proxy (Map ReportID Report))}
-                                                                          in maybe top Just next
-          describe' _f (Peek_MRR_Integer (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                            wfld = Nothing;
-                                                                            next = describe' wfld (Peek_Report_Integer _wp undefined);
-                                                                            top = describe' _f (Proxy :: Proxy (Map ReportID Report))}
-                                                                        in maybe top Just next
-          describe' _f (Peek_MRR_JSONText (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                             wfld = Nothing;
-                                                                             next = describe' wfld (Peek_Report_JSONText _wp undefined);
-                                                                             top = describe' _f (Proxy :: Proxy (Map ReportID Report))}
-                                                                         in maybe top Just next
-          describe' _f (Peek_MRR_Markup (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                           wfld = Nothing;
-                                                                           next = describe' wfld (Peek_Report_Markup _wp undefined);
-                                                                           top = describe' _f (Proxy :: Proxy (Map ReportID Report))}
-                                                                       in maybe top Just next
-          describe' _f (Peek_MRR_Permissions (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                wfld = Nothing;
-                                                                                next = describe' wfld (Peek_Report_Permissions _wp undefined);
-                                                                                top = describe' _f (Proxy :: Proxy (Map ReportID Report))}
-                                                                            in maybe top Just next
-          describe' _f (Peek_MRR_UserIds (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                            wfld = Nothing;
-                                                                            next = describe' wfld (Peek_Report_UserIds _wp undefined);
-                                                                            top = describe' _f (Proxy :: Proxy (Map ReportID Report))}
-                                                                        in maybe top Just next
-          describe' _f (Peek_MRR_AbbrevPair (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                               wfld = Nothing;
-                                                                               next = describe' wfld (Peek_Report_AbbrevPair _wp undefined);
-                                                                               top = describe' _f (Proxy :: Proxy (Map ReportID Report))}
-                                                                           in maybe top Just next
-          describe' _f (Peek_MRR_AbbrevPairs (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                wfld = Nothing;
-                                                                                next = describe' wfld (Peek_Report_AbbrevPairs _wp undefined);
-                                                                                top = describe' _f (Proxy :: Proxy (Map ReportID Report))}
-                                                                            in maybe top Just next
-          describe' _f (Peek_MRR_Author (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                           wfld = Nothing;
-                                                                           next = describe' wfld (Peek_Report_Author _wp undefined);
-                                                                           top = describe' _f (Proxy :: Proxy (Map ReportID Report))}
-                                                                       in maybe top Just next
-          describe' _f (Peek_MRR_Authors (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                            wfld = Nothing;
-                                                                            next = describe' wfld (Peek_Report_Authors _wp undefined);
-                                                                            top = describe' _f (Proxy :: Proxy (Map ReportID Report))}
-                                                                        in maybe top Just next
-          describe' _f (Peek_MRR_Branding (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                             wfld = Nothing;
-                                                                             next = describe' wfld (Peek_Report_Branding _wp undefined);
-                                                                             top = describe' _f (Proxy :: Proxy (Map ReportID Report))}
-                                                                         in maybe top Just next
-          describe' _f (Peek_MRR_MarkupPair (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                               wfld = Nothing;
-                                                                               next = describe' wfld (Peek_Report_MarkupPair _wp undefined);
-                                                                               top = describe' _f (Proxy :: Proxy (Map ReportID Report))}
-                                                                           in maybe top Just next
-          describe' _f (Peek_MRR_MarkupPairs (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                wfld = Nothing;
-                                                                                next = describe' wfld (Peek_Report_MarkupPairs _wp undefined);
-                                                                                top = describe' _f (Proxy :: Proxy (Map ReportID Report))}
-                                                                            in maybe top Just next
-          describe' _f (Peek_MRR_Markups (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                            wfld = Nothing;
-                                                                            next = describe' wfld (Peek_Report_Markups _wp undefined);
-                                                                            top = describe' _f (Proxy :: Proxy (Map ReportID Report))}
-                                                                        in maybe top Just next
-          describe' _f (Peek_MRR_MaybeReportIntendedUse (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                           wfld = Nothing;
-                                                                                           next = describe' wfld (Peek_Report_MaybeReportIntendedUse _wp undefined);
-                                                                                           top = describe' _f (Proxy :: Proxy (Map ReportID Report))}
-                                                                                       in maybe top Just next
-          describe' _f (Peek_MRR_Report (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                           wfld = Nothing;
-                                                                           next = describe' wfld (Peek_Report_Report _wp undefined);
-                                                                           top = describe' _f (Proxy :: Proxy (Map ReportID Report))}
-                                                                       in maybe top Just next
-          describe' _f (Peek_MRR_ReportElem (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                               wfld = Nothing;
-                                                                               next = describe' wfld (Peek_Report_ReportElem _wp undefined);
-                                                                               top = describe' _f (Proxy :: Proxy (Map ReportID Report))}
-                                                                           in maybe top Just next
-          describe' _f (Peek_MRR_ReportElems (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                wfld = Nothing;
-                                                                                next = describe' wfld (Peek_Report_ReportElems _wp undefined);
-                                                                                top = describe' _f (Proxy :: Proxy (Map ReportID Report))}
-                                                                            in maybe top Just next
-          describe' _f (Peek_MRR_ReportFlags (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                wfld = Nothing;
-                                                                                next = describe' wfld (Peek_Report_ReportFlags _wp undefined);
-                                                                                top = describe' _f (Proxy :: Proxy (Map ReportID Report))}
-                                                                            in maybe top Just next
-          describe' _f (Peek_MRR_ReportStandard (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                   wfld = Nothing;
-                                                                                   next = describe' wfld (Peek_Report_ReportStandard _wp undefined);
-                                                                                   top = describe' _f (Proxy :: Proxy (Map ReportID Report))}
-                                                                               in maybe top Just next
-          describe' _f (Peek_MRR_ReportStatus (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                 wfld = Nothing;
-                                                                                 next = describe' wfld (Peek_Report_ReportStatus _wp undefined);
-                                                                                 top = describe' _f (Proxy :: Proxy (Map ReportID Report))}
-                                                                             in maybe top Just next
-          describe' _f (Peek_MRR_ReportValueApproachInfo (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                            wfld = Nothing;
-                                                                                            next = describe' wfld (Peek_Report_ReportValueApproachInfo _wp undefined);
-                                                                                            top = describe' _f (Proxy :: Proxy (Map ReportID Report))}
-                                                                                        in maybe top Just next
-          describe' _f (Peek_MRR_ReportValueTypeInfo (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                        wfld = Nothing;
-                                                                                        next = describe' wfld (Peek_Report_ReportValueTypeInfo _wp undefined);
-                                                                                        top = describe' _f (Proxy :: Proxy (Map ReportID Report))}
-                                                                                    in maybe top Just next
-          describe' _f (Peek_MRR_EUI (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                        wfld = Nothing;
-                                                                        next = describe' wfld (Peek_Report_EUI _wp undefined);
-                                                                        top = describe' _f (Proxy :: Proxy (Map ReportID Report))}
-                                                                    in maybe top Just next
-          describe' _f (Peek_MRR_MEUI (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                         wfld = Nothing;
-                                                                         next = describe' wfld (Peek_Report_MEUI _wp undefined);
-                                                                         top = describe' _f (Proxy :: Proxy (Map ReportID Report))}
-                                                                     in maybe top Just next
-          describe' _f (Peek_MRR_MaybeImageFile (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                   wfld = Nothing;
-                                                                                   next = describe' wfld (Peek_Report_MaybeImageFile _wp undefined);
-                                                                                   top = describe' _f (Proxy :: Proxy (Map ReportID Report))}
-                                                                               in maybe top Just next
-          describe' _f (Peek_MRR_ReportImage (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                wfld = Nothing;
-                                                                                next = describe' wfld (Peek_Report_ReportImage _wp undefined);
-                                                                                top = describe' _f (Proxy :: Proxy (Map ReportID Report))}
-                                                                            in maybe top Just next
-          describe' _f (Peek_MRR_ReportImages (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                 wfld = Nothing;
-                                                                                 next = describe' wfld (Peek_Report_ReportImages _wp undefined);
-                                                                                 top = describe' _f (Proxy :: Proxy (Map ReportID Report))}
-                                                                             in maybe top Just next
-          describe' _f (Peek_MRR_ReadOnlyFilePath (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                     wfld = Nothing;
-                                                                                     next = describe' wfld (Peek_Report_ReadOnlyFilePath _wp undefined);
-                                                                                     top = describe' _f (Proxy :: Proxy (Map ReportID Report))}
-                                                                                 in maybe top Just next
-          describe' _f (Peek_MRR_ReportImageView (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                    wfld = Nothing;
-                                                                                    next = describe' wfld (Peek_Report_ReportImageView _wp undefined);
-                                                                                    top = describe' _f (Proxy :: Proxy (Map ReportID Report))}
-                                                                                in maybe top Just next
-          describe' _f (Peek_MRR_ReportView (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                               wfld = Nothing;
-                                                                               next = describe' wfld (Peek_Report_ReportView _wp undefined);
-                                                                               top = describe' _f (Proxy :: Proxy (Map ReportID Report))}
-                                                                           in maybe top Just next
-          describe' _f (Peek_MRR_SaneSizeImageSize (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                      wfld = Nothing;
-                                                                                      next = describe' wfld (Peek_Report_SaneSizeImageSize _wp undefined);
-                                                                                      top = describe' _f (Proxy :: Proxy (Map ReportID Report))}
-                                                                                  in maybe top Just next
-          describe' _f (Peek_MRR_Item (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                         wfld = Nothing;
-                                                                         next = describe' wfld (Peek_Report_Item _wp undefined);
-                                                                         top = describe' _f (Proxy :: Proxy (Map ReportID Report))}
-                                                                     in maybe top Just next
-          describe' _f (Peek_MRR_MIM (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                        wfld = Nothing;
-                                                                        next = describe' wfld (Peek_Report_MIM _wp undefined);
-                                                                        top = describe' _f (Proxy :: Proxy (Map ReportID Report))}
-                                                                    in maybe top Just next
-          describe' _f (Peek_MRR_CIString (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                             wfld = Nothing;
-                                                                             next = describe' wfld (Peek_Report_CIString _wp undefined);
-                                                                             top = describe' _f (Proxy :: Proxy (Map ReportID Report))}
-                                                                         in maybe top Just next
-          describe' _f (Peek_MRR_URI (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                        wfld = Nothing;
-                                                                        next = describe' wfld (Peek_Report_URI _wp undefined);
-                                                                        top = describe' _f (Proxy :: Proxy (Map ReportID Report))}
-                                                                    in maybe top Just next
-          describe' _f (Peek_MRR_Text (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                         wfld = Nothing;
-                                                                         next = describe' wfld (Peek_Report_Text _wp undefined);
-                                                                         top = describe' _f (Proxy :: Proxy (Map ReportID Report))}
-                                                                     in maybe top Just next
-          describe' _f (Peek_MRR_UserId (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                           wfld = Nothing;
-                                                                           next = describe' wfld (Peek_Report_UserId _wp undefined);
-                                                                           top = describe' _f (Proxy :: Proxy (Map ReportID Report))}
-                                                                       in maybe top Just next
-          describe' _f (Peek_MRR_UUID (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                         wfld = Nothing;
-                                                                         next = describe' wfld (Peek_Report_UUID _wp undefined);
-                                                                         top = describe' _f (Proxy :: Proxy (Map ReportID Report))}
-                                                                     in maybe top Just next
-          describe' _f _ = describe' _f (Proxy :: Proxy (Map ReportID Report))
-instance Describe (Peek (Order AbbrevPairID ((CIString, Markup))))
-    where describe' _f (Peek_AbbrevPairs_JSONText (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                   wfld = Nothing;
-                                                                                   next = describe' wfld (Peek_AbbrevPair_JSONText _wp undefined);
-                                                                                   top = describe' _f (Proxy :: Proxy (Order AbbrevPairID ((CIString, Markup))))}
-                                                                               in maybe top Just next
-          describe' _f (Peek_AbbrevPairs_Markup (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                 wfld = Nothing;
-                                                                                 next = describe' wfld (Peek_AbbrevPair_Markup _wp undefined);
-                                                                                 top = describe' _f (Proxy :: Proxy (Order AbbrevPairID ((CIString, Markup))))}
-                                                                             in maybe top Just next
-          describe' _f (Peek_AbbrevPairs_AbbrevPair (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                     wfld = Nothing;
-                                                                                     next = describe' wfld (Peek_AbbrevPair_AbbrevPair _wp undefined);
-                                                                                     top = describe' _f (Proxy :: Proxy (Order AbbrevPairID ((CIString, Markup))))}
-                                                                                 in maybe top Just next
-          describe' _f (Peek_AbbrevPairs_CIString (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                   wfld = Nothing;
-                                                                                   next = describe' wfld (Peek_AbbrevPair_CIString _wp undefined);
-                                                                                   top = describe' _f (Proxy :: Proxy (Order AbbrevPairID ((CIString, Markup))))}
-                                                                               in maybe top Just next
-          describe' _f (Peek_AbbrevPairs_Text (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                               wfld = Nothing;
-                                                                               next = describe' wfld (Peek_AbbrevPair_Text _wp undefined);
-                                                                               top = describe' _f (Proxy :: Proxy (Order AbbrevPairID ((CIString, Markup))))}
-                                                                           in maybe top Just next
-          describe' _f _ = describe' _f (Proxy :: Proxy (Order AbbrevPairID ((CIString, Markup))))
-instance Describe (Peek (Order AuthorID Author))
-    where describe' _f (Peek_Authors_JSONText (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                               wfld = Nothing;
-                                                                               next = describe' wfld (Peek_Author_JSONText _wp undefined);
-                                                                               top = describe' _f (Proxy :: Proxy (Order AuthorID Author))}
-                                                                           in maybe top Just next
-          describe' _f (Peek_Authors_Markup (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                             wfld = Nothing;
-                                                                             next = describe' wfld (Peek_Author_Markup _wp undefined);
-                                                                             top = describe' _f (Proxy :: Proxy (Order AuthorID Author))}
-                                                                         in maybe top Just next
-          describe' _f (Peek_Authors_Author (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                             wfld = Nothing;
-                                                                             next = describe' wfld (Peek_Author_Author _wp undefined);
-                                                                             top = describe' _f (Proxy :: Proxy (Order AuthorID Author))}
-                                                                         in maybe top Just next
-          describe' _f (Peek_Authors_Text (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                           wfld = Nothing;
-                                                                           next = describe' wfld (Peek_Author_Text _wp undefined);
-                                                                           top = describe' _f (Proxy :: Proxy (Order AuthorID Author))}
-                                                                       in maybe top Just next
-          describe' _f _ = describe' _f (Proxy :: Proxy (Order AuthorID Author))
-instance Describe (Peek (Order MarkupID Markup))
-    where describe' _f (Peek_Markups_JSONText (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                               wfld = Nothing;
-                                                                               next = describe' wfld (Peek_Markup_JSONText _wp undefined);
-                                                                               top = describe' _f (Proxy :: Proxy (Order MarkupID Markup))}
-                                                                           in maybe top Just next
-          describe' _f (Peek_Markups_Markup (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                             wfld = Nothing;
-                                                                             next = describe' wfld (Peek_Markup_Markup _wp undefined);
-                                                                             top = describe' _f (Proxy :: Proxy (Order MarkupID Markup))}
-                                                                         in maybe top Just next
-          describe' _f (Peek_Markups_Text (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                           wfld = Nothing;
-                                                                           next = describe' wfld (Peek_Markup_Text _wp undefined);
-                                                                           top = describe' _f (Proxy :: Proxy (Order MarkupID Markup))}
-                                                                       in maybe top Just next
-          describe' _f _ = describe' _f (Proxy :: Proxy (Order MarkupID Markup))
-instance Describe (Peek (Order MarkupPairID ((Markup, Markup))))
-    where describe' _f (Peek_MarkupPairs_JSONText (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                   wfld = Nothing;
-                                                                                   next = describe' wfld (Peek_MarkupPair_JSONText _wp undefined);
-                                                                                   top = describe' _f (Proxy :: Proxy (Order MarkupPairID ((Markup, Markup))))}
-                                                                               in maybe top Just next
-          describe' _f (Peek_MarkupPairs_Markup (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                 wfld = Nothing;
-                                                                                 next = describe' wfld (Peek_MarkupPair_Markup _wp undefined);
-                                                                                 top = describe' _f (Proxy :: Proxy (Order MarkupPairID ((Markup, Markup))))}
-                                                                             in maybe top Just next
-          describe' _f (Peek_MarkupPairs_MarkupPair (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                     wfld = Nothing;
-                                                                                     next = describe' wfld (Peek_MarkupPair_MarkupPair _wp undefined);
-                                                                                     top = describe' _f (Proxy :: Proxy (Order MarkupPairID ((Markup, Markup))))}
-                                                                                 in maybe top Just next
-          describe' _f (Peek_MarkupPairs_Text (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                               wfld = Nothing;
-                                                                               next = describe' wfld (Peek_MarkupPair_Text _wp undefined);
-                                                                               top = describe' _f (Proxy :: Proxy (Order MarkupPairID ((Markup, Markup))))}
-                                                                           in maybe top Just next
-          describe' _f _ = describe' _f (Proxy :: Proxy (Order MarkupPairID ((Markup, Markup))))
-instance Describe (Peek (Order ReportElemID ReportElem))
-    where describe' _f (Peek_ReportElems_String (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                 wfld = Nothing;
-                                                                                 next = describe' wfld (Peek_ReportElem_String _wp undefined);
-                                                                                 top = describe' _f (Proxy :: Proxy (Order ReportElemID ReportElem))}
-                                                                             in maybe top Just next
-          describe' _f (Peek_ReportElems_Bool (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                               wfld = Nothing;
-                                                                               next = describe' wfld (Peek_ReportElem_Bool _wp undefined);
-                                                                               top = describe' _f (Proxy :: Proxy (Order ReportElemID ReportElem))}
-                                                                           in maybe top Just next
-          describe' _f (Peek_ReportElems_Double (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                 wfld = Nothing;
-                                                                                 next = describe' wfld (Peek_ReportElem_Double _wp undefined);
-                                                                                 top = describe' _f (Proxy :: Proxy (Order ReportElemID ReportElem))}
-                                                                             in maybe top Just next
-          describe' _f (Peek_ReportElems_Dimension (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                    wfld = Nothing;
-                                                                                    next = describe' wfld (Peek_ReportElem_Dimension _wp undefined);
-                                                                                    top = describe' _f (Proxy :: Proxy (Order ReportElemID ReportElem))}
-                                                                                in maybe top Just next
-          describe' _f (Peek_ReportElems_ImageCrop (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                    wfld = Nothing;
-                                                                                    next = describe' wfld (Peek_ReportElem_ImageCrop _wp undefined);
-                                                                                    top = describe' _f (Proxy :: Proxy (Order ReportElemID ReportElem))}
-                                                                                in maybe top Just next
-          describe' _f (Peek_ReportElems_ImageSize (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                    wfld = Nothing;
-                                                                                    next = describe' wfld (Peek_ReportElem_ImageSize _wp undefined);
-                                                                                    top = describe' _f (Proxy :: Proxy (Order ReportElemID ReportElem))}
-                                                                                in maybe top Just next
-          describe' _f (Peek_ReportElems_Units (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                wfld = Nothing;
-                                                                                next = describe' wfld (Peek_ReportElem_Units _wp undefined);
-                                                                                top = describe' _f (Proxy :: Proxy (Order ReportElemID ReportElem))}
-                                                                            in maybe top Just next
-          describe' _f (Peek_ReportElems_ImageFile (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                    wfld = Nothing;
-                                                                                    next = describe' wfld (Peek_ReportElem_ImageFile _wp undefined);
-                                                                                    top = describe' _f (Proxy :: Proxy (Order ReportElemID ReportElem))}
-                                                                                in maybe top Just next
-          describe' _f (Peek_ReportElems_JSONText (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                   wfld = Nothing;
-                                                                                   next = describe' wfld (Peek_ReportElem_JSONText _wp undefined);
-                                                                                   top = describe' _f (Proxy :: Proxy (Order ReportElemID ReportElem))}
-                                                                               in maybe top Just next
-          describe' _f (Peek_ReportElems_Markup (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                 wfld = Nothing;
-                                                                                 next = describe' wfld (Peek_ReportElem_Markup _wp undefined);
-                                                                                 top = describe' _f (Proxy :: Proxy (Order ReportElemID ReportElem))}
-                                                                             in maybe top Just next
-          describe' _f (Peek_ReportElems_ReportElem (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                     wfld = Nothing;
-                                                                                     next = describe' wfld (Peek_ReportElem_ReportElem _wp undefined);
-                                                                                     top = describe' _f (Proxy :: Proxy (Order ReportElemID ReportElem))}
-                                                                                 in maybe top Just next
-          describe' _f (Peek_ReportElems_EUI (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                              wfld = Nothing;
-                                                                              next = describe' wfld (Peek_ReportElem_EUI _wp undefined);
-                                                                              top = describe' _f (Proxy :: Proxy (Order ReportElemID ReportElem))}
-                                                                          in maybe top Just next
-          describe' _f (Peek_ReportElems_MEUI (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                               wfld = Nothing;
-                                                                               next = describe' wfld (Peek_ReportElem_MEUI _wp undefined);
-                                                                               top = describe' _f (Proxy :: Proxy (Order ReportElemID ReportElem))}
-                                                                           in maybe top Just next
-          describe' _f (Peek_ReportElems_MaybeImageFile (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                         wfld = Nothing;
-                                                                                         next = describe' wfld (Peek_ReportElem_MaybeImageFile _wp undefined);
-                                                                                         top = describe' _f (Proxy :: Proxy (Order ReportElemID ReportElem))}
-                                                                                     in maybe top Just next
-          describe' _f (Peek_ReportElems_ReportImage (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                      wfld = Nothing;
-                                                                                      next = describe' wfld (Peek_ReportElem_ReportImage _wp undefined);
-                                                                                      top = describe' _f (Proxy :: Proxy (Order ReportElemID ReportElem))}
-                                                                                  in maybe top Just next
-          describe' _f (Peek_ReportElems_ReportImages (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                       wfld = Nothing;
-                                                                                       next = describe' wfld (Peek_ReportElem_ReportImages _wp undefined);
-                                                                                       top = describe' _f (Proxy :: Proxy (Order ReportElemID ReportElem))}
-                                                                                   in maybe top Just next
-          describe' _f (Peek_ReportElems_ReportImageView (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                          wfld = Nothing;
-                                                                                          next = describe' wfld (Peek_ReportElem_ReportImageView _wp undefined);
-                                                                                          top = describe' _f (Proxy :: Proxy (Order ReportElemID ReportElem))}
-                                                                                      in maybe top Just next
-          describe' _f (Peek_ReportElems_SaneSizeImageSize (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                            wfld = Nothing;
-                                                                                            next = describe' wfld (Peek_ReportElem_SaneSizeImageSize _wp undefined);
-                                                                                            top = describe' _f (Proxy :: Proxy (Order ReportElemID ReportElem))}
-                                                                                        in maybe top Just next
-          describe' _f (Peek_ReportElems_Item (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                               wfld = Nothing;
-                                                                               next = describe' wfld (Peek_ReportElem_Item _wp undefined);
-                                                                               top = describe' _f (Proxy :: Proxy (Order ReportElemID ReportElem))}
-                                                                           in maybe top Just next
-          describe' _f (Peek_ReportElems_MIM (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                              wfld = Nothing;
-                                                                              next = describe' wfld (Peek_ReportElem_MIM _wp undefined);
-                                                                              top = describe' _f (Proxy :: Proxy (Order ReportElemID ReportElem))}
-                                                                          in maybe top Just next
-          describe' _f (Peek_ReportElems_URI (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                              wfld = Nothing;
-                                                                              next = describe' wfld (Peek_ReportElem_URI _wp undefined);
-                                                                              top = describe' _f (Proxy :: Proxy (Order ReportElemID ReportElem))}
-                                                                          in maybe top Just next
-          describe' _f (Peek_ReportElems_Text (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                               wfld = Nothing;
-                                                                               next = describe' wfld (Peek_ReportElem_Text _wp undefined);
-                                                                               top = describe' _f (Proxy :: Proxy (Order ReportElemID ReportElem))}
-                                                                           in maybe top Just next
-          describe' _f _ = describe' _f (Proxy :: Proxy (Order ReportElemID ReportElem))
-instance Describe (Peek (Order ReportImageID ReportImage))
-    where describe' _f (Peek_ReportImages_String (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                  wfld = Nothing;
-                                                                                  next = describe' wfld (Peek_ReportImage_String _wp undefined);
-                                                                                  top = describe' _f (Proxy :: Proxy (Order ReportImageID ReportImage))}
-                                                                              in maybe top Just next
-          describe' _f (Peek_ReportImages_Bool (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                wfld = Nothing;
-                                                                                next = describe' wfld (Peek_ReportImage_Bool _wp undefined);
-                                                                                top = describe' _f (Proxy :: Proxy (Order ReportImageID ReportImage))}
-                                                                            in maybe top Just next
-          describe' _f (Peek_ReportImages_Double (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                  wfld = Nothing;
-                                                                                  next = describe' wfld (Peek_ReportImage_Double _wp undefined);
-                                                                                  top = describe' _f (Proxy :: Proxy (Order ReportImageID ReportImage))}
-                                                                              in maybe top Just next
-          describe' _f (Peek_ReportImages_Dimension (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                     wfld = Nothing;
-                                                                                     next = describe' wfld (Peek_ReportImage_Dimension _wp undefined);
-                                                                                     top = describe' _f (Proxy :: Proxy (Order ReportImageID ReportImage))}
-                                                                                 in maybe top Just next
-          describe' _f (Peek_ReportImages_ImageCrop (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                     wfld = Nothing;
-                                                                                     next = describe' wfld (Peek_ReportImage_ImageCrop _wp undefined);
-                                                                                     top = describe' _f (Proxy :: Proxy (Order ReportImageID ReportImage))}
-                                                                                 in maybe top Just next
-          describe' _f (Peek_ReportImages_ImageSize (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                     wfld = Nothing;
-                                                                                     next = describe' wfld (Peek_ReportImage_ImageSize _wp undefined);
-                                                                                     top = describe' _f (Proxy :: Proxy (Order ReportImageID ReportImage))}
-                                                                                 in maybe top Just next
-          describe' _f (Peek_ReportImages_Units (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                 wfld = Nothing;
-                                                                                 next = describe' wfld (Peek_ReportImage_Units _wp undefined);
-                                                                                 top = describe' _f (Proxy :: Proxy (Order ReportImageID ReportImage))}
-                                                                             in maybe top Just next
-          describe' _f (Peek_ReportImages_ImageFile (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                     wfld = Nothing;
-                                                                                     next = describe' wfld (Peek_ReportImage_ImageFile _wp undefined);
-                                                                                     top = describe' _f (Proxy :: Proxy (Order ReportImageID ReportImage))}
-                                                                                 in maybe top Just next
-          describe' _f (Peek_ReportImages_JSONText (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                    wfld = Nothing;
-                                                                                    next = describe' wfld (Peek_ReportImage_JSONText _wp undefined);
-                                                                                    top = describe' _f (Proxy :: Proxy (Order ReportImageID ReportImage))}
-                                                                                in maybe top Just next
-          describe' _f (Peek_ReportImages_Markup (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                  wfld = Nothing;
-                                                                                  next = describe' wfld (Peek_ReportImage_Markup _wp undefined);
-                                                                                  top = describe' _f (Proxy :: Proxy (Order ReportImageID ReportImage))}
-                                                                              in maybe top Just next
-          describe' _f (Peek_ReportImages_EUI (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                               wfld = Nothing;
-                                                                               next = describe' wfld (Peek_ReportImage_EUI _wp undefined);
-                                                                               top = describe' _f (Proxy :: Proxy (Order ReportImageID ReportImage))}
-                                                                           in maybe top Just next
-          describe' _f (Peek_ReportImages_MEUI (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                wfld = Nothing;
-                                                                                next = describe' wfld (Peek_ReportImage_MEUI _wp undefined);
-                                                                                top = describe' _f (Proxy :: Proxy (Order ReportImageID ReportImage))}
-                                                                            in maybe top Just next
-          describe' _f (Peek_ReportImages_MaybeImageFile (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                          wfld = Nothing;
-                                                                                          next = describe' wfld (Peek_ReportImage_MaybeImageFile _wp undefined);
-                                                                                          top = describe' _f (Proxy :: Proxy (Order ReportImageID ReportImage))}
-                                                                                      in maybe top Just next
-          describe' _f (Peek_ReportImages_ReportImage (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                       wfld = Nothing;
-                                                                                       next = describe' wfld (Peek_ReportImage_ReportImage _wp undefined);
-                                                                                       top = describe' _f (Proxy :: Proxy (Order ReportImageID ReportImage))}
-                                                                                   in maybe top Just next
-          describe' _f (Peek_ReportImages_ReportImageView (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                           wfld = Nothing;
-                                                                                           next = describe' wfld (Peek_ReportImage_ReportImageView _wp undefined);
-                                                                                           top = describe' _f (Proxy :: Proxy (Order ReportImageID ReportImage))}
-                                                                                       in maybe top Just next
-          describe' _f (Peek_ReportImages_SaneSizeImageSize (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                             wfld = Nothing;
-                                                                                             next = describe' wfld (Peek_ReportImage_SaneSizeImageSize _wp undefined);
-                                                                                             top = describe' _f (Proxy :: Proxy (Order ReportImageID ReportImage))}
-                                                                                         in maybe top Just next
-          describe' _f (Peek_ReportImages_URI (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                               wfld = Nothing;
-                                                                               next = describe' wfld (Peek_ReportImage_URI _wp undefined);
-                                                                               top = describe' _f (Proxy :: Proxy (Order ReportImageID ReportImage))}
-                                                                           in maybe top Just next
-          describe' _f (Peek_ReportImages_Text (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                wfld = Nothing;
-                                                                                next = describe' wfld (Peek_ReportImage_Text _wp undefined);
-                                                                                top = describe' _f (Proxy :: Proxy (Order ReportImageID ReportImage))}
-                                                                            in maybe top Just next
-          describe' _f _ = describe' _f (Proxy :: Proxy (Order ReportImageID ReportImage))
-instance Describe (Peek ((Markup, Markup)))
-    where describe' _f (Peek_MarkupPair_JSONText (_p@(Path_First _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                  wfld = Nothing;
-                                                                                  next = describe' wfld (Peek_Markup_JSONText _wp undefined);
-                                                                                  top = describe' _f (Proxy :: Proxy ((Markup, Markup)))}
-                                                                              in maybe top Just next
-          describe' _f (Peek_MarkupPair_Markup (_p@(Path_First _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                wfld = Nothing;
-                                                                                next = describe' wfld (Peek_Markup_Markup _wp undefined);
-                                                                                top = describe' _f (Proxy :: Proxy ((Markup, Markup)))}
-                                                                            in maybe top Just next
-          describe' _f (Peek_MarkupPair_Text (_p@(Path_First _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                              wfld = Nothing;
-                                                                              next = describe' wfld (Peek_Markup_Text _wp undefined);
-                                                                              top = describe' _f (Proxy :: Proxy ((Markup, Markup)))}
-                                                                          in maybe top Just next
-          describe' _f (Peek_MarkupPair_JSONText (_p@(Path_Second _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                   wfld = Nothing;
-                                                                                   next = describe' wfld (Peek_Markup_JSONText _wp undefined);
-                                                                                   top = describe' _f (Proxy :: Proxy ((Markup, Markup)))}
-                                                                               in maybe top Just next
-          describe' _f (Peek_MarkupPair_Markup (_p@(Path_Second _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                 wfld = Nothing;
-                                                                                 next = describe' wfld (Peek_Markup_Markup _wp undefined);
-                                                                                 top = describe' _f (Proxy :: Proxy ((Markup, Markup)))}
-                                                                             in maybe top Just next
-          describe' _f (Peek_MarkupPair_Text (_p@(Path_Second _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                               wfld = Nothing;
-                                                                               next = describe' wfld (Peek_Markup_Text _wp undefined);
-                                                                               top = describe' _f (Proxy :: Proxy ((Markup, Markup)))}
-                                                                           in maybe top Just next
-          describe' _f _ = describe' _f (Proxy :: Proxy ((Markup, Markup)))
-instance Describe (Peek ((CIString, Markup)))
-    where describe' _f (Peek_AbbrevPair_JSONText (_p@(Path_First _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                  wfld = Nothing;
-                                                                                  next = describe' wfld (Peek_CIString_JSONText _wp undefined);
-                                                                                  top = describe' _f (Proxy :: Proxy ((CIString, Markup)))}
-                                                                              in maybe top Just next
-          describe' _f (Peek_AbbrevPair_CIString (_p@(Path_First _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                  wfld = Nothing;
-                                                                                  next = describe' wfld (Peek_CIString_CIString _wp undefined);
-                                                                                  top = describe' _f (Proxy :: Proxy ((CIString, Markup)))}
-                                                                              in maybe top Just next
-          describe' _f (Peek_AbbrevPair_Text (_p@(Path_First _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                              wfld = Nothing;
-                                                                              next = describe' wfld (Peek_CIString_Text _wp undefined);
-                                                                              top = describe' _f (Proxy :: Proxy ((CIString, Markup)))}
-                                                                          in maybe top Just next
-          describe' _f (Peek_AbbrevPair_JSONText (_p@(Path_Second _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                   wfld = Nothing;
-                                                                                   next = describe' wfld (Peek_Markup_JSONText _wp undefined);
-                                                                                   top = describe' _f (Proxy :: Proxy ((CIString, Markup)))}
-                                                                               in maybe top Just next
-          describe' _f (Peek_AbbrevPair_Markup (_p@(Path_Second _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                 wfld = Nothing;
-                                                                                 next = describe' wfld (Peek_Markup_Markup _wp undefined);
-                                                                                 top = describe' _f (Proxy :: Proxy ((CIString, Markup)))}
-                                                                             in maybe top Just next
-          describe' _f (Peek_AbbrevPair_Text (_p@(Path_Second _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                               wfld = Nothing;
-                                                                               next = describe' wfld (Peek_Markup_Text _wp undefined);
-                                                                               top = describe' _f (Proxy :: Proxy ((CIString, Markup)))}
-                                                                           in maybe top Just next
-          describe' _f _ = describe' _f (Proxy :: Proxy ((CIString, Markup)))
-instance Describe (Peek (Maybe (Either URI ImageFile)))
-    where describe' _f (Peek_MEUI_ImageFile (_p@(Path_Just _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                            wfld = Nothing;
-                                                                            next = describe' wfld (Peek_EUI_ImageFile _wp undefined);
-                                                                            top = describe' _f (Proxy :: Proxy (Maybe (Either URI ImageFile)))}
-                                                                        in maybe top Just next
-          describe' _f (Peek_MEUI_EUI (_p@(Path_Just _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                      wfld = Nothing;
-                                                                      next = describe' wfld (Peek_EUI_EUI _wp undefined);
-                                                                      top = describe' _f (Proxy :: Proxy (Maybe (Either URI ImageFile)))}
-                                                                  in maybe top Just next
-          describe' _f (Peek_MEUI_URI (_p@(Path_Just _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                      wfld = Nothing;
-                                                                      next = describe' wfld (Peek_EUI_URI _wp undefined);
-                                                                      top = describe' _f (Proxy :: Proxy (Maybe (Either URI ImageFile)))}
-                                                                  in maybe top Just next
-          describe' _f _ = describe' _f (Proxy :: Proxy (Maybe (Either URI ImageFile)))
-instance Describe (Peek (Maybe ImageFile))
-    where describe' _f (Peek_MaybeImageFile_String (_p@(Path_MaybeImageFile_View _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                                  wfld = Nothing;
-                                                                                                  next = describe' wfld (Peek_String_String _wp undefined);
-                                                                                                  top = describe' _f (Proxy :: Proxy (Maybe ImageFile))}
-                                                                                              in maybe top Just next
-          describe' _f (Peek_MaybeImageFile_JSONText (_p@(Path_MaybeImageFile_View _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                                    wfld = Nothing;
-                                                                                                    next = describe' wfld (Peek_String_JSONText _wp undefined);
-                                                                                                    top = describe' _f (Proxy :: Proxy (Maybe ImageFile))}
-                                                                                                in maybe top Just next
-          describe' _f _ = describe' _f (Proxy :: Proxy (Maybe ImageFile))
-instance Describe (Peek (Maybe ReportIntendedUse))
-    where describe' _f (Peek_MaybeReportIntendedUse_String (_p@(Path_MaybeReportIntendedUse_View _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                                                  wfld = Nothing;
-                                                                                                                  next = describe' wfld (Peek_String_String _wp undefined);
-                                                                                                                  top = describe' _f (Proxy :: Proxy (Maybe ReportIntendedUse))}
-                                                                                                              in maybe top Just next
-          describe' _f (Peek_MaybeReportIntendedUse_JSONText (_p@(Path_MaybeReportIntendedUse_View _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                                                    wfld = Nothing;
-                                                                                                                    next = describe' wfld (Peek_String_JSONText _wp undefined);
-                                                                                                                    top = describe' _f (Proxy :: Proxy (Maybe ReportIntendedUse))}
-                                                                                                                in maybe top Just next
-          describe' _f _ = describe' _f (Proxy :: Proxy (Maybe ReportIntendedUse))
-instance Describe (Peek (ReadOnly ([Char])))
-    where describe' _f (Peek_ReadOnlyFilePath_String (_p@(Path_ReadOnlyFilePath_View _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                                      wfld = Nothing;
-                                                                                                      next = describe' wfld (Peek_String_String _wp undefined);
-                                                                                                      top = describe' _f (Proxy :: Proxy (ReadOnly ([Char])))}
-                                                                                                  in maybe top Just next
-          describe' _f (Peek_ReadOnlyFilePath_JSONText (_p@(Path_ReadOnlyFilePath_View _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                                        wfld = Nothing;
-                                                                                                        next = describe' wfld (Peek_String_JSONText _wp undefined);
-                                                                                                        top = describe' _f (Proxy :: Proxy (ReadOnly ([Char])))}
-                                                                                                    in maybe top Just next
-          describe' _f _ = describe' _f (Proxy :: Proxy (ReadOnly ([Char])))
-instance Describe (Peek (SaneSize ImageSize))
-    where describe' _f (Peek_SaneSizeImageSize_String (_p@(Path_SaneSizeImageSize_View _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                                        wfld = Nothing;
-                                                                                                        next = describe' wfld (Peek_ImageSize_String _wp undefined);
-                                                                                                        top = describe' _f (Proxy :: Proxy (SaneSize ImageSize))}
-                                                                                                    in maybe top Just next
-          describe' _f (Peek_SaneSizeImageSize_Double (_p@(Path_SaneSizeImageSize_View _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                                        wfld = Nothing;
-                                                                                                        next = describe' wfld (Peek_ImageSize_Double _wp undefined);
-                                                                                                        top = describe' _f (Proxy :: Proxy (SaneSize ImageSize))}
-                                                                                                    in maybe top Just next
-          describe' _f (Peek_SaneSizeImageSize_Dimension (_p@(Path_SaneSizeImageSize_View _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                                           wfld = Nothing;
-                                                                                                           next = describe' wfld (Peek_ImageSize_Dimension _wp undefined);
-                                                                                                           top = describe' _f (Proxy :: Proxy (SaneSize ImageSize))}
-                                                                                                       in maybe top Just next
-          describe' _f (Peek_SaneSizeImageSize_ImageSize (_p@(Path_SaneSizeImageSize_View _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                                           wfld = Nothing;
-                                                                                                           next = describe' wfld (Peek_ImageSize_ImageSize _wp undefined);
-                                                                                                           top = describe' _f (Proxy :: Proxy (SaneSize ImageSize))}
-                                                                                                       in maybe top Just next
-          describe' _f (Peek_SaneSizeImageSize_Units (_p@(Path_SaneSizeImageSize_View _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                                       wfld = Nothing;
-                                                                                                       next = describe' wfld (Peek_ImageSize_Units _wp undefined);
-                                                                                                       top = describe' _f (Proxy :: Proxy (SaneSize ImageSize))}
-                                                                                                   in maybe top Just next
-          describe' _f (Peek_SaneSizeImageSize_JSONText (_p@(Path_SaneSizeImageSize_View _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                                          wfld = Nothing;
-                                                                                                          next = describe' wfld (Peek_ImageSize_JSONText _wp undefined);
-                                                                                                          top = describe' _f (Proxy :: Proxy (SaneSize ImageSize))}
-                                                                                                      in maybe top Just next
-          describe' _f _ = describe' _f (Proxy :: Proxy (SaneSize ImageSize))
-instance Describe (Peek ([Char]))
+instance Describe (Peek String)
     where describe' _f (Peek_String_JSONText (_p@(Path_String_View _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
                                                                                     wfld = Nothing;
                                                                                     next = describe' wfld (Peek_JSONText_JSONText _wp undefined);
-                                                                                    top = describe' _f (Proxy :: Proxy ([Char]))}
+                                                                                    top = describe' _f (Proxy :: Proxy String)}
                                                                                 in maybe top Just next
-          describe' _f _ = describe' _f (Proxy :: Proxy ([Char]))
-instance Describe (Peek ([UserId]))
-    where describe' _f (Peek_UserIds_JSONText (_p@(Path_UserIds_View _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                      wfld = Nothing;
-                                                                                      next = describe' wfld (Peek_Text_JSONText _wp undefined);
-                                                                                      top = describe' _f (Proxy :: Proxy ([UserId]))}
-                                                                                  in maybe top Just next
-          describe' _f (Peek_UserIds_Text (_p@(Path_UserIds_View _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
-                                                                                  wfld = Nothing;
-                                                                                  next = describe' wfld (Peek_Text_Text _wp undefined);
-                                                                                  top = describe' _f (Proxy :: Proxy ([UserId]))}
-                                                                              in maybe top Just next
-          describe' _f _ = describe' _f (Proxy :: Proxy ([UserId]))
+          describe' _f _ = describe' _f (Proxy :: Proxy String)
 instance Describe (Peek Int64)
     where describe' _ _ = Nothing
 instance Describe (Peek Bool)
@@ -7769,6 +7537,77 @@ instance Describe (Peek Permissions)
                                                                                              top = describe' _f (Proxy :: Proxy Permissions)}
                                                                                          in maybe top Just next
           describe' _f _ = describe' _f (Proxy :: Proxy Permissions)
+instance Describe (Peek UserIds)
+    where describe' _f (Peek_UserIds_JSONText (_p@(Path_UserIds_View _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                      wfld = Nothing;
+                                                                                      next = describe' wfld (Peek_Text_JSONText _wp undefined);
+                                                                                      top = describe' _f (Proxy :: Proxy UserIds)}
+                                                                                  in maybe top Just next
+          describe' _f (Peek_UserIds_Text (_p@(Path_UserIds_View _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                  wfld = Nothing;
+                                                                                  next = describe' wfld (Peek_Text_Text _wp undefined);
+                                                                                  top = describe' _f (Proxy :: Proxy UserIds)}
+                                                                              in maybe top Just next
+          describe' _f _ = describe' _f (Proxy :: Proxy UserIds)
+instance Describe (Peek AbbrevPair)
+    where describe' _f (Peek_AbbrevPair_JSONText (_p@(Path_First _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                  wfld = Nothing;
+                                                                                  next = describe' wfld (Peek_CIString_JSONText _wp undefined);
+                                                                                  top = describe' _f (Proxy :: Proxy AbbrevPair)}
+                                                                              in maybe top Just next
+          describe' _f (Peek_AbbrevPair_CIString (_p@(Path_First _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                  wfld = Nothing;
+                                                                                  next = describe' wfld (Peek_CIString_CIString _wp undefined);
+                                                                                  top = describe' _f (Proxy :: Proxy AbbrevPair)}
+                                                                              in maybe top Just next
+          describe' _f (Peek_AbbrevPair_Text (_p@(Path_First _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                              wfld = Nothing;
+                                                                              next = describe' wfld (Peek_CIString_Text _wp undefined);
+                                                                              top = describe' _f (Proxy :: Proxy AbbrevPair)}
+                                                                          in maybe top Just next
+          describe' _f (Peek_AbbrevPair_JSONText (_p@(Path_Second _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                   wfld = Nothing;
+                                                                                   next = describe' wfld (Peek_Markup_JSONText _wp undefined);
+                                                                                   top = describe' _f (Proxy :: Proxy AbbrevPair)}
+                                                                               in maybe top Just next
+          describe' _f (Peek_AbbrevPair_Markup (_p@(Path_Second _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                 wfld = Nothing;
+                                                                                 next = describe' wfld (Peek_Markup_Markup _wp undefined);
+                                                                                 top = describe' _f (Proxy :: Proxy AbbrevPair)}
+                                                                             in maybe top Just next
+          describe' _f (Peek_AbbrevPair_Text (_p@(Path_Second _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                               wfld = Nothing;
+                                                                               next = describe' wfld (Peek_Markup_Text _wp undefined);
+                                                                               top = describe' _f (Proxy :: Proxy AbbrevPair)}
+                                                                           in maybe top Just next
+          describe' _f _ = describe' _f (Proxy :: Proxy AbbrevPair)
+instance Describe (Peek AbbrevPairs)
+    where describe' _f (Peek_AbbrevPairs_JSONText (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                   wfld = Nothing;
+                                                                                   next = describe' wfld (Peek_AbbrevPair_JSONText _wp undefined);
+                                                                                   top = describe' _f (Proxy :: Proxy AbbrevPairs)}
+                                                                               in maybe top Just next
+          describe' _f (Peek_AbbrevPairs_Markup (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                 wfld = Nothing;
+                                                                                 next = describe' wfld (Peek_AbbrevPair_Markup _wp undefined);
+                                                                                 top = describe' _f (Proxy :: Proxy AbbrevPairs)}
+                                                                             in maybe top Just next
+          describe' _f (Peek_AbbrevPairs_AbbrevPair (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                     wfld = Nothing;
+                                                                                     next = describe' wfld (Peek_AbbrevPair_AbbrevPair _wp undefined);
+                                                                                     top = describe' _f (Proxy :: Proxy AbbrevPairs)}
+                                                                                 in maybe top Just next
+          describe' _f (Peek_AbbrevPairs_CIString (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                   wfld = Nothing;
+                                                                                   next = describe' wfld (Peek_AbbrevPair_CIString _wp undefined);
+                                                                                   top = describe' _f (Proxy :: Proxy AbbrevPairs)}
+                                                                               in maybe top Just next
+          describe' _f (Peek_AbbrevPairs_Text (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                               wfld = Nothing;
+                                                                               next = describe' wfld (Peek_AbbrevPair_Text _wp undefined);
+                                                                               top = describe' _f (Proxy :: Proxy AbbrevPairs)}
+                                                                           in maybe top Just next
+          describe' _f _ = describe' _f (Proxy :: Proxy AbbrevPairs)
 instance Describe (Peek Author)
     where describe' _f (Peek_Author_JSONText (_p@(Path_Author_authorName _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
                                                                                           wfld = Just ("Author", "Author", Right "authorName");
@@ -7801,6 +7640,28 @@ instance Describe (Peek Author)
                                                                                              top = describe' _f (Proxy :: Proxy Author)}
                                                                                          in maybe top Just next
           describe' _f _ = describe' _f (Proxy :: Proxy Author)
+instance Describe (Peek Authors)
+    where describe' _f (Peek_Authors_JSONText (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                               wfld = Nothing;
+                                                                               next = describe' wfld (Peek_Author_JSONText _wp undefined);
+                                                                               top = describe' _f (Proxy :: Proxy Authors)}
+                                                                           in maybe top Just next
+          describe' _f (Peek_Authors_Markup (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                             wfld = Nothing;
+                                                                             next = describe' wfld (Peek_Author_Markup _wp undefined);
+                                                                             top = describe' _f (Proxy :: Proxy Authors)}
+                                                                         in maybe top Just next
+          describe' _f (Peek_Authors_Author (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                             wfld = Nothing;
+                                                                             next = describe' wfld (Peek_Author_Author _wp undefined);
+                                                                             top = describe' _f (Proxy :: Proxy Authors)}
+                                                                         in maybe top Just next
+          describe' _f (Peek_Authors_Text (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                           wfld = Nothing;
+                                                                           next = describe' wfld (Peek_Author_Text _wp undefined);
+                                                                           top = describe' _f (Proxy :: Proxy Authors)}
+                                                                       in maybe top Just next
+          describe' _f _ = describe' _f (Proxy :: Proxy Authors)
 instance Describe (Peek Branding)
     where describe' _f (Peek_Branding_JSONText (_p@(Path_Branding_View _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
                                                                                         wfld = Nothing;
@@ -7813,6 +7674,89 @@ instance Describe (Peek Branding)
                                                                                     top = describe' _f (Proxy :: Proxy Branding)}
                                                                                 in maybe top Just next
           describe' _f _ = describe' _f (Proxy :: Proxy Branding)
+instance Describe (Peek MarkupPair)
+    where describe' _f (Peek_MarkupPair_JSONText (_p@(Path_First _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                  wfld = Nothing;
+                                                                                  next = describe' wfld (Peek_Markup_JSONText _wp undefined);
+                                                                                  top = describe' _f (Proxy :: Proxy MarkupPair)}
+                                                                              in maybe top Just next
+          describe' _f (Peek_MarkupPair_Markup (_p@(Path_First _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                wfld = Nothing;
+                                                                                next = describe' wfld (Peek_Markup_Markup _wp undefined);
+                                                                                top = describe' _f (Proxy :: Proxy MarkupPair)}
+                                                                            in maybe top Just next
+          describe' _f (Peek_MarkupPair_Text (_p@(Path_First _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                              wfld = Nothing;
+                                                                              next = describe' wfld (Peek_Markup_Text _wp undefined);
+                                                                              top = describe' _f (Proxy :: Proxy MarkupPair)}
+                                                                          in maybe top Just next
+          describe' _f (Peek_MarkupPair_JSONText (_p@(Path_Second _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                   wfld = Nothing;
+                                                                                   next = describe' wfld (Peek_Markup_JSONText _wp undefined);
+                                                                                   top = describe' _f (Proxy :: Proxy MarkupPair)}
+                                                                               in maybe top Just next
+          describe' _f (Peek_MarkupPair_Markup (_p@(Path_Second _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                 wfld = Nothing;
+                                                                                 next = describe' wfld (Peek_Markup_Markup _wp undefined);
+                                                                                 top = describe' _f (Proxy :: Proxy MarkupPair)}
+                                                                             in maybe top Just next
+          describe' _f (Peek_MarkupPair_Text (_p@(Path_Second _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                               wfld = Nothing;
+                                                                               next = describe' wfld (Peek_Markup_Text _wp undefined);
+                                                                               top = describe' _f (Proxy :: Proxy MarkupPair)}
+                                                                           in maybe top Just next
+          describe' _f _ = describe' _f (Proxy :: Proxy MarkupPair)
+instance Describe (Peek MarkupPairs)
+    where describe' _f (Peek_MarkupPairs_JSONText (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                   wfld = Nothing;
+                                                                                   next = describe' wfld (Peek_MarkupPair_JSONText _wp undefined);
+                                                                                   top = describe' _f (Proxy :: Proxy MarkupPairs)}
+                                                                               in maybe top Just next
+          describe' _f (Peek_MarkupPairs_Markup (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                 wfld = Nothing;
+                                                                                 next = describe' wfld (Peek_MarkupPair_Markup _wp undefined);
+                                                                                 top = describe' _f (Proxy :: Proxy MarkupPairs)}
+                                                                             in maybe top Just next
+          describe' _f (Peek_MarkupPairs_MarkupPair (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                     wfld = Nothing;
+                                                                                     next = describe' wfld (Peek_MarkupPair_MarkupPair _wp undefined);
+                                                                                     top = describe' _f (Proxy :: Proxy MarkupPairs)}
+                                                                                 in maybe top Just next
+          describe' _f (Peek_MarkupPairs_Text (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                               wfld = Nothing;
+                                                                               next = describe' wfld (Peek_MarkupPair_Text _wp undefined);
+                                                                               top = describe' _f (Proxy :: Proxy MarkupPairs)}
+                                                                           in maybe top Just next
+          describe' _f _ = describe' _f (Proxy :: Proxy MarkupPairs)
+instance Describe (Peek Markups)
+    where describe' _f (Peek_Markups_JSONText (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                               wfld = Nothing;
+                                                                               next = describe' wfld (Peek_Markup_JSONText _wp undefined);
+                                                                               top = describe' _f (Proxy :: Proxy Markups)}
+                                                                           in maybe top Just next
+          describe' _f (Peek_Markups_Markup (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                             wfld = Nothing;
+                                                                             next = describe' wfld (Peek_Markup_Markup _wp undefined);
+                                                                             top = describe' _f (Proxy :: Proxy Markups)}
+                                                                         in maybe top Just next
+          describe' _f (Peek_Markups_Text (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                           wfld = Nothing;
+                                                                           next = describe' wfld (Peek_Markup_Text _wp undefined);
+                                                                           top = describe' _f (Proxy :: Proxy Markups)}
+                                                                       in maybe top Just next
+          describe' _f _ = describe' _f (Proxy :: Proxy Markups)
+instance Describe (Peek MaybeReportIntendedUse)
+    where describe' _f (Peek_MaybeReportIntendedUse_String (_p@(Path_MaybeReportIntendedUse_View _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                                                  wfld = Nothing;
+                                                                                                                  next = describe' wfld (Peek_String_String _wp undefined);
+                                                                                                                  top = describe' _f (Proxy :: Proxy MaybeReportIntendedUse)}
+                                                                                                              in maybe top Just next
+          describe' _f (Peek_MaybeReportIntendedUse_JSONText (_p@(Path_MaybeReportIntendedUse_View _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                                                    wfld = Nothing;
+                                                                                                                    next = describe' wfld (Peek_String_JSONText _wp undefined);
+                                                                                                                    top = describe' _f (Proxy :: Proxy MaybeReportIntendedUse)}
+                                                                                                                in maybe top Just next
+          describe' _f _ = describe' _f (Proxy :: Proxy MaybeReportIntendedUse)
 instance Describe (Peek Report)
     where describe' _f (Peek_Report_String (_p@(Path_Report_View _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
                                                                                   wfld = Nothing;
@@ -8172,6 +8116,118 @@ instance Describe (Peek ReportElem)
                                                                                             top = describe' _f (Proxy :: Proxy ReportElem)}
                                                                                         in maybe top Just next
           describe' _f _ = describe' _f (Proxy :: Proxy ReportElem)
+instance Describe (Peek ReportElems)
+    where describe' _f (Peek_ReportElems_String (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                 wfld = Nothing;
+                                                                                 next = describe' wfld (Peek_ReportElem_String _wp undefined);
+                                                                                 top = describe' _f (Proxy :: Proxy ReportElems)}
+                                                                             in maybe top Just next
+          describe' _f (Peek_ReportElems_Bool (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                               wfld = Nothing;
+                                                                               next = describe' wfld (Peek_ReportElem_Bool _wp undefined);
+                                                                               top = describe' _f (Proxy :: Proxy ReportElems)}
+                                                                           in maybe top Just next
+          describe' _f (Peek_ReportElems_Double (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                 wfld = Nothing;
+                                                                                 next = describe' wfld (Peek_ReportElem_Double _wp undefined);
+                                                                                 top = describe' _f (Proxy :: Proxy ReportElems)}
+                                                                             in maybe top Just next
+          describe' _f (Peek_ReportElems_Dimension (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                    wfld = Nothing;
+                                                                                    next = describe' wfld (Peek_ReportElem_Dimension _wp undefined);
+                                                                                    top = describe' _f (Proxy :: Proxy ReportElems)}
+                                                                                in maybe top Just next
+          describe' _f (Peek_ReportElems_ImageCrop (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                    wfld = Nothing;
+                                                                                    next = describe' wfld (Peek_ReportElem_ImageCrop _wp undefined);
+                                                                                    top = describe' _f (Proxy :: Proxy ReportElems)}
+                                                                                in maybe top Just next
+          describe' _f (Peek_ReportElems_ImageSize (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                    wfld = Nothing;
+                                                                                    next = describe' wfld (Peek_ReportElem_ImageSize _wp undefined);
+                                                                                    top = describe' _f (Proxy :: Proxy ReportElems)}
+                                                                                in maybe top Just next
+          describe' _f (Peek_ReportElems_Units (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                wfld = Nothing;
+                                                                                next = describe' wfld (Peek_ReportElem_Units _wp undefined);
+                                                                                top = describe' _f (Proxy :: Proxy ReportElems)}
+                                                                            in maybe top Just next
+          describe' _f (Peek_ReportElems_ImageFile (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                    wfld = Nothing;
+                                                                                    next = describe' wfld (Peek_ReportElem_ImageFile _wp undefined);
+                                                                                    top = describe' _f (Proxy :: Proxy ReportElems)}
+                                                                                in maybe top Just next
+          describe' _f (Peek_ReportElems_JSONText (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                   wfld = Nothing;
+                                                                                   next = describe' wfld (Peek_ReportElem_JSONText _wp undefined);
+                                                                                   top = describe' _f (Proxy :: Proxy ReportElems)}
+                                                                               in maybe top Just next
+          describe' _f (Peek_ReportElems_Markup (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                 wfld = Nothing;
+                                                                                 next = describe' wfld (Peek_ReportElem_Markup _wp undefined);
+                                                                                 top = describe' _f (Proxy :: Proxy ReportElems)}
+                                                                             in maybe top Just next
+          describe' _f (Peek_ReportElems_ReportElem (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                     wfld = Nothing;
+                                                                                     next = describe' wfld (Peek_ReportElem_ReportElem _wp undefined);
+                                                                                     top = describe' _f (Proxy :: Proxy ReportElems)}
+                                                                                 in maybe top Just next
+          describe' _f (Peek_ReportElems_EUI (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                              wfld = Nothing;
+                                                                              next = describe' wfld (Peek_ReportElem_EUI _wp undefined);
+                                                                              top = describe' _f (Proxy :: Proxy ReportElems)}
+                                                                          in maybe top Just next
+          describe' _f (Peek_ReportElems_MEUI (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                               wfld = Nothing;
+                                                                               next = describe' wfld (Peek_ReportElem_MEUI _wp undefined);
+                                                                               top = describe' _f (Proxy :: Proxy ReportElems)}
+                                                                           in maybe top Just next
+          describe' _f (Peek_ReportElems_MaybeImageFile (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                         wfld = Nothing;
+                                                                                         next = describe' wfld (Peek_ReportElem_MaybeImageFile _wp undefined);
+                                                                                         top = describe' _f (Proxy :: Proxy ReportElems)}
+                                                                                     in maybe top Just next
+          describe' _f (Peek_ReportElems_ReportImage (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                      wfld = Nothing;
+                                                                                      next = describe' wfld (Peek_ReportElem_ReportImage _wp undefined);
+                                                                                      top = describe' _f (Proxy :: Proxy ReportElems)}
+                                                                                  in maybe top Just next
+          describe' _f (Peek_ReportElems_ReportImages (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                       wfld = Nothing;
+                                                                                       next = describe' wfld (Peek_ReportElem_ReportImages _wp undefined);
+                                                                                       top = describe' _f (Proxy :: Proxy ReportElems)}
+                                                                                   in maybe top Just next
+          describe' _f (Peek_ReportElems_ReportImageView (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                          wfld = Nothing;
+                                                                                          next = describe' wfld (Peek_ReportElem_ReportImageView _wp undefined);
+                                                                                          top = describe' _f (Proxy :: Proxy ReportElems)}
+                                                                                      in maybe top Just next
+          describe' _f (Peek_ReportElems_SaneSizeImageSize (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                            wfld = Nothing;
+                                                                                            next = describe' wfld (Peek_ReportElem_SaneSizeImageSize _wp undefined);
+                                                                                            top = describe' _f (Proxy :: Proxy ReportElems)}
+                                                                                        in maybe top Just next
+          describe' _f (Peek_ReportElems_Item (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                               wfld = Nothing;
+                                                                               next = describe' wfld (Peek_ReportElem_Item _wp undefined);
+                                                                               top = describe' _f (Proxy :: Proxy ReportElems)}
+                                                                           in maybe top Just next
+          describe' _f (Peek_ReportElems_MIM (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                              wfld = Nothing;
+                                                                              next = describe' wfld (Peek_ReportElem_MIM _wp undefined);
+                                                                              top = describe' _f (Proxy :: Proxy ReportElems)}
+                                                                          in maybe top Just next
+          describe' _f (Peek_ReportElems_URI (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                              wfld = Nothing;
+                                                                              next = describe' wfld (Peek_ReportElem_URI _wp undefined);
+                                                                              top = describe' _f (Proxy :: Proxy ReportElems)}
+                                                                          in maybe top Just next
+          describe' _f (Peek_ReportElems_Text (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                               wfld = Nothing;
+                                                                               next = describe' wfld (Peek_ReportElem_Text _wp undefined);
+                                                                               top = describe' _f (Proxy :: Proxy ReportElems)}
+                                                                           in maybe top Just next
+          describe' _f _ = describe' _f (Proxy :: Proxy ReportElems)
 instance Describe (Peek ReportFlags)
     where describe' _f (Peek_ReportFlags_String (_p@(Path_ReportFlags_hideEmptyItemFields _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
                                                                                                            wfld = Just ("ReportFlags", "ReportFlags", Right "hideEmptyItemFields");
@@ -8327,6 +8383,47 @@ instance Describe (Peek ReportValueTypeInfo)
                                                                                                                                top = describe' _f (Proxy :: Proxy ReportValueTypeInfo)}
                                                                                                                            in maybe top Just next
           describe' _f _ = describe' _f (Proxy :: Proxy ReportValueTypeInfo)
+instance Describe (Peek EUI)
+    where describe' _f (Peek_EUI_URI (_p@(Path_Left _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                     wfld = Nothing;
+                                                                     next = describe' wfld (Peek_URI_URI _wp undefined);
+                                                                     top = describe' _f (Proxy :: Proxy EUI)}
+                                                                 in maybe top Just next
+          describe' _f (Peek_EUI_ImageFile (_p@(Path_Right _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                            wfld = Nothing;
+                                                                            next = describe' wfld (Peek_ImageFile_ImageFile _wp undefined);
+                                                                            top = describe' _f (Proxy :: Proxy EUI)}
+                                                                        in maybe top Just next
+          describe' _f _ = describe' _f (Proxy :: Proxy EUI)
+instance Describe (Peek MEUI)
+    where describe' _f (Peek_MEUI_ImageFile (_p@(Path_Just _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                            wfld = Nothing;
+                                                                            next = describe' wfld (Peek_EUI_ImageFile _wp undefined);
+                                                                            top = describe' _f (Proxy :: Proxy MEUI)}
+                                                                        in maybe top Just next
+          describe' _f (Peek_MEUI_EUI (_p@(Path_Just _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                      wfld = Nothing;
+                                                                      next = describe' wfld (Peek_EUI_EUI _wp undefined);
+                                                                      top = describe' _f (Proxy :: Proxy MEUI)}
+                                                                  in maybe top Just next
+          describe' _f (Peek_MEUI_URI (_p@(Path_Just _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                      wfld = Nothing;
+                                                                      next = describe' wfld (Peek_EUI_URI _wp undefined);
+                                                                      top = describe' _f (Proxy :: Proxy MEUI)}
+                                                                  in maybe top Just next
+          describe' _f _ = describe' _f (Proxy :: Proxy MEUI)
+instance Describe (Peek MaybeImageFile)
+    where describe' _f (Peek_MaybeImageFile_String (_p@(Path_MaybeImageFile_View _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                                  wfld = Nothing;
+                                                                                                  next = describe' wfld (Peek_String_String _wp undefined);
+                                                                                                  top = describe' _f (Proxy :: Proxy MaybeImageFile)}
+                                                                                              in maybe top Just next
+          describe' _f (Peek_MaybeImageFile_JSONText (_p@(Path_MaybeImageFile_View _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                                    wfld = Nothing;
+                                                                                                    next = describe' wfld (Peek_String_JSONText _wp undefined);
+                                                                                                    top = describe' _f (Proxy :: Proxy MaybeImageFile)}
+                                                                                                in maybe top Just next
+          describe' _f _ = describe' _f (Proxy :: Proxy MaybeImageFile)
 instance Describe (Peek ReportImage)
     where describe' _f (Peek_ReportImage_String (_p@(Path_ReportImage_View _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
                                                                                             wfld = Nothing;
@@ -8414,6 +8511,110 @@ instance Describe (Peek ReportImage)
                                                                                           top = describe' _f (Proxy :: Proxy ReportImage)}
                                                                                       in maybe top Just next
           describe' _f _ = describe' _f (Proxy :: Proxy ReportImage)
+instance Describe (Peek ReportImages)
+    where describe' _f (Peek_ReportImages_String (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                  wfld = Nothing;
+                                                                                  next = describe' wfld (Peek_ReportImage_String _wp undefined);
+                                                                                  top = describe' _f (Proxy :: Proxy ReportImages)}
+                                                                              in maybe top Just next
+          describe' _f (Peek_ReportImages_Bool (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                wfld = Nothing;
+                                                                                next = describe' wfld (Peek_ReportImage_Bool _wp undefined);
+                                                                                top = describe' _f (Proxy :: Proxy ReportImages)}
+                                                                            in maybe top Just next
+          describe' _f (Peek_ReportImages_Double (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                  wfld = Nothing;
+                                                                                  next = describe' wfld (Peek_ReportImage_Double _wp undefined);
+                                                                                  top = describe' _f (Proxy :: Proxy ReportImages)}
+                                                                              in maybe top Just next
+          describe' _f (Peek_ReportImages_Dimension (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                     wfld = Nothing;
+                                                                                     next = describe' wfld (Peek_ReportImage_Dimension _wp undefined);
+                                                                                     top = describe' _f (Proxy :: Proxy ReportImages)}
+                                                                                 in maybe top Just next
+          describe' _f (Peek_ReportImages_ImageCrop (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                     wfld = Nothing;
+                                                                                     next = describe' wfld (Peek_ReportImage_ImageCrop _wp undefined);
+                                                                                     top = describe' _f (Proxy :: Proxy ReportImages)}
+                                                                                 in maybe top Just next
+          describe' _f (Peek_ReportImages_ImageSize (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                     wfld = Nothing;
+                                                                                     next = describe' wfld (Peek_ReportImage_ImageSize _wp undefined);
+                                                                                     top = describe' _f (Proxy :: Proxy ReportImages)}
+                                                                                 in maybe top Just next
+          describe' _f (Peek_ReportImages_Units (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                 wfld = Nothing;
+                                                                                 next = describe' wfld (Peek_ReportImage_Units _wp undefined);
+                                                                                 top = describe' _f (Proxy :: Proxy ReportImages)}
+                                                                             in maybe top Just next
+          describe' _f (Peek_ReportImages_ImageFile (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                     wfld = Nothing;
+                                                                                     next = describe' wfld (Peek_ReportImage_ImageFile _wp undefined);
+                                                                                     top = describe' _f (Proxy :: Proxy ReportImages)}
+                                                                                 in maybe top Just next
+          describe' _f (Peek_ReportImages_JSONText (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                    wfld = Nothing;
+                                                                                    next = describe' wfld (Peek_ReportImage_JSONText _wp undefined);
+                                                                                    top = describe' _f (Proxy :: Proxy ReportImages)}
+                                                                                in maybe top Just next
+          describe' _f (Peek_ReportImages_Markup (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                  wfld = Nothing;
+                                                                                  next = describe' wfld (Peek_ReportImage_Markup _wp undefined);
+                                                                                  top = describe' _f (Proxy :: Proxy ReportImages)}
+                                                                              in maybe top Just next
+          describe' _f (Peek_ReportImages_EUI (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                               wfld = Nothing;
+                                                                               next = describe' wfld (Peek_ReportImage_EUI _wp undefined);
+                                                                               top = describe' _f (Proxy :: Proxy ReportImages)}
+                                                                           in maybe top Just next
+          describe' _f (Peek_ReportImages_MEUI (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                wfld = Nothing;
+                                                                                next = describe' wfld (Peek_ReportImage_MEUI _wp undefined);
+                                                                                top = describe' _f (Proxy :: Proxy ReportImages)}
+                                                                            in maybe top Just next
+          describe' _f (Peek_ReportImages_MaybeImageFile (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                          wfld = Nothing;
+                                                                                          next = describe' wfld (Peek_ReportImage_MaybeImageFile _wp undefined);
+                                                                                          top = describe' _f (Proxy :: Proxy ReportImages)}
+                                                                                      in maybe top Just next
+          describe' _f (Peek_ReportImages_ReportImage (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                       wfld = Nothing;
+                                                                                       next = describe' wfld (Peek_ReportImage_ReportImage _wp undefined);
+                                                                                       top = describe' _f (Proxy :: Proxy ReportImages)}
+                                                                                   in maybe top Just next
+          describe' _f (Peek_ReportImages_ReportImageView (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                           wfld = Nothing;
+                                                                                           next = describe' wfld (Peek_ReportImage_ReportImageView _wp undefined);
+                                                                                           top = describe' _f (Proxy :: Proxy ReportImages)}
+                                                                                       in maybe top Just next
+          describe' _f (Peek_ReportImages_SaneSizeImageSize (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                             wfld = Nothing;
+                                                                                             next = describe' wfld (Peek_ReportImage_SaneSizeImageSize _wp undefined);
+                                                                                             top = describe' _f (Proxy :: Proxy ReportImages)}
+                                                                                         in maybe top Just next
+          describe' _f (Peek_ReportImages_URI (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                               wfld = Nothing;
+                                                                               next = describe' wfld (Peek_ReportImage_URI _wp undefined);
+                                                                               top = describe' _f (Proxy :: Proxy ReportImages)}
+                                                                           in maybe top Just next
+          describe' _f (Peek_ReportImages_Text (_p@(Path_At _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                wfld = Nothing;
+                                                                                next = describe' wfld (Peek_ReportImage_Text _wp undefined);
+                                                                                top = describe' _f (Proxy :: Proxy ReportImages)}
+                                                                            in maybe top Just next
+          describe' _f _ = describe' _f (Proxy :: Proxy ReportImages)
+instance Describe (Peek ReadOnlyFilePath)
+    where describe' _f (Peek_ReadOnlyFilePath_String (_p@(Path_ReadOnlyFilePath_View _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                                      wfld = Nothing;
+                                                                                                      next = describe' wfld (Peek_String_String _wp undefined);
+                                                                                                      top = describe' _f (Proxy :: Proxy ReadOnlyFilePath)}
+                                                                                                  in maybe top Just next
+          describe' _f (Peek_ReadOnlyFilePath_JSONText (_p@(Path_ReadOnlyFilePath_View _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                                        wfld = Nothing;
+                                                                                                        next = describe' wfld (Peek_String_JSONText _wp undefined);
+                                                                                                        top = describe' _f (Proxy :: Proxy ReadOnlyFilePath)}
+                                                                                                    in maybe top Just next
+          describe' _f _ = describe' _f (Proxy :: Proxy ReadOnlyFilePath)
 instance Describe (Peek ReportImageView)
     where describe' _f (Peek_ReportImageView_String (_p@(Path_ReportImageView__picSize _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
                                                                                                         wfld = Just ("ReportImageView", "ReportImageView", Right "_picSize");
@@ -9392,6 +9593,38 @@ instance Describe (Peek ReportView)
                                                                                                                      top = describe' _f (Proxy :: Proxy ReportView)}
                                                                                                                  in maybe top Just next
           describe' _f _ = describe' _f (Proxy :: Proxy ReportView)
+instance Describe (Peek SaneSizeImageSize)
+    where describe' _f (Peek_SaneSizeImageSize_String (_p@(Path_SaneSizeImageSize_View _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                                        wfld = Nothing;
+                                                                                                        next = describe' wfld (Peek_ImageSize_String _wp undefined);
+                                                                                                        top = describe' _f (Proxy :: Proxy SaneSizeImageSize)}
+                                                                                                    in maybe top Just next
+          describe' _f (Peek_SaneSizeImageSize_Double (_p@(Path_SaneSizeImageSize_View _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                                        wfld = Nothing;
+                                                                                                        next = describe' wfld (Peek_ImageSize_Double _wp undefined);
+                                                                                                        top = describe' _f (Proxy :: Proxy SaneSizeImageSize)}
+                                                                                                    in maybe top Just next
+          describe' _f (Peek_SaneSizeImageSize_Dimension (_p@(Path_SaneSizeImageSize_View _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                                           wfld = Nothing;
+                                                                                                           next = describe' wfld (Peek_ImageSize_Dimension _wp undefined);
+                                                                                                           top = describe' _f (Proxy :: Proxy SaneSizeImageSize)}
+                                                                                                       in maybe top Just next
+          describe' _f (Peek_SaneSizeImageSize_ImageSize (_p@(Path_SaneSizeImageSize_View _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                                           wfld = Nothing;
+                                                                                                           next = describe' wfld (Peek_ImageSize_ImageSize _wp undefined);
+                                                                                                           top = describe' _f (Proxy :: Proxy SaneSizeImageSize)}
+                                                                                                       in maybe top Just next
+          describe' _f (Peek_SaneSizeImageSize_Units (_p@(Path_SaneSizeImageSize_View _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                                       wfld = Nothing;
+                                                                                                       next = describe' wfld (Peek_ImageSize_Units _wp undefined);
+                                                                                                       top = describe' _f (Proxy :: Proxy SaneSizeImageSize)}
+                                                                                                   in maybe top Just next
+          describe' _f (Peek_SaneSizeImageSize_JSONText (_p@(Path_SaneSizeImageSize_View _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                                          wfld = Nothing;
+                                                                                                          next = describe' wfld (Peek_ImageSize_JSONText _wp undefined);
+                                                                                                          top = describe' _f (Proxy :: Proxy SaneSizeImageSize)}
+                                                                                                      in maybe top Just next
+          describe' _f _ = describe' _f (Proxy :: Proxy SaneSizeImageSize)
 instance Describe (Peek Item)
     where describe' _f (Peek_Item_JSONText (_p@(Path_Item_itemName _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
                                                                                     wfld = Just ("Item", "Item", Right "itemName");
@@ -9519,6 +9752,265 @@ instance Describe (Peek Item)
                                                                               top = describe' _f (Proxy :: Proxy Item)}
                                                                           in maybe top Just next
           describe' _f _ = describe' _f (Proxy :: Proxy Item)
+instance Describe (Peek MIM)
+    where describe' _f (Peek_MIM_JSONText (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                             wfld = Nothing;
+                                                                             next = describe' wfld (Peek_Markup_JSONText _wp undefined);
+                                                                             top = describe' _f (Proxy :: Proxy MIM)}
+                                                                         in maybe top Just next
+          describe' _f (Peek_MIM_Markup (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                           wfld = Nothing;
+                                                                           next = describe' wfld (Peek_Markup_Markup _wp undefined);
+                                                                           top = describe' _f (Proxy :: Proxy MIM)}
+                                                                       in maybe top Just next
+          describe' _f (Peek_MIM_Text (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                         wfld = Nothing;
+                                                                         next = describe' wfld (Peek_Markup_Text _wp undefined);
+                                                                         top = describe' _f (Proxy :: Proxy MIM)}
+                                                                     in maybe top Just next
+          describe' _f _ = describe' _f (Proxy :: Proxy MIM)
+instance Describe (Peek MRR)
+    where describe' _f (Peek_MRR_String (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                           wfld = Nothing;
+                                                                           next = describe' wfld (Peek_Report_String _wp undefined);
+                                                                           top = describe' _f (Proxy :: Proxy MRR)}
+                                                                       in maybe top Just next
+          describe' _f (Peek_MRR_Int64 (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                          wfld = Nothing;
+                                                                          next = describe' wfld (Peek_Report_Int64 _wp undefined);
+                                                                          top = describe' _f (Proxy :: Proxy MRR)}
+                                                                      in maybe top Just next
+          describe' _f (Peek_MRR_Int (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                        wfld = Nothing;
+                                                                        next = describe' wfld (Peek_Report_Int _wp undefined);
+                                                                        top = describe' _f (Proxy :: Proxy MRR)}
+                                                                    in maybe top Just next
+          describe' _f (Peek_MRR_Bool (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                         wfld = Nothing;
+                                                                         next = describe' wfld (Peek_Report_Bool _wp undefined);
+                                                                         top = describe' _f (Proxy :: Proxy MRR)}
+                                                                     in maybe top Just next
+          describe' _f (Peek_MRR_Double (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                           wfld = Nothing;
+                                                                           next = describe' wfld (Peek_Report_Double _wp undefined);
+                                                                           top = describe' _f (Proxy :: Proxy MRR)}
+                                                                       in maybe top Just next
+          describe' _f (Peek_MRR_Dimension (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                              wfld = Nothing;
+                                                                              next = describe' wfld (Peek_Report_Dimension _wp undefined);
+                                                                              top = describe' _f (Proxy :: Proxy MRR)}
+                                                                          in maybe top Just next
+          describe' _f (Peek_MRR_ImageCrop (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                              wfld = Nothing;
+                                                                              next = describe' wfld (Peek_Report_ImageCrop _wp undefined);
+                                                                              top = describe' _f (Proxy :: Proxy MRR)}
+                                                                          in maybe top Just next
+          describe' _f (Peek_MRR_ImageSize (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                              wfld = Nothing;
+                                                                              next = describe' wfld (Peek_Report_ImageSize _wp undefined);
+                                                                              top = describe' _f (Proxy :: Proxy MRR)}
+                                                                          in maybe top Just next
+          describe' _f (Peek_MRR_Units (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                          wfld = Nothing;
+                                                                          next = describe' wfld (Peek_Report_Units _wp undefined);
+                                                                          top = describe' _f (Proxy :: Proxy MRR)}
+                                                                      in maybe top Just next
+          describe' _f (Peek_MRR_ImageFile (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                              wfld = Nothing;
+                                                                              next = describe' wfld (Peek_Report_ImageFile _wp undefined);
+                                                                              top = describe' _f (Proxy :: Proxy MRR)}
+                                                                          in maybe top Just next
+          describe' _f (Peek_MRR_Integer (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                            wfld = Nothing;
+                                                                            next = describe' wfld (Peek_Report_Integer _wp undefined);
+                                                                            top = describe' _f (Proxy :: Proxy MRR)}
+                                                                        in maybe top Just next
+          describe' _f (Peek_MRR_JSONText (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                             wfld = Nothing;
+                                                                             next = describe' wfld (Peek_Report_JSONText _wp undefined);
+                                                                             top = describe' _f (Proxy :: Proxy MRR)}
+                                                                         in maybe top Just next
+          describe' _f (Peek_MRR_Markup (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                           wfld = Nothing;
+                                                                           next = describe' wfld (Peek_Report_Markup _wp undefined);
+                                                                           top = describe' _f (Proxy :: Proxy MRR)}
+                                                                       in maybe top Just next
+          describe' _f (Peek_MRR_Permissions (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                wfld = Nothing;
+                                                                                next = describe' wfld (Peek_Report_Permissions _wp undefined);
+                                                                                top = describe' _f (Proxy :: Proxy MRR)}
+                                                                            in maybe top Just next
+          describe' _f (Peek_MRR_UserIds (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                            wfld = Nothing;
+                                                                            next = describe' wfld (Peek_Report_UserIds _wp undefined);
+                                                                            top = describe' _f (Proxy :: Proxy MRR)}
+                                                                        in maybe top Just next
+          describe' _f (Peek_MRR_AbbrevPair (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                               wfld = Nothing;
+                                                                               next = describe' wfld (Peek_Report_AbbrevPair _wp undefined);
+                                                                               top = describe' _f (Proxy :: Proxy MRR)}
+                                                                           in maybe top Just next
+          describe' _f (Peek_MRR_AbbrevPairs (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                wfld = Nothing;
+                                                                                next = describe' wfld (Peek_Report_AbbrevPairs _wp undefined);
+                                                                                top = describe' _f (Proxy :: Proxy MRR)}
+                                                                            in maybe top Just next
+          describe' _f (Peek_MRR_Author (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                           wfld = Nothing;
+                                                                           next = describe' wfld (Peek_Report_Author _wp undefined);
+                                                                           top = describe' _f (Proxy :: Proxy MRR)}
+                                                                       in maybe top Just next
+          describe' _f (Peek_MRR_Authors (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                            wfld = Nothing;
+                                                                            next = describe' wfld (Peek_Report_Authors _wp undefined);
+                                                                            top = describe' _f (Proxy :: Proxy MRR)}
+                                                                        in maybe top Just next
+          describe' _f (Peek_MRR_Branding (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                             wfld = Nothing;
+                                                                             next = describe' wfld (Peek_Report_Branding _wp undefined);
+                                                                             top = describe' _f (Proxy :: Proxy MRR)}
+                                                                         in maybe top Just next
+          describe' _f (Peek_MRR_MarkupPair (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                               wfld = Nothing;
+                                                                               next = describe' wfld (Peek_Report_MarkupPair _wp undefined);
+                                                                               top = describe' _f (Proxy :: Proxy MRR)}
+                                                                           in maybe top Just next
+          describe' _f (Peek_MRR_MarkupPairs (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                wfld = Nothing;
+                                                                                next = describe' wfld (Peek_Report_MarkupPairs _wp undefined);
+                                                                                top = describe' _f (Proxy :: Proxy MRR)}
+                                                                            in maybe top Just next
+          describe' _f (Peek_MRR_Markups (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                            wfld = Nothing;
+                                                                            next = describe' wfld (Peek_Report_Markups _wp undefined);
+                                                                            top = describe' _f (Proxy :: Proxy MRR)}
+                                                                        in maybe top Just next
+          describe' _f (Peek_MRR_MaybeReportIntendedUse (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                           wfld = Nothing;
+                                                                                           next = describe' wfld (Peek_Report_MaybeReportIntendedUse _wp undefined);
+                                                                                           top = describe' _f (Proxy :: Proxy MRR)}
+                                                                                       in maybe top Just next
+          describe' _f (Peek_MRR_Report (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                           wfld = Nothing;
+                                                                           next = describe' wfld (Peek_Report_Report _wp undefined);
+                                                                           top = describe' _f (Proxy :: Proxy MRR)}
+                                                                       in maybe top Just next
+          describe' _f (Peek_MRR_ReportElem (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                               wfld = Nothing;
+                                                                               next = describe' wfld (Peek_Report_ReportElem _wp undefined);
+                                                                               top = describe' _f (Proxy :: Proxy MRR)}
+                                                                           in maybe top Just next
+          describe' _f (Peek_MRR_ReportElems (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                wfld = Nothing;
+                                                                                next = describe' wfld (Peek_Report_ReportElems _wp undefined);
+                                                                                top = describe' _f (Proxy :: Proxy MRR)}
+                                                                            in maybe top Just next
+          describe' _f (Peek_MRR_ReportFlags (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                wfld = Nothing;
+                                                                                next = describe' wfld (Peek_Report_ReportFlags _wp undefined);
+                                                                                top = describe' _f (Proxy :: Proxy MRR)}
+                                                                            in maybe top Just next
+          describe' _f (Peek_MRR_ReportStandard (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                   wfld = Nothing;
+                                                                                   next = describe' wfld (Peek_Report_ReportStandard _wp undefined);
+                                                                                   top = describe' _f (Proxy :: Proxy MRR)}
+                                                                               in maybe top Just next
+          describe' _f (Peek_MRR_ReportStatus (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                 wfld = Nothing;
+                                                                                 next = describe' wfld (Peek_Report_ReportStatus _wp undefined);
+                                                                                 top = describe' _f (Proxy :: Proxy MRR)}
+                                                                             in maybe top Just next
+          describe' _f (Peek_MRR_ReportValueApproachInfo (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                            wfld = Nothing;
+                                                                                            next = describe' wfld (Peek_Report_ReportValueApproachInfo _wp undefined);
+                                                                                            top = describe' _f (Proxy :: Proxy MRR)}
+                                                                                        in maybe top Just next
+          describe' _f (Peek_MRR_ReportValueTypeInfo (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                        wfld = Nothing;
+                                                                                        next = describe' wfld (Peek_Report_ReportValueTypeInfo _wp undefined);
+                                                                                        top = describe' _f (Proxy :: Proxy MRR)}
+                                                                                    in maybe top Just next
+          describe' _f (Peek_MRR_EUI (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                        wfld = Nothing;
+                                                                        next = describe' wfld (Peek_Report_EUI _wp undefined);
+                                                                        top = describe' _f (Proxy :: Proxy MRR)}
+                                                                    in maybe top Just next
+          describe' _f (Peek_MRR_MEUI (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                         wfld = Nothing;
+                                                                         next = describe' wfld (Peek_Report_MEUI _wp undefined);
+                                                                         top = describe' _f (Proxy :: Proxy MRR)}
+                                                                     in maybe top Just next
+          describe' _f (Peek_MRR_MaybeImageFile (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                   wfld = Nothing;
+                                                                                   next = describe' wfld (Peek_Report_MaybeImageFile _wp undefined);
+                                                                                   top = describe' _f (Proxy :: Proxy MRR)}
+                                                                               in maybe top Just next
+          describe' _f (Peek_MRR_ReportImage (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                wfld = Nothing;
+                                                                                next = describe' wfld (Peek_Report_ReportImage _wp undefined);
+                                                                                top = describe' _f (Proxy :: Proxy MRR)}
+                                                                            in maybe top Just next
+          describe' _f (Peek_MRR_ReportImages (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                 wfld = Nothing;
+                                                                                 next = describe' wfld (Peek_Report_ReportImages _wp undefined);
+                                                                                 top = describe' _f (Proxy :: Proxy MRR)}
+                                                                             in maybe top Just next
+          describe' _f (Peek_MRR_ReadOnlyFilePath (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                     wfld = Nothing;
+                                                                                     next = describe' wfld (Peek_Report_ReadOnlyFilePath _wp undefined);
+                                                                                     top = describe' _f (Proxy :: Proxy MRR)}
+                                                                                 in maybe top Just next
+          describe' _f (Peek_MRR_ReportImageView (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                    wfld = Nothing;
+                                                                                    next = describe' wfld (Peek_Report_ReportImageView _wp undefined);
+                                                                                    top = describe' _f (Proxy :: Proxy MRR)}
+                                                                                in maybe top Just next
+          describe' _f (Peek_MRR_ReportView (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                               wfld = Nothing;
+                                                                               next = describe' wfld (Peek_Report_ReportView _wp undefined);
+                                                                               top = describe' _f (Proxy :: Proxy MRR)}
+                                                                           in maybe top Just next
+          describe' _f (Peek_MRR_SaneSizeImageSize (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                      wfld = Nothing;
+                                                                                      next = describe' wfld (Peek_Report_SaneSizeImageSize _wp undefined);
+                                                                                      top = describe' _f (Proxy :: Proxy MRR)}
+                                                                                  in maybe top Just next
+          describe' _f (Peek_MRR_Item (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                         wfld = Nothing;
+                                                                         next = describe' wfld (Peek_Report_Item _wp undefined);
+                                                                         top = describe' _f (Proxy :: Proxy MRR)}
+                                                                     in maybe top Just next
+          describe' _f (Peek_MRR_MIM (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                        wfld = Nothing;
+                                                                        next = describe' wfld (Peek_Report_MIM _wp undefined);
+                                                                        top = describe' _f (Proxy :: Proxy MRR)}
+                                                                    in maybe top Just next
+          describe' _f (Peek_MRR_CIString (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                             wfld = Nothing;
+                                                                             next = describe' wfld (Peek_Report_CIString _wp undefined);
+                                                                             top = describe' _f (Proxy :: Proxy MRR)}
+                                                                         in maybe top Just next
+          describe' _f (Peek_MRR_URI (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                        wfld = Nothing;
+                                                                        next = describe' wfld (Peek_Report_URI _wp undefined);
+                                                                        top = describe' _f (Proxy :: Proxy MRR)}
+                                                                    in maybe top Just next
+          describe' _f (Peek_MRR_Text (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                         wfld = Nothing;
+                                                                         next = describe' wfld (Peek_Report_Text _wp undefined);
+                                                                         top = describe' _f (Proxy :: Proxy MRR)}
+                                                                     in maybe top Just next
+          describe' _f (Peek_MRR_UserId (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                           wfld = Nothing;
+                                                                           next = describe' wfld (Peek_Report_UserId _wp undefined);
+                                                                           top = describe' _f (Proxy :: Proxy MRR)}
+                                                                       in maybe top Just next
+          describe' _f (Peek_MRR_UUID (_p@(Path_Look _k _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                         wfld = Nothing;
+                                                                         next = describe' wfld (Peek_Report_UUID _wp undefined);
+                                                                         top = describe' _f (Proxy :: Proxy MRR)}
+                                                                     in maybe top Just next
+          describe' _f _ = describe' _f (Proxy :: Proxy MRR)
 instance Describe (Peek ReportMap)
     where describe' _f (Peek_ReportMap_String (_p@(Path_ReportMap_unReportMap _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
                                                                                                wfld = Just ("ReportMap", "ReportMap", Right "unReportMap");
@@ -9869,689 +10361,269 @@ instance IdPath (Path_UserId a)
     where idPath = Path_UserId
 instance IdPath (Path_UserIds a)
     where idPath = Path_UserIds
-instance PathStart (Either URI ImageFile)
-    where data Peek (Either URI ImageFile)
-              = Peek_EUI_ImageFile (Path (Either URI ImageFile) ImageFile) (Maybe ImageFile)
-              | Peek_EUI_EUI (Path (Either URI ImageFile) (Either URI ImageFile)) (Maybe (Either URI ImageFile))
-              | Peek_EUI_URI (Path (Either URI ImageFile) URI) (Maybe URI)
-              deriving (Eq, Show)
-          peek (_s@(Left _)) = concatMap (\pth -> case pth of
-                                                      _pp@(Path_Left _wp) -> map (\a -> let f = peek a
-                                                                                         in let liftPeek (Peek_URI_URI q z) = Peek_EUI_URI (Path_Left q) z
-                                                                                             in Node (Peek_EUI_URI _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [URI])
-                                                      _ -> []) (paths _s (Proxy :: Proxy URI)) :: Forest (Peek (Either URI ImageFile))
-          peek (_s@(Right _)) = concatMap (\pth -> case pth of
-                                                       _pp@(Path_Right _wp) -> map (\a -> let f = peek a
-                                                                                           in let liftPeek (Peek_ImageFile_ImageFile q z) = Peek_EUI_ImageFile (Path_Right q) z
-                                                                                               in Node (Peek_EUI_ImageFile _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [ImageFile])
-                                                       _ -> []) (paths _s (Proxy :: Proxy ImageFile)) :: Forest (Peek (Either URI ImageFile))
-          hop (_s@(Left _)) = concatMap (\pth -> case pth of
-                                                     _pp@(Path_Left _wp) -> map (\a -> Node (Peek_EUI_URI _pp (Just a)) []) (toListOf (toLens _pp) _s :: [URI])
-                                                     _ -> []) (paths _s (Proxy :: Proxy URI)) :: Forest (Peek (Either URI ImageFile))
-          hop (_s@(Right _)) = concatMap (\pth -> case pth of
-                                                      _pp@(Path_Right _wp) -> map (\a -> Node (Peek_EUI_ImageFile _pp (Just a)) []) (toListOf (toLens _pp) _s :: [ImageFile])
-                                                      _ -> []) (paths _s (Proxy :: Proxy ImageFile)) :: Forest (Peek (Either URI ImageFile))
-instance PathStart (Map ItemFieldName Markup)
-    where data Peek (Map ItemFieldName Markup)
-              = Peek_MIM_JSONText (Path (Map ItemFieldName Markup) JSONText) (Maybe JSONText)
-              | Peek_MIM_Markup (Path (Map ItemFieldName Markup) Markup) (Maybe Markup)
-              | Peek_MIM_MIM (Path (Map ItemFieldName Markup) (Map ItemFieldName Markup)) (Maybe (Map ItemFieldName Markup))
-              | Peek_MIM_Text (Path (Map ItemFieldName Markup) Text) (Maybe Text)
-              deriving (Eq, Show)
-          peek _s = concatMap (\pth -> case pth of
-                                           _pp@(Path_Look _k _wp) -> map (\a -> let f = peek a
-                                                                                 in let liftPeek (Peek_Markup_JSONText q z) = Peek_MIM_JSONText (Path_Look _k q) z
-                                                                                        liftPeek (Peek_Markup_Markup q z) = Peek_MIM_Markup (Path_Look _k q) z
-                                                                                        liftPeek (Peek_Markup_Text q z) = Peek_MIM_Text (Path_Look _k q) z
-                                                                                     in Node (Peek_MIM_Markup _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
-                                           _ -> []) (paths _s (Proxy :: Proxy Markup)) :: Forest (Peek (Map ItemFieldName Markup))
-          hop _s = concatMap (\pth -> case pth of
-                                          _pp@(Path_Look _k _wp) -> map (\a -> Node (Peek_MIM_Markup _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Markup])
-                                          _ -> []) (paths _s (Proxy :: Proxy Markup)) :: Forest (Peek (Map ItemFieldName Markup))
-instance PathStart (Map ReportID Report)
-    where data Peek (Map ReportID Report)
-              = Peek_MRR_String (Path (Map ReportID Report) ([Char])) (Maybe ([Char]))
-              | Peek_MRR_Int64 (Path (Map ReportID Report) Int64) (Maybe Int64)
-              | Peek_MRR_Int (Path (Map ReportID Report) Int) (Maybe Int)
-              | Peek_MRR_Bool (Path (Map ReportID Report) Bool) (Maybe Bool)
-              | Peek_MRR_Double (Path (Map ReportID Report) Double) (Maybe Double)
-              | Peek_MRR_Dimension (Path (Map ReportID Report) Dimension) (Maybe Dimension)
-              | Peek_MRR_ImageCrop (Path (Map ReportID Report) ImageCrop) (Maybe ImageCrop)
-              | Peek_MRR_ImageSize (Path (Map ReportID Report) ImageSize) (Maybe ImageSize)
-              | Peek_MRR_Units (Path (Map ReportID Report) Units) (Maybe Units)
-              | Peek_MRR_ImageFile (Path (Map ReportID Report) ImageFile) (Maybe ImageFile)
-              | Peek_MRR_Integer (Path (Map ReportID Report) Integer) (Maybe Integer)
-              | Peek_MRR_JSONText (Path (Map ReportID Report) JSONText) (Maybe JSONText)
-              | Peek_MRR_Markup (Path (Map ReportID Report) Markup) (Maybe Markup)
-              | Peek_MRR_Permissions (Path (Map ReportID Report) Permissions) (Maybe Permissions)
-              | Peek_MRR_UserIds (Path (Map ReportID Report) ([UserId])) (Maybe ([UserId]))
-              | Peek_MRR_AbbrevPair (Path (Map ReportID Report) ((CIString, Markup))) (Maybe ((CIString, Markup)))
-              | Peek_MRR_AbbrevPairs (Path (Map ReportID Report) (Order AbbrevPairID ((CIString, Markup)))) (Maybe (Order AbbrevPairID ((CIString, Markup))))
-              | Peek_MRR_Author (Path (Map ReportID Report) Author) (Maybe Author)
-              | Peek_MRR_Authors (Path (Map ReportID Report) (Order AuthorID Author)) (Maybe (Order AuthorID Author))
-              | Peek_MRR_Branding (Path (Map ReportID Report) Branding) (Maybe Branding)
-              | Peek_MRR_MarkupPair (Path (Map ReportID Report) ((Markup, Markup))) (Maybe ((Markup, Markup)))
-              | Peek_MRR_MarkupPairs (Path (Map ReportID Report) (Order MarkupPairID ((Markup, Markup)))) (Maybe (Order MarkupPairID ((Markup, Markup))))
-              | Peek_MRR_Markups (Path (Map ReportID Report) (Order MarkupID Markup)) (Maybe (Order MarkupID Markup))
-              | Peek_MRR_MaybeReportIntendedUse (Path (Map ReportID Report) (Maybe ReportIntendedUse)) (Maybe (Maybe ReportIntendedUse))
-              | Peek_MRR_Report (Path (Map ReportID Report) Report) (Maybe Report)
-              | Peek_MRR_ReportElem (Path (Map ReportID Report) ReportElem) (Maybe ReportElem)
-              | Peek_MRR_ReportElems (Path (Map ReportID Report) (Order ReportElemID ReportElem)) (Maybe (Order ReportElemID ReportElem))
-              | Peek_MRR_ReportFlags (Path (Map ReportID Report) ReportFlags) (Maybe ReportFlags)
-              | Peek_MRR_ReportStandard (Path (Map ReportID Report) ReportStandard) (Maybe ReportStandard)
-              | Peek_MRR_ReportStatus (Path (Map ReportID Report) ReportStatus) (Maybe ReportStatus)
-              | Peek_MRR_ReportValueApproachInfo (Path (Map ReportID Report) ReportValueApproachInfo) (Maybe ReportValueApproachInfo)
-              | Peek_MRR_ReportValueTypeInfo (Path (Map ReportID Report) ReportValueTypeInfo) (Maybe ReportValueTypeInfo)
-              | Peek_MRR_EUI (Path (Map ReportID Report) (Either URI ImageFile)) (Maybe (Either URI ImageFile))
-              | Peek_MRR_MEUI (Path (Map ReportID Report) (Maybe (Either URI ImageFile))) (Maybe (Maybe (Either URI ImageFile)))
-              | Peek_MRR_MaybeImageFile (Path (Map ReportID Report) (Maybe ImageFile)) (Maybe (Maybe ImageFile))
-              | Peek_MRR_ReportImage (Path (Map ReportID Report) ReportImage) (Maybe ReportImage)
-              | Peek_MRR_ReportImages (Path (Map ReportID Report) (Order ReportImageID ReportImage)) (Maybe (Order ReportImageID ReportImage))
-              | Peek_MRR_ReadOnlyFilePath (Path (Map ReportID Report) (ReadOnly ([Char]))) (Maybe (ReadOnly ([Char])))
-              | Peek_MRR_ReportImageView (Path (Map ReportID Report) ReportImageView) (Maybe ReportImageView)
-              | Peek_MRR_ReportView (Path (Map ReportID Report) ReportView) (Maybe ReportView)
-              | Peek_MRR_SaneSizeImageSize (Path (Map ReportID Report) (SaneSize ImageSize)) (Maybe (SaneSize ImageSize))
-              | Peek_MRR_Item (Path (Map ReportID Report) Item) (Maybe Item)
-              | Peek_MRR_MIM (Path (Map ReportID Report) (Map ItemFieldName Markup)) (Maybe (Map ItemFieldName Markup))
-              | Peek_MRR_MRR (Path (Map ReportID Report) (Map ReportID Report)) (Maybe (Map ReportID Report))
-              | Peek_MRR_CIString (Path (Map ReportID Report) CIString) (Maybe CIString)
-              | Peek_MRR_URI (Path (Map ReportID Report) URI) (Maybe URI)
-              | Peek_MRR_Text (Path (Map ReportID Report) Text) (Maybe Text)
-              | Peek_MRR_UserId (Path (Map ReportID Report) UserId) (Maybe UserId)
-              | Peek_MRR_UUID (Path (Map ReportID Report) UUID) (Maybe UUID)
-              deriving (Eq, Show)
-          peek _s = concatMap (\pth -> case pth of
-                                           _pp@(Path_Look _k _wp) -> map (\a -> let f = peek a
-                                                                                 in let liftPeek (Peek_Report_String q z) = Peek_MRR_String (Path_Look _k q) z
-                                                                                        liftPeek (Peek_Report_Int64 q z) = Peek_MRR_Int64 (Path_Look _k q) z
-                                                                                        liftPeek (Peek_Report_Int q z) = Peek_MRR_Int (Path_Look _k q) z
-                                                                                        liftPeek (Peek_Report_Bool q z) = Peek_MRR_Bool (Path_Look _k q) z
-                                                                                        liftPeek (Peek_Report_Double q z) = Peek_MRR_Double (Path_Look _k q) z
-                                                                                        liftPeek (Peek_Report_Dimension q z) = Peek_MRR_Dimension (Path_Look _k q) z
-                                                                                        liftPeek (Peek_Report_ImageCrop q z) = Peek_MRR_ImageCrop (Path_Look _k q) z
-                                                                                        liftPeek (Peek_Report_ImageSize q z) = Peek_MRR_ImageSize (Path_Look _k q) z
-                                                                                        liftPeek (Peek_Report_Units q z) = Peek_MRR_Units (Path_Look _k q) z
-                                                                                        liftPeek (Peek_Report_ImageFile q z) = Peek_MRR_ImageFile (Path_Look _k q) z
-                                                                                        liftPeek (Peek_Report_Integer q z) = Peek_MRR_Integer (Path_Look _k q) z
-                                                                                        liftPeek (Peek_Report_JSONText q z) = Peek_MRR_JSONText (Path_Look _k q) z
-                                                                                        liftPeek (Peek_Report_Markup q z) = Peek_MRR_Markup (Path_Look _k q) z
-                                                                                        liftPeek (Peek_Report_Permissions q z) = Peek_MRR_Permissions (Path_Look _k q) z
-                                                                                        liftPeek (Peek_Report_UserIds q z) = Peek_MRR_UserIds (Path_Look _k q) z
-                                                                                        liftPeek (Peek_Report_AbbrevPair q z) = Peek_MRR_AbbrevPair (Path_Look _k q) z
-                                                                                        liftPeek (Peek_Report_AbbrevPairs q z) = Peek_MRR_AbbrevPairs (Path_Look _k q) z
-                                                                                        liftPeek (Peek_Report_Author q z) = Peek_MRR_Author (Path_Look _k q) z
-                                                                                        liftPeek (Peek_Report_Authors q z) = Peek_MRR_Authors (Path_Look _k q) z
-                                                                                        liftPeek (Peek_Report_Branding q z) = Peek_MRR_Branding (Path_Look _k q) z
-                                                                                        liftPeek (Peek_Report_MarkupPair q z) = Peek_MRR_MarkupPair (Path_Look _k q) z
-                                                                                        liftPeek (Peek_Report_MarkupPairs q z) = Peek_MRR_MarkupPairs (Path_Look _k q) z
-                                                                                        liftPeek (Peek_Report_Markups q z) = Peek_MRR_Markups (Path_Look _k q) z
-                                                                                        liftPeek (Peek_Report_MaybeReportIntendedUse q z) = Peek_MRR_MaybeReportIntendedUse (Path_Look _k q) z
-                                                                                        liftPeek (Peek_Report_Report q z) = Peek_MRR_Report (Path_Look _k q) z
-                                                                                        liftPeek (Peek_Report_ReportElem q z) = Peek_MRR_ReportElem (Path_Look _k q) z
-                                                                                        liftPeek (Peek_Report_ReportElems q z) = Peek_MRR_ReportElems (Path_Look _k q) z
-                                                                                        liftPeek (Peek_Report_ReportFlags q z) = Peek_MRR_ReportFlags (Path_Look _k q) z
-                                                                                        liftPeek (Peek_Report_ReportStandard q z) = Peek_MRR_ReportStandard (Path_Look _k q) z
-                                                                                        liftPeek (Peek_Report_ReportStatus q z) = Peek_MRR_ReportStatus (Path_Look _k q) z
-                                                                                        liftPeek (Peek_Report_ReportValueApproachInfo q z) = Peek_MRR_ReportValueApproachInfo (Path_Look _k q) z
-                                                                                        liftPeek (Peek_Report_ReportValueTypeInfo q z) = Peek_MRR_ReportValueTypeInfo (Path_Look _k q) z
-                                                                                        liftPeek (Peek_Report_EUI q z) = Peek_MRR_EUI (Path_Look _k q) z
-                                                                                        liftPeek (Peek_Report_MEUI q z) = Peek_MRR_MEUI (Path_Look _k q) z
-                                                                                        liftPeek (Peek_Report_MaybeImageFile q z) = Peek_MRR_MaybeImageFile (Path_Look _k q) z
-                                                                                        liftPeek (Peek_Report_ReportImage q z) = Peek_MRR_ReportImage (Path_Look _k q) z
-                                                                                        liftPeek (Peek_Report_ReportImages q z) = Peek_MRR_ReportImages (Path_Look _k q) z
-                                                                                        liftPeek (Peek_Report_ReadOnlyFilePath q z) = Peek_MRR_ReadOnlyFilePath (Path_Look _k q) z
-                                                                                        liftPeek (Peek_Report_ReportImageView q z) = Peek_MRR_ReportImageView (Path_Look _k q) z
-                                                                                        liftPeek (Peek_Report_ReportView q z) = Peek_MRR_ReportView (Path_Look _k q) z
-                                                                                        liftPeek (Peek_Report_SaneSizeImageSize q z) = Peek_MRR_SaneSizeImageSize (Path_Look _k q) z
-                                                                                        liftPeek (Peek_Report_Item q z) = Peek_MRR_Item (Path_Look _k q) z
-                                                                                        liftPeek (Peek_Report_MIM q z) = Peek_MRR_MIM (Path_Look _k q) z
-                                                                                        liftPeek (Peek_Report_CIString q z) = Peek_MRR_CIString (Path_Look _k q) z
-                                                                                        liftPeek (Peek_Report_URI q z) = Peek_MRR_URI (Path_Look _k q) z
-                                                                                        liftPeek (Peek_Report_Text q z) = Peek_MRR_Text (Path_Look _k q) z
-                                                                                        liftPeek (Peek_Report_UserId q z) = Peek_MRR_UserId (Path_Look _k q) z
-                                                                                        liftPeek (Peek_Report_UUID q z) = Peek_MRR_UUID (Path_Look _k q) z
-                                                                                     in Node (Peek_MRR_Report _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Report])
-                                           _ -> []) (paths _s (Proxy :: Proxy Report)) :: Forest (Peek (Map ReportID Report))
-          hop _s = concatMap (\pth -> case pth of
-                                          _pp@(Path_Look _k _wp) -> map (\a -> Node (Peek_MRR_Report _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Report])
-                                          _ -> []) (paths _s (Proxy :: Proxy Report)) :: Forest (Peek (Map ReportID Report))
-instance PathStart (Order AbbrevPairID ((CIString, Markup)))
-    where data Peek (Order AbbrevPairID ((CIString, Markup)))
-              = Peek_AbbrevPairs_JSONText (Path (Order AbbrevPairID ((CIString, Markup))) JSONText) (Maybe JSONText)
-              | Peek_AbbrevPairs_Markup (Path (Order AbbrevPairID ((CIString, Markup))) Markup) (Maybe Markup)
-              | Peek_AbbrevPairs_AbbrevPair (Path (Order AbbrevPairID ((CIString, Markup))) ((CIString, Markup))) (Maybe ((CIString, Markup)))
-              | Peek_AbbrevPairs_AbbrevPairs (Path (Order AbbrevPairID ((CIString, Markup))) (Order AbbrevPairID ((CIString, Markup))))
-                                             (Maybe (Order AbbrevPairID ((CIString, Markup))))
-              | Peek_AbbrevPairs_CIString (Path (Order AbbrevPairID ((CIString, Markup))) CIString) (Maybe CIString)
-              | Peek_AbbrevPairs_Text (Path (Order AbbrevPairID ((CIString, Markup))) Text) (Maybe Text)
-              deriving (Eq, Show)
-          peek _s = concatMap (\pth -> case pth of
-                                           _pp@(Path_At _k _wp) -> map (\a -> let f = peek a
-                                                                               in let liftPeek (Peek_AbbrevPair_JSONText q z) = Peek_AbbrevPairs_JSONText (Path_At _k q) z
-                                                                                      liftPeek (Peek_AbbrevPair_Markup q z) = Peek_AbbrevPairs_Markup (Path_At _k q) z
-                                                                                      liftPeek (Peek_AbbrevPair_AbbrevPair q z) = Peek_AbbrevPairs_AbbrevPair (Path_At _k q) z
-                                                                                      liftPeek (Peek_AbbrevPair_CIString q z) = Peek_AbbrevPairs_CIString (Path_At _k q) z
-                                                                                      liftPeek (Peek_AbbrevPair_Text q z) = Peek_AbbrevPairs_Text (Path_At _k q) z
-                                                                                   in Node (Peek_AbbrevPairs_AbbrevPair _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [(CIString, Markup)])
-                                           _ -> []) (paths _s (Proxy :: Proxy ((CIString, Markup)))) :: Forest (Peek (Order AbbrevPairID ((CIString, Markup))))
-          hop _s = concatMap (\pth -> case pth of
-                                          _pp@(Path_At _k _wp) -> map (\a -> Node (Peek_AbbrevPairs_AbbrevPair _pp (Just a)) []) (toListOf (toLens _pp) _s :: [(CIString, Markup)])
-                                          _ -> []) (paths _s (Proxy :: Proxy ((CIString, Markup)))) :: Forest (Peek (Order AbbrevPairID ((CIString, Markup))))
-instance PathStart (Order AuthorID Author)
-    where data Peek (Order AuthorID Author)
-              = Peek_Authors_JSONText (Path (Order AuthorID Author) JSONText) (Maybe JSONText)
-              | Peek_Authors_Markup (Path (Order AuthorID Author) Markup) (Maybe Markup)
-              | Peek_Authors_Author (Path (Order AuthorID Author) Author) (Maybe Author)
-              | Peek_Authors_Authors (Path (Order AuthorID Author) (Order AuthorID Author)) (Maybe (Order AuthorID Author))
-              | Peek_Authors_Text (Path (Order AuthorID Author) Text) (Maybe Text)
-              deriving (Eq, Show)
-          peek _s = concatMap (\pth -> case pth of
-                                           _pp@(Path_At _k _wp) -> map (\a -> let f = peek a
-                                                                               in let liftPeek (Peek_Author_JSONText q z) = Peek_Authors_JSONText (Path_At _k q) z
-                                                                                      liftPeek (Peek_Author_Markup q z) = Peek_Authors_Markup (Path_At _k q) z
-                                                                                      liftPeek (Peek_Author_Author q z) = Peek_Authors_Author (Path_At _k q) z
-                                                                                      liftPeek (Peek_Author_Text q z) = Peek_Authors_Text (Path_At _k q) z
-                                                                                   in Node (Peek_Authors_Author _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Author])
-                                           _ -> []) (paths _s (Proxy :: Proxy Author)) :: Forest (Peek (Order AuthorID Author))
-          hop _s = concatMap (\pth -> case pth of
-                                          _pp@(Path_At _k _wp) -> map (\a -> Node (Peek_Authors_Author _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Author])
-                                          _ -> []) (paths _s (Proxy :: Proxy Author)) :: Forest (Peek (Order AuthorID Author))
-instance PathStart (Order MarkupID Markup)
-    where data Peek (Order MarkupID Markup)
-              = Peek_Markups_JSONText (Path (Order MarkupID Markup) JSONText) (Maybe JSONText)
-              | Peek_Markups_Markup (Path (Order MarkupID Markup) Markup) (Maybe Markup)
-              | Peek_Markups_Markups (Path (Order MarkupID Markup) (Order MarkupID Markup)) (Maybe (Order MarkupID Markup))
-              | Peek_Markups_Text (Path (Order MarkupID Markup) Text) (Maybe Text)
-              deriving (Eq, Show)
-          peek _s = concatMap (\pth -> case pth of
-                                           _pp@(Path_At _k _wp) -> map (\a -> let f = peek a
-                                                                               in let liftPeek (Peek_Markup_JSONText q z) = Peek_Markups_JSONText (Path_At _k q) z
-                                                                                      liftPeek (Peek_Markup_Markup q z) = Peek_Markups_Markup (Path_At _k q) z
-                                                                                      liftPeek (Peek_Markup_Text q z) = Peek_Markups_Text (Path_At _k q) z
-                                                                                   in Node (Peek_Markups_Markup _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
-                                           _ -> []) (paths _s (Proxy :: Proxy Markup)) :: Forest (Peek (Order MarkupID Markup))
-          hop _s = concatMap (\pth -> case pth of
-                                          _pp@(Path_At _k _wp) -> map (\a -> Node (Peek_Markups_Markup _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Markup])
-                                          _ -> []) (paths _s (Proxy :: Proxy Markup)) :: Forest (Peek (Order MarkupID Markup))
-instance PathStart (Order MarkupPairID ((Markup, Markup)))
-    where data Peek (Order MarkupPairID ((Markup, Markup)))
-              = Peek_MarkupPairs_JSONText (Path (Order MarkupPairID ((Markup, Markup))) JSONText) (Maybe JSONText)
-              | Peek_MarkupPairs_Markup (Path (Order MarkupPairID ((Markup, Markup))) Markup) (Maybe Markup)
-              | Peek_MarkupPairs_MarkupPair (Path (Order MarkupPairID ((Markup, Markup))) ((Markup, Markup))) (Maybe ((Markup, Markup)))
-              | Peek_MarkupPairs_MarkupPairs (Path (Order MarkupPairID ((Markup, Markup))) (Order MarkupPairID ((Markup, Markup)))) (Maybe (Order MarkupPairID ((Markup, Markup))))
-              | Peek_MarkupPairs_Text (Path (Order MarkupPairID ((Markup, Markup))) Text) (Maybe Text)
-              deriving (Eq, Show)
-          peek _s = concatMap (\pth -> case pth of
-                                           _pp@(Path_At _k _wp) -> map (\a -> let f = peek a
-                                                                               in let liftPeek (Peek_MarkupPair_JSONText q z) = Peek_MarkupPairs_JSONText (Path_At _k q) z
-                                                                                      liftPeek (Peek_MarkupPair_Markup q z) = Peek_MarkupPairs_Markup (Path_At _k q) z
-                                                                                      liftPeek (Peek_MarkupPair_MarkupPair q z) = Peek_MarkupPairs_MarkupPair (Path_At _k q) z
-                                                                                      liftPeek (Peek_MarkupPair_Text q z) = Peek_MarkupPairs_Text (Path_At _k q) z
-                                                                                   in Node (Peek_MarkupPairs_MarkupPair _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [(Markup, Markup)])
-                                           _ -> []) (paths _s (Proxy :: Proxy ((Markup, Markup)))) :: Forest (Peek (Order MarkupPairID ((Markup, Markup))))
-          hop _s = concatMap (\pth -> case pth of
-                                          _pp@(Path_At _k _wp) -> map (\a -> Node (Peek_MarkupPairs_MarkupPair _pp (Just a)) []) (toListOf (toLens _pp) _s :: [(Markup, Markup)])
-                                          _ -> []) (paths _s (Proxy :: Proxy ((Markup, Markup)))) :: Forest (Peek (Order MarkupPairID ((Markup, Markup))))
-instance PathStart (Order ReportElemID ReportElem)
-    where data Peek (Order ReportElemID ReportElem)
-              = Peek_ReportElems_String (Path (Order ReportElemID ReportElem) ([Char])) (Maybe ([Char]))
-              | Peek_ReportElems_Bool (Path (Order ReportElemID ReportElem) Bool) (Maybe Bool)
-              | Peek_ReportElems_Double (Path (Order ReportElemID ReportElem) Double) (Maybe Double)
-              | Peek_ReportElems_Dimension (Path (Order ReportElemID ReportElem) Dimension) (Maybe Dimension)
-              | Peek_ReportElems_ImageCrop (Path (Order ReportElemID ReportElem) ImageCrop) (Maybe ImageCrop)
-              | Peek_ReportElems_ImageSize (Path (Order ReportElemID ReportElem) ImageSize) (Maybe ImageSize)
-              | Peek_ReportElems_Units (Path (Order ReportElemID ReportElem) Units) (Maybe Units)
-              | Peek_ReportElems_ImageFile (Path (Order ReportElemID ReportElem) ImageFile) (Maybe ImageFile)
-              | Peek_ReportElems_JSONText (Path (Order ReportElemID ReportElem) JSONText) (Maybe JSONText)
-              | Peek_ReportElems_Markup (Path (Order ReportElemID ReportElem) Markup) (Maybe Markup)
-              | Peek_ReportElems_ReportElem (Path (Order ReportElemID ReportElem) ReportElem) (Maybe ReportElem)
-              | Peek_ReportElems_ReportElems (Path (Order ReportElemID ReportElem) (Order ReportElemID ReportElem)) (Maybe (Order ReportElemID ReportElem))
-              | Peek_ReportElems_EUI (Path (Order ReportElemID ReportElem) (Either URI ImageFile)) (Maybe (Either URI ImageFile))
-              | Peek_ReportElems_MEUI (Path (Order ReportElemID ReportElem) (Maybe (Either URI ImageFile))) (Maybe (Maybe (Either URI ImageFile)))
-              | Peek_ReportElems_MaybeImageFile (Path (Order ReportElemID ReportElem) (Maybe ImageFile)) (Maybe (Maybe ImageFile))
-              | Peek_ReportElems_ReportImage (Path (Order ReportElemID ReportElem) ReportImage) (Maybe ReportImage)
-              | Peek_ReportElems_ReportImages (Path (Order ReportElemID ReportElem) (Order ReportImageID ReportImage)) (Maybe (Order ReportImageID ReportImage))
-              | Peek_ReportElems_ReportImageView (Path (Order ReportElemID ReportElem) ReportImageView) (Maybe ReportImageView)
-              | Peek_ReportElems_SaneSizeImageSize (Path (Order ReportElemID ReportElem) (SaneSize ImageSize)) (Maybe (SaneSize ImageSize))
-              | Peek_ReportElems_Item (Path (Order ReportElemID ReportElem) Item) (Maybe Item)
-              | Peek_ReportElems_MIM (Path (Order ReportElemID ReportElem) (Map ItemFieldName Markup)) (Maybe (Map ItemFieldName Markup))
-              | Peek_ReportElems_URI (Path (Order ReportElemID ReportElem) URI) (Maybe URI)
-              | Peek_ReportElems_Text (Path (Order ReportElemID ReportElem) Text) (Maybe Text)
-              deriving (Eq, Show)
-          peek _s = concatMap (\pth -> case pth of
-                                           _pp@(Path_At _k _wp) -> map (\a -> let f = peek a
-                                                                               in let liftPeek (Peek_ReportElem_String q z) = Peek_ReportElems_String (Path_At _k q) z
-                                                                                      liftPeek (Peek_ReportElem_Bool q z) = Peek_ReportElems_Bool (Path_At _k q) z
-                                                                                      liftPeek (Peek_ReportElem_Double q z) = Peek_ReportElems_Double (Path_At _k q) z
-                                                                                      liftPeek (Peek_ReportElem_Dimension q z) = Peek_ReportElems_Dimension (Path_At _k q) z
-                                                                                      liftPeek (Peek_ReportElem_ImageCrop q z) = Peek_ReportElems_ImageCrop (Path_At _k q) z
-                                                                                      liftPeek (Peek_ReportElem_ImageSize q z) = Peek_ReportElems_ImageSize (Path_At _k q) z
-                                                                                      liftPeek (Peek_ReportElem_Units q z) = Peek_ReportElems_Units (Path_At _k q) z
-                                                                                      liftPeek (Peek_ReportElem_ImageFile q z) = Peek_ReportElems_ImageFile (Path_At _k q) z
-                                                                                      liftPeek (Peek_ReportElem_JSONText q z) = Peek_ReportElems_JSONText (Path_At _k q) z
-                                                                                      liftPeek (Peek_ReportElem_Markup q z) = Peek_ReportElems_Markup (Path_At _k q) z
-                                                                                      liftPeek (Peek_ReportElem_ReportElem q z) = Peek_ReportElems_ReportElem (Path_At _k q) z
-                                                                                      liftPeek (Peek_ReportElem_EUI q z) = Peek_ReportElems_EUI (Path_At _k q) z
-                                                                                      liftPeek (Peek_ReportElem_MEUI q z) = Peek_ReportElems_MEUI (Path_At _k q) z
-                                                                                      liftPeek (Peek_ReportElem_MaybeImageFile q z) = Peek_ReportElems_MaybeImageFile (Path_At _k q) z
-                                                                                      liftPeek (Peek_ReportElem_ReportImage q z) = Peek_ReportElems_ReportImage (Path_At _k q) z
-                                                                                      liftPeek (Peek_ReportElem_ReportImages q z) = Peek_ReportElems_ReportImages (Path_At _k q) z
-                                                                                      liftPeek (Peek_ReportElem_ReportImageView q z) = Peek_ReportElems_ReportImageView (Path_At _k q) z
-                                                                                      liftPeek (Peek_ReportElem_SaneSizeImageSize q z) = Peek_ReportElems_SaneSizeImageSize (Path_At _k q) z
-                                                                                      liftPeek (Peek_ReportElem_Item q z) = Peek_ReportElems_Item (Path_At _k q) z
-                                                                                      liftPeek (Peek_ReportElem_MIM q z) = Peek_ReportElems_MIM (Path_At _k q) z
-                                                                                      liftPeek (Peek_ReportElem_URI q z) = Peek_ReportElems_URI (Path_At _k q) z
-                                                                                      liftPeek (Peek_ReportElem_Text q z) = Peek_ReportElems_Text (Path_At _k q) z
-                                                                                   in Node (Peek_ReportElems_ReportElem _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [ReportElem])
-                                           _ -> []) (paths _s (Proxy :: Proxy ReportElem)) :: Forest (Peek (Order ReportElemID ReportElem))
-          hop _s = concatMap (\pth -> case pth of
-                                          _pp@(Path_At _k _wp) -> map (\a -> Node (Peek_ReportElems_ReportElem _pp (Just a)) []) (toListOf (toLens _pp) _s :: [ReportElem])
-                                          _ -> []) (paths _s (Proxy :: Proxy ReportElem)) :: Forest (Peek (Order ReportElemID ReportElem))
-instance PathStart (Order ReportImageID ReportImage)
-    where data Peek (Order ReportImageID ReportImage)
-              = Peek_ReportImages_String (Path (Order ReportImageID ReportImage) ([Char])) (Maybe ([Char]))
-              | Peek_ReportImages_Bool (Path (Order ReportImageID ReportImage) Bool) (Maybe Bool)
-              | Peek_ReportImages_Double (Path (Order ReportImageID ReportImage) Double) (Maybe Double)
-              | Peek_ReportImages_Dimension (Path (Order ReportImageID ReportImage) Dimension) (Maybe Dimension)
-              | Peek_ReportImages_ImageCrop (Path (Order ReportImageID ReportImage) ImageCrop) (Maybe ImageCrop)
-              | Peek_ReportImages_ImageSize (Path (Order ReportImageID ReportImage) ImageSize) (Maybe ImageSize)
-              | Peek_ReportImages_Units (Path (Order ReportImageID ReportImage) Units) (Maybe Units)
-              | Peek_ReportImages_ImageFile (Path (Order ReportImageID ReportImage) ImageFile) (Maybe ImageFile)
-              | Peek_ReportImages_JSONText (Path (Order ReportImageID ReportImage) JSONText) (Maybe JSONText)
-              | Peek_ReportImages_Markup (Path (Order ReportImageID ReportImage) Markup) (Maybe Markup)
-              | Peek_ReportImages_EUI (Path (Order ReportImageID ReportImage) (Either URI ImageFile)) (Maybe (Either URI ImageFile))
-              | Peek_ReportImages_MEUI (Path (Order ReportImageID ReportImage) (Maybe (Either URI ImageFile))) (Maybe (Maybe (Either URI ImageFile)))
-              | Peek_ReportImages_MaybeImageFile (Path (Order ReportImageID ReportImage) (Maybe ImageFile)) (Maybe (Maybe ImageFile))
-              | Peek_ReportImages_ReportImage (Path (Order ReportImageID ReportImage) ReportImage) (Maybe ReportImage)
-              | Peek_ReportImages_ReportImages (Path (Order ReportImageID ReportImage) (Order ReportImageID ReportImage)) (Maybe (Order ReportImageID ReportImage))
-              | Peek_ReportImages_ReportImageView (Path (Order ReportImageID ReportImage) ReportImageView) (Maybe ReportImageView)
-              | Peek_ReportImages_SaneSizeImageSize (Path (Order ReportImageID ReportImage) (SaneSize ImageSize)) (Maybe (SaneSize ImageSize))
-              | Peek_ReportImages_URI (Path (Order ReportImageID ReportImage) URI) (Maybe URI)
-              | Peek_ReportImages_Text (Path (Order ReportImageID ReportImage) Text) (Maybe Text)
-              deriving (Eq, Show)
-          peek _s = concatMap (\pth -> case pth of
-                                           _pp@(Path_At _k _wp) -> map (\a -> let f = peek a
-                                                                               in let liftPeek (Peek_ReportImage_String q z) = Peek_ReportImages_String (Path_At _k q) z
-                                                                                      liftPeek (Peek_ReportImage_Bool q z) = Peek_ReportImages_Bool (Path_At _k q) z
-                                                                                      liftPeek (Peek_ReportImage_Double q z) = Peek_ReportImages_Double (Path_At _k q) z
-                                                                                      liftPeek (Peek_ReportImage_Dimension q z) = Peek_ReportImages_Dimension (Path_At _k q) z
-                                                                                      liftPeek (Peek_ReportImage_ImageCrop q z) = Peek_ReportImages_ImageCrop (Path_At _k q) z
-                                                                                      liftPeek (Peek_ReportImage_ImageSize q z) = Peek_ReportImages_ImageSize (Path_At _k q) z
-                                                                                      liftPeek (Peek_ReportImage_Units q z) = Peek_ReportImages_Units (Path_At _k q) z
-                                                                                      liftPeek (Peek_ReportImage_ImageFile q z) = Peek_ReportImages_ImageFile (Path_At _k q) z
-                                                                                      liftPeek (Peek_ReportImage_JSONText q z) = Peek_ReportImages_JSONText (Path_At _k q) z
-                                                                                      liftPeek (Peek_ReportImage_Markup q z) = Peek_ReportImages_Markup (Path_At _k q) z
-                                                                                      liftPeek (Peek_ReportImage_EUI q z) = Peek_ReportImages_EUI (Path_At _k q) z
-                                                                                      liftPeek (Peek_ReportImage_MEUI q z) = Peek_ReportImages_MEUI (Path_At _k q) z
-                                                                                      liftPeek (Peek_ReportImage_MaybeImageFile q z) = Peek_ReportImages_MaybeImageFile (Path_At _k q) z
-                                                                                      liftPeek (Peek_ReportImage_ReportImage q z) = Peek_ReportImages_ReportImage (Path_At _k q) z
-                                                                                      liftPeek (Peek_ReportImage_ReportImageView q z) = Peek_ReportImages_ReportImageView (Path_At _k q) z
-                                                                                      liftPeek (Peek_ReportImage_SaneSizeImageSize q z) = Peek_ReportImages_SaneSizeImageSize (Path_At _k q) z
-                                                                                      liftPeek (Peek_ReportImage_URI q z) = Peek_ReportImages_URI (Path_At _k q) z
-                                                                                      liftPeek (Peek_ReportImage_Text q z) = Peek_ReportImages_Text (Path_At _k q) z
-                                                                                   in Node (Peek_ReportImages_ReportImage _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [ReportImage])
-                                           _ -> []) (paths _s (Proxy :: Proxy ReportImage)) :: Forest (Peek (Order ReportImageID ReportImage))
-          hop _s = concatMap (\pth -> case pth of
-                                          _pp@(Path_At _k _wp) -> map (\a -> Node (Peek_ReportImages_ReportImage _pp (Just a)) []) (toListOf (toLens _pp) _s :: [ReportImage])
-                                          _ -> []) (paths _s (Proxy :: Proxy ReportImage)) :: Forest (Peek (Order ReportImageID ReportImage))
-instance PathStart ((Markup, Markup))
-    where data Peek ((Markup, Markup))
-              = Peek_MarkupPair_JSONText (Path ((Markup, Markup)) JSONText) (Maybe JSONText)
-              | Peek_MarkupPair_Markup (Path ((Markup, Markup)) Markup) (Maybe Markup)
-              | Peek_MarkupPair_MarkupPair (Path ((Markup, Markup)) ((Markup, Markup))) (Maybe ((Markup, Markup)))
-              | Peek_MarkupPair_Text (Path ((Markup, Markup)) Text) (Maybe Text)
-              deriving (Eq, Show)
-          peek _s = mconcat [concatMap (\pth -> case pth of
-                                                    _pp@(Path_First _wp) -> map (\a -> let f = peek a
-                                                                                        in let liftPeek (Peek_Markup_JSONText q z) = Peek_MarkupPair_JSONText (Path_First q) z
-                                                                                               liftPeek (Peek_Markup_Markup q z) = Peek_MarkupPair_Markup (Path_First q) z
-                                                                                               liftPeek (Peek_Markup_Text q z) = Peek_MarkupPair_Text (Path_First q) z
-                                                                                            in Node (Peek_MarkupPair_Markup _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
-                                                    _ -> []) (paths _s (Proxy :: Proxy Markup)),
-                             concatMap (\pth -> case pth of
-                                                    _pp@(Path_Second _wp) -> map (\a -> let f = peek a
-                                                                                         in let liftPeek (Peek_Markup_JSONText q z) = Peek_MarkupPair_JSONText (Path_Second q) z
-                                                                                                liftPeek (Peek_Markup_Markup q z) = Peek_MarkupPair_Markup (Path_Second q) z
-                                                                                                liftPeek (Peek_Markup_Text q z) = Peek_MarkupPair_Text (Path_Second q) z
-                                                                                             in Node (Peek_MarkupPair_Markup _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
-                                                    _ -> []) (paths _s (Proxy :: Proxy Markup))] :: Forest (Peek ((Markup, Markup)))
-          hop _s = mconcat [concatMap (\pth -> case pth of
-                                                   _pp@(Path_First _wp) -> map (\a -> Node (Peek_MarkupPair_Markup _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Markup])
-                                                   _ -> []) (paths _s (Proxy :: Proxy Markup)),
-                            concatMap (\pth -> case pth of
-                                                   _pp@(Path_Second _wp) -> map (\a -> Node (Peek_MarkupPair_Markup _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Markup])
-                                                   _ -> []) (paths _s (Proxy :: Proxy Markup))] :: Forest (Peek ((Markup, Markup)))
-instance PathStart ((CIString, Markup))
-    where data Peek ((CIString, Markup))
-              = Peek_AbbrevPair_JSONText (Path ((CIString, Markup)) JSONText) (Maybe JSONText)
-              | Peek_AbbrevPair_Markup (Path ((CIString, Markup)) Markup) (Maybe Markup)
-              | Peek_AbbrevPair_AbbrevPair (Path ((CIString, Markup)) ((CIString, Markup))) (Maybe ((CIString, Markup)))
-              | Peek_AbbrevPair_CIString (Path ((CIString, Markup)) CIString) (Maybe CIString)
-              | Peek_AbbrevPair_Text (Path ((CIString, Markup)) Text) (Maybe Text)
-              deriving (Eq, Show)
-          peek _s = mconcat [concatMap (\pth -> case pth of
-                                                    _pp@(Path_First _wp) -> map (\a -> let f = peek a
-                                                                                        in let liftPeek (Peek_CIString_JSONText q z) = Peek_AbbrevPair_JSONText (Path_First q) z
-                                                                                               liftPeek (Peek_CIString_CIString q z) = Peek_AbbrevPair_CIString (Path_First q) z
-                                                                                               liftPeek (Peek_CIString_Text q z) = Peek_AbbrevPair_Text (Path_First q) z
-                                                                                            in Node (Peek_AbbrevPair_CIString _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [CIString])
-                                                    _ -> []) (paths _s (Proxy :: Proxy CIString)),
-                             concatMap (\pth -> case pth of
-                                                    _pp@(Path_Second _wp) -> map (\a -> let f = peek a
-                                                                                         in let liftPeek (Peek_Markup_JSONText q z) = Peek_AbbrevPair_JSONText (Path_Second q) z
-                                                                                                liftPeek (Peek_Markup_Markup q z) = Peek_AbbrevPair_Markup (Path_Second q) z
-                                                                                                liftPeek (Peek_Markup_Text q z) = Peek_AbbrevPair_Text (Path_Second q) z
-                                                                                             in Node (Peek_AbbrevPair_Markup _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
-                                                    _ -> []) (paths _s (Proxy :: Proxy Markup))] :: Forest (Peek ((CIString, Markup)))
-          hop _s = mconcat [concatMap (\pth -> case pth of
-                                                   _pp@(Path_First _wp) -> map (\a -> Node (Peek_AbbrevPair_CIString _pp (Just a)) []) (toListOf (toLens _pp) _s :: [CIString])
-                                                   _ -> []) (paths _s (Proxy :: Proxy CIString)),
-                            concatMap (\pth -> case pth of
-                                                   _pp@(Path_Second _wp) -> map (\a -> Node (Peek_AbbrevPair_Markup _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Markup])
-                                                   _ -> []) (paths _s (Proxy :: Proxy Markup))] :: Forest (Peek ((CIString, Markup)))
-instance PathStart (Maybe (Either URI ImageFile))
-    where data Peek (Maybe (Either URI ImageFile))
-              = Peek_MEUI_ImageFile (Path (Maybe (Either URI ImageFile)) ImageFile) (Maybe ImageFile)
-              | Peek_MEUI_EUI (Path (Maybe (Either URI ImageFile)) (Either URI ImageFile)) (Maybe (Either URI ImageFile))
-              | Peek_MEUI_MEUI (Path (Maybe (Either URI ImageFile)) (Maybe (Either URI ImageFile))) (Maybe (Maybe (Either URI ImageFile)))
-              | Peek_MEUI_URI (Path (Maybe (Either URI ImageFile)) URI) (Maybe URI)
-              deriving (Eq, Show)
-          peek _s = concatMap (\pth -> case pth of
-                                           _pp@(Path_Just _wp) -> map (\a -> let f = peek a
-                                                                              in let liftPeek (Peek_EUI_ImageFile q z) = Peek_MEUI_ImageFile (Path_Just q) z
-                                                                                     liftPeek (Peek_EUI_EUI q z) = Peek_MEUI_EUI (Path_Just q) z
-                                                                                     liftPeek (Peek_EUI_URI q z) = Peek_MEUI_URI (Path_Just q) z
-                                                                                  in Node (Peek_MEUI_EUI _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Either URI ImageFile])
-                                           _ -> []) (paths _s (Proxy :: Proxy (Either URI ImageFile))) :: Forest (Peek (Maybe (Either URI ImageFile)))
-          hop _s = concatMap (\pth -> case pth of
-                                          _pp@(Path_Just _wp) -> map (\a -> Node (Peek_MEUI_EUI _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Either URI ImageFile])
-                                          _ -> []) (paths _s (Proxy :: Proxy (Either URI ImageFile))) :: Forest (Peek (Maybe (Either URI ImageFile)))
-instance PathStart (Maybe ImageFile)
-    where data Peek (Maybe ImageFile)
-              = Peek_MaybeImageFile_String (Path (Maybe ImageFile) ([Char])) (Maybe ([Char]))
-              | Peek_MaybeImageFile_JSONText (Path (Maybe ImageFile) JSONText) (Maybe JSONText)
-              | Peek_MaybeImageFile_MaybeImageFile (Path (Maybe ImageFile) (Maybe ImageFile)) (Maybe (Maybe ImageFile))
-              deriving (Eq, Show)
-          peek _s = concatMap (\pth -> case pth of
-                                           _pp@(Path_MaybeImageFile_View _wp) -> map (\a -> let f = peek a
-                                                                                             in let liftPeek (Peek_String_String q z) = Peek_MaybeImageFile_String (Path_MaybeImageFile_View q) z
-                                                                                                    liftPeek (Peek_String_JSONText q z) = Peek_MaybeImageFile_JSONText (Path_MaybeImageFile_View q) z
-                                                                                                 in Node (Peek_MaybeImageFile_String _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [[Char]])
-                                           _ -> []) (paths _s (Proxy :: Proxy ([Char]))) :: Forest (Peek (Maybe ImageFile))
-          hop _s = concatMap (\pth -> case pth of
-                                          _pp@(Path_MaybeImageFile_View _wp) -> map (\a -> Node (Peek_MaybeImageFile_String _pp (Just a)) []) (toListOf (toLens _pp) _s :: [[Char]])
-                                          _ -> []) (paths _s (Proxy :: Proxy ([Char]))) :: Forest (Peek (Maybe ImageFile))
-instance PathStart (Maybe ReportIntendedUse)
-    where data Peek (Maybe ReportIntendedUse)
-              = Peek_MaybeReportIntendedUse_String (Path (Maybe ReportIntendedUse) ([Char])) (Maybe ([Char]))
-              | Peek_MaybeReportIntendedUse_JSONText (Path (Maybe ReportIntendedUse) JSONText) (Maybe JSONText)
-              | Peek_MaybeReportIntendedUse_MaybeReportIntendedUse (Path (Maybe ReportIntendedUse) (Maybe ReportIntendedUse)) (Maybe (Maybe ReportIntendedUse))
-              deriving (Eq, Show)
-          peek _s = concatMap (\pth -> case pth of
-                                           _pp@(Path_MaybeReportIntendedUse_View _wp) -> map (\a -> let f = peek a
-                                                                                                     in let liftPeek (Peek_String_String q z) = Peek_MaybeReportIntendedUse_String (Path_MaybeReportIntendedUse_View q) z
-                                                                                                            liftPeek (Peek_String_JSONText q z) = Peek_MaybeReportIntendedUse_JSONText (Path_MaybeReportIntendedUse_View q) z
-                                                                                                         in Node (Peek_MaybeReportIntendedUse_String _pp (if null f
-                                                                                                                                                           then Just a
-                                                                                                                                                           else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [[Char]])
-                                           _ -> []) (paths _s (Proxy :: Proxy ([Char]))) :: Forest (Peek (Maybe ReportIntendedUse))
-          hop _s = concatMap (\pth -> case pth of
-                                          _pp@(Path_MaybeReportIntendedUse_View _wp) -> map (\a -> Node (Peek_MaybeReportIntendedUse_String _pp (Just a)) []) (toListOf (toLens _pp) _s :: [[Char]])
-                                          _ -> []) (paths _s (Proxy :: Proxy ([Char]))) :: Forest (Peek (Maybe ReportIntendedUse))
-instance PathStart (ReadOnly ([Char]))
-    where data Peek (ReadOnly ([Char]))
-              = Peek_ReadOnlyFilePath_String (Path (ReadOnly ([Char])) ([Char])) (Maybe ([Char]))
-              | Peek_ReadOnlyFilePath_JSONText (Path (ReadOnly ([Char])) JSONText) (Maybe JSONText)
-              | Peek_ReadOnlyFilePath_ReadOnlyFilePath (Path (ReadOnly ([Char])) (ReadOnly ([Char]))) (Maybe (ReadOnly ([Char])))
-              deriving (Eq, Show)
-          peek _s = concatMap (\pth -> case pth of
-                                           _pp@(Path_ReadOnlyFilePath_View _wp) -> map (\a -> let f = peek a
-                                                                                               in let liftPeek (Peek_String_String q z) = Peek_ReadOnlyFilePath_String (Path_ReadOnlyFilePath_View q) z
-                                                                                                      liftPeek (Peek_String_JSONText q z) = Peek_ReadOnlyFilePath_JSONText (Path_ReadOnlyFilePath_View q) z
-                                                                                                   in Node (Peek_ReadOnlyFilePath_String _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [[Char]])
-                                           _ -> []) (paths _s (Proxy :: Proxy ([Char]))) :: Forest (Peek (ReadOnly ([Char])))
-          hop _s = concatMap (\pth -> case pth of
-                                          _pp@(Path_ReadOnlyFilePath_View _wp) -> map (\a -> Node (Peek_ReadOnlyFilePath_String _pp (Just a)) []) (toListOf (toLens _pp) _s :: [[Char]])
-                                          _ -> []) (paths _s (Proxy :: Proxy ([Char]))) :: Forest (Peek (ReadOnly ([Char])))
-instance PathStart (SaneSize ImageSize)
-    where data Peek (SaneSize ImageSize)
-              = Peek_SaneSizeImageSize_String (Path (SaneSize ImageSize) ([Char])) (Maybe ([Char]))
-              | Peek_SaneSizeImageSize_Double (Path (SaneSize ImageSize) Double) (Maybe Double)
-              | Peek_SaneSizeImageSize_Dimension (Path (SaneSize ImageSize) Dimension) (Maybe Dimension)
-              | Peek_SaneSizeImageSize_ImageSize (Path (SaneSize ImageSize) ImageSize) (Maybe ImageSize)
-              | Peek_SaneSizeImageSize_Units (Path (SaneSize ImageSize) Units) (Maybe Units)
-              | Peek_SaneSizeImageSize_JSONText (Path (SaneSize ImageSize) JSONText) (Maybe JSONText)
-              | Peek_SaneSizeImageSize_SaneSizeImageSize (Path (SaneSize ImageSize) (SaneSize ImageSize)) (Maybe (SaneSize ImageSize))
-              deriving (Eq, Show)
-          peek _s = concatMap (\pth -> case pth of
-                                           _pp@(Path_SaneSizeImageSize_View _wp) -> map (\a -> let f = peek a
-                                                                                                in let liftPeek (Peek_ImageSize_String q z) = Peek_SaneSizeImageSize_String (Path_SaneSizeImageSize_View q) z
-                                                                                                       liftPeek (Peek_ImageSize_Double q z) = Peek_SaneSizeImageSize_Double (Path_SaneSizeImageSize_View q) z
-                                                                                                       liftPeek (Peek_ImageSize_Dimension q z) = Peek_SaneSizeImageSize_Dimension (Path_SaneSizeImageSize_View q) z
-                                                                                                       liftPeek (Peek_ImageSize_ImageSize q z) = Peek_SaneSizeImageSize_ImageSize (Path_SaneSizeImageSize_View q) z
-                                                                                                       liftPeek (Peek_ImageSize_Units q z) = Peek_SaneSizeImageSize_Units (Path_SaneSizeImageSize_View q) z
-                                                                                                       liftPeek (Peek_ImageSize_JSONText q z) = Peek_SaneSizeImageSize_JSONText (Path_SaneSizeImageSize_View q) z
-                                                                                                    in Node (Peek_SaneSizeImageSize_ImageSize _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [ImageSize])
-                                           _ -> []) (paths _s (Proxy :: Proxy ImageSize)) :: Forest (Peek (SaneSize ImageSize))
-          hop _s = concatMap (\pth -> case pth of
-                                          _pp@(Path_SaneSizeImageSize_View _wp) -> map (\a -> Node (Peek_SaneSizeImageSize_ImageSize _pp (Just a)) []) (toListOf (toLens _pp) _s :: [ImageSize])
-                                          _ -> []) (paths _s (Proxy :: Proxy ImageSize)) :: Forest (Peek (SaneSize ImageSize))
-instance PathStart ([Char])
-    where data Peek ([Char])
-              = Peek_String_String (Path ([Char]) ([Char])) (Maybe ([Char])) | Peek_String_JSONText (Path ([Char]) JSONText) (Maybe JSONText)
-              deriving (Eq, Show)
-          peek _s = concatMap (\pth -> case pth of
-                                           _pp@(Path_String_View _wp) -> map (\a -> let f = peek a
-                                                                                     in let liftPeek (Peek_JSONText_JSONText q z) = Peek_String_JSONText (Path_String_View q) z
-                                                                                         in Node (Peek_String_JSONText _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [JSONText])
-                                           _ -> []) (paths _s (Proxy :: Proxy JSONText)) :: Forest (Peek ([Char]))
-          hop _s = concatMap (\pth -> case pth of
-                                          _pp@(Path_String_View _wp) -> map (\a -> Node (Peek_String_JSONText _pp (Just a)) []) (toListOf (toLens _pp) _s :: [JSONText])
-                                          _ -> []) (paths _s (Proxy :: Proxy JSONText)) :: Forest (Peek ([Char]))
-instance PathStart ([UserId])
-    where data Peek ([UserId])
-              = Peek_UserIds_JSONText (Path ([UserId]) JSONText) (Maybe JSONText)
-              | Peek_UserIds_UserIds (Path ([UserId]) ([UserId])) (Maybe ([UserId]))
-              | Peek_UserIds_Text (Path ([UserId]) Text) (Maybe Text)
-              deriving (Eq, Show)
-          peek _s = concatMap (\pth -> case pth of
-                                           _pp@(Path_UserIds_View _wp) -> map (\a -> let f = peek a
-                                                                                      in let liftPeek (Peek_Text_JSONText q z) = Peek_UserIds_JSONText (Path_UserIds_View q) z
-                                                                                             liftPeek (Peek_Text_Text q z) = Peek_UserIds_Text (Path_UserIds_View q) z
-                                                                                          in Node (Peek_UserIds_Text _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Text])
-                                           _ -> []) (paths _s (Proxy :: Proxy Text)) :: Forest (Peek ([UserId]))
-          hop _s = concatMap (\pth -> case pth of
-                                          _pp@(Path_UserIds_View _wp) -> map (\a -> Node (Peek_UserIds_Text _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Text])
-                                          _ -> []) (paths _s (Proxy :: Proxy Text)) :: Forest (Peek ([UserId]))
+instance PathStart String
+    where data Peek String = Peek_String_String (Path String String) (Maybe String) | Peek_String_JSONText (Path String JSONText) (Maybe JSONText) deriving (Eq, Show)
+          peekTree _s = concatMap (\pth -> case pth of
+                                               _pp@(Path_String_View _wp) -> map (\a -> let f = peekTree a
+                                                                                         in let liftPeek (Peek_JSONText_JSONText q z) = Peek_String_JSONText (Path_String_View q) z
+                                                                                             in Node (Peek_String_JSONText _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [JSONText])
+                                               _ -> []) (paths _s (Proxy :: Proxy JSONText)) :: Forest (Peek String)
+          peekRow _s = concatMap (\pth -> case pth of
+                                              _pp@(Path_String_View _wp) -> map (\a -> Peek_String_JSONText _pp (Just a)) (toListOf (toLens _pp) _s :: [JSONText])
+                                              _ -> []) (paths _s (Proxy :: Proxy JSONText)) :: [Peek String]
 instance PathStart Int64
     where data Peek Int64 = Peek_Int64_Int64 (Path Int64 Int64) (Maybe Int64) deriving (Eq, Show)
-          peek _ = []
-          hop _ = []
+          peekTree _ = []
+          peekRow _ = []
 instance PathStart Bool
     where data Peek Bool
-              = Peek_Bool_String (Path Bool ([Char])) (Maybe ([Char])) | Peek_Bool_Bool (Path Bool Bool) (Maybe Bool) | Peek_Bool_JSONText (Path Bool JSONText) (Maybe JSONText)
+              = Peek_Bool_String (Path Bool String) (Maybe String) | Peek_Bool_Bool (Path Bool Bool) (Maybe Bool) | Peek_Bool_JSONText (Path Bool JSONText) (Maybe JSONText)
               deriving (Eq, Show)
-          peek _s = concatMap (\pth -> case pth of
-                                           _pp@(Path_Bool_View _wp) -> map (\a -> let f = peek a
-                                                                                   in let liftPeek (Peek_String_String q z) = Peek_Bool_String (Path_Bool_View q) z
-                                                                                          liftPeek (Peek_String_JSONText q z) = Peek_Bool_JSONText (Path_Bool_View q) z
-                                                                                       in Node (Peek_Bool_String _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [[Char]])
-                                           _ -> []) (paths _s (Proxy :: Proxy ([Char]))) :: Forest (Peek Bool)
-          hop _s = concatMap (\pth -> case pth of
-                                          _pp@(Path_Bool_View _wp) -> map (\a -> Node (Peek_Bool_String _pp (Just a)) []) (toListOf (toLens _pp) _s :: [[Char]])
-                                          _ -> []) (paths _s (Proxy :: Proxy ([Char]))) :: Forest (Peek Bool)
+          peekTree _s = concatMap (\pth -> case pth of
+                                               _pp@(Path_Bool_View _wp) -> map (\a -> let f = peekTree a
+                                                                                       in let liftPeek (Peek_String_String q z) = Peek_Bool_String (Path_Bool_View q) z
+                                                                                              liftPeek (Peek_String_JSONText q z) = Peek_Bool_JSONText (Path_Bool_View q) z
+                                                                                           in Node (Peek_Bool_String _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [String])
+                                               _ -> []) (paths _s (Proxy :: Proxy String)) :: Forest (Peek Bool)
+          peekRow _s = concatMap (\pth -> case pth of
+                                              _pp@(Path_Bool_View _wp) -> map (\a -> Peek_Bool_String _pp (Just a)) (toListOf (toLens _pp) _s :: [String])
+                                              _ -> []) (paths _s (Proxy :: Proxy String)) :: [Peek Bool]
 instance PathStart Double
     where data Peek Double
-              = Peek_Double_String (Path Double ([Char])) (Maybe ([Char]))
+              = Peek_Double_String (Path Double String) (Maybe String)
               | Peek_Double_Double (Path Double Double) (Maybe Double)
               | Peek_Double_JSONText (Path Double JSONText) (Maybe JSONText)
               deriving (Eq, Show)
-          peek _s = concatMap (\pth -> case pth of
-                                           _pp@(Path_Double_View _wp) -> map (\a -> let f = peek a
-                                                                                     in let liftPeek (Peek_String_String q z) = Peek_Double_String (Path_Double_View q) z
-                                                                                            liftPeek (Peek_String_JSONText q z) = Peek_Double_JSONText (Path_Double_View q) z
-                                                                                         in Node (Peek_Double_String _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [[Char]])
-                                           _ -> []) (paths _s (Proxy :: Proxy ([Char]))) :: Forest (Peek Double)
-          hop _s = concatMap (\pth -> case pth of
-                                          _pp@(Path_Double_View _wp) -> map (\a -> Node (Peek_Double_String _pp (Just a)) []) (toListOf (toLens _pp) _s :: [[Char]])
-                                          _ -> []) (paths _s (Proxy :: Proxy ([Char]))) :: Forest (Peek Double)
+          peekTree _s = concatMap (\pth -> case pth of
+                                               _pp@(Path_Double_View _wp) -> map (\a -> let f = peekTree a
+                                                                                         in let liftPeek (Peek_String_String q z) = Peek_Double_String (Path_Double_View q) z
+                                                                                                liftPeek (Peek_String_JSONText q z) = Peek_Double_JSONText (Path_Double_View q) z
+                                                                                             in Node (Peek_Double_String _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [String])
+                                               _ -> []) (paths _s (Proxy :: Proxy String)) :: Forest (Peek Double)
+          peekRow _s = concatMap (\pth -> case pth of
+                                              _pp@(Path_Double_View _wp) -> map (\a -> Peek_Double_String _pp (Just a)) (toListOf (toLens _pp) _s :: [String])
+                                              _ -> []) (paths _s (Proxy :: Proxy String)) :: [Peek Double]
 instance PathStart Int
     where data Peek Int = Peek_Int_Int (Path Int Int) (Maybe Int) deriving (Eq, Show)
-          peek _ = []
-          hop _ = []
+          peekTree _ = []
+          peekRow _ = []
 instance PathStart Dimension
     where data Peek Dimension
               = Peek_Dimension_Dimension (Path Dimension Dimension) (Maybe Dimension) | Peek_Dimension_JSONText (Path Dimension JSONText) (Maybe JSONText)
               deriving (Eq, Show)
-          peek _s = concatMap (\pth -> case pth of
-                                           _pp@(Path_Dimension_View _wp) -> map (\a -> let f = peek a
-                                                                                        in let liftPeek (Peek_JSONText_JSONText q z) = Peek_Dimension_JSONText (Path_Dimension_View q) z
-                                                                                            in Node (Peek_Dimension_JSONText _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [JSONText])
-                                           _ -> []) (paths _s (Proxy :: Proxy JSONText)) :: Forest (Peek Dimension)
-          hop _s = concatMap (\pth -> case pth of
-                                          _pp@(Path_Dimension_View _wp) -> map (\a -> Node (Peek_Dimension_JSONText _pp (Just a)) []) (toListOf (toLens _pp) _s :: [JSONText])
-                                          _ -> []) (paths _s (Proxy :: Proxy JSONText)) :: Forest (Peek Dimension)
+          peekTree _s = concatMap (\pth -> case pth of
+                                               _pp@(Path_Dimension_View _wp) -> map (\a -> let f = peekTree a
+                                                                                            in let liftPeek (Peek_JSONText_JSONText q z) = Peek_Dimension_JSONText (Path_Dimension_View q) z
+                                                                                                in Node (Peek_Dimension_JSONText _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [JSONText])
+                                               _ -> []) (paths _s (Proxy :: Proxy JSONText)) :: Forest (Peek Dimension)
+          peekRow _s = concatMap (\pth -> case pth of
+                                              _pp@(Path_Dimension_View _wp) -> map (\a -> Peek_Dimension_JSONText _pp (Just a)) (toListOf (toLens _pp) _s :: [JSONText])
+                                              _ -> []) (paths _s (Proxy :: Proxy JSONText)) :: [Peek Dimension]
 instance PathStart ImageCrop
     where data Peek ImageCrop = Peek_ImageCrop_ImageCrop (Path ImageCrop ImageCrop) (Maybe ImageCrop) deriving (Eq, Show)
-          peek _ = []
-          hop _ = []
+          peekTree _ = []
+          peekRow _ = []
 instance PathStart ImageSize
     where data Peek ImageSize
-              = Peek_ImageSize_String (Path ImageSize ([Char])) (Maybe ([Char]))
+              = Peek_ImageSize_String (Path ImageSize String) (Maybe String)
               | Peek_ImageSize_Double (Path ImageSize Double) (Maybe Double)
               | Peek_ImageSize_Dimension (Path ImageSize Dimension) (Maybe Dimension)
               | Peek_ImageSize_ImageSize (Path ImageSize ImageSize) (Maybe ImageSize)
               | Peek_ImageSize_Units (Path ImageSize Units) (Maybe Units)
               | Peek_ImageSize_JSONText (Path ImageSize JSONText) (Maybe JSONText)
               deriving (Eq, Show)
-          peek (_s@(ImageSize {})) = mconcat [concatMap (\pth -> case pth of
-                                                                     _pp@(Path_ImageSize_dim _wp) -> map (\a -> let f = peek a
-                                                                                                                 in let liftPeek (Peek_Dimension_Dimension q z) = Peek_ImageSize_Dimension (Path_ImageSize_dim q) z
-                                                                                                                        liftPeek (Peek_Dimension_JSONText q z) = Peek_ImageSize_JSONText (Path_ImageSize_dim q) z
-                                                                                                                     in Node (Peek_ImageSize_Dimension _pp (if null f
-                                                                                                                                                             then Just a
-                                                                                                                                                             else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Dimension])
-                                                                     _ -> []) (paths _s (Proxy :: Proxy Dimension)),
-                                              concatMap (\pth -> case pth of
-                                                                     _pp@(Path_ImageSize_size _wp) -> map (\a -> let f = peek a
-                                                                                                                  in let liftPeek (Peek_Double_String q z) = Peek_ImageSize_String (Path_ImageSize_size q) z
-                                                                                                                         liftPeek (Peek_Double_Double q z) = Peek_ImageSize_Double (Path_ImageSize_size q) z
-                                                                                                                         liftPeek (Peek_Double_JSONText q z) = Peek_ImageSize_JSONText (Path_ImageSize_size q) z
-                                                                                                                      in Node (Peek_ImageSize_Double _pp (if null f
-                                                                                                                                                           then Just a
-                                                                                                                                                           else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Double])
-                                                                     _ -> []) (paths _s (Proxy :: Proxy Double)),
-                                              concatMap (\pth -> case pth of
-                                                                     _pp@(Path_ImageSize_units _wp) -> map (\a -> let f = peek a
-                                                                                                                   in let liftPeek (Peek_Units_Units q z) = Peek_ImageSize_Units (Path_ImageSize_units q) z
-                                                                                                                          liftPeek (Peek_Units_JSONText q z) = Peek_ImageSize_JSONText (Path_ImageSize_units q) z
-                                                                                                                       in Node (Peek_ImageSize_Units _pp (if null f
-                                                                                                                                                           then Just a
-                                                                                                                                                           else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Units])
-                                                                     _ -> []) (paths _s (Proxy :: Proxy Units))] :: Forest (Peek ImageSize)
-          hop (_s@(ImageSize {})) = mconcat [concatMap (\pth -> case pth of
-                                                                    _pp@(Path_ImageSize_dim _wp) -> map (\a -> Node (Peek_ImageSize_Dimension _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Dimension])
-                                                                    _ -> []) (paths _s (Proxy :: Proxy Dimension)),
-                                             concatMap (\pth -> case pth of
-                                                                    _pp@(Path_ImageSize_size _wp) -> map (\a -> Node (Peek_ImageSize_Double _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Double])
-                                                                    _ -> []) (paths _s (Proxy :: Proxy Double)),
-                                             concatMap (\pth -> case pth of
-                                                                    _pp@(Path_ImageSize_units _wp) -> map (\a -> Node (Peek_ImageSize_Units _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Units])
-                                                                    _ -> []) (paths _s (Proxy :: Proxy Units))] :: Forest (Peek ImageSize)
+          peekTree (_s@(ImageSize {})) = mconcat [concatMap (\pth -> case pth of
+                                                                         _pp@(Path_ImageSize_dim _wp) -> map (\a -> let f = peekTree a
+                                                                                                                     in let liftPeek (Peek_Dimension_Dimension q z) = Peek_ImageSize_Dimension (Path_ImageSize_dim q) z
+                                                                                                                            liftPeek (Peek_Dimension_JSONText q z) = Peek_ImageSize_JSONText (Path_ImageSize_dim q) z
+                                                                                                                         in Node (Peek_ImageSize_Dimension _pp (if null f
+                                                                                                                                                                 then Just a
+                                                                                                                                                                 else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Dimension])
+                                                                         _ -> []) (paths _s (Proxy :: Proxy Dimension)),
+                                                  concatMap (\pth -> case pth of
+                                                                         _pp@(Path_ImageSize_size _wp) -> map (\a -> let f = peekTree a
+                                                                                                                      in let liftPeek (Peek_Double_String q z) = Peek_ImageSize_String (Path_ImageSize_size q) z
+                                                                                                                             liftPeek (Peek_Double_Double q z) = Peek_ImageSize_Double (Path_ImageSize_size q) z
+                                                                                                                             liftPeek (Peek_Double_JSONText q z) = Peek_ImageSize_JSONText (Path_ImageSize_size q) z
+                                                                                                                          in Node (Peek_ImageSize_Double _pp (if null f
+                                                                                                                                                               then Just a
+                                                                                                                                                               else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Double])
+                                                                         _ -> []) (paths _s (Proxy :: Proxy Double)),
+                                                  concatMap (\pth -> case pth of
+                                                                         _pp@(Path_ImageSize_units _wp) -> map (\a -> let f = peekTree a
+                                                                                                                       in let liftPeek (Peek_Units_Units q z) = Peek_ImageSize_Units (Path_ImageSize_units q) z
+                                                                                                                              liftPeek (Peek_Units_JSONText q z) = Peek_ImageSize_JSONText (Path_ImageSize_units q) z
+                                                                                                                           in Node (Peek_ImageSize_Units _pp (if null f
+                                                                                                                                                               then Just a
+                                                                                                                                                               else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Units])
+                                                                         _ -> []) (paths _s (Proxy :: Proxy Units))] :: Forest (Peek ImageSize)
+          peekRow (_s@(ImageSize {})) = mconcat [concatMap (\pth -> case pth of
+                                                                        _pp@(Path_ImageSize_dim _wp) -> map (\a -> Peek_ImageSize_Dimension _pp (Just a)) (toListOf (toLens _pp) _s :: [Dimension])
+                                                                        _ -> []) (paths _s (Proxy :: Proxy Dimension)),
+                                                 concatMap (\pth -> case pth of
+                                                                        _pp@(Path_ImageSize_size _wp) -> map (\a -> Peek_ImageSize_Double _pp (Just a)) (toListOf (toLens _pp) _s :: [Double])
+                                                                        _ -> []) (paths _s (Proxy :: Proxy Double)),
+                                                 concatMap (\pth -> case pth of
+                                                                        _pp@(Path_ImageSize_units _wp) -> map (\a -> Peek_ImageSize_Units _pp (Just a)) (toListOf (toLens _pp) _s :: [Units])
+                                                                        _ -> []) (paths _s (Proxy :: Proxy Units))] :: [Peek ImageSize]
 instance PathStart Units
     where data Peek Units = Peek_Units_Units (Path Units Units) (Maybe Units) | Peek_Units_JSONText (Path Units JSONText) (Maybe JSONText) deriving (Eq, Show)
-          peek _s = concatMap (\pth -> case pth of
-                                           _pp@(Path_Units_View _wp) -> map (\a -> let f = peek a
-                                                                                    in let liftPeek (Peek_JSONText_JSONText q z) = Peek_Units_JSONText (Path_Units_View q) z
-                                                                                        in Node (Peek_Units_JSONText _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [JSONText])
-                                           _ -> []) (paths _s (Proxy :: Proxy JSONText)) :: Forest (Peek Units)
-          hop _s = concatMap (\pth -> case pth of
-                                          _pp@(Path_Units_View _wp) -> map (\a -> Node (Peek_Units_JSONText _pp (Just a)) []) (toListOf (toLens _pp) _s :: [JSONText])
-                                          _ -> []) (paths _s (Proxy :: Proxy JSONText)) :: Forest (Peek Units)
+          peekTree _s = concatMap (\pth -> case pth of
+                                               _pp@(Path_Units_View _wp) -> map (\a -> let f = peekTree a
+                                                                                        in let liftPeek (Peek_JSONText_JSONText q z) = Peek_Units_JSONText (Path_Units_View q) z
+                                                                                            in Node (Peek_Units_JSONText _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [JSONText])
+                                               _ -> []) (paths _s (Proxy :: Proxy JSONText)) :: Forest (Peek Units)
+          peekRow _s = concatMap (\pth -> case pth of
+                                              _pp@(Path_Units_View _wp) -> map (\a -> Peek_Units_JSONText _pp (Just a)) (toListOf (toLens _pp) _s :: [JSONText])
+                                              _ -> []) (paths _s (Proxy :: Proxy JSONText)) :: [Peek Units]
 instance PathStart ImageFile
     where data Peek ImageFile = Peek_ImageFile_ImageFile (Path ImageFile ImageFile) (Maybe ImageFile) deriving (Eq, Show)
-          peek _ = []
-          hop _ = []
+          peekTree _ = []
+          peekRow _ = []
 instance PathStart Integer
     where data Peek Integer = Peek_Integer_Integer (Path Integer Integer) (Maybe Integer) deriving (Eq, Show)
-          peek _ = []
-          hop _ = []
+          peekTree _ = []
+          peekRow _ = []
 instance PathStart JSONText
     where data Peek JSONText = Peek_JSONText_JSONText (Path JSONText JSONText) (Maybe JSONText) deriving (Eq, Show)
-          peek _ = []
-          hop _ = []
+          peekTree _ = []
+          peekRow _ = []
 instance PathStart Markup
     where data Peek Markup
               = Peek_Markup_JSONText (Path Markup JSONText) (Maybe JSONText)
               | Peek_Markup_Markup (Path Markup Markup) (Maybe Markup)
               | Peek_Markup_Text (Path Markup Text) (Maybe Text)
               deriving (Eq, Show)
-          peek (_s@(Markdown {})) = concatMap (\pth -> case pth of
-                                                           _pp@(Path_Markup_markdownText _wp) -> map (\a -> let f = peek a
-                                                                                                             in let liftPeek (Peek_Text_JSONText q z) = Peek_Markup_JSONText (Path_Markup_markdownText q) z
-                                                                                                                    liftPeek (Peek_Text_Text q z) = Peek_Markup_Text (Path_Markup_markdownText q) z
-                                                                                                                 in Node (Peek_Markup_Text _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Text])
+          peekTree (_s@(Markdown {})) = concatMap (\pth -> case pth of
+                                                               _pp@(Path_Markup_markdownText _wp) -> map (\a -> let f = peekTree a
+                                                                                                                 in let liftPeek (Peek_Text_JSONText q z) = Peek_Markup_JSONText (Path_Markup_markdownText q) z
+                                                                                                                        liftPeek (Peek_Text_Text q z) = Peek_Markup_Text (Path_Markup_markdownText q) z
+                                                                                                                     in Node (Peek_Markup_Text _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Text])
+                                                               _ -> []) (paths _s (Proxy :: Proxy Text)) :: Forest (Peek Markup)
+          peekTree (_s@(Html {})) = concatMap (\pth -> case pth of
+                                                           _pp@(Path_Markup_htmlText _wp) -> map (\a -> let f = peekTree a
+                                                                                                         in let liftPeek (Peek_Text_JSONText q z) = Peek_Markup_JSONText (Path_Markup_htmlText q) z
+                                                                                                                liftPeek (Peek_Text_Text q z) = Peek_Markup_Text (Path_Markup_htmlText q) z
+                                                                                                             in Node (Peek_Markup_Text _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Text])
                                                            _ -> []) (paths _s (Proxy :: Proxy Text)) :: Forest (Peek Markup)
-          peek (_s@(Html {})) = concatMap (\pth -> case pth of
-                                                       _pp@(Path_Markup_htmlText _wp) -> map (\a -> let f = peek a
-                                                                                                     in let liftPeek (Peek_Text_JSONText q z) = Peek_Markup_JSONText (Path_Markup_htmlText q) z
-                                                                                                            liftPeek (Peek_Text_Text q z) = Peek_Markup_Text (Path_Markup_htmlText q) z
-                                                                                                         in Node (Peek_Markup_Text _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Text])
-                                                       _ -> []) (paths _s (Proxy :: Proxy Text)) :: Forest (Peek Markup)
-          peek (_s@(LaTeX {})) = mempty :: Forest (Peek Markup)
-          peek (_s@(Pandoc {})) = mempty :: Forest (Peek Markup)
-          peek (_s@(Markup {})) = mempty :: Forest (Peek Markup)
-          hop (_s@(Markdown {})) = concatMap (\pth -> case pth of
-                                                          _pp@(Path_Markup_markdownText _wp) -> map (\a -> Node (Peek_Markup_Text _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Text])
-                                                          _ -> []) (paths _s (Proxy :: Proxy Text)) :: Forest (Peek Markup)
-          hop (_s@(Html {})) = concatMap (\pth -> case pth of
-                                                      _pp@(Path_Markup_htmlText _wp) -> map (\a -> Node (Peek_Markup_Text _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Text])
-                                                      _ -> []) (paths _s (Proxy :: Proxy Text)) :: Forest (Peek Markup)
-          hop (_s@(LaTeX {})) = mempty :: Forest (Peek Markup)
-          hop (_s@(Pandoc {})) = mempty :: Forest (Peek Markup)
-          hop (_s@(Markup {})) = mempty :: Forest (Peek Markup)
+          peekTree (_s@(LaTeX {})) = mempty :: Forest (Peek Markup)
+          peekTree (_s@(Pandoc {})) = mempty :: Forest (Peek Markup)
+          peekTree (_s@(Markup {})) = mempty :: Forest (Peek Markup)
+          peekRow (_s@(Markdown {})) = concatMap (\pth -> case pth of
+                                                              _pp@(Path_Markup_markdownText _wp) -> map (\a -> Peek_Markup_Text _pp (Just a)) (toListOf (toLens _pp) _s :: [Text])
+                                                              _ -> []) (paths _s (Proxy :: Proxy Text)) :: [Peek Markup]
+          peekRow (_s@(Html {})) = concatMap (\pth -> case pth of
+                                                          _pp@(Path_Markup_htmlText _wp) -> map (\a -> Peek_Markup_Text _pp (Just a)) (toListOf (toLens _pp) _s :: [Text])
+                                                          _ -> []) (paths _s (Proxy :: Proxy Text)) :: [Peek Markup]
+          peekRow (_s@(LaTeX {})) = mempty :: [Peek Markup]
+          peekRow (_s@(Pandoc {})) = mempty :: [Peek Markup]
+          peekRow (_s@(Markup {})) = mempty :: [Peek Markup]
 instance PathStart Permissions
     where data Peek Permissions
               = Peek_Permissions_JSONText (Path Permissions JSONText) (Maybe JSONText)
               | Peek_Permissions_Permissions (Path Permissions Permissions) (Maybe Permissions)
-              | Peek_Permissions_UserIds (Path Permissions ([UserId])) (Maybe ([UserId]))
+              | Peek_Permissions_UserIds (Path Permissions UserIds) (Maybe UserIds)
               | Peek_Permissions_Text (Path Permissions Text) (Maybe Text)
               | Peek_Permissions_UserId (Path Permissions UserId) (Maybe UserId)
               deriving (Eq, Show)
-          peek (_s@(Permissions {})) = mconcat [concatMap (\pth -> case pth of
-                                                                       _pp@(Path_Permissions_owner _wp) -> map (\a -> let f = peek a
-                                                                                                                       in let liftPeek (Peek_UserId_UserId q z) = Peek_Permissions_UserId (Path_Permissions_owner q) z
-                                                                                                                           in Node (Peek_Permissions_UserId _pp (if null f
-                                                                                                                                                                  then Just a
-                                                                                                                                                                  else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [UserId])
-                                                                       _ -> []) (paths _s (Proxy :: Proxy UserId)),
-                                                concatMap (\pth -> case pth of
-                                                                       _pp@(Path_Permissions_writers _wp) -> map (\a -> let f = peek a
-                                                                                                                         in let liftPeek (Peek_UserIds_JSONText q z) = Peek_Permissions_JSONText (Path_Permissions_writers q) z
-                                                                                                                                liftPeek (Peek_UserIds_UserIds q z) = Peek_Permissions_UserIds (Path_Permissions_writers q) z
-                                                                                                                                liftPeek (Peek_UserIds_Text q z) = Peek_Permissions_Text (Path_Permissions_writers q) z
-                                                                                                                             in Node (Peek_Permissions_UserIds _pp (if null f
-                                                                                                                                                                     then Just a
-                                                                                                                                                                     else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [[UserId]])
-                                                                       _ -> []) (paths _s (Proxy :: Proxy ([UserId]))),
-                                                concatMap (\pth -> case pth of
-                                                                       _pp@(Path_Permissions_readers _wp) -> map (\a -> let f = peek a
-                                                                                                                         in let liftPeek (Peek_UserIds_JSONText q z) = Peek_Permissions_JSONText (Path_Permissions_readers q) z
-                                                                                                                                liftPeek (Peek_UserIds_UserIds q z) = Peek_Permissions_UserIds (Path_Permissions_readers q) z
-                                                                                                                                liftPeek (Peek_UserIds_Text q z) = Peek_Permissions_Text (Path_Permissions_readers q) z
-                                                                                                                             in Node (Peek_Permissions_UserIds _pp (if null f
-                                                                                                                                                                     then Just a
-                                                                                                                                                                     else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [[UserId]])
-                                                                       _ -> []) (paths _s (Proxy :: Proxy ([UserId])))] :: Forest (Peek Permissions)
-          hop (_s@(Permissions {})) = mconcat [concatMap (\pth -> case pth of
-                                                                      _pp@(Path_Permissions_owner _wp) -> map (\a -> Node (Peek_Permissions_UserId _pp (Just a)) []) (toListOf (toLens _pp) _s :: [UserId])
-                                                                      _ -> []) (paths _s (Proxy :: Proxy UserId)),
-                                               concatMap (\pth -> case pth of
-                                                                      _pp@(Path_Permissions_writers _wp) -> map (\a -> Node (Peek_Permissions_UserIds _pp (Just a)) []) (toListOf (toLens _pp) _s :: [[UserId]])
-                                                                      _ -> []) (paths _s (Proxy :: Proxy ([UserId]))),
-                                               concatMap (\pth -> case pth of
-                                                                      _pp@(Path_Permissions_readers _wp) -> map (\a -> Node (Peek_Permissions_UserIds _pp (Just a)) []) (toListOf (toLens _pp) _s :: [[UserId]])
-                                                                      _ -> []) (paths _s (Proxy :: Proxy ([UserId])))] :: Forest (Peek Permissions)
+          peekTree (_s@(Permissions {})) = mconcat [concatMap (\pth -> case pth of
+                                                                           _pp@(Path_Permissions_owner _wp) -> map (\a -> let f = peekTree a
+                                                                                                                           in let liftPeek (Peek_UserId_UserId q z) = Peek_Permissions_UserId (Path_Permissions_owner q) z
+                                                                                                                               in Node (Peek_Permissions_UserId _pp (if null f
+                                                                                                                                                                      then Just a
+                                                                                                                                                                      else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [UserId])
+                                                                           _ -> []) (paths _s (Proxy :: Proxy UserId)),
+                                                    concatMap (\pth -> case pth of
+                                                                           _pp@(Path_Permissions_writers _wp) -> map (\a -> let f = peekTree a
+                                                                                                                             in let liftPeek (Peek_UserIds_JSONText q z) = Peek_Permissions_JSONText (Path_Permissions_writers q) z
+                                                                                                                                    liftPeek (Peek_UserIds_UserIds q z) = Peek_Permissions_UserIds (Path_Permissions_writers q) z
+                                                                                                                                    liftPeek (Peek_UserIds_Text q z) = Peek_Permissions_Text (Path_Permissions_writers q) z
+                                                                                                                                 in Node (Peek_Permissions_UserIds _pp (if null f
+                                                                                                                                                                         then Just a
+                                                                                                                                                                         else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [UserIds])
+                                                                           _ -> []) (paths _s (Proxy :: Proxy UserIds)),
+                                                    concatMap (\pth -> case pth of
+                                                                           _pp@(Path_Permissions_readers _wp) -> map (\a -> let f = peekTree a
+                                                                                                                             in let liftPeek (Peek_UserIds_JSONText q z) = Peek_Permissions_JSONText (Path_Permissions_readers q) z
+                                                                                                                                    liftPeek (Peek_UserIds_UserIds q z) = Peek_Permissions_UserIds (Path_Permissions_readers q) z
+                                                                                                                                    liftPeek (Peek_UserIds_Text q z) = Peek_Permissions_Text (Path_Permissions_readers q) z
+                                                                                                                                 in Node (Peek_Permissions_UserIds _pp (if null f
+                                                                                                                                                                         then Just a
+                                                                                                                                                                         else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [UserIds])
+                                                                           _ -> []) (paths _s (Proxy :: Proxy UserIds))] :: Forest (Peek Permissions)
+          peekRow (_s@(Permissions {})) = mconcat [concatMap (\pth -> case pth of
+                                                                          _pp@(Path_Permissions_owner _wp) -> map (\a -> Peek_Permissions_UserId _pp (Just a)) (toListOf (toLens _pp) _s :: [UserId])
+                                                                          _ -> []) (paths _s (Proxy :: Proxy UserId)),
+                                                   concatMap (\pth -> case pth of
+                                                                          _pp@(Path_Permissions_writers _wp) -> map (\a -> Peek_Permissions_UserIds _pp (Just a)) (toListOf (toLens _pp) _s :: [UserIds])
+                                                                          _ -> []) (paths _s (Proxy :: Proxy UserIds)),
+                                                   concatMap (\pth -> case pth of
+                                                                          _pp@(Path_Permissions_readers _wp) -> map (\a -> Peek_Permissions_UserIds _pp (Just a)) (toListOf (toLens _pp) _s :: [UserIds])
+                                                                          _ -> []) (paths _s (Proxy :: Proxy UserIds))] :: [Peek Permissions]
+instance PathStart UserIds
+    where data Peek UserIds
+              = Peek_UserIds_JSONText (Path UserIds JSONText) (Maybe JSONText)
+              | Peek_UserIds_UserIds (Path UserIds UserIds) (Maybe UserIds)
+              | Peek_UserIds_Text (Path UserIds Text) (Maybe Text)
+              deriving (Eq, Show)
+          peekTree _s = concatMap (\pth -> case pth of
+                                               _pp@(Path_UserIds_View _wp) -> map (\a -> let f = peekTree a
+                                                                                          in let liftPeek (Peek_Text_JSONText q z) = Peek_UserIds_JSONText (Path_UserIds_View q) z
+                                                                                                 liftPeek (Peek_Text_Text q z) = Peek_UserIds_Text (Path_UserIds_View q) z
+                                                                                              in Node (Peek_UserIds_Text _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Text])
+                                               _ -> []) (paths _s (Proxy :: Proxy Text)) :: Forest (Peek UserIds)
+          peekRow _s = concatMap (\pth -> case pth of
+                                              _pp@(Path_UserIds_View _wp) -> map (\a -> Peek_UserIds_Text _pp (Just a)) (toListOf (toLens _pp) _s :: [Text])
+                                              _ -> []) (paths _s (Proxy :: Proxy Text)) :: [Peek UserIds]
+instance PathStart AbbrevPair
+    where data Peek AbbrevPair
+              = Peek_AbbrevPair_JSONText (Path AbbrevPair JSONText) (Maybe JSONText)
+              | Peek_AbbrevPair_Markup (Path AbbrevPair Markup) (Maybe Markup)
+              | Peek_AbbrevPair_AbbrevPair (Path AbbrevPair AbbrevPair) (Maybe AbbrevPair)
+              | Peek_AbbrevPair_CIString (Path AbbrevPair CIString) (Maybe CIString)
+              | Peek_AbbrevPair_Text (Path AbbrevPair Text) (Maybe Text)
+              deriving (Eq, Show)
+          peekTree _s = mconcat [concatMap (\pth -> case pth of
+                                                        _pp@(Path_First _wp) -> map (\a -> let f = peekTree a
+                                                                                            in let liftPeek (Peek_CIString_JSONText q z) = Peek_AbbrevPair_JSONText (Path_First q) z
+                                                                                                   liftPeek (Peek_CIString_CIString q z) = Peek_AbbrevPair_CIString (Path_First q) z
+                                                                                                   liftPeek (Peek_CIString_Text q z) = Peek_AbbrevPair_Text (Path_First q) z
+                                                                                                in Node (Peek_AbbrevPair_CIString _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [CIString])
+                                                        _ -> []) (paths _s (Proxy :: Proxy CIString)),
+                                 concatMap (\pth -> case pth of
+                                                        _pp@(Path_Second _wp) -> map (\a -> let f = peekTree a
+                                                                                             in let liftPeek (Peek_Markup_JSONText q z) = Peek_AbbrevPair_JSONText (Path_Second q) z
+                                                                                                    liftPeek (Peek_Markup_Markup q z) = Peek_AbbrevPair_Markup (Path_Second q) z
+                                                                                                    liftPeek (Peek_Markup_Text q z) = Peek_AbbrevPair_Text (Path_Second q) z
+                                                                                                 in Node (Peek_AbbrevPair_Markup _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
+                                                        _ -> []) (paths _s (Proxy :: Proxy Markup))] :: Forest (Peek AbbrevPair)
+          peekRow _s = mconcat [concatMap (\pth -> case pth of
+                                                       _pp@(Path_First _wp) -> map (\a -> Peek_AbbrevPair_CIString _pp (Just a)) (toListOf (toLens _pp) _s :: [CIString])
+                                                       _ -> []) (paths _s (Proxy :: Proxy CIString)),
+                                concatMap (\pth -> case pth of
+                                                       _pp@(Path_Second _wp) -> map (\a -> Peek_AbbrevPair_Markup _pp (Just a)) (toListOf (toLens _pp) _s :: [Markup])
+                                                       _ -> []) (paths _s (Proxy :: Proxy Markup))] :: [Peek AbbrevPair]
+instance PathStart AbbrevPairs
+    where data Peek AbbrevPairs
+              = Peek_AbbrevPairs_JSONText (Path AbbrevPairs JSONText) (Maybe JSONText)
+              | Peek_AbbrevPairs_Markup (Path AbbrevPairs Markup) (Maybe Markup)
+              | Peek_AbbrevPairs_AbbrevPair (Path AbbrevPairs AbbrevPair) (Maybe AbbrevPair)
+              | Peek_AbbrevPairs_AbbrevPairs (Path AbbrevPairs AbbrevPairs) (Maybe AbbrevPairs)
+              | Peek_AbbrevPairs_CIString (Path AbbrevPairs CIString) (Maybe CIString)
+              | Peek_AbbrevPairs_Text (Path AbbrevPairs Text) (Maybe Text)
+              deriving (Eq, Show)
+          peekTree _s = concatMap (\pth -> case pth of
+                                               _pp@(Path_At _k _wp) -> map (\a -> let f = peekTree a
+                                                                                   in let liftPeek (Peek_AbbrevPair_JSONText q z) = Peek_AbbrevPairs_JSONText (Path_At _k q) z
+                                                                                          liftPeek (Peek_AbbrevPair_Markup q z) = Peek_AbbrevPairs_Markup (Path_At _k q) z
+                                                                                          liftPeek (Peek_AbbrevPair_AbbrevPair q z) = Peek_AbbrevPairs_AbbrevPair (Path_At _k q) z
+                                                                                          liftPeek (Peek_AbbrevPair_CIString q z) = Peek_AbbrevPairs_CIString (Path_At _k q) z
+                                                                                          liftPeek (Peek_AbbrevPair_Text q z) = Peek_AbbrevPairs_Text (Path_At _k q) z
+                                                                                       in Node (Peek_AbbrevPairs_AbbrevPair _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [AbbrevPair])
+                                               _ -> []) (paths _s (Proxy :: Proxy AbbrevPair)) :: Forest (Peek AbbrevPairs)
+          peekRow _s = concatMap (\pth -> case pth of
+                                              _pp@(Path_At _k _wp) -> map (\a -> Peek_AbbrevPairs_AbbrevPair _pp (Just a)) (toListOf (toLens _pp) _s :: [AbbrevPair])
+                                              _ -> []) (paths _s (Proxy :: Proxy AbbrevPair)) :: [Peek AbbrevPairs]
 instance PathStart Author
     where data Peek Author
               = Peek_Author_JSONText (Path Author JSONText) (Maybe JSONText)
@@ -10559,46 +10631,147 @@ instance PathStart Author
               | Peek_Author_Author (Path Author Author) (Maybe Author)
               | Peek_Author_Text (Path Author Text) (Maybe Text)
               deriving (Eq, Show)
-          peek (_s@(Author {})) = mconcat [concatMap (\pth -> case pth of
-                                                                  _pp@(Path_Author_authorName _wp) -> map (\a -> let f = peek a
-                                                                                                                  in let liftPeek (Peek_Markup_JSONText q z) = Peek_Author_JSONText (Path_Author_authorName q) z
-                                                                                                                         liftPeek (Peek_Markup_Markup q z) = Peek_Author_Markup (Path_Author_authorName q) z
-                                                                                                                         liftPeek (Peek_Markup_Text q z) = Peek_Author_Text (Path_Author_authorName q) z
-                                                                                                                      in Node (Peek_Author_Markup _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
-                                                                  _ -> []) (paths _s (Proxy :: Proxy Markup)),
-                                           concatMap (\pth -> case pth of
-                                                                  _pp@(Path_Author_authorCredentials _wp) -> map (\a -> let f = peek a
-                                                                                                                         in let liftPeek (Peek_Markup_JSONText q z) = Peek_Author_JSONText (Path_Author_authorCredentials q) z
-                                                                                                                                liftPeek (Peek_Markup_Markup q z) = Peek_Author_Markup (Path_Author_authorCredentials q) z
-                                                                                                                                liftPeek (Peek_Markup_Text q z) = Peek_Author_Text (Path_Author_authorCredentials q) z
-                                                                                                                             in Node (Peek_Author_Markup _pp (if null f
-                                                                                                                                                               then Just a
-                                                                                                                                                               else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
-                                                                  _ -> []) (paths _s (Proxy :: Proxy Markup))] :: Forest (Peek Author)
-          hop (_s@(Author {})) = mconcat [concatMap (\pth -> case pth of
-                                                                 _pp@(Path_Author_authorName _wp) -> map (\a -> Node (Peek_Author_Markup _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Markup])
-                                                                 _ -> []) (paths _s (Proxy :: Proxy Markup)),
-                                          concatMap (\pth -> case pth of
-                                                                 _pp@(Path_Author_authorCredentials _wp) -> map (\a -> Node (Peek_Author_Markup _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Markup])
-                                                                 _ -> []) (paths _s (Proxy :: Proxy Markup))] :: Forest (Peek Author)
+          peekTree (_s@(Author {})) = mconcat [concatMap (\pth -> case pth of
+                                                                      _pp@(Path_Author_authorName _wp) -> map (\a -> let f = peekTree a
+                                                                                                                      in let liftPeek (Peek_Markup_JSONText q z) = Peek_Author_JSONText (Path_Author_authorName q) z
+                                                                                                                             liftPeek (Peek_Markup_Markup q z) = Peek_Author_Markup (Path_Author_authorName q) z
+                                                                                                                             liftPeek (Peek_Markup_Text q z) = Peek_Author_Text (Path_Author_authorName q) z
+                                                                                                                          in Node (Peek_Author_Markup _pp (if null f
+                                                                                                                                                            then Just a
+                                                                                                                                                            else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
+                                                                      _ -> []) (paths _s (Proxy :: Proxy Markup)),
+                                               concatMap (\pth -> case pth of
+                                                                      _pp@(Path_Author_authorCredentials _wp) -> map (\a -> let f = peekTree a
+                                                                                                                             in let liftPeek (Peek_Markup_JSONText q z) = Peek_Author_JSONText (Path_Author_authorCredentials q) z
+                                                                                                                                    liftPeek (Peek_Markup_Markup q z) = Peek_Author_Markup (Path_Author_authorCredentials q) z
+                                                                                                                                    liftPeek (Peek_Markup_Text q z) = Peek_Author_Text (Path_Author_authorCredentials q) z
+                                                                                                                                 in Node (Peek_Author_Markup _pp (if null f
+                                                                                                                                                                   then Just a
+                                                                                                                                                                   else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
+                                                                      _ -> []) (paths _s (Proxy :: Proxy Markup))] :: Forest (Peek Author)
+          peekRow (_s@(Author {})) = mconcat [concatMap (\pth -> case pth of
+                                                                     _pp@(Path_Author_authorName _wp) -> map (\a -> Peek_Author_Markup _pp (Just a)) (toListOf (toLens _pp) _s :: [Markup])
+                                                                     _ -> []) (paths _s (Proxy :: Proxy Markup)),
+                                              concatMap (\pth -> case pth of
+                                                                     _pp@(Path_Author_authorCredentials _wp) -> map (\a -> Peek_Author_Markup _pp (Just a)) (toListOf (toLens _pp) _s :: [Markup])
+                                                                     _ -> []) (paths _s (Proxy :: Proxy Markup))] :: [Peek Author]
+instance PathStart Authors
+    where data Peek Authors
+              = Peek_Authors_JSONText (Path Authors JSONText) (Maybe JSONText)
+              | Peek_Authors_Markup (Path Authors Markup) (Maybe Markup)
+              | Peek_Authors_Author (Path Authors Author) (Maybe Author)
+              | Peek_Authors_Authors (Path Authors Authors) (Maybe Authors)
+              | Peek_Authors_Text (Path Authors Text) (Maybe Text)
+              deriving (Eq, Show)
+          peekTree _s = concatMap (\pth -> case pth of
+                                               _pp@(Path_At _k _wp) -> map (\a -> let f = peekTree a
+                                                                                   in let liftPeek (Peek_Author_JSONText q z) = Peek_Authors_JSONText (Path_At _k q) z
+                                                                                          liftPeek (Peek_Author_Markup q z) = Peek_Authors_Markup (Path_At _k q) z
+                                                                                          liftPeek (Peek_Author_Author q z) = Peek_Authors_Author (Path_At _k q) z
+                                                                                          liftPeek (Peek_Author_Text q z) = Peek_Authors_Text (Path_At _k q) z
+                                                                                       in Node (Peek_Authors_Author _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Author])
+                                               _ -> []) (paths _s (Proxy :: Proxy Author)) :: Forest (Peek Authors)
+          peekRow _s = concatMap (\pth -> case pth of
+                                              _pp@(Path_At _k _wp) -> map (\a -> Peek_Authors_Author _pp (Just a)) (toListOf (toLens _pp) _s :: [Author])
+                                              _ -> []) (paths _s (Proxy :: Proxy Author)) :: [Peek Authors]
 instance PathStart Branding
     where data Peek Branding
               = Peek_Branding_JSONText (Path Branding JSONText) (Maybe JSONText)
               | Peek_Branding_Branding (Path Branding Branding) (Maybe Branding)
               | Peek_Branding_Text (Path Branding Text) (Maybe Text)
               deriving (Eq, Show)
-          peek _s = concatMap (\pth -> case pth of
-                                           _pp@(Path_Branding_View _wp) -> map (\a -> let f = peek a
-                                                                                       in let liftPeek (Peek_Text_JSONText q z) = Peek_Branding_JSONText (Path_Branding_View q) z
-                                                                                              liftPeek (Peek_Text_Text q z) = Peek_Branding_Text (Path_Branding_View q) z
-                                                                                           in Node (Peek_Branding_Text _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Text])
-                                           _ -> []) (paths _s (Proxy :: Proxy Text)) :: Forest (Peek Branding)
-          hop _s = concatMap (\pth -> case pth of
-                                          _pp@(Path_Branding_View _wp) -> map (\a -> Node (Peek_Branding_Text _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Text])
-                                          _ -> []) (paths _s (Proxy :: Proxy Text)) :: Forest (Peek Branding)
+          peekTree _s = concatMap (\pth -> case pth of
+                                               _pp@(Path_Branding_View _wp) -> map (\a -> let f = peekTree a
+                                                                                           in let liftPeek (Peek_Text_JSONText q z) = Peek_Branding_JSONText (Path_Branding_View q) z
+                                                                                                  liftPeek (Peek_Text_Text q z) = Peek_Branding_Text (Path_Branding_View q) z
+                                                                                               in Node (Peek_Branding_Text _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Text])
+                                               _ -> []) (paths _s (Proxy :: Proxy Text)) :: Forest (Peek Branding)
+          peekRow _s = concatMap (\pth -> case pth of
+                                              _pp@(Path_Branding_View _wp) -> map (\a -> Peek_Branding_Text _pp (Just a)) (toListOf (toLens _pp) _s :: [Text])
+                                              _ -> []) (paths _s (Proxy :: Proxy Text)) :: [Peek Branding]
+instance PathStart MarkupPair
+    where data Peek MarkupPair
+              = Peek_MarkupPair_JSONText (Path MarkupPair JSONText) (Maybe JSONText)
+              | Peek_MarkupPair_Markup (Path MarkupPair Markup) (Maybe Markup)
+              | Peek_MarkupPair_MarkupPair (Path MarkupPair MarkupPair) (Maybe MarkupPair)
+              | Peek_MarkupPair_Text (Path MarkupPair Text) (Maybe Text)
+              deriving (Eq, Show)
+          peekTree _s = mconcat [concatMap (\pth -> case pth of
+                                                        _pp@(Path_First _wp) -> map (\a -> let f = peekTree a
+                                                                                            in let liftPeek (Peek_Markup_JSONText q z) = Peek_MarkupPair_JSONText (Path_First q) z
+                                                                                                   liftPeek (Peek_Markup_Markup q z) = Peek_MarkupPair_Markup (Path_First q) z
+                                                                                                   liftPeek (Peek_Markup_Text q z) = Peek_MarkupPair_Text (Path_First q) z
+                                                                                                in Node (Peek_MarkupPair_Markup _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
+                                                        _ -> []) (paths _s (Proxy :: Proxy Markup)),
+                                 concatMap (\pth -> case pth of
+                                                        _pp@(Path_Second _wp) -> map (\a -> let f = peekTree a
+                                                                                             in let liftPeek (Peek_Markup_JSONText q z) = Peek_MarkupPair_JSONText (Path_Second q) z
+                                                                                                    liftPeek (Peek_Markup_Markup q z) = Peek_MarkupPair_Markup (Path_Second q) z
+                                                                                                    liftPeek (Peek_Markup_Text q z) = Peek_MarkupPair_Text (Path_Second q) z
+                                                                                                 in Node (Peek_MarkupPair_Markup _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
+                                                        _ -> []) (paths _s (Proxy :: Proxy Markup))] :: Forest (Peek MarkupPair)
+          peekRow _s = mconcat [concatMap (\pth -> case pth of
+                                                       _pp@(Path_First _wp) -> map (\a -> Peek_MarkupPair_Markup _pp (Just a)) (toListOf (toLens _pp) _s :: [Markup])
+                                                       _ -> []) (paths _s (Proxy :: Proxy Markup)),
+                                concatMap (\pth -> case pth of
+                                                       _pp@(Path_Second _wp) -> map (\a -> Peek_MarkupPair_Markup _pp (Just a)) (toListOf (toLens _pp) _s :: [Markup])
+                                                       _ -> []) (paths _s (Proxy :: Proxy Markup))] :: [Peek MarkupPair]
+instance PathStart MarkupPairs
+    where data Peek MarkupPairs
+              = Peek_MarkupPairs_JSONText (Path MarkupPairs JSONText) (Maybe JSONText)
+              | Peek_MarkupPairs_Markup (Path MarkupPairs Markup) (Maybe Markup)
+              | Peek_MarkupPairs_MarkupPair (Path MarkupPairs MarkupPair) (Maybe MarkupPair)
+              | Peek_MarkupPairs_MarkupPairs (Path MarkupPairs MarkupPairs) (Maybe MarkupPairs)
+              | Peek_MarkupPairs_Text (Path MarkupPairs Text) (Maybe Text)
+              deriving (Eq, Show)
+          peekTree _s = concatMap (\pth -> case pth of
+                                               _pp@(Path_At _k _wp) -> map (\a -> let f = peekTree a
+                                                                                   in let liftPeek (Peek_MarkupPair_JSONText q z) = Peek_MarkupPairs_JSONText (Path_At _k q) z
+                                                                                          liftPeek (Peek_MarkupPair_Markup q z) = Peek_MarkupPairs_Markup (Path_At _k q) z
+                                                                                          liftPeek (Peek_MarkupPair_MarkupPair q z) = Peek_MarkupPairs_MarkupPair (Path_At _k q) z
+                                                                                          liftPeek (Peek_MarkupPair_Text q z) = Peek_MarkupPairs_Text (Path_At _k q) z
+                                                                                       in Node (Peek_MarkupPairs_MarkupPair _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [MarkupPair])
+                                               _ -> []) (paths _s (Proxy :: Proxy MarkupPair)) :: Forest (Peek MarkupPairs)
+          peekRow _s = concatMap (\pth -> case pth of
+                                              _pp@(Path_At _k _wp) -> map (\a -> Peek_MarkupPairs_MarkupPair _pp (Just a)) (toListOf (toLens _pp) _s :: [MarkupPair])
+                                              _ -> []) (paths _s (Proxy :: Proxy MarkupPair)) :: [Peek MarkupPairs]
+instance PathStart Markups
+    where data Peek Markups
+              = Peek_Markups_JSONText (Path Markups JSONText) (Maybe JSONText)
+              | Peek_Markups_Markup (Path Markups Markup) (Maybe Markup)
+              | Peek_Markups_Markups (Path Markups Markups) (Maybe Markups)
+              | Peek_Markups_Text (Path Markups Text) (Maybe Text)
+              deriving (Eq, Show)
+          peekTree _s = concatMap (\pth -> case pth of
+                                               _pp@(Path_At _k _wp) -> map (\a -> let f = peekTree a
+                                                                                   in let liftPeek (Peek_Markup_JSONText q z) = Peek_Markups_JSONText (Path_At _k q) z
+                                                                                          liftPeek (Peek_Markup_Markup q z) = Peek_Markups_Markup (Path_At _k q) z
+                                                                                          liftPeek (Peek_Markup_Text q z) = Peek_Markups_Text (Path_At _k q) z
+                                                                                       in Node (Peek_Markups_Markup _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
+                                               _ -> []) (paths _s (Proxy :: Proxy Markup)) :: Forest (Peek Markups)
+          peekRow _s = concatMap (\pth -> case pth of
+                                              _pp@(Path_At _k _wp) -> map (\a -> Peek_Markups_Markup _pp (Just a)) (toListOf (toLens _pp) _s :: [Markup])
+                                              _ -> []) (paths _s (Proxy :: Proxy Markup)) :: [Peek Markups]
+instance PathStart MaybeReportIntendedUse
+    where data Peek MaybeReportIntendedUse
+              = Peek_MaybeReportIntendedUse_String (Path MaybeReportIntendedUse String) (Maybe String)
+              | Peek_MaybeReportIntendedUse_JSONText (Path MaybeReportIntendedUse JSONText) (Maybe JSONText)
+              | Peek_MaybeReportIntendedUse_MaybeReportIntendedUse (Path MaybeReportIntendedUse MaybeReportIntendedUse) (Maybe MaybeReportIntendedUse)
+              deriving (Eq, Show)
+          peekTree _s = concatMap (\pth -> case pth of
+                                               _pp@(Path_MaybeReportIntendedUse_View _wp) -> map (\a -> let f = peekTree a
+                                                                                                         in let liftPeek (Peek_String_String q z) = Peek_MaybeReportIntendedUse_String (Path_MaybeReportIntendedUse_View q) z
+                                                                                                                liftPeek (Peek_String_JSONText q z) = Peek_MaybeReportIntendedUse_JSONText (Path_MaybeReportIntendedUse_View q) z
+                                                                                                             in Node (Peek_MaybeReportIntendedUse_String _pp (if null f
+                                                                                                                                                               then Just a
+                                                                                                                                                               else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [String])
+                                               _ -> []) (paths _s (Proxy :: Proxy String)) :: Forest (Peek MaybeReportIntendedUse)
+          peekRow _s = concatMap (\pth -> case pth of
+                                              _pp@(Path_MaybeReportIntendedUse_View _wp) -> map (\a -> Peek_MaybeReportIntendedUse_String _pp (Just a)) (toListOf (toLens _pp) _s :: [String])
+                                              _ -> []) (paths _s (Proxy :: Proxy String)) :: [Peek MaybeReportIntendedUse]
 instance PathStart Report
     where data Peek Report
-              = Peek_Report_String (Path Report ([Char])) (Maybe ([Char]))
+              = Peek_Report_String (Path Report String) (Maybe String)
               | Peek_Report_Int64 (Path Report Int64) (Maybe Int64)
               | Peek_Report_Int (Path Report Int) (Maybe Int)
               | Peek_Report_Bool (Path Report Bool) (Maybe Bool)
@@ -10612,98 +10785,98 @@ instance PathStart Report
               | Peek_Report_JSONText (Path Report JSONText) (Maybe JSONText)
               | Peek_Report_Markup (Path Report Markup) (Maybe Markup)
               | Peek_Report_Permissions (Path Report Permissions) (Maybe Permissions)
-              | Peek_Report_UserIds (Path Report ([UserId])) (Maybe ([UserId]))
-              | Peek_Report_AbbrevPair (Path Report ((CIString, Markup))) (Maybe ((CIString, Markup)))
-              | Peek_Report_AbbrevPairs (Path Report (Order AbbrevPairID ((CIString, Markup)))) (Maybe (Order AbbrevPairID ((CIString, Markup))))
+              | Peek_Report_UserIds (Path Report UserIds) (Maybe UserIds)
+              | Peek_Report_AbbrevPair (Path Report AbbrevPair) (Maybe AbbrevPair)
+              | Peek_Report_AbbrevPairs (Path Report AbbrevPairs) (Maybe AbbrevPairs)
               | Peek_Report_Author (Path Report Author) (Maybe Author)
-              | Peek_Report_Authors (Path Report (Order AuthorID Author)) (Maybe (Order AuthorID Author))
+              | Peek_Report_Authors (Path Report Authors) (Maybe Authors)
               | Peek_Report_Branding (Path Report Branding) (Maybe Branding)
-              | Peek_Report_MarkupPair (Path Report ((Markup, Markup))) (Maybe ((Markup, Markup)))
-              | Peek_Report_MarkupPairs (Path Report (Order MarkupPairID ((Markup, Markup)))) (Maybe (Order MarkupPairID ((Markup, Markup))))
-              | Peek_Report_Markups (Path Report (Order MarkupID Markup)) (Maybe (Order MarkupID Markup))
-              | Peek_Report_MaybeReportIntendedUse (Path Report (Maybe ReportIntendedUse)) (Maybe (Maybe ReportIntendedUse))
+              | Peek_Report_MarkupPair (Path Report MarkupPair) (Maybe MarkupPair)
+              | Peek_Report_MarkupPairs (Path Report MarkupPairs) (Maybe MarkupPairs)
+              | Peek_Report_Markups (Path Report Markups) (Maybe Markups)
+              | Peek_Report_MaybeReportIntendedUse (Path Report MaybeReportIntendedUse) (Maybe MaybeReportIntendedUse)
               | Peek_Report_Report (Path Report Report) (Maybe Report)
               | Peek_Report_ReportElem (Path Report ReportElem) (Maybe ReportElem)
-              | Peek_Report_ReportElems (Path Report (Order ReportElemID ReportElem)) (Maybe (Order ReportElemID ReportElem))
+              | Peek_Report_ReportElems (Path Report ReportElems) (Maybe ReportElems)
               | Peek_Report_ReportFlags (Path Report ReportFlags) (Maybe ReportFlags)
               | Peek_Report_ReportStandard (Path Report ReportStandard) (Maybe ReportStandard)
               | Peek_Report_ReportStatus (Path Report ReportStatus) (Maybe ReportStatus)
               | Peek_Report_ReportValueApproachInfo (Path Report ReportValueApproachInfo) (Maybe ReportValueApproachInfo)
               | Peek_Report_ReportValueTypeInfo (Path Report ReportValueTypeInfo) (Maybe ReportValueTypeInfo)
-              | Peek_Report_EUI (Path Report (Either URI ImageFile)) (Maybe (Either URI ImageFile))
-              | Peek_Report_MEUI (Path Report (Maybe (Either URI ImageFile))) (Maybe (Maybe (Either URI ImageFile)))
-              | Peek_Report_MaybeImageFile (Path Report (Maybe ImageFile)) (Maybe (Maybe ImageFile))
+              | Peek_Report_EUI (Path Report EUI) (Maybe EUI)
+              | Peek_Report_MEUI (Path Report MEUI) (Maybe MEUI)
+              | Peek_Report_MaybeImageFile (Path Report MaybeImageFile) (Maybe MaybeImageFile)
               | Peek_Report_ReportImage (Path Report ReportImage) (Maybe ReportImage)
-              | Peek_Report_ReportImages (Path Report (Order ReportImageID ReportImage)) (Maybe (Order ReportImageID ReportImage))
-              | Peek_Report_ReadOnlyFilePath (Path Report (ReadOnly ([Char]))) (Maybe (ReadOnly ([Char])))
+              | Peek_Report_ReportImages (Path Report ReportImages) (Maybe ReportImages)
+              | Peek_Report_ReadOnlyFilePath (Path Report ReadOnlyFilePath) (Maybe ReadOnlyFilePath)
               | Peek_Report_ReportImageView (Path Report ReportImageView) (Maybe ReportImageView)
               | Peek_Report_ReportView (Path Report ReportView) (Maybe ReportView)
-              | Peek_Report_SaneSizeImageSize (Path Report (SaneSize ImageSize)) (Maybe (SaneSize ImageSize))
+              | Peek_Report_SaneSizeImageSize (Path Report SaneSizeImageSize) (Maybe SaneSizeImageSize)
               | Peek_Report_Item (Path Report Item) (Maybe Item)
-              | Peek_Report_MIM (Path Report (Map ItemFieldName Markup)) (Maybe (Map ItemFieldName Markup))
+              | Peek_Report_MIM (Path Report MIM) (Maybe MIM)
               | Peek_Report_CIString (Path Report CIString) (Maybe CIString)
               | Peek_Report_URI (Path Report URI) (Maybe URI)
               | Peek_Report_Text (Path Report Text) (Maybe Text)
               | Peek_Report_UserId (Path Report UserId) (Maybe UserId)
               | Peek_Report_UUID (Path Report UUID) (Maybe UUID)
               deriving (Eq, Show)
-          peek _s = concatMap (\pth -> case pth of
-                                           _pp@(Path_Report_View _wp) -> map (\a -> let f = peek a
-                                                                                     in let liftPeek (Peek_ReportView_String q z) = Peek_Report_String (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_Int64 q z) = Peek_Report_Int64 (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_Int q z) = Peek_Report_Int (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_Bool q z) = Peek_Report_Bool (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_Double q z) = Peek_Report_Double (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_Dimension q z) = Peek_Report_Dimension (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_ImageCrop q z) = Peek_Report_ImageCrop (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_ImageSize q z) = Peek_Report_ImageSize (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_Units q z) = Peek_Report_Units (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_ImageFile q z) = Peek_Report_ImageFile (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_Integer q z) = Peek_Report_Integer (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_JSONText q z) = Peek_Report_JSONText (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_Markup q z) = Peek_Report_Markup (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_Permissions q z) = Peek_Report_Permissions (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_UserIds q z) = Peek_Report_UserIds (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_AbbrevPair q z) = Peek_Report_AbbrevPair (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_AbbrevPairs q z) = Peek_Report_AbbrevPairs (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_Author q z) = Peek_Report_Author (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_Authors q z) = Peek_Report_Authors (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_Branding q z) = Peek_Report_Branding (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_MarkupPair q z) = Peek_Report_MarkupPair (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_MarkupPairs q z) = Peek_Report_MarkupPairs (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_Markups q z) = Peek_Report_Markups (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_MaybeReportIntendedUse q z) = Peek_Report_MaybeReportIntendedUse (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_ReportElem q z) = Peek_Report_ReportElem (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_ReportElems q z) = Peek_Report_ReportElems (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_ReportFlags q z) = Peek_Report_ReportFlags (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_ReportStandard q z) = Peek_Report_ReportStandard (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_ReportStatus q z) = Peek_Report_ReportStatus (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_ReportValueApproachInfo q z) = Peek_Report_ReportValueApproachInfo (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_ReportValueTypeInfo q z) = Peek_Report_ReportValueTypeInfo (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_EUI q z) = Peek_Report_EUI (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_MEUI q z) = Peek_Report_MEUI (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_MaybeImageFile q z) = Peek_Report_MaybeImageFile (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_ReportImage q z) = Peek_Report_ReportImage (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_ReportImages q z) = Peek_Report_ReportImages (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_ReadOnlyFilePath q z) = Peek_Report_ReadOnlyFilePath (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_ReportImageView q z) = Peek_Report_ReportImageView (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_ReportView q z) = Peek_Report_ReportView (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_SaneSizeImageSize q z) = Peek_Report_SaneSizeImageSize (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_Item q z) = Peek_Report_Item (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_MIM q z) = Peek_Report_MIM (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_CIString q z) = Peek_Report_CIString (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_URI q z) = Peek_Report_URI (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_Text q z) = Peek_Report_Text (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_UserId q z) = Peek_Report_UserId (Path_Report_View q) z
-                                                                                            liftPeek (Peek_ReportView_UUID q z) = Peek_Report_UUID (Path_Report_View q) z
-                                                                                         in Node (Peek_Report_ReportView _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [ReportView])
-                                           _ -> []) (paths _s (Proxy :: Proxy ReportView)) :: Forest (Peek Report)
-          hop _s = concatMap (\pth -> case pth of
-                                          _pp@(Path_Report_View _wp) -> map (\a -> Node (Peek_Report_ReportView _pp (Just a)) []) (toListOf (toLens _pp) _s :: [ReportView])
-                                          _ -> []) (paths _s (Proxy :: Proxy ReportView)) :: Forest (Peek Report)
+          peekTree _s = concatMap (\pth -> case pth of
+                                               _pp@(Path_Report_View _wp) -> map (\a -> let f = peekTree a
+                                                                                         in let liftPeek (Peek_ReportView_String q z) = Peek_Report_String (Path_Report_View q) z
+                                                                                                liftPeek (Peek_ReportView_Int64 q z) = Peek_Report_Int64 (Path_Report_View q) z
+                                                                                                liftPeek (Peek_ReportView_Int q z) = Peek_Report_Int (Path_Report_View q) z
+                                                                                                liftPeek (Peek_ReportView_Bool q z) = Peek_Report_Bool (Path_Report_View q) z
+                                                                                                liftPeek (Peek_ReportView_Double q z) = Peek_Report_Double (Path_Report_View q) z
+                                                                                                liftPeek (Peek_ReportView_Dimension q z) = Peek_Report_Dimension (Path_Report_View q) z
+                                                                                                liftPeek (Peek_ReportView_ImageCrop q z) = Peek_Report_ImageCrop (Path_Report_View q) z
+                                                                                                liftPeek (Peek_ReportView_ImageSize q z) = Peek_Report_ImageSize (Path_Report_View q) z
+                                                                                                liftPeek (Peek_ReportView_Units q z) = Peek_Report_Units (Path_Report_View q) z
+                                                                                                liftPeek (Peek_ReportView_ImageFile q z) = Peek_Report_ImageFile (Path_Report_View q) z
+                                                                                                liftPeek (Peek_ReportView_Integer q z) = Peek_Report_Integer (Path_Report_View q) z
+                                                                                                liftPeek (Peek_ReportView_JSONText q z) = Peek_Report_JSONText (Path_Report_View q) z
+                                                                                                liftPeek (Peek_ReportView_Markup q z) = Peek_Report_Markup (Path_Report_View q) z
+                                                                                                liftPeek (Peek_ReportView_Permissions q z) = Peek_Report_Permissions (Path_Report_View q) z
+                                                                                                liftPeek (Peek_ReportView_UserIds q z) = Peek_Report_UserIds (Path_Report_View q) z
+                                                                                                liftPeek (Peek_ReportView_AbbrevPair q z) = Peek_Report_AbbrevPair (Path_Report_View q) z
+                                                                                                liftPeek (Peek_ReportView_AbbrevPairs q z) = Peek_Report_AbbrevPairs (Path_Report_View q) z
+                                                                                                liftPeek (Peek_ReportView_Author q z) = Peek_Report_Author (Path_Report_View q) z
+                                                                                                liftPeek (Peek_ReportView_Authors q z) = Peek_Report_Authors (Path_Report_View q) z
+                                                                                                liftPeek (Peek_ReportView_Branding q z) = Peek_Report_Branding (Path_Report_View q) z
+                                                                                                liftPeek (Peek_ReportView_MarkupPair q z) = Peek_Report_MarkupPair (Path_Report_View q) z
+                                                                                                liftPeek (Peek_ReportView_MarkupPairs q z) = Peek_Report_MarkupPairs (Path_Report_View q) z
+                                                                                                liftPeek (Peek_ReportView_Markups q z) = Peek_Report_Markups (Path_Report_View q) z
+                                                                                                liftPeek (Peek_ReportView_MaybeReportIntendedUse q z) = Peek_Report_MaybeReportIntendedUse (Path_Report_View q) z
+                                                                                                liftPeek (Peek_ReportView_ReportElem q z) = Peek_Report_ReportElem (Path_Report_View q) z
+                                                                                                liftPeek (Peek_ReportView_ReportElems q z) = Peek_Report_ReportElems (Path_Report_View q) z
+                                                                                                liftPeek (Peek_ReportView_ReportFlags q z) = Peek_Report_ReportFlags (Path_Report_View q) z
+                                                                                                liftPeek (Peek_ReportView_ReportStandard q z) = Peek_Report_ReportStandard (Path_Report_View q) z
+                                                                                                liftPeek (Peek_ReportView_ReportStatus q z) = Peek_Report_ReportStatus (Path_Report_View q) z
+                                                                                                liftPeek (Peek_ReportView_ReportValueApproachInfo q z) = Peek_Report_ReportValueApproachInfo (Path_Report_View q) z
+                                                                                                liftPeek (Peek_ReportView_ReportValueTypeInfo q z) = Peek_Report_ReportValueTypeInfo (Path_Report_View q) z
+                                                                                                liftPeek (Peek_ReportView_EUI q z) = Peek_Report_EUI (Path_Report_View q) z
+                                                                                                liftPeek (Peek_ReportView_MEUI q z) = Peek_Report_MEUI (Path_Report_View q) z
+                                                                                                liftPeek (Peek_ReportView_MaybeImageFile q z) = Peek_Report_MaybeImageFile (Path_Report_View q) z
+                                                                                                liftPeek (Peek_ReportView_ReportImage q z) = Peek_Report_ReportImage (Path_Report_View q) z
+                                                                                                liftPeek (Peek_ReportView_ReportImages q z) = Peek_Report_ReportImages (Path_Report_View q) z
+                                                                                                liftPeek (Peek_ReportView_ReadOnlyFilePath q z) = Peek_Report_ReadOnlyFilePath (Path_Report_View q) z
+                                                                                                liftPeek (Peek_ReportView_ReportImageView q z) = Peek_Report_ReportImageView (Path_Report_View q) z
+                                                                                                liftPeek (Peek_ReportView_ReportView q z) = Peek_Report_ReportView (Path_Report_View q) z
+                                                                                                liftPeek (Peek_ReportView_SaneSizeImageSize q z) = Peek_Report_SaneSizeImageSize (Path_Report_View q) z
+                                                                                                liftPeek (Peek_ReportView_Item q z) = Peek_Report_Item (Path_Report_View q) z
+                                                                                                liftPeek (Peek_ReportView_MIM q z) = Peek_Report_MIM (Path_Report_View q) z
+                                                                                                liftPeek (Peek_ReportView_CIString q z) = Peek_Report_CIString (Path_Report_View q) z
+                                                                                                liftPeek (Peek_ReportView_URI q z) = Peek_Report_URI (Path_Report_View q) z
+                                                                                                liftPeek (Peek_ReportView_Text q z) = Peek_Report_Text (Path_Report_View q) z
+                                                                                                liftPeek (Peek_ReportView_UserId q z) = Peek_Report_UserId (Path_Report_View q) z
+                                                                                                liftPeek (Peek_ReportView_UUID q z) = Peek_Report_UUID (Path_Report_View q) z
+                                                                                             in Node (Peek_Report_ReportView _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [ReportView])
+                                               _ -> []) (paths _s (Proxy :: Proxy ReportView)) :: Forest (Peek Report)
+          peekRow _s = concatMap (\pth -> case pth of
+                                              _pp@(Path_Report_View _wp) -> map (\a -> Peek_Report_ReportView _pp (Just a)) (toListOf (toLens _pp) _s :: [ReportView])
+                                              _ -> []) (paths _s (Proxy :: Proxy ReportView)) :: [Peek Report]
 instance PathStart ReportElem
     where data Peek ReportElem
-              = Peek_ReportElem_String (Path ReportElem ([Char])) (Maybe ([Char]))
+              = Peek_ReportElem_String (Path ReportElem String) (Maybe String)
               | Peek_ReportElem_Bool (Path ReportElem Bool) (Maybe Bool)
               | Peek_ReportElem_Double (Path ReportElem Double) (Maybe Double)
               | Peek_ReportElem_Dimension (Path ReportElem Dimension) (Maybe Dimension)
@@ -10714,123 +10887,180 @@ instance PathStart ReportElem
               | Peek_ReportElem_JSONText (Path ReportElem JSONText) (Maybe JSONText)
               | Peek_ReportElem_Markup (Path ReportElem Markup) (Maybe Markup)
               | Peek_ReportElem_ReportElem (Path ReportElem ReportElem) (Maybe ReportElem)
-              | Peek_ReportElem_EUI (Path ReportElem (Either URI ImageFile)) (Maybe (Either URI ImageFile))
-              | Peek_ReportElem_MEUI (Path ReportElem (Maybe (Either URI ImageFile))) (Maybe (Maybe (Either URI ImageFile)))
-              | Peek_ReportElem_MaybeImageFile (Path ReportElem (Maybe ImageFile)) (Maybe (Maybe ImageFile))
+              | Peek_ReportElem_EUI (Path ReportElem EUI) (Maybe EUI)
+              | Peek_ReportElem_MEUI (Path ReportElem MEUI) (Maybe MEUI)
+              | Peek_ReportElem_MaybeImageFile (Path ReportElem MaybeImageFile) (Maybe MaybeImageFile)
               | Peek_ReportElem_ReportImage (Path ReportElem ReportImage) (Maybe ReportImage)
-              | Peek_ReportElem_ReportImages (Path ReportElem (Order ReportImageID ReportImage)) (Maybe (Order ReportImageID ReportImage))
+              | Peek_ReportElem_ReportImages (Path ReportElem ReportImages) (Maybe ReportImages)
               | Peek_ReportElem_ReportImageView (Path ReportElem ReportImageView) (Maybe ReportImageView)
-              | Peek_ReportElem_SaneSizeImageSize (Path ReportElem (SaneSize ImageSize)) (Maybe (SaneSize ImageSize))
+              | Peek_ReportElem_SaneSizeImageSize (Path ReportElem SaneSizeImageSize) (Maybe SaneSizeImageSize)
               | Peek_ReportElem_Item (Path ReportElem Item) (Maybe Item)
-              | Peek_ReportElem_MIM (Path ReportElem (Map ItemFieldName Markup)) (Maybe (Map ItemFieldName Markup))
+              | Peek_ReportElem_MIM (Path ReportElem MIM) (Maybe MIM)
               | Peek_ReportElem_URI (Path ReportElem URI) (Maybe URI)
               | Peek_ReportElem_Text (Path ReportElem Text) (Maybe Text)
               deriving (Eq, Show)
-          peek (_s@(ReportItem {})) = concatMap (\pth -> case pth of
-                                                             _pp@(Path_ReportElem_elemItem _wp) -> map (\a -> let f = peek a
-                                                                                                               in let liftPeek (Peek_Item_String q z) = Peek_ReportElem_String (Path_ReportElem_elemItem q) z
-                                                                                                                      liftPeek (Peek_Item_Bool q z) = Peek_ReportElem_Bool (Path_ReportElem_elemItem q) z
-                                                                                                                      liftPeek (Peek_Item_Double q z) = Peek_ReportElem_Double (Path_ReportElem_elemItem q) z
-                                                                                                                      liftPeek (Peek_Item_Dimension q z) = Peek_ReportElem_Dimension (Path_ReportElem_elemItem q) z
-                                                                                                                      liftPeek (Peek_Item_ImageCrop q z) = Peek_ReportElem_ImageCrop (Path_ReportElem_elemItem q) z
-                                                                                                                      liftPeek (Peek_Item_ImageSize q z) = Peek_ReportElem_ImageSize (Path_ReportElem_elemItem q) z
-                                                                                                                      liftPeek (Peek_Item_Units q z) = Peek_ReportElem_Units (Path_ReportElem_elemItem q) z
-                                                                                                                      liftPeek (Peek_Item_ImageFile q z) = Peek_ReportElem_ImageFile (Path_ReportElem_elemItem q) z
-                                                                                                                      liftPeek (Peek_Item_JSONText q z) = Peek_ReportElem_JSONText (Path_ReportElem_elemItem q) z
-                                                                                                                      liftPeek (Peek_Item_Markup q z) = Peek_ReportElem_Markup (Path_ReportElem_elemItem q) z
-                                                                                                                      liftPeek (Peek_Item_EUI q z) = Peek_ReportElem_EUI (Path_ReportElem_elemItem q) z
-                                                                                                                      liftPeek (Peek_Item_MEUI q z) = Peek_ReportElem_MEUI (Path_ReportElem_elemItem q) z
-                                                                                                                      liftPeek (Peek_Item_MaybeImageFile q z) = Peek_ReportElem_MaybeImageFile (Path_ReportElem_elemItem q) z
-                                                                                                                      liftPeek (Peek_Item_ReportImage q z) = Peek_ReportElem_ReportImage (Path_ReportElem_elemItem q) z
-                                                                                                                      liftPeek (Peek_Item_ReportImages q z) = Peek_ReportElem_ReportImages (Path_ReportElem_elemItem q) z
-                                                                                                                      liftPeek (Peek_Item_ReportImageView q z) = Peek_ReportElem_ReportImageView (Path_ReportElem_elemItem q) z
-                                                                                                                      liftPeek (Peek_Item_SaneSizeImageSize q z) = Peek_ReportElem_SaneSizeImageSize (Path_ReportElem_elemItem q) z
-                                                                                                                      liftPeek (Peek_Item_Item q z) = Peek_ReportElem_Item (Path_ReportElem_elemItem q) z
-                                                                                                                      liftPeek (Peek_Item_MIM q z) = Peek_ReportElem_MIM (Path_ReportElem_elemItem q) z
-                                                                                                                      liftPeek (Peek_Item_URI q z) = Peek_ReportElem_URI (Path_ReportElem_elemItem q) z
-                                                                                                                      liftPeek (Peek_Item_Text q z) = Peek_ReportElem_Text (Path_ReportElem_elemItem q) z
-                                                                                                                   in Node (Peek_ReportElem_Item _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Item])
-                                                             _ -> []) (paths _s (Proxy :: Proxy Item)) :: Forest (Peek ReportElem)
-          peek (_s@(ReportParagraph {})) = concatMap (\pth -> case pth of
-                                                                  _pp@(Path_ReportElem_elemText _wp) -> map (\a -> let f = peek a
-                                                                                                                    in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportElem_JSONText (Path_ReportElem_elemText q) z
-                                                                                                                           liftPeek (Peek_Markup_Markup q z) = Peek_ReportElem_Markup (Path_ReportElem_elemText q) z
-                                                                                                                           liftPeek (Peek_Markup_Text q z) = Peek_ReportElem_Text (Path_ReportElem_elemText q) z
-                                                                                                                        in Node (Peek_ReportElem_Markup _pp (if null f
-                                                                                                                                                              then Just a
-                                                                                                                                                              else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
-                                                                  _ -> []) (paths _s (Proxy :: Proxy Markup)) :: Forest (Peek ReportElem)
-          peek (_s@(ReportUndecided {})) = mempty :: Forest (Peek ReportElem)
-          hop (_s@(ReportItem {})) = concatMap (\pth -> case pth of
-                                                            _pp@(Path_ReportElem_elemItem _wp) -> map (\a -> Node (Peek_ReportElem_Item _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Item])
-                                                            _ -> []) (paths _s (Proxy :: Proxy Item)) :: Forest (Peek ReportElem)
-          hop (_s@(ReportParagraph {})) = concatMap (\pth -> case pth of
-                                                                 _pp@(Path_ReportElem_elemText _wp) -> map (\a -> Node (Peek_ReportElem_Markup _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Markup])
-                                                                 _ -> []) (paths _s (Proxy :: Proxy Markup)) :: Forest (Peek ReportElem)
-          hop (_s@(ReportUndecided {})) = mempty :: Forest (Peek ReportElem)
+          peekTree (_s@(ReportItem {})) = concatMap (\pth -> case pth of
+                                                                 _pp@(Path_ReportElem_elemItem _wp) -> map (\a -> let f = peekTree a
+                                                                                                                   in let liftPeek (Peek_Item_String q z) = Peek_ReportElem_String (Path_ReportElem_elemItem q) z
+                                                                                                                          liftPeek (Peek_Item_Bool q z) = Peek_ReportElem_Bool (Path_ReportElem_elemItem q) z
+                                                                                                                          liftPeek (Peek_Item_Double q z) = Peek_ReportElem_Double (Path_ReportElem_elemItem q) z
+                                                                                                                          liftPeek (Peek_Item_Dimension q z) = Peek_ReportElem_Dimension (Path_ReportElem_elemItem q) z
+                                                                                                                          liftPeek (Peek_Item_ImageCrop q z) = Peek_ReportElem_ImageCrop (Path_ReportElem_elemItem q) z
+                                                                                                                          liftPeek (Peek_Item_ImageSize q z) = Peek_ReportElem_ImageSize (Path_ReportElem_elemItem q) z
+                                                                                                                          liftPeek (Peek_Item_Units q z) = Peek_ReportElem_Units (Path_ReportElem_elemItem q) z
+                                                                                                                          liftPeek (Peek_Item_ImageFile q z) = Peek_ReportElem_ImageFile (Path_ReportElem_elemItem q) z
+                                                                                                                          liftPeek (Peek_Item_JSONText q z) = Peek_ReportElem_JSONText (Path_ReportElem_elemItem q) z
+                                                                                                                          liftPeek (Peek_Item_Markup q z) = Peek_ReportElem_Markup (Path_ReportElem_elemItem q) z
+                                                                                                                          liftPeek (Peek_Item_EUI q z) = Peek_ReportElem_EUI (Path_ReportElem_elemItem q) z
+                                                                                                                          liftPeek (Peek_Item_MEUI q z) = Peek_ReportElem_MEUI (Path_ReportElem_elemItem q) z
+                                                                                                                          liftPeek (Peek_Item_MaybeImageFile q z) = Peek_ReportElem_MaybeImageFile (Path_ReportElem_elemItem q) z
+                                                                                                                          liftPeek (Peek_Item_ReportImage q z) = Peek_ReportElem_ReportImage (Path_ReportElem_elemItem q) z
+                                                                                                                          liftPeek (Peek_Item_ReportImages q z) = Peek_ReportElem_ReportImages (Path_ReportElem_elemItem q) z
+                                                                                                                          liftPeek (Peek_Item_ReportImageView q z) = Peek_ReportElem_ReportImageView (Path_ReportElem_elemItem q) z
+                                                                                                                          liftPeek (Peek_Item_SaneSizeImageSize q z) = Peek_ReportElem_SaneSizeImageSize (Path_ReportElem_elemItem q) z
+                                                                                                                          liftPeek (Peek_Item_Item q z) = Peek_ReportElem_Item (Path_ReportElem_elemItem q) z
+                                                                                                                          liftPeek (Peek_Item_MIM q z) = Peek_ReportElem_MIM (Path_ReportElem_elemItem q) z
+                                                                                                                          liftPeek (Peek_Item_URI q z) = Peek_ReportElem_URI (Path_ReportElem_elemItem q) z
+                                                                                                                          liftPeek (Peek_Item_Text q z) = Peek_ReportElem_Text (Path_ReportElem_elemItem q) z
+                                                                                                                       in Node (Peek_ReportElem_Item _pp (if null f
+                                                                                                                                                           then Just a
+                                                                                                                                                           else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Item])
+                                                                 _ -> []) (paths _s (Proxy :: Proxy Item)) :: Forest (Peek ReportElem)
+          peekTree (_s@(ReportParagraph {})) = concatMap (\pth -> case pth of
+                                                                      _pp@(Path_ReportElem_elemText _wp) -> map (\a -> let f = peekTree a
+                                                                                                                        in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportElem_JSONText (Path_ReportElem_elemText q) z
+                                                                                                                               liftPeek (Peek_Markup_Markup q z) = Peek_ReportElem_Markup (Path_ReportElem_elemText q) z
+                                                                                                                               liftPeek (Peek_Markup_Text q z) = Peek_ReportElem_Text (Path_ReportElem_elemText q) z
+                                                                                                                            in Node (Peek_ReportElem_Markup _pp (if null f
+                                                                                                                                                                  then Just a
+                                                                                                                                                                  else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
+                                                                      _ -> []) (paths _s (Proxy :: Proxy Markup)) :: Forest (Peek ReportElem)
+          peekTree (_s@(ReportUndecided {})) = mempty :: Forest (Peek ReportElem)
+          peekRow (_s@(ReportItem {})) = concatMap (\pth -> case pth of
+                                                                _pp@(Path_ReportElem_elemItem _wp) -> map (\a -> Peek_ReportElem_Item _pp (Just a)) (toListOf (toLens _pp) _s :: [Item])
+                                                                _ -> []) (paths _s (Proxy :: Proxy Item)) :: [Peek ReportElem]
+          peekRow (_s@(ReportParagraph {})) = concatMap (\pth -> case pth of
+                                                                     _pp@(Path_ReportElem_elemText _wp) -> map (\a -> Peek_ReportElem_Markup _pp (Just a)) (toListOf (toLens _pp) _s :: [Markup])
+                                                                     _ -> []) (paths _s (Proxy :: Proxy Markup)) :: [Peek ReportElem]
+          peekRow (_s@(ReportUndecided {})) = mempty :: [Peek ReportElem]
+instance PathStart ReportElems
+    where data Peek ReportElems
+              = Peek_ReportElems_String (Path ReportElems String) (Maybe String)
+              | Peek_ReportElems_Bool (Path ReportElems Bool) (Maybe Bool)
+              | Peek_ReportElems_Double (Path ReportElems Double) (Maybe Double)
+              | Peek_ReportElems_Dimension (Path ReportElems Dimension) (Maybe Dimension)
+              | Peek_ReportElems_ImageCrop (Path ReportElems ImageCrop) (Maybe ImageCrop)
+              | Peek_ReportElems_ImageSize (Path ReportElems ImageSize) (Maybe ImageSize)
+              | Peek_ReportElems_Units (Path ReportElems Units) (Maybe Units)
+              | Peek_ReportElems_ImageFile (Path ReportElems ImageFile) (Maybe ImageFile)
+              | Peek_ReportElems_JSONText (Path ReportElems JSONText) (Maybe JSONText)
+              | Peek_ReportElems_Markup (Path ReportElems Markup) (Maybe Markup)
+              | Peek_ReportElems_ReportElem (Path ReportElems ReportElem) (Maybe ReportElem)
+              | Peek_ReportElems_ReportElems (Path ReportElems ReportElems) (Maybe ReportElems)
+              | Peek_ReportElems_EUI (Path ReportElems EUI) (Maybe EUI)
+              | Peek_ReportElems_MEUI (Path ReportElems MEUI) (Maybe MEUI)
+              | Peek_ReportElems_MaybeImageFile (Path ReportElems MaybeImageFile) (Maybe MaybeImageFile)
+              | Peek_ReportElems_ReportImage (Path ReportElems ReportImage) (Maybe ReportImage)
+              | Peek_ReportElems_ReportImages (Path ReportElems ReportImages) (Maybe ReportImages)
+              | Peek_ReportElems_ReportImageView (Path ReportElems ReportImageView) (Maybe ReportImageView)
+              | Peek_ReportElems_SaneSizeImageSize (Path ReportElems SaneSizeImageSize) (Maybe SaneSizeImageSize)
+              | Peek_ReportElems_Item (Path ReportElems Item) (Maybe Item)
+              | Peek_ReportElems_MIM (Path ReportElems MIM) (Maybe MIM)
+              | Peek_ReportElems_URI (Path ReportElems URI) (Maybe URI)
+              | Peek_ReportElems_Text (Path ReportElems Text) (Maybe Text)
+              deriving (Eq, Show)
+          peekTree _s = concatMap (\pth -> case pth of
+                                               _pp@(Path_At _k _wp) -> map (\a -> let f = peekTree a
+                                                                                   in let liftPeek (Peek_ReportElem_String q z) = Peek_ReportElems_String (Path_At _k q) z
+                                                                                          liftPeek (Peek_ReportElem_Bool q z) = Peek_ReportElems_Bool (Path_At _k q) z
+                                                                                          liftPeek (Peek_ReportElem_Double q z) = Peek_ReportElems_Double (Path_At _k q) z
+                                                                                          liftPeek (Peek_ReportElem_Dimension q z) = Peek_ReportElems_Dimension (Path_At _k q) z
+                                                                                          liftPeek (Peek_ReportElem_ImageCrop q z) = Peek_ReportElems_ImageCrop (Path_At _k q) z
+                                                                                          liftPeek (Peek_ReportElem_ImageSize q z) = Peek_ReportElems_ImageSize (Path_At _k q) z
+                                                                                          liftPeek (Peek_ReportElem_Units q z) = Peek_ReportElems_Units (Path_At _k q) z
+                                                                                          liftPeek (Peek_ReportElem_ImageFile q z) = Peek_ReportElems_ImageFile (Path_At _k q) z
+                                                                                          liftPeek (Peek_ReportElem_JSONText q z) = Peek_ReportElems_JSONText (Path_At _k q) z
+                                                                                          liftPeek (Peek_ReportElem_Markup q z) = Peek_ReportElems_Markup (Path_At _k q) z
+                                                                                          liftPeek (Peek_ReportElem_ReportElem q z) = Peek_ReportElems_ReportElem (Path_At _k q) z
+                                                                                          liftPeek (Peek_ReportElem_EUI q z) = Peek_ReportElems_EUI (Path_At _k q) z
+                                                                                          liftPeek (Peek_ReportElem_MEUI q z) = Peek_ReportElems_MEUI (Path_At _k q) z
+                                                                                          liftPeek (Peek_ReportElem_MaybeImageFile q z) = Peek_ReportElems_MaybeImageFile (Path_At _k q) z
+                                                                                          liftPeek (Peek_ReportElem_ReportImage q z) = Peek_ReportElems_ReportImage (Path_At _k q) z
+                                                                                          liftPeek (Peek_ReportElem_ReportImages q z) = Peek_ReportElems_ReportImages (Path_At _k q) z
+                                                                                          liftPeek (Peek_ReportElem_ReportImageView q z) = Peek_ReportElems_ReportImageView (Path_At _k q) z
+                                                                                          liftPeek (Peek_ReportElem_SaneSizeImageSize q z) = Peek_ReportElems_SaneSizeImageSize (Path_At _k q) z
+                                                                                          liftPeek (Peek_ReportElem_Item q z) = Peek_ReportElems_Item (Path_At _k q) z
+                                                                                          liftPeek (Peek_ReportElem_MIM q z) = Peek_ReportElems_MIM (Path_At _k q) z
+                                                                                          liftPeek (Peek_ReportElem_URI q z) = Peek_ReportElems_URI (Path_At _k q) z
+                                                                                          liftPeek (Peek_ReportElem_Text q z) = Peek_ReportElems_Text (Path_At _k q) z
+                                                                                       in Node (Peek_ReportElems_ReportElem _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [ReportElem])
+                                               _ -> []) (paths _s (Proxy :: Proxy ReportElem)) :: Forest (Peek ReportElems)
+          peekRow _s = concatMap (\pth -> case pth of
+                                              _pp@(Path_At _k _wp) -> map (\a -> Peek_ReportElems_ReportElem _pp (Just a)) (toListOf (toLens _pp) _s :: [ReportElem])
+                                              _ -> []) (paths _s (Proxy :: Proxy ReportElem)) :: [Peek ReportElems]
 instance PathStart ReportFlags
     where data Peek ReportFlags
-              = Peek_ReportFlags_String (Path ReportFlags ([Char])) (Maybe ([Char]))
+              = Peek_ReportFlags_String (Path ReportFlags String) (Maybe String)
               | Peek_ReportFlags_Bool (Path ReportFlags Bool) (Maybe Bool)
               | Peek_ReportFlags_JSONText (Path ReportFlags JSONText) (Maybe JSONText)
               | Peek_ReportFlags_ReportFlags (Path ReportFlags ReportFlags) (Maybe ReportFlags)
               deriving (Eq, Show)
-          peek (_s@(ReportFlags {})) = concatMap (\pth -> case pth of
-                                                              _pp@(Path_ReportFlags_hideEmptyItemFields _wp) -> map (\a -> let f = peek a
-                                                                                                                            in let liftPeek (Peek_Bool_String q z) = Peek_ReportFlags_String (Path_ReportFlags_hideEmptyItemFields q) z
-                                                                                                                                   liftPeek (Peek_Bool_Bool q z) = Peek_ReportFlags_Bool (Path_ReportFlags_hideEmptyItemFields q) z
-                                                                                                                                   liftPeek (Peek_Bool_JSONText q z) = Peek_ReportFlags_JSONText (Path_ReportFlags_hideEmptyItemFields q) z
-                                                                                                                                in Node (Peek_ReportFlags_Bool _pp (if null f
-                                                                                                                                                                     then Just a
-                                                                                                                                                                     else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Bool])
-                                                              _ -> []) (paths _s (Proxy :: Proxy Bool)) :: Forest (Peek ReportFlags)
-          hop (_s@(ReportFlags {})) = concatMap (\pth -> case pth of
-                                                             _pp@(Path_ReportFlags_hideEmptyItemFields _wp) -> map (\a -> Node (Peek_ReportFlags_Bool _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Bool])
-                                                             _ -> []) (paths _s (Proxy :: Proxy Bool)) :: Forest (Peek ReportFlags)
+          peekTree (_s@(ReportFlags {})) = concatMap (\pth -> case pth of
+                                                                  _pp@(Path_ReportFlags_hideEmptyItemFields _wp) -> map (\a -> let f = peekTree a
+                                                                                                                                in let liftPeek (Peek_Bool_String q z) = Peek_ReportFlags_String (Path_ReportFlags_hideEmptyItemFields q) z
+                                                                                                                                       liftPeek (Peek_Bool_Bool q z) = Peek_ReportFlags_Bool (Path_ReportFlags_hideEmptyItemFields q) z
+                                                                                                                                       liftPeek (Peek_Bool_JSONText q z) = Peek_ReportFlags_JSONText (Path_ReportFlags_hideEmptyItemFields q) z
+                                                                                                                                    in Node (Peek_ReportFlags_Bool _pp (if null f
+                                                                                                                                                                         then Just a
+                                                                                                                                                                         else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Bool])
+                                                                  _ -> []) (paths _s (Proxy :: Proxy Bool)) :: Forest (Peek ReportFlags)
+          peekRow (_s@(ReportFlags {})) = concatMap (\pth -> case pth of
+                                                                 _pp@(Path_ReportFlags_hideEmptyItemFields _wp) -> map (\a -> Peek_ReportFlags_Bool _pp (Just a)) (toListOf (toLens _pp) _s :: [Bool])
+                                                                 _ -> []) (paths _s (Proxy :: Proxy Bool)) :: [Peek ReportFlags]
 instance PathStart ReportIntendedUse
     where data Peek ReportIntendedUse
-              = Peek_ReportIntendedUse_String (Path ReportIntendedUse ([Char])) (Maybe ([Char]))
+              = Peek_ReportIntendedUse_String (Path ReportIntendedUse String) (Maybe String)
               | Peek_ReportIntendedUse_JSONText (Path ReportIntendedUse JSONText) (Maybe JSONText)
               | Peek_ReportIntendedUse_ReportIntendedUse (Path ReportIntendedUse ReportIntendedUse) (Maybe ReportIntendedUse)
               deriving (Eq, Show)
-          peek _s = concatMap (\pth -> case pth of
-                                           _pp@(Path_ReportIntendedUse_View _wp) -> map (\a -> let f = peek a
-                                                                                                in let liftPeek (Peek_String_String q z) = Peek_ReportIntendedUse_String (Path_ReportIntendedUse_View q) z
-                                                                                                       liftPeek (Peek_String_JSONText q z) = Peek_ReportIntendedUse_JSONText (Path_ReportIntendedUse_View q) z
-                                                                                                    in Node (Peek_ReportIntendedUse_String _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [[Char]])
-                                           _ -> []) (paths _s (Proxy :: Proxy ([Char]))) :: Forest (Peek ReportIntendedUse)
-          hop _s = concatMap (\pth -> case pth of
-                                          _pp@(Path_ReportIntendedUse_View _wp) -> map (\a -> Node (Peek_ReportIntendedUse_String _pp (Just a)) []) (toListOf (toLens _pp) _s :: [[Char]])
-                                          _ -> []) (paths _s (Proxy :: Proxy ([Char]))) :: Forest (Peek ReportIntendedUse)
+          peekTree _s = concatMap (\pth -> case pth of
+                                               _pp@(Path_ReportIntendedUse_View _wp) -> map (\a -> let f = peekTree a
+                                                                                                    in let liftPeek (Peek_String_String q z) = Peek_ReportIntendedUse_String (Path_ReportIntendedUse_View q) z
+                                                                                                           liftPeek (Peek_String_JSONText q z) = Peek_ReportIntendedUse_JSONText (Path_ReportIntendedUse_View q) z
+                                                                                                        in Node (Peek_ReportIntendedUse_String _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [String])
+                                               _ -> []) (paths _s (Proxy :: Proxy String)) :: Forest (Peek ReportIntendedUse)
+          peekRow _s = concatMap (\pth -> case pth of
+                                              _pp@(Path_ReportIntendedUse_View _wp) -> map (\a -> Peek_ReportIntendedUse_String _pp (Just a)) (toListOf (toLens _pp) _s :: [String])
+                                              _ -> []) (paths _s (Proxy :: Proxy String)) :: [Peek ReportIntendedUse]
 instance PathStart ReportStandard
     where data Peek ReportStandard
               = Peek_ReportStandard_Int (Path ReportStandard Int) (Maybe Int) | Peek_ReportStandard_ReportStandard (Path ReportStandard ReportStandard) (Maybe ReportStandard)
               deriving (Eq, Show)
-          peek (_s@(ReportStandard {})) = concatMap (\pth -> case pth of
-                                                                 _pp@(Path_ReportStandard_unReportStandard _wp) -> map (\a -> let f = peek a
-                                                                                                                               in let liftPeek (Peek_Int_Int q z) = Peek_ReportStandard_Int (Path_ReportStandard_unReportStandard q) z
-                                                                                                                                   in Node (Peek_ReportStandard_Int _pp (if null f
-                                                                                                                                                                          then Just a
-                                                                                                                                                                          else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Int])
-                                                                 _ -> []) (paths _s (Proxy :: Proxy Int)) :: Forest (Peek ReportStandard)
-          hop (_s@(ReportStandard {})) = concatMap (\pth -> case pth of
-                                                                _pp@(Path_ReportStandard_unReportStandard _wp) -> map (\a -> Node (Peek_ReportStandard_Int _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Int])
-                                                                _ -> []) (paths _s (Proxy :: Proxy Int)) :: Forest (Peek ReportStandard)
+          peekTree (_s@(ReportStandard {})) = concatMap (\pth -> case pth of
+                                                                     _pp@(Path_ReportStandard_unReportStandard _wp) -> map (\a -> let f = peekTree a
+                                                                                                                                   in let liftPeek (Peek_Int_Int q z) = Peek_ReportStandard_Int (Path_ReportStandard_unReportStandard q) z
+                                                                                                                                       in Node (Peek_ReportStandard_Int _pp (if null f
+                                                                                                                                                                              then Just a
+                                                                                                                                                                              else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Int])
+                                                                     _ -> []) (paths _s (Proxy :: Proxy Int)) :: Forest (Peek ReportStandard)
+          peekRow (_s@(ReportStandard {})) = concatMap (\pth -> case pth of
+                                                                    _pp@(Path_ReportStandard_unReportStandard _wp) -> map (\a -> Peek_ReportStandard_Int _pp (Just a)) (toListOf (toLens _pp) _s :: [Int])
+                                                                    _ -> []) (paths _s (Proxy :: Proxy Int)) :: [Peek ReportStandard]
 instance PathStart ReportStatus
     where data Peek ReportStatus
-              = Peek_ReportStatus_String (Path ReportStatus ([Char])) (Maybe ([Char]))
+              = Peek_ReportStatus_String (Path ReportStatus String) (Maybe String)
               | Peek_ReportStatus_JSONText (Path ReportStatus JSONText) (Maybe JSONText)
               | Peek_ReportStatus_ReportStatus (Path ReportStatus ReportStatus) (Maybe ReportStatus)
               deriving (Eq, Show)
-          peek _s = concatMap (\pth -> case pth of
-                                           _pp@(Path_ReportStatus_View _wp) -> map (\a -> let f = peek a
-                                                                                           in let liftPeek (Peek_String_String q z) = Peek_ReportStatus_String (Path_ReportStatus_View q) z
-                                                                                                  liftPeek (Peek_String_JSONText q z) = Peek_ReportStatus_JSONText (Path_ReportStatus_View q) z
-                                                                                               in Node (Peek_ReportStatus_String _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [[Char]])
-                                           _ -> []) (paths _s (Proxy :: Proxy ([Char]))) :: Forest (Peek ReportStatus)
-          hop _s = concatMap (\pth -> case pth of
-                                          _pp@(Path_ReportStatus_View _wp) -> map (\a -> Node (Peek_ReportStatus_String _pp (Just a)) []) (toListOf (toLens _pp) _s :: [[Char]])
-                                          _ -> []) (paths _s (Proxy :: Proxy ([Char]))) :: Forest (Peek ReportStatus)
+          peekTree _s = concatMap (\pth -> case pth of
+                                               _pp@(Path_ReportStatus_View _wp) -> map (\a -> let f = peekTree a
+                                                                                               in let liftPeek (Peek_String_String q z) = Peek_ReportStatus_String (Path_ReportStatus_View q) z
+                                                                                                      liftPeek (Peek_String_JSONText q z) = Peek_ReportStatus_JSONText (Path_ReportStatus_View q) z
+                                                                                                   in Node (Peek_ReportStatus_String _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [String])
+                                               _ -> []) (paths _s (Proxy :: Proxy String)) :: Forest (Peek ReportStatus)
+          peekRow _s = concatMap (\pth -> case pth of
+                                              _pp@(Path_ReportStatus_View _wp) -> map (\a -> Peek_ReportStatus_String _pp (Just a)) (toListOf (toLens _pp) _s :: [String])
+                                              _ -> []) (paths _s (Proxy :: Proxy String)) :: [Peek ReportStatus]
 instance PathStart ReportValueApproachInfo
     where data Peek ReportValueApproachInfo
               = Peek_ReportValueApproachInfo_JSONText (Path ReportValueApproachInfo JSONText) (Maybe JSONText)
@@ -10838,36 +11068,36 @@ instance PathStart ReportValueApproachInfo
               | Peek_ReportValueApproachInfo_ReportValueApproachInfo (Path ReportValueApproachInfo ReportValueApproachInfo) (Maybe ReportValueApproachInfo)
               | Peek_ReportValueApproachInfo_Text (Path ReportValueApproachInfo Text) (Maybe Text)
               deriving (Eq, Show)
-          peek (_s@(ReportValueApproachInfo {})) = mconcat [concatMap (\pth -> case pth of
-                                                                                   _pp@(Path_ReportValueApproachInfo_reportValueApproachName _wp) -> map (\a -> let f = peek a
-                                                                                                                                                                 in let liftPeek (Peek_Markup_JSONText q
-                                                                                                                                                                                                       z) = Peek_ReportValueApproachInfo_JSONText (Path_ReportValueApproachInfo_reportValueApproachName q) z
-                                                                                                                                                                        liftPeek (Peek_Markup_Markup q
-                                                                                                                                                                                                     z) = Peek_ReportValueApproachInfo_Markup (Path_ReportValueApproachInfo_reportValueApproachName q) z
-                                                                                                                                                                        liftPeek (Peek_Markup_Text q
-                                                                                                                                                                                                   z) = Peek_ReportValueApproachInfo_Text (Path_ReportValueApproachInfo_reportValueApproachName q) z
-                                                                                                                                                                     in Node (Peek_ReportValueApproachInfo_Markup _pp (if null f
-                                                                                                                                                                                                                        then Just a
-                                                                                                                                                                                                                        else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
-                                                                                   _ -> []) (paths _s (Proxy :: Proxy Markup)),
-                                                            concatMap (\pth -> case pth of
-                                                                                   _pp@(Path_ReportValueApproachInfo_reportValueApproachDescription _wp) -> map (\a -> let f = peek a
-                                                                                                                                                                        in let liftPeek (Peek_Markup_JSONText q
-                                                                                                                                                                                                              z) = Peek_ReportValueApproachInfo_JSONText (Path_ReportValueApproachInfo_reportValueApproachDescription q) z
-                                                                                                                                                                               liftPeek (Peek_Markup_Markup q
-                                                                                                                                                                                                            z) = Peek_ReportValueApproachInfo_Markup (Path_ReportValueApproachInfo_reportValueApproachDescription q) z
-                                                                                                                                                                               liftPeek (Peek_Markup_Text q
-                                                                                                                                                                                                          z) = Peek_ReportValueApproachInfo_Text (Path_ReportValueApproachInfo_reportValueApproachDescription q) z
-                                                                                                                                                                            in Node (Peek_ReportValueApproachInfo_Markup _pp (if null f
-                                                                                                                                                                                                                               then Just a
-                                                                                                                                                                                                                               else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
-                                                                                   _ -> []) (paths _s (Proxy :: Proxy Markup))] :: Forest (Peek ReportValueApproachInfo)
-          hop (_s@(ReportValueApproachInfo {})) = mconcat [concatMap (\pth -> case pth of
-                                                                                  _pp@(Path_ReportValueApproachInfo_reportValueApproachName _wp) -> map (\a -> Node (Peek_ReportValueApproachInfo_Markup _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Markup])
-                                                                                  _ -> []) (paths _s (Proxy :: Proxy Markup)),
-                                                           concatMap (\pth -> case pth of
-                                                                                  _pp@(Path_ReportValueApproachInfo_reportValueApproachDescription _wp) -> map (\a -> Node (Peek_ReportValueApproachInfo_Markup _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Markup])
-                                                                                  _ -> []) (paths _s (Proxy :: Proxy Markup))] :: Forest (Peek ReportValueApproachInfo)
+          peekTree (_s@(ReportValueApproachInfo {})) = mconcat [concatMap (\pth -> case pth of
+                                                                                       _pp@(Path_ReportValueApproachInfo_reportValueApproachName _wp) -> map (\a -> let f = peekTree a
+                                                                                                                                                                     in let liftPeek (Peek_Markup_JSONText q
+                                                                                                                                                                                                           z) = Peek_ReportValueApproachInfo_JSONText (Path_ReportValueApproachInfo_reportValueApproachName q) z
+                                                                                                                                                                            liftPeek (Peek_Markup_Markup q
+                                                                                                                                                                                                         z) = Peek_ReportValueApproachInfo_Markup (Path_ReportValueApproachInfo_reportValueApproachName q) z
+                                                                                                                                                                            liftPeek (Peek_Markup_Text q
+                                                                                                                                                                                                       z) = Peek_ReportValueApproachInfo_Text (Path_ReportValueApproachInfo_reportValueApproachName q) z
+                                                                                                                                                                         in Node (Peek_ReportValueApproachInfo_Markup _pp (if null f
+                                                                                                                                                                                                                            then Just a
+                                                                                                                                                                                                                            else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
+                                                                                       _ -> []) (paths _s (Proxy :: Proxy Markup)),
+                                                                concatMap (\pth -> case pth of
+                                                                                       _pp@(Path_ReportValueApproachInfo_reportValueApproachDescription _wp) -> map (\a -> let f = peekTree a
+                                                                                                                                                                            in let liftPeek (Peek_Markup_JSONText q
+                                                                                                                                                                                                                  z) = Peek_ReportValueApproachInfo_JSONText (Path_ReportValueApproachInfo_reportValueApproachDescription q) z
+                                                                                                                                                                                   liftPeek (Peek_Markup_Markup q
+                                                                                                                                                                                                                z) = Peek_ReportValueApproachInfo_Markup (Path_ReportValueApproachInfo_reportValueApproachDescription q) z
+                                                                                                                                                                                   liftPeek (Peek_Markup_Text q
+                                                                                                                                                                                                              z) = Peek_ReportValueApproachInfo_Text (Path_ReportValueApproachInfo_reportValueApproachDescription q) z
+                                                                                                                                                                                in Node (Peek_ReportValueApproachInfo_Markup _pp (if null f
+                                                                                                                                                                                                                                   then Just a
+                                                                                                                                                                                                                                   else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
+                                                                                       _ -> []) (paths _s (Proxy :: Proxy Markup))] :: Forest (Peek ReportValueApproachInfo)
+          peekRow (_s@(ReportValueApproachInfo {})) = mconcat [concatMap (\pth -> case pth of
+                                                                                      _pp@(Path_ReportValueApproachInfo_reportValueApproachName _wp) -> map (\a -> Peek_ReportValueApproachInfo_Markup _pp (Just a)) (toListOf (toLens _pp) _s :: [Markup])
+                                                                                      _ -> []) (paths _s (Proxy :: Proxy Markup)),
+                                                               concatMap (\pth -> case pth of
+                                                                                      _pp@(Path_ReportValueApproachInfo_reportValueApproachDescription _wp) -> map (\a -> Peek_ReportValueApproachInfo_Markup _pp (Just a)) (toListOf (toLens _pp) _s :: [Markup])
+                                                                                      _ -> []) (paths _s (Proxy :: Proxy Markup))] :: [Peek ReportValueApproachInfo]
 instance PathStart ReportValueTypeInfo
     where data Peek ReportValueTypeInfo
               = Peek_ReportValueTypeInfo_JSONText (Path ReportValueTypeInfo JSONText) (Maybe JSONText)
@@ -10875,54 +11105,106 @@ instance PathStart ReportValueTypeInfo
               | Peek_ReportValueTypeInfo_ReportValueTypeInfo (Path ReportValueTypeInfo ReportValueTypeInfo) (Maybe ReportValueTypeInfo)
               | Peek_ReportValueTypeInfo_Text (Path ReportValueTypeInfo Text) (Maybe Text)
               deriving (Eq, Show)
-          peek (_s@(ReportValueTypeInfo {})) = mconcat [concatMap (\pth -> case pth of
-                                                                               _pp@(Path_ReportValueTypeInfo_reportValueTypeName _wp) -> map (\a -> let f = peek a
-                                                                                                                                                     in let liftPeek (Peek_Markup_JSONText q
-                                                                                                                                                                                           z) = Peek_ReportValueTypeInfo_JSONText (Path_ReportValueTypeInfo_reportValueTypeName q) z
-                                                                                                                                                            liftPeek (Peek_Markup_Markup q
-                                                                                                                                                                                         z) = Peek_ReportValueTypeInfo_Markup (Path_ReportValueTypeInfo_reportValueTypeName q) z
-                                                                                                                                                            liftPeek (Peek_Markup_Text q
-                                                                                                                                                                                       z) = Peek_ReportValueTypeInfo_Text (Path_ReportValueTypeInfo_reportValueTypeName q) z
-                                                                                                                                                         in Node (Peek_ReportValueTypeInfo_Markup _pp (if null f
-                                                                                                                                                                                                        then Just a
-                                                                                                                                                                                                        else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
-                                                                               _ -> []) (paths _s (Proxy :: Proxy Markup)),
-                                                        concatMap (\pth -> case pth of
-                                                                               _pp@(Path_ReportValueTypeInfo_reportValueTypeDescription _wp) -> map (\a -> let f = peek a
-                                                                                                                                                            in let liftPeek (Peek_Markup_JSONText q
-                                                                                                                                                                                                  z) = Peek_ReportValueTypeInfo_JSONText (Path_ReportValueTypeInfo_reportValueTypeDescription q) z
-                                                                                                                                                                   liftPeek (Peek_Markup_Markup q
-                                                                                                                                                                                                z) = Peek_ReportValueTypeInfo_Markup (Path_ReportValueTypeInfo_reportValueTypeDescription q) z
-                                                                                                                                                                   liftPeek (Peek_Markup_Text q
-                                                                                                                                                                                              z) = Peek_ReportValueTypeInfo_Text (Path_ReportValueTypeInfo_reportValueTypeDescription q) z
-                                                                                                                                                                in Node (Peek_ReportValueTypeInfo_Markup _pp (if null f
-                                                                                                                                                                                                               then Just a
-                                                                                                                                                                                                               else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
-                                                                               _ -> []) (paths _s (Proxy :: Proxy Markup)),
-                                                        concatMap (\pth -> case pth of
-                                                                               _pp@(Path_ReportValueTypeInfo_reportValueTypeDefinition _wp) -> map (\a -> let f = peek a
-                                                                                                                                                           in let liftPeek (Peek_Markup_JSONText q
-                                                                                                                                                                                                 z) = Peek_ReportValueTypeInfo_JSONText (Path_ReportValueTypeInfo_reportValueTypeDefinition q) z
-                                                                                                                                                                  liftPeek (Peek_Markup_Markup q
-                                                                                                                                                                                               z) = Peek_ReportValueTypeInfo_Markup (Path_ReportValueTypeInfo_reportValueTypeDefinition q) z
-                                                                                                                                                                  liftPeek (Peek_Markup_Text q
-                                                                                                                                                                                             z) = Peek_ReportValueTypeInfo_Text (Path_ReportValueTypeInfo_reportValueTypeDefinition q) z
-                                                                                                                                                               in Node (Peek_ReportValueTypeInfo_Markup _pp (if null f
-                                                                                                                                                                                                              then Just a
-                                                                                                                                                                                                              else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
-                                                                               _ -> []) (paths _s (Proxy :: Proxy Markup))] :: Forest (Peek ReportValueTypeInfo)
-          hop (_s@(ReportValueTypeInfo {})) = mconcat [concatMap (\pth -> case pth of
-                                                                              _pp@(Path_ReportValueTypeInfo_reportValueTypeName _wp) -> map (\a -> Node (Peek_ReportValueTypeInfo_Markup _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Markup])
-                                                                              _ -> []) (paths _s (Proxy :: Proxy Markup)),
-                                                       concatMap (\pth -> case pth of
-                                                                              _pp@(Path_ReportValueTypeInfo_reportValueTypeDescription _wp) -> map (\a -> Node (Peek_ReportValueTypeInfo_Markup _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Markup])
-                                                                              _ -> []) (paths _s (Proxy :: Proxy Markup)),
-                                                       concatMap (\pth -> case pth of
-                                                                              _pp@(Path_ReportValueTypeInfo_reportValueTypeDefinition _wp) -> map (\a -> Node (Peek_ReportValueTypeInfo_Markup _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Markup])
-                                                                              _ -> []) (paths _s (Proxy :: Proxy Markup))] :: Forest (Peek ReportValueTypeInfo)
+          peekTree (_s@(ReportValueTypeInfo {})) = mconcat [concatMap (\pth -> case pth of
+                                                                                   _pp@(Path_ReportValueTypeInfo_reportValueTypeName _wp) -> map (\a -> let f = peekTree a
+                                                                                                                                                         in let liftPeek (Peek_Markup_JSONText q
+                                                                                                                                                                                               z) = Peek_ReportValueTypeInfo_JSONText (Path_ReportValueTypeInfo_reportValueTypeName q) z
+                                                                                                                                                                liftPeek (Peek_Markup_Markup q
+                                                                                                                                                                                             z) = Peek_ReportValueTypeInfo_Markup (Path_ReportValueTypeInfo_reportValueTypeName q) z
+                                                                                                                                                                liftPeek (Peek_Markup_Text q
+                                                                                                                                                                                           z) = Peek_ReportValueTypeInfo_Text (Path_ReportValueTypeInfo_reportValueTypeName q) z
+                                                                                                                                                             in Node (Peek_ReportValueTypeInfo_Markup _pp (if null f
+                                                                                                                                                                                                            then Just a
+                                                                                                                                                                                                            else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
+                                                                                   _ -> []) (paths _s (Proxy :: Proxy Markup)),
+                                                            concatMap (\pth -> case pth of
+                                                                                   _pp@(Path_ReportValueTypeInfo_reportValueTypeDescription _wp) -> map (\a -> let f = peekTree a
+                                                                                                                                                                in let liftPeek (Peek_Markup_JSONText q
+                                                                                                                                                                                                      z) = Peek_ReportValueTypeInfo_JSONText (Path_ReportValueTypeInfo_reportValueTypeDescription q) z
+                                                                                                                                                                       liftPeek (Peek_Markup_Markup q
+                                                                                                                                                                                                    z) = Peek_ReportValueTypeInfo_Markup (Path_ReportValueTypeInfo_reportValueTypeDescription q) z
+                                                                                                                                                                       liftPeek (Peek_Markup_Text q
+                                                                                                                                                                                                  z) = Peek_ReportValueTypeInfo_Text (Path_ReportValueTypeInfo_reportValueTypeDescription q) z
+                                                                                                                                                                    in Node (Peek_ReportValueTypeInfo_Markup _pp (if null f
+                                                                                                                                                                                                                   then Just a
+                                                                                                                                                                                                                   else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
+                                                                                   _ -> []) (paths _s (Proxy :: Proxy Markup)),
+                                                            concatMap (\pth -> case pth of
+                                                                                   _pp@(Path_ReportValueTypeInfo_reportValueTypeDefinition _wp) -> map (\a -> let f = peekTree a
+                                                                                                                                                               in let liftPeek (Peek_Markup_JSONText q
+                                                                                                                                                                                                     z) = Peek_ReportValueTypeInfo_JSONText (Path_ReportValueTypeInfo_reportValueTypeDefinition q) z
+                                                                                                                                                                      liftPeek (Peek_Markup_Markup q
+                                                                                                                                                                                                   z) = Peek_ReportValueTypeInfo_Markup (Path_ReportValueTypeInfo_reportValueTypeDefinition q) z
+                                                                                                                                                                      liftPeek (Peek_Markup_Text q
+                                                                                                                                                                                                 z) = Peek_ReportValueTypeInfo_Text (Path_ReportValueTypeInfo_reportValueTypeDefinition q) z
+                                                                                                                                                                   in Node (Peek_ReportValueTypeInfo_Markup _pp (if null f
+                                                                                                                                                                                                                  then Just a
+                                                                                                                                                                                                                  else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
+                                                                                   _ -> []) (paths _s (Proxy :: Proxy Markup))] :: Forest (Peek ReportValueTypeInfo)
+          peekRow (_s@(ReportValueTypeInfo {})) = mconcat [concatMap (\pth -> case pth of
+                                                                                  _pp@(Path_ReportValueTypeInfo_reportValueTypeName _wp) -> map (\a -> Peek_ReportValueTypeInfo_Markup _pp (Just a)) (toListOf (toLens _pp) _s :: [Markup])
+                                                                                  _ -> []) (paths _s (Proxy :: Proxy Markup)),
+                                                           concatMap (\pth -> case pth of
+                                                                                  _pp@(Path_ReportValueTypeInfo_reportValueTypeDescription _wp) -> map (\a -> Peek_ReportValueTypeInfo_Markup _pp (Just a)) (toListOf (toLens _pp) _s :: [Markup])
+                                                                                  _ -> []) (paths _s (Proxy :: Proxy Markup)),
+                                                           concatMap (\pth -> case pth of
+                                                                                  _pp@(Path_ReportValueTypeInfo_reportValueTypeDefinition _wp) -> map (\a -> Peek_ReportValueTypeInfo_Markup _pp (Just a)) (toListOf (toLens _pp) _s :: [Markup])
+                                                                                  _ -> []) (paths _s (Proxy :: Proxy Markup))] :: [Peek ReportValueTypeInfo]
+instance PathStart EUI
+    where data Peek EUI
+              = Peek_EUI_ImageFile (Path EUI ImageFile) (Maybe ImageFile) | Peek_EUI_EUI (Path EUI EUI) (Maybe EUI) | Peek_EUI_URI (Path EUI URI) (Maybe URI)
+              deriving (Eq, Show)
+          peekTree (_s@(Left _)) = concatMap (\pth -> case pth of
+                                                          _pp@(Path_Left _wp) -> map (\a -> let f = peekTree a
+                                                                                             in let liftPeek (Peek_URI_URI q z) = Peek_EUI_URI (Path_Left q) z
+                                                                                                 in Node (Peek_EUI_URI _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [URI])
+                                                          _ -> []) (paths _s (Proxy :: Proxy URI)) :: Forest (Peek EUI)
+          peekTree (_s@(Right _)) = concatMap (\pth -> case pth of
+                                                           _pp@(Path_Right _wp) -> map (\a -> let f = peekTree a
+                                                                                               in let liftPeek (Peek_ImageFile_ImageFile q z) = Peek_EUI_ImageFile (Path_Right q) z
+                                                                                                   in Node (Peek_EUI_ImageFile _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [ImageFile])
+                                                           _ -> []) (paths _s (Proxy :: Proxy ImageFile)) :: Forest (Peek EUI)
+          peekRow (_s@(Left _)) = concatMap (\pth -> case pth of
+                                                         _pp@(Path_Left _wp) -> map (\a -> Peek_EUI_URI _pp (Just a)) (toListOf (toLens _pp) _s :: [URI])
+                                                         _ -> []) (paths _s (Proxy :: Proxy URI)) :: [Peek EUI]
+          peekRow (_s@(Right _)) = concatMap (\pth -> case pth of
+                                                          _pp@(Path_Right _wp) -> map (\a -> Peek_EUI_ImageFile _pp (Just a)) (toListOf (toLens _pp) _s :: [ImageFile])
+                                                          _ -> []) (paths _s (Proxy :: Proxy ImageFile)) :: [Peek EUI]
+instance PathStart MEUI
+    where data Peek MEUI
+              = Peek_MEUI_ImageFile (Path MEUI ImageFile) (Maybe ImageFile)
+              | Peek_MEUI_EUI (Path MEUI EUI) (Maybe EUI)
+              | Peek_MEUI_MEUI (Path MEUI MEUI) (Maybe MEUI)
+              | Peek_MEUI_URI (Path MEUI URI) (Maybe URI)
+              deriving (Eq, Show)
+          peekTree _s = concatMap (\pth -> case pth of
+                                               _pp@(Path_Just _wp) -> map (\a -> let f = peekTree a
+                                                                                  in let liftPeek (Peek_EUI_ImageFile q z) = Peek_MEUI_ImageFile (Path_Just q) z
+                                                                                         liftPeek (Peek_EUI_EUI q z) = Peek_MEUI_EUI (Path_Just q) z
+                                                                                         liftPeek (Peek_EUI_URI q z) = Peek_MEUI_URI (Path_Just q) z
+                                                                                      in Node (Peek_MEUI_EUI _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [EUI])
+                                               _ -> []) (paths _s (Proxy :: Proxy EUI)) :: Forest (Peek MEUI)
+          peekRow _s = concatMap (\pth -> case pth of
+                                              _pp@(Path_Just _wp) -> map (\a -> Peek_MEUI_EUI _pp (Just a)) (toListOf (toLens _pp) _s :: [EUI])
+                                              _ -> []) (paths _s (Proxy :: Proxy EUI)) :: [Peek MEUI]
+instance PathStart MaybeImageFile
+    where data Peek MaybeImageFile
+              = Peek_MaybeImageFile_String (Path MaybeImageFile String) (Maybe String)
+              | Peek_MaybeImageFile_JSONText (Path MaybeImageFile JSONText) (Maybe JSONText)
+              | Peek_MaybeImageFile_MaybeImageFile (Path MaybeImageFile MaybeImageFile) (Maybe MaybeImageFile)
+              deriving (Eq, Show)
+          peekTree _s = concatMap (\pth -> case pth of
+                                               _pp@(Path_MaybeImageFile_View _wp) -> map (\a -> let f = peekTree a
+                                                                                                 in let liftPeek (Peek_String_String q z) = Peek_MaybeImageFile_String (Path_MaybeImageFile_View q) z
+                                                                                                        liftPeek (Peek_String_JSONText q z) = Peek_MaybeImageFile_JSONText (Path_MaybeImageFile_View q) z
+                                                                                                     in Node (Peek_MaybeImageFile_String _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [String])
+                                               _ -> []) (paths _s (Proxy :: Proxy String)) :: Forest (Peek MaybeImageFile)
+          peekRow _s = concatMap (\pth -> case pth of
+                                              _pp@(Path_MaybeImageFile_View _wp) -> map (\a -> Peek_MaybeImageFile_String _pp (Just a)) (toListOf (toLens _pp) _s :: [String])
+                                              _ -> []) (paths _s (Proxy :: Proxy String)) :: [Peek MaybeImageFile]
 instance PathStart ReportImage
     where data Peek ReportImage
-              = Peek_ReportImage_String (Path ReportImage ([Char])) (Maybe ([Char]))
+              = Peek_ReportImage_String (Path ReportImage String) (Maybe String)
               | Peek_ReportImage_Bool (Path ReportImage Bool) (Maybe Bool)
               | Peek_ReportImage_Double (Path ReportImage Double) (Maybe Double)
               | Peek_ReportImage_Dimension (Path ReportImage Dimension) (Maybe Dimension)
@@ -10932,42 +11214,106 @@ instance PathStart ReportImage
               | Peek_ReportImage_ImageFile (Path ReportImage ImageFile) (Maybe ImageFile)
               | Peek_ReportImage_JSONText (Path ReportImage JSONText) (Maybe JSONText)
               | Peek_ReportImage_Markup (Path ReportImage Markup) (Maybe Markup)
-              | Peek_ReportImage_EUI (Path ReportImage (Either URI ImageFile)) (Maybe (Either URI ImageFile))
-              | Peek_ReportImage_MEUI (Path ReportImage (Maybe (Either URI ImageFile))) (Maybe (Maybe (Either URI ImageFile)))
-              | Peek_ReportImage_MaybeImageFile (Path ReportImage (Maybe ImageFile)) (Maybe (Maybe ImageFile))
+              | Peek_ReportImage_EUI (Path ReportImage EUI) (Maybe EUI)
+              | Peek_ReportImage_MEUI (Path ReportImage MEUI) (Maybe MEUI)
+              | Peek_ReportImage_MaybeImageFile (Path ReportImage MaybeImageFile) (Maybe MaybeImageFile)
               | Peek_ReportImage_ReportImage (Path ReportImage ReportImage) (Maybe ReportImage)
               | Peek_ReportImage_ReportImageView (Path ReportImage ReportImageView) (Maybe ReportImageView)
-              | Peek_ReportImage_SaneSizeImageSize (Path ReportImage (SaneSize ImageSize)) (Maybe (SaneSize ImageSize))
+              | Peek_ReportImage_SaneSizeImageSize (Path ReportImage SaneSizeImageSize) (Maybe SaneSizeImageSize)
               | Peek_ReportImage_URI (Path ReportImage URI) (Maybe URI)
               | Peek_ReportImage_Text (Path ReportImage Text) (Maybe Text)
               deriving (Eq, Show)
-          peek _s = concatMap (\pth -> case pth of
-                                           _pp@(Path_ReportImage_View _wp) -> map (\a -> let f = peek a
-                                                                                          in let liftPeek (Peek_ReportImageView_String q z) = Peek_ReportImage_String (Path_ReportImage_View q) z
-                                                                                                 liftPeek (Peek_ReportImageView_Bool q z) = Peek_ReportImage_Bool (Path_ReportImage_View q) z
-                                                                                                 liftPeek (Peek_ReportImageView_Double q z) = Peek_ReportImage_Double (Path_ReportImage_View q) z
-                                                                                                 liftPeek (Peek_ReportImageView_Dimension q z) = Peek_ReportImage_Dimension (Path_ReportImage_View q) z
-                                                                                                 liftPeek (Peek_ReportImageView_ImageCrop q z) = Peek_ReportImage_ImageCrop (Path_ReportImage_View q) z
-                                                                                                 liftPeek (Peek_ReportImageView_ImageSize q z) = Peek_ReportImage_ImageSize (Path_ReportImage_View q) z
-                                                                                                 liftPeek (Peek_ReportImageView_Units q z) = Peek_ReportImage_Units (Path_ReportImage_View q) z
-                                                                                                 liftPeek (Peek_ReportImageView_ImageFile q z) = Peek_ReportImage_ImageFile (Path_ReportImage_View q) z
-                                                                                                 liftPeek (Peek_ReportImageView_JSONText q z) = Peek_ReportImage_JSONText (Path_ReportImage_View q) z
-                                                                                                 liftPeek (Peek_ReportImageView_Markup q z) = Peek_ReportImage_Markup (Path_ReportImage_View q) z
-                                                                                                 liftPeek (Peek_ReportImageView_EUI q z) = Peek_ReportImage_EUI (Path_ReportImage_View q) z
-                                                                                                 liftPeek (Peek_ReportImageView_MEUI q z) = Peek_ReportImage_MEUI (Path_ReportImage_View q) z
-                                                                                                 liftPeek (Peek_ReportImageView_MaybeImageFile q z) = Peek_ReportImage_MaybeImageFile (Path_ReportImage_View q) z
-                                                                                                 liftPeek (Peek_ReportImageView_ReportImageView q z) = Peek_ReportImage_ReportImageView (Path_ReportImage_View q) z
-                                                                                                 liftPeek (Peek_ReportImageView_SaneSizeImageSize q z) = Peek_ReportImage_SaneSizeImageSize (Path_ReportImage_View q) z
-                                                                                                 liftPeek (Peek_ReportImageView_URI q z) = Peek_ReportImage_URI (Path_ReportImage_View q) z
-                                                                                                 liftPeek (Peek_ReportImageView_Text q z) = Peek_ReportImage_Text (Path_ReportImage_View q) z
-                                                                                              in Node (Peek_ReportImage_ReportImageView _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [ReportImageView])
-                                           _ -> []) (paths _s (Proxy :: Proxy ReportImageView)) :: Forest (Peek ReportImage)
-          hop _s = concatMap (\pth -> case pth of
-                                          _pp@(Path_ReportImage_View _wp) -> map (\a -> Node (Peek_ReportImage_ReportImageView _pp (Just a)) []) (toListOf (toLens _pp) _s :: [ReportImageView])
-                                          _ -> []) (paths _s (Proxy :: Proxy ReportImageView)) :: Forest (Peek ReportImage)
+          peekTree _s = concatMap (\pth -> case pth of
+                                               _pp@(Path_ReportImage_View _wp) -> map (\a -> let f = peekTree a
+                                                                                              in let liftPeek (Peek_ReportImageView_String q z) = Peek_ReportImage_String (Path_ReportImage_View q) z
+                                                                                                     liftPeek (Peek_ReportImageView_Bool q z) = Peek_ReportImage_Bool (Path_ReportImage_View q) z
+                                                                                                     liftPeek (Peek_ReportImageView_Double q z) = Peek_ReportImage_Double (Path_ReportImage_View q) z
+                                                                                                     liftPeek (Peek_ReportImageView_Dimension q z) = Peek_ReportImage_Dimension (Path_ReportImage_View q) z
+                                                                                                     liftPeek (Peek_ReportImageView_ImageCrop q z) = Peek_ReportImage_ImageCrop (Path_ReportImage_View q) z
+                                                                                                     liftPeek (Peek_ReportImageView_ImageSize q z) = Peek_ReportImage_ImageSize (Path_ReportImage_View q) z
+                                                                                                     liftPeek (Peek_ReportImageView_Units q z) = Peek_ReportImage_Units (Path_ReportImage_View q) z
+                                                                                                     liftPeek (Peek_ReportImageView_ImageFile q z) = Peek_ReportImage_ImageFile (Path_ReportImage_View q) z
+                                                                                                     liftPeek (Peek_ReportImageView_JSONText q z) = Peek_ReportImage_JSONText (Path_ReportImage_View q) z
+                                                                                                     liftPeek (Peek_ReportImageView_Markup q z) = Peek_ReportImage_Markup (Path_ReportImage_View q) z
+                                                                                                     liftPeek (Peek_ReportImageView_EUI q z) = Peek_ReportImage_EUI (Path_ReportImage_View q) z
+                                                                                                     liftPeek (Peek_ReportImageView_MEUI q z) = Peek_ReportImage_MEUI (Path_ReportImage_View q) z
+                                                                                                     liftPeek (Peek_ReportImageView_MaybeImageFile q z) = Peek_ReportImage_MaybeImageFile (Path_ReportImage_View q) z
+                                                                                                     liftPeek (Peek_ReportImageView_ReportImageView q z) = Peek_ReportImage_ReportImageView (Path_ReportImage_View q) z
+                                                                                                     liftPeek (Peek_ReportImageView_SaneSizeImageSize q z) = Peek_ReportImage_SaneSizeImageSize (Path_ReportImage_View q) z
+                                                                                                     liftPeek (Peek_ReportImageView_URI q z) = Peek_ReportImage_URI (Path_ReportImage_View q) z
+                                                                                                     liftPeek (Peek_ReportImageView_Text q z) = Peek_ReportImage_Text (Path_ReportImage_View q) z
+                                                                                                  in Node (Peek_ReportImage_ReportImageView _pp (if null f
+                                                                                                                                                  then Just a
+                                                                                                                                                  else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [ReportImageView])
+                                               _ -> []) (paths _s (Proxy :: Proxy ReportImageView)) :: Forest (Peek ReportImage)
+          peekRow _s = concatMap (\pth -> case pth of
+                                              _pp@(Path_ReportImage_View _wp) -> map (\a -> Peek_ReportImage_ReportImageView _pp (Just a)) (toListOf (toLens _pp) _s :: [ReportImageView])
+                                              _ -> []) (paths _s (Proxy :: Proxy ReportImageView)) :: [Peek ReportImage]
+instance PathStart ReportImages
+    where data Peek ReportImages
+              = Peek_ReportImages_String (Path ReportImages String) (Maybe String)
+              | Peek_ReportImages_Bool (Path ReportImages Bool) (Maybe Bool)
+              | Peek_ReportImages_Double (Path ReportImages Double) (Maybe Double)
+              | Peek_ReportImages_Dimension (Path ReportImages Dimension) (Maybe Dimension)
+              | Peek_ReportImages_ImageCrop (Path ReportImages ImageCrop) (Maybe ImageCrop)
+              | Peek_ReportImages_ImageSize (Path ReportImages ImageSize) (Maybe ImageSize)
+              | Peek_ReportImages_Units (Path ReportImages Units) (Maybe Units)
+              | Peek_ReportImages_ImageFile (Path ReportImages ImageFile) (Maybe ImageFile)
+              | Peek_ReportImages_JSONText (Path ReportImages JSONText) (Maybe JSONText)
+              | Peek_ReportImages_Markup (Path ReportImages Markup) (Maybe Markup)
+              | Peek_ReportImages_EUI (Path ReportImages EUI) (Maybe EUI)
+              | Peek_ReportImages_MEUI (Path ReportImages MEUI) (Maybe MEUI)
+              | Peek_ReportImages_MaybeImageFile (Path ReportImages MaybeImageFile) (Maybe MaybeImageFile)
+              | Peek_ReportImages_ReportImage (Path ReportImages ReportImage) (Maybe ReportImage)
+              | Peek_ReportImages_ReportImages (Path ReportImages ReportImages) (Maybe ReportImages)
+              | Peek_ReportImages_ReportImageView (Path ReportImages ReportImageView) (Maybe ReportImageView)
+              | Peek_ReportImages_SaneSizeImageSize (Path ReportImages SaneSizeImageSize) (Maybe SaneSizeImageSize)
+              | Peek_ReportImages_URI (Path ReportImages URI) (Maybe URI)
+              | Peek_ReportImages_Text (Path ReportImages Text) (Maybe Text)
+              deriving (Eq, Show)
+          peekTree _s = concatMap (\pth -> case pth of
+                                               _pp@(Path_At _k _wp) -> map (\a -> let f = peekTree a
+                                                                                   in let liftPeek (Peek_ReportImage_String q z) = Peek_ReportImages_String (Path_At _k q) z
+                                                                                          liftPeek (Peek_ReportImage_Bool q z) = Peek_ReportImages_Bool (Path_At _k q) z
+                                                                                          liftPeek (Peek_ReportImage_Double q z) = Peek_ReportImages_Double (Path_At _k q) z
+                                                                                          liftPeek (Peek_ReportImage_Dimension q z) = Peek_ReportImages_Dimension (Path_At _k q) z
+                                                                                          liftPeek (Peek_ReportImage_ImageCrop q z) = Peek_ReportImages_ImageCrop (Path_At _k q) z
+                                                                                          liftPeek (Peek_ReportImage_ImageSize q z) = Peek_ReportImages_ImageSize (Path_At _k q) z
+                                                                                          liftPeek (Peek_ReportImage_Units q z) = Peek_ReportImages_Units (Path_At _k q) z
+                                                                                          liftPeek (Peek_ReportImage_ImageFile q z) = Peek_ReportImages_ImageFile (Path_At _k q) z
+                                                                                          liftPeek (Peek_ReportImage_JSONText q z) = Peek_ReportImages_JSONText (Path_At _k q) z
+                                                                                          liftPeek (Peek_ReportImage_Markup q z) = Peek_ReportImages_Markup (Path_At _k q) z
+                                                                                          liftPeek (Peek_ReportImage_EUI q z) = Peek_ReportImages_EUI (Path_At _k q) z
+                                                                                          liftPeek (Peek_ReportImage_MEUI q z) = Peek_ReportImages_MEUI (Path_At _k q) z
+                                                                                          liftPeek (Peek_ReportImage_MaybeImageFile q z) = Peek_ReportImages_MaybeImageFile (Path_At _k q) z
+                                                                                          liftPeek (Peek_ReportImage_ReportImage q z) = Peek_ReportImages_ReportImage (Path_At _k q) z
+                                                                                          liftPeek (Peek_ReportImage_ReportImageView q z) = Peek_ReportImages_ReportImageView (Path_At _k q) z
+                                                                                          liftPeek (Peek_ReportImage_SaneSizeImageSize q z) = Peek_ReportImages_SaneSizeImageSize (Path_At _k q) z
+                                                                                          liftPeek (Peek_ReportImage_URI q z) = Peek_ReportImages_URI (Path_At _k q) z
+                                                                                          liftPeek (Peek_ReportImage_Text q z) = Peek_ReportImages_Text (Path_At _k q) z
+                                                                                       in Node (Peek_ReportImages_ReportImage _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [ReportImage])
+                                               _ -> []) (paths _s (Proxy :: Proxy ReportImage)) :: Forest (Peek ReportImages)
+          peekRow _s = concatMap (\pth -> case pth of
+                                              _pp@(Path_At _k _wp) -> map (\a -> Peek_ReportImages_ReportImage _pp (Just a)) (toListOf (toLens _pp) _s :: [ReportImage])
+                                              _ -> []) (paths _s (Proxy :: Proxy ReportImage)) :: [Peek ReportImages]
+instance PathStart ReadOnlyFilePath
+    where data Peek ReadOnlyFilePath
+              = Peek_ReadOnlyFilePath_String (Path ReadOnlyFilePath String) (Maybe String)
+              | Peek_ReadOnlyFilePath_JSONText (Path ReadOnlyFilePath JSONText) (Maybe JSONText)
+              | Peek_ReadOnlyFilePath_ReadOnlyFilePath (Path ReadOnlyFilePath ReadOnlyFilePath) (Maybe ReadOnlyFilePath)
+              deriving (Eq, Show)
+          peekTree _s = concatMap (\pth -> case pth of
+                                               _pp@(Path_ReadOnlyFilePath_View _wp) -> map (\a -> let f = peekTree a
+                                                                                                   in let liftPeek (Peek_String_String q z) = Peek_ReadOnlyFilePath_String (Path_ReadOnlyFilePath_View q) z
+                                                                                                          liftPeek (Peek_String_JSONText q z) = Peek_ReadOnlyFilePath_JSONText (Path_ReadOnlyFilePath_View q) z
+                                                                                                       in Node (Peek_ReadOnlyFilePath_String _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [String])
+                                               _ -> []) (paths _s (Proxy :: Proxy String)) :: Forest (Peek ReadOnlyFilePath)
+          peekRow _s = concatMap (\pth -> case pth of
+                                              _pp@(Path_ReadOnlyFilePath_View _wp) -> map (\a -> Peek_ReadOnlyFilePath_String _pp (Just a)) (toListOf (toLens _pp) _s :: [String])
+                                              _ -> []) (paths _s (Proxy :: Proxy String)) :: [Peek ReadOnlyFilePath]
 instance PathStart ReportImageView
     where data Peek ReportImageView
-              = Peek_ReportImageView_String (Path ReportImageView ([Char])) (Maybe ([Char]))
+              = Peek_ReportImageView_String (Path ReportImageView String) (Maybe String)
               | Peek_ReportImageView_Bool (Path ReportImageView Bool) (Maybe Bool)
               | Peek_ReportImageView_Double (Path ReportImageView Double) (Maybe Double)
               | Peek_ReportImageView_Dimension (Path ReportImageView Dimension) (Maybe Dimension)
@@ -10977,147 +11323,149 @@ instance PathStart ReportImageView
               | Peek_ReportImageView_ImageFile (Path ReportImageView ImageFile) (Maybe ImageFile)
               | Peek_ReportImageView_JSONText (Path ReportImageView JSONText) (Maybe JSONText)
               | Peek_ReportImageView_Markup (Path ReportImageView Markup) (Maybe Markup)
-              | Peek_ReportImageView_EUI (Path ReportImageView (Either URI ImageFile)) (Maybe (Either URI ImageFile))
-              | Peek_ReportImageView_MEUI (Path ReportImageView (Maybe (Either URI ImageFile))) (Maybe (Maybe (Either URI ImageFile)))
-              | Peek_ReportImageView_MaybeImageFile (Path ReportImageView (Maybe ImageFile)) (Maybe (Maybe ImageFile))
+              | Peek_ReportImageView_EUI (Path ReportImageView EUI) (Maybe EUI)
+              | Peek_ReportImageView_MEUI (Path ReportImageView MEUI) (Maybe MEUI)
+              | Peek_ReportImageView_MaybeImageFile (Path ReportImageView MaybeImageFile) (Maybe MaybeImageFile)
               | Peek_ReportImageView_ReportImageView (Path ReportImageView ReportImageView) (Maybe ReportImageView)
-              | Peek_ReportImageView_SaneSizeImageSize (Path ReportImageView (SaneSize ImageSize)) (Maybe (SaneSize ImageSize))
+              | Peek_ReportImageView_SaneSizeImageSize (Path ReportImageView SaneSizeImageSize) (Maybe SaneSizeImageSize)
               | Peek_ReportImageView_URI (Path ReportImageView URI) (Maybe URI)
               | Peek_ReportImageView_Text (Path ReportImageView Text) (Maybe Text)
               deriving (Eq, Show)
-          peek (_s@(ReportImageView {})) = mconcat [concatMap (\pth -> case pth of
-                                                                           _pp@(Path_ReportImageView__picSize _wp) -> map (\a -> let f = peek a
-                                                                                                                                  in let liftPeek (Peek_SaneSizeImageSize_String q z) = Peek_ReportImageView_String (Path_ReportImageView__picSize q) z
-                                                                                                                                         liftPeek (Peek_SaneSizeImageSize_Double q z) = Peek_ReportImageView_Double (Path_ReportImageView__picSize q) z
-                                                                                                                                         liftPeek (Peek_SaneSizeImageSize_Dimension q
-                                                                                                                                                                                    z) = Peek_ReportImageView_Dimension (Path_ReportImageView__picSize q) z
-                                                                                                                                         liftPeek (Peek_SaneSizeImageSize_ImageSize q
-                                                                                                                                                                                    z) = Peek_ReportImageView_ImageSize (Path_ReportImageView__picSize q) z
-                                                                                                                                         liftPeek (Peek_SaneSizeImageSize_Units q z) = Peek_ReportImageView_Units (Path_ReportImageView__picSize q) z
-                                                                                                                                         liftPeek (Peek_SaneSizeImageSize_JSONText q
-                                                                                                                                                                                   z) = Peek_ReportImageView_JSONText (Path_ReportImageView__picSize q) z
-                                                                                                                                         liftPeek (Peek_SaneSizeImageSize_SaneSizeImageSize q
-                                                                                                                                                                                            z) = Peek_ReportImageView_SaneSizeImageSize (Path_ReportImageView__picSize q) z
-                                                                                                                                      in Node (Peek_ReportImageView_SaneSizeImageSize _pp (if null f
-                                                                                                                                                                                            then Just a
-                                                                                                                                                                                            else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [SaneSize ImageSize])
-                                                                           _ -> []) (paths _s (Proxy :: Proxy (SaneSize ImageSize))),
-                                                    concatMap (\pth -> case pth of
-                                                                           _pp@(Path_ReportImageView__picCrop _wp) -> map (\a -> let f = peek a
-                                                                                                                                  in let liftPeek (Peek_ImageCrop_ImageCrop q z) = Peek_ReportImageView_ImageCrop (Path_ReportImageView__picCrop q) z
-                                                                                                                                      in Node (Peek_ReportImageView_ImageCrop _pp (if null f
-                                                                                                                                                                                    then Just a
-                                                                                                                                                                                    else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [ImageCrop])
-                                                                           _ -> []) (paths _s (Proxy :: Proxy ImageCrop)),
-                                                    concatMap (\pth -> case pth of
-                                                                           _pp@(Path_ReportImageView__picCaption _wp) -> map (\a -> let f = peek a
-                                                                                                                                     in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportImageView_JSONText (Path_ReportImageView__picCaption q) z
-                                                                                                                                            liftPeek (Peek_Markup_Markup q z) = Peek_ReportImageView_Markup (Path_ReportImageView__picCaption q) z
-                                                                                                                                            liftPeek (Peek_Markup_Text q z) = Peek_ReportImageView_Text (Path_ReportImageView__picCaption q) z
-                                                                                                                                         in Node (Peek_ReportImageView_Markup _pp (if null f
-                                                                                                                                                                                    then Just a
-                                                                                                                                                                                    else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
-                                                                           _ -> []) (paths _s (Proxy :: Proxy Markup)),
-                                                    concatMap (\pth -> case pth of
-                                                                           _pp@(Path_ReportImageView__picOriginal _wp) -> map (\a -> let f = peek a
-                                                                                                                                      in let liftPeek (Peek_MEUI_ImageFile q z) = Peek_ReportImageView_ImageFile (Path_ReportImageView__picOriginal q) z
-                                                                                                                                             liftPeek (Peek_MEUI_EUI q z) = Peek_ReportImageView_EUI (Path_ReportImageView__picOriginal q) z
-                                                                                                                                             liftPeek (Peek_MEUI_MEUI q z) = Peek_ReportImageView_MEUI (Path_ReportImageView__picOriginal q) z
-                                                                                                                                             liftPeek (Peek_MEUI_URI q z) = Peek_ReportImageView_URI (Path_ReportImageView__picOriginal q) z
-                                                                                                                                          in Node (Peek_ReportImageView_MEUI _pp (if null f
-                                                                                                                                                                                   then Just a
-                                                                                                                                                                                   else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Maybe (Either URI
-                                                                                                                                                                                                                                                                      ImageFile)])
-                                                                           _ -> []) (paths _s (Proxy :: Proxy (Maybe (Either URI ImageFile)))),
-                                                    concatMap (\pth -> case pth of
-                                                                           _pp@(Path_ReportImageView__picEditedDeprecated _wp) -> map (\a -> let f = peek a
-                                                                                                                                              in let liftPeek (Peek_MaybeImageFile_String q
-                                                                                                                                                                                          z) = Peek_ReportImageView_String (Path_ReportImageView__picEditedDeprecated q) z
-                                                                                                                                                     liftPeek (Peek_MaybeImageFile_JSONText q
-                                                                                                                                                                                            z) = Peek_ReportImageView_JSONText (Path_ReportImageView__picEditedDeprecated q) z
-                                                                                                                                                     liftPeek (Peek_MaybeImageFile_MaybeImageFile q
-                                                                                                                                                                                                  z) = Peek_ReportImageView_MaybeImageFile (Path_ReportImageView__picEditedDeprecated q) z
-                                                                                                                                                  in Node (Peek_ReportImageView_MaybeImageFile _pp (if null f
-                                                                                                                                                                                                     then Just a
-                                                                                                                                                                                                     else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Maybe ImageFile])
-                                                                           _ -> []) (paths _s (Proxy :: Proxy (Maybe ImageFile))),
-                                                    concatMap (\pth -> case pth of
-                                                                           _pp@(Path_ReportImageView__picThumbDeprecated _wp) -> map (\a -> let f = peek a
-                                                                                                                                             in let liftPeek (Peek_MaybeImageFile_String q
-                                                                                                                                                                                         z) = Peek_ReportImageView_String (Path_ReportImageView__picThumbDeprecated q) z
-                                                                                                                                                    liftPeek (Peek_MaybeImageFile_JSONText q
-                                                                                                                                                                                           z) = Peek_ReportImageView_JSONText (Path_ReportImageView__picThumbDeprecated q) z
-                                                                                                                                                    liftPeek (Peek_MaybeImageFile_MaybeImageFile q
-                                                                                                                                                                                                 z) = Peek_ReportImageView_MaybeImageFile (Path_ReportImageView__picThumbDeprecated q) z
-                                                                                                                                                 in Node (Peek_ReportImageView_MaybeImageFile _pp (if null f
-                                                                                                                                                                                                    then Just a
-                                                                                                                                                                                                    else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Maybe ImageFile])
-                                                                           _ -> []) (paths _s (Proxy :: Proxy (Maybe ImageFile))),
-                                                    concatMap (\pth -> case pth of
-                                                                           _pp@(Path_ReportImageView__picPrinterDeprecated _wp) -> map (\a -> let f = peek a
-                                                                                                                                               in let liftPeek (Peek_MaybeImageFile_String q
-                                                                                                                                                                                           z) = Peek_ReportImageView_String (Path_ReportImageView__picPrinterDeprecated q) z
-                                                                                                                                                      liftPeek (Peek_MaybeImageFile_JSONText q
-                                                                                                                                                                                             z) = Peek_ReportImageView_JSONText (Path_ReportImageView__picPrinterDeprecated q) z
-                                                                                                                                                      liftPeek (Peek_MaybeImageFile_MaybeImageFile q
-                                                                                                                                                                                                   z) = Peek_ReportImageView_MaybeImageFile (Path_ReportImageView__picPrinterDeprecated q) z
-                                                                                                                                                   in Node (Peek_ReportImageView_MaybeImageFile _pp (if null f
-                                                                                                                                                                                                      then Just a
-                                                                                                                                                                                                      else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Maybe ImageFile])
-                                                                           _ -> []) (paths _s (Proxy :: Proxy (Maybe ImageFile))),
-                                                    concatMap (\pth -> case pth of
-                                                                           _pp@(Path_ReportImageView__picMustEnlarge _wp) -> map (\a -> let f = peek a
-                                                                                                                                         in let liftPeek (Peek_Bool_String q z) = Peek_ReportImageView_String (Path_ReportImageView__picMustEnlarge q) z
-                                                                                                                                                liftPeek (Peek_Bool_Bool q z) = Peek_ReportImageView_Bool (Path_ReportImageView__picMustEnlarge q) z
-                                                                                                                                                liftPeek (Peek_Bool_JSONText q
-                                                                                                                                                                             z) = Peek_ReportImageView_JSONText (Path_ReportImageView__picMustEnlarge q) z
-                                                                                                                                             in Node (Peek_ReportImageView_Bool _pp (if null f
-                                                                                                                                                                                      then Just a
-                                                                                                                                                                                      else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Bool])
-                                                                           _ -> []) (paths _s (Proxy :: Proxy Bool)),
-                                                    concatMap (\pth -> case pth of
-                                                                           _pp@(Path_ReportImageView__picEnlargedDeprecated _wp) -> map (\a -> let f = peek a
-                                                                                                                                                in let liftPeek (Peek_MaybeImageFile_String q
-                                                                                                                                                                                            z) = Peek_ReportImageView_String (Path_ReportImageView__picEnlargedDeprecated q) z
-                                                                                                                                                       liftPeek (Peek_MaybeImageFile_JSONText q
-                                                                                                                                                                                              z) = Peek_ReportImageView_JSONText (Path_ReportImageView__picEnlargedDeprecated q) z
-                                                                                                                                                       liftPeek (Peek_MaybeImageFile_MaybeImageFile q
-                                                                                                                                                                                                    z) = Peek_ReportImageView_MaybeImageFile (Path_ReportImageView__picEnlargedDeprecated q) z
-                                                                                                                                                    in Node (Peek_ReportImageView_MaybeImageFile _pp (if null f
-                                                                                                                                                                                                       then Just a
-                                                                                                                                                                                                       else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Maybe ImageFile])
-                                                                           _ -> []) (paths _s (Proxy :: Proxy (Maybe ImageFile)))] :: Forest (Peek ReportImageView)
-          hop (_s@(ReportImageView {})) = mconcat [concatMap (\pth -> case pth of
-                                                                          _pp@(Path_ReportImageView__picSize _wp) -> map (\a -> Node (Peek_ReportImageView_SaneSizeImageSize _pp (Just a)) []) (toListOf (toLens _pp) _s :: [SaneSize ImageSize])
-                                                                          _ -> []) (paths _s (Proxy :: Proxy (SaneSize ImageSize))),
-                                                   concatMap (\pth -> case pth of
-                                                                          _pp@(Path_ReportImageView__picCrop _wp) -> map (\a -> Node (Peek_ReportImageView_ImageCrop _pp (Just a)) []) (toListOf (toLens _pp) _s :: [ImageCrop])
-                                                                          _ -> []) (paths _s (Proxy :: Proxy ImageCrop)),
-                                                   concatMap (\pth -> case pth of
-                                                                          _pp@(Path_ReportImageView__picCaption _wp) -> map (\a -> Node (Peek_ReportImageView_Markup _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Markup])
-                                                                          _ -> []) (paths _s (Proxy :: Proxy Markup)),
-                                                   concatMap (\pth -> case pth of
-                                                                          _pp@(Path_ReportImageView__picOriginal _wp) -> map (\a -> Node (Peek_ReportImageView_MEUI _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Maybe (Either URI
-                                                                                                                                                                                                                                  ImageFile)])
-                                                                          _ -> []) (paths _s (Proxy :: Proxy (Maybe (Either URI ImageFile)))),
-                                                   concatMap (\pth -> case pth of
-                                                                          _pp@(Path_ReportImageView__picEditedDeprecated _wp) -> map (\a -> Node (Peek_ReportImageView_MaybeImageFile _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Maybe ImageFile])
-                                                                          _ -> []) (paths _s (Proxy :: Proxy (Maybe ImageFile))),
-                                                   concatMap (\pth -> case pth of
-                                                                          _pp@(Path_ReportImageView__picThumbDeprecated _wp) -> map (\a -> Node (Peek_ReportImageView_MaybeImageFile _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Maybe ImageFile])
-                                                                          _ -> []) (paths _s (Proxy :: Proxy (Maybe ImageFile))),
-                                                   concatMap (\pth -> case pth of
-                                                                          _pp@(Path_ReportImageView__picPrinterDeprecated _wp) -> map (\a -> Node (Peek_ReportImageView_MaybeImageFile _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Maybe ImageFile])
-                                                                          _ -> []) (paths _s (Proxy :: Proxy (Maybe ImageFile))),
-                                                   concatMap (\pth -> case pth of
-                                                                          _pp@(Path_ReportImageView__picMustEnlarge _wp) -> map (\a -> Node (Peek_ReportImageView_Bool _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Bool])
-                                                                          _ -> []) (paths _s (Proxy :: Proxy Bool)),
-                                                   concatMap (\pth -> case pth of
-                                                                          _pp@(Path_ReportImageView__picEnlargedDeprecated _wp) -> map (\a -> Node (Peek_ReportImageView_MaybeImageFile _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Maybe ImageFile])
-                                                                          _ -> []) (paths _s (Proxy :: Proxy (Maybe ImageFile)))] :: Forest (Peek ReportImageView)
+          peekTree (_s@(ReportImageView {})) = mconcat [concatMap (\pth -> case pth of
+                                                                               _pp@(Path_ReportImageView__picSize _wp) -> map (\a -> let f = peekTree a
+                                                                                                                                      in let liftPeek (Peek_SaneSizeImageSize_String q
+                                                                                                                                                                                     z) = Peek_ReportImageView_String (Path_ReportImageView__picSize q) z
+                                                                                                                                             liftPeek (Peek_SaneSizeImageSize_Double q
+                                                                                                                                                                                     z) = Peek_ReportImageView_Double (Path_ReportImageView__picSize q) z
+                                                                                                                                             liftPeek (Peek_SaneSizeImageSize_Dimension q
+                                                                                                                                                                                        z) = Peek_ReportImageView_Dimension (Path_ReportImageView__picSize q) z
+                                                                                                                                             liftPeek (Peek_SaneSizeImageSize_ImageSize q
+                                                                                                                                                                                        z) = Peek_ReportImageView_ImageSize (Path_ReportImageView__picSize q) z
+                                                                                                                                             liftPeek (Peek_SaneSizeImageSize_Units q z) = Peek_ReportImageView_Units (Path_ReportImageView__picSize q) z
+                                                                                                                                             liftPeek (Peek_SaneSizeImageSize_JSONText q
+                                                                                                                                                                                       z) = Peek_ReportImageView_JSONText (Path_ReportImageView__picSize q) z
+                                                                                                                                             liftPeek (Peek_SaneSizeImageSize_SaneSizeImageSize q
+                                                                                                                                                                                                z) = Peek_ReportImageView_SaneSizeImageSize (Path_ReportImageView__picSize q) z
+                                                                                                                                          in Node (Peek_ReportImageView_SaneSizeImageSize _pp (if null f
+                                                                                                                                                                                                then Just a
+                                                                                                                                                                                                else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [SaneSizeImageSize])
+                                                                               _ -> []) (paths _s (Proxy :: Proxy SaneSizeImageSize)),
+                                                        concatMap (\pth -> case pth of
+                                                                               _pp@(Path_ReportImageView__picCrop _wp) -> map (\a -> let f = peekTree a
+                                                                                                                                      in let liftPeek (Peek_ImageCrop_ImageCrop q z) = Peek_ReportImageView_ImageCrop (Path_ReportImageView__picCrop q) z
+                                                                                                                                          in Node (Peek_ReportImageView_ImageCrop _pp (if null f
+                                                                                                                                                                                        then Just a
+                                                                                                                                                                                        else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [ImageCrop])
+                                                                               _ -> []) (paths _s (Proxy :: Proxy ImageCrop)),
+                                                        concatMap (\pth -> case pth of
+                                                                               _pp@(Path_ReportImageView__picCaption _wp) -> map (\a -> let f = peekTree a
+                                                                                                                                         in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportImageView_JSONText (Path_ReportImageView__picCaption q) z
+                                                                                                                                                liftPeek (Peek_Markup_Markup q z) = Peek_ReportImageView_Markup (Path_ReportImageView__picCaption q) z
+                                                                                                                                                liftPeek (Peek_Markup_Text q z) = Peek_ReportImageView_Text (Path_ReportImageView__picCaption q) z
+                                                                                                                                             in Node (Peek_ReportImageView_Markup _pp (if null f
+                                                                                                                                                                                        then Just a
+                                                                                                                                                                                        else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
+                                                                               _ -> []) (paths _s (Proxy :: Proxy Markup)),
+                                                        concatMap (\pth -> case pth of
+                                                                               _pp@(Path_ReportImageView__picOriginal _wp) -> map (\a -> let f = peekTree a
+                                                                                                                                          in let liftPeek (Peek_MEUI_ImageFile q
+                                                                                                                                                                               z) = Peek_ReportImageView_ImageFile (Path_ReportImageView__picOriginal q) z
+                                                                                                                                                 liftPeek (Peek_MEUI_EUI q z) = Peek_ReportImageView_EUI (Path_ReportImageView__picOriginal q) z
+                                                                                                                                                 liftPeek (Peek_MEUI_MEUI q z) = Peek_ReportImageView_MEUI (Path_ReportImageView__picOriginal q) z
+                                                                                                                                                 liftPeek (Peek_MEUI_URI q z) = Peek_ReportImageView_URI (Path_ReportImageView__picOriginal q) z
+                                                                                                                                              in Node (Peek_ReportImageView_MEUI _pp (if null f
+                                                                                                                                                                                       then Just a
+                                                                                                                                                                                       else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [MEUI])
+                                                                               _ -> []) (paths _s (Proxy :: Proxy MEUI)),
+                                                        concatMap (\pth -> case pth of
+                                                                               _pp@(Path_ReportImageView__picEditedDeprecated _wp) -> map (\a -> let f = peekTree a
+                                                                                                                                                  in let liftPeek (Peek_MaybeImageFile_String q
+                                                                                                                                                                                              z) = Peek_ReportImageView_String (Path_ReportImageView__picEditedDeprecated q) z
+                                                                                                                                                         liftPeek (Peek_MaybeImageFile_JSONText q
+                                                                                                                                                                                                z) = Peek_ReportImageView_JSONText (Path_ReportImageView__picEditedDeprecated q) z
+                                                                                                                                                         liftPeek (Peek_MaybeImageFile_MaybeImageFile q
+                                                                                                                                                                                                      z) = Peek_ReportImageView_MaybeImageFile (Path_ReportImageView__picEditedDeprecated q) z
+                                                                                                                                                      in Node (Peek_ReportImageView_MaybeImageFile _pp (if null f
+                                                                                                                                                                                                         then Just a
+                                                                                                                                                                                                         else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [MaybeImageFile])
+                                                                               _ -> []) (paths _s (Proxy :: Proxy MaybeImageFile)),
+                                                        concatMap (\pth -> case pth of
+                                                                               _pp@(Path_ReportImageView__picThumbDeprecated _wp) -> map (\a -> let f = peekTree a
+                                                                                                                                                 in let liftPeek (Peek_MaybeImageFile_String q
+                                                                                                                                                                                             z) = Peek_ReportImageView_String (Path_ReportImageView__picThumbDeprecated q) z
+                                                                                                                                                        liftPeek (Peek_MaybeImageFile_JSONText q
+                                                                                                                                                                                               z) = Peek_ReportImageView_JSONText (Path_ReportImageView__picThumbDeprecated q) z
+                                                                                                                                                        liftPeek (Peek_MaybeImageFile_MaybeImageFile q
+                                                                                                                                                                                                     z) = Peek_ReportImageView_MaybeImageFile (Path_ReportImageView__picThumbDeprecated q) z
+                                                                                                                                                     in Node (Peek_ReportImageView_MaybeImageFile _pp (if null f
+                                                                                                                                                                                                        then Just a
+                                                                                                                                                                                                        else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [MaybeImageFile])
+                                                                               _ -> []) (paths _s (Proxy :: Proxy MaybeImageFile)),
+                                                        concatMap (\pth -> case pth of
+                                                                               _pp@(Path_ReportImageView__picPrinterDeprecated _wp) -> map (\a -> let f = peekTree a
+                                                                                                                                                   in let liftPeek (Peek_MaybeImageFile_String q
+                                                                                                                                                                                               z) = Peek_ReportImageView_String (Path_ReportImageView__picPrinterDeprecated q) z
+                                                                                                                                                          liftPeek (Peek_MaybeImageFile_JSONText q
+                                                                                                                                                                                                 z) = Peek_ReportImageView_JSONText (Path_ReportImageView__picPrinterDeprecated q) z
+                                                                                                                                                          liftPeek (Peek_MaybeImageFile_MaybeImageFile q
+                                                                                                                                                                                                       z) = Peek_ReportImageView_MaybeImageFile (Path_ReportImageView__picPrinterDeprecated q) z
+                                                                                                                                                       in Node (Peek_ReportImageView_MaybeImageFile _pp (if null f
+                                                                                                                                                                                                          then Just a
+                                                                                                                                                                                                          else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [MaybeImageFile])
+                                                                               _ -> []) (paths _s (Proxy :: Proxy MaybeImageFile)),
+                                                        concatMap (\pth -> case pth of
+                                                                               _pp@(Path_ReportImageView__picMustEnlarge _wp) -> map (\a -> let f = peekTree a
+                                                                                                                                             in let liftPeek (Peek_Bool_String q
+                                                                                                                                                                               z) = Peek_ReportImageView_String (Path_ReportImageView__picMustEnlarge q) z
+                                                                                                                                                    liftPeek (Peek_Bool_Bool q z) = Peek_ReportImageView_Bool (Path_ReportImageView__picMustEnlarge q) z
+                                                                                                                                                    liftPeek (Peek_Bool_JSONText q
+                                                                                                                                                                                 z) = Peek_ReportImageView_JSONText (Path_ReportImageView__picMustEnlarge q) z
+                                                                                                                                                 in Node (Peek_ReportImageView_Bool _pp (if null f
+                                                                                                                                                                                          then Just a
+                                                                                                                                                                                          else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Bool])
+                                                                               _ -> []) (paths _s (Proxy :: Proxy Bool)),
+                                                        concatMap (\pth -> case pth of
+                                                                               _pp@(Path_ReportImageView__picEnlargedDeprecated _wp) -> map (\a -> let f = peekTree a
+                                                                                                                                                    in let liftPeek (Peek_MaybeImageFile_String q
+                                                                                                                                                                                                z) = Peek_ReportImageView_String (Path_ReportImageView__picEnlargedDeprecated q) z
+                                                                                                                                                           liftPeek (Peek_MaybeImageFile_JSONText q
+                                                                                                                                                                                                  z) = Peek_ReportImageView_JSONText (Path_ReportImageView__picEnlargedDeprecated q) z
+                                                                                                                                                           liftPeek (Peek_MaybeImageFile_MaybeImageFile q
+                                                                                                                                                                                                        z) = Peek_ReportImageView_MaybeImageFile (Path_ReportImageView__picEnlargedDeprecated q) z
+                                                                                                                                                        in Node (Peek_ReportImageView_MaybeImageFile _pp (if null f
+                                                                                                                                                                                                           then Just a
+                                                                                                                                                                                                           else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [MaybeImageFile])
+                                                                               _ -> []) (paths _s (Proxy :: Proxy MaybeImageFile))] :: Forest (Peek ReportImageView)
+          peekRow (_s@(ReportImageView {})) = mconcat [concatMap (\pth -> case pth of
+                                                                              _pp@(Path_ReportImageView__picSize _wp) -> map (\a -> Peek_ReportImageView_SaneSizeImageSize _pp (Just a)) (toListOf (toLens _pp) _s :: [SaneSizeImageSize])
+                                                                              _ -> []) (paths _s (Proxy :: Proxy SaneSizeImageSize)),
+                                                       concatMap (\pth -> case pth of
+                                                                              _pp@(Path_ReportImageView__picCrop _wp) -> map (\a -> Peek_ReportImageView_ImageCrop _pp (Just a)) (toListOf (toLens _pp) _s :: [ImageCrop])
+                                                                              _ -> []) (paths _s (Proxy :: Proxy ImageCrop)),
+                                                       concatMap (\pth -> case pth of
+                                                                              _pp@(Path_ReportImageView__picCaption _wp) -> map (\a -> Peek_ReportImageView_Markup _pp (Just a)) (toListOf (toLens _pp) _s :: [Markup])
+                                                                              _ -> []) (paths _s (Proxy :: Proxy Markup)),
+                                                       concatMap (\pth -> case pth of
+                                                                              _pp@(Path_ReportImageView__picOriginal _wp) -> map (\a -> Peek_ReportImageView_MEUI _pp (Just a)) (toListOf (toLens _pp) _s :: [MEUI])
+                                                                              _ -> []) (paths _s (Proxy :: Proxy MEUI)),
+                                                       concatMap (\pth -> case pth of
+                                                                              _pp@(Path_ReportImageView__picEditedDeprecated _wp) -> map (\a -> Peek_ReportImageView_MaybeImageFile _pp (Just a)) (toListOf (toLens _pp) _s :: [MaybeImageFile])
+                                                                              _ -> []) (paths _s (Proxy :: Proxy MaybeImageFile)),
+                                                       concatMap (\pth -> case pth of
+                                                                              _pp@(Path_ReportImageView__picThumbDeprecated _wp) -> map (\a -> Peek_ReportImageView_MaybeImageFile _pp (Just a)) (toListOf (toLens _pp) _s :: [MaybeImageFile])
+                                                                              _ -> []) (paths _s (Proxy :: Proxy MaybeImageFile)),
+                                                       concatMap (\pth -> case pth of
+                                                                              _pp@(Path_ReportImageView__picPrinterDeprecated _wp) -> map (\a -> Peek_ReportImageView_MaybeImageFile _pp (Just a)) (toListOf (toLens _pp) _s :: [MaybeImageFile])
+                                                                              _ -> []) (paths _s (Proxy :: Proxy MaybeImageFile)),
+                                                       concatMap (\pth -> case pth of
+                                                                              _pp@(Path_ReportImageView__picMustEnlarge _wp) -> map (\a -> Peek_ReportImageView_Bool _pp (Just a)) (toListOf (toLens _pp) _s :: [Bool])
+                                                                              _ -> []) (paths _s (Proxy :: Proxy Bool)),
+                                                       concatMap (\pth -> case pth of
+                                                                              _pp@(Path_ReportImageView__picEnlargedDeprecated _wp) -> map (\a -> Peek_ReportImageView_MaybeImageFile _pp (Just a)) (toListOf (toLens _pp) _s :: [MaybeImageFile])
+                                                                              _ -> []) (paths _s (Proxy :: Proxy MaybeImageFile))] :: [Peek ReportImageView]
 instance PathStart ReportView
     where data Peek ReportView
-              = Peek_ReportView_String (Path ReportView ([Char])) (Maybe ([Char]))
+              = Peek_ReportView_String (Path ReportView String) (Maybe String)
               | Peek_ReportView_Int64 (Path ReportView Int64) (Maybe Int64)
               | Peek_ReportView_Int (Path ReportView Int) (Maybe Int)
               | Peek_ReportView_Bool (Path ReportView Bool) (Maybe Bool)
@@ -11131,643 +11479,663 @@ instance PathStart ReportView
               | Peek_ReportView_JSONText (Path ReportView JSONText) (Maybe JSONText)
               | Peek_ReportView_Markup (Path ReportView Markup) (Maybe Markup)
               | Peek_ReportView_Permissions (Path ReportView Permissions) (Maybe Permissions)
-              | Peek_ReportView_UserIds (Path ReportView ([UserId])) (Maybe ([UserId]))
-              | Peek_ReportView_AbbrevPair (Path ReportView ((CIString, Markup))) (Maybe ((CIString, Markup)))
-              | Peek_ReportView_AbbrevPairs (Path ReportView (Order AbbrevPairID ((CIString, Markup)))) (Maybe (Order AbbrevPairID ((CIString, Markup))))
+              | Peek_ReportView_UserIds (Path ReportView UserIds) (Maybe UserIds)
+              | Peek_ReportView_AbbrevPair (Path ReportView AbbrevPair) (Maybe AbbrevPair)
+              | Peek_ReportView_AbbrevPairs (Path ReportView AbbrevPairs) (Maybe AbbrevPairs)
               | Peek_ReportView_Author (Path ReportView Author) (Maybe Author)
-              | Peek_ReportView_Authors (Path ReportView (Order AuthorID Author)) (Maybe (Order AuthorID Author))
+              | Peek_ReportView_Authors (Path ReportView Authors) (Maybe Authors)
               | Peek_ReportView_Branding (Path ReportView Branding) (Maybe Branding)
-              | Peek_ReportView_MarkupPair (Path ReportView ((Markup, Markup))) (Maybe ((Markup, Markup)))
-              | Peek_ReportView_MarkupPairs (Path ReportView (Order MarkupPairID ((Markup, Markup)))) (Maybe (Order MarkupPairID ((Markup, Markup))))
-              | Peek_ReportView_Markups (Path ReportView (Order MarkupID Markup)) (Maybe (Order MarkupID Markup))
-              | Peek_ReportView_MaybeReportIntendedUse (Path ReportView (Maybe ReportIntendedUse)) (Maybe (Maybe ReportIntendedUse))
+              | Peek_ReportView_MarkupPair (Path ReportView MarkupPair) (Maybe MarkupPair)
+              | Peek_ReportView_MarkupPairs (Path ReportView MarkupPairs) (Maybe MarkupPairs)
+              | Peek_ReportView_Markups (Path ReportView Markups) (Maybe Markups)
+              | Peek_ReportView_MaybeReportIntendedUse (Path ReportView MaybeReportIntendedUse) (Maybe MaybeReportIntendedUse)
               | Peek_ReportView_ReportElem (Path ReportView ReportElem) (Maybe ReportElem)
-              | Peek_ReportView_ReportElems (Path ReportView (Order ReportElemID ReportElem)) (Maybe (Order ReportElemID ReportElem))
+              | Peek_ReportView_ReportElems (Path ReportView ReportElems) (Maybe ReportElems)
               | Peek_ReportView_ReportFlags (Path ReportView ReportFlags) (Maybe ReportFlags)
               | Peek_ReportView_ReportStandard (Path ReportView ReportStandard) (Maybe ReportStandard)
               | Peek_ReportView_ReportStatus (Path ReportView ReportStatus) (Maybe ReportStatus)
               | Peek_ReportView_ReportValueApproachInfo (Path ReportView ReportValueApproachInfo) (Maybe ReportValueApproachInfo)
               | Peek_ReportView_ReportValueTypeInfo (Path ReportView ReportValueTypeInfo) (Maybe ReportValueTypeInfo)
-              | Peek_ReportView_EUI (Path ReportView (Either URI ImageFile)) (Maybe (Either URI ImageFile))
-              | Peek_ReportView_MEUI (Path ReportView (Maybe (Either URI ImageFile))) (Maybe (Maybe (Either URI ImageFile)))
-              | Peek_ReportView_MaybeImageFile (Path ReportView (Maybe ImageFile)) (Maybe (Maybe ImageFile))
+              | Peek_ReportView_EUI (Path ReportView EUI) (Maybe EUI)
+              | Peek_ReportView_MEUI (Path ReportView MEUI) (Maybe MEUI)
+              | Peek_ReportView_MaybeImageFile (Path ReportView MaybeImageFile) (Maybe MaybeImageFile)
               | Peek_ReportView_ReportImage (Path ReportView ReportImage) (Maybe ReportImage)
-              | Peek_ReportView_ReportImages (Path ReportView (Order ReportImageID ReportImage)) (Maybe (Order ReportImageID ReportImage))
-              | Peek_ReportView_ReadOnlyFilePath (Path ReportView (ReadOnly ([Char]))) (Maybe (ReadOnly ([Char])))
+              | Peek_ReportView_ReportImages (Path ReportView ReportImages) (Maybe ReportImages)
+              | Peek_ReportView_ReadOnlyFilePath (Path ReportView ReadOnlyFilePath) (Maybe ReadOnlyFilePath)
               | Peek_ReportView_ReportImageView (Path ReportView ReportImageView) (Maybe ReportImageView)
               | Peek_ReportView_ReportView (Path ReportView ReportView) (Maybe ReportView)
-              | Peek_ReportView_SaneSizeImageSize (Path ReportView (SaneSize ImageSize)) (Maybe (SaneSize ImageSize))
+              | Peek_ReportView_SaneSizeImageSize (Path ReportView SaneSizeImageSize) (Maybe SaneSizeImageSize)
               | Peek_ReportView_Item (Path ReportView Item) (Maybe Item)
-              | Peek_ReportView_MIM (Path ReportView (Map ItemFieldName Markup)) (Maybe (Map ItemFieldName Markup))
+              | Peek_ReportView_MIM (Path ReportView MIM) (Maybe MIM)
               | Peek_ReportView_CIString (Path ReportView CIString) (Maybe CIString)
               | Peek_ReportView_URI (Path ReportView URI) (Maybe URI)
               | Peek_ReportView_Text (Path ReportView Text) (Maybe Text)
               | Peek_ReportView_UserId (Path ReportView UserId) (Maybe UserId)
               | Peek_ReportView_UUID (Path ReportView UUID) (Maybe UUID)
               deriving (Eq, Show)
-          peek (_s@(ReportView {})) = mconcat [concatMap (\pth -> case pth of
-                                                                      _pp@(Path_ReportView__reportFolder _wp) -> map (\a -> let f = peek a
-                                                                                                                             in let liftPeek (Peek_ReadOnlyFilePath_String q z) = Peek_ReportView_String (Path_ReportView__reportFolder q) z
-                                                                                                                                    liftPeek (Peek_ReadOnlyFilePath_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportFolder q) z
-                                                                                                                                    liftPeek (Peek_ReadOnlyFilePath_ReadOnlyFilePath q
-                                                                                                                                                                                     z) = Peek_ReportView_ReadOnlyFilePath (Path_ReportView__reportFolder q) z
-                                                                                                                                 in Node (Peek_ReportView_ReadOnlyFilePath _pp (if null f
-                                                                                                                                                                                 then Just a
-                                                                                                                                                                                 else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [ReadOnly ([Char])])
-                                                                      _ -> []) (paths _s (Proxy :: Proxy (ReadOnly ([Char])))),
-                                               concatMap (\pth -> case pth of
-                                                                      _pp@(Path_ReportView__reportName _wp) -> map (\a -> let f = peek a
-                                                                                                                           in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportName q) z
-                                                                                                                                  liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportName q) z
-                                                                                                                                  liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportName q) z
-                                                                                                                               in Node (Peek_ReportView_Markup _pp (if null f
-                                                                                                                                                                     then Just a
-                                                                                                                                                                     else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
-                                                                      _ -> []) (paths _s (Proxy :: Proxy Markup)),
-                                               concatMap (\pth -> case pth of
-                                                                      _pp@(Path_ReportView__reportDate _wp) -> map (\a -> let f = peek a
-                                                                                                                           in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportDate q) z
-                                                                                                                                  liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportDate q) z
-                                                                                                                                  liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportDate q) z
-                                                                                                                               in Node (Peek_ReportView_Markup _pp (if null f
-                                                                                                                                                                     then Just a
-                                                                                                                                                                     else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
-                                                                      _ -> []) (paths _s (Proxy :: Proxy Markup)),
-                                               concatMap (\pth -> case pth of
-                                                                      _pp@(Path_ReportView__reportContractDate _wp) -> map (\a -> let f = peek a
-                                                                                                                                   in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportContractDate q) z
-                                                                                                                                          liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportContractDate q) z
-                                                                                                                                          liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportContractDate q) z
-                                                                                                                                       in Node (Peek_ReportView_Markup _pp (if null f
-                                                                                                                                                                             then Just a
-                                                                                                                                                                             else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
-                                                                      _ -> []) (paths _s (Proxy :: Proxy Markup)),
-                                               concatMap (\pth -> case pth of
-                                                                      _pp@(Path_ReportView__reportInspectionDate _wp) -> map (\a -> let f = peek a
-                                                                                                                                     in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportInspectionDate q) z
-                                                                                                                                            liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportInspectionDate q) z
-                                                                                                                                            liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportInspectionDate q) z
-                                                                                                                                         in Node (Peek_ReportView_Markup _pp (if null f
-                                                                                                                                                                               then Just a
-                                                                                                                                                                               else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
-                                                                      _ -> []) (paths _s (Proxy :: Proxy Markup)),
-                                               concatMap (\pth -> case pth of
-                                                                      _pp@(Path_ReportView__reportEffectiveDate _wp) -> map (\a -> let f = peek a
-                                                                                                                                    in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportEffectiveDate q) z
-                                                                                                                                           liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportEffectiveDate q) z
-                                                                                                                                           liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportEffectiveDate q) z
-                                                                                                                                        in Node (Peek_ReportView_Markup _pp (if null f
-                                                                                                                                                                              then Just a
-                                                                                                                                                                              else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
-                                                                      _ -> []) (paths _s (Proxy :: Proxy Markup)),
-                                               concatMap (\pth -> case pth of
-                                                                      _pp@(Path_ReportView__reportAuthors _wp) -> map (\a -> let f = peek a
-                                                                                                                              in let liftPeek (Peek_Authors_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportAuthors q) z
-                                                                                                                                     liftPeek (Peek_Authors_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportAuthors q) z
-                                                                                                                                     liftPeek (Peek_Authors_Author q z) = Peek_ReportView_Author (Path_ReportView__reportAuthors q) z
-                                                                                                                                     liftPeek (Peek_Authors_Authors q z) = Peek_ReportView_Authors (Path_ReportView__reportAuthors q) z
-                                                                                                                                     liftPeek (Peek_Authors_Text q z) = Peek_ReportView_Text (Path_ReportView__reportAuthors q) z
-                                                                                                                                  in Node (Peek_ReportView_Authors _pp (if null f
-                                                                                                                                                                         then Just a
-                                                                                                                                                                         else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Order AuthorID
-                                                                                                                                                                                                                                                    Author])
-                                                                      _ -> []) (paths _s (Proxy :: Proxy (Order AuthorID Author))),
-                                               concatMap (\pth -> case pth of
-                                                                      _pp@(Path_ReportView__reportPreparer _wp) -> map (\a -> let f = peek a
-                                                                                                                               in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportPreparer q) z
-                                                                                                                                      liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportPreparer q) z
-                                                                                                                                      liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportPreparer q) z
+          peekTree (_s@(ReportView {})) = mconcat [concatMap (\pth -> case pth of
+                                                                          _pp@(Path_ReportView__reportFolder _wp) -> map (\a -> let f = peekTree a
+                                                                                                                                 in let liftPeek (Peek_ReadOnlyFilePath_String q z) = Peek_ReportView_String (Path_ReportView__reportFolder q) z
+                                                                                                                                        liftPeek (Peek_ReadOnlyFilePath_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportFolder q) z
+                                                                                                                                        liftPeek (Peek_ReadOnlyFilePath_ReadOnlyFilePath q
+                                                                                                                                                                                         z) = Peek_ReportView_ReadOnlyFilePath (Path_ReportView__reportFolder q) z
+                                                                                                                                     in Node (Peek_ReportView_ReadOnlyFilePath _pp (if null f
+                                                                                                                                                                                     then Just a
+                                                                                                                                                                                     else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [ReadOnlyFilePath])
+                                                                          _ -> []) (paths _s (Proxy :: Proxy ReadOnlyFilePath)),
+                                                   concatMap (\pth -> case pth of
+                                                                          _pp@(Path_ReportView__reportName _wp) -> map (\a -> let f = peekTree a
+                                                                                                                               in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportName q) z
+                                                                                                                                      liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportName q) z
+                                                                                                                                      liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportName q) z
                                                                                                                                    in Node (Peek_ReportView_Markup _pp (if null f
                                                                                                                                                                          then Just a
                                                                                                                                                                          else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
-                                                                      _ -> []) (paths _s (Proxy :: Proxy Markup)),
-                                               concatMap (\pth -> case pth of
-                                                                      _pp@(Path_ReportView__reportPreparerEIN _wp) -> map (\a -> let f = peek a
-                                                                                                                                  in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportPreparerEIN q) z
-                                                                                                                                         liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportPreparerEIN q) z
-                                                                                                                                         liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportPreparerEIN q) z
-                                                                                                                                      in Node (Peek_ReportView_Markup _pp (if null f
-                                                                                                                                                                            then Just a
-                                                                                                                                                                            else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
-                                                                      _ -> []) (paths _s (Proxy :: Proxy Markup)),
-                                               concatMap (\pth -> case pth of
-                                                                      _pp@(Path_ReportView__reportPreparerAddress _wp) -> map (\a -> let f = peek a
-                                                                                                                                      in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportPreparerAddress q) z
-                                                                                                                                             liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportPreparerAddress q) z
-                                                                                                                                             liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportPreparerAddress q) z
-                                                                                                                                          in Node (Peek_ReportView_Markup _pp (if null f
-                                                                                                                                                                                then Just a
-                                                                                                                                                                                else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
-                                                                      _ -> []) (paths _s (Proxy :: Proxy Markup)),
-                                               concatMap (\pth -> case pth of
-                                                                      _pp@(Path_ReportView__reportPreparerEMail _wp) -> map (\a -> let f = peek a
-                                                                                                                                    in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportPreparerEMail q) z
-                                                                                                                                           liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportPreparerEMail q) z
-                                                                                                                                           liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportPreparerEMail q) z
-                                                                                                                                        in Node (Peek_ReportView_Markup _pp (if null f
-                                                                                                                                                                              then Just a
-                                                                                                                                                                              else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
-                                                                      _ -> []) (paths _s (Proxy :: Proxy Markup)),
-                                               concatMap (\pth -> case pth of
-                                                                      _pp@(Path_ReportView__reportPreparerWebsite _wp) -> map (\a -> let f = peek a
-                                                                                                                                      in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportPreparerWebsite q) z
-                                                                                                                                             liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportPreparerWebsite q) z
-                                                                                                                                             liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportPreparerWebsite q) z
-                                                                                                                                          in Node (Peek_ReportView_Markup _pp (if null f
-                                                                                                                                                                                then Just a
-                                                                                                                                                                                else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
-                                                                      _ -> []) (paths _s (Proxy :: Proxy Markup)),
-                                               concatMap (\pth -> case pth of
-                                                                      _pp@(Path_ReportView__reportAbbrevs _wp) -> map (\a -> let f = peek a
-                                                                                                                              in let liftPeek (Peek_AbbrevPairs_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportAbbrevs q) z
-                                                                                                                                     liftPeek (Peek_AbbrevPairs_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportAbbrevs q) z
-                                                                                                                                     liftPeek (Peek_AbbrevPairs_AbbrevPair q z) = Peek_ReportView_AbbrevPair (Path_ReportView__reportAbbrevs q) z
-                                                                                                                                     liftPeek (Peek_AbbrevPairs_AbbrevPairs q z) = Peek_ReportView_AbbrevPairs (Path_ReportView__reportAbbrevs q) z
-                                                                                                                                     liftPeek (Peek_AbbrevPairs_CIString q z) = Peek_ReportView_CIString (Path_ReportView__reportAbbrevs q) z
-                                                                                                                                     liftPeek (Peek_AbbrevPairs_Text q z) = Peek_ReportView_Text (Path_ReportView__reportAbbrevs q) z
-                                                                                                                                  in Node (Peek_ReportView_AbbrevPairs _pp (if null f
-                                                                                                                                                                             then Just a
-                                                                                                                                                                             else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Order AbbrevPairID
-                                                                                                                                                                                                                                                        ((CIString,
-                                                                                                                                                                                                                                                          Markup))])
-                                                                      _ -> []) (paths _s (Proxy :: Proxy (Order AbbrevPairID ((CIString, Markup))))),
-                                               concatMap (\pth -> case pth of
-                                                                      _pp@(Path_ReportView__reportTitle _wp) -> map (\a -> let f = peek a
-                                                                                                                            in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportTitle q) z
-                                                                                                                                   liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportTitle q) z
-                                                                                                                                   liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportTitle q) z
-                                                                                                                                in Node (Peek_ReportView_Markup _pp (if null f
-                                                                                                                                                                      then Just a
-                                                                                                                                                                      else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
-                                                                      _ -> []) (paths _s (Proxy :: Proxy Markup)),
-                                               concatMap (\pth -> case pth of
-                                                                      _pp@(Path_ReportView__reportHeader _wp) -> map (\a -> let f = peek a
-                                                                                                                             in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportHeader q) z
-                                                                                                                                    liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportHeader q) z
-                                                                                                                                    liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportHeader q) z
-                                                                                                                                 in Node (Peek_ReportView_Markup _pp (if null f
-                                                                                                                                                                       then Just a
-                                                                                                                                                                       else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
-                                                                      _ -> []) (paths _s (Proxy :: Proxy Markup)),
-                                               concatMap (\pth -> case pth of
-                                                                      _pp@(Path_ReportView__reportFooter _wp) -> map (\a -> let f = peek a
-                                                                                                                             in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportFooter q) z
-                                                                                                                                    liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportFooter q) z
-                                                                                                                                    liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportFooter q) z
-                                                                                                                                 in Node (Peek_ReportView_Markup _pp (if null f
-                                                                                                                                                                       then Just a
-                                                                                                                                                                       else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
-                                                                      _ -> []) (paths _s (Proxy :: Proxy Markup)),
-                                               concatMap (\pth -> case pth of
-                                                                      _pp@(Path_ReportView__reportIntendedUse _wp) -> map (\a -> let f = peek a
-                                                                                                                                  in let liftPeek (Peek_MaybeReportIntendedUse_String q
-                                                                                                                                                                                      z) = Peek_ReportView_String (Path_ReportView__reportIntendedUse q) z
-                                                                                                                                         liftPeek (Peek_MaybeReportIntendedUse_JSONText q
-                                                                                                                                                                                        z) = Peek_ReportView_JSONText (Path_ReportView__reportIntendedUse q) z
-                                                                                                                                         liftPeek (Peek_MaybeReportIntendedUse_MaybeReportIntendedUse q
-                                                                                                                                                                                                      z) = Peek_ReportView_MaybeReportIntendedUse (Path_ReportView__reportIntendedUse q) z
-                                                                                                                                      in Node (Peek_ReportView_MaybeReportIntendedUse _pp (if null f
-                                                                                                                                                                                            then Just a
-                                                                                                                                                                                            else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Maybe ReportIntendedUse])
-                                                                      _ -> []) (paths _s (Proxy :: Proxy (Maybe ReportIntendedUse))),
-                                               concatMap (\pth -> case pth of
-                                                                      _pp@(Path_ReportView__reportValueTypeInfo _wp) -> map (\a -> let f = peek a
-                                                                                                                                    in let liftPeek (Peek_ReportValueTypeInfo_JSONText q
-                                                                                                                                                                                       z) = Peek_ReportView_JSONText (Path_ReportView__reportValueTypeInfo q) z
-                                                                                                                                           liftPeek (Peek_ReportValueTypeInfo_Markup q
-                                                                                                                                                                                     z) = Peek_ReportView_Markup (Path_ReportView__reportValueTypeInfo q) z
-                                                                                                                                           liftPeek (Peek_ReportValueTypeInfo_ReportValueTypeInfo q
-                                                                                                                                                                                                  z) = Peek_ReportView_ReportValueTypeInfo (Path_ReportView__reportValueTypeInfo q) z
-                                                                                                                                           liftPeek (Peek_ReportValueTypeInfo_Text q z) = Peek_ReportView_Text (Path_ReportView__reportValueTypeInfo q) z
-                                                                                                                                        in Node (Peek_ReportView_ReportValueTypeInfo _pp (if null f
-                                                                                                                                                                                           then Just a
-                                                                                                                                                                                           else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [ReportValueTypeInfo])
-                                                                      _ -> []) (paths _s (Proxy :: Proxy ReportValueTypeInfo)),
-                                               concatMap (\pth -> case pth of
-                                                                      _pp@(Path_ReportView__reportValueApproachInfo _wp) -> map (\a -> let f = peek a
-                                                                                                                                        in let liftPeek (Peek_ReportValueApproachInfo_JSONText q
-                                                                                                                                                                                               z) = Peek_ReportView_JSONText (Path_ReportView__reportValueApproachInfo q) z
-                                                                                                                                               liftPeek (Peek_ReportValueApproachInfo_Markup q
-                                                                                                                                                                                             z) = Peek_ReportView_Markup (Path_ReportView__reportValueApproachInfo q) z
-                                                                                                                                               liftPeek (Peek_ReportValueApproachInfo_ReportValueApproachInfo q
-                                                                                                                                                                                                              z) = Peek_ReportView_ReportValueApproachInfo (Path_ReportView__reportValueApproachInfo q) z
-                                                                                                                                               liftPeek (Peek_ReportValueApproachInfo_Text q
-                                                                                                                                                                                           z) = Peek_ReportView_Text (Path_ReportView__reportValueApproachInfo q) z
-                                                                                                                                            in Node (Peek_ReportView_ReportValueApproachInfo _pp (if null f
-                                                                                                                                                                                                   then Just a
-                                                                                                                                                                                                   else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [ReportValueApproachInfo])
-                                                                      _ -> []) (paths _s (Proxy :: Proxy ReportValueApproachInfo)),
-                                               concatMap (\pth -> case pth of
-                                                                      _pp@(Path_ReportView__reportClientName _wp) -> map (\a -> let f = peek a
-                                                                                                                                 in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportClientName q) z
-                                                                                                                                        liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportClientName q) z
-                                                                                                                                        liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportClientName q) z
-                                                                                                                                     in Node (Peek_ReportView_Markup _pp (if null f
-                                                                                                                                                                           then Just a
-                                                                                                                                                                           else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
-                                                                      _ -> []) (paths _s (Proxy :: Proxy Markup)),
-                                               concatMap (\pth -> case pth of
-                                                                      _pp@(Path_ReportView__reportClientAddress _wp) -> map (\a -> let f = peek a
-                                                                                                                                    in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportClientAddress q) z
-                                                                                                                                           liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportClientAddress q) z
-                                                                                                                                           liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportClientAddress q) z
-                                                                                                                                        in Node (Peek_ReportView_Markup _pp (if null f
-                                                                                                                                                                              then Just a
-                                                                                                                                                                              else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
-                                                                      _ -> []) (paths _s (Proxy :: Proxy Markup)),
-                                               concatMap (\pth -> case pth of
-                                                                      _pp@(Path_ReportView__reportClientGreeting _wp) -> map (\a -> let f = peek a
-                                                                                                                                     in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportClientGreeting q) z
-                                                                                                                                            liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportClientGreeting q) z
-                                                                                                                                            liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportClientGreeting q) z
-                                                                                                                                         in Node (Peek_ReportView_Markup _pp (if null f
-                                                                                                                                                                               then Just a
-                                                                                                                                                                               else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
-                                                                      _ -> []) (paths _s (Proxy :: Proxy Markup)),
-                                               concatMap (\pth -> case pth of
-                                                                      _pp@(Path_ReportView__reportItemsOwnerFull _wp) -> map (\a -> let f = peek a
-                                                                                                                                     in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportItemsOwnerFull q) z
-                                                                                                                                            liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportItemsOwnerFull q) z
-                                                                                                                                            liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportItemsOwnerFull q) z
-                                                                                                                                         in Node (Peek_ReportView_Markup _pp (if null f
-                                                                                                                                                                               then Just a
-                                                                                                                                                                               else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
-                                                                      _ -> []) (paths _s (Proxy :: Proxy Markup)),
-                                               concatMap (\pth -> case pth of
-                                                                      _pp@(Path_ReportView__reportItemsOwner _wp) -> map (\a -> let f = peek a
-                                                                                                                                 in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportItemsOwner q) z
-                                                                                                                                        liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportItemsOwner q) z
-                                                                                                                                        liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportItemsOwner q) z
-                                                                                                                                     in Node (Peek_ReportView_Markup _pp (if null f
-                                                                                                                                                                           then Just a
-                                                                                                                                                                           else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
-                                                                      _ -> []) (paths _s (Proxy :: Proxy Markup)),
-                                               concatMap (\pth -> case pth of
-                                                                      _pp@(Path_ReportView__reportBriefItems _wp) -> map (\a -> let f = peek a
-                                                                                                                                 in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportBriefItems q) z
-                                                                                                                                        liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportBriefItems q) z
-                                                                                                                                        liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportBriefItems q) z
-                                                                                                                                     in Node (Peek_ReportView_Markup _pp (if null f
-                                                                                                                                                                           then Just a
-                                                                                                                                                                           else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
-                                                                      _ -> []) (paths _s (Proxy :: Proxy Markup)),
-                                               concatMap (\pth -> case pth of
-                                                                      _pp@(Path_ReportView__reportInspectionLocation _wp) -> map (\a -> let f = peek a
-                                                                                                                                         in let liftPeek (Peek_Markup_JSONText q
-                                                                                                                                                                               z) = Peek_ReportView_JSONText (Path_ReportView__reportInspectionLocation q) z
-                                                                                                                                                liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportInspectionLocation q) z
-                                                                                                                                                liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportInspectionLocation q) z
+                                                                          _ -> []) (paths _s (Proxy :: Proxy Markup)),
+                                                   concatMap (\pth -> case pth of
+                                                                          _pp@(Path_ReportView__reportDate _wp) -> map (\a -> let f = peekTree a
+                                                                                                                               in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportDate q) z
+                                                                                                                                      liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportDate q) z
+                                                                                                                                      liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportDate q) z
+                                                                                                                                   in Node (Peek_ReportView_Markup _pp (if null f
+                                                                                                                                                                         then Just a
+                                                                                                                                                                         else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
+                                                                          _ -> []) (paths _s (Proxy :: Proxy Markup)),
+                                                   concatMap (\pth -> case pth of
+                                                                          _pp@(Path_ReportView__reportContractDate _wp) -> map (\a -> let f = peekTree a
+                                                                                                                                       in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportContractDate q) z
+                                                                                                                                              liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportContractDate q) z
+                                                                                                                                              liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportContractDate q) z
+                                                                                                                                           in Node (Peek_ReportView_Markup _pp (if null f
+                                                                                                                                                                                 then Just a
+                                                                                                                                                                                 else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
+                                                                          _ -> []) (paths _s (Proxy :: Proxy Markup)),
+                                                   concatMap (\pth -> case pth of
+                                                                          _pp@(Path_ReportView__reportInspectionDate _wp) -> map (\a -> let f = peekTree a
+                                                                                                                                         in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportInspectionDate q) z
+                                                                                                                                                liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportInspectionDate q) z
+                                                                                                                                                liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportInspectionDate q) z
                                                                                                                                              in Node (Peek_ReportView_Markup _pp (if null f
                                                                                                                                                                                    then Just a
                                                                                                                                                                                    else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
-                                                                      _ -> []) (paths _s (Proxy :: Proxy Markup)),
-                                               concatMap (\pth -> case pth of
-                                                                      _pp@(Path_ReportView__reportBody _wp) -> map (\a -> let f = peek a
-                                                                                                                           in let liftPeek (Peek_ReportElems_String q z) = Peek_ReportView_String (Path_ReportView__reportBody q) z
-                                                                                                                                  liftPeek (Peek_ReportElems_Bool q z) = Peek_ReportView_Bool (Path_ReportView__reportBody q) z
-                                                                                                                                  liftPeek (Peek_ReportElems_Double q z) = Peek_ReportView_Double (Path_ReportView__reportBody q) z
-                                                                                                                                  liftPeek (Peek_ReportElems_Dimension q z) = Peek_ReportView_Dimension (Path_ReportView__reportBody q) z
-                                                                                                                                  liftPeek (Peek_ReportElems_ImageCrop q z) = Peek_ReportView_ImageCrop (Path_ReportView__reportBody q) z
-                                                                                                                                  liftPeek (Peek_ReportElems_ImageSize q z) = Peek_ReportView_ImageSize (Path_ReportView__reportBody q) z
-                                                                                                                                  liftPeek (Peek_ReportElems_Units q z) = Peek_ReportView_Units (Path_ReportView__reportBody q) z
-                                                                                                                                  liftPeek (Peek_ReportElems_ImageFile q z) = Peek_ReportView_ImageFile (Path_ReportView__reportBody q) z
-                                                                                                                                  liftPeek (Peek_ReportElems_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportBody q) z
-                                                                                                                                  liftPeek (Peek_ReportElems_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportBody q) z
-                                                                                                                                  liftPeek (Peek_ReportElems_ReportElem q z) = Peek_ReportView_ReportElem (Path_ReportView__reportBody q) z
-                                                                                                                                  liftPeek (Peek_ReportElems_ReportElems q z) = Peek_ReportView_ReportElems (Path_ReportView__reportBody q) z
-                                                                                                                                  liftPeek (Peek_ReportElems_EUI q z) = Peek_ReportView_EUI (Path_ReportView__reportBody q) z
-                                                                                                                                  liftPeek (Peek_ReportElems_MEUI q z) = Peek_ReportView_MEUI (Path_ReportView__reportBody q) z
-                                                                                                                                  liftPeek (Peek_ReportElems_MaybeImageFile q z) = Peek_ReportView_MaybeImageFile (Path_ReportView__reportBody q) z
-                                                                                                                                  liftPeek (Peek_ReportElems_ReportImage q z) = Peek_ReportView_ReportImage (Path_ReportView__reportBody q) z
-                                                                                                                                  liftPeek (Peek_ReportElems_ReportImages q z) = Peek_ReportView_ReportImages (Path_ReportView__reportBody q) z
-                                                                                                                                  liftPeek (Peek_ReportElems_ReportImageView q z) = Peek_ReportView_ReportImageView (Path_ReportView__reportBody q) z
-                                                                                                                                  liftPeek (Peek_ReportElems_SaneSizeImageSize q z) = Peek_ReportView_SaneSizeImageSize (Path_ReportView__reportBody q) z
-                                                                                                                                  liftPeek (Peek_ReportElems_Item q z) = Peek_ReportView_Item (Path_ReportView__reportBody q) z
-                                                                                                                                  liftPeek (Peek_ReportElems_MIM q z) = Peek_ReportView_MIM (Path_ReportView__reportBody q) z
-                                                                                                                                  liftPeek (Peek_ReportElems_URI q z) = Peek_ReportView_URI (Path_ReportView__reportBody q) z
-                                                                                                                                  liftPeek (Peek_ReportElems_Text q z) = Peek_ReportView_Text (Path_ReportView__reportBody q) z
-                                                                                                                               in Node (Peek_ReportView_ReportElems _pp (if null f
-                                                                                                                                                                          then Just a
-                                                                                                                                                                          else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Order ReportElemID
-                                                                                                                                                                                                                                                     ReportElem])
-                                                                      _ -> []) (paths _s (Proxy :: Proxy (Order ReportElemID ReportElem))),
-                                               concatMap (\pth -> case pth of
-                                                                      _pp@(Path_ReportView__reportGlossary _wp) -> map (\a -> let f = peek a
-                                                                                                                               in let liftPeek (Peek_MarkupPairs_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportGlossary q) z
-                                                                                                                                      liftPeek (Peek_MarkupPairs_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportGlossary q) z
-                                                                                                                                      liftPeek (Peek_MarkupPairs_MarkupPair q z) = Peek_ReportView_MarkupPair (Path_ReportView__reportGlossary q) z
-                                                                                                                                      liftPeek (Peek_MarkupPairs_MarkupPairs q z) = Peek_ReportView_MarkupPairs (Path_ReportView__reportGlossary q) z
-                                                                                                                                      liftPeek (Peek_MarkupPairs_Text q z) = Peek_ReportView_Text (Path_ReportView__reportGlossary q) z
-                                                                                                                                   in Node (Peek_ReportView_MarkupPairs _pp (if null f
-                                                                                                                                                                              then Just a
-                                                                                                                                                                              else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Order MarkupPairID
-                                                                                                                                                                                                                                                         ((Markup,
-                                                                                                                                                                                                                                                           Markup))])
-                                                                      _ -> []) (paths _s (Proxy :: Proxy (Order MarkupPairID ((Markup, Markup))))),
-                                               concatMap (\pth -> case pth of
-                                                                      _pp@(Path_ReportView__reportSources _wp) -> map (\a -> let f = peek a
-                                                                                                                              in let liftPeek (Peek_MarkupPairs_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportSources q) z
-                                                                                                                                     liftPeek (Peek_MarkupPairs_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportSources q) z
-                                                                                                                                     liftPeek (Peek_MarkupPairs_MarkupPair q z) = Peek_ReportView_MarkupPair (Path_ReportView__reportSources q) z
-                                                                                                                                     liftPeek (Peek_MarkupPairs_MarkupPairs q z) = Peek_ReportView_MarkupPairs (Path_ReportView__reportSources q) z
-                                                                                                                                     liftPeek (Peek_MarkupPairs_Text q z) = Peek_ReportView_Text (Path_ReportView__reportSources q) z
-                                                                                                                                  in Node (Peek_ReportView_MarkupPairs _pp (if null f
+                                                                          _ -> []) (paths _s (Proxy :: Proxy Markup)),
+                                                   concatMap (\pth -> case pth of
+                                                                          _pp@(Path_ReportView__reportEffectiveDate _wp) -> map (\a -> let f = peekTree a
+                                                                                                                                        in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportEffectiveDate q) z
+                                                                                                                                               liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportEffectiveDate q) z
+                                                                                                                                               liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportEffectiveDate q) z
+                                                                                                                                            in Node (Peek_ReportView_Markup _pp (if null f
+                                                                                                                                                                                  then Just a
+                                                                                                                                                                                  else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
+                                                                          _ -> []) (paths _s (Proxy :: Proxy Markup)),
+                                                   concatMap (\pth -> case pth of
+                                                                          _pp@(Path_ReportView__reportAuthors _wp) -> map (\a -> let f = peekTree a
+                                                                                                                                  in let liftPeek (Peek_Authors_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportAuthors q) z
+                                                                                                                                         liftPeek (Peek_Authors_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportAuthors q) z
+                                                                                                                                         liftPeek (Peek_Authors_Author q z) = Peek_ReportView_Author (Path_ReportView__reportAuthors q) z
+                                                                                                                                         liftPeek (Peek_Authors_Authors q z) = Peek_ReportView_Authors (Path_ReportView__reportAuthors q) z
+                                                                                                                                         liftPeek (Peek_Authors_Text q z) = Peek_ReportView_Text (Path_ReportView__reportAuthors q) z
+                                                                                                                                      in Node (Peek_ReportView_Authors _pp (if null f
                                                                                                                                                                              then Just a
-                                                                                                                                                                             else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Order MarkupPairID
-                                                                                                                                                                                                                                                        ((Markup,
-                                                                                                                                                                                                                                                          Markup))])
-                                                                      _ -> []) (paths _s (Proxy :: Proxy (Order MarkupPairID ((Markup, Markup))))),
-                                               concatMap (\pth -> case pth of
-                                                                      _pp@(Path_ReportView__reportLetterOfTransmittal _wp) -> map (\a -> let f = peek a
+                                                                                                                                                                             else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Authors])
+                                                                          _ -> []) (paths _s (Proxy :: Proxy Authors)),
+                                                   concatMap (\pth -> case pth of
+                                                                          _pp@(Path_ReportView__reportPreparer _wp) -> map (\a -> let f = peekTree a
+                                                                                                                                   in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportPreparer q) z
+                                                                                                                                          liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportPreparer q) z
+                                                                                                                                          liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportPreparer q) z
+                                                                                                                                       in Node (Peek_ReportView_Markup _pp (if null f
+                                                                                                                                                                             then Just a
+                                                                                                                                                                             else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
+                                                                          _ -> []) (paths _s (Proxy :: Proxy Markup)),
+                                                   concatMap (\pth -> case pth of
+                                                                          _pp@(Path_ReportView__reportPreparerEIN _wp) -> map (\a -> let f = peekTree a
+                                                                                                                                      in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportPreparerEIN q) z
+                                                                                                                                             liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportPreparerEIN q) z
+                                                                                                                                             liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportPreparerEIN q) z
+                                                                                                                                          in Node (Peek_ReportView_Markup _pp (if null f
+                                                                                                                                                                                then Just a
+                                                                                                                                                                                else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
+                                                                          _ -> []) (paths _s (Proxy :: Proxy Markup)),
+                                                   concatMap (\pth -> case pth of
+                                                                          _pp@(Path_ReportView__reportPreparerAddress _wp) -> map (\a -> let f = peekTree a
                                                                                                                                           in let liftPeek (Peek_Markup_JSONText q
-                                                                                                                                                                                z) = Peek_ReportView_JSONText (Path_ReportView__reportLetterOfTransmittal q) z
-                                                                                                                                                 liftPeek (Peek_Markup_Markup q
-                                                                                                                                                                              z) = Peek_ReportView_Markup (Path_ReportView__reportLetterOfTransmittal q) z
-                                                                                                                                                 liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportLetterOfTransmittal q) z
+                                                                                                                                                                                z) = Peek_ReportView_JSONText (Path_ReportView__reportPreparerAddress q) z
+                                                                                                                                                 liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportPreparerAddress q) z
+                                                                                                                                                 liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportPreparerAddress q) z
                                                                                                                                               in Node (Peek_ReportView_Markup _pp (if null f
                                                                                                                                                                                     then Just a
                                                                                                                                                                                     else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
-                                                                      _ -> []) (paths _s (Proxy :: Proxy Markup)),
-                                               concatMap (\pth -> case pth of
-                                                                      _pp@(Path_ReportView__reportScopeOfWork _wp) -> map (\a -> let f = peek a
-                                                                                                                                  in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportScopeOfWork q) z
-                                                                                                                                         liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportScopeOfWork q) z
-                                                                                                                                         liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportScopeOfWork q) z
-                                                                                                                                      in Node (Peek_ReportView_Markup _pp (if null f
-                                                                                                                                                                            then Just a
-                                                                                                                                                                            else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
-                                                                      _ -> []) (paths _s (Proxy :: Proxy Markup)),
-                                               concatMap (\pth -> case pth of
-                                                                      _pp@(Path_ReportView__reportCertification _wp) -> map (\a -> let f = peek a
-                                                                                                                                    in let liftPeek (Peek_Markups_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportCertification q) z
-                                                                                                                                           liftPeek (Peek_Markups_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportCertification q) z
-                                                                                                                                           liftPeek (Peek_Markups_Markups q z) = Peek_ReportView_Markups (Path_ReportView__reportCertification q) z
-                                                                                                                                           liftPeek (Peek_Markups_Text q z) = Peek_ReportView_Text (Path_ReportView__reportCertification q) z
-                                                                                                                                        in Node (Peek_ReportView_Markups _pp (if null f
-                                                                                                                                                                               then Just a
-                                                                                                                                                                               else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Order MarkupID
-                                                                                                                                                                                                                                                          Markup])
-                                                                      _ -> []) (paths _s (Proxy :: Proxy (Order MarkupID Markup))),
-                                               concatMap (\pth -> case pth of
-                                                                      _pp@(Path_ReportView__reportLimitingConditions _wp) -> map (\a -> let f = peek a
-                                                                                                                                         in let liftPeek (Peek_Markups_JSONText q
-                                                                                                                                                                                z) = Peek_ReportView_JSONText (Path_ReportView__reportLimitingConditions q) z
-                                                                                                                                                liftPeek (Peek_Markups_Markup q
-                                                                                                                                                                              z) = Peek_ReportView_Markup (Path_ReportView__reportLimitingConditions q) z
-                                                                                                                                                liftPeek (Peek_Markups_Markups q
-                                                                                                                                                                               z) = Peek_ReportView_Markups (Path_ReportView__reportLimitingConditions q) z
-                                                                                                                                                liftPeek (Peek_Markups_Text q z) = Peek_ReportView_Text (Path_ReportView__reportLimitingConditions q) z
-                                                                                                                                             in Node (Peek_ReportView_Markups _pp (if null f
+                                                                          _ -> []) (paths _s (Proxy :: Proxy Markup)),
+                                                   concatMap (\pth -> case pth of
+                                                                          _pp@(Path_ReportView__reportPreparerEMail _wp) -> map (\a -> let f = peekTree a
+                                                                                                                                        in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportPreparerEMail q) z
+                                                                                                                                               liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportPreparerEMail q) z
+                                                                                                                                               liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportPreparerEMail q) z
+                                                                                                                                            in Node (Peek_ReportView_Markup _pp (if null f
+                                                                                                                                                                                  then Just a
+                                                                                                                                                                                  else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
+                                                                          _ -> []) (paths _s (Proxy :: Proxy Markup)),
+                                                   concatMap (\pth -> case pth of
+                                                                          _pp@(Path_ReportView__reportPreparerWebsite _wp) -> map (\a -> let f = peekTree a
+                                                                                                                                          in let liftPeek (Peek_Markup_JSONText q
+                                                                                                                                                                                z) = Peek_ReportView_JSONText (Path_ReportView__reportPreparerWebsite q) z
+                                                                                                                                                 liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportPreparerWebsite q) z
+                                                                                                                                                 liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportPreparerWebsite q) z
+                                                                                                                                              in Node (Peek_ReportView_Markup _pp (if null f
                                                                                                                                                                                     then Just a
-                                                                                                                                                                                    else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Order MarkupID
-                                                                                                                                                                                                                                                               Markup])
-                                                                      _ -> []) (paths _s (Proxy :: Proxy (Order MarkupID Markup))),
-                                               concatMap (\pth -> case pth of
-                                                                      _pp@(Path_ReportView__reportPrivacyPolicy _wp) -> map (\a -> let f = peek a
-                                                                                                                                    in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportPrivacyPolicy q) z
-                                                                                                                                           liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportPrivacyPolicy q) z
-                                                                                                                                           liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportPrivacyPolicy q) z
-                                                                                                                                        in Node (Peek_ReportView_Markup _pp (if null f
-                                                                                                                                                                              then Just a
-                                                                                                                                                                              else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
-                                                                      _ -> []) (paths _s (Proxy :: Proxy Markup)),
-                                               concatMap (\pth -> case pth of
-                                                                      _pp@(Path_ReportView__reportPerms _wp) -> map (\a -> let f = peek a
-                                                                                                                            in let liftPeek (Peek_Permissions_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportPerms q) z
-                                                                                                                                   liftPeek (Peek_Permissions_Permissions q z) = Peek_ReportView_Permissions (Path_ReportView__reportPerms q) z
-                                                                                                                                   liftPeek (Peek_Permissions_UserIds q z) = Peek_ReportView_UserIds (Path_ReportView__reportPerms q) z
-                                                                                                                                   liftPeek (Peek_Permissions_Text q z) = Peek_ReportView_Text (Path_ReportView__reportPerms q) z
-                                                                                                                                   liftPeek (Peek_Permissions_UserId q z) = Peek_ReportView_UserId (Path_ReportView__reportPerms q) z
-                                                                                                                                in Node (Peek_ReportView_Permissions _pp (if null f
-                                                                                                                                                                           then Just a
-                                                                                                                                                                           else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Permissions])
-                                                                      _ -> []) (paths _s (Proxy :: Proxy Permissions)),
-                                               concatMap (\pth -> case pth of
-                                                                      _pp@(Path_ReportView__reportRevision _wp) -> map (\a -> let f = peek a
-                                                                                                                               in let liftPeek (Peek_Integer_Integer q z) = Peek_ReportView_Integer (Path_ReportView__reportRevision q) z
-                                                                                                                                   in Node (Peek_ReportView_Integer _pp (if null f
+                                                                                                                                                                                    else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
+                                                                          _ -> []) (paths _s (Proxy :: Proxy Markup)),
+                                                   concatMap (\pth -> case pth of
+                                                                          _pp@(Path_ReportView__reportAbbrevs _wp) -> map (\a -> let f = peekTree a
+                                                                                                                                  in let liftPeek (Peek_AbbrevPairs_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportAbbrevs q) z
+                                                                                                                                         liftPeek (Peek_AbbrevPairs_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportAbbrevs q) z
+                                                                                                                                         liftPeek (Peek_AbbrevPairs_AbbrevPair q z) = Peek_ReportView_AbbrevPair (Path_ReportView__reportAbbrevs q) z
+                                                                                                                                         liftPeek (Peek_AbbrevPairs_AbbrevPairs q z) = Peek_ReportView_AbbrevPairs (Path_ReportView__reportAbbrevs q) z
+                                                                                                                                         liftPeek (Peek_AbbrevPairs_CIString q z) = Peek_ReportView_CIString (Path_ReportView__reportAbbrevs q) z
+                                                                                                                                         liftPeek (Peek_AbbrevPairs_Text q z) = Peek_ReportView_Text (Path_ReportView__reportAbbrevs q) z
+                                                                                                                                      in Node (Peek_ReportView_AbbrevPairs _pp (if null f
+                                                                                                                                                                                 then Just a
+                                                                                                                                                                                 else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [AbbrevPairs])
+                                                                          _ -> []) (paths _s (Proxy :: Proxy AbbrevPairs)),
+                                                   concatMap (\pth -> case pth of
+                                                                          _pp@(Path_ReportView__reportTitle _wp) -> map (\a -> let f = peekTree a
+                                                                                                                                in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportTitle q) z
+                                                                                                                                       liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportTitle q) z
+                                                                                                                                       liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportTitle q) z
+                                                                                                                                    in Node (Peek_ReportView_Markup _pp (if null f
                                                                                                                                                                           then Just a
-                                                                                                                                                                          else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Integer])
-                                                                      _ -> []) (paths _s (Proxy :: Proxy Integer)),
-                                               concatMap (\pth -> case pth of
-                                                                      _pp@(Path_ReportView__reportCreated _wp) -> map (\a -> let f = peek a
-                                                                                                                              in let liftPeek (Peek_Int64_Int64 q z) = Peek_ReportView_Int64 (Path_ReportView__reportCreated q) z
-                                                                                                                                  in Node (Peek_ReportView_Int64 _pp (if null f
-                                                                                                                                                                       then Just a
-                                                                                                                                                                       else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Int64])
-                                                                      _ -> []) (paths _s (Proxy :: Proxy Int64)),
-                                               concatMap (\pth -> case pth of
-                                                                      _pp@(Path_ReportView__reportBranding _wp) -> map (\a -> let f = peek a
-                                                                                                                               in let liftPeek (Peek_Branding_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportBranding q) z
-                                                                                                                                      liftPeek (Peek_Branding_Branding q z) = Peek_ReportView_Branding (Path_ReportView__reportBranding q) z
-                                                                                                                                      liftPeek (Peek_Branding_Text q z) = Peek_ReportView_Text (Path_ReportView__reportBranding q) z
-                                                                                                                                   in Node (Peek_ReportView_Branding _pp (if null f
+                                                                                                                                                                          else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
+                                                                          _ -> []) (paths _s (Proxy :: Proxy Markup)),
+                                                   concatMap (\pth -> case pth of
+                                                                          _pp@(Path_ReportView__reportHeader _wp) -> map (\a -> let f = peekTree a
+                                                                                                                                 in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportHeader q) z
+                                                                                                                                        liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportHeader q) z
+                                                                                                                                        liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportHeader q) z
+                                                                                                                                     in Node (Peek_ReportView_Markup _pp (if null f
                                                                                                                                                                            then Just a
-                                                                                                                                                                           else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Branding])
-                                                                      _ -> []) (paths _s (Proxy :: Proxy Branding)),
-                                               concatMap (\pth -> case pth of
-                                                                      _pp@(Path_ReportView__reportStatus _wp) -> map (\a -> let f = peek a
-                                                                                                                             in let liftPeek (Peek_ReportStatus_String q z) = Peek_ReportView_String (Path_ReportView__reportStatus q) z
-                                                                                                                                    liftPeek (Peek_ReportStatus_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportStatus q) z
-                                                                                                                                    liftPeek (Peek_ReportStatus_ReportStatus q z) = Peek_ReportView_ReportStatus (Path_ReportView__reportStatus q) z
-                                                                                                                                 in Node (Peek_ReportView_ReportStatus _pp (if null f
-                                                                                                                                                                             then Just a
-                                                                                                                                                                             else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [ReportStatus])
-                                                                      _ -> []) (paths _s (Proxy :: Proxy ReportStatus)),
-                                               concatMap (\pth -> case pth of
-                                                                      _pp@(Path_ReportView__reportRedacted _wp) -> map (\a -> let f = peek a
-                                                                                                                               in let liftPeek (Peek_Bool_String q z) = Peek_ReportView_String (Path_ReportView__reportRedacted q) z
-                                                                                                                                      liftPeek (Peek_Bool_Bool q z) = Peek_ReportView_Bool (Path_ReportView__reportRedacted q) z
-                                                                                                                                      liftPeek (Peek_Bool_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportRedacted q) z
-                                                                                                                                   in Node (Peek_ReportView_Bool _pp (if null f
-                                                                                                                                                                       then Just a
-                                                                                                                                                                       else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Bool])
-                                                                      _ -> []) (paths _s (Proxy :: Proxy Bool)),
-                                               concatMap (\pth -> case pth of
-                                                                      _pp@(Path_ReportView__reportFlags _wp) -> map (\a -> let f = peek a
-                                                                                                                            in let liftPeek (Peek_ReportFlags_String q z) = Peek_ReportView_String (Path_ReportView__reportFlags q) z
-                                                                                                                                   liftPeek (Peek_ReportFlags_Bool q z) = Peek_ReportView_Bool (Path_ReportView__reportFlags q) z
-                                                                                                                                   liftPeek (Peek_ReportFlags_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportFlags q) z
-                                                                                                                                   liftPeek (Peek_ReportFlags_ReportFlags q z) = Peek_ReportView_ReportFlags (Path_ReportView__reportFlags q) z
-                                                                                                                                in Node (Peek_ReportView_ReportFlags _pp (if null f
+                                                                                                                                                                           else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
+                                                                          _ -> []) (paths _s (Proxy :: Proxy Markup)),
+                                                   concatMap (\pth -> case pth of
+                                                                          _pp@(Path_ReportView__reportFooter _wp) -> map (\a -> let f = peekTree a
+                                                                                                                                 in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportFooter q) z
+                                                                                                                                        liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportFooter q) z
+                                                                                                                                        liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportFooter q) z
+                                                                                                                                     in Node (Peek_ReportView_Markup _pp (if null f
                                                                                                                                                                            then Just a
-                                                                                                                                                                           else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [ReportFlags])
-                                                                      _ -> []) (paths _s (Proxy :: Proxy ReportFlags)),
-                                               concatMap (\pth -> case pth of
-                                                                      _pp@(Path_ReportView__reportUUID _wp) -> map (\a -> let f = peek a
-                                                                                                                           in let liftPeek (Peek_UUID_UUID q z) = Peek_ReportView_UUID (Path_ReportView__reportUUID q) z
-                                                                                                                               in Node (Peek_ReportView_UUID _pp (if null f
-                                                                                                                                                                   then Just a
-                                                                                                                                                                   else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [UUID])
-                                                                      _ -> []) (paths _s (Proxy :: Proxy UUID)),
-                                               concatMap (\pth -> case pth of
-                                                                      _pp@(Path_ReportView__reportOrderByItemName _wp) -> map (\a -> let f = peek a
-                                                                                                                                      in let liftPeek (Peek_Bool_String q z) = Peek_ReportView_String (Path_ReportView__reportOrderByItemName q) z
-                                                                                                                                             liftPeek (Peek_Bool_Bool q z) = Peek_ReportView_Bool (Path_ReportView__reportOrderByItemName q) z
-                                                                                                                                             liftPeek (Peek_Bool_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportOrderByItemName q) z
-                                                                                                                                          in Node (Peek_ReportView_Bool _pp (if null f
+                                                                                                                                                                           else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
+                                                                          _ -> []) (paths _s (Proxy :: Proxy Markup)),
+                                                   concatMap (\pth -> case pth of
+                                                                          _pp@(Path_ReportView__reportIntendedUse _wp) -> map (\a -> let f = peekTree a
+                                                                                                                                      in let liftPeek (Peek_MaybeReportIntendedUse_String q
+                                                                                                                                                                                          z) = Peek_ReportView_String (Path_ReportView__reportIntendedUse q) z
+                                                                                                                                             liftPeek (Peek_MaybeReportIntendedUse_JSONText q
+                                                                                                                                                                                            z) = Peek_ReportView_JSONText (Path_ReportView__reportIntendedUse q) z
+                                                                                                                                             liftPeek (Peek_MaybeReportIntendedUse_MaybeReportIntendedUse q
+                                                                                                                                                                                                          z) = Peek_ReportView_MaybeReportIntendedUse (Path_ReportView__reportIntendedUse q) z
+                                                                                                                                          in Node (Peek_ReportView_MaybeReportIntendedUse _pp (if null f
+                                                                                                                                                                                                then Just a
+                                                                                                                                                                                                else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [MaybeReportIntendedUse])
+                                                                          _ -> []) (paths _s (Proxy :: Proxy MaybeReportIntendedUse)),
+                                                   concatMap (\pth -> case pth of
+                                                                          _pp@(Path_ReportView__reportValueTypeInfo _wp) -> map (\a -> let f = peekTree a
+                                                                                                                                        in let liftPeek (Peek_ReportValueTypeInfo_JSONText q
+                                                                                                                                                                                           z) = Peek_ReportView_JSONText (Path_ReportView__reportValueTypeInfo q) z
+                                                                                                                                               liftPeek (Peek_ReportValueTypeInfo_Markup q
+                                                                                                                                                                                         z) = Peek_ReportView_Markup (Path_ReportView__reportValueTypeInfo q) z
+                                                                                                                                               liftPeek (Peek_ReportValueTypeInfo_ReportValueTypeInfo q
+                                                                                                                                                                                                      z) = Peek_ReportView_ReportValueTypeInfo (Path_ReportView__reportValueTypeInfo q) z
+                                                                                                                                               liftPeek (Peek_ReportValueTypeInfo_Text q
+                                                                                                                                                                                       z) = Peek_ReportView_Text (Path_ReportView__reportValueTypeInfo q) z
+                                                                                                                                            in Node (Peek_ReportView_ReportValueTypeInfo _pp (if null f
+                                                                                                                                                                                               then Just a
+                                                                                                                                                                                               else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [ReportValueTypeInfo])
+                                                                          _ -> []) (paths _s (Proxy :: Proxy ReportValueTypeInfo)),
+                                                   concatMap (\pth -> case pth of
+                                                                          _pp@(Path_ReportView__reportValueApproachInfo _wp) -> map (\a -> let f = peekTree a
+                                                                                                                                            in let liftPeek (Peek_ReportValueApproachInfo_JSONText q
+                                                                                                                                                                                                   z) = Peek_ReportView_JSONText (Path_ReportView__reportValueApproachInfo q) z
+                                                                                                                                                   liftPeek (Peek_ReportValueApproachInfo_Markup q
+                                                                                                                                                                                                 z) = Peek_ReportView_Markup (Path_ReportView__reportValueApproachInfo q) z
+                                                                                                                                                   liftPeek (Peek_ReportValueApproachInfo_ReportValueApproachInfo q
+                                                                                                                                                                                                                  z) = Peek_ReportView_ReportValueApproachInfo (Path_ReportView__reportValueApproachInfo q) z
+                                                                                                                                                   liftPeek (Peek_ReportValueApproachInfo_Text q
+                                                                                                                                                                                               z) = Peek_ReportView_Text (Path_ReportView__reportValueApproachInfo q) z
+                                                                                                                                                in Node (Peek_ReportView_ReportValueApproachInfo _pp (if null f
+                                                                                                                                                                                                       then Just a
+                                                                                                                                                                                                       else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [ReportValueApproachInfo])
+                                                                          _ -> []) (paths _s (Proxy :: Proxy ReportValueApproachInfo)),
+                                                   concatMap (\pth -> case pth of
+                                                                          _pp@(Path_ReportView__reportClientName _wp) -> map (\a -> let f = peekTree a
+                                                                                                                                     in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportClientName q) z
+                                                                                                                                            liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportClientName q) z
+                                                                                                                                            liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportClientName q) z
+                                                                                                                                         in Node (Peek_ReportView_Markup _pp (if null f
+                                                                                                                                                                               then Just a
+                                                                                                                                                                               else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
+                                                                          _ -> []) (paths _s (Proxy :: Proxy Markup)),
+                                                   concatMap (\pth -> case pth of
+                                                                          _pp@(Path_ReportView__reportClientAddress _wp) -> map (\a -> let f = peekTree a
+                                                                                                                                        in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportClientAddress q) z
+                                                                                                                                               liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportClientAddress q) z
+                                                                                                                                               liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportClientAddress q) z
+                                                                                                                                            in Node (Peek_ReportView_Markup _pp (if null f
+                                                                                                                                                                                  then Just a
+                                                                                                                                                                                  else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
+                                                                          _ -> []) (paths _s (Proxy :: Proxy Markup)),
+                                                   concatMap (\pth -> case pth of
+                                                                          _pp@(Path_ReportView__reportClientGreeting _wp) -> map (\a -> let f = peekTree a
+                                                                                                                                         in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportClientGreeting q) z
+                                                                                                                                                liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportClientGreeting q) z
+                                                                                                                                                liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportClientGreeting q) z
+                                                                                                                                             in Node (Peek_ReportView_Markup _pp (if null f
+                                                                                                                                                                                   then Just a
+                                                                                                                                                                                   else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
+                                                                          _ -> []) (paths _s (Proxy :: Proxy Markup)),
+                                                   concatMap (\pth -> case pth of
+                                                                          _pp@(Path_ReportView__reportItemsOwnerFull _wp) -> map (\a -> let f = peekTree a
+                                                                                                                                         in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportItemsOwnerFull q) z
+                                                                                                                                                liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportItemsOwnerFull q) z
+                                                                                                                                                liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportItemsOwnerFull q) z
+                                                                                                                                             in Node (Peek_ReportView_Markup _pp (if null f
+                                                                                                                                                                                   then Just a
+                                                                                                                                                                                   else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
+                                                                          _ -> []) (paths _s (Proxy :: Proxy Markup)),
+                                                   concatMap (\pth -> case pth of
+                                                                          _pp@(Path_ReportView__reportItemsOwner _wp) -> map (\a -> let f = peekTree a
+                                                                                                                                     in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportItemsOwner q) z
+                                                                                                                                            liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportItemsOwner q) z
+                                                                                                                                            liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportItemsOwner q) z
+                                                                                                                                         in Node (Peek_ReportView_Markup _pp (if null f
+                                                                                                                                                                               then Just a
+                                                                                                                                                                               else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
+                                                                          _ -> []) (paths _s (Proxy :: Proxy Markup)),
+                                                   concatMap (\pth -> case pth of
+                                                                          _pp@(Path_ReportView__reportBriefItems _wp) -> map (\a -> let f = peekTree a
+                                                                                                                                     in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportBriefItems q) z
+                                                                                                                                            liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportBriefItems q) z
+                                                                                                                                            liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportBriefItems q) z
+                                                                                                                                         in Node (Peek_ReportView_Markup _pp (if null f
+                                                                                                                                                                               then Just a
+                                                                                                                                                                               else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
+                                                                          _ -> []) (paths _s (Proxy :: Proxy Markup)),
+                                                   concatMap (\pth -> case pth of
+                                                                          _pp@(Path_ReportView__reportInspectionLocation _wp) -> map (\a -> let f = peekTree a
+                                                                                                                                             in let liftPeek (Peek_Markup_JSONText q
+                                                                                                                                                                                   z) = Peek_ReportView_JSONText (Path_ReportView__reportInspectionLocation q) z
+                                                                                                                                                    liftPeek (Peek_Markup_Markup q
+                                                                                                                                                                                 z) = Peek_ReportView_Markup (Path_ReportView__reportInspectionLocation q) z
+                                                                                                                                                    liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportInspectionLocation q) z
+                                                                                                                                                 in Node (Peek_ReportView_Markup _pp (if null f
+                                                                                                                                                                                       then Just a
+                                                                                                                                                                                       else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
+                                                                          _ -> []) (paths _s (Proxy :: Proxy Markup)),
+                                                   concatMap (\pth -> case pth of
+                                                                          _pp@(Path_ReportView__reportBody _wp) -> map (\a -> let f = peekTree a
+                                                                                                                               in let liftPeek (Peek_ReportElems_String q z) = Peek_ReportView_String (Path_ReportView__reportBody q) z
+                                                                                                                                      liftPeek (Peek_ReportElems_Bool q z) = Peek_ReportView_Bool (Path_ReportView__reportBody q) z
+                                                                                                                                      liftPeek (Peek_ReportElems_Double q z) = Peek_ReportView_Double (Path_ReportView__reportBody q) z
+                                                                                                                                      liftPeek (Peek_ReportElems_Dimension q z) = Peek_ReportView_Dimension (Path_ReportView__reportBody q) z
+                                                                                                                                      liftPeek (Peek_ReportElems_ImageCrop q z) = Peek_ReportView_ImageCrop (Path_ReportView__reportBody q) z
+                                                                                                                                      liftPeek (Peek_ReportElems_ImageSize q z) = Peek_ReportView_ImageSize (Path_ReportView__reportBody q) z
+                                                                                                                                      liftPeek (Peek_ReportElems_Units q z) = Peek_ReportView_Units (Path_ReportView__reportBody q) z
+                                                                                                                                      liftPeek (Peek_ReportElems_ImageFile q z) = Peek_ReportView_ImageFile (Path_ReportView__reportBody q) z
+                                                                                                                                      liftPeek (Peek_ReportElems_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportBody q) z
+                                                                                                                                      liftPeek (Peek_ReportElems_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportBody q) z
+                                                                                                                                      liftPeek (Peek_ReportElems_ReportElem q z) = Peek_ReportView_ReportElem (Path_ReportView__reportBody q) z
+                                                                                                                                      liftPeek (Peek_ReportElems_ReportElems q z) = Peek_ReportView_ReportElems (Path_ReportView__reportBody q) z
+                                                                                                                                      liftPeek (Peek_ReportElems_EUI q z) = Peek_ReportView_EUI (Path_ReportView__reportBody q) z
+                                                                                                                                      liftPeek (Peek_ReportElems_MEUI q z) = Peek_ReportView_MEUI (Path_ReportView__reportBody q) z
+                                                                                                                                      liftPeek (Peek_ReportElems_MaybeImageFile q z) = Peek_ReportView_MaybeImageFile (Path_ReportView__reportBody q) z
+                                                                                                                                      liftPeek (Peek_ReportElems_ReportImage q z) = Peek_ReportView_ReportImage (Path_ReportView__reportBody q) z
+                                                                                                                                      liftPeek (Peek_ReportElems_ReportImages q z) = Peek_ReportView_ReportImages (Path_ReportView__reportBody q) z
+                                                                                                                                      liftPeek (Peek_ReportElems_ReportImageView q z) = Peek_ReportView_ReportImageView (Path_ReportView__reportBody q) z
+                                                                                                                                      liftPeek (Peek_ReportElems_SaneSizeImageSize q
+                                                                                                                                                                                   z) = Peek_ReportView_SaneSizeImageSize (Path_ReportView__reportBody q) z
+                                                                                                                                      liftPeek (Peek_ReportElems_Item q z) = Peek_ReportView_Item (Path_ReportView__reportBody q) z
+                                                                                                                                      liftPeek (Peek_ReportElems_MIM q z) = Peek_ReportView_MIM (Path_ReportView__reportBody q) z
+                                                                                                                                      liftPeek (Peek_ReportElems_URI q z) = Peek_ReportView_URI (Path_ReportView__reportBody q) z
+                                                                                                                                      liftPeek (Peek_ReportElems_Text q z) = Peek_ReportView_Text (Path_ReportView__reportBody q) z
+                                                                                                                                   in Node (Peek_ReportView_ReportElems _pp (if null f
                                                                                                                                                                               then Just a
-                                                                                                                                                                              else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Bool])
-                                                                      _ -> []) (paths _s (Proxy :: Proxy Bool)),
-                                               concatMap (\pth -> case pth of
-                                                                      _pp@(Path_ReportView__reportDisplayItemName _wp) -> map (\a -> let f = peek a
-                                                                                                                                      in let liftPeek (Peek_Bool_String q z) = Peek_ReportView_String (Path_ReportView__reportDisplayItemName q) z
-                                                                                                                                             liftPeek (Peek_Bool_Bool q z) = Peek_ReportView_Bool (Path_ReportView__reportDisplayItemName q) z
-                                                                                                                                             liftPeek (Peek_Bool_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportDisplayItemName q) z
-                                                                                                                                          in Node (Peek_ReportView_Bool _pp (if null f
+                                                                                                                                                                              else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [ReportElems])
+                                                                          _ -> []) (paths _s (Proxy :: Proxy ReportElems)),
+                                                   concatMap (\pth -> case pth of
+                                                                          _pp@(Path_ReportView__reportGlossary _wp) -> map (\a -> let f = peekTree a
+                                                                                                                                   in let liftPeek (Peek_MarkupPairs_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportGlossary q) z
+                                                                                                                                          liftPeek (Peek_MarkupPairs_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportGlossary q) z
+                                                                                                                                          liftPeek (Peek_MarkupPairs_MarkupPair q z) = Peek_ReportView_MarkupPair (Path_ReportView__reportGlossary q) z
+                                                                                                                                          liftPeek (Peek_MarkupPairs_MarkupPairs q z) = Peek_ReportView_MarkupPairs (Path_ReportView__reportGlossary q) z
+                                                                                                                                          liftPeek (Peek_MarkupPairs_Text q z) = Peek_ReportView_Text (Path_ReportView__reportGlossary q) z
+                                                                                                                                       in Node (Peek_ReportView_MarkupPairs _pp (if null f
+                                                                                                                                                                                  then Just a
+                                                                                                                                                                                  else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [MarkupPairs])
+                                                                          _ -> []) (paths _s (Proxy :: Proxy MarkupPairs)),
+                                                   concatMap (\pth -> case pth of
+                                                                          _pp@(Path_ReportView__reportSources _wp) -> map (\a -> let f = peekTree a
+                                                                                                                                  in let liftPeek (Peek_MarkupPairs_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportSources q) z
+                                                                                                                                         liftPeek (Peek_MarkupPairs_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportSources q) z
+                                                                                                                                         liftPeek (Peek_MarkupPairs_MarkupPair q z) = Peek_ReportView_MarkupPair (Path_ReportView__reportSources q) z
+                                                                                                                                         liftPeek (Peek_MarkupPairs_MarkupPairs q z) = Peek_ReportView_MarkupPairs (Path_ReportView__reportSources q) z
+                                                                                                                                         liftPeek (Peek_MarkupPairs_Text q z) = Peek_ReportView_Text (Path_ReportView__reportSources q) z
+                                                                                                                                      in Node (Peek_ReportView_MarkupPairs _pp (if null f
+                                                                                                                                                                                 then Just a
+                                                                                                                                                                                 else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [MarkupPairs])
+                                                                          _ -> []) (paths _s (Proxy :: Proxy MarkupPairs)),
+                                                   concatMap (\pth -> case pth of
+                                                                          _pp@(Path_ReportView__reportLetterOfTransmittal _wp) -> map (\a -> let f = peekTree a
+                                                                                                                                              in let liftPeek (Peek_Markup_JSONText q
+                                                                                                                                                                                    z) = Peek_ReportView_JSONText (Path_ReportView__reportLetterOfTransmittal q) z
+                                                                                                                                                     liftPeek (Peek_Markup_Markup q
+                                                                                                                                                                                  z) = Peek_ReportView_Markup (Path_ReportView__reportLetterOfTransmittal q) z
+                                                                                                                                                     liftPeek (Peek_Markup_Text q
+                                                                                                                                                                                z) = Peek_ReportView_Text (Path_ReportView__reportLetterOfTransmittal q) z
+                                                                                                                                                  in Node (Peek_ReportView_Markup _pp (if null f
+                                                                                                                                                                                        then Just a
+                                                                                                                                                                                        else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
+                                                                          _ -> []) (paths _s (Proxy :: Proxy Markup)),
+                                                   concatMap (\pth -> case pth of
+                                                                          _pp@(Path_ReportView__reportScopeOfWork _wp) -> map (\a -> let f = peekTree a
+                                                                                                                                      in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportScopeOfWork q) z
+                                                                                                                                             liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportScopeOfWork q) z
+                                                                                                                                             liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportScopeOfWork q) z
+                                                                                                                                          in Node (Peek_ReportView_Markup _pp (if null f
+                                                                                                                                                                                then Just a
+                                                                                                                                                                                else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
+                                                                          _ -> []) (paths _s (Proxy :: Proxy Markup)),
+                                                   concatMap (\pth -> case pth of
+                                                                          _pp@(Path_ReportView__reportCertification _wp) -> map (\a -> let f = peekTree a
+                                                                                                                                        in let liftPeek (Peek_Markups_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportCertification q) z
+                                                                                                                                               liftPeek (Peek_Markups_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportCertification q) z
+                                                                                                                                               liftPeek (Peek_Markups_Markups q z) = Peek_ReportView_Markups (Path_ReportView__reportCertification q) z
+                                                                                                                                               liftPeek (Peek_Markups_Text q z) = Peek_ReportView_Text (Path_ReportView__reportCertification q) z
+                                                                                                                                            in Node (Peek_ReportView_Markups _pp (if null f
+                                                                                                                                                                                   then Just a
+                                                                                                                                                                                   else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markups])
+                                                                          _ -> []) (paths _s (Proxy :: Proxy Markups)),
+                                                   concatMap (\pth -> case pth of
+                                                                          _pp@(Path_ReportView__reportLimitingConditions _wp) -> map (\a -> let f = peekTree a
+                                                                                                                                             in let liftPeek (Peek_Markups_JSONText q
+                                                                                                                                                                                    z) = Peek_ReportView_JSONText (Path_ReportView__reportLimitingConditions q) z
+                                                                                                                                                    liftPeek (Peek_Markups_Markup q
+                                                                                                                                                                                  z) = Peek_ReportView_Markup (Path_ReportView__reportLimitingConditions q) z
+                                                                                                                                                    liftPeek (Peek_Markups_Markups q
+                                                                                                                                                                                   z) = Peek_ReportView_Markups (Path_ReportView__reportLimitingConditions q) z
+                                                                                                                                                    liftPeek (Peek_Markups_Text q
+                                                                                                                                                                                z) = Peek_ReportView_Text (Path_ReportView__reportLimitingConditions q) z
+                                                                                                                                                 in Node (Peek_ReportView_Markups _pp (if null f
+                                                                                                                                                                                        then Just a
+                                                                                                                                                                                        else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markups])
+                                                                          _ -> []) (paths _s (Proxy :: Proxy Markups)),
+                                                   concatMap (\pth -> case pth of
+                                                                          _pp@(Path_ReportView__reportPrivacyPolicy _wp) -> map (\a -> let f = peekTree a
+                                                                                                                                        in let liftPeek (Peek_Markup_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportPrivacyPolicy q) z
+                                                                                                                                               liftPeek (Peek_Markup_Markup q z) = Peek_ReportView_Markup (Path_ReportView__reportPrivacyPolicy q) z
+                                                                                                                                               liftPeek (Peek_Markup_Text q z) = Peek_ReportView_Text (Path_ReportView__reportPrivacyPolicy q) z
+                                                                                                                                            in Node (Peek_ReportView_Markup _pp (if null f
+                                                                                                                                                                                  then Just a
+                                                                                                                                                                                  else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
+                                                                          _ -> []) (paths _s (Proxy :: Proxy Markup)),
+                                                   concatMap (\pth -> case pth of
+                                                                          _pp@(Path_ReportView__reportPerms _wp) -> map (\a -> let f = peekTree a
+                                                                                                                                in let liftPeek (Peek_Permissions_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportPerms q) z
+                                                                                                                                       liftPeek (Peek_Permissions_Permissions q z) = Peek_ReportView_Permissions (Path_ReportView__reportPerms q) z
+                                                                                                                                       liftPeek (Peek_Permissions_UserIds q z) = Peek_ReportView_UserIds (Path_ReportView__reportPerms q) z
+                                                                                                                                       liftPeek (Peek_Permissions_Text q z) = Peek_ReportView_Text (Path_ReportView__reportPerms q) z
+                                                                                                                                       liftPeek (Peek_Permissions_UserId q z) = Peek_ReportView_UserId (Path_ReportView__reportPerms q) z
+                                                                                                                                    in Node (Peek_ReportView_Permissions _pp (if null f
+                                                                                                                                                                               then Just a
+                                                                                                                                                                               else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Permissions])
+                                                                          _ -> []) (paths _s (Proxy :: Proxy Permissions)),
+                                                   concatMap (\pth -> case pth of
+                                                                          _pp@(Path_ReportView__reportRevision _wp) -> map (\a -> let f = peekTree a
+                                                                                                                                   in let liftPeek (Peek_Integer_Integer q z) = Peek_ReportView_Integer (Path_ReportView__reportRevision q) z
+                                                                                                                                       in Node (Peek_ReportView_Integer _pp (if null f
                                                                                                                                                                               then Just a
-                                                                                                                                                                              else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Bool])
-                                                                      _ -> []) (paths _s (Proxy :: Proxy Bool)),
-                                               concatMap (\pth -> case pth of
-                                                                      _pp@(Path_ReportView__reportStandardsVersion _wp) -> map (\a -> let f = peek a
-                                                                                                                                       in let liftPeek (Peek_ReportStandard_Int q z) = Peek_ReportView_Int (Path_ReportView__reportStandardsVersion q) z
-                                                                                                                                              liftPeek (Peek_ReportStandard_ReportStandard q
-                                                                                                                                                                                           z) = Peek_ReportView_ReportStandard (Path_ReportView__reportStandardsVersion q) z
-                                                                                                                                           in Node (Peek_ReportView_ReportStandard _pp (if null f
-                                                                                                                                                                                         then Just a
-                                                                                                                                                                                         else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [ReportStandard])
-                                                                      _ -> []) (paths _s (Proxy :: Proxy ReportStandard))] :: Forest (Peek ReportView)
-          hop (_s@(ReportView {})) = mconcat [concatMap (\pth -> case pth of
-                                                                     _pp@(Path_ReportView__reportFolder _wp) -> map (\a -> Node (Peek_ReportView_ReadOnlyFilePath _pp (Just a)) []) (toListOf (toLens _pp) _s :: [ReadOnly ([Char])])
-                                                                     _ -> []) (paths _s (Proxy :: Proxy (ReadOnly ([Char])))),
-                                              concatMap (\pth -> case pth of
-                                                                     _pp@(Path_ReportView__reportName _wp) -> map (\a -> Node (Peek_ReportView_Markup _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Markup])
-                                                                     _ -> []) (paths _s (Proxy :: Proxy Markup)),
-                                              concatMap (\pth -> case pth of
-                                                                     _pp@(Path_ReportView__reportDate _wp) -> map (\a -> Node (Peek_ReportView_Markup _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Markup])
-                                                                     _ -> []) (paths _s (Proxy :: Proxy Markup)),
-                                              concatMap (\pth -> case pth of
-                                                                     _pp@(Path_ReportView__reportContractDate _wp) -> map (\a -> Node (Peek_ReportView_Markup _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Markup])
-                                                                     _ -> []) (paths _s (Proxy :: Proxy Markup)),
-                                              concatMap (\pth -> case pth of
-                                                                     _pp@(Path_ReportView__reportInspectionDate _wp) -> map (\a -> Node (Peek_ReportView_Markup _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Markup])
-                                                                     _ -> []) (paths _s (Proxy :: Proxy Markup)),
-                                              concatMap (\pth -> case pth of
-                                                                     _pp@(Path_ReportView__reportEffectiveDate _wp) -> map (\a -> Node (Peek_ReportView_Markup _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Markup])
-                                                                     _ -> []) (paths _s (Proxy :: Proxy Markup)),
-                                              concatMap (\pth -> case pth of
-                                                                     _pp@(Path_ReportView__reportAuthors _wp) -> map (\a -> Node (Peek_ReportView_Authors _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Order AuthorID Author])
-                                                                     _ -> []) (paths _s (Proxy :: Proxy (Order AuthorID Author))),
-                                              concatMap (\pth -> case pth of
-                                                                     _pp@(Path_ReportView__reportPreparer _wp) -> map (\a -> Node (Peek_ReportView_Markup _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Markup])
-                                                                     _ -> []) (paths _s (Proxy :: Proxy Markup)),
-                                              concatMap (\pth -> case pth of
-                                                                     _pp@(Path_ReportView__reportPreparerEIN _wp) -> map (\a -> Node (Peek_ReportView_Markup _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Markup])
-                                                                     _ -> []) (paths _s (Proxy :: Proxy Markup)),
-                                              concatMap (\pth -> case pth of
-                                                                     _pp@(Path_ReportView__reportPreparerAddress _wp) -> map (\a -> Node (Peek_ReportView_Markup _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Markup])
-                                                                     _ -> []) (paths _s (Proxy :: Proxy Markup)),
-                                              concatMap (\pth -> case pth of
-                                                                     _pp@(Path_ReportView__reportPreparerEMail _wp) -> map (\a -> Node (Peek_ReportView_Markup _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Markup])
-                                                                     _ -> []) (paths _s (Proxy :: Proxy Markup)),
-                                              concatMap (\pth -> case pth of
-                                                                     _pp@(Path_ReportView__reportPreparerWebsite _wp) -> map (\a -> Node (Peek_ReportView_Markup _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Markup])
-                                                                     _ -> []) (paths _s (Proxy :: Proxy Markup)),
-                                              concatMap (\pth -> case pth of
-                                                                     _pp@(Path_ReportView__reportAbbrevs _wp) -> map (\a -> Node (Peek_ReportView_AbbrevPairs _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Order AbbrevPairID
-                                                                                                                                                                                                                    ((CIString, Markup))])
-                                                                     _ -> []) (paths _s (Proxy :: Proxy (Order AbbrevPairID ((CIString, Markup))))),
-                                              concatMap (\pth -> case pth of
-                                                                     _pp@(Path_ReportView__reportTitle _wp) -> map (\a -> Node (Peek_ReportView_Markup _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Markup])
-                                                                     _ -> []) (paths _s (Proxy :: Proxy Markup)),
-                                              concatMap (\pth -> case pth of
-                                                                     _pp@(Path_ReportView__reportHeader _wp) -> map (\a -> Node (Peek_ReportView_Markup _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Markup])
-                                                                     _ -> []) (paths _s (Proxy :: Proxy Markup)),
-                                              concatMap (\pth -> case pth of
-                                                                     _pp@(Path_ReportView__reportFooter _wp) -> map (\a -> Node (Peek_ReportView_Markup _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Markup])
-                                                                     _ -> []) (paths _s (Proxy :: Proxy Markup)),
-                                              concatMap (\pth -> case pth of
-                                                                     _pp@(Path_ReportView__reportIntendedUse _wp) -> map (\a -> Node (Peek_ReportView_MaybeReportIntendedUse _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Maybe ReportIntendedUse])
-                                                                     _ -> []) (paths _s (Proxy :: Proxy (Maybe ReportIntendedUse))),
-                                              concatMap (\pth -> case pth of
-                                                                     _pp@(Path_ReportView__reportValueTypeInfo _wp) -> map (\a -> Node (Peek_ReportView_ReportValueTypeInfo _pp (Just a)) []) (toListOf (toLens _pp) _s :: [ReportValueTypeInfo])
-                                                                     _ -> []) (paths _s (Proxy :: Proxy ReportValueTypeInfo)),
-                                              concatMap (\pth -> case pth of
-                                                                     _pp@(Path_ReportView__reportValueApproachInfo _wp) -> map (\a -> Node (Peek_ReportView_ReportValueApproachInfo _pp (Just a)) []) (toListOf (toLens _pp) _s :: [ReportValueApproachInfo])
-                                                                     _ -> []) (paths _s (Proxy :: Proxy ReportValueApproachInfo)),
-                                              concatMap (\pth -> case pth of
-                                                                     _pp@(Path_ReportView__reportClientName _wp) -> map (\a -> Node (Peek_ReportView_Markup _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Markup])
-                                                                     _ -> []) (paths _s (Proxy :: Proxy Markup)),
-                                              concatMap (\pth -> case pth of
-                                                                     _pp@(Path_ReportView__reportClientAddress _wp) -> map (\a -> Node (Peek_ReportView_Markup _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Markup])
-                                                                     _ -> []) (paths _s (Proxy :: Proxy Markup)),
-                                              concatMap (\pth -> case pth of
-                                                                     _pp@(Path_ReportView__reportClientGreeting _wp) -> map (\a -> Node (Peek_ReportView_Markup _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Markup])
-                                                                     _ -> []) (paths _s (Proxy :: Proxy Markup)),
-                                              concatMap (\pth -> case pth of
-                                                                     _pp@(Path_ReportView__reportItemsOwnerFull _wp) -> map (\a -> Node (Peek_ReportView_Markup _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Markup])
-                                                                     _ -> []) (paths _s (Proxy :: Proxy Markup)),
-                                              concatMap (\pth -> case pth of
-                                                                     _pp@(Path_ReportView__reportItemsOwner _wp) -> map (\a -> Node (Peek_ReportView_Markup _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Markup])
-                                                                     _ -> []) (paths _s (Proxy :: Proxy Markup)),
-                                              concatMap (\pth -> case pth of
-                                                                     _pp@(Path_ReportView__reportBriefItems _wp) -> map (\a -> Node (Peek_ReportView_Markup _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Markup])
-                                                                     _ -> []) (paths _s (Proxy :: Proxy Markup)),
-                                              concatMap (\pth -> case pth of
-                                                                     _pp@(Path_ReportView__reportInspectionLocation _wp) -> map (\a -> Node (Peek_ReportView_Markup _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Markup])
-                                                                     _ -> []) (paths _s (Proxy :: Proxy Markup)),
-                                              concatMap (\pth -> case pth of
-                                                                     _pp@(Path_ReportView__reportBody _wp) -> map (\a -> Node (Peek_ReportView_ReportElems _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Order ReportElemID ReportElem])
-                                                                     _ -> []) (paths _s (Proxy :: Proxy (Order ReportElemID ReportElem))),
-                                              concatMap (\pth -> case pth of
-                                                                     _pp@(Path_ReportView__reportGlossary _wp) -> map (\a -> Node (Peek_ReportView_MarkupPairs _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Order MarkupPairID
-                                                                                                                                                                                                                     ((Markup, Markup))])
-                                                                     _ -> []) (paths _s (Proxy :: Proxy (Order MarkupPairID ((Markup, Markup))))),
-                                              concatMap (\pth -> case pth of
-                                                                     _pp@(Path_ReportView__reportSources _wp) -> map (\a -> Node (Peek_ReportView_MarkupPairs _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Order MarkupPairID
-                                                                                                                                                                                                                    ((Markup, Markup))])
-                                                                     _ -> []) (paths _s (Proxy :: Proxy (Order MarkupPairID ((Markup, Markup))))),
-                                              concatMap (\pth -> case pth of
-                                                                     _pp@(Path_ReportView__reportLetterOfTransmittal _wp) -> map (\a -> Node (Peek_ReportView_Markup _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Markup])
-                                                                     _ -> []) (paths _s (Proxy :: Proxy Markup)),
-                                              concatMap (\pth -> case pth of
-                                                                     _pp@(Path_ReportView__reportScopeOfWork _wp) -> map (\a -> Node (Peek_ReportView_Markup _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Markup])
-                                                                     _ -> []) (paths _s (Proxy :: Proxy Markup)),
-                                              concatMap (\pth -> case pth of
-                                                                     _pp@(Path_ReportView__reportCertification _wp) -> map (\a -> Node (Peek_ReportView_Markups _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Order MarkupID Markup])
-                                                                     _ -> []) (paths _s (Proxy :: Proxy (Order MarkupID Markup))),
-                                              concatMap (\pth -> case pth of
-                                                                     _pp@(Path_ReportView__reportLimitingConditions _wp) -> map (\a -> Node (Peek_ReportView_Markups _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Order MarkupID Markup])
-                                                                     _ -> []) (paths _s (Proxy :: Proxy (Order MarkupID Markup))),
-                                              concatMap (\pth -> case pth of
-                                                                     _pp@(Path_ReportView__reportPrivacyPolicy _wp) -> map (\a -> Node (Peek_ReportView_Markup _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Markup])
-                                                                     _ -> []) (paths _s (Proxy :: Proxy Markup)),
-                                              concatMap (\pth -> case pth of
-                                                                     _pp@(Path_ReportView__reportPerms _wp) -> map (\a -> Node (Peek_ReportView_Permissions _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Permissions])
-                                                                     _ -> []) (paths _s (Proxy :: Proxy Permissions)),
-                                              concatMap (\pth -> case pth of
-                                                                     _pp@(Path_ReportView__reportRevision _wp) -> map (\a -> Node (Peek_ReportView_Integer _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Integer])
-                                                                     _ -> []) (paths _s (Proxy :: Proxy Integer)),
-                                              concatMap (\pth -> case pth of
-                                                                     _pp@(Path_ReportView__reportCreated _wp) -> map (\a -> Node (Peek_ReportView_Int64 _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Int64])
-                                                                     _ -> []) (paths _s (Proxy :: Proxy Int64)),
-                                              concatMap (\pth -> case pth of
-                                                                     _pp@(Path_ReportView__reportBranding _wp) -> map (\a -> Node (Peek_ReportView_Branding _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Branding])
-                                                                     _ -> []) (paths _s (Proxy :: Proxy Branding)),
-                                              concatMap (\pth -> case pth of
-                                                                     _pp@(Path_ReportView__reportStatus _wp) -> map (\a -> Node (Peek_ReportView_ReportStatus _pp (Just a)) []) (toListOf (toLens _pp) _s :: [ReportStatus])
-                                                                     _ -> []) (paths _s (Proxy :: Proxy ReportStatus)),
-                                              concatMap (\pth -> case pth of
-                                                                     _pp@(Path_ReportView__reportRedacted _wp) -> map (\a -> Node (Peek_ReportView_Bool _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Bool])
-                                                                     _ -> []) (paths _s (Proxy :: Proxy Bool)),
-                                              concatMap (\pth -> case pth of
-                                                                     _pp@(Path_ReportView__reportFlags _wp) -> map (\a -> Node (Peek_ReportView_ReportFlags _pp (Just a)) []) (toListOf (toLens _pp) _s :: [ReportFlags])
-                                                                     _ -> []) (paths _s (Proxy :: Proxy ReportFlags)),
-                                              concatMap (\pth -> case pth of
-                                                                     _pp@(Path_ReportView__reportUUID _wp) -> map (\a -> Node (Peek_ReportView_UUID _pp (Just a)) []) (toListOf (toLens _pp) _s :: [UUID])
-                                                                     _ -> []) (paths _s (Proxy :: Proxy UUID)),
-                                              concatMap (\pth -> case pth of
-                                                                     _pp@(Path_ReportView__reportOrderByItemName _wp) -> map (\a -> Node (Peek_ReportView_Bool _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Bool])
-                                                                     _ -> []) (paths _s (Proxy :: Proxy Bool)),
-                                              concatMap (\pth -> case pth of
-                                                                     _pp@(Path_ReportView__reportDisplayItemName _wp) -> map (\a -> Node (Peek_ReportView_Bool _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Bool])
-                                                                     _ -> []) (paths _s (Proxy :: Proxy Bool)),
-                                              concatMap (\pth -> case pth of
-                                                                     _pp@(Path_ReportView__reportStandardsVersion _wp) -> map (\a -> Node (Peek_ReportView_ReportStandard _pp (Just a)) []) (toListOf (toLens _pp) _s :: [ReportStandard])
-                                                                     _ -> []) (paths _s (Proxy :: Proxy ReportStandard))] :: Forest (Peek ReportView)
+                                                                                                                                                                              else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Integer])
+                                                                          _ -> []) (paths _s (Proxy :: Proxy Integer)),
+                                                   concatMap (\pth -> case pth of
+                                                                          _pp@(Path_ReportView__reportCreated _wp) -> map (\a -> let f = peekTree a
+                                                                                                                                  in let liftPeek (Peek_Int64_Int64 q z) = Peek_ReportView_Int64 (Path_ReportView__reportCreated q) z
+                                                                                                                                      in Node (Peek_ReportView_Int64 _pp (if null f
+                                                                                                                                                                           then Just a
+                                                                                                                                                                           else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Int64])
+                                                                          _ -> []) (paths _s (Proxy :: Proxy Int64)),
+                                                   concatMap (\pth -> case pth of
+                                                                          _pp@(Path_ReportView__reportBranding _wp) -> map (\a -> let f = peekTree a
+                                                                                                                                   in let liftPeek (Peek_Branding_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportBranding q) z
+                                                                                                                                          liftPeek (Peek_Branding_Branding q z) = Peek_ReportView_Branding (Path_ReportView__reportBranding q) z
+                                                                                                                                          liftPeek (Peek_Branding_Text q z) = Peek_ReportView_Text (Path_ReportView__reportBranding q) z
+                                                                                                                                       in Node (Peek_ReportView_Branding _pp (if null f
+                                                                                                                                                                               then Just a
+                                                                                                                                                                               else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Branding])
+                                                                          _ -> []) (paths _s (Proxy :: Proxy Branding)),
+                                                   concatMap (\pth -> case pth of
+                                                                          _pp@(Path_ReportView__reportStatus _wp) -> map (\a -> let f = peekTree a
+                                                                                                                                 in let liftPeek (Peek_ReportStatus_String q z) = Peek_ReportView_String (Path_ReportView__reportStatus q) z
+                                                                                                                                        liftPeek (Peek_ReportStatus_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportStatus q) z
+                                                                                                                                        liftPeek (Peek_ReportStatus_ReportStatus q z) = Peek_ReportView_ReportStatus (Path_ReportView__reportStatus q) z
+                                                                                                                                     in Node (Peek_ReportView_ReportStatus _pp (if null f
+                                                                                                                                                                                 then Just a
+                                                                                                                                                                                 else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [ReportStatus])
+                                                                          _ -> []) (paths _s (Proxy :: Proxy ReportStatus)),
+                                                   concatMap (\pth -> case pth of
+                                                                          _pp@(Path_ReportView__reportRedacted _wp) -> map (\a -> let f = peekTree a
+                                                                                                                                   in let liftPeek (Peek_Bool_String q z) = Peek_ReportView_String (Path_ReportView__reportRedacted q) z
+                                                                                                                                          liftPeek (Peek_Bool_Bool q z) = Peek_ReportView_Bool (Path_ReportView__reportRedacted q) z
+                                                                                                                                          liftPeek (Peek_Bool_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportRedacted q) z
+                                                                                                                                       in Node (Peek_ReportView_Bool _pp (if null f
+                                                                                                                                                                           then Just a
+                                                                                                                                                                           else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Bool])
+                                                                          _ -> []) (paths _s (Proxy :: Proxy Bool)),
+                                                   concatMap (\pth -> case pth of
+                                                                          _pp@(Path_ReportView__reportFlags _wp) -> map (\a -> let f = peekTree a
+                                                                                                                                in let liftPeek (Peek_ReportFlags_String q z) = Peek_ReportView_String (Path_ReportView__reportFlags q) z
+                                                                                                                                       liftPeek (Peek_ReportFlags_Bool q z) = Peek_ReportView_Bool (Path_ReportView__reportFlags q) z
+                                                                                                                                       liftPeek (Peek_ReportFlags_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportFlags q) z
+                                                                                                                                       liftPeek (Peek_ReportFlags_ReportFlags q z) = Peek_ReportView_ReportFlags (Path_ReportView__reportFlags q) z
+                                                                                                                                    in Node (Peek_ReportView_ReportFlags _pp (if null f
+                                                                                                                                                                               then Just a
+                                                                                                                                                                               else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [ReportFlags])
+                                                                          _ -> []) (paths _s (Proxy :: Proxy ReportFlags)),
+                                                   concatMap (\pth -> case pth of
+                                                                          _pp@(Path_ReportView__reportUUID _wp) -> map (\a -> let f = peekTree a
+                                                                                                                               in let liftPeek (Peek_UUID_UUID q z) = Peek_ReportView_UUID (Path_ReportView__reportUUID q) z
+                                                                                                                                   in Node (Peek_ReportView_UUID _pp (if null f
+                                                                                                                                                                       then Just a
+                                                                                                                                                                       else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [UUID])
+                                                                          _ -> []) (paths _s (Proxy :: Proxy UUID)),
+                                                   concatMap (\pth -> case pth of
+                                                                          _pp@(Path_ReportView__reportOrderByItemName _wp) -> map (\a -> let f = peekTree a
+                                                                                                                                          in let liftPeek (Peek_Bool_String q z) = Peek_ReportView_String (Path_ReportView__reportOrderByItemName q) z
+                                                                                                                                                 liftPeek (Peek_Bool_Bool q z) = Peek_ReportView_Bool (Path_ReportView__reportOrderByItemName q) z
+                                                                                                                                                 liftPeek (Peek_Bool_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportOrderByItemName q) z
+                                                                                                                                              in Node (Peek_ReportView_Bool _pp (if null f
+                                                                                                                                                                                  then Just a
+                                                                                                                                                                                  else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Bool])
+                                                                          _ -> []) (paths _s (Proxy :: Proxy Bool)),
+                                                   concatMap (\pth -> case pth of
+                                                                          _pp@(Path_ReportView__reportDisplayItemName _wp) -> map (\a -> let f = peekTree a
+                                                                                                                                          in let liftPeek (Peek_Bool_String q z) = Peek_ReportView_String (Path_ReportView__reportDisplayItemName q) z
+                                                                                                                                                 liftPeek (Peek_Bool_Bool q z) = Peek_ReportView_Bool (Path_ReportView__reportDisplayItemName q) z
+                                                                                                                                                 liftPeek (Peek_Bool_JSONText q z) = Peek_ReportView_JSONText (Path_ReportView__reportDisplayItemName q) z
+                                                                                                                                              in Node (Peek_ReportView_Bool _pp (if null f
+                                                                                                                                                                                  then Just a
+                                                                                                                                                                                  else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Bool])
+                                                                          _ -> []) (paths _s (Proxy :: Proxy Bool)),
+                                                   concatMap (\pth -> case pth of
+                                                                          _pp@(Path_ReportView__reportStandardsVersion _wp) -> map (\a -> let f = peekTree a
+                                                                                                                                           in let liftPeek (Peek_ReportStandard_Int q
+                                                                                                                                                                                    z) = Peek_ReportView_Int (Path_ReportView__reportStandardsVersion q) z
+                                                                                                                                                  liftPeek (Peek_ReportStandard_ReportStandard q
+                                                                                                                                                                                               z) = Peek_ReportView_ReportStandard (Path_ReportView__reportStandardsVersion q) z
+                                                                                                                                               in Node (Peek_ReportView_ReportStandard _pp (if null f
+                                                                                                                                                                                             then Just a
+                                                                                                                                                                                             else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [ReportStandard])
+                                                                          _ -> []) (paths _s (Proxy :: Proxy ReportStandard))] :: Forest (Peek ReportView)
+          peekRow (_s@(ReportView {})) = mconcat [concatMap (\pth -> case pth of
+                                                                         _pp@(Path_ReportView__reportFolder _wp) -> map (\a -> Peek_ReportView_ReadOnlyFilePath _pp (Just a)) (toListOf (toLens _pp) _s :: [ReadOnlyFilePath])
+                                                                         _ -> []) (paths _s (Proxy :: Proxy ReadOnlyFilePath)),
+                                                  concatMap (\pth -> case pth of
+                                                                         _pp@(Path_ReportView__reportName _wp) -> map (\a -> Peek_ReportView_Markup _pp (Just a)) (toListOf (toLens _pp) _s :: [Markup])
+                                                                         _ -> []) (paths _s (Proxy :: Proxy Markup)),
+                                                  concatMap (\pth -> case pth of
+                                                                         _pp@(Path_ReportView__reportDate _wp) -> map (\a -> Peek_ReportView_Markup _pp (Just a)) (toListOf (toLens _pp) _s :: [Markup])
+                                                                         _ -> []) (paths _s (Proxy :: Proxy Markup)),
+                                                  concatMap (\pth -> case pth of
+                                                                         _pp@(Path_ReportView__reportContractDate _wp) -> map (\a -> Peek_ReportView_Markup _pp (Just a)) (toListOf (toLens _pp) _s :: [Markup])
+                                                                         _ -> []) (paths _s (Proxy :: Proxy Markup)),
+                                                  concatMap (\pth -> case pth of
+                                                                         _pp@(Path_ReportView__reportInspectionDate _wp) -> map (\a -> Peek_ReportView_Markup _pp (Just a)) (toListOf (toLens _pp) _s :: [Markup])
+                                                                         _ -> []) (paths _s (Proxy :: Proxy Markup)),
+                                                  concatMap (\pth -> case pth of
+                                                                         _pp@(Path_ReportView__reportEffectiveDate _wp) -> map (\a -> Peek_ReportView_Markup _pp (Just a)) (toListOf (toLens _pp) _s :: [Markup])
+                                                                         _ -> []) (paths _s (Proxy :: Proxy Markup)),
+                                                  concatMap (\pth -> case pth of
+                                                                         _pp@(Path_ReportView__reportAuthors _wp) -> map (\a -> Peek_ReportView_Authors _pp (Just a)) (toListOf (toLens _pp) _s :: [Authors])
+                                                                         _ -> []) (paths _s (Proxy :: Proxy Authors)),
+                                                  concatMap (\pth -> case pth of
+                                                                         _pp@(Path_ReportView__reportPreparer _wp) -> map (\a -> Peek_ReportView_Markup _pp (Just a)) (toListOf (toLens _pp) _s :: [Markup])
+                                                                         _ -> []) (paths _s (Proxy :: Proxy Markup)),
+                                                  concatMap (\pth -> case pth of
+                                                                         _pp@(Path_ReportView__reportPreparerEIN _wp) -> map (\a -> Peek_ReportView_Markup _pp (Just a)) (toListOf (toLens _pp) _s :: [Markup])
+                                                                         _ -> []) (paths _s (Proxy :: Proxy Markup)),
+                                                  concatMap (\pth -> case pth of
+                                                                         _pp@(Path_ReportView__reportPreparerAddress _wp) -> map (\a -> Peek_ReportView_Markup _pp (Just a)) (toListOf (toLens _pp) _s :: [Markup])
+                                                                         _ -> []) (paths _s (Proxy :: Proxy Markup)),
+                                                  concatMap (\pth -> case pth of
+                                                                         _pp@(Path_ReportView__reportPreparerEMail _wp) -> map (\a -> Peek_ReportView_Markup _pp (Just a)) (toListOf (toLens _pp) _s :: [Markup])
+                                                                         _ -> []) (paths _s (Proxy :: Proxy Markup)),
+                                                  concatMap (\pth -> case pth of
+                                                                         _pp@(Path_ReportView__reportPreparerWebsite _wp) -> map (\a -> Peek_ReportView_Markup _pp (Just a)) (toListOf (toLens _pp) _s :: [Markup])
+                                                                         _ -> []) (paths _s (Proxy :: Proxy Markup)),
+                                                  concatMap (\pth -> case pth of
+                                                                         _pp@(Path_ReportView__reportAbbrevs _wp) -> map (\a -> Peek_ReportView_AbbrevPairs _pp (Just a)) (toListOf (toLens _pp) _s :: [AbbrevPairs])
+                                                                         _ -> []) (paths _s (Proxy :: Proxy AbbrevPairs)),
+                                                  concatMap (\pth -> case pth of
+                                                                         _pp@(Path_ReportView__reportTitle _wp) -> map (\a -> Peek_ReportView_Markup _pp (Just a)) (toListOf (toLens _pp) _s :: [Markup])
+                                                                         _ -> []) (paths _s (Proxy :: Proxy Markup)),
+                                                  concatMap (\pth -> case pth of
+                                                                         _pp@(Path_ReportView__reportHeader _wp) -> map (\a -> Peek_ReportView_Markup _pp (Just a)) (toListOf (toLens _pp) _s :: [Markup])
+                                                                         _ -> []) (paths _s (Proxy :: Proxy Markup)),
+                                                  concatMap (\pth -> case pth of
+                                                                         _pp@(Path_ReportView__reportFooter _wp) -> map (\a -> Peek_ReportView_Markup _pp (Just a)) (toListOf (toLens _pp) _s :: [Markup])
+                                                                         _ -> []) (paths _s (Proxy :: Proxy Markup)),
+                                                  concatMap (\pth -> case pth of
+                                                                         _pp@(Path_ReportView__reportIntendedUse _wp) -> map (\a -> Peek_ReportView_MaybeReportIntendedUse _pp (Just a)) (toListOf (toLens _pp) _s :: [MaybeReportIntendedUse])
+                                                                         _ -> []) (paths _s (Proxy :: Proxy MaybeReportIntendedUse)),
+                                                  concatMap (\pth -> case pth of
+                                                                         _pp@(Path_ReportView__reportValueTypeInfo _wp) -> map (\a -> Peek_ReportView_ReportValueTypeInfo _pp (Just a)) (toListOf (toLens _pp) _s :: [ReportValueTypeInfo])
+                                                                         _ -> []) (paths _s (Proxy :: Proxy ReportValueTypeInfo)),
+                                                  concatMap (\pth -> case pth of
+                                                                         _pp@(Path_ReportView__reportValueApproachInfo _wp) -> map (\a -> Peek_ReportView_ReportValueApproachInfo _pp (Just a)) (toListOf (toLens _pp) _s :: [ReportValueApproachInfo])
+                                                                         _ -> []) (paths _s (Proxy :: Proxy ReportValueApproachInfo)),
+                                                  concatMap (\pth -> case pth of
+                                                                         _pp@(Path_ReportView__reportClientName _wp) -> map (\a -> Peek_ReportView_Markup _pp (Just a)) (toListOf (toLens _pp) _s :: [Markup])
+                                                                         _ -> []) (paths _s (Proxy :: Proxy Markup)),
+                                                  concatMap (\pth -> case pth of
+                                                                         _pp@(Path_ReportView__reportClientAddress _wp) -> map (\a -> Peek_ReportView_Markup _pp (Just a)) (toListOf (toLens _pp) _s :: [Markup])
+                                                                         _ -> []) (paths _s (Proxy :: Proxy Markup)),
+                                                  concatMap (\pth -> case pth of
+                                                                         _pp@(Path_ReportView__reportClientGreeting _wp) -> map (\a -> Peek_ReportView_Markup _pp (Just a)) (toListOf (toLens _pp) _s :: [Markup])
+                                                                         _ -> []) (paths _s (Proxy :: Proxy Markup)),
+                                                  concatMap (\pth -> case pth of
+                                                                         _pp@(Path_ReportView__reportItemsOwnerFull _wp) -> map (\a -> Peek_ReportView_Markup _pp (Just a)) (toListOf (toLens _pp) _s :: [Markup])
+                                                                         _ -> []) (paths _s (Proxy :: Proxy Markup)),
+                                                  concatMap (\pth -> case pth of
+                                                                         _pp@(Path_ReportView__reportItemsOwner _wp) -> map (\a -> Peek_ReportView_Markup _pp (Just a)) (toListOf (toLens _pp) _s :: [Markup])
+                                                                         _ -> []) (paths _s (Proxy :: Proxy Markup)),
+                                                  concatMap (\pth -> case pth of
+                                                                         _pp@(Path_ReportView__reportBriefItems _wp) -> map (\a -> Peek_ReportView_Markup _pp (Just a)) (toListOf (toLens _pp) _s :: [Markup])
+                                                                         _ -> []) (paths _s (Proxy :: Proxy Markup)),
+                                                  concatMap (\pth -> case pth of
+                                                                         _pp@(Path_ReportView__reportInspectionLocation _wp) -> map (\a -> Peek_ReportView_Markup _pp (Just a)) (toListOf (toLens _pp) _s :: [Markup])
+                                                                         _ -> []) (paths _s (Proxy :: Proxy Markup)),
+                                                  concatMap (\pth -> case pth of
+                                                                         _pp@(Path_ReportView__reportBody _wp) -> map (\a -> Peek_ReportView_ReportElems _pp (Just a)) (toListOf (toLens _pp) _s :: [ReportElems])
+                                                                         _ -> []) (paths _s (Proxy :: Proxy ReportElems)),
+                                                  concatMap (\pth -> case pth of
+                                                                         _pp@(Path_ReportView__reportGlossary _wp) -> map (\a -> Peek_ReportView_MarkupPairs _pp (Just a)) (toListOf (toLens _pp) _s :: [MarkupPairs])
+                                                                         _ -> []) (paths _s (Proxy :: Proxy MarkupPairs)),
+                                                  concatMap (\pth -> case pth of
+                                                                         _pp@(Path_ReportView__reportSources _wp) -> map (\a -> Peek_ReportView_MarkupPairs _pp (Just a)) (toListOf (toLens _pp) _s :: [MarkupPairs])
+                                                                         _ -> []) (paths _s (Proxy :: Proxy MarkupPairs)),
+                                                  concatMap (\pth -> case pth of
+                                                                         _pp@(Path_ReportView__reportLetterOfTransmittal _wp) -> map (\a -> Peek_ReportView_Markup _pp (Just a)) (toListOf (toLens _pp) _s :: [Markup])
+                                                                         _ -> []) (paths _s (Proxy :: Proxy Markup)),
+                                                  concatMap (\pth -> case pth of
+                                                                         _pp@(Path_ReportView__reportScopeOfWork _wp) -> map (\a -> Peek_ReportView_Markup _pp (Just a)) (toListOf (toLens _pp) _s :: [Markup])
+                                                                         _ -> []) (paths _s (Proxy :: Proxy Markup)),
+                                                  concatMap (\pth -> case pth of
+                                                                         _pp@(Path_ReportView__reportCertification _wp) -> map (\a -> Peek_ReportView_Markups _pp (Just a)) (toListOf (toLens _pp) _s :: [Markups])
+                                                                         _ -> []) (paths _s (Proxy :: Proxy Markups)),
+                                                  concatMap (\pth -> case pth of
+                                                                         _pp@(Path_ReportView__reportLimitingConditions _wp) -> map (\a -> Peek_ReportView_Markups _pp (Just a)) (toListOf (toLens _pp) _s :: [Markups])
+                                                                         _ -> []) (paths _s (Proxy :: Proxy Markups)),
+                                                  concatMap (\pth -> case pth of
+                                                                         _pp@(Path_ReportView__reportPrivacyPolicy _wp) -> map (\a -> Peek_ReportView_Markup _pp (Just a)) (toListOf (toLens _pp) _s :: [Markup])
+                                                                         _ -> []) (paths _s (Proxy :: Proxy Markup)),
+                                                  concatMap (\pth -> case pth of
+                                                                         _pp@(Path_ReportView__reportPerms _wp) -> map (\a -> Peek_ReportView_Permissions _pp (Just a)) (toListOf (toLens _pp) _s :: [Permissions])
+                                                                         _ -> []) (paths _s (Proxy :: Proxy Permissions)),
+                                                  concatMap (\pth -> case pth of
+                                                                         _pp@(Path_ReportView__reportRevision _wp) -> map (\a -> Peek_ReportView_Integer _pp (Just a)) (toListOf (toLens _pp) _s :: [Integer])
+                                                                         _ -> []) (paths _s (Proxy :: Proxy Integer)),
+                                                  concatMap (\pth -> case pth of
+                                                                         _pp@(Path_ReportView__reportCreated _wp) -> map (\a -> Peek_ReportView_Int64 _pp (Just a)) (toListOf (toLens _pp) _s :: [Int64])
+                                                                         _ -> []) (paths _s (Proxy :: Proxy Int64)),
+                                                  concatMap (\pth -> case pth of
+                                                                         _pp@(Path_ReportView__reportBranding _wp) -> map (\a -> Peek_ReportView_Branding _pp (Just a)) (toListOf (toLens _pp) _s :: [Branding])
+                                                                         _ -> []) (paths _s (Proxy :: Proxy Branding)),
+                                                  concatMap (\pth -> case pth of
+                                                                         _pp@(Path_ReportView__reportStatus _wp) -> map (\a -> Peek_ReportView_ReportStatus _pp (Just a)) (toListOf (toLens _pp) _s :: [ReportStatus])
+                                                                         _ -> []) (paths _s (Proxy :: Proxy ReportStatus)),
+                                                  concatMap (\pth -> case pth of
+                                                                         _pp@(Path_ReportView__reportRedacted _wp) -> map (\a -> Peek_ReportView_Bool _pp (Just a)) (toListOf (toLens _pp) _s :: [Bool])
+                                                                         _ -> []) (paths _s (Proxy :: Proxy Bool)),
+                                                  concatMap (\pth -> case pth of
+                                                                         _pp@(Path_ReportView__reportFlags _wp) -> map (\a -> Peek_ReportView_ReportFlags _pp (Just a)) (toListOf (toLens _pp) _s :: [ReportFlags])
+                                                                         _ -> []) (paths _s (Proxy :: Proxy ReportFlags)),
+                                                  concatMap (\pth -> case pth of
+                                                                         _pp@(Path_ReportView__reportUUID _wp) -> map (\a -> Peek_ReportView_UUID _pp (Just a)) (toListOf (toLens _pp) _s :: [UUID])
+                                                                         _ -> []) (paths _s (Proxy :: Proxy UUID)),
+                                                  concatMap (\pth -> case pth of
+                                                                         _pp@(Path_ReportView__reportOrderByItemName _wp) -> map (\a -> Peek_ReportView_Bool _pp (Just a)) (toListOf (toLens _pp) _s :: [Bool])
+                                                                         _ -> []) (paths _s (Proxy :: Proxy Bool)),
+                                                  concatMap (\pth -> case pth of
+                                                                         _pp@(Path_ReportView__reportDisplayItemName _wp) -> map (\a -> Peek_ReportView_Bool _pp (Just a)) (toListOf (toLens _pp) _s :: [Bool])
+                                                                         _ -> []) (paths _s (Proxy :: Proxy Bool)),
+                                                  concatMap (\pth -> case pth of
+                                                                         _pp@(Path_ReportView__reportStandardsVersion _wp) -> map (\a -> Peek_ReportView_ReportStandard _pp (Just a)) (toListOf (toLens _pp) _s :: [ReportStandard])
+                                                                         _ -> []) (paths _s (Proxy :: Proxy ReportStandard))] :: [Peek ReportView]
+instance PathStart SaneSizeImageSize
+    where data Peek SaneSizeImageSize
+              = Peek_SaneSizeImageSize_String (Path SaneSizeImageSize String) (Maybe String)
+              | Peek_SaneSizeImageSize_Double (Path SaneSizeImageSize Double) (Maybe Double)
+              | Peek_SaneSizeImageSize_Dimension (Path SaneSizeImageSize Dimension) (Maybe Dimension)
+              | Peek_SaneSizeImageSize_ImageSize (Path SaneSizeImageSize ImageSize) (Maybe ImageSize)
+              | Peek_SaneSizeImageSize_Units (Path SaneSizeImageSize Units) (Maybe Units)
+              | Peek_SaneSizeImageSize_JSONText (Path SaneSizeImageSize JSONText) (Maybe JSONText)
+              | Peek_SaneSizeImageSize_SaneSizeImageSize (Path SaneSizeImageSize SaneSizeImageSize) (Maybe SaneSizeImageSize)
+              deriving (Eq, Show)
+          peekTree _s = concatMap (\pth -> case pth of
+                                               _pp@(Path_SaneSizeImageSize_View _wp) -> map (\a -> let f = peekTree a
+                                                                                                    in let liftPeek (Peek_ImageSize_String q z) = Peek_SaneSizeImageSize_String (Path_SaneSizeImageSize_View q) z
+                                                                                                           liftPeek (Peek_ImageSize_Double q z) = Peek_SaneSizeImageSize_Double (Path_SaneSizeImageSize_View q) z
+                                                                                                           liftPeek (Peek_ImageSize_Dimension q z) = Peek_SaneSizeImageSize_Dimension (Path_SaneSizeImageSize_View q) z
+                                                                                                           liftPeek (Peek_ImageSize_ImageSize q z) = Peek_SaneSizeImageSize_ImageSize (Path_SaneSizeImageSize_View q) z
+                                                                                                           liftPeek (Peek_ImageSize_Units q z) = Peek_SaneSizeImageSize_Units (Path_SaneSizeImageSize_View q) z
+                                                                                                           liftPeek (Peek_ImageSize_JSONText q z) = Peek_SaneSizeImageSize_JSONText (Path_SaneSizeImageSize_View q) z
+                                                                                                        in Node (Peek_SaneSizeImageSize_ImageSize _pp (if null f
+                                                                                                                                                        then Just a
+                                                                                                                                                        else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [ImageSize])
+                                               _ -> []) (paths _s (Proxy :: Proxy ImageSize)) :: Forest (Peek SaneSizeImageSize)
+          peekRow _s = concatMap (\pth -> case pth of
+                                              _pp@(Path_SaneSizeImageSize_View _wp) -> map (\a -> Peek_SaneSizeImageSize_ImageSize _pp (Just a)) (toListOf (toLens _pp) _s :: [ImageSize])
+                                              _ -> []) (paths _s (Proxy :: Proxy ImageSize)) :: [Peek SaneSizeImageSize]
 instance PathStart Item
     where data Peek Item
-              = Peek_Item_String (Path Item ([Char])) (Maybe ([Char]))
+              = Peek_Item_String (Path Item String) (Maybe String)
               | Peek_Item_Bool (Path Item Bool) (Maybe Bool)
               | Peek_Item_Double (Path Item Double) (Maybe Double)
               | Peek_Item_Dimension (Path Item Dimension) (Maybe Dimension)
@@ -11777,70 +12145,193 @@ instance PathStart Item
               | Peek_Item_ImageFile (Path Item ImageFile) (Maybe ImageFile)
               | Peek_Item_JSONText (Path Item JSONText) (Maybe JSONText)
               | Peek_Item_Markup (Path Item Markup) (Maybe Markup)
-              | Peek_Item_EUI (Path Item (Either URI ImageFile)) (Maybe (Either URI ImageFile))
-              | Peek_Item_MEUI (Path Item (Maybe (Either URI ImageFile))) (Maybe (Maybe (Either URI ImageFile)))
-              | Peek_Item_MaybeImageFile (Path Item (Maybe ImageFile)) (Maybe (Maybe ImageFile))
+              | Peek_Item_EUI (Path Item EUI) (Maybe EUI)
+              | Peek_Item_MEUI (Path Item MEUI) (Maybe MEUI)
+              | Peek_Item_MaybeImageFile (Path Item MaybeImageFile) (Maybe MaybeImageFile)
               | Peek_Item_ReportImage (Path Item ReportImage) (Maybe ReportImage)
-              | Peek_Item_ReportImages (Path Item (Order ReportImageID ReportImage)) (Maybe (Order ReportImageID ReportImage))
+              | Peek_Item_ReportImages (Path Item ReportImages) (Maybe ReportImages)
               | Peek_Item_ReportImageView (Path Item ReportImageView) (Maybe ReportImageView)
-              | Peek_Item_SaneSizeImageSize (Path Item (SaneSize ImageSize)) (Maybe (SaneSize ImageSize))
+              | Peek_Item_SaneSizeImageSize (Path Item SaneSizeImageSize) (Maybe SaneSizeImageSize)
               | Peek_Item_Item (Path Item Item) (Maybe Item)
-              | Peek_Item_MIM (Path Item (Map ItemFieldName Markup)) (Maybe (Map ItemFieldName Markup))
+              | Peek_Item_MIM (Path Item MIM) (Maybe MIM)
               | Peek_Item_URI (Path Item URI) (Maybe URI)
               | Peek_Item_Text (Path Item Text) (Maybe Text)
               deriving (Eq, Show)
-          peek (_s@(Item {})) = mconcat [concatMap (\pth -> case pth of
-                                                                _pp@(Path_Item_itemName _wp) -> map (\a -> let f = peek a
-                                                                                                            in let liftPeek (Peek_Text_JSONText q z) = Peek_Item_JSONText (Path_Item_itemName q) z
-                                                                                                                   liftPeek (Peek_Text_Text q z) = Peek_Item_Text (Path_Item_itemName q) z
-                                                                                                                in Node (Peek_Item_Text _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Text])
-                                                                _ -> []) (paths _s (Proxy :: Proxy Text)),
-                                         concatMap (\pth -> case pth of
-                                                                _pp@(Path_Item_fields _wp) -> map (\a -> let f = peek a
-                                                                                                          in let liftPeek (Peek_MIM_JSONText q z) = Peek_Item_JSONText (Path_Item_fields q) z
-                                                                                                                 liftPeek (Peek_MIM_Markup q z) = Peek_Item_Markup (Path_Item_fields q) z
-                                                                                                                 liftPeek (Peek_MIM_MIM q z) = Peek_Item_MIM (Path_Item_fields q) z
-                                                                                                                 liftPeek (Peek_MIM_Text q z) = Peek_Item_Text (Path_Item_fields q) z
-                                                                                                              in Node (Peek_Item_MIM _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Map ItemFieldName
-                                                                                                                                                                                                                                         Markup])
-                                                                _ -> []) (paths _s (Proxy :: Proxy (Map ItemFieldName Markup))),
-                                         concatMap (\pth -> case pth of
-                                                                _pp@(Path_Item_images _wp) -> map (\a -> let f = peek a
-                                                                                                          in let liftPeek (Peek_ReportImages_String q z) = Peek_Item_String (Path_Item_images q) z
-                                                                                                                 liftPeek (Peek_ReportImages_Bool q z) = Peek_Item_Bool (Path_Item_images q) z
-                                                                                                                 liftPeek (Peek_ReportImages_Double q z) = Peek_Item_Double (Path_Item_images q) z
-                                                                                                                 liftPeek (Peek_ReportImages_Dimension q z) = Peek_Item_Dimension (Path_Item_images q) z
-                                                                                                                 liftPeek (Peek_ReportImages_ImageCrop q z) = Peek_Item_ImageCrop (Path_Item_images q) z
-                                                                                                                 liftPeek (Peek_ReportImages_ImageSize q z) = Peek_Item_ImageSize (Path_Item_images q) z
-                                                                                                                 liftPeek (Peek_ReportImages_Units q z) = Peek_Item_Units (Path_Item_images q) z
-                                                                                                                 liftPeek (Peek_ReportImages_ImageFile q z) = Peek_Item_ImageFile (Path_Item_images q) z
-                                                                                                                 liftPeek (Peek_ReportImages_JSONText q z) = Peek_Item_JSONText (Path_Item_images q) z
-                                                                                                                 liftPeek (Peek_ReportImages_Markup q z) = Peek_Item_Markup (Path_Item_images q) z
-                                                                                                                 liftPeek (Peek_ReportImages_EUI q z) = Peek_Item_EUI (Path_Item_images q) z
-                                                                                                                 liftPeek (Peek_ReportImages_MEUI q z) = Peek_Item_MEUI (Path_Item_images q) z
-                                                                                                                 liftPeek (Peek_ReportImages_MaybeImageFile q z) = Peek_Item_MaybeImageFile (Path_Item_images q) z
-                                                                                                                 liftPeek (Peek_ReportImages_ReportImage q z) = Peek_Item_ReportImage (Path_Item_images q) z
-                                                                                                                 liftPeek (Peek_ReportImages_ReportImages q z) = Peek_Item_ReportImages (Path_Item_images q) z
-                                                                                                                 liftPeek (Peek_ReportImages_ReportImageView q z) = Peek_Item_ReportImageView (Path_Item_images q) z
-                                                                                                                 liftPeek (Peek_ReportImages_SaneSizeImageSize q z) = Peek_Item_SaneSizeImageSize (Path_Item_images q) z
-                                                                                                                 liftPeek (Peek_ReportImages_URI q z) = Peek_Item_URI (Path_Item_images q) z
-                                                                                                                 liftPeek (Peek_ReportImages_Text q z) = Peek_Item_Text (Path_Item_images q) z
-                                                                                                              in Node (Peek_Item_ReportImages _pp (if null f
-                                                                                                                                                    then Just a
-                                                                                                                                                    else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Order ReportImageID ReportImage])
-                                                                _ -> []) (paths _s (Proxy :: Proxy (Order ReportImageID ReportImage)))] :: Forest (Peek Item)
-          hop (_s@(Item {})) = mconcat [concatMap (\pth -> case pth of
-                                                               _pp@(Path_Item_itemName _wp) -> map (\a -> Node (Peek_Item_Text _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Text])
-                                                               _ -> []) (paths _s (Proxy :: Proxy Text)),
-                                        concatMap (\pth -> case pth of
-                                                               _pp@(Path_Item_fields _wp) -> map (\a -> Node (Peek_Item_MIM _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Map ItemFieldName Markup])
-                                                               _ -> []) (paths _s (Proxy :: Proxy (Map ItemFieldName Markup))),
-                                        concatMap (\pth -> case pth of
-                                                               _pp@(Path_Item_images _wp) -> map (\a -> Node (Peek_Item_ReportImages _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Order ReportImageID ReportImage])
-                                                               _ -> []) (paths _s (Proxy :: Proxy (Order ReportImageID ReportImage)))] :: Forest (Peek Item)
+          peekTree (_s@(Item {})) = mconcat [concatMap (\pth -> case pth of
+                                                                    _pp@(Path_Item_itemName _wp) -> map (\a -> let f = peekTree a
+                                                                                                                in let liftPeek (Peek_Text_JSONText q z) = Peek_Item_JSONText (Path_Item_itemName q) z
+                                                                                                                       liftPeek (Peek_Text_Text q z) = Peek_Item_Text (Path_Item_itemName q) z
+                                                                                                                    in Node (Peek_Item_Text _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Text])
+                                                                    _ -> []) (paths _s (Proxy :: Proxy Text)),
+                                             concatMap (\pth -> case pth of
+                                                                    _pp@(Path_Item_fields _wp) -> map (\a -> let f = peekTree a
+                                                                                                              in let liftPeek (Peek_MIM_JSONText q z) = Peek_Item_JSONText (Path_Item_fields q) z
+                                                                                                                     liftPeek (Peek_MIM_Markup q z) = Peek_Item_Markup (Path_Item_fields q) z
+                                                                                                                     liftPeek (Peek_MIM_MIM q z) = Peek_Item_MIM (Path_Item_fields q) z
+                                                                                                                     liftPeek (Peek_MIM_Text q z) = Peek_Item_Text (Path_Item_fields q) z
+                                                                                                                  in Node (Peek_Item_MIM _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [MIM])
+                                                                    _ -> []) (paths _s (Proxy :: Proxy MIM)),
+                                             concatMap (\pth -> case pth of
+                                                                    _pp@(Path_Item_images _wp) -> map (\a -> let f = peekTree a
+                                                                                                              in let liftPeek (Peek_ReportImages_String q z) = Peek_Item_String (Path_Item_images q) z
+                                                                                                                     liftPeek (Peek_ReportImages_Bool q z) = Peek_Item_Bool (Path_Item_images q) z
+                                                                                                                     liftPeek (Peek_ReportImages_Double q z) = Peek_Item_Double (Path_Item_images q) z
+                                                                                                                     liftPeek (Peek_ReportImages_Dimension q z) = Peek_Item_Dimension (Path_Item_images q) z
+                                                                                                                     liftPeek (Peek_ReportImages_ImageCrop q z) = Peek_Item_ImageCrop (Path_Item_images q) z
+                                                                                                                     liftPeek (Peek_ReportImages_ImageSize q z) = Peek_Item_ImageSize (Path_Item_images q) z
+                                                                                                                     liftPeek (Peek_ReportImages_Units q z) = Peek_Item_Units (Path_Item_images q) z
+                                                                                                                     liftPeek (Peek_ReportImages_ImageFile q z) = Peek_Item_ImageFile (Path_Item_images q) z
+                                                                                                                     liftPeek (Peek_ReportImages_JSONText q z) = Peek_Item_JSONText (Path_Item_images q) z
+                                                                                                                     liftPeek (Peek_ReportImages_Markup q z) = Peek_Item_Markup (Path_Item_images q) z
+                                                                                                                     liftPeek (Peek_ReportImages_EUI q z) = Peek_Item_EUI (Path_Item_images q) z
+                                                                                                                     liftPeek (Peek_ReportImages_MEUI q z) = Peek_Item_MEUI (Path_Item_images q) z
+                                                                                                                     liftPeek (Peek_ReportImages_MaybeImageFile q z) = Peek_Item_MaybeImageFile (Path_Item_images q) z
+                                                                                                                     liftPeek (Peek_ReportImages_ReportImage q z) = Peek_Item_ReportImage (Path_Item_images q) z
+                                                                                                                     liftPeek (Peek_ReportImages_ReportImages q z) = Peek_Item_ReportImages (Path_Item_images q) z
+                                                                                                                     liftPeek (Peek_ReportImages_ReportImageView q z) = Peek_Item_ReportImageView (Path_Item_images q) z
+                                                                                                                     liftPeek (Peek_ReportImages_SaneSizeImageSize q z) = Peek_Item_SaneSizeImageSize (Path_Item_images q) z
+                                                                                                                     liftPeek (Peek_ReportImages_URI q z) = Peek_Item_URI (Path_Item_images q) z
+                                                                                                                     liftPeek (Peek_ReportImages_Text q z) = Peek_Item_Text (Path_Item_images q) z
+                                                                                                                  in Node (Peek_Item_ReportImages _pp (if null f
+                                                                                                                                                        then Just a
+                                                                                                                                                        else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [ReportImages])
+                                                                    _ -> []) (paths _s (Proxy :: Proxy ReportImages))] :: Forest (Peek Item)
+          peekRow (_s@(Item {})) = mconcat [concatMap (\pth -> case pth of
+                                                                   _pp@(Path_Item_itemName _wp) -> map (\a -> Peek_Item_Text _pp (Just a)) (toListOf (toLens _pp) _s :: [Text])
+                                                                   _ -> []) (paths _s (Proxy :: Proxy Text)),
+                                            concatMap (\pth -> case pth of
+                                                                   _pp@(Path_Item_fields _wp) -> map (\a -> Peek_Item_MIM _pp (Just a)) (toListOf (toLens _pp) _s :: [MIM])
+                                                                   _ -> []) (paths _s (Proxy :: Proxy MIM)),
+                                            concatMap (\pth -> case pth of
+                                                                   _pp@(Path_Item_images _wp) -> map (\a -> Peek_Item_ReportImages _pp (Just a)) (toListOf (toLens _pp) _s :: [ReportImages])
+                                                                   _ -> []) (paths _s (Proxy :: Proxy ReportImages))] :: [Peek Item]
+instance PathStart MIM
+    where data Peek MIM
+              = Peek_MIM_JSONText (Path MIM JSONText) (Maybe JSONText)
+              | Peek_MIM_Markup (Path MIM Markup) (Maybe Markup)
+              | Peek_MIM_MIM (Path MIM MIM) (Maybe MIM)
+              | Peek_MIM_Text (Path MIM Text) (Maybe Text)
+              deriving (Eq, Show)
+          peekTree _s = concatMap (\pth -> case pth of
+                                               _pp@(Path_Look _k _wp) -> map (\a -> let f = peekTree a
+                                                                                     in let liftPeek (Peek_Markup_JSONText q z) = Peek_MIM_JSONText (Path_Look _k q) z
+                                                                                            liftPeek (Peek_Markup_Markup q z) = Peek_MIM_Markup (Path_Look _k q) z
+                                                                                            liftPeek (Peek_Markup_Text q z) = Peek_MIM_Text (Path_Look _k q) z
+                                                                                         in Node (Peek_MIM_Markup _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Markup])
+                                               _ -> []) (paths _s (Proxy :: Proxy Markup)) :: Forest (Peek MIM)
+          peekRow _s = concatMap (\pth -> case pth of
+                                              _pp@(Path_Look _k _wp) -> map (\a -> Peek_MIM_Markup _pp (Just a)) (toListOf (toLens _pp) _s :: [Markup])
+                                              _ -> []) (paths _s (Proxy :: Proxy Markup)) :: [Peek MIM]
+instance PathStart MRR
+    where data Peek MRR
+              = Peek_MRR_String (Path MRR String) (Maybe String)
+              | Peek_MRR_Int64 (Path MRR Int64) (Maybe Int64)
+              | Peek_MRR_Int (Path MRR Int) (Maybe Int)
+              | Peek_MRR_Bool (Path MRR Bool) (Maybe Bool)
+              | Peek_MRR_Double (Path MRR Double) (Maybe Double)
+              | Peek_MRR_Dimension (Path MRR Dimension) (Maybe Dimension)
+              | Peek_MRR_ImageCrop (Path MRR ImageCrop) (Maybe ImageCrop)
+              | Peek_MRR_ImageSize (Path MRR ImageSize) (Maybe ImageSize)
+              | Peek_MRR_Units (Path MRR Units) (Maybe Units)
+              | Peek_MRR_ImageFile (Path MRR ImageFile) (Maybe ImageFile)
+              | Peek_MRR_Integer (Path MRR Integer) (Maybe Integer)
+              | Peek_MRR_JSONText (Path MRR JSONText) (Maybe JSONText)
+              | Peek_MRR_Markup (Path MRR Markup) (Maybe Markup)
+              | Peek_MRR_Permissions (Path MRR Permissions) (Maybe Permissions)
+              | Peek_MRR_UserIds (Path MRR UserIds) (Maybe UserIds)
+              | Peek_MRR_AbbrevPair (Path MRR AbbrevPair) (Maybe AbbrevPair)
+              | Peek_MRR_AbbrevPairs (Path MRR AbbrevPairs) (Maybe AbbrevPairs)
+              | Peek_MRR_Author (Path MRR Author) (Maybe Author)
+              | Peek_MRR_Authors (Path MRR Authors) (Maybe Authors)
+              | Peek_MRR_Branding (Path MRR Branding) (Maybe Branding)
+              | Peek_MRR_MarkupPair (Path MRR MarkupPair) (Maybe MarkupPair)
+              | Peek_MRR_MarkupPairs (Path MRR MarkupPairs) (Maybe MarkupPairs)
+              | Peek_MRR_Markups (Path MRR Markups) (Maybe Markups)
+              | Peek_MRR_MaybeReportIntendedUse (Path MRR MaybeReportIntendedUse) (Maybe MaybeReportIntendedUse)
+              | Peek_MRR_Report (Path MRR Report) (Maybe Report)
+              | Peek_MRR_ReportElem (Path MRR ReportElem) (Maybe ReportElem)
+              | Peek_MRR_ReportElems (Path MRR ReportElems) (Maybe ReportElems)
+              | Peek_MRR_ReportFlags (Path MRR ReportFlags) (Maybe ReportFlags)
+              | Peek_MRR_ReportStandard (Path MRR ReportStandard) (Maybe ReportStandard)
+              | Peek_MRR_ReportStatus (Path MRR ReportStatus) (Maybe ReportStatus)
+              | Peek_MRR_ReportValueApproachInfo (Path MRR ReportValueApproachInfo) (Maybe ReportValueApproachInfo)
+              | Peek_MRR_ReportValueTypeInfo (Path MRR ReportValueTypeInfo) (Maybe ReportValueTypeInfo)
+              | Peek_MRR_EUI (Path MRR EUI) (Maybe EUI)
+              | Peek_MRR_MEUI (Path MRR MEUI) (Maybe MEUI)
+              | Peek_MRR_MaybeImageFile (Path MRR MaybeImageFile) (Maybe MaybeImageFile)
+              | Peek_MRR_ReportImage (Path MRR ReportImage) (Maybe ReportImage)
+              | Peek_MRR_ReportImages (Path MRR ReportImages) (Maybe ReportImages)
+              | Peek_MRR_ReadOnlyFilePath (Path MRR ReadOnlyFilePath) (Maybe ReadOnlyFilePath)
+              | Peek_MRR_ReportImageView (Path MRR ReportImageView) (Maybe ReportImageView)
+              | Peek_MRR_ReportView (Path MRR ReportView) (Maybe ReportView)
+              | Peek_MRR_SaneSizeImageSize (Path MRR SaneSizeImageSize) (Maybe SaneSizeImageSize)
+              | Peek_MRR_Item (Path MRR Item) (Maybe Item)
+              | Peek_MRR_MIM (Path MRR MIM) (Maybe MIM)
+              | Peek_MRR_MRR (Path MRR MRR) (Maybe MRR)
+              | Peek_MRR_CIString (Path MRR CIString) (Maybe CIString)
+              | Peek_MRR_URI (Path MRR URI) (Maybe URI)
+              | Peek_MRR_Text (Path MRR Text) (Maybe Text)
+              | Peek_MRR_UserId (Path MRR UserId) (Maybe UserId)
+              | Peek_MRR_UUID (Path MRR UUID) (Maybe UUID)
+              deriving (Eq, Show)
+          peekTree _s = concatMap (\pth -> case pth of
+                                               _pp@(Path_Look _k _wp) -> map (\a -> let f = peekTree a
+                                                                                     in let liftPeek (Peek_Report_String q z) = Peek_MRR_String (Path_Look _k q) z
+                                                                                            liftPeek (Peek_Report_Int64 q z) = Peek_MRR_Int64 (Path_Look _k q) z
+                                                                                            liftPeek (Peek_Report_Int q z) = Peek_MRR_Int (Path_Look _k q) z
+                                                                                            liftPeek (Peek_Report_Bool q z) = Peek_MRR_Bool (Path_Look _k q) z
+                                                                                            liftPeek (Peek_Report_Double q z) = Peek_MRR_Double (Path_Look _k q) z
+                                                                                            liftPeek (Peek_Report_Dimension q z) = Peek_MRR_Dimension (Path_Look _k q) z
+                                                                                            liftPeek (Peek_Report_ImageCrop q z) = Peek_MRR_ImageCrop (Path_Look _k q) z
+                                                                                            liftPeek (Peek_Report_ImageSize q z) = Peek_MRR_ImageSize (Path_Look _k q) z
+                                                                                            liftPeek (Peek_Report_Units q z) = Peek_MRR_Units (Path_Look _k q) z
+                                                                                            liftPeek (Peek_Report_ImageFile q z) = Peek_MRR_ImageFile (Path_Look _k q) z
+                                                                                            liftPeek (Peek_Report_Integer q z) = Peek_MRR_Integer (Path_Look _k q) z
+                                                                                            liftPeek (Peek_Report_JSONText q z) = Peek_MRR_JSONText (Path_Look _k q) z
+                                                                                            liftPeek (Peek_Report_Markup q z) = Peek_MRR_Markup (Path_Look _k q) z
+                                                                                            liftPeek (Peek_Report_Permissions q z) = Peek_MRR_Permissions (Path_Look _k q) z
+                                                                                            liftPeek (Peek_Report_UserIds q z) = Peek_MRR_UserIds (Path_Look _k q) z
+                                                                                            liftPeek (Peek_Report_AbbrevPair q z) = Peek_MRR_AbbrevPair (Path_Look _k q) z
+                                                                                            liftPeek (Peek_Report_AbbrevPairs q z) = Peek_MRR_AbbrevPairs (Path_Look _k q) z
+                                                                                            liftPeek (Peek_Report_Author q z) = Peek_MRR_Author (Path_Look _k q) z
+                                                                                            liftPeek (Peek_Report_Authors q z) = Peek_MRR_Authors (Path_Look _k q) z
+                                                                                            liftPeek (Peek_Report_Branding q z) = Peek_MRR_Branding (Path_Look _k q) z
+                                                                                            liftPeek (Peek_Report_MarkupPair q z) = Peek_MRR_MarkupPair (Path_Look _k q) z
+                                                                                            liftPeek (Peek_Report_MarkupPairs q z) = Peek_MRR_MarkupPairs (Path_Look _k q) z
+                                                                                            liftPeek (Peek_Report_Markups q z) = Peek_MRR_Markups (Path_Look _k q) z
+                                                                                            liftPeek (Peek_Report_MaybeReportIntendedUse q z) = Peek_MRR_MaybeReportIntendedUse (Path_Look _k q) z
+                                                                                            liftPeek (Peek_Report_Report q z) = Peek_MRR_Report (Path_Look _k q) z
+                                                                                            liftPeek (Peek_Report_ReportElem q z) = Peek_MRR_ReportElem (Path_Look _k q) z
+                                                                                            liftPeek (Peek_Report_ReportElems q z) = Peek_MRR_ReportElems (Path_Look _k q) z
+                                                                                            liftPeek (Peek_Report_ReportFlags q z) = Peek_MRR_ReportFlags (Path_Look _k q) z
+                                                                                            liftPeek (Peek_Report_ReportStandard q z) = Peek_MRR_ReportStandard (Path_Look _k q) z
+                                                                                            liftPeek (Peek_Report_ReportStatus q z) = Peek_MRR_ReportStatus (Path_Look _k q) z
+                                                                                            liftPeek (Peek_Report_ReportValueApproachInfo q z) = Peek_MRR_ReportValueApproachInfo (Path_Look _k q) z
+                                                                                            liftPeek (Peek_Report_ReportValueTypeInfo q z) = Peek_MRR_ReportValueTypeInfo (Path_Look _k q) z
+                                                                                            liftPeek (Peek_Report_EUI q z) = Peek_MRR_EUI (Path_Look _k q) z
+                                                                                            liftPeek (Peek_Report_MEUI q z) = Peek_MRR_MEUI (Path_Look _k q) z
+                                                                                            liftPeek (Peek_Report_MaybeImageFile q z) = Peek_MRR_MaybeImageFile (Path_Look _k q) z
+                                                                                            liftPeek (Peek_Report_ReportImage q z) = Peek_MRR_ReportImage (Path_Look _k q) z
+                                                                                            liftPeek (Peek_Report_ReportImages q z) = Peek_MRR_ReportImages (Path_Look _k q) z
+                                                                                            liftPeek (Peek_Report_ReadOnlyFilePath q z) = Peek_MRR_ReadOnlyFilePath (Path_Look _k q) z
+                                                                                            liftPeek (Peek_Report_ReportImageView q z) = Peek_MRR_ReportImageView (Path_Look _k q) z
+                                                                                            liftPeek (Peek_Report_ReportView q z) = Peek_MRR_ReportView (Path_Look _k q) z
+                                                                                            liftPeek (Peek_Report_SaneSizeImageSize q z) = Peek_MRR_SaneSizeImageSize (Path_Look _k q) z
+                                                                                            liftPeek (Peek_Report_Item q z) = Peek_MRR_Item (Path_Look _k q) z
+                                                                                            liftPeek (Peek_Report_MIM q z) = Peek_MRR_MIM (Path_Look _k q) z
+                                                                                            liftPeek (Peek_Report_CIString q z) = Peek_MRR_CIString (Path_Look _k q) z
+                                                                                            liftPeek (Peek_Report_URI q z) = Peek_MRR_URI (Path_Look _k q) z
+                                                                                            liftPeek (Peek_Report_Text q z) = Peek_MRR_Text (Path_Look _k q) z
+                                                                                            liftPeek (Peek_Report_UserId q z) = Peek_MRR_UserId (Path_Look _k q) z
+                                                                                            liftPeek (Peek_Report_UUID q z) = Peek_MRR_UUID (Path_Look _k q) z
+                                                                                         in Node (Peek_MRR_Report _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Report])
+                                               _ -> []) (paths _s (Proxy :: Proxy Report)) :: Forest (Peek MRR)
+          peekRow _s = concatMap (\pth -> case pth of
+                                              _pp@(Path_Look _k _wp) -> map (\a -> Peek_MRR_Report _pp (Just a)) (toListOf (toLens _pp) _s :: [Report])
+                                              _ -> []) (paths _s (Proxy :: Proxy Report)) :: [Peek MRR]
 instance PathStart ReportMap
     where data Peek ReportMap
-              = Peek_ReportMap_String (Path ReportMap ([Char])) (Maybe ([Char]))
+              = Peek_ReportMap_String (Path ReportMap String) (Maybe String)
               | Peek_ReportMap_Int64 (Path ReportMap Int64) (Maybe Int64)
               | Peek_ReportMap_Int (Path ReportMap Int) (Maybe Int)
               | Peek_ReportMap_Bool (Path ReportMap Bool) (Maybe Bool)
@@ -11854,36 +12345,36 @@ instance PathStart ReportMap
               | Peek_ReportMap_JSONText (Path ReportMap JSONText) (Maybe JSONText)
               | Peek_ReportMap_Markup (Path ReportMap Markup) (Maybe Markup)
               | Peek_ReportMap_Permissions (Path ReportMap Permissions) (Maybe Permissions)
-              | Peek_ReportMap_UserIds (Path ReportMap ([UserId])) (Maybe ([UserId]))
-              | Peek_ReportMap_AbbrevPair (Path ReportMap ((CIString, Markup))) (Maybe ((CIString, Markup)))
-              | Peek_ReportMap_AbbrevPairs (Path ReportMap (Order AbbrevPairID ((CIString, Markup)))) (Maybe (Order AbbrevPairID ((CIString, Markup))))
+              | Peek_ReportMap_UserIds (Path ReportMap UserIds) (Maybe UserIds)
+              | Peek_ReportMap_AbbrevPair (Path ReportMap AbbrevPair) (Maybe AbbrevPair)
+              | Peek_ReportMap_AbbrevPairs (Path ReportMap AbbrevPairs) (Maybe AbbrevPairs)
               | Peek_ReportMap_Author (Path ReportMap Author) (Maybe Author)
-              | Peek_ReportMap_Authors (Path ReportMap (Order AuthorID Author)) (Maybe (Order AuthorID Author))
+              | Peek_ReportMap_Authors (Path ReportMap Authors) (Maybe Authors)
               | Peek_ReportMap_Branding (Path ReportMap Branding) (Maybe Branding)
-              | Peek_ReportMap_MarkupPair (Path ReportMap ((Markup, Markup))) (Maybe ((Markup, Markup)))
-              | Peek_ReportMap_MarkupPairs (Path ReportMap (Order MarkupPairID ((Markup, Markup)))) (Maybe (Order MarkupPairID ((Markup, Markup))))
-              | Peek_ReportMap_Markups (Path ReportMap (Order MarkupID Markup)) (Maybe (Order MarkupID Markup))
-              | Peek_ReportMap_MaybeReportIntendedUse (Path ReportMap (Maybe ReportIntendedUse)) (Maybe (Maybe ReportIntendedUse))
+              | Peek_ReportMap_MarkupPair (Path ReportMap MarkupPair) (Maybe MarkupPair)
+              | Peek_ReportMap_MarkupPairs (Path ReportMap MarkupPairs) (Maybe MarkupPairs)
+              | Peek_ReportMap_Markups (Path ReportMap Markups) (Maybe Markups)
+              | Peek_ReportMap_MaybeReportIntendedUse (Path ReportMap MaybeReportIntendedUse) (Maybe MaybeReportIntendedUse)
               | Peek_ReportMap_Report (Path ReportMap Report) (Maybe Report)
               | Peek_ReportMap_ReportElem (Path ReportMap ReportElem) (Maybe ReportElem)
-              | Peek_ReportMap_ReportElems (Path ReportMap (Order ReportElemID ReportElem)) (Maybe (Order ReportElemID ReportElem))
+              | Peek_ReportMap_ReportElems (Path ReportMap ReportElems) (Maybe ReportElems)
               | Peek_ReportMap_ReportFlags (Path ReportMap ReportFlags) (Maybe ReportFlags)
               | Peek_ReportMap_ReportStandard (Path ReportMap ReportStandard) (Maybe ReportStandard)
               | Peek_ReportMap_ReportStatus (Path ReportMap ReportStatus) (Maybe ReportStatus)
               | Peek_ReportMap_ReportValueApproachInfo (Path ReportMap ReportValueApproachInfo) (Maybe ReportValueApproachInfo)
               | Peek_ReportMap_ReportValueTypeInfo (Path ReportMap ReportValueTypeInfo) (Maybe ReportValueTypeInfo)
-              | Peek_ReportMap_EUI (Path ReportMap (Either URI ImageFile)) (Maybe (Either URI ImageFile))
-              | Peek_ReportMap_MEUI (Path ReportMap (Maybe (Either URI ImageFile))) (Maybe (Maybe (Either URI ImageFile)))
-              | Peek_ReportMap_MaybeImageFile (Path ReportMap (Maybe ImageFile)) (Maybe (Maybe ImageFile))
+              | Peek_ReportMap_EUI (Path ReportMap EUI) (Maybe EUI)
+              | Peek_ReportMap_MEUI (Path ReportMap MEUI) (Maybe MEUI)
+              | Peek_ReportMap_MaybeImageFile (Path ReportMap MaybeImageFile) (Maybe MaybeImageFile)
               | Peek_ReportMap_ReportImage (Path ReportMap ReportImage) (Maybe ReportImage)
-              | Peek_ReportMap_ReportImages (Path ReportMap (Order ReportImageID ReportImage)) (Maybe (Order ReportImageID ReportImage))
-              | Peek_ReportMap_ReadOnlyFilePath (Path ReportMap (ReadOnly ([Char]))) (Maybe (ReadOnly ([Char])))
+              | Peek_ReportMap_ReportImages (Path ReportMap ReportImages) (Maybe ReportImages)
+              | Peek_ReportMap_ReadOnlyFilePath (Path ReportMap ReadOnlyFilePath) (Maybe ReadOnlyFilePath)
               | Peek_ReportMap_ReportImageView (Path ReportMap ReportImageView) (Maybe ReportImageView)
               | Peek_ReportMap_ReportView (Path ReportMap ReportView) (Maybe ReportView)
-              | Peek_ReportMap_SaneSizeImageSize (Path ReportMap (SaneSize ImageSize)) (Maybe (SaneSize ImageSize))
+              | Peek_ReportMap_SaneSizeImageSize (Path ReportMap SaneSizeImageSize) (Maybe SaneSizeImageSize)
               | Peek_ReportMap_Item (Path ReportMap Item) (Maybe Item)
-              | Peek_ReportMap_MIM (Path ReportMap (Map ItemFieldName Markup)) (Maybe (Map ItemFieldName Markup))
-              | Peek_ReportMap_MRR (Path ReportMap (Map ReportID Report)) (Maybe (Map ReportID Report))
+              | Peek_ReportMap_MIM (Path ReportMap MIM) (Maybe MIM)
+              | Peek_ReportMap_MRR (Path ReportMap MRR) (Maybe MRR)
               | Peek_ReportMap_ReportMap (Path ReportMap ReportMap) (Maybe ReportMap)
               | Peek_ReportMap_CIString (Path ReportMap CIString) (Maybe CIString)
               | Peek_ReportMap_URI (Path ReportMap URI) (Maybe URI)
@@ -11891,101 +12382,99 @@ instance PathStart ReportMap
               | Peek_ReportMap_UserId (Path ReportMap UserId) (Maybe UserId)
               | Peek_ReportMap_UUID (Path ReportMap UUID) (Maybe UUID)
               deriving (Eq, Show)
-          peek (_s@(ReportMap {})) = concatMap (\pth -> case pth of
-                                                            _pp@(Path_ReportMap_unReportMap _wp) -> map (\a -> let f = peek a
-                                                                                                                in let liftPeek (Peek_MRR_String q z) = Peek_ReportMap_String (Path_ReportMap_unReportMap q) z
-                                                                                                                       liftPeek (Peek_MRR_Int64 q z) = Peek_ReportMap_Int64 (Path_ReportMap_unReportMap q) z
-                                                                                                                       liftPeek (Peek_MRR_Int q z) = Peek_ReportMap_Int (Path_ReportMap_unReportMap q) z
-                                                                                                                       liftPeek (Peek_MRR_Bool q z) = Peek_ReportMap_Bool (Path_ReportMap_unReportMap q) z
-                                                                                                                       liftPeek (Peek_MRR_Double q z) = Peek_ReportMap_Double (Path_ReportMap_unReportMap q) z
-                                                                                                                       liftPeek (Peek_MRR_Dimension q z) = Peek_ReportMap_Dimension (Path_ReportMap_unReportMap q) z
-                                                                                                                       liftPeek (Peek_MRR_ImageCrop q z) = Peek_ReportMap_ImageCrop (Path_ReportMap_unReportMap q) z
-                                                                                                                       liftPeek (Peek_MRR_ImageSize q z) = Peek_ReportMap_ImageSize (Path_ReportMap_unReportMap q) z
-                                                                                                                       liftPeek (Peek_MRR_Units q z) = Peek_ReportMap_Units (Path_ReportMap_unReportMap q) z
-                                                                                                                       liftPeek (Peek_MRR_ImageFile q z) = Peek_ReportMap_ImageFile (Path_ReportMap_unReportMap q) z
-                                                                                                                       liftPeek (Peek_MRR_Integer q z) = Peek_ReportMap_Integer (Path_ReportMap_unReportMap q) z
-                                                                                                                       liftPeek (Peek_MRR_JSONText q z) = Peek_ReportMap_JSONText (Path_ReportMap_unReportMap q) z
-                                                                                                                       liftPeek (Peek_MRR_Markup q z) = Peek_ReportMap_Markup (Path_ReportMap_unReportMap q) z
-                                                                                                                       liftPeek (Peek_MRR_Permissions q z) = Peek_ReportMap_Permissions (Path_ReportMap_unReportMap q) z
-                                                                                                                       liftPeek (Peek_MRR_UserIds q z) = Peek_ReportMap_UserIds (Path_ReportMap_unReportMap q) z
-                                                                                                                       liftPeek (Peek_MRR_AbbrevPair q z) = Peek_ReportMap_AbbrevPair (Path_ReportMap_unReportMap q) z
-                                                                                                                       liftPeek (Peek_MRR_AbbrevPairs q z) = Peek_ReportMap_AbbrevPairs (Path_ReportMap_unReportMap q) z
-                                                                                                                       liftPeek (Peek_MRR_Author q z) = Peek_ReportMap_Author (Path_ReportMap_unReportMap q) z
-                                                                                                                       liftPeek (Peek_MRR_Authors q z) = Peek_ReportMap_Authors (Path_ReportMap_unReportMap q) z
-                                                                                                                       liftPeek (Peek_MRR_Branding q z) = Peek_ReportMap_Branding (Path_ReportMap_unReportMap q) z
-                                                                                                                       liftPeek (Peek_MRR_MarkupPair q z) = Peek_ReportMap_MarkupPair (Path_ReportMap_unReportMap q) z
-                                                                                                                       liftPeek (Peek_MRR_MarkupPairs q z) = Peek_ReportMap_MarkupPairs (Path_ReportMap_unReportMap q) z
-                                                                                                                       liftPeek (Peek_MRR_Markups q z) = Peek_ReportMap_Markups (Path_ReportMap_unReportMap q) z
-                                                                                                                       liftPeek (Peek_MRR_MaybeReportIntendedUse q z) = Peek_ReportMap_MaybeReportIntendedUse (Path_ReportMap_unReportMap q) z
-                                                                                                                       liftPeek (Peek_MRR_Report q z) = Peek_ReportMap_Report (Path_ReportMap_unReportMap q) z
-                                                                                                                       liftPeek (Peek_MRR_ReportElem q z) = Peek_ReportMap_ReportElem (Path_ReportMap_unReportMap q) z
-                                                                                                                       liftPeek (Peek_MRR_ReportElems q z) = Peek_ReportMap_ReportElems (Path_ReportMap_unReportMap q) z
-                                                                                                                       liftPeek (Peek_MRR_ReportFlags q z) = Peek_ReportMap_ReportFlags (Path_ReportMap_unReportMap q) z
-                                                                                                                       liftPeek (Peek_MRR_ReportStandard q z) = Peek_ReportMap_ReportStandard (Path_ReportMap_unReportMap q) z
-                                                                                                                       liftPeek (Peek_MRR_ReportStatus q z) = Peek_ReportMap_ReportStatus (Path_ReportMap_unReportMap q) z
-                                                                                                                       liftPeek (Peek_MRR_ReportValueApproachInfo q z) = Peek_ReportMap_ReportValueApproachInfo (Path_ReportMap_unReportMap q) z
-                                                                                                                       liftPeek (Peek_MRR_ReportValueTypeInfo q z) = Peek_ReportMap_ReportValueTypeInfo (Path_ReportMap_unReportMap q) z
-                                                                                                                       liftPeek (Peek_MRR_EUI q z) = Peek_ReportMap_EUI (Path_ReportMap_unReportMap q) z
-                                                                                                                       liftPeek (Peek_MRR_MEUI q z) = Peek_ReportMap_MEUI (Path_ReportMap_unReportMap q) z
-                                                                                                                       liftPeek (Peek_MRR_MaybeImageFile q z) = Peek_ReportMap_MaybeImageFile (Path_ReportMap_unReportMap q) z
-                                                                                                                       liftPeek (Peek_MRR_ReportImage q z) = Peek_ReportMap_ReportImage (Path_ReportMap_unReportMap q) z
-                                                                                                                       liftPeek (Peek_MRR_ReportImages q z) = Peek_ReportMap_ReportImages (Path_ReportMap_unReportMap q) z
-                                                                                                                       liftPeek (Peek_MRR_ReadOnlyFilePath q z) = Peek_ReportMap_ReadOnlyFilePath (Path_ReportMap_unReportMap q) z
-                                                                                                                       liftPeek (Peek_MRR_ReportImageView q z) = Peek_ReportMap_ReportImageView (Path_ReportMap_unReportMap q) z
-                                                                                                                       liftPeek (Peek_MRR_ReportView q z) = Peek_ReportMap_ReportView (Path_ReportMap_unReportMap q) z
-                                                                                                                       liftPeek (Peek_MRR_SaneSizeImageSize q z) = Peek_ReportMap_SaneSizeImageSize (Path_ReportMap_unReportMap q) z
-                                                                                                                       liftPeek (Peek_MRR_Item q z) = Peek_ReportMap_Item (Path_ReportMap_unReportMap q) z
-                                                                                                                       liftPeek (Peek_MRR_MIM q z) = Peek_ReportMap_MIM (Path_ReportMap_unReportMap q) z
-                                                                                                                       liftPeek (Peek_MRR_MRR q z) = Peek_ReportMap_MRR (Path_ReportMap_unReportMap q) z
-                                                                                                                       liftPeek (Peek_MRR_CIString q z) = Peek_ReportMap_CIString (Path_ReportMap_unReportMap q) z
-                                                                                                                       liftPeek (Peek_MRR_URI q z) = Peek_ReportMap_URI (Path_ReportMap_unReportMap q) z
-                                                                                                                       liftPeek (Peek_MRR_Text q z) = Peek_ReportMap_Text (Path_ReportMap_unReportMap q) z
-                                                                                                                       liftPeek (Peek_MRR_UserId q z) = Peek_ReportMap_UserId (Path_ReportMap_unReportMap q) z
-                                                                                                                       liftPeek (Peek_MRR_UUID q z) = Peek_ReportMap_UUID (Path_ReportMap_unReportMap q) z
-                                                                                                                    in Node (Peek_ReportMap_MRR _pp (if null f
-                                                                                                                                                      then Just a
-                                                                                                                                                      else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Map ReportID Report])
-                                                            _ -> []) (paths _s (Proxy :: Proxy (Map ReportID Report))) :: Forest (Peek ReportMap)
-          hop (_s@(ReportMap {})) = concatMap (\pth -> case pth of
-                                                           _pp@(Path_ReportMap_unReportMap _wp) -> map (\a -> Node (Peek_ReportMap_MRR _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Map ReportID Report])
-                                                           _ -> []) (paths _s (Proxy :: Proxy (Map ReportID Report))) :: Forest (Peek ReportMap)
+          peekTree (_s@(ReportMap {})) = concatMap (\pth -> case pth of
+                                                                _pp@(Path_ReportMap_unReportMap _wp) -> map (\a -> let f = peekTree a
+                                                                                                                    in let liftPeek (Peek_MRR_String q z) = Peek_ReportMap_String (Path_ReportMap_unReportMap q) z
+                                                                                                                           liftPeek (Peek_MRR_Int64 q z) = Peek_ReportMap_Int64 (Path_ReportMap_unReportMap q) z
+                                                                                                                           liftPeek (Peek_MRR_Int q z) = Peek_ReportMap_Int (Path_ReportMap_unReportMap q) z
+                                                                                                                           liftPeek (Peek_MRR_Bool q z) = Peek_ReportMap_Bool (Path_ReportMap_unReportMap q) z
+                                                                                                                           liftPeek (Peek_MRR_Double q z) = Peek_ReportMap_Double (Path_ReportMap_unReportMap q) z
+                                                                                                                           liftPeek (Peek_MRR_Dimension q z) = Peek_ReportMap_Dimension (Path_ReportMap_unReportMap q) z
+                                                                                                                           liftPeek (Peek_MRR_ImageCrop q z) = Peek_ReportMap_ImageCrop (Path_ReportMap_unReportMap q) z
+                                                                                                                           liftPeek (Peek_MRR_ImageSize q z) = Peek_ReportMap_ImageSize (Path_ReportMap_unReportMap q) z
+                                                                                                                           liftPeek (Peek_MRR_Units q z) = Peek_ReportMap_Units (Path_ReportMap_unReportMap q) z
+                                                                                                                           liftPeek (Peek_MRR_ImageFile q z) = Peek_ReportMap_ImageFile (Path_ReportMap_unReportMap q) z
+                                                                                                                           liftPeek (Peek_MRR_Integer q z) = Peek_ReportMap_Integer (Path_ReportMap_unReportMap q) z
+                                                                                                                           liftPeek (Peek_MRR_JSONText q z) = Peek_ReportMap_JSONText (Path_ReportMap_unReportMap q) z
+                                                                                                                           liftPeek (Peek_MRR_Markup q z) = Peek_ReportMap_Markup (Path_ReportMap_unReportMap q) z
+                                                                                                                           liftPeek (Peek_MRR_Permissions q z) = Peek_ReportMap_Permissions (Path_ReportMap_unReportMap q) z
+                                                                                                                           liftPeek (Peek_MRR_UserIds q z) = Peek_ReportMap_UserIds (Path_ReportMap_unReportMap q) z
+                                                                                                                           liftPeek (Peek_MRR_AbbrevPair q z) = Peek_ReportMap_AbbrevPair (Path_ReportMap_unReportMap q) z
+                                                                                                                           liftPeek (Peek_MRR_AbbrevPairs q z) = Peek_ReportMap_AbbrevPairs (Path_ReportMap_unReportMap q) z
+                                                                                                                           liftPeek (Peek_MRR_Author q z) = Peek_ReportMap_Author (Path_ReportMap_unReportMap q) z
+                                                                                                                           liftPeek (Peek_MRR_Authors q z) = Peek_ReportMap_Authors (Path_ReportMap_unReportMap q) z
+                                                                                                                           liftPeek (Peek_MRR_Branding q z) = Peek_ReportMap_Branding (Path_ReportMap_unReportMap q) z
+                                                                                                                           liftPeek (Peek_MRR_MarkupPair q z) = Peek_ReportMap_MarkupPair (Path_ReportMap_unReportMap q) z
+                                                                                                                           liftPeek (Peek_MRR_MarkupPairs q z) = Peek_ReportMap_MarkupPairs (Path_ReportMap_unReportMap q) z
+                                                                                                                           liftPeek (Peek_MRR_Markups q z) = Peek_ReportMap_Markups (Path_ReportMap_unReportMap q) z
+                                                                                                                           liftPeek (Peek_MRR_MaybeReportIntendedUse q z) = Peek_ReportMap_MaybeReportIntendedUse (Path_ReportMap_unReportMap q) z
+                                                                                                                           liftPeek (Peek_MRR_Report q z) = Peek_ReportMap_Report (Path_ReportMap_unReportMap q) z
+                                                                                                                           liftPeek (Peek_MRR_ReportElem q z) = Peek_ReportMap_ReportElem (Path_ReportMap_unReportMap q) z
+                                                                                                                           liftPeek (Peek_MRR_ReportElems q z) = Peek_ReportMap_ReportElems (Path_ReportMap_unReportMap q) z
+                                                                                                                           liftPeek (Peek_MRR_ReportFlags q z) = Peek_ReportMap_ReportFlags (Path_ReportMap_unReportMap q) z
+                                                                                                                           liftPeek (Peek_MRR_ReportStandard q z) = Peek_ReportMap_ReportStandard (Path_ReportMap_unReportMap q) z
+                                                                                                                           liftPeek (Peek_MRR_ReportStatus q z) = Peek_ReportMap_ReportStatus (Path_ReportMap_unReportMap q) z
+                                                                                                                           liftPeek (Peek_MRR_ReportValueApproachInfo q z) = Peek_ReportMap_ReportValueApproachInfo (Path_ReportMap_unReportMap q) z
+                                                                                                                           liftPeek (Peek_MRR_ReportValueTypeInfo q z) = Peek_ReportMap_ReportValueTypeInfo (Path_ReportMap_unReportMap q) z
+                                                                                                                           liftPeek (Peek_MRR_EUI q z) = Peek_ReportMap_EUI (Path_ReportMap_unReportMap q) z
+                                                                                                                           liftPeek (Peek_MRR_MEUI q z) = Peek_ReportMap_MEUI (Path_ReportMap_unReportMap q) z
+                                                                                                                           liftPeek (Peek_MRR_MaybeImageFile q z) = Peek_ReportMap_MaybeImageFile (Path_ReportMap_unReportMap q) z
+                                                                                                                           liftPeek (Peek_MRR_ReportImage q z) = Peek_ReportMap_ReportImage (Path_ReportMap_unReportMap q) z
+                                                                                                                           liftPeek (Peek_MRR_ReportImages q z) = Peek_ReportMap_ReportImages (Path_ReportMap_unReportMap q) z
+                                                                                                                           liftPeek (Peek_MRR_ReadOnlyFilePath q z) = Peek_ReportMap_ReadOnlyFilePath (Path_ReportMap_unReportMap q) z
+                                                                                                                           liftPeek (Peek_MRR_ReportImageView q z) = Peek_ReportMap_ReportImageView (Path_ReportMap_unReportMap q) z
+                                                                                                                           liftPeek (Peek_MRR_ReportView q z) = Peek_ReportMap_ReportView (Path_ReportMap_unReportMap q) z
+                                                                                                                           liftPeek (Peek_MRR_SaneSizeImageSize q z) = Peek_ReportMap_SaneSizeImageSize (Path_ReportMap_unReportMap q) z
+                                                                                                                           liftPeek (Peek_MRR_Item q z) = Peek_ReportMap_Item (Path_ReportMap_unReportMap q) z
+                                                                                                                           liftPeek (Peek_MRR_MIM q z) = Peek_ReportMap_MIM (Path_ReportMap_unReportMap q) z
+                                                                                                                           liftPeek (Peek_MRR_MRR q z) = Peek_ReportMap_MRR (Path_ReportMap_unReportMap q) z
+                                                                                                                           liftPeek (Peek_MRR_CIString q z) = Peek_ReportMap_CIString (Path_ReportMap_unReportMap q) z
+                                                                                                                           liftPeek (Peek_MRR_URI q z) = Peek_ReportMap_URI (Path_ReportMap_unReportMap q) z
+                                                                                                                           liftPeek (Peek_MRR_Text q z) = Peek_ReportMap_Text (Path_ReportMap_unReportMap q) z
+                                                                                                                           liftPeek (Peek_MRR_UserId q z) = Peek_ReportMap_UserId (Path_ReportMap_unReportMap q) z
+                                                                                                                           liftPeek (Peek_MRR_UUID q z) = Peek_ReportMap_UUID (Path_ReportMap_unReportMap q) z
+                                                                                                                        in Node (Peek_ReportMap_MRR _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [MRR])
+                                                                _ -> []) (paths _s (Proxy :: Proxy MRR)) :: Forest (Peek ReportMap)
+          peekRow (_s@(ReportMap {})) = concatMap (\pth -> case pth of
+                                                               _pp@(Path_ReportMap_unReportMap _wp) -> map (\a -> Peek_ReportMap_MRR _pp (Just a)) (toListOf (toLens _pp) _s :: [MRR])
+                                                               _ -> []) (paths _s (Proxy :: Proxy MRR)) :: [Peek ReportMap]
 instance PathStart CIString
     where data Peek CIString
               = Peek_CIString_JSONText (Path CIString JSONText) (Maybe JSONText)
               | Peek_CIString_CIString (Path CIString CIString) (Maybe CIString)
               | Peek_CIString_Text (Path CIString Text) (Maybe Text)
               deriving (Eq, Show)
-          peek _s = concatMap (\pth -> case pth of
-                                           _pp@(Path_CIString_View _wp) -> map (\a -> let f = peek a
-                                                                                       in let liftPeek (Peek_Text_JSONText q z) = Peek_CIString_JSONText (Path_CIString_View q) z
-                                                                                              liftPeek (Peek_Text_Text q z) = Peek_CIString_Text (Path_CIString_View q) z
-                                                                                           in Node (Peek_CIString_Text _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Text])
-                                           _ -> []) (paths _s (Proxy :: Proxy Text)) :: Forest (Peek CIString)
-          hop _s = concatMap (\pth -> case pth of
-                                          _pp@(Path_CIString_View _wp) -> map (\a -> Node (Peek_CIString_Text _pp (Just a)) []) (toListOf (toLens _pp) _s :: [Text])
-                                          _ -> []) (paths _s (Proxy :: Proxy Text)) :: Forest (Peek CIString)
+          peekTree _s = concatMap (\pth -> case pth of
+                                               _pp@(Path_CIString_View _wp) -> map (\a -> let f = peekTree a
+                                                                                           in let liftPeek (Peek_Text_JSONText q z) = Peek_CIString_JSONText (Path_CIString_View q) z
+                                                                                                  liftPeek (Peek_Text_Text q z) = Peek_CIString_Text (Path_CIString_View q) z
+                                                                                               in Node (Peek_CIString_Text _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [Text])
+                                               _ -> []) (paths _s (Proxy :: Proxy Text)) :: Forest (Peek CIString)
+          peekRow _s = concatMap (\pth -> case pth of
+                                              _pp@(Path_CIString_View _wp) -> map (\a -> Peek_CIString_Text _pp (Just a)) (toListOf (toLens _pp) _s :: [Text])
+                                              _ -> []) (paths _s (Proxy :: Proxy Text)) :: [Peek CIString]
 instance PathStart URI
     where data Peek URI = Peek_URI_URI (Path URI URI) (Maybe URI) deriving (Eq, Show)
-          peek _ = []
-          hop _ = []
+          peekTree _ = []
+          peekRow _ = []
 instance PathStart Text
     where data Peek Text = Peek_Text_JSONText (Path Text JSONText) (Maybe JSONText) | Peek_Text_Text (Path Text Text) (Maybe Text) deriving (Eq, Show)
-          peek _s = concatMap (\pth -> case pth of
-                                           _pp@(Path_Text_View _wp) -> map (\a -> let f = peek a
-                                                                                   in let liftPeek (Peek_JSONText_JSONText q z) = Peek_Text_JSONText (Path_Text_View q) z
-                                                                                       in Node (Peek_Text_JSONText _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [JSONText])
-                                           _ -> []) (paths _s (Proxy :: Proxy JSONText)) :: Forest (Peek Text)
-          hop _s = concatMap (\pth -> case pth of
-                                          _pp@(Path_Text_View _wp) -> map (\a -> Node (Peek_Text_JSONText _pp (Just a)) []) (toListOf (toLens _pp) _s :: [JSONText])
-                                          _ -> []) (paths _s (Proxy :: Proxy JSONText)) :: Forest (Peek Text)
+          peekTree _s = concatMap (\pth -> case pth of
+                                               _pp@(Path_Text_View _wp) -> map (\a -> let f = peekTree a
+                                                                                       in let liftPeek (Peek_JSONText_JSONText q z) = Peek_Text_JSONText (Path_Text_View q) z
+                                                                                           in Node (Peek_Text_JSONText _pp (if null f then Just a else Nothing)) (forestMap liftPeek f)) (toListOf (toLens _pp) _s :: [JSONText])
+                                               _ -> []) (paths _s (Proxy :: Proxy JSONText)) :: Forest (Peek Text)
+          peekRow _s = concatMap (\pth -> case pth of
+                                              _pp@(Path_Text_View _wp) -> map (\a -> Peek_Text_JSONText _pp (Just a)) (toListOf (toLens _pp) _s :: [JSONText])
+                                              _ -> []) (paths _s (Proxy :: Proxy JSONText)) :: [Peek Text]
 instance PathStart UserId
     where data Peek UserId = Peek_UserId_UserId (Path UserId UserId) (Maybe UserId) deriving (Eq, Show)
-          peek _ = []
-          hop _ = []
+          peekTree _ = []
+          peekRow _ = []
 instance PathStart UUID
     where data Peek UUID = Peek_UUID_UUID (Path UUID UUID) (Maybe UUID) deriving (Eq, Show)
-          peek _ = []
-          hop _ = []
+          peekTree _ = []
+          peekRow _ = []
 instance ToLens (Path_Either (Path_URI ImageFile) (Path_ImageFile ImageFile))
     where type S (Path_Either (Path_URI ImageFile) (Path_ImageFile ImageFile)) = EUI
           type A (Path_Either (Path_URI ImageFile) (Path_ImageFile ImageFile)) = ImageFile
@@ -12521,7 +13010,7 @@ instance ToLens (Path_Author Text)
 instance ToLens (Path_Bool String)
     where type S (Path_Bool String) = Bool
           type A (Path_Bool String) = String
-          toLens (Path_Bool_View _) = viewLens :: Lens' Bool ([Char])
+          toLens (Path_Bool_View _) = viewLens :: Lens' Bool String
 instance ToLens (Path_Bool Bool)
     where type S (Path_Bool Bool) = Bool
           type A (Path_Bool Bool) = Bool
@@ -12529,7 +13018,7 @@ instance ToLens (Path_Bool Bool)
 instance ToLens (Path_Bool JSONText)
     where type S (Path_Bool JSONText) = Bool
           type A (Path_Bool JSONText) = JSONText
-          toLens (Path_Bool_View v) = (viewLens :: Lens' Bool ([Char])) . toLens v
+          toLens (Path_Bool_View v) = (viewLens :: Lens' Bool String) . toLens v
 instance ToLens (Path_Branding JSONText)
     where type S (Path_Branding JSONText) = Branding
           type A (Path_Branding JSONText) = JSONText
@@ -12565,7 +13054,7 @@ instance ToLens (Path_Dimension JSONText)
 instance ToLens (Path_Double String)
     where type S (Path_Double String) = Double
           type A (Path_Double String) = String
-          toLens (Path_Double_View _) = viewLens :: Lens' Double ([Char])
+          toLens (Path_Double_View _) = viewLens :: Lens' Double String
 instance ToLens (Path_Double Double)
     where type S (Path_Double Double) = Double
           type A (Path_Double Double) = Double
@@ -12573,7 +13062,7 @@ instance ToLens (Path_Double Double)
 instance ToLens (Path_Double JSONText)
     where type S (Path_Double JSONText) = Double
           type A (Path_Double JSONText) = JSONText
-          toLens (Path_Double_View v) = (viewLens :: Lens' Double ([Char])) . toLens v
+          toLens (Path_Double_View v) = (viewLens :: Lens' Double String) . toLens v
 instance ToLens (Path_ImageCrop ImageCrop)
     where type S (Path_ImageCrop ImageCrop) = ImageCrop
           type A (Path_ImageCrop ImageCrop) = ImageCrop
@@ -12730,11 +13219,11 @@ instance ToLens (Path_Markup Text)
 instance ToLens (Path_MaybeImageFile String)
     where type S (Path_MaybeImageFile String) = MaybeImageFile
           type A (Path_MaybeImageFile String) = String
-          toLens (Path_MaybeImageFile_View _) = viewLens :: Lens' (Maybe ImageFile) ([Char])
+          toLens (Path_MaybeImageFile_View _) = viewLens :: Lens' MaybeImageFile String
 instance ToLens (Path_MaybeImageFile JSONText)
     where type S (Path_MaybeImageFile JSONText) = MaybeImageFile
           type A (Path_MaybeImageFile JSONText) = JSONText
-          toLens (Path_MaybeImageFile_View v) = (viewLens :: Lens' (Maybe ImageFile) ([Char])) . toLens v
+          toLens (Path_MaybeImageFile_View v) = (viewLens :: Lens' MaybeImageFile String) . toLens v
 instance ToLens (Path_MaybeImageFile MaybeImageFile)
     where type S (Path_MaybeImageFile MaybeImageFile) = MaybeImageFile
           type A (Path_MaybeImageFile MaybeImageFile) = MaybeImageFile
@@ -12742,11 +13231,11 @@ instance ToLens (Path_MaybeImageFile MaybeImageFile)
 instance ToLens (Path_MaybeReportIntendedUse String)
     where type S (Path_MaybeReportIntendedUse String) = MaybeReportIntendedUse
           type A (Path_MaybeReportIntendedUse String) = String
-          toLens (Path_MaybeReportIntendedUse_View _) = viewLens :: Lens' (Maybe ReportIntendedUse) ([Char])
+          toLens (Path_MaybeReportIntendedUse_View _) = viewLens :: Lens' MaybeReportIntendedUse String
 instance ToLens (Path_MaybeReportIntendedUse JSONText)
     where type S (Path_MaybeReportIntendedUse JSONText) = MaybeReportIntendedUse
           type A (Path_MaybeReportIntendedUse JSONText) = JSONText
-          toLens (Path_MaybeReportIntendedUse_View v) = (viewLens :: Lens' (Maybe ReportIntendedUse) ([Char])) . toLens v
+          toLens (Path_MaybeReportIntendedUse_View v) = (viewLens :: Lens' MaybeReportIntendedUse String) . toLens v
 instance ToLens (Path_MaybeReportIntendedUse MaybeReportIntendedUse)
     where type S (Path_MaybeReportIntendedUse MaybeReportIntendedUse) = MaybeReportIntendedUse
           type A (Path_MaybeReportIntendedUse MaybeReportIntendedUse) = MaybeReportIntendedUse
@@ -12777,11 +13266,11 @@ instance ToLens (Path_Permissions UserId)
 instance ToLens (Path_ReadOnlyFilePath String)
     where type S (Path_ReadOnlyFilePath String) = ReadOnlyFilePath
           type A (Path_ReadOnlyFilePath String) = String
-          toLens (Path_ReadOnlyFilePath_View _) = viewLens :: Lens' (ReadOnly ([Char])) ([Char])
+          toLens (Path_ReadOnlyFilePath_View _) = viewLens :: Lens' ReadOnlyFilePath String
 instance ToLens (Path_ReadOnlyFilePath JSONText)
     where type S (Path_ReadOnlyFilePath JSONText) = ReadOnlyFilePath
           type A (Path_ReadOnlyFilePath JSONText) = JSONText
-          toLens (Path_ReadOnlyFilePath_View v) = (viewLens :: Lens' (ReadOnly ([Char])) ([Char])) . toLens v
+          toLens (Path_ReadOnlyFilePath_View v) = (viewLens :: Lens' ReadOnlyFilePath String) . toLens v
 instance ToLens (Path_ReadOnlyFilePath ReadOnlyFilePath)
     where type S (Path_ReadOnlyFilePath ReadOnlyFilePath) = ReadOnlyFilePath
           type A (Path_ReadOnlyFilePath ReadOnlyFilePath) = ReadOnlyFilePath
@@ -13242,11 +13731,11 @@ instance ToLens (Path_ReportImageView Text)
 instance ToLens (Path_ReportIntendedUse String)
     where type S (Path_ReportIntendedUse String) = ReportIntendedUse
           type A (Path_ReportIntendedUse String) = String
-          toLens (Path_ReportIntendedUse_View _) = viewLens :: Lens' ReportIntendedUse ([Char])
+          toLens (Path_ReportIntendedUse_View _) = viewLens :: Lens' ReportIntendedUse String
 instance ToLens (Path_ReportIntendedUse JSONText)
     where type S (Path_ReportIntendedUse JSONText) = ReportIntendedUse
           type A (Path_ReportIntendedUse JSONText) = JSONText
-          toLens (Path_ReportIntendedUse_View v) = (viewLens :: Lens' ReportIntendedUse ([Char])) . toLens v
+          toLens (Path_ReportIntendedUse_View v) = (viewLens :: Lens' ReportIntendedUse String) . toLens v
 instance ToLens (Path_ReportIntendedUse ReportIntendedUse)
     where type S (Path_ReportIntendedUse ReportIntendedUse) = ReportIntendedUse
           type A (Path_ReportIntendedUse ReportIntendedUse) = ReportIntendedUse
@@ -13462,11 +13951,11 @@ instance ToLens (Path_ReportStandard ReportStandard)
 instance ToLens (Path_ReportStatus String)
     where type S (Path_ReportStatus String) = ReportStatus
           type A (Path_ReportStatus String) = String
-          toLens (Path_ReportStatus_View _) = viewLens :: Lens' ReportStatus ([Char])
+          toLens (Path_ReportStatus_View _) = viewLens :: Lens' ReportStatus String
 instance ToLens (Path_ReportStatus JSONText)
     where type S (Path_ReportStatus JSONText) = ReportStatus
           type A (Path_ReportStatus JSONText) = JSONText
-          toLens (Path_ReportStatus_View v) = (viewLens :: Lens' ReportStatus ([Char])) . toLens v
+          toLens (Path_ReportStatus_View v) = (viewLens :: Lens' ReportStatus String) . toLens v
 instance ToLens (Path_ReportStatus ReportStatus)
     where type S (Path_ReportStatus ReportStatus) = ReportStatus
           type A (Path_ReportStatus ReportStatus) = ReportStatus
@@ -13821,27 +14310,27 @@ instance ToLens (Path_ReportView UUID)
 instance ToLens (Path_SaneSizeImageSize String)
     where type S (Path_SaneSizeImageSize String) = SaneSizeImageSize
           type A (Path_SaneSizeImageSize String) = String
-          toLens (Path_SaneSizeImageSize_View v) = (viewLens :: Lens' (SaneSize ImageSize) ImageSize) . toLens v
+          toLens (Path_SaneSizeImageSize_View v) = (viewLens :: Lens' SaneSizeImageSize ImageSize) . toLens v
 instance ToLens (Path_SaneSizeImageSize Double)
     where type S (Path_SaneSizeImageSize Double) = SaneSizeImageSize
           type A (Path_SaneSizeImageSize Double) = Double
-          toLens (Path_SaneSizeImageSize_View v) = (viewLens :: Lens' (SaneSize ImageSize) ImageSize) . toLens v
+          toLens (Path_SaneSizeImageSize_View v) = (viewLens :: Lens' SaneSizeImageSize ImageSize) . toLens v
 instance ToLens (Path_SaneSizeImageSize Dimension)
     where type S (Path_SaneSizeImageSize Dimension) = SaneSizeImageSize
           type A (Path_SaneSizeImageSize Dimension) = Dimension
-          toLens (Path_SaneSizeImageSize_View v) = (viewLens :: Lens' (SaneSize ImageSize) ImageSize) . toLens v
+          toLens (Path_SaneSizeImageSize_View v) = (viewLens :: Lens' SaneSizeImageSize ImageSize) . toLens v
 instance ToLens (Path_SaneSizeImageSize ImageSize)
     where type S (Path_SaneSizeImageSize ImageSize) = SaneSizeImageSize
           type A (Path_SaneSizeImageSize ImageSize) = ImageSize
-          toLens (Path_SaneSizeImageSize_View _) = viewLens :: Lens' (SaneSize ImageSize) ImageSize
+          toLens (Path_SaneSizeImageSize_View _) = viewLens :: Lens' SaneSizeImageSize ImageSize
 instance ToLens (Path_SaneSizeImageSize Units)
     where type S (Path_SaneSizeImageSize Units) = SaneSizeImageSize
           type A (Path_SaneSizeImageSize Units) = Units
-          toLens (Path_SaneSizeImageSize_View v) = (viewLens :: Lens' (SaneSize ImageSize) ImageSize) . toLens v
+          toLens (Path_SaneSizeImageSize_View v) = (viewLens :: Lens' SaneSizeImageSize ImageSize) . toLens v
 instance ToLens (Path_SaneSizeImageSize JSONText)
     where type S (Path_SaneSizeImageSize JSONText) = SaneSizeImageSize
           type A (Path_SaneSizeImageSize JSONText) = JSONText
-          toLens (Path_SaneSizeImageSize_View v) = (viewLens :: Lens' (SaneSize ImageSize) ImageSize) . toLens v
+          toLens (Path_SaneSizeImageSize_View v) = (viewLens :: Lens' SaneSizeImageSize ImageSize) . toLens v
 instance ToLens (Path_SaneSizeImageSize SaneSizeImageSize)
     where type S (Path_SaneSizeImageSize SaneSizeImageSize) = SaneSizeImageSize
           type A (Path_SaneSizeImageSize SaneSizeImageSize) = SaneSizeImageSize
@@ -13853,7 +14342,7 @@ instance ToLens (Path_String String)
 instance ToLens (Path_String JSONText)
     where type S (Path_String JSONText) = String
           type A (Path_String JSONText) = JSONText
-          toLens (Path_String_View _) = viewLens :: Lens' ([Char]) JSONText
+          toLens (Path_String_View _) = viewLens :: Lens' String JSONText
 instance ToLens (Path_Text JSONText)
     where type S (Path_Text JSONText) = Text
           type A (Path_Text JSONText) = JSONText
@@ -13885,7 +14374,7 @@ instance ToLens (Path_UserId UserId)
 instance ToLens (Path_UserIds JSONText)
     where type S (Path_UserIds JSONText) = UserIds
           type A (Path_UserIds JSONText) = JSONText
-          toLens (Path_UserIds_View v) = (viewLens :: Lens' ([UserId]) Text) . toLens v
+          toLens (Path_UserIds_View v) = (viewLens :: Lens' UserIds Text) . toLens v
 instance ToLens (Path_UserIds UserIds)
     where type S (Path_UserIds UserIds) = UserIds
           type A (Path_UserIds UserIds) = UserIds
@@ -13893,7 +14382,7 @@ instance ToLens (Path_UserIds UserIds)
 instance ToLens (Path_UserIds Text)
     where type S (Path_UserIds Text) = UserIds
           type A (Path_UserIds Text) = Text
-          toLens (Path_UserIds_View _) = viewLens :: Lens' ([UserId]) Text
+          toLens (Path_UserIds_View _) = viewLens :: Lens' UserIds Text
 instance ToLens (Path_Maybe (Path_Either (Path_URI ImageFile) (Path_ImageFile ImageFile)))
     where type S (Path_Maybe (Path_Either (Path_URI ImageFile) (Path_ImageFile ImageFile))) = MEUI
           type A (Path_Maybe (Path_Either (Path_URI ImageFile) (Path_ImageFile ImageFile))) = ImageFile

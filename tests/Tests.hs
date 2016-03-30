@@ -85,7 +85,7 @@ testPeekReportView =
       expected :: Forest (Peek ReportView)
       expected = peekReportView
       actual :: Forest (Peek ReportView)
-      actual = peek (head (toListOf (toLens (Path_Report_View (idPath :: Path_ReportView ReportView))) Report.report) :: ReportView)
+      actual = peekTree (head (toListOf (toLens (Path_Report_View (idPath :: Path_ReportView ReportView))) Report.report) :: ReportView)
 
 testLabels :: Test
 testLabels =
@@ -114,7 +114,7 @@ testPeekOrder =
       expected :: Forest (Peek AbbrevPairs)
       expected = peekAbbrevPairs
       actual :: Forest (Peek AbbrevPairs)
-      actual = peek (reportAbbrevs Report.report)
+      actual = peekTree (reportAbbrevs Report.report)
 
 main :: IO ()
 main = do
