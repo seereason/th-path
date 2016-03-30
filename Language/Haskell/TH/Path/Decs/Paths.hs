@@ -21,6 +21,7 @@ import Control.Monad (when)
 import Control.Monad.Writer (execWriterT, MonadWriter, tell)
 import Data.List as List (concatMap, map)
 import Data.Map as Map (toList)
+import Data.Proxy (Proxy(Proxy))
 import Data.Set.Extra as Set (mapM_, member)
 import Language.Haskell.TH
 import Language.Haskell.TH.Instances ()
@@ -153,9 +154,9 @@ peekAccessors :: TGVSimple -> TGVSimple -> [ClauseType]
 peekAccessors v gkey =
     [PeekPathClause $
        newName "_p" >>= \p ->
-       clause [(conP (asName (makePeekCon (ModelType (asName v)) (ModelType (asName gkey)))) [varP p, wildP])]
+       clause [conP 'Proxy [], conP (asName (makePeekCon (ModelType (asName v)) (ModelType (asName gkey)))) [varP p, wildP]]
               (normalB [| $(varE p) :: Path $(asTypeQ v) $(asTypeQ gkey)|]) [],
      PeekValueClause $
        newName "_x" >>= \x ->
-       clause [(conP (asName (makePeekCon (ModelType (asName v)) (ModelType (asName gkey)))) [wildP, varP x])]
+       clause [conP 'Proxy [], conP (asName (makePeekCon (ModelType (asName v)) (ModelType (asName gkey)))) [wildP, varP x]]
               (normalB [| $(varE x) :: Maybe $(asTypeQ gkey)|]) []]

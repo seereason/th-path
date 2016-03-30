@@ -168,9 +168,9 @@ class (PathStart s, IdPath (Path s a), ToLens (Path s a), S (Path s a) ~ s, A (P
     peek :: Path s a -> s -> Peek s
     -- ^ Build a 'Peek' @s@ value for a specific path from @s@ to @a@.
 
-    peekPath :: Peek s -> Path s a
+    peekPath :: Proxy a -> Peek s -> Path s a
     -- ^ Accessor for path field of a Peek type
-    peekValue :: Peek s -> Maybe a
+    peekValue :: Proxy a -> Peek s -> Maybe a
     -- ^ Accessor for value field of a Peek type
 
 -- | Nodes along a path can be customized by declaring types to be

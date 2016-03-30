@@ -224,12 +224,11 @@ liftPeek x p w ppat node =
 
 doGoal :: TGVSimple -> TGV -> ExpQ -> TGVSimple -> ClauseQ
 doGoal v w pcon g =
-    do z <- newName "z"
-       q <- newName "q"
-       clause [conP (asName (makePeekCon (ModelType (asName w)) (ModelType (asName g)))) [varP q, varP z]]
+    do p <- newName "p"
+       clause [asP p (conP (asName (makePeekCon (ModelType (asName w)) (ModelType (asName g)))) [wildP, wildP])]
               (normalB [|$(asConQ (makePeekCon (ModelType (asName v)) (ModelType (asName g))))
                          (($pcon {- :: Path $(asTypeQ w) $(asTypeQ g) ->
-                                       Path $(asTypeQ v) $(asTypeQ g) -}) $(varE q)) $(varE z)|])
+                                       Path $(asTypeQ v) $(asTypeQ g) -}) (peekPath (Proxy :: Proxy $(asTypeQ g)) $(varE p) :: Path $(asTypeQ w) $(asTypeQ g))) (peekValue (Proxy :: Proxy $(asTypeQ g)) $(varE p))|])
               []
 
 -- Insert a string into an expression by applying an id function
