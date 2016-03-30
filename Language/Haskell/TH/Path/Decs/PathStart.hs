@@ -199,14 +199,14 @@ concatMapQ xs = [|mconcat $(listE xs)|]
 
 doHop :: forall m. (TypeGraphM m) => TGVSimple -> TGV -> Name -> ExpQ -> m ExpQ
 doHop v w p _pcon =
-    pure [| \a -> $(asConQ (makePeekCon (ModelType (asName v)) (ModelType (asName w)))) $(varE p) (Just a) |]
+    pure [| \a -> peekCons $(varE p) (Just a) |]
 
 doPeek :: forall m. (TypeGraphM m) => TGVSimple -> TGV -> Name -> ExpQ -> m ExpQ
 doPeek v w p pcon = do
   gs <- pathKeys' w
   let lp = mkName "liftPeek"
   pure [| \a -> let f = peekTree a {-:: Forest (Peek $(asTypeQ w))-} in
-                Node ($(asConQ (makePeekCon (ModelType (asName v)) (ModelType (asName w)))) $(varE p) (if null f then Just a else Nothing))
+                Node (peekCons $(varE p) (if null f then Just a else Nothing))
                               -- Build a function with type such as Peek_AbbrevPair -> Peek_AbbrevPairs, so we
                               -- can lift the forest of type AbbrevPair to be a forest of type AbbrevPairs.
                      $(letE [funD lp (map (doGoal v w pcon) (Foldable.toList gs))]
@@ -226,7 +226,7 @@ doGoal :: TGVSimple -> TGV -> ExpQ -> TGVSimple -> ClauseQ
 doGoal v w pcon g =
     do p <- newName "p"
        clause [asP p (conP (asName (makePeekCon (ModelType (asName w)) (ModelType (asName g)))) [wildP, wildP])]
-              (normalB [|$(asConQ (makePeekCon (ModelType (asName v)) (ModelType (asName g))))
+              (normalB [|peekCons
                          (($pcon {- :: Path $(asTypeQ w) $(asTypeQ g) ->
                                        Path $(asTypeQ v) $(asTypeQ g) -}) (peekPath (Proxy :: Proxy $(asTypeQ g)) $(varE p) :: Path $(asTypeQ w) $(asTypeQ g))) (peekValue (Proxy :: Proxy $(asTypeQ g)) $(varE p))|])
               []
@@ -255,7 +255,7 @@ describeConc v wPathVar (PathConc w ppat _pcon) =
       doGoal' p x f g = do
         -- w' <- simplify w
         let PeekCon vn = makePeekCon (ModelType (asName v)) (ModelType (asName g))
-            PeekCon wn = makePeekCon (ModelType (asName w)) (ModelType (asName g))
+            -- PeekCon wn = makePeekCon (ModelType (asName w)) (ModelType (asName g))
             -- Describe the next hop on the path:
             --   1. If the next hop in the path returns anything, use that
             --   2. Otherwise construct a description from asType v and its context f
@@ -267,7 +267,7 @@ describeConc v wPathVar (PathConc w ppat _pcon) =
                                       wfld :: Maybe (String, String, Either Int String)
                                       wfld = ($(maybe [|Nothing|] (\y -> [|Just $(fieldStrings y)|]) (view (_2 . field) w)))
                                       -- The label for the next hop along the path
-                                      next = describe' wfld ($(conE wn) $(varE wPathVar) undefined)
+                                      next = describe' wfld (peekCons $(varE wPathVar) (undefined :: Maybe $(asTypeQ g)) :: Peek $(asTypeQ w))
                                       -- The label for the current node.  This will call the custom
                                       -- instance if there is one, otherwise one will have been generated.
                                       top = describe' $(varE f) (Proxy :: Proxy $(asTypeQ v)) in

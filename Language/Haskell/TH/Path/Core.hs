@@ -18,7 +18,7 @@ module Language.Haskell.TH.Path.Core
     ( treeMap
     , forestMap
       -- * Type classes and associated types
-    , Paths(paths, Path, peek, peekPath, peekValue)
+    , Paths(paths, Path, peek, peekPath, peekValue, peekCons)
     , IdPath(idPath)
     , PathStart(Peek, peekTree, peekRow)
     , ToLens(S, A, toLens)
@@ -172,6 +172,8 @@ class (PathStart s, IdPath (Path s a), ToLens (Path s a), S (Path s a) ~ s, A (P
     -- ^ Accessor for path field of a Peek type
     peekValue :: Proxy a -> Peek s -> Maybe a
     -- ^ Accessor for value field of a Peek type
+    peekCons :: Path s a -> Maybe a -> Peek s
+    -- ^ Construct a Peek s
 
 -- | Nodes along a path can be customized by declaring types to be
 -- instances of this class and the ones that follow.  If a type is an

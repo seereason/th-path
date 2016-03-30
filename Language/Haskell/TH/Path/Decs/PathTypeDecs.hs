@@ -16,6 +16,7 @@
 {-# LANGUAGE TypeSynonymInstances #-}
 module Language.Haskell.TH.Path.Decs.PathTypeDecs
     ( pathTypeDecs
+    , fieldPathType
     ) where
 
 import Control.Lens (_2, view)
@@ -26,12 +27,13 @@ import Data.Set.Extra as Set (delete, map)
 import Language.Haskell.TH
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Common (allPathTypeNames, asConQ, asName, asTypeQ, bestPathTypeName, ModelType(ModelType),
-                                        makeFieldCon, makePathCon, makePathType, telld, tells)
+                                        makeFieldCon, makePathCon, makePathType, PathCon, telld, tells)
 import Language.Haskell.TH.Path.Core (IdPath(idPath))
 import Language.Haskell.TH.Path.Decs.PathType (pathType)
 import Language.Haskell.TH.Path.Graph (TypeGraphM)
 import Language.Haskell.TH.Path.Traverse (Control(..), doNode)
 import Language.Haskell.TH.TypeGraph.Expand (unE)
+import Language.Haskell.TH.TypeGraph.Shape (Field)
 import Language.Haskell.TH.TypeGraph.TypeGraph (tgv, tgvSimple')
 import Language.Haskell.TH.TypeGraph.Vertex (etype, TGVSimple, typeNames)
 
@@ -75,21 +77,8 @@ pathTypeDecControl v a =
         \fld typ ->
             case fld of
               (_tname, _cname, Right _fname) ->
-                  do skey' <- tgvSimple' typ
-                     key' <- tgv (Just fld) skey'
-                     let Just pcname = makeFieldCon key'
-                     ptype <- case typ of
-                                ConT ftname -> runQ $ appT (asTypeQ (makePathType (ModelType ftname))) (varT a)
-                                -- It would be nice to use pathTypeCall (varT a) key' here, but
-                                -- it can't infer the superclasses for (PathType Foo a) - Ord,
-                                -- Read, Data, etc.
-                                _ -> pathType (varT a) skey'
-                     case ptype of
-                       TupleT 0 -> pure []
-                       -- Given the list of clauses for a field's path type, create new
-                       -- constructor for the field in the parent record and alter the
-                       -- clauses to match expressions wrapped in this new constructor.
-                       _ -> pure [normalC (asName pcname) [strictType notStrict (return ptype)]]
+                  do (pcname, ptype) <- fieldPathType a fld typ
+                     pure [normalC (asName pcname) [strictType notStrict (return ptype)]]
               (_tname, _cname, Left _fname) -> pure []
     , _doConcs =
         \xpat pcons -> pure (xpat, pcons)
@@ -110,6 +99,19 @@ pathTypeDecControl v a =
               tells [pure dec]
     , _doSyns = \() _ -> pure ()
     }
+
+fieldPathType :: TypeGraphM m => Name -> Field -> Type -> m (PathCon Name, Type)
+fieldPathType a fld typ =
+    do skey' <- tgvSimple' typ
+       key' <- tgv (Just fld) skey'
+       let Just pcname = makeFieldCon key'
+       ptype <- case typ of
+                  ConT ftname -> runQ $ appT (asTypeQ (makePathType (ModelType ftname))) (varT a)
+                         -- It would be nice to use pathTypeCall (varT a) key' here, but
+                         -- it can't infer the superclasses for (PathType Foo a) - Ord,
+                         -- Read, Data, etc.
+                  _ -> pathType (varT a) skey'
+       return (pcname, ptype)
 
 supers :: [Name]
 supers = [''Eq, ''Ord, ''Read, ''Show, ''Typeable, ''Data]
