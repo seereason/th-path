@@ -27,15 +27,16 @@ import Appraisal.Utils.CIString (CIString(..))
 import Control.Lens (iso, _Just, _1, _2, _Left, _Right, Lens', toListOf, Traversal')
 import Data.Generics (Data, Typeable)
 import Data.Int (Int64)
-import Data.Map (Map, toList)
+import Data.Map (toList)
 import Data.Proxy
 import Data.Text (Text)
 import Data.Tree (Tree(Node), Forest)
 import Data.UserId (UserId(UserId))
 import Data.UUID (UUID)
 import Data.UUID.Orphans ()
+import Language.Haskell.TH.Path.Common (view')
 import Language.Haskell.TH.Path.Core
-import Language.Haskell.TH.Path.Order (lens_omat, Order, Path_OMap(Path_At), toPairs)
+import Language.Haskell.TH.Path.Order (lens_omat, Path_OMap(Path_At), toPairs)
 import Language.Haskell.TH.Path.View (View(viewLens))
 import Network.URI (URI(URI), URIAuth)
 
@@ -687,7 +688,7 @@ class HasUserId c
 instance Paths String String
     where type Path String String = Path_String String
           paths _ _ = [idPath]
-          peek _ _ = undefined "idpeek" :: Peek String
+          peek p x = peekCons p (Just x) :: Peek String
           peekPath (Proxy) (Peek_String_String _p _) = _p :: Path String String
           peekValue (Proxy) (Peek_String_String _ _x) = _x :: Maybe String
           peekCons _p _x = Peek_String_String _p _x :: Peek String
@@ -695,15 +696,14 @@ instance Paths String JSONText
     where type Path String JSONText = Path_String JSONText
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: JSONText) _g)) (map (\a' -> (Path_String_View,
                                                                                                 a')) (toListOf (toLens (Path_String_View (idPath :: Path JSONText JSONText))) _s))
-          peek (Path_String_View _) _ = undefined "doView1" :: Peek String
-          peek (Path_String) _ = undefined "doView2" :: Peek String
+          peek (p@(Path_String_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek String
           peekPath (Proxy) (Peek_String_JSONText _p _) = _p :: Path String JSONText
           peekValue (Proxy) (Peek_String_JSONText _ _x) = _x :: Maybe JSONText
           peekCons _p _x = Peek_String_JSONText _p _x :: Peek String
 instance Paths Int64 Int64
     where type Path Int64 Int64 = Path_Int64 Int64
           paths _ _ = [idPath]
-          peek _ _ = undefined "idpeek" :: Peek Int64
+          peek p x = peekCons p (Just x) :: Peek Int64
           peekPath (Proxy) (Peek_Int64_Int64 _p _) = _p :: Path Int64 Int64
           peekValue (Proxy) (Peek_Int64_Int64 _ _x) = _x :: Maybe Int64
           peekCons _p _x = Peek_Int64_Int64 _p _x :: Peek Int64
@@ -711,15 +711,14 @@ instance Paths Bool String
     where type Path Bool String = Path_Bool String
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: String) _g)) (map (\a' -> (Path_Bool_View, a')) (toListOf (toLens (Path_Bool_View (idPath :: Path String
                                                                                                                                                                      String))) _s))
-          peek (Path_Bool_View _) _ = undefined "doView1" :: Peek Bool
-          peek (Path_Bool) _ = undefined "doView2" :: Peek Bool
+          peek (p@(Path_Bool_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Bool
           peekPath (Proxy) (Peek_Bool_String _p _) = _p :: Path Bool String
           peekValue (Proxy) (Peek_Bool_String _ _x) = _x :: Maybe String
           peekCons _p _x = Peek_Bool_String _p _x :: Peek Bool
 instance Paths Bool Bool
     where type Path Bool Bool = Path_Bool Bool
           paths _ _ = [idPath]
-          peek _ _ = undefined "idpeek" :: Peek Bool
+          peek p x = peekCons p (Just x) :: Peek Bool
           peekPath (Proxy) (Peek_Bool_Bool _p _) = _p :: Path Bool Bool
           peekValue (Proxy) (Peek_Bool_Bool _ _x) = _x :: Maybe Bool
           peekCons _p _x = Peek_Bool_Bool _p _x :: Peek Bool
@@ -727,8 +726,7 @@ instance Paths Bool JSONText
     where type Path Bool JSONText = Path_Bool JSONText
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: String) _g)) (map (\a' -> (Path_Bool_View, a')) (toListOf (toLens (Path_Bool_View (idPath :: Path String
                                                                                                                                                                      String))) _s))
-          peek (Path_Bool_View _) _ = undefined "doView1" :: Peek Bool
-          peek (Path_Bool) _ = undefined "doView2" :: Peek Bool
+          peek (p@(Path_Bool_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Bool
           peekPath (Proxy) (Peek_Bool_JSONText _p _) = _p :: Path Bool JSONText
           peekValue (Proxy) (Peek_Bool_JSONText _ _x) = _x :: Maybe JSONText
           peekCons _p _x = Peek_Bool_JSONText _p _x :: Peek Bool
@@ -736,15 +734,14 @@ instance Paths Double String
     where type Path Double String = Path_Double String
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: String) _g)) (map (\a' -> (Path_Double_View, a')) (toListOf (toLens (Path_Double_View (idPath :: Path String
                                                                                                                                                                          String))) _s))
-          peek (Path_Double_View _) _ = undefined "doView1" :: Peek Double
-          peek (Path_Double) _ = undefined "doView2" :: Peek Double
+          peek (p@(Path_Double_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Double
           peekPath (Proxy) (Peek_Double_String _p _) = _p :: Path Double String
           peekValue (Proxy) (Peek_Double_String _ _x) = _x :: Maybe String
           peekCons _p _x = Peek_Double_String _p _x :: Peek Double
 instance Paths Double Double
     where type Path Double Double = Path_Double Double
           paths _ _ = [idPath]
-          peek _ _ = undefined "idpeek" :: Peek Double
+          peek p x = peekCons p (Just x) :: Peek Double
           peekPath (Proxy) (Peek_Double_Double _p _) = _p :: Path Double Double
           peekValue (Proxy) (Peek_Double_Double _ _x) = _x :: Maybe Double
           peekCons _p _x = Peek_Double_Double _p _x :: Peek Double
@@ -752,22 +749,21 @@ instance Paths Double JSONText
     where type Path Double JSONText = Path_Double JSONText
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: String) _g)) (map (\a' -> (Path_Double_View, a')) (toListOf (toLens (Path_Double_View (idPath :: Path String
                                                                                                                                                                          String))) _s))
-          peek (Path_Double_View _) _ = undefined "doView1" :: Peek Double
-          peek (Path_Double) _ = undefined "doView2" :: Peek Double
+          peek (p@(Path_Double_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Double
           peekPath (Proxy) (Peek_Double_JSONText _p _) = _p :: Path Double JSONText
           peekValue (Proxy) (Peek_Double_JSONText _ _x) = _x :: Maybe JSONText
           peekCons _p _x = Peek_Double_JSONText _p _x :: Peek Double
 instance Paths Int Int
     where type Path Int Int = Path_Int Int
           paths _ _ = [idPath]
-          peek _ _ = undefined "idpeek" :: Peek Int
+          peek p x = peekCons p (Just x) :: Peek Int
           peekPath (Proxy) (Peek_Int_Int _p _) = _p :: Path Int Int
           peekValue (Proxy) (Peek_Int_Int _ _x) = _x :: Maybe Int
           peekCons _p _x = Peek_Int_Int _p _x :: Peek Int
 instance Paths Dimension Dimension
     where type Path Dimension Dimension = Path_Dimension Dimension
           paths _ _ = [idPath]
-          peek _ _ = undefined "idpeek" :: Peek Dimension
+          peek p x = peekCons p (Just x) :: Peek Dimension
           peekPath (Proxy) (Peek_Dimension_Dimension _p _) = _p :: Path Dimension Dimension
           peekValue (Proxy) (Peek_Dimension_Dimension _ _x) = _x :: Maybe Dimension
           peekCons _p _x = Peek_Dimension_Dimension _p _x :: Peek Dimension
@@ -775,58 +771,49 @@ instance Paths Dimension JSONText
     where type Path Dimension JSONText = Path_Dimension JSONText
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: JSONText) _g)) (map (\a' -> (Path_Dimension_View,
                                                                                                 a')) (toListOf (toLens (Path_Dimension_View (idPath :: Path JSONText JSONText))) _s))
-          peek (Path_Dimension_View _) _ = undefined "doView1" :: Peek Dimension
-          peek (Path_Dimension) _ = undefined "doView2" :: Peek Dimension
+          peek (p@(Path_Dimension_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Dimension
           peekPath (Proxy) (Peek_Dimension_JSONText _p _) = _p :: Path Dimension JSONText
           peekValue (Proxy) (Peek_Dimension_JSONText _ _x) = _x :: Maybe JSONText
           peekCons _p _x = Peek_Dimension_JSONText _p _x :: Peek Dimension
 instance Paths ImageCrop ImageCrop
     where type Path ImageCrop ImageCrop = Path_ImageCrop ImageCrop
           paths _ _ = [idPath]
-          peek _ _ = undefined "idpeek" :: Peek ImageCrop
+          peek p x = peekCons p (Just x) :: Peek ImageCrop
           peekPath (Proxy) (Peek_ImageCrop_ImageCrop _p _) = _p :: Path ImageCrop ImageCrop
           peekValue (Proxy) (Peek_ImageCrop_ImageCrop _ _x) = _x :: Maybe ImageCrop
           peekCons _p _x = Peek_ImageCrop_ImageCrop _p _x :: Peek ImageCrop
 instance Paths ImageSize String
     where type Path ImageSize String = Path_ImageSize String
           paths (_s@(ImageSize {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Double) _g)) [(Path_ImageSize_size, size _s)]
-          peek (Path_ImageSize_dim _) _ = undefined "doField" :: Peek ImageSize
-          peek (Path_ImageSize_size _) _ = undefined "doField" :: Peek ImageSize
-          peek (Path_ImageSize_units _) _ = undefined "doField" :: Peek ImageSize
+          peek (p@(Path_ImageSize_size _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ImageSize
           peekPath (Proxy) (Peek_ImageSize_String _p _) = _p :: Path ImageSize String
           peekValue (Proxy) (Peek_ImageSize_String _ _x) = _x :: Maybe String
           peekCons _p _x = Peek_ImageSize_String _p _x :: Peek ImageSize
 instance Paths ImageSize Double
     where type Path ImageSize Double = Path_ImageSize Double
           paths (_s@(ImageSize {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Double) _g)) [(Path_ImageSize_size, size _s)]
-          peek (Path_ImageSize_dim _) _ = undefined "doField" :: Peek ImageSize
-          peek (Path_ImageSize_size _) _ = undefined "doField" :: Peek ImageSize
-          peek (Path_ImageSize_units _) _ = undefined "doField" :: Peek ImageSize
+          peek (p@(Path_ImageSize_size _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ImageSize
           peekPath (Proxy) (Peek_ImageSize_Double _p _) = _p :: Path ImageSize Double
           peekValue (Proxy) (Peek_ImageSize_Double _ _x) = _x :: Maybe Double
           peekCons _p _x = Peek_ImageSize_Double _p _x :: Peek ImageSize
 instance Paths ImageSize Dimension
     where type Path ImageSize Dimension = Path_ImageSize Dimension
           paths (_s@(ImageSize {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Dimension) _g)) [(Path_ImageSize_dim, dim _s)]
-          peek (Path_ImageSize_dim _) _ = undefined "doField" :: Peek ImageSize
-          peek (Path_ImageSize_size _) _ = undefined "doField" :: Peek ImageSize
-          peek (Path_ImageSize_units _) _ = undefined "doField" :: Peek ImageSize
+          peek (p@(Path_ImageSize_dim _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ImageSize
           peekPath (Proxy) (Peek_ImageSize_Dimension _p _) = _p :: Path ImageSize Dimension
           peekValue (Proxy) (Peek_ImageSize_Dimension _ _x) = _x :: Maybe Dimension
           peekCons _p _x = Peek_ImageSize_Dimension _p _x :: Peek ImageSize
 instance Paths ImageSize ImageSize
     where type Path ImageSize ImageSize = Path_ImageSize ImageSize
           paths _ _ = [idPath]
-          peek _ _ = undefined "idpeek" :: Peek ImageSize
+          peek p x = peekCons p (Just x) :: Peek ImageSize
           peekPath (Proxy) (Peek_ImageSize_ImageSize _p _) = _p :: Path ImageSize ImageSize
           peekValue (Proxy) (Peek_ImageSize_ImageSize _ _x) = _x :: Maybe ImageSize
           peekCons _p _x = Peek_ImageSize_ImageSize _p _x :: Peek ImageSize
 instance Paths ImageSize Units
     where type Path ImageSize Units = Path_ImageSize Units
           paths (_s@(ImageSize {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Units) _g)) [(Path_ImageSize_units, units _s)]
-          peek (Path_ImageSize_dim _) _ = undefined "doField" :: Peek ImageSize
-          peek (Path_ImageSize_size _) _ = undefined "doField" :: Peek ImageSize
-          peek (Path_ImageSize_units _) _ = undefined "doField" :: Peek ImageSize
+          peek (p@(Path_ImageSize_units _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ImageSize
           peekPath (Proxy) (Peek_ImageSize_Units _p _) = _p :: Path ImageSize Units
           peekValue (Proxy) (Peek_ImageSize_Units _ _x) = _x :: Maybe Units
           peekCons _p _x = Peek_ImageSize_Units _p _x :: Peek ImageSize
@@ -835,16 +822,16 @@ instance Paths ImageSize JSONText
           paths (_s@(ImageSize {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: Dimension) _g)) [(Path_ImageSize_dim, dim _s)],
                                                   concatMap (\(p, a') -> map p (paths (a' :: Double) _g)) [(Path_ImageSize_size, size _s)],
                                                   concatMap (\(p, a') -> map p (paths (a' :: Units) _g)) [(Path_ImageSize_units, units _s)]]
-          peek (Path_ImageSize_dim _) _ = undefined "doField" :: Peek ImageSize
-          peek (Path_ImageSize_size _) _ = undefined "doField" :: Peek ImageSize
-          peek (Path_ImageSize_units _) _ = undefined "doField" :: Peek ImageSize
+          peek (p@(Path_ImageSize_dim _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ImageSize
+          peek (p@(Path_ImageSize_size _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ImageSize
+          peek (p@(Path_ImageSize_units _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ImageSize
           peekPath (Proxy) (Peek_ImageSize_JSONText _p _) = _p :: Path ImageSize JSONText
           peekValue (Proxy) (Peek_ImageSize_JSONText _ _x) = _x :: Maybe JSONText
           peekCons _p _x = Peek_ImageSize_JSONText _p _x :: Peek ImageSize
 instance Paths Units Units
     where type Path Units Units = Path_Units Units
           paths _ _ = [idPath]
-          peek _ _ = undefined "idpeek" :: Peek Units
+          peek p x = peekCons p (Just x) :: Peek Units
           peekPath (Proxy) (Peek_Units_Units _p _) = _p :: Path Units Units
           peekValue (Proxy) (Peek_Units_Units _ _x) = _x :: Maybe Units
           peekCons _p _x = Peek_Units_Units _p _x :: Peek Units
@@ -852,29 +839,28 @@ instance Paths Units JSONText
     where type Path Units JSONText = Path_Units JSONText
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: JSONText) _g)) (map (\a' -> (Path_Units_View, a')) (toListOf (toLens (Path_Units_View (idPath :: Path JSONText
                                                                                                                                                                          JSONText))) _s))
-          peek (Path_Units_View _) _ = undefined "doView1" :: Peek Units
-          peek (Path_Units) _ = undefined "doView2" :: Peek Units
+          peek (p@(Path_Units_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Units
           peekPath (Proxy) (Peek_Units_JSONText _p _) = _p :: Path Units JSONText
           peekValue (Proxy) (Peek_Units_JSONText _ _x) = _x :: Maybe JSONText
           peekCons _p _x = Peek_Units_JSONText _p _x :: Peek Units
 instance Paths ImageFile ImageFile
     where type Path ImageFile ImageFile = Path_ImageFile ImageFile
           paths _ _ = [idPath]
-          peek _ _ = undefined "idpeek" :: Peek ImageFile
+          peek p x = peekCons p (Just x) :: Peek ImageFile
           peekPath (Proxy) (Peek_ImageFile_ImageFile _p _) = _p :: Path ImageFile ImageFile
           peekValue (Proxy) (Peek_ImageFile_ImageFile _ _x) = _x :: Maybe ImageFile
           peekCons _p _x = Peek_ImageFile_ImageFile _p _x :: Peek ImageFile
 instance Paths Integer Integer
     where type Path Integer Integer = Path_Integer Integer
           paths _ _ = [idPath]
-          peek _ _ = undefined "idpeek" :: Peek Integer
+          peek p x = peekCons p (Just x) :: Peek Integer
           peekPath (Proxy) (Peek_Integer_Integer _p _) = _p :: Path Integer Integer
           peekValue (Proxy) (Peek_Integer_Integer _ _x) = _x :: Maybe Integer
           peekCons _p _x = Peek_Integer_Integer _p _x :: Peek Integer
 instance Paths JSONText JSONText
     where type Path JSONText JSONText = Path_JSONText JSONText
           paths _ _ = [idPath]
-          peek _ _ = undefined "idpeek" :: Peek JSONText
+          peek p x = peekCons p (Just x) :: Peek JSONText
           peekPath (Proxy) (Peek_JSONText_JSONText _p _) = _p :: Path JSONText JSONText
           peekValue (Proxy) (Peek_JSONText_JSONText _ _x) = _x :: Maybe JSONText
           peekCons _p _x = Peek_JSONText_JSONText _p _x :: Peek JSONText
@@ -885,15 +871,15 @@ instance Paths Markup JSONText
           paths (_s@(LaTeX {})) _g = mempty
           paths (_s@(Pandoc {})) _g = mempty
           paths (_s@(Markup {})) _g = mempty
-          peek (Path_Markup_markdownText _) _ = undefined "doField" :: Peek Markup
-          peek (Path_Markup_htmlText _) _ = undefined "doField" :: Peek Markup
+          peek (p@(Path_Markup_markdownText _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Markup
+          peek (p@(Path_Markup_htmlText _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Markup
           peekPath (Proxy) (Peek_Markup_JSONText _p _) = _p :: Path Markup JSONText
           peekValue (Proxy) (Peek_Markup_JSONText _ _x) = _x :: Maybe JSONText
           peekCons _p _x = Peek_Markup_JSONText _p _x :: Peek Markup
 instance Paths Markup Markup
     where type Path Markup Markup = Path_Markup Markup
           paths _ _ = [idPath]
-          peek _ _ = undefined "idpeek" :: Peek Markup
+          peek p x = peekCons p (Just x) :: Peek Markup
           peekPath (Proxy) (Peek_Markup_Markup _p _) = _p :: Path Markup Markup
           peekValue (Proxy) (Peek_Markup_Markup _ _x) = _x :: Maybe Markup
           peekCons _p _x = Peek_Markup_Markup _p _x :: Peek Markup
@@ -904,8 +890,8 @@ instance Paths Markup Text
           paths (_s@(LaTeX {})) _g = mempty
           paths (_s@(Pandoc {})) _g = mempty
           paths (_s@(Markup {})) _g = mempty
-          peek (Path_Markup_markdownText _) _ = undefined "doField" :: Peek Markup
-          peek (Path_Markup_htmlText _) _ = undefined "doField" :: Peek Markup
+          peek (p@(Path_Markup_markdownText _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Markup
+          peek (p@(Path_Markup_htmlText _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Markup
           peekPath (Proxy) (Peek_Markup_Text _p _) = _p :: Path Markup Text
           peekValue (Proxy) (Peek_Markup_Text _ _x) = _x :: Maybe Text
           peekCons _p _x = Peek_Markup_Text _p _x :: Peek Markup
@@ -913,16 +899,15 @@ instance Paths Permissions JSONText
     where type Path Permissions JSONText = Path_Permissions JSONText
           paths (_s@(Permissions {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: UserIds) _g)) [(Path_Permissions_writers, writers _s)],
                                                     concatMap (\(p, a') -> map p (paths (a' :: UserIds) _g)) [(Path_Permissions_readers, readers _s)]]
-          peek (Path_Permissions_owner _) _ = undefined "doField" :: Peek Permissions
-          peek (Path_Permissions_writers _) _ = undefined "doField" :: Peek Permissions
-          peek (Path_Permissions_readers _) _ = undefined "doField" :: Peek Permissions
+          peek (p@(Path_Permissions_writers _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Permissions
+          peek (p@(Path_Permissions_readers _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Permissions
           peekPath (Proxy) (Peek_Permissions_JSONText _p _) = _p :: Path Permissions JSONText
           peekValue (Proxy) (Peek_Permissions_JSONText _ _x) = _x :: Maybe JSONText
           peekCons _p _x = Peek_Permissions_JSONText _p _x :: Peek Permissions
 instance Paths Permissions Permissions
     where type Path Permissions Permissions = Path_Permissions Permissions
           paths _ _ = [idPath]
-          peek _ _ = undefined "idpeek" :: Peek Permissions
+          peek p x = peekCons p (Just x) :: Peek Permissions
           peekPath (Proxy) (Peek_Permissions_Permissions _p _) = _p :: Path Permissions Permissions
           peekValue (Proxy) (Peek_Permissions_Permissions _ _x) = _x :: Maybe Permissions
           peekCons _p _x = Peek_Permissions_Permissions _p _x :: Peek Permissions
@@ -930,9 +915,8 @@ instance Paths Permissions UserIds
     where type Path Permissions UserIds = Path_Permissions UserIds
           paths (_s@(Permissions {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: UserIds) _g)) [(Path_Permissions_writers, writers _s)],
                                                     concatMap (\(p, a') -> map p (paths (a' :: UserIds) _g)) [(Path_Permissions_readers, readers _s)]]
-          peek (Path_Permissions_owner _) _ = undefined "doField" :: Peek Permissions
-          peek (Path_Permissions_writers _) _ = undefined "doField" :: Peek Permissions
-          peek (Path_Permissions_readers _) _ = undefined "doField" :: Peek Permissions
+          peek (p@(Path_Permissions_writers _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Permissions
+          peek (p@(Path_Permissions_readers _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Permissions
           peekPath (Proxy) (Peek_Permissions_UserIds _p _) = _p :: Path Permissions UserIds
           peekValue (Proxy) (Peek_Permissions_UserIds _ _x) = _x :: Maybe UserIds
           peekCons _p _x = Peek_Permissions_UserIds _p _x :: Peek Permissions
@@ -940,18 +924,15 @@ instance Paths Permissions Text
     where type Path Permissions Text = Path_Permissions Text
           paths (_s@(Permissions {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: UserIds) _g)) [(Path_Permissions_writers, writers _s)],
                                                     concatMap (\(p, a') -> map p (paths (a' :: UserIds) _g)) [(Path_Permissions_readers, readers _s)]]
-          peek (Path_Permissions_owner _) _ = undefined "doField" :: Peek Permissions
-          peek (Path_Permissions_writers _) _ = undefined "doField" :: Peek Permissions
-          peek (Path_Permissions_readers _) _ = undefined "doField" :: Peek Permissions
+          peek (p@(Path_Permissions_writers _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Permissions
+          peek (p@(Path_Permissions_readers _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Permissions
           peekPath (Proxy) (Peek_Permissions_Text _p _) = _p :: Path Permissions Text
           peekValue (Proxy) (Peek_Permissions_Text _ _x) = _x :: Maybe Text
           peekCons _p _x = Peek_Permissions_Text _p _x :: Peek Permissions
 instance Paths Permissions UserId
     where type Path Permissions UserId = Path_Permissions UserId
           paths (_s@(Permissions {})) _g = concatMap (\(p, a') -> map p (paths (a' :: UserId) _g)) [(Path_Permissions_owner, owner _s)]
-          peek (Path_Permissions_owner _) _ = undefined "doField" :: Peek Permissions
-          peek (Path_Permissions_writers _) _ = undefined "doField" :: Peek Permissions
-          peek (Path_Permissions_readers _) _ = undefined "doField" :: Peek Permissions
+          peek (p@(Path_Permissions_owner _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Permissions
           peekPath (Proxy) (Peek_Permissions_UserId _p _) = _p :: Path Permissions UserId
           peekValue (Proxy) (Peek_Permissions_UserId _ _x) = _x :: Maybe UserId
           peekCons _p _x = Peek_Permissions_UserId _p _x :: Peek Permissions
@@ -959,15 +940,14 @@ instance Paths UserIds JSONText
     where type Path UserIds JSONText = Path_UserIds JSONText
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Text) _g)) (map (\a' -> (Path_UserIds_View, a')) (toListOf (toLens (Path_UserIds_View (idPath :: Path Text
                                                                                                                                                                          Text))) _s))
-          peek (Path_UserIds_View _) _ = undefined "doView1" :: Peek UserIds
-          peek (Path_UserIds) _ = undefined "doView2" :: Peek UserIds
+          peek (p@(Path_UserIds_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek UserIds
           peekPath (Proxy) (Peek_UserIds_JSONText _p _) = _p :: Path UserIds JSONText
           peekValue (Proxy) (Peek_UserIds_JSONText _ _x) = _x :: Maybe JSONText
           peekCons _p _x = Peek_UserIds_JSONText _p _x :: Peek UserIds
 instance Paths UserIds UserIds
     where type Path UserIds UserIds = Path_UserIds UserIds
           paths _ _ = [idPath]
-          peek _ _ = undefined "idpeek" :: Peek UserIds
+          peek p x = peekCons p (Just x) :: Peek UserIds
           peekPath (Proxy) (Peek_UserIds_UserIds _p _) = _p :: Path UserIds UserIds
           peekValue (Proxy) (Peek_UserIds_UserIds _ _x) = _x :: Maybe UserIds
           peekCons _p _x = Peek_UserIds_UserIds _p _x :: Peek UserIds
@@ -975,8 +955,7 @@ instance Paths UserIds Text
     where type Path UserIds Text = Path_UserIds Text
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Text) _g)) (map (\a' -> (Path_UserIds_View, a')) (toListOf (toLens (Path_UserIds_View (idPath :: Path Text
                                                                                                                                                                          Text))) _s))
-          peek (Path_UserIds_View _) _ = undefined "doView1" :: Peek UserIds
-          peek (Path_UserIds) _ = undefined "doView2" :: Peek UserIds
+          peek (p@(Path_UserIds_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek UserIds
           peekPath (Proxy) (Peek_UserIds_Text _p _) = _p :: Path UserIds Text
           peekValue (Proxy) (Peek_UserIds_Text _ _x) = _x :: Maybe Text
           peekCons _p _x = Peek_UserIds_Text _p _x :: Peek UserIds
@@ -984,28 +963,28 @@ instance Paths AbbrevPair JSONText
     where type Path AbbrevPair JSONText = Path_Pair (Path_CIString JSONText) (Path_Markup JSONText)
           paths _s _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: CIString) _g)) [(Path_First, fst _s)],
                                  concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_Second, snd _s)]]
-          peek _ _ = undefined "idpeek" :: Peek AbbrevPair
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek AbbrevPair
           peekPath (Proxy) (Peek_AbbrevPair_JSONText _p _) = _p :: Path AbbrevPair JSONText
           peekValue (Proxy) (Peek_AbbrevPair_JSONText _ _x) = _x :: Maybe JSONText
           peekCons _p _x = Peek_AbbrevPair_JSONText _p _x :: Peek AbbrevPair
 instance Paths AbbrevPair Markup
     where type Path AbbrevPair Markup = Path_Pair (Path_CIString Markup) (Path_Markup Markup)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_Second, snd _s)]
-          peek _ _ = undefined "idpeek" :: Peek AbbrevPair
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek AbbrevPair
           peekPath (Proxy) (Peek_AbbrevPair_Markup _p _) = _p :: Path AbbrevPair Markup
           peekValue (Proxy) (Peek_AbbrevPair_Markup _ _x) = _x :: Maybe Markup
           peekCons _p _x = Peek_AbbrevPair_Markup _p _x :: Peek AbbrevPair
 instance Paths AbbrevPair AbbrevPair
     where type Path AbbrevPair AbbrevPair = Path_Pair (Path_CIString AbbrevPair) (Path_Markup AbbrevPair)
           paths _ _ = [idPath]
-          peek _ _ = undefined "idpeek" :: Peek AbbrevPair
+          peek p x = peekCons p (Just x) :: Peek AbbrevPair
           peekPath (Proxy) (Peek_AbbrevPair_AbbrevPair _p _) = _p :: Path AbbrevPair AbbrevPair
           peekValue (Proxy) (Peek_AbbrevPair_AbbrevPair _ _x) = _x :: Maybe AbbrevPair
           peekCons _p _x = Peek_AbbrevPair_AbbrevPair _p _x :: Peek AbbrevPair
 instance Paths AbbrevPair CIString
     where type Path AbbrevPair CIString = Path_Pair (Path_CIString CIString) (Path_Markup CIString)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: CIString) _g)) [(Path_First, fst _s)]
-          peek _ _ = undefined "idpeek" :: Peek AbbrevPair
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek AbbrevPair
           peekPath (Proxy) (Peek_AbbrevPair_CIString _p _) = _p :: Path AbbrevPair CIString
           peekValue (Proxy) (Peek_AbbrevPair_CIString _ _x) = _x :: Maybe CIString
           peekCons _p _x = Peek_AbbrevPair_CIString _p _x :: Peek AbbrevPair
@@ -1013,49 +992,49 @@ instance Paths AbbrevPair Text
     where type Path AbbrevPair Text = Path_Pair (Path_CIString Text) (Path_Markup Text)
           paths _s _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: CIString) _g)) [(Path_First, fst _s)],
                                  concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_Second, snd _s)]]
-          peek _ _ = undefined "idpeek" :: Peek AbbrevPair
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek AbbrevPair
           peekPath (Proxy) (Peek_AbbrevPair_Text _p _) = _p :: Path AbbrevPair Text
           peekValue (Proxy) (Peek_AbbrevPair_Text _ _x) = _x :: Maybe Text
           peekCons _p _x = Peek_AbbrevPair_Text _p _x :: Peek AbbrevPair
 instance Paths AbbrevPairs JSONText
     where type Path AbbrevPairs JSONText = Path_OMap AbbrevPairID (Path_Pair (Path_CIString JSONText) (Path_Markup JSONText))
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: AbbrevPair) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
-          peek _ _ = undefined "idpeek" :: Peek AbbrevPairs
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek AbbrevPairs
           peekPath (Proxy) (Peek_AbbrevPairs_JSONText _p _) = _p :: Path AbbrevPairs JSONText
           peekValue (Proxy) (Peek_AbbrevPairs_JSONText _ _x) = _x :: Maybe JSONText
           peekCons _p _x = Peek_AbbrevPairs_JSONText _p _x :: Peek AbbrevPairs
 instance Paths AbbrevPairs Markup
     where type Path AbbrevPairs Markup = Path_OMap AbbrevPairID (Path_Pair (Path_CIString Markup) (Path_Markup Markup))
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: AbbrevPair) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
-          peek _ _ = undefined "idpeek" :: Peek AbbrevPairs
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek AbbrevPairs
           peekPath (Proxy) (Peek_AbbrevPairs_Markup _p _) = _p :: Path AbbrevPairs Markup
           peekValue (Proxy) (Peek_AbbrevPairs_Markup _ _x) = _x :: Maybe Markup
           peekCons _p _x = Peek_AbbrevPairs_Markup _p _x :: Peek AbbrevPairs
 instance Paths AbbrevPairs AbbrevPair
     where type Path AbbrevPairs AbbrevPair = Path_OMap AbbrevPairID (Path_Pair (Path_CIString AbbrevPair) (Path_Markup AbbrevPair))
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: AbbrevPair) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
-          peek _ _ = undefined "idpeek" :: Peek AbbrevPairs
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek AbbrevPairs
           peekPath (Proxy) (Peek_AbbrevPairs_AbbrevPair _p _) = _p :: Path AbbrevPairs AbbrevPair
           peekValue (Proxy) (Peek_AbbrevPairs_AbbrevPair _ _x) = _x :: Maybe AbbrevPair
           peekCons _p _x = Peek_AbbrevPairs_AbbrevPair _p _x :: Peek AbbrevPairs
 instance Paths AbbrevPairs AbbrevPairs
     where type Path AbbrevPairs AbbrevPairs = Path_OMap AbbrevPairID (Path_Pair (Path_CIString AbbrevPairs) (Path_Markup AbbrevPairs))
           paths _ _ = [idPath]
-          peek _ _ = undefined "idpeek" :: Peek AbbrevPairs
+          peek p x = peekCons p (Just x) :: Peek AbbrevPairs
           peekPath (Proxy) (Peek_AbbrevPairs_AbbrevPairs _p _) = _p :: Path AbbrevPairs AbbrevPairs
           peekValue (Proxy) (Peek_AbbrevPairs_AbbrevPairs _ _x) = _x :: Maybe AbbrevPairs
           peekCons _p _x = Peek_AbbrevPairs_AbbrevPairs _p _x :: Peek AbbrevPairs
 instance Paths AbbrevPairs CIString
     where type Path AbbrevPairs CIString = Path_OMap AbbrevPairID (Path_Pair (Path_CIString CIString) (Path_Markup CIString))
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: AbbrevPair) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
-          peek _ _ = undefined "idpeek" :: Peek AbbrevPairs
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek AbbrevPairs
           peekPath (Proxy) (Peek_AbbrevPairs_CIString _p _) = _p :: Path AbbrevPairs CIString
           peekValue (Proxy) (Peek_AbbrevPairs_CIString _ _x) = _x :: Maybe CIString
           peekCons _p _x = Peek_AbbrevPairs_CIString _p _x :: Peek AbbrevPairs
 instance Paths AbbrevPairs Text
     where type Path AbbrevPairs Text = Path_OMap AbbrevPairID (Path_Pair (Path_CIString Text) (Path_Markup Text))
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: AbbrevPair) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
-          peek _ _ = undefined "idpeek" :: Peek AbbrevPairs
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek AbbrevPairs
           peekPath (Proxy) (Peek_AbbrevPairs_Text _p _) = _p :: Path AbbrevPairs Text
           peekValue (Proxy) (Peek_AbbrevPairs_Text _ _x) = _x :: Maybe Text
           peekCons _p _x = Peek_AbbrevPairs_Text _p _x :: Peek AbbrevPairs
@@ -1063,8 +1042,8 @@ instance Paths Author JSONText
     where type Path Author JSONText = Path_Author JSONText
           paths (_s@(Author {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_Author_authorName, authorName _s)],
                                                concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_Author_authorCredentials, authorCredentials _s)]]
-          peek (Path_Author_authorName _) _ = undefined "doField" :: Peek Author
-          peek (Path_Author_authorCredentials _) _ = undefined "doField" :: Peek Author
+          peek (p@(Path_Author_authorName _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Author
+          peek (p@(Path_Author_authorCredentials _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Author
           peekPath (Proxy) (Peek_Author_JSONText _p _) = _p :: Path Author JSONText
           peekValue (Proxy) (Peek_Author_JSONText _ _x) = _x :: Maybe JSONText
           peekCons _p _x = Peek_Author_JSONText _p _x :: Peek Author
@@ -1072,15 +1051,15 @@ instance Paths Author Markup
     where type Path Author Markup = Path_Author Markup
           paths (_s@(Author {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_Author_authorName, authorName _s)],
                                                concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_Author_authorCredentials, authorCredentials _s)]]
-          peek (Path_Author_authorName _) _ = undefined "doField" :: Peek Author
-          peek (Path_Author_authorCredentials _) _ = undefined "doField" :: Peek Author
+          peek (p@(Path_Author_authorName _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Author
+          peek (p@(Path_Author_authorCredentials _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Author
           peekPath (Proxy) (Peek_Author_Markup _p _) = _p :: Path Author Markup
           peekValue (Proxy) (Peek_Author_Markup _ _x) = _x :: Maybe Markup
           peekCons _p _x = Peek_Author_Markup _p _x :: Peek Author
 instance Paths Author Author
     where type Path Author Author = Path_Author Author
           paths _ _ = [idPath]
-          peek _ _ = undefined "idpeek" :: Peek Author
+          peek p x = peekCons p (Just x) :: Peek Author
           peekPath (Proxy) (Peek_Author_Author _p _) = _p :: Path Author Author
           peekValue (Proxy) (Peek_Author_Author _ _x) = _x :: Maybe Author
           peekCons _p _x = Peek_Author_Author _p _x :: Peek Author
@@ -1088,43 +1067,43 @@ instance Paths Author Text
     where type Path Author Text = Path_Author Text
           paths (_s@(Author {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_Author_authorName, authorName _s)],
                                                concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_Author_authorCredentials, authorCredentials _s)]]
-          peek (Path_Author_authorName _) _ = undefined "doField" :: Peek Author
-          peek (Path_Author_authorCredentials _) _ = undefined "doField" :: Peek Author
+          peek (p@(Path_Author_authorName _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Author
+          peek (p@(Path_Author_authorCredentials _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Author
           peekPath (Proxy) (Peek_Author_Text _p _) = _p :: Path Author Text
           peekValue (Proxy) (Peek_Author_Text _ _x) = _x :: Maybe Text
           peekCons _p _x = Peek_Author_Text _p _x :: Peek Author
 instance Paths Authors JSONText
     where type Path Authors JSONText = Path_OMap AuthorID (Path_Author JSONText)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Author) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
-          peek _ _ = undefined "idpeek" :: Peek Authors
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek Authors
           peekPath (Proxy) (Peek_Authors_JSONText _p _) = _p :: Path Authors JSONText
           peekValue (Proxy) (Peek_Authors_JSONText _ _x) = _x :: Maybe JSONText
           peekCons _p _x = Peek_Authors_JSONText _p _x :: Peek Authors
 instance Paths Authors Markup
     where type Path Authors Markup = Path_OMap AuthorID (Path_Author Markup)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Author) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
-          peek _ _ = undefined "idpeek" :: Peek Authors
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek Authors
           peekPath (Proxy) (Peek_Authors_Markup _p _) = _p :: Path Authors Markup
           peekValue (Proxy) (Peek_Authors_Markup _ _x) = _x :: Maybe Markup
           peekCons _p _x = Peek_Authors_Markup _p _x :: Peek Authors
 instance Paths Authors Author
     where type Path Authors Author = Path_OMap AuthorID (Path_Author Author)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Author) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
-          peek _ _ = undefined "idpeek" :: Peek Authors
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek Authors
           peekPath (Proxy) (Peek_Authors_Author _p _) = _p :: Path Authors Author
           peekValue (Proxy) (Peek_Authors_Author _ _x) = _x :: Maybe Author
           peekCons _p _x = Peek_Authors_Author _p _x :: Peek Authors
 instance Paths Authors Authors
     where type Path Authors Authors = Path_OMap AuthorID (Path_Author Authors)
           paths _ _ = [idPath]
-          peek _ _ = undefined "idpeek" :: Peek Authors
+          peek p x = peekCons p (Just x) :: Peek Authors
           peekPath (Proxy) (Peek_Authors_Authors _p _) = _p :: Path Authors Authors
           peekValue (Proxy) (Peek_Authors_Authors _ _x) = _x :: Maybe Authors
           peekCons _p _x = Peek_Authors_Authors _p _x :: Peek Authors
 instance Paths Authors Text
     where type Path Authors Text = Path_OMap AuthorID (Path_Author Text)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Author) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
-          peek _ _ = undefined "idpeek" :: Peek Authors
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek Authors
           peekPath (Proxy) (Peek_Authors_Text _p _) = _p :: Path Authors Text
           peekValue (Proxy) (Peek_Authors_Text _ _x) = _x :: Maybe Text
           peekCons _p _x = Peek_Authors_Text _p _x :: Peek Authors
@@ -1132,15 +1111,14 @@ instance Paths Branding JSONText
     where type Path Branding JSONText = Path_Branding JSONText
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Text) _g)) (map (\a' -> (Path_Branding_View, a')) (toListOf (toLens (Path_Branding_View (idPath :: Path Text
                                                                                                                                                                            Text))) _s))
-          peek (Path_Branding_View _) _ = undefined "doView1" :: Peek Branding
-          peek (Path_Branding) _ = undefined "doView2" :: Peek Branding
+          peek (p@(Path_Branding_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Branding
           peekPath (Proxy) (Peek_Branding_JSONText _p _) = _p :: Path Branding JSONText
           peekValue (Proxy) (Peek_Branding_JSONText _ _x) = _x :: Maybe JSONText
           peekCons _p _x = Peek_Branding_JSONText _p _x :: Peek Branding
 instance Paths Branding Branding
     where type Path Branding Branding = Path_Branding Branding
           paths _ _ = [idPath]
-          peek _ _ = undefined "idpeek" :: Peek Branding
+          peek p x = peekCons p (Just x) :: Peek Branding
           peekPath (Proxy) (Peek_Branding_Branding _p _) = _p :: Path Branding Branding
           peekValue (Proxy) (Peek_Branding_Branding _ _x) = _x :: Maybe Branding
           peekCons _p _x = Peek_Branding_Branding _p _x :: Peek Branding
@@ -1148,8 +1126,7 @@ instance Paths Branding Text
     where type Path Branding Text = Path_Branding Text
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Text) _g)) (map (\a' -> (Path_Branding_View, a')) (toListOf (toLens (Path_Branding_View (idPath :: Path Text
                                                                                                                                                                            Text))) _s))
-          peek (Path_Branding_View _) _ = undefined "doView1" :: Peek Branding
-          peek (Path_Branding) _ = undefined "doView2" :: Peek Branding
+          peek (p@(Path_Branding_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Branding
           peekPath (Proxy) (Peek_Branding_Text _p _) = _p :: Path Branding Text
           peekValue (Proxy) (Peek_Branding_Text _ _x) = _x :: Maybe Text
           peekCons _p _x = Peek_Branding_Text _p _x :: Peek Branding
@@ -1157,7 +1134,7 @@ instance Paths MarkupPair JSONText
     where type Path MarkupPair JSONText = Path_Pair (Path_Markup JSONText) (Path_Markup JSONText)
           paths _s _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_First, fst _s)],
                                  concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_Second, snd _s)]]
-          peek _ _ = undefined "idpeek" :: Peek MarkupPair
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek MarkupPair
           peekPath (Proxy) (Peek_MarkupPair_JSONText _p _) = _p :: Path MarkupPair JSONText
           peekValue (Proxy) (Peek_MarkupPair_JSONText _ _x) = _x :: Maybe JSONText
           peekCons _p _x = Peek_MarkupPair_JSONText _p _x :: Peek MarkupPair
@@ -1165,14 +1142,14 @@ instance Paths MarkupPair Markup
     where type Path MarkupPair Markup = Path_Pair (Path_Markup Markup) (Path_Markup Markup)
           paths _s _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_First, fst _s)],
                                  concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_Second, snd _s)]]
-          peek _ _ = undefined "idpeek" :: Peek MarkupPair
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek MarkupPair
           peekPath (Proxy) (Peek_MarkupPair_Markup _p _) = _p :: Path MarkupPair Markup
           peekValue (Proxy) (Peek_MarkupPair_Markup _ _x) = _x :: Maybe Markup
           peekCons _p _x = Peek_MarkupPair_Markup _p _x :: Peek MarkupPair
 instance Paths MarkupPair MarkupPair
     where type Path MarkupPair MarkupPair = Path_Pair (Path_Markup MarkupPair) (Path_Markup MarkupPair)
           paths _ _ = [idPath]
-          peek _ _ = undefined "idpeek" :: Peek MarkupPair
+          peek p x = peekCons p (Just x) :: Peek MarkupPair
           peekPath (Proxy) (Peek_MarkupPair_MarkupPair _p _) = _p :: Path MarkupPair MarkupPair
           peekValue (Proxy) (Peek_MarkupPair_MarkupPair _ _x) = _x :: Maybe MarkupPair
           peekCons _p _x = Peek_MarkupPair_MarkupPair _p _x :: Peek MarkupPair
@@ -1180,70 +1157,70 @@ instance Paths MarkupPair Text
     where type Path MarkupPair Text = Path_Pair (Path_Markup Text) (Path_Markup Text)
           paths _s _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_First, fst _s)],
                                  concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_Second, snd _s)]]
-          peek _ _ = undefined "idpeek" :: Peek MarkupPair
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek MarkupPair
           peekPath (Proxy) (Peek_MarkupPair_Text _p _) = _p :: Path MarkupPair Text
           peekValue (Proxy) (Peek_MarkupPair_Text _ _x) = _x :: Maybe Text
           peekCons _p _x = Peek_MarkupPair_Text _p _x :: Peek MarkupPair
 instance Paths MarkupPairs JSONText
     where type Path MarkupPairs JSONText = Path_OMap MarkupPairID (Path_Pair (Path_Markup JSONText) (Path_Markup JSONText))
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: MarkupPair) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
-          peek _ _ = undefined "idpeek" :: Peek MarkupPairs
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek MarkupPairs
           peekPath (Proxy) (Peek_MarkupPairs_JSONText _p _) = _p :: Path MarkupPairs JSONText
           peekValue (Proxy) (Peek_MarkupPairs_JSONText _ _x) = _x :: Maybe JSONText
           peekCons _p _x = Peek_MarkupPairs_JSONText _p _x :: Peek MarkupPairs
 instance Paths MarkupPairs Markup
     where type Path MarkupPairs Markup = Path_OMap MarkupPairID (Path_Pair (Path_Markup Markup) (Path_Markup Markup))
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: MarkupPair) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
-          peek _ _ = undefined "idpeek" :: Peek MarkupPairs
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek MarkupPairs
           peekPath (Proxy) (Peek_MarkupPairs_Markup _p _) = _p :: Path MarkupPairs Markup
           peekValue (Proxy) (Peek_MarkupPairs_Markup _ _x) = _x :: Maybe Markup
           peekCons _p _x = Peek_MarkupPairs_Markup _p _x :: Peek MarkupPairs
 instance Paths MarkupPairs MarkupPair
     where type Path MarkupPairs MarkupPair = Path_OMap MarkupPairID (Path_Pair (Path_Markup MarkupPair) (Path_Markup MarkupPair))
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: MarkupPair) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
-          peek _ _ = undefined "idpeek" :: Peek MarkupPairs
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek MarkupPairs
           peekPath (Proxy) (Peek_MarkupPairs_MarkupPair _p _) = _p :: Path MarkupPairs MarkupPair
           peekValue (Proxy) (Peek_MarkupPairs_MarkupPair _ _x) = _x :: Maybe MarkupPair
           peekCons _p _x = Peek_MarkupPairs_MarkupPair _p _x :: Peek MarkupPairs
 instance Paths MarkupPairs MarkupPairs
     where type Path MarkupPairs MarkupPairs = Path_OMap MarkupPairID (Path_Pair (Path_Markup MarkupPairs) (Path_Markup MarkupPairs))
           paths _ _ = [idPath]
-          peek _ _ = undefined "idpeek" :: Peek MarkupPairs
+          peek p x = peekCons p (Just x) :: Peek MarkupPairs
           peekPath (Proxy) (Peek_MarkupPairs_MarkupPairs _p _) = _p :: Path MarkupPairs MarkupPairs
           peekValue (Proxy) (Peek_MarkupPairs_MarkupPairs _ _x) = _x :: Maybe MarkupPairs
           peekCons _p _x = Peek_MarkupPairs_MarkupPairs _p _x :: Peek MarkupPairs
 instance Paths MarkupPairs Text
     where type Path MarkupPairs Text = Path_OMap MarkupPairID (Path_Pair (Path_Markup Text) (Path_Markup Text))
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: MarkupPair) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
-          peek _ _ = undefined "idpeek" :: Peek MarkupPairs
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek MarkupPairs
           peekPath (Proxy) (Peek_MarkupPairs_Text _p _) = _p :: Path MarkupPairs Text
           peekValue (Proxy) (Peek_MarkupPairs_Text _ _x) = _x :: Maybe Text
           peekCons _p _x = Peek_MarkupPairs_Text _p _x :: Peek MarkupPairs
 instance Paths Markups JSONText
     where type Path Markups JSONText = Path_OMap MarkupID (Path_Markup JSONText)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
-          peek _ _ = undefined "idpeek" :: Peek Markups
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek Markups
           peekPath (Proxy) (Peek_Markups_JSONText _p _) = _p :: Path Markups JSONText
           peekValue (Proxy) (Peek_Markups_JSONText _ _x) = _x :: Maybe JSONText
           peekCons _p _x = Peek_Markups_JSONText _p _x :: Peek Markups
 instance Paths Markups Markup
     where type Path Markups Markup = Path_OMap MarkupID (Path_Markup Markup)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
-          peek _ _ = undefined "idpeek" :: Peek Markups
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek Markups
           peekPath (Proxy) (Peek_Markups_Markup _p _) = _p :: Path Markups Markup
           peekValue (Proxy) (Peek_Markups_Markup _ _x) = _x :: Maybe Markup
           peekCons _p _x = Peek_Markups_Markup _p _x :: Peek Markups
 instance Paths Markups Markups
     where type Path Markups Markups = Path_OMap MarkupID (Path_Markup Markups)
           paths _ _ = [idPath]
-          peek _ _ = undefined "idpeek" :: Peek Markups
+          peek p x = peekCons p (Just x) :: Peek Markups
           peekPath (Proxy) (Peek_Markups_Markups _p _) = _p :: Path Markups Markups
           peekValue (Proxy) (Peek_Markups_Markups _ _x) = _x :: Maybe Markups
           peekCons _p _x = Peek_Markups_Markups _p _x :: Peek Markups
 instance Paths Markups Text
     where type Path Markups Text = Path_OMap MarkupID (Path_Markup Text)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
-          peek _ _ = undefined "idpeek" :: Peek Markups
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek Markups
           peekPath (Proxy) (Peek_Markups_Text _p _) = _p :: Path Markups Text
           peekValue (Proxy) (Peek_Markups_Text _ _x) = _x :: Maybe Text
           peekCons _p _x = Peek_Markups_Text _p _x :: Peek Markups
@@ -1251,8 +1228,7 @@ instance Paths MaybeReportIntendedUse String
     where type Path MaybeReportIntendedUse String = Path_MaybeReportIntendedUse String
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: String) _g)) (map (\a' -> (Path_MaybeReportIntendedUse_View,
                                                                                               a')) (toListOf (toLens (Path_MaybeReportIntendedUse_View (idPath :: Path String String))) _s))
-          peek (Path_MaybeReportIntendedUse_View _) _ = undefined "doView1" :: Peek MaybeReportIntendedUse
-          peek (Path_MaybeReportIntendedUse) _ = undefined "doView2" :: Peek MaybeReportIntendedUse
+          peek (p@(Path_MaybeReportIntendedUse_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek MaybeReportIntendedUse
           peekPath (Proxy) (Peek_MaybeReportIntendedUse_String _p _) = _p :: Path MaybeReportIntendedUse String
           peekValue (Proxy) (Peek_MaybeReportIntendedUse_String _ _x) = _x :: Maybe String
           peekCons _p _x = Peek_MaybeReportIntendedUse_String _p _x :: Peek MaybeReportIntendedUse
@@ -1260,15 +1236,14 @@ instance Paths MaybeReportIntendedUse JSONText
     where type Path MaybeReportIntendedUse JSONText = Path_MaybeReportIntendedUse JSONText
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: String) _g)) (map (\a' -> (Path_MaybeReportIntendedUse_View,
                                                                                               a')) (toListOf (toLens (Path_MaybeReportIntendedUse_View (idPath :: Path String String))) _s))
-          peek (Path_MaybeReportIntendedUse_View _) _ = undefined "doView1" :: Peek MaybeReportIntendedUse
-          peek (Path_MaybeReportIntendedUse) _ = undefined "doView2" :: Peek MaybeReportIntendedUse
+          peek (p@(Path_MaybeReportIntendedUse_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek MaybeReportIntendedUse
           peekPath (Proxy) (Peek_MaybeReportIntendedUse_JSONText _p _) = _p :: Path MaybeReportIntendedUse JSONText
           peekValue (Proxy) (Peek_MaybeReportIntendedUse_JSONText _ _x) = _x :: Maybe JSONText
           peekCons _p _x = Peek_MaybeReportIntendedUse_JSONText _p _x :: Peek MaybeReportIntendedUse
 instance Paths MaybeReportIntendedUse MaybeReportIntendedUse
     where type Path MaybeReportIntendedUse MaybeReportIntendedUse = Path_MaybeReportIntendedUse MaybeReportIntendedUse
           paths _ _ = [idPath]
-          peek _ _ = undefined "idpeek" :: Peek MaybeReportIntendedUse
+          peek p x = peekCons p (Just x) :: Peek MaybeReportIntendedUse
           peekPath (Proxy) (Peek_MaybeReportIntendedUse_MaybeReportIntendedUse _p _) = _p :: Path MaybeReportIntendedUse MaybeReportIntendedUse
           peekValue (Proxy) (Peek_MaybeReportIntendedUse_MaybeReportIntendedUse _ _x) = _x :: Maybe MaybeReportIntendedUse
           peekCons _p _x = Peek_MaybeReportIntendedUse_MaybeReportIntendedUse _p _x :: Peek MaybeReportIntendedUse
@@ -1276,8 +1251,7 @@ instance Paths Report String
     where type Path Report String = Path_Report String
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
-          peek (Path_Report_View _) _ = undefined "doView1" :: Peek Report
-          peek (Path_Report) _ = undefined "doView2" :: Peek Report
+          peek (p@(Path_Report_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Report
           peekPath (Proxy) (Peek_Report_String _p _) = _p :: Path Report String
           peekValue (Proxy) (Peek_Report_String _ _x) = _x :: Maybe String
           peekCons _p _x = Peek_Report_String _p _x :: Peek Report
@@ -1285,8 +1259,7 @@ instance Paths Report Int64
     where type Path Report Int64 = Path_Report Int64
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
-          peek (Path_Report_View _) _ = undefined "doView1" :: Peek Report
-          peek (Path_Report) _ = undefined "doView2" :: Peek Report
+          peek (p@(Path_Report_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Report
           peekPath (Proxy) (Peek_Report_Int64 _p _) = _p :: Path Report Int64
           peekValue (Proxy) (Peek_Report_Int64 _ _x) = _x :: Maybe Int64
           peekCons _p _x = Peek_Report_Int64 _p _x :: Peek Report
@@ -1294,8 +1267,7 @@ instance Paths Report Bool
     where type Path Report Bool = Path_Report Bool
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
-          peek (Path_Report_View _) _ = undefined "doView1" :: Peek Report
-          peek (Path_Report) _ = undefined "doView2" :: Peek Report
+          peek (p@(Path_Report_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Report
           peekPath (Proxy) (Peek_Report_Bool _p _) = _p :: Path Report Bool
           peekValue (Proxy) (Peek_Report_Bool _ _x) = _x :: Maybe Bool
           peekCons _p _x = Peek_Report_Bool _p _x :: Peek Report
@@ -1303,8 +1275,7 @@ instance Paths Report Double
     where type Path Report Double = Path_Report Double
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
-          peek (Path_Report_View _) _ = undefined "doView1" :: Peek Report
-          peek (Path_Report) _ = undefined "doView2" :: Peek Report
+          peek (p@(Path_Report_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Report
           peekPath (Proxy) (Peek_Report_Double _p _) = _p :: Path Report Double
           peekValue (Proxy) (Peek_Report_Double _ _x) = _x :: Maybe Double
           peekCons _p _x = Peek_Report_Double _p _x :: Peek Report
@@ -1312,8 +1283,7 @@ instance Paths Report Int
     where type Path Report Int = Path_Report Int
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
-          peek (Path_Report_View _) _ = undefined "doView1" :: Peek Report
-          peek (Path_Report) _ = undefined "doView2" :: Peek Report
+          peek (p@(Path_Report_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Report
           peekPath (Proxy) (Peek_Report_Int _p _) = _p :: Path Report Int
           peekValue (Proxy) (Peek_Report_Int _ _x) = _x :: Maybe Int
           peekCons _p _x = Peek_Report_Int _p _x :: Peek Report
@@ -1321,8 +1291,7 @@ instance Paths Report Dimension
     where type Path Report Dimension = Path_Report Dimension
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
-          peek (Path_Report_View _) _ = undefined "doView1" :: Peek Report
-          peek (Path_Report) _ = undefined "doView2" :: Peek Report
+          peek (p@(Path_Report_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Report
           peekPath (Proxy) (Peek_Report_Dimension _p _) = _p :: Path Report Dimension
           peekValue (Proxy) (Peek_Report_Dimension _ _x) = _x :: Maybe Dimension
           peekCons _p _x = Peek_Report_Dimension _p _x :: Peek Report
@@ -1330,8 +1299,7 @@ instance Paths Report ImageCrop
     where type Path Report ImageCrop = Path_Report ImageCrop
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
-          peek (Path_Report_View _) _ = undefined "doView1" :: Peek Report
-          peek (Path_Report) _ = undefined "doView2" :: Peek Report
+          peek (p@(Path_Report_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Report
           peekPath (Proxy) (Peek_Report_ImageCrop _p _) = _p :: Path Report ImageCrop
           peekValue (Proxy) (Peek_Report_ImageCrop _ _x) = _x :: Maybe ImageCrop
           peekCons _p _x = Peek_Report_ImageCrop _p _x :: Peek Report
@@ -1339,8 +1307,7 @@ instance Paths Report ImageSize
     where type Path Report ImageSize = Path_Report ImageSize
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
-          peek (Path_Report_View _) _ = undefined "doView1" :: Peek Report
-          peek (Path_Report) _ = undefined "doView2" :: Peek Report
+          peek (p@(Path_Report_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Report
           peekPath (Proxy) (Peek_Report_ImageSize _p _) = _p :: Path Report ImageSize
           peekValue (Proxy) (Peek_Report_ImageSize _ _x) = _x :: Maybe ImageSize
           peekCons _p _x = Peek_Report_ImageSize _p _x :: Peek Report
@@ -1348,8 +1315,7 @@ instance Paths Report Units
     where type Path Report Units = Path_Report Units
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
-          peek (Path_Report_View _) _ = undefined "doView1" :: Peek Report
-          peek (Path_Report) _ = undefined "doView2" :: Peek Report
+          peek (p@(Path_Report_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Report
           peekPath (Proxy) (Peek_Report_Units _p _) = _p :: Path Report Units
           peekValue (Proxy) (Peek_Report_Units _ _x) = _x :: Maybe Units
           peekCons _p _x = Peek_Report_Units _p _x :: Peek Report
@@ -1357,8 +1323,7 @@ instance Paths Report ImageFile
     where type Path Report ImageFile = Path_Report ImageFile
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
-          peek (Path_Report_View _) _ = undefined "doView1" :: Peek Report
-          peek (Path_Report) _ = undefined "doView2" :: Peek Report
+          peek (p@(Path_Report_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Report
           peekPath (Proxy) (Peek_Report_ImageFile _p _) = _p :: Path Report ImageFile
           peekValue (Proxy) (Peek_Report_ImageFile _ _x) = _x :: Maybe ImageFile
           peekCons _p _x = Peek_Report_ImageFile _p _x :: Peek Report
@@ -1366,8 +1331,7 @@ instance Paths Report Integer
     where type Path Report Integer = Path_Report Integer
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
-          peek (Path_Report_View _) _ = undefined "doView1" :: Peek Report
-          peek (Path_Report) _ = undefined "doView2" :: Peek Report
+          peek (p@(Path_Report_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Report
           peekPath (Proxy) (Peek_Report_Integer _p _) = _p :: Path Report Integer
           peekValue (Proxy) (Peek_Report_Integer _ _x) = _x :: Maybe Integer
           peekCons _p _x = Peek_Report_Integer _p _x :: Peek Report
@@ -1375,8 +1339,7 @@ instance Paths Report JSONText
     where type Path Report JSONText = Path_Report JSONText
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
-          peek (Path_Report_View _) _ = undefined "doView1" :: Peek Report
-          peek (Path_Report) _ = undefined "doView2" :: Peek Report
+          peek (p@(Path_Report_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Report
           peekPath (Proxy) (Peek_Report_JSONText _p _) = _p :: Path Report JSONText
           peekValue (Proxy) (Peek_Report_JSONText _ _x) = _x :: Maybe JSONText
           peekCons _p _x = Peek_Report_JSONText _p _x :: Peek Report
@@ -1384,8 +1347,7 @@ instance Paths Report Markup
     where type Path Report Markup = Path_Report Markup
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
-          peek (Path_Report_View _) _ = undefined "doView1" :: Peek Report
-          peek (Path_Report) _ = undefined "doView2" :: Peek Report
+          peek (p@(Path_Report_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Report
           peekPath (Proxy) (Peek_Report_Markup _p _) = _p :: Path Report Markup
           peekValue (Proxy) (Peek_Report_Markup _ _x) = _x :: Maybe Markup
           peekCons _p _x = Peek_Report_Markup _p _x :: Peek Report
@@ -1393,8 +1355,7 @@ instance Paths Report Permissions
     where type Path Report Permissions = Path_Report Permissions
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
-          peek (Path_Report_View _) _ = undefined "doView1" :: Peek Report
-          peek (Path_Report) _ = undefined "doView2" :: Peek Report
+          peek (p@(Path_Report_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Report
           peekPath (Proxy) (Peek_Report_Permissions _p _) = _p :: Path Report Permissions
           peekValue (Proxy) (Peek_Report_Permissions _ _x) = _x :: Maybe Permissions
           peekCons _p _x = Peek_Report_Permissions _p _x :: Peek Report
@@ -1402,8 +1363,7 @@ instance Paths Report UserIds
     where type Path Report UserIds = Path_Report UserIds
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
-          peek (Path_Report_View _) _ = undefined "doView1" :: Peek Report
-          peek (Path_Report) _ = undefined "doView2" :: Peek Report
+          peek (p@(Path_Report_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Report
           peekPath (Proxy) (Peek_Report_UserIds _p _) = _p :: Path Report UserIds
           peekValue (Proxy) (Peek_Report_UserIds _ _x) = _x :: Maybe UserIds
           peekCons _p _x = Peek_Report_UserIds _p _x :: Peek Report
@@ -1411,8 +1371,7 @@ instance Paths Report AbbrevPair
     where type Path Report AbbrevPair = Path_Report AbbrevPair
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
-          peek (Path_Report_View _) _ = undefined "doView1" :: Peek Report
-          peek (Path_Report) _ = undefined "doView2" :: Peek Report
+          peek (p@(Path_Report_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Report
           peekPath (Proxy) (Peek_Report_AbbrevPair _p _) = _p :: Path Report AbbrevPair
           peekValue (Proxy) (Peek_Report_AbbrevPair _ _x) = _x :: Maybe AbbrevPair
           peekCons _p _x = Peek_Report_AbbrevPair _p _x :: Peek Report
@@ -1420,8 +1379,7 @@ instance Paths Report AbbrevPairs
     where type Path Report AbbrevPairs = Path_Report AbbrevPairs
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
-          peek (Path_Report_View _) _ = undefined "doView1" :: Peek Report
-          peek (Path_Report) _ = undefined "doView2" :: Peek Report
+          peek (p@(Path_Report_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Report
           peekPath (Proxy) (Peek_Report_AbbrevPairs _p _) = _p :: Path Report AbbrevPairs
           peekValue (Proxy) (Peek_Report_AbbrevPairs _ _x) = _x :: Maybe AbbrevPairs
           peekCons _p _x = Peek_Report_AbbrevPairs _p _x :: Peek Report
@@ -1429,8 +1387,7 @@ instance Paths Report Author
     where type Path Report Author = Path_Report Author
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
-          peek (Path_Report_View _) _ = undefined "doView1" :: Peek Report
-          peek (Path_Report) _ = undefined "doView2" :: Peek Report
+          peek (p@(Path_Report_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Report
           peekPath (Proxy) (Peek_Report_Author _p _) = _p :: Path Report Author
           peekValue (Proxy) (Peek_Report_Author _ _x) = _x :: Maybe Author
           peekCons _p _x = Peek_Report_Author _p _x :: Peek Report
@@ -1438,8 +1395,7 @@ instance Paths Report Authors
     where type Path Report Authors = Path_Report Authors
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
-          peek (Path_Report_View _) _ = undefined "doView1" :: Peek Report
-          peek (Path_Report) _ = undefined "doView2" :: Peek Report
+          peek (p@(Path_Report_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Report
           peekPath (Proxy) (Peek_Report_Authors _p _) = _p :: Path Report Authors
           peekValue (Proxy) (Peek_Report_Authors _ _x) = _x :: Maybe Authors
           peekCons _p _x = Peek_Report_Authors _p _x :: Peek Report
@@ -1447,8 +1403,7 @@ instance Paths Report Branding
     where type Path Report Branding = Path_Report Branding
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
-          peek (Path_Report_View _) _ = undefined "doView1" :: Peek Report
-          peek (Path_Report) _ = undefined "doView2" :: Peek Report
+          peek (p@(Path_Report_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Report
           peekPath (Proxy) (Peek_Report_Branding _p _) = _p :: Path Report Branding
           peekValue (Proxy) (Peek_Report_Branding _ _x) = _x :: Maybe Branding
           peekCons _p _x = Peek_Report_Branding _p _x :: Peek Report
@@ -1456,8 +1411,7 @@ instance Paths Report MarkupPair
     where type Path Report MarkupPair = Path_Report MarkupPair
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
-          peek (Path_Report_View _) _ = undefined "doView1" :: Peek Report
-          peek (Path_Report) _ = undefined "doView2" :: Peek Report
+          peek (p@(Path_Report_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Report
           peekPath (Proxy) (Peek_Report_MarkupPair _p _) = _p :: Path Report MarkupPair
           peekValue (Proxy) (Peek_Report_MarkupPair _ _x) = _x :: Maybe MarkupPair
           peekCons _p _x = Peek_Report_MarkupPair _p _x :: Peek Report
@@ -1465,8 +1419,7 @@ instance Paths Report MarkupPairs
     where type Path Report MarkupPairs = Path_Report MarkupPairs
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
-          peek (Path_Report_View _) _ = undefined "doView1" :: Peek Report
-          peek (Path_Report) _ = undefined "doView2" :: Peek Report
+          peek (p@(Path_Report_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Report
           peekPath (Proxy) (Peek_Report_MarkupPairs _p _) = _p :: Path Report MarkupPairs
           peekValue (Proxy) (Peek_Report_MarkupPairs _ _x) = _x :: Maybe MarkupPairs
           peekCons _p _x = Peek_Report_MarkupPairs _p _x :: Peek Report
@@ -1474,8 +1427,7 @@ instance Paths Report Markups
     where type Path Report Markups = Path_Report Markups
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
-          peek (Path_Report_View _) _ = undefined "doView1" :: Peek Report
-          peek (Path_Report) _ = undefined "doView2" :: Peek Report
+          peek (p@(Path_Report_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Report
           peekPath (Proxy) (Peek_Report_Markups _p _) = _p :: Path Report Markups
           peekValue (Proxy) (Peek_Report_Markups _ _x) = _x :: Maybe Markups
           peekCons _p _x = Peek_Report_Markups _p _x :: Peek Report
@@ -1483,15 +1435,14 @@ instance Paths Report MaybeReportIntendedUse
     where type Path Report MaybeReportIntendedUse = Path_Report MaybeReportIntendedUse
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
-          peek (Path_Report_View _) _ = undefined "doView1" :: Peek Report
-          peek (Path_Report) _ = undefined "doView2" :: Peek Report
+          peek (p@(Path_Report_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Report
           peekPath (Proxy) (Peek_Report_MaybeReportIntendedUse _p _) = _p :: Path Report MaybeReportIntendedUse
           peekValue (Proxy) (Peek_Report_MaybeReportIntendedUse _ _x) = _x :: Maybe MaybeReportIntendedUse
           peekCons _p _x = Peek_Report_MaybeReportIntendedUse _p _x :: Peek Report
 instance Paths Report Report
     where type Path Report Report = Path_Report Report
           paths _ _ = [idPath]
-          peek _ _ = undefined "idpeek" :: Peek Report
+          peek p x = peekCons p (Just x) :: Peek Report
           peekPath (Proxy) (Peek_Report_Report _p _) = _p :: Path Report Report
           peekValue (Proxy) (Peek_Report_Report _ _x) = _x :: Maybe Report
           peekCons _p _x = Peek_Report_Report _p _x :: Peek Report
@@ -1499,8 +1450,7 @@ instance Paths Report ReportElem
     where type Path Report ReportElem = Path_Report ReportElem
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
-          peek (Path_Report_View _) _ = undefined "doView1" :: Peek Report
-          peek (Path_Report) _ = undefined "doView2" :: Peek Report
+          peek (p@(Path_Report_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Report
           peekPath (Proxy) (Peek_Report_ReportElem _p _) = _p :: Path Report ReportElem
           peekValue (Proxy) (Peek_Report_ReportElem _ _x) = _x :: Maybe ReportElem
           peekCons _p _x = Peek_Report_ReportElem _p _x :: Peek Report
@@ -1508,8 +1458,7 @@ instance Paths Report ReportElems
     where type Path Report ReportElems = Path_Report ReportElems
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
-          peek (Path_Report_View _) _ = undefined "doView1" :: Peek Report
-          peek (Path_Report) _ = undefined "doView2" :: Peek Report
+          peek (p@(Path_Report_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Report
           peekPath (Proxy) (Peek_Report_ReportElems _p _) = _p :: Path Report ReportElems
           peekValue (Proxy) (Peek_Report_ReportElems _ _x) = _x :: Maybe ReportElems
           peekCons _p _x = Peek_Report_ReportElems _p _x :: Peek Report
@@ -1517,8 +1466,7 @@ instance Paths Report ReportFlags
     where type Path Report ReportFlags = Path_Report ReportFlags
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
-          peek (Path_Report_View _) _ = undefined "doView1" :: Peek Report
-          peek (Path_Report) _ = undefined "doView2" :: Peek Report
+          peek (p@(Path_Report_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Report
           peekPath (Proxy) (Peek_Report_ReportFlags _p _) = _p :: Path Report ReportFlags
           peekValue (Proxy) (Peek_Report_ReportFlags _ _x) = _x :: Maybe ReportFlags
           peekCons _p _x = Peek_Report_ReportFlags _p _x :: Peek Report
@@ -1526,8 +1474,7 @@ instance Paths Report ReportStandard
     where type Path Report ReportStandard = Path_Report ReportStandard
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
-          peek (Path_Report_View _) _ = undefined "doView1" :: Peek Report
-          peek (Path_Report) _ = undefined "doView2" :: Peek Report
+          peek (p@(Path_Report_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Report
           peekPath (Proxy) (Peek_Report_ReportStandard _p _) = _p :: Path Report ReportStandard
           peekValue (Proxy) (Peek_Report_ReportStandard _ _x) = _x :: Maybe ReportStandard
           peekCons _p _x = Peek_Report_ReportStandard _p _x :: Peek Report
@@ -1535,8 +1482,7 @@ instance Paths Report ReportStatus
     where type Path Report ReportStatus = Path_Report ReportStatus
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
-          peek (Path_Report_View _) _ = undefined "doView1" :: Peek Report
-          peek (Path_Report) _ = undefined "doView2" :: Peek Report
+          peek (p@(Path_Report_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Report
           peekPath (Proxy) (Peek_Report_ReportStatus _p _) = _p :: Path Report ReportStatus
           peekValue (Proxy) (Peek_Report_ReportStatus _ _x) = _x :: Maybe ReportStatus
           peekCons _p _x = Peek_Report_ReportStatus _p _x :: Peek Report
@@ -1544,8 +1490,7 @@ instance Paths Report ReportValueApproachInfo
     where type Path Report ReportValueApproachInfo = Path_Report ReportValueApproachInfo
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
-          peek (Path_Report_View _) _ = undefined "doView1" :: Peek Report
-          peek (Path_Report) _ = undefined "doView2" :: Peek Report
+          peek (p@(Path_Report_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Report
           peekPath (Proxy) (Peek_Report_ReportValueApproachInfo _p _) = _p :: Path Report ReportValueApproachInfo
           peekValue (Proxy) (Peek_Report_ReportValueApproachInfo _ _x) = _x :: Maybe ReportValueApproachInfo
           peekCons _p _x = Peek_Report_ReportValueApproachInfo _p _x :: Peek Report
@@ -1553,8 +1498,7 @@ instance Paths Report ReportValueTypeInfo
     where type Path Report ReportValueTypeInfo = Path_Report ReportValueTypeInfo
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
-          peek (Path_Report_View _) _ = undefined "doView1" :: Peek Report
-          peek (Path_Report) _ = undefined "doView2" :: Peek Report
+          peek (p@(Path_Report_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Report
           peekPath (Proxy) (Peek_Report_ReportValueTypeInfo _p _) = _p :: Path Report ReportValueTypeInfo
           peekValue (Proxy) (Peek_Report_ReportValueTypeInfo _ _x) = _x :: Maybe ReportValueTypeInfo
           peekCons _p _x = Peek_Report_ReportValueTypeInfo _p _x :: Peek Report
@@ -1562,8 +1506,7 @@ instance Paths Report EUI
     where type Path Report EUI = Path_Report EUI
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
-          peek (Path_Report_View _) _ = undefined "doView1" :: Peek Report
-          peek (Path_Report) _ = undefined "doView2" :: Peek Report
+          peek (p@(Path_Report_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Report
           peekPath (Proxy) (Peek_Report_EUI _p _) = _p :: Path Report EUI
           peekValue (Proxy) (Peek_Report_EUI _ _x) = _x :: Maybe EUI
           peekCons _p _x = Peek_Report_EUI _p _x :: Peek Report
@@ -1571,8 +1514,7 @@ instance Paths Report MEUI
     where type Path Report MEUI = Path_Report MEUI
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
-          peek (Path_Report_View _) _ = undefined "doView1" :: Peek Report
-          peek (Path_Report) _ = undefined "doView2" :: Peek Report
+          peek (p@(Path_Report_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Report
           peekPath (Proxy) (Peek_Report_MEUI _p _) = _p :: Path Report MEUI
           peekValue (Proxy) (Peek_Report_MEUI _ _x) = _x :: Maybe MEUI
           peekCons _p _x = Peek_Report_MEUI _p _x :: Peek Report
@@ -1580,8 +1522,7 @@ instance Paths Report MaybeImageFile
     where type Path Report MaybeImageFile = Path_Report MaybeImageFile
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
-          peek (Path_Report_View _) _ = undefined "doView1" :: Peek Report
-          peek (Path_Report) _ = undefined "doView2" :: Peek Report
+          peek (p@(Path_Report_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Report
           peekPath (Proxy) (Peek_Report_MaybeImageFile _p _) = _p :: Path Report MaybeImageFile
           peekValue (Proxy) (Peek_Report_MaybeImageFile _ _x) = _x :: Maybe MaybeImageFile
           peekCons _p _x = Peek_Report_MaybeImageFile _p _x :: Peek Report
@@ -1589,8 +1530,7 @@ instance Paths Report ReportImage
     where type Path Report ReportImage = Path_Report ReportImage
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
-          peek (Path_Report_View _) _ = undefined "doView1" :: Peek Report
-          peek (Path_Report) _ = undefined "doView2" :: Peek Report
+          peek (p@(Path_Report_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Report
           peekPath (Proxy) (Peek_Report_ReportImage _p _) = _p :: Path Report ReportImage
           peekValue (Proxy) (Peek_Report_ReportImage _ _x) = _x :: Maybe ReportImage
           peekCons _p _x = Peek_Report_ReportImage _p _x :: Peek Report
@@ -1598,8 +1538,7 @@ instance Paths Report ReportImages
     where type Path Report ReportImages = Path_Report ReportImages
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
-          peek (Path_Report_View _) _ = undefined "doView1" :: Peek Report
-          peek (Path_Report) _ = undefined "doView2" :: Peek Report
+          peek (p@(Path_Report_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Report
           peekPath (Proxy) (Peek_Report_ReportImages _p _) = _p :: Path Report ReportImages
           peekValue (Proxy) (Peek_Report_ReportImages _ _x) = _x :: Maybe ReportImages
           peekCons _p _x = Peek_Report_ReportImages _p _x :: Peek Report
@@ -1607,8 +1546,7 @@ instance Paths Report ReadOnlyFilePath
     where type Path Report ReadOnlyFilePath = Path_Report ReadOnlyFilePath
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
-          peek (Path_Report_View _) _ = undefined "doView1" :: Peek Report
-          peek (Path_Report) _ = undefined "doView2" :: Peek Report
+          peek (p@(Path_Report_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Report
           peekPath (Proxy) (Peek_Report_ReadOnlyFilePath _p _) = _p :: Path Report ReadOnlyFilePath
           peekValue (Proxy) (Peek_Report_ReadOnlyFilePath _ _x) = _x :: Maybe ReadOnlyFilePath
           peekCons _p _x = Peek_Report_ReadOnlyFilePath _p _x :: Peek Report
@@ -1616,8 +1554,7 @@ instance Paths Report ReportImageView
     where type Path Report ReportImageView = Path_Report ReportImageView
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
-          peek (Path_Report_View _) _ = undefined "doView1" :: Peek Report
-          peek (Path_Report) _ = undefined "doView2" :: Peek Report
+          peek (p@(Path_Report_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Report
           peekPath (Proxy) (Peek_Report_ReportImageView _p _) = _p :: Path Report ReportImageView
           peekValue (Proxy) (Peek_Report_ReportImageView _ _x) = _x :: Maybe ReportImageView
           peekCons _p _x = Peek_Report_ReportImageView _p _x :: Peek Report
@@ -1625,8 +1562,7 @@ instance Paths Report ReportView
     where type Path Report ReportView = Path_Report ReportView
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
-          peek (Path_Report_View _) _ = undefined "doView1" :: Peek Report
-          peek (Path_Report) _ = undefined "doView2" :: Peek Report
+          peek (p@(Path_Report_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Report
           peekPath (Proxy) (Peek_Report_ReportView _p _) = _p :: Path Report ReportView
           peekValue (Proxy) (Peek_Report_ReportView _ _x) = _x :: Maybe ReportView
           peekCons _p _x = Peek_Report_ReportView _p _x :: Peek Report
@@ -1634,8 +1570,7 @@ instance Paths Report SaneSizeImageSize
     where type Path Report SaneSizeImageSize = Path_Report SaneSizeImageSize
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
-          peek (Path_Report_View _) _ = undefined "doView1" :: Peek Report
-          peek (Path_Report) _ = undefined "doView2" :: Peek Report
+          peek (p@(Path_Report_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Report
           peekPath (Proxy) (Peek_Report_SaneSizeImageSize _p _) = _p :: Path Report SaneSizeImageSize
           peekValue (Proxy) (Peek_Report_SaneSizeImageSize _ _x) = _x :: Maybe SaneSizeImageSize
           peekCons _p _x = Peek_Report_SaneSizeImageSize _p _x :: Peek Report
@@ -1643,8 +1578,7 @@ instance Paths Report Item
     where type Path Report Item = Path_Report Item
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
-          peek (Path_Report_View _) _ = undefined "doView1" :: Peek Report
-          peek (Path_Report) _ = undefined "doView2" :: Peek Report
+          peek (p@(Path_Report_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Report
           peekPath (Proxy) (Peek_Report_Item _p _) = _p :: Path Report Item
           peekValue (Proxy) (Peek_Report_Item _ _x) = _x :: Maybe Item
           peekCons _p _x = Peek_Report_Item _p _x :: Peek Report
@@ -1652,8 +1586,7 @@ instance Paths Report MIM
     where type Path Report MIM = Path_Report MIM
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
-          peek (Path_Report_View _) _ = undefined "doView1" :: Peek Report
-          peek (Path_Report) _ = undefined "doView2" :: Peek Report
+          peek (p@(Path_Report_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Report
           peekPath (Proxy) (Peek_Report_MIM _p _) = _p :: Path Report MIM
           peekValue (Proxy) (Peek_Report_MIM _ _x) = _x :: Maybe MIM
           peekCons _p _x = Peek_Report_MIM _p _x :: Peek Report
@@ -1661,8 +1594,7 @@ instance Paths Report CIString
     where type Path Report CIString = Path_Report CIString
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
-          peek (Path_Report_View _) _ = undefined "doView1" :: Peek Report
-          peek (Path_Report) _ = undefined "doView2" :: Peek Report
+          peek (p@(Path_Report_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Report
           peekPath (Proxy) (Peek_Report_CIString _p _) = _p :: Path Report CIString
           peekValue (Proxy) (Peek_Report_CIString _ _x) = _x :: Maybe CIString
           peekCons _p _x = Peek_Report_CIString _p _x :: Peek Report
@@ -1670,8 +1602,7 @@ instance Paths Report URI
     where type Path Report URI = Path_Report URI
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
-          peek (Path_Report_View _) _ = undefined "doView1" :: Peek Report
-          peek (Path_Report) _ = undefined "doView2" :: Peek Report
+          peek (p@(Path_Report_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Report
           peekPath (Proxy) (Peek_Report_URI _p _) = _p :: Path Report URI
           peekValue (Proxy) (Peek_Report_URI _ _x) = _x :: Maybe URI
           peekCons _p _x = Peek_Report_URI _p _x :: Peek Report
@@ -1679,8 +1610,7 @@ instance Paths Report Text
     where type Path Report Text = Path_Report Text
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
-          peek (Path_Report_View _) _ = undefined "doView1" :: Peek Report
-          peek (Path_Report) _ = undefined "doView2" :: Peek Report
+          peek (p@(Path_Report_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Report
           peekPath (Proxy) (Peek_Report_Text _p _) = _p :: Path Report Text
           peekValue (Proxy) (Peek_Report_Text _ _x) = _x :: Maybe Text
           peekCons _p _x = Peek_Report_Text _p _x :: Peek Report
@@ -1688,8 +1618,7 @@ instance Paths Report UserId
     where type Path Report UserId = Path_Report UserId
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
-          peek (Path_Report_View _) _ = undefined "doView1" :: Peek Report
-          peek (Path_Report) _ = undefined "doView2" :: Peek Report
+          peek (p@(Path_Report_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Report
           peekPath (Proxy) (Peek_Report_UserId _p _) = _p :: Path Report UserId
           peekValue (Proxy) (Peek_Report_UserId _ _x) = _x :: Maybe UserId
           peekCons _p _x = Peek_Report_UserId _p _x :: Peek Report
@@ -1697,8 +1626,7 @@ instance Paths Report UUID
     where type Path Report UUID = Path_Report UUID
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportView) _g)) (map (\a' -> (Path_Report_View,
                                                                                                   a')) (toListOf (toLens (Path_Report_View (idPath :: Path ReportView ReportView))) _s))
-          peek (Path_Report_View _) _ = undefined "doView1" :: Peek Report
-          peek (Path_Report) _ = undefined "doView2" :: Peek Report
+          peek (p@(Path_Report_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Report
           peekPath (Proxy) (Peek_Report_UUID _p _) = _p :: Path Report UUID
           peekValue (Proxy) (Peek_Report_UUID _ _x) = _x :: Maybe UUID
           peekCons _p _x = Peek_Report_UUID _p _x :: Peek Report
@@ -1707,8 +1635,7 @@ instance Paths ReportElem String
           paths (_s@(ReportItem {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Item) _g)) [(Path_ReportElem_elemItem, elemItem _s)]
           paths (_s@(ReportParagraph {})) _g = mempty
           paths (_s@(ReportUndecided {})) _g = mempty
-          peek (Path_ReportElem_elemItem _) _ = undefined "doField" :: Peek ReportElem
-          peek (Path_ReportElem_elemText _) _ = undefined "doField" :: Peek ReportElem
+          peek (p@(Path_ReportElem_elemItem _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportElem
           peekPath (Proxy) (Peek_ReportElem_String _p _) = _p :: Path ReportElem String
           peekValue (Proxy) (Peek_ReportElem_String _ _x) = _x :: Maybe String
           peekCons _p _x = Peek_ReportElem_String _p _x :: Peek ReportElem
@@ -1717,8 +1644,7 @@ instance Paths ReportElem Bool
           paths (_s@(ReportItem {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Item) _g)) [(Path_ReportElem_elemItem, elemItem _s)]
           paths (_s@(ReportParagraph {})) _g = mempty
           paths (_s@(ReportUndecided {})) _g = mempty
-          peek (Path_ReportElem_elemItem _) _ = undefined "doField" :: Peek ReportElem
-          peek (Path_ReportElem_elemText _) _ = undefined "doField" :: Peek ReportElem
+          peek (p@(Path_ReportElem_elemItem _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportElem
           peekPath (Proxy) (Peek_ReportElem_Bool _p _) = _p :: Path ReportElem Bool
           peekValue (Proxy) (Peek_ReportElem_Bool _ _x) = _x :: Maybe Bool
           peekCons _p _x = Peek_ReportElem_Bool _p _x :: Peek ReportElem
@@ -1727,8 +1653,7 @@ instance Paths ReportElem Double
           paths (_s@(ReportItem {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Item) _g)) [(Path_ReportElem_elemItem, elemItem _s)]
           paths (_s@(ReportParagraph {})) _g = mempty
           paths (_s@(ReportUndecided {})) _g = mempty
-          peek (Path_ReportElem_elemItem _) _ = undefined "doField" :: Peek ReportElem
-          peek (Path_ReportElem_elemText _) _ = undefined "doField" :: Peek ReportElem
+          peek (p@(Path_ReportElem_elemItem _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportElem
           peekPath (Proxy) (Peek_ReportElem_Double _p _) = _p :: Path ReportElem Double
           peekValue (Proxy) (Peek_ReportElem_Double _ _x) = _x :: Maybe Double
           peekCons _p _x = Peek_ReportElem_Double _p _x :: Peek ReportElem
@@ -1737,8 +1662,7 @@ instance Paths ReportElem Dimension
           paths (_s@(ReportItem {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Item) _g)) [(Path_ReportElem_elemItem, elemItem _s)]
           paths (_s@(ReportParagraph {})) _g = mempty
           paths (_s@(ReportUndecided {})) _g = mempty
-          peek (Path_ReportElem_elemItem _) _ = undefined "doField" :: Peek ReportElem
-          peek (Path_ReportElem_elemText _) _ = undefined "doField" :: Peek ReportElem
+          peek (p@(Path_ReportElem_elemItem _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportElem
           peekPath (Proxy) (Peek_ReportElem_Dimension _p _) = _p :: Path ReportElem Dimension
           peekValue (Proxy) (Peek_ReportElem_Dimension _ _x) = _x :: Maybe Dimension
           peekCons _p _x = Peek_ReportElem_Dimension _p _x :: Peek ReportElem
@@ -1747,8 +1671,7 @@ instance Paths ReportElem ImageCrop
           paths (_s@(ReportItem {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Item) _g)) [(Path_ReportElem_elemItem, elemItem _s)]
           paths (_s@(ReportParagraph {})) _g = mempty
           paths (_s@(ReportUndecided {})) _g = mempty
-          peek (Path_ReportElem_elemItem _) _ = undefined "doField" :: Peek ReportElem
-          peek (Path_ReportElem_elemText _) _ = undefined "doField" :: Peek ReportElem
+          peek (p@(Path_ReportElem_elemItem _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportElem
           peekPath (Proxy) (Peek_ReportElem_ImageCrop _p _) = _p :: Path ReportElem ImageCrop
           peekValue (Proxy) (Peek_ReportElem_ImageCrop _ _x) = _x :: Maybe ImageCrop
           peekCons _p _x = Peek_ReportElem_ImageCrop _p _x :: Peek ReportElem
@@ -1757,8 +1680,7 @@ instance Paths ReportElem ImageSize
           paths (_s@(ReportItem {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Item) _g)) [(Path_ReportElem_elemItem, elemItem _s)]
           paths (_s@(ReportParagraph {})) _g = mempty
           paths (_s@(ReportUndecided {})) _g = mempty
-          peek (Path_ReportElem_elemItem _) _ = undefined "doField" :: Peek ReportElem
-          peek (Path_ReportElem_elemText _) _ = undefined "doField" :: Peek ReportElem
+          peek (p@(Path_ReportElem_elemItem _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportElem
           peekPath (Proxy) (Peek_ReportElem_ImageSize _p _) = _p :: Path ReportElem ImageSize
           peekValue (Proxy) (Peek_ReportElem_ImageSize _ _x) = _x :: Maybe ImageSize
           peekCons _p _x = Peek_ReportElem_ImageSize _p _x :: Peek ReportElem
@@ -1767,8 +1689,7 @@ instance Paths ReportElem Units
           paths (_s@(ReportItem {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Item) _g)) [(Path_ReportElem_elemItem, elemItem _s)]
           paths (_s@(ReportParagraph {})) _g = mempty
           paths (_s@(ReportUndecided {})) _g = mempty
-          peek (Path_ReportElem_elemItem _) _ = undefined "doField" :: Peek ReportElem
-          peek (Path_ReportElem_elemText _) _ = undefined "doField" :: Peek ReportElem
+          peek (p@(Path_ReportElem_elemItem _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportElem
           peekPath (Proxy) (Peek_ReportElem_Units _p _) = _p :: Path ReportElem Units
           peekValue (Proxy) (Peek_ReportElem_Units _ _x) = _x :: Maybe Units
           peekCons _p _x = Peek_ReportElem_Units _p _x :: Peek ReportElem
@@ -1777,8 +1698,7 @@ instance Paths ReportElem ImageFile
           paths (_s@(ReportItem {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Item) _g)) [(Path_ReportElem_elemItem, elemItem _s)]
           paths (_s@(ReportParagraph {})) _g = mempty
           paths (_s@(ReportUndecided {})) _g = mempty
-          peek (Path_ReportElem_elemItem _) _ = undefined "doField" :: Peek ReportElem
-          peek (Path_ReportElem_elemText _) _ = undefined "doField" :: Peek ReportElem
+          peek (p@(Path_ReportElem_elemItem _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportElem
           peekPath (Proxy) (Peek_ReportElem_ImageFile _p _) = _p :: Path ReportElem ImageFile
           peekValue (Proxy) (Peek_ReportElem_ImageFile _ _x) = _x :: Maybe ImageFile
           peekCons _p _x = Peek_ReportElem_ImageFile _p _x :: Peek ReportElem
@@ -1787,8 +1707,8 @@ instance Paths ReportElem JSONText
           paths (_s@(ReportItem {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Item) _g)) [(Path_ReportElem_elemItem, elemItem _s)]
           paths (_s@(ReportParagraph {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_ReportElem_elemText, elemText _s)]
           paths (_s@(ReportUndecided {})) _g = mempty
-          peek (Path_ReportElem_elemItem _) _ = undefined "doField" :: Peek ReportElem
-          peek (Path_ReportElem_elemText _) _ = undefined "doField" :: Peek ReportElem
+          peek (p@(Path_ReportElem_elemItem _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportElem
+          peek (p@(Path_ReportElem_elemText _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportElem
           peekPath (Proxy) (Peek_ReportElem_JSONText _p _) = _p :: Path ReportElem JSONText
           peekValue (Proxy) (Peek_ReportElem_JSONText _ _x) = _x :: Maybe JSONText
           peekCons _p _x = Peek_ReportElem_JSONText _p _x :: Peek ReportElem
@@ -1797,15 +1717,15 @@ instance Paths ReportElem Markup
           paths (_s@(ReportItem {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Item) _g)) [(Path_ReportElem_elemItem, elemItem _s)]
           paths (_s@(ReportParagraph {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_ReportElem_elemText, elemText _s)]
           paths (_s@(ReportUndecided {})) _g = mempty
-          peek (Path_ReportElem_elemItem _) _ = undefined "doField" :: Peek ReportElem
-          peek (Path_ReportElem_elemText _) _ = undefined "doField" :: Peek ReportElem
+          peek (p@(Path_ReportElem_elemItem _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportElem
+          peek (p@(Path_ReportElem_elemText _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportElem
           peekPath (Proxy) (Peek_ReportElem_Markup _p _) = _p :: Path ReportElem Markup
           peekValue (Proxy) (Peek_ReportElem_Markup _ _x) = _x :: Maybe Markup
           peekCons _p _x = Peek_ReportElem_Markup _p _x :: Peek ReportElem
 instance Paths ReportElem ReportElem
     where type Path ReportElem ReportElem = Path_ReportElem ReportElem
           paths _ _ = [idPath]
-          peek _ _ = undefined "idpeek" :: Peek ReportElem
+          peek p x = peekCons p (Just x) :: Peek ReportElem
           peekPath (Proxy) (Peek_ReportElem_ReportElem _p _) = _p :: Path ReportElem ReportElem
           peekValue (Proxy) (Peek_ReportElem_ReportElem _ _x) = _x :: Maybe ReportElem
           peekCons _p _x = Peek_ReportElem_ReportElem _p _x :: Peek ReportElem
@@ -1814,8 +1734,7 @@ instance Paths ReportElem EUI
           paths (_s@(ReportItem {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Item) _g)) [(Path_ReportElem_elemItem, elemItem _s)]
           paths (_s@(ReportParagraph {})) _g = mempty
           paths (_s@(ReportUndecided {})) _g = mempty
-          peek (Path_ReportElem_elemItem _) _ = undefined "doField" :: Peek ReportElem
-          peek (Path_ReportElem_elemText _) _ = undefined "doField" :: Peek ReportElem
+          peek (p@(Path_ReportElem_elemItem _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportElem
           peekPath (Proxy) (Peek_ReportElem_EUI _p _) = _p :: Path ReportElem EUI
           peekValue (Proxy) (Peek_ReportElem_EUI _ _x) = _x :: Maybe EUI
           peekCons _p _x = Peek_ReportElem_EUI _p _x :: Peek ReportElem
@@ -1824,8 +1743,7 @@ instance Paths ReportElem MEUI
           paths (_s@(ReportItem {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Item) _g)) [(Path_ReportElem_elemItem, elemItem _s)]
           paths (_s@(ReportParagraph {})) _g = mempty
           paths (_s@(ReportUndecided {})) _g = mempty
-          peek (Path_ReportElem_elemItem _) _ = undefined "doField" :: Peek ReportElem
-          peek (Path_ReportElem_elemText _) _ = undefined "doField" :: Peek ReportElem
+          peek (p@(Path_ReportElem_elemItem _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportElem
           peekPath (Proxy) (Peek_ReportElem_MEUI _p _) = _p :: Path ReportElem MEUI
           peekValue (Proxy) (Peek_ReportElem_MEUI _ _x) = _x :: Maybe MEUI
           peekCons _p _x = Peek_ReportElem_MEUI _p _x :: Peek ReportElem
@@ -1834,8 +1752,7 @@ instance Paths ReportElem MaybeImageFile
           paths (_s@(ReportItem {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Item) _g)) [(Path_ReportElem_elemItem, elemItem _s)]
           paths (_s@(ReportParagraph {})) _g = mempty
           paths (_s@(ReportUndecided {})) _g = mempty
-          peek (Path_ReportElem_elemItem _) _ = undefined "doField" :: Peek ReportElem
-          peek (Path_ReportElem_elemText _) _ = undefined "doField" :: Peek ReportElem
+          peek (p@(Path_ReportElem_elemItem _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportElem
           peekPath (Proxy) (Peek_ReportElem_MaybeImageFile _p _) = _p :: Path ReportElem MaybeImageFile
           peekValue (Proxy) (Peek_ReportElem_MaybeImageFile _ _x) = _x :: Maybe MaybeImageFile
           peekCons _p _x = Peek_ReportElem_MaybeImageFile _p _x :: Peek ReportElem
@@ -1844,8 +1761,7 @@ instance Paths ReportElem ReportImage
           paths (_s@(ReportItem {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Item) _g)) [(Path_ReportElem_elemItem, elemItem _s)]
           paths (_s@(ReportParagraph {})) _g = mempty
           paths (_s@(ReportUndecided {})) _g = mempty
-          peek (Path_ReportElem_elemItem _) _ = undefined "doField" :: Peek ReportElem
-          peek (Path_ReportElem_elemText _) _ = undefined "doField" :: Peek ReportElem
+          peek (p@(Path_ReportElem_elemItem _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportElem
           peekPath (Proxy) (Peek_ReportElem_ReportImage _p _) = _p :: Path ReportElem ReportImage
           peekValue (Proxy) (Peek_ReportElem_ReportImage _ _x) = _x :: Maybe ReportImage
           peekCons _p _x = Peek_ReportElem_ReportImage _p _x :: Peek ReportElem
@@ -1854,8 +1770,7 @@ instance Paths ReportElem ReportImages
           paths (_s@(ReportItem {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Item) _g)) [(Path_ReportElem_elemItem, elemItem _s)]
           paths (_s@(ReportParagraph {})) _g = mempty
           paths (_s@(ReportUndecided {})) _g = mempty
-          peek (Path_ReportElem_elemItem _) _ = undefined "doField" :: Peek ReportElem
-          peek (Path_ReportElem_elemText _) _ = undefined "doField" :: Peek ReportElem
+          peek (p@(Path_ReportElem_elemItem _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportElem
           peekPath (Proxy) (Peek_ReportElem_ReportImages _p _) = _p :: Path ReportElem ReportImages
           peekValue (Proxy) (Peek_ReportElem_ReportImages _ _x) = _x :: Maybe ReportImages
           peekCons _p _x = Peek_ReportElem_ReportImages _p _x :: Peek ReportElem
@@ -1864,8 +1779,7 @@ instance Paths ReportElem ReportImageView
           paths (_s@(ReportItem {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Item) _g)) [(Path_ReportElem_elemItem, elemItem _s)]
           paths (_s@(ReportParagraph {})) _g = mempty
           paths (_s@(ReportUndecided {})) _g = mempty
-          peek (Path_ReportElem_elemItem _) _ = undefined "doField" :: Peek ReportElem
-          peek (Path_ReportElem_elemText _) _ = undefined "doField" :: Peek ReportElem
+          peek (p@(Path_ReportElem_elemItem _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportElem
           peekPath (Proxy) (Peek_ReportElem_ReportImageView _p _) = _p :: Path ReportElem ReportImageView
           peekValue (Proxy) (Peek_ReportElem_ReportImageView _ _x) = _x :: Maybe ReportImageView
           peekCons _p _x = Peek_ReportElem_ReportImageView _p _x :: Peek ReportElem
@@ -1874,8 +1788,7 @@ instance Paths ReportElem SaneSizeImageSize
           paths (_s@(ReportItem {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Item) _g)) [(Path_ReportElem_elemItem, elemItem _s)]
           paths (_s@(ReportParagraph {})) _g = mempty
           paths (_s@(ReportUndecided {})) _g = mempty
-          peek (Path_ReportElem_elemItem _) _ = undefined "doField" :: Peek ReportElem
-          peek (Path_ReportElem_elemText _) _ = undefined "doField" :: Peek ReportElem
+          peek (p@(Path_ReportElem_elemItem _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportElem
           peekPath (Proxy) (Peek_ReportElem_SaneSizeImageSize _p _) = _p :: Path ReportElem SaneSizeImageSize
           peekValue (Proxy) (Peek_ReportElem_SaneSizeImageSize _ _x) = _x :: Maybe SaneSizeImageSize
           peekCons _p _x = Peek_ReportElem_SaneSizeImageSize _p _x :: Peek ReportElem
@@ -1884,8 +1797,7 @@ instance Paths ReportElem Item
           paths (_s@(ReportItem {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Item) _g)) [(Path_ReportElem_elemItem, elemItem _s)]
           paths (_s@(ReportParagraph {})) _g = mempty
           paths (_s@(ReportUndecided {})) _g = mempty
-          peek (Path_ReportElem_elemItem _) _ = undefined "doField" :: Peek ReportElem
-          peek (Path_ReportElem_elemText _) _ = undefined "doField" :: Peek ReportElem
+          peek (p@(Path_ReportElem_elemItem _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportElem
           peekPath (Proxy) (Peek_ReportElem_Item _p _) = _p :: Path ReportElem Item
           peekValue (Proxy) (Peek_ReportElem_Item _ _x) = _x :: Maybe Item
           peekCons _p _x = Peek_ReportElem_Item _p _x :: Peek ReportElem
@@ -1894,8 +1806,7 @@ instance Paths ReportElem MIM
           paths (_s@(ReportItem {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Item) _g)) [(Path_ReportElem_elemItem, elemItem _s)]
           paths (_s@(ReportParagraph {})) _g = mempty
           paths (_s@(ReportUndecided {})) _g = mempty
-          peek (Path_ReportElem_elemItem _) _ = undefined "doField" :: Peek ReportElem
-          peek (Path_ReportElem_elemText _) _ = undefined "doField" :: Peek ReportElem
+          peek (p@(Path_ReportElem_elemItem _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportElem
           peekPath (Proxy) (Peek_ReportElem_MIM _p _) = _p :: Path ReportElem MIM
           peekValue (Proxy) (Peek_ReportElem_MIM _ _x) = _x :: Maybe MIM
           peekCons _p _x = Peek_ReportElem_MIM _p _x :: Peek ReportElem
@@ -1904,8 +1815,7 @@ instance Paths ReportElem URI
           paths (_s@(ReportItem {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Item) _g)) [(Path_ReportElem_elemItem, elemItem _s)]
           paths (_s@(ReportParagraph {})) _g = mempty
           paths (_s@(ReportUndecided {})) _g = mempty
-          peek (Path_ReportElem_elemItem _) _ = undefined "doField" :: Peek ReportElem
-          peek (Path_ReportElem_elemText _) _ = undefined "doField" :: Peek ReportElem
+          peek (p@(Path_ReportElem_elemItem _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportElem
           peekPath (Proxy) (Peek_ReportElem_URI _p _) = _p :: Path ReportElem URI
           peekValue (Proxy) (Peek_ReportElem_URI _ _x) = _x :: Maybe URI
           peekCons _p _x = Peek_ReportElem_URI _p _x :: Peek ReportElem
@@ -1914,197 +1824,197 @@ instance Paths ReportElem Text
           paths (_s@(ReportItem {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Item) _g)) [(Path_ReportElem_elemItem, elemItem _s)]
           paths (_s@(ReportParagraph {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_ReportElem_elemText, elemText _s)]
           paths (_s@(ReportUndecided {})) _g = mempty
-          peek (Path_ReportElem_elemItem _) _ = undefined "doField" :: Peek ReportElem
-          peek (Path_ReportElem_elemText _) _ = undefined "doField" :: Peek ReportElem
+          peek (p@(Path_ReportElem_elemItem _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportElem
+          peek (p@(Path_ReportElem_elemText _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportElem
           peekPath (Proxy) (Peek_ReportElem_Text _p _) = _p :: Path ReportElem Text
           peekValue (Proxy) (Peek_ReportElem_Text _ _x) = _x :: Maybe Text
           peekCons _p _x = Peek_ReportElem_Text _p _x :: Peek ReportElem
 instance Paths ReportElems String
     where type Path ReportElems String = Path_OMap ReportElemID (Path_ReportElem String)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
-          peek _ _ = undefined "idpeek" :: Peek ReportElems
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportElems
           peekPath (Proxy) (Peek_ReportElems_String _p _) = _p :: Path ReportElems String
           peekValue (Proxy) (Peek_ReportElems_String _ _x) = _x :: Maybe String
           peekCons _p _x = Peek_ReportElems_String _p _x :: Peek ReportElems
 instance Paths ReportElems Bool
     where type Path ReportElems Bool = Path_OMap ReportElemID (Path_ReportElem Bool)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
-          peek _ _ = undefined "idpeek" :: Peek ReportElems
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportElems
           peekPath (Proxy) (Peek_ReportElems_Bool _p _) = _p :: Path ReportElems Bool
           peekValue (Proxy) (Peek_ReportElems_Bool _ _x) = _x :: Maybe Bool
           peekCons _p _x = Peek_ReportElems_Bool _p _x :: Peek ReportElems
 instance Paths ReportElems Double
     where type Path ReportElems Double = Path_OMap ReportElemID (Path_ReportElem Double)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
-          peek _ _ = undefined "idpeek" :: Peek ReportElems
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportElems
           peekPath (Proxy) (Peek_ReportElems_Double _p _) = _p :: Path ReportElems Double
           peekValue (Proxy) (Peek_ReportElems_Double _ _x) = _x :: Maybe Double
           peekCons _p _x = Peek_ReportElems_Double _p _x :: Peek ReportElems
 instance Paths ReportElems Dimension
     where type Path ReportElems Dimension = Path_OMap ReportElemID (Path_ReportElem Dimension)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
-          peek _ _ = undefined "idpeek" :: Peek ReportElems
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportElems
           peekPath (Proxy) (Peek_ReportElems_Dimension _p _) = _p :: Path ReportElems Dimension
           peekValue (Proxy) (Peek_ReportElems_Dimension _ _x) = _x :: Maybe Dimension
           peekCons _p _x = Peek_ReportElems_Dimension _p _x :: Peek ReportElems
 instance Paths ReportElems ImageCrop
     where type Path ReportElems ImageCrop = Path_OMap ReportElemID (Path_ReportElem ImageCrop)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
-          peek _ _ = undefined "idpeek" :: Peek ReportElems
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportElems
           peekPath (Proxy) (Peek_ReportElems_ImageCrop _p _) = _p :: Path ReportElems ImageCrop
           peekValue (Proxy) (Peek_ReportElems_ImageCrop _ _x) = _x :: Maybe ImageCrop
           peekCons _p _x = Peek_ReportElems_ImageCrop _p _x :: Peek ReportElems
 instance Paths ReportElems ImageSize
     where type Path ReportElems ImageSize = Path_OMap ReportElemID (Path_ReportElem ImageSize)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
-          peek _ _ = undefined "idpeek" :: Peek ReportElems
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportElems
           peekPath (Proxy) (Peek_ReportElems_ImageSize _p _) = _p :: Path ReportElems ImageSize
           peekValue (Proxy) (Peek_ReportElems_ImageSize _ _x) = _x :: Maybe ImageSize
           peekCons _p _x = Peek_ReportElems_ImageSize _p _x :: Peek ReportElems
 instance Paths ReportElems Units
     where type Path ReportElems Units = Path_OMap ReportElemID (Path_ReportElem Units)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
-          peek _ _ = undefined "idpeek" :: Peek ReportElems
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportElems
           peekPath (Proxy) (Peek_ReportElems_Units _p _) = _p :: Path ReportElems Units
           peekValue (Proxy) (Peek_ReportElems_Units _ _x) = _x :: Maybe Units
           peekCons _p _x = Peek_ReportElems_Units _p _x :: Peek ReportElems
 instance Paths ReportElems ImageFile
     where type Path ReportElems ImageFile = Path_OMap ReportElemID (Path_ReportElem ImageFile)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
-          peek _ _ = undefined "idpeek" :: Peek ReportElems
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportElems
           peekPath (Proxy) (Peek_ReportElems_ImageFile _p _) = _p :: Path ReportElems ImageFile
           peekValue (Proxy) (Peek_ReportElems_ImageFile _ _x) = _x :: Maybe ImageFile
           peekCons _p _x = Peek_ReportElems_ImageFile _p _x :: Peek ReportElems
 instance Paths ReportElems JSONText
     where type Path ReportElems JSONText = Path_OMap ReportElemID (Path_ReportElem JSONText)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
-          peek _ _ = undefined "idpeek" :: Peek ReportElems
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportElems
           peekPath (Proxy) (Peek_ReportElems_JSONText _p _) = _p :: Path ReportElems JSONText
           peekValue (Proxy) (Peek_ReportElems_JSONText _ _x) = _x :: Maybe JSONText
           peekCons _p _x = Peek_ReportElems_JSONText _p _x :: Peek ReportElems
 instance Paths ReportElems Markup
     where type Path ReportElems Markup = Path_OMap ReportElemID (Path_ReportElem Markup)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
-          peek _ _ = undefined "idpeek" :: Peek ReportElems
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportElems
           peekPath (Proxy) (Peek_ReportElems_Markup _p _) = _p :: Path ReportElems Markup
           peekValue (Proxy) (Peek_ReportElems_Markup _ _x) = _x :: Maybe Markup
           peekCons _p _x = Peek_ReportElems_Markup _p _x :: Peek ReportElems
 instance Paths ReportElems ReportElem
     where type Path ReportElems ReportElem = Path_OMap ReportElemID (Path_ReportElem ReportElem)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
-          peek _ _ = undefined "idpeek" :: Peek ReportElems
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportElems
           peekPath (Proxy) (Peek_ReportElems_ReportElem _p _) = _p :: Path ReportElems ReportElem
           peekValue (Proxy) (Peek_ReportElems_ReportElem _ _x) = _x :: Maybe ReportElem
           peekCons _p _x = Peek_ReportElems_ReportElem _p _x :: Peek ReportElems
 instance Paths ReportElems ReportElems
     where type Path ReportElems ReportElems = Path_OMap ReportElemID (Path_ReportElem ReportElems)
           paths _ _ = [idPath]
-          peek _ _ = undefined "idpeek" :: Peek ReportElems
+          peek p x = peekCons p (Just x) :: Peek ReportElems
           peekPath (Proxy) (Peek_ReportElems_ReportElems _p _) = _p :: Path ReportElems ReportElems
           peekValue (Proxy) (Peek_ReportElems_ReportElems _ _x) = _x :: Maybe ReportElems
           peekCons _p _x = Peek_ReportElems_ReportElems _p _x :: Peek ReportElems
 instance Paths ReportElems EUI
     where type Path ReportElems EUI = Path_OMap ReportElemID (Path_ReportElem EUI)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
-          peek _ _ = undefined "idpeek" :: Peek ReportElems
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportElems
           peekPath (Proxy) (Peek_ReportElems_EUI _p _) = _p :: Path ReportElems EUI
           peekValue (Proxy) (Peek_ReportElems_EUI _ _x) = _x :: Maybe EUI
           peekCons _p _x = Peek_ReportElems_EUI _p _x :: Peek ReportElems
 instance Paths ReportElems MEUI
     where type Path ReportElems MEUI = Path_OMap ReportElemID (Path_ReportElem MEUI)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
-          peek _ _ = undefined "idpeek" :: Peek ReportElems
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportElems
           peekPath (Proxy) (Peek_ReportElems_MEUI _p _) = _p :: Path ReportElems MEUI
           peekValue (Proxy) (Peek_ReportElems_MEUI _ _x) = _x :: Maybe MEUI
           peekCons _p _x = Peek_ReportElems_MEUI _p _x :: Peek ReportElems
 instance Paths ReportElems MaybeImageFile
     where type Path ReportElems MaybeImageFile = Path_OMap ReportElemID (Path_ReportElem MaybeImageFile)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
-          peek _ _ = undefined "idpeek" :: Peek ReportElems
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportElems
           peekPath (Proxy) (Peek_ReportElems_MaybeImageFile _p _) = _p :: Path ReportElems MaybeImageFile
           peekValue (Proxy) (Peek_ReportElems_MaybeImageFile _ _x) = _x :: Maybe MaybeImageFile
           peekCons _p _x = Peek_ReportElems_MaybeImageFile _p _x :: Peek ReportElems
 instance Paths ReportElems ReportImage
     where type Path ReportElems ReportImage = Path_OMap ReportElemID (Path_ReportElem ReportImage)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
-          peek _ _ = undefined "idpeek" :: Peek ReportElems
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportElems
           peekPath (Proxy) (Peek_ReportElems_ReportImage _p _) = _p :: Path ReportElems ReportImage
           peekValue (Proxy) (Peek_ReportElems_ReportImage _ _x) = _x :: Maybe ReportImage
           peekCons _p _x = Peek_ReportElems_ReportImage _p _x :: Peek ReportElems
 instance Paths ReportElems ReportImages
     where type Path ReportElems ReportImages = Path_OMap ReportElemID (Path_ReportElem ReportImages)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
-          peek _ _ = undefined "idpeek" :: Peek ReportElems
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportElems
           peekPath (Proxy) (Peek_ReportElems_ReportImages _p _) = _p :: Path ReportElems ReportImages
           peekValue (Proxy) (Peek_ReportElems_ReportImages _ _x) = _x :: Maybe ReportImages
           peekCons _p _x = Peek_ReportElems_ReportImages _p _x :: Peek ReportElems
 instance Paths ReportElems ReportImageView
     where type Path ReportElems ReportImageView = Path_OMap ReportElemID (Path_ReportElem ReportImageView)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
-          peek _ _ = undefined "idpeek" :: Peek ReportElems
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportElems
           peekPath (Proxy) (Peek_ReportElems_ReportImageView _p _) = _p :: Path ReportElems ReportImageView
           peekValue (Proxy) (Peek_ReportElems_ReportImageView _ _x) = _x :: Maybe ReportImageView
           peekCons _p _x = Peek_ReportElems_ReportImageView _p _x :: Peek ReportElems
 instance Paths ReportElems SaneSizeImageSize
     where type Path ReportElems SaneSizeImageSize = Path_OMap ReportElemID (Path_ReportElem SaneSizeImageSize)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
-          peek _ _ = undefined "idpeek" :: Peek ReportElems
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportElems
           peekPath (Proxy) (Peek_ReportElems_SaneSizeImageSize _p _) = _p :: Path ReportElems SaneSizeImageSize
           peekValue (Proxy) (Peek_ReportElems_SaneSizeImageSize _ _x) = _x :: Maybe SaneSizeImageSize
           peekCons _p _x = Peek_ReportElems_SaneSizeImageSize _p _x :: Peek ReportElems
 instance Paths ReportElems Item
     where type Path ReportElems Item = Path_OMap ReportElemID (Path_ReportElem Item)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
-          peek _ _ = undefined "idpeek" :: Peek ReportElems
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportElems
           peekPath (Proxy) (Peek_ReportElems_Item _p _) = _p :: Path ReportElems Item
           peekValue (Proxy) (Peek_ReportElems_Item _ _x) = _x :: Maybe Item
           peekCons _p _x = Peek_ReportElems_Item _p _x :: Peek ReportElems
 instance Paths ReportElems MIM
     where type Path ReportElems MIM = Path_OMap ReportElemID (Path_ReportElem MIM)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
-          peek _ _ = undefined "idpeek" :: Peek ReportElems
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportElems
           peekPath (Proxy) (Peek_ReportElems_MIM _p _) = _p :: Path ReportElems MIM
           peekValue (Proxy) (Peek_ReportElems_MIM _ _x) = _x :: Maybe MIM
           peekCons _p _x = Peek_ReportElems_MIM _p _x :: Peek ReportElems
 instance Paths ReportElems URI
     where type Path ReportElems URI = Path_OMap ReportElemID (Path_ReportElem URI)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
-          peek _ _ = undefined "idpeek" :: Peek ReportElems
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportElems
           peekPath (Proxy) (Peek_ReportElems_URI _p _) = _p :: Path ReportElems URI
           peekValue (Proxy) (Peek_ReportElems_URI _ _x) = _x :: Maybe URI
           peekCons _p _x = Peek_ReportElems_URI _p _x :: Peek ReportElems
 instance Paths ReportElems Text
     where type Path ReportElems Text = Path_OMap ReportElemID (Path_ReportElem Text)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElem) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
-          peek _ _ = undefined "idpeek" :: Peek ReportElems
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportElems
           peekPath (Proxy) (Peek_ReportElems_Text _p _) = _p :: Path ReportElems Text
           peekValue (Proxy) (Peek_ReportElems_Text _ _x) = _x :: Maybe Text
           peekCons _p _x = Peek_ReportElems_Text _p _x :: Peek ReportElems
 instance Paths ReportFlags String
     where type Path ReportFlags String = Path_ReportFlags String
           paths (_s@(ReportFlags {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Bool) _g)) [(Path_ReportFlags_hideEmptyItemFields, hideEmptyItemFields _s)]
-          peek (Path_ReportFlags_hideEmptyItemFields _) _ = undefined "doField" :: Peek ReportFlags
+          peek (p@(Path_ReportFlags_hideEmptyItemFields _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportFlags
           peekPath (Proxy) (Peek_ReportFlags_String _p _) = _p :: Path ReportFlags String
           peekValue (Proxy) (Peek_ReportFlags_String _ _x) = _x :: Maybe String
           peekCons _p _x = Peek_ReportFlags_String _p _x :: Peek ReportFlags
 instance Paths ReportFlags Bool
     where type Path ReportFlags Bool = Path_ReportFlags Bool
           paths (_s@(ReportFlags {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Bool) _g)) [(Path_ReportFlags_hideEmptyItemFields, hideEmptyItemFields _s)]
-          peek (Path_ReportFlags_hideEmptyItemFields _) _ = undefined "doField" :: Peek ReportFlags
+          peek (p@(Path_ReportFlags_hideEmptyItemFields _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportFlags
           peekPath (Proxy) (Peek_ReportFlags_Bool _p _) = _p :: Path ReportFlags Bool
           peekValue (Proxy) (Peek_ReportFlags_Bool _ _x) = _x :: Maybe Bool
           peekCons _p _x = Peek_ReportFlags_Bool _p _x :: Peek ReportFlags
 instance Paths ReportFlags JSONText
     where type Path ReportFlags JSONText = Path_ReportFlags JSONText
           paths (_s@(ReportFlags {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Bool) _g)) [(Path_ReportFlags_hideEmptyItemFields, hideEmptyItemFields _s)]
-          peek (Path_ReportFlags_hideEmptyItemFields _) _ = undefined "doField" :: Peek ReportFlags
+          peek (p@(Path_ReportFlags_hideEmptyItemFields _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportFlags
           peekPath (Proxy) (Peek_ReportFlags_JSONText _p _) = _p :: Path ReportFlags JSONText
           peekValue (Proxy) (Peek_ReportFlags_JSONText _ _x) = _x :: Maybe JSONText
           peekCons _p _x = Peek_ReportFlags_JSONText _p _x :: Peek ReportFlags
 instance Paths ReportFlags ReportFlags
     where type Path ReportFlags ReportFlags = Path_ReportFlags ReportFlags
           paths _ _ = [idPath]
-          peek _ _ = undefined "idpeek" :: Peek ReportFlags
+          peek p x = peekCons p (Just x) :: Peek ReportFlags
           peekPath (Proxy) (Peek_ReportFlags_ReportFlags _p _) = _p :: Path ReportFlags ReportFlags
           peekValue (Proxy) (Peek_ReportFlags_ReportFlags _ _x) = _x :: Maybe ReportFlags
           peekCons _p _x = Peek_ReportFlags_ReportFlags _p _x :: Peek ReportFlags
@@ -2112,8 +2022,7 @@ instance Paths ReportIntendedUse String
     where type Path ReportIntendedUse String = Path_ReportIntendedUse String
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: String) _g)) (map (\a' -> (Path_ReportIntendedUse_View,
                                                                                               a')) (toListOf (toLens (Path_ReportIntendedUse_View (idPath :: Path String String))) _s))
-          peek (Path_ReportIntendedUse_View _) _ = undefined "doView1" :: Peek ReportIntendedUse
-          peek (Path_ReportIntendedUse) _ = undefined "doView2" :: Peek ReportIntendedUse
+          peek (p@(Path_ReportIntendedUse_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportIntendedUse
           peekPath (Proxy) (Peek_ReportIntendedUse_String _p _) = _p :: Path ReportIntendedUse String
           peekValue (Proxy) (Peek_ReportIntendedUse_String _ _x) = _x :: Maybe String
           peekCons _p _x = Peek_ReportIntendedUse_String _p _x :: Peek ReportIntendedUse
@@ -2121,29 +2030,28 @@ instance Paths ReportIntendedUse JSONText
     where type Path ReportIntendedUse JSONText = Path_ReportIntendedUse JSONText
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: String) _g)) (map (\a' -> (Path_ReportIntendedUse_View,
                                                                                               a')) (toListOf (toLens (Path_ReportIntendedUse_View (idPath :: Path String String))) _s))
-          peek (Path_ReportIntendedUse_View _) _ = undefined "doView1" :: Peek ReportIntendedUse
-          peek (Path_ReportIntendedUse) _ = undefined "doView2" :: Peek ReportIntendedUse
+          peek (p@(Path_ReportIntendedUse_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportIntendedUse
           peekPath (Proxy) (Peek_ReportIntendedUse_JSONText _p _) = _p :: Path ReportIntendedUse JSONText
           peekValue (Proxy) (Peek_ReportIntendedUse_JSONText _ _x) = _x :: Maybe JSONText
           peekCons _p _x = Peek_ReportIntendedUse_JSONText _p _x :: Peek ReportIntendedUse
 instance Paths ReportIntendedUse ReportIntendedUse
     where type Path ReportIntendedUse ReportIntendedUse = Path_ReportIntendedUse ReportIntendedUse
           paths _ _ = [idPath]
-          peek _ _ = undefined "idpeek" :: Peek ReportIntendedUse
+          peek p x = peekCons p (Just x) :: Peek ReportIntendedUse
           peekPath (Proxy) (Peek_ReportIntendedUse_ReportIntendedUse _p _) = _p :: Path ReportIntendedUse ReportIntendedUse
           peekValue (Proxy) (Peek_ReportIntendedUse_ReportIntendedUse _ _x) = _x :: Maybe ReportIntendedUse
           peekCons _p _x = Peek_ReportIntendedUse_ReportIntendedUse _p _x :: Peek ReportIntendedUse
 instance Paths ReportStandard Int
     where type Path ReportStandard Int = Path_ReportStandard Int
           paths (_s@(ReportStandard {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Int) _g)) [(Path_ReportStandard_unReportStandard, unReportStandard _s)]
-          peek (Path_ReportStandard_unReportStandard _) _ = undefined "doField" :: Peek ReportStandard
+          peek (p@(Path_ReportStandard_unReportStandard _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportStandard
           peekPath (Proxy) (Peek_ReportStandard_Int _p _) = _p :: Path ReportStandard Int
           peekValue (Proxy) (Peek_ReportStandard_Int _ _x) = _x :: Maybe Int
           peekCons _p _x = Peek_ReportStandard_Int _p _x :: Peek ReportStandard
 instance Paths ReportStandard ReportStandard
     where type Path ReportStandard ReportStandard = Path_ReportStandard ReportStandard
           paths _ _ = [idPath]
-          peek _ _ = undefined "idpeek" :: Peek ReportStandard
+          peek p x = peekCons p (Just x) :: Peek ReportStandard
           peekPath (Proxy) (Peek_ReportStandard_ReportStandard _p _) = _p :: Path ReportStandard ReportStandard
           peekValue (Proxy) (Peek_ReportStandard_ReportStandard _ _x) = _x :: Maybe ReportStandard
           peekCons _p _x = Peek_ReportStandard_ReportStandard _p _x :: Peek ReportStandard
@@ -2151,8 +2059,7 @@ instance Paths ReportStatus String
     where type Path ReportStatus String = Path_ReportStatus String
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: String) _g)) (map (\a' -> (Path_ReportStatus_View,
                                                                                               a')) (toListOf (toLens (Path_ReportStatus_View (idPath :: Path String String))) _s))
-          peek (Path_ReportStatus_View _) _ = undefined "doView1" :: Peek ReportStatus
-          peek (Path_ReportStatus) _ = undefined "doView2" :: Peek ReportStatus
+          peek (p@(Path_ReportStatus_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportStatus
           peekPath (Proxy) (Peek_ReportStatus_String _p _) = _p :: Path ReportStatus String
           peekValue (Proxy) (Peek_ReportStatus_String _ _x) = _x :: Maybe String
           peekCons _p _x = Peek_ReportStatus_String _p _x :: Peek ReportStatus
@@ -2160,15 +2067,14 @@ instance Paths ReportStatus JSONText
     where type Path ReportStatus JSONText = Path_ReportStatus JSONText
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: String) _g)) (map (\a' -> (Path_ReportStatus_View,
                                                                                               a')) (toListOf (toLens (Path_ReportStatus_View (idPath :: Path String String))) _s))
-          peek (Path_ReportStatus_View _) _ = undefined "doView1" :: Peek ReportStatus
-          peek (Path_ReportStatus) _ = undefined "doView2" :: Peek ReportStatus
+          peek (p@(Path_ReportStatus_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportStatus
           peekPath (Proxy) (Peek_ReportStatus_JSONText _p _) = _p :: Path ReportStatus JSONText
           peekValue (Proxy) (Peek_ReportStatus_JSONText _ _x) = _x :: Maybe JSONText
           peekCons _p _x = Peek_ReportStatus_JSONText _p _x :: Peek ReportStatus
 instance Paths ReportStatus ReportStatus
     where type Path ReportStatus ReportStatus = Path_ReportStatus ReportStatus
           paths _ _ = [idPath]
-          peek _ _ = undefined "idpeek" :: Peek ReportStatus
+          peek p x = peekCons p (Just x) :: Peek ReportStatus
           peekPath (Proxy) (Peek_ReportStatus_ReportStatus _p _) = _p :: Path ReportStatus ReportStatus
           peekValue (Proxy) (Peek_ReportStatus_ReportStatus _ _x) = _x :: Maybe ReportStatus
           peekCons _p _x = Peek_ReportStatus_ReportStatus _p _x :: Peek ReportStatus
@@ -2177,8 +2083,8 @@ instance Paths ReportValueApproachInfo JSONText
           paths (_s@(ReportValueApproachInfo {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_ReportValueApproachInfo_reportValueApproachName,
                                                                                                                           reportValueApproachName _s)],
                                                                 concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_ReportValueApproachInfo_reportValueApproachDescription, reportValueApproachDescription _s)]]
-          peek (Path_ReportValueApproachInfo_reportValueApproachName _) _ = undefined "doField" :: Peek ReportValueApproachInfo
-          peek (Path_ReportValueApproachInfo_reportValueApproachDescription _) _ = undefined "doField" :: Peek ReportValueApproachInfo
+          peek (p@(Path_ReportValueApproachInfo_reportValueApproachName _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportValueApproachInfo
+          peek (p@(Path_ReportValueApproachInfo_reportValueApproachDescription _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportValueApproachInfo
           peekPath (Proxy) (Peek_ReportValueApproachInfo_JSONText _p _) = _p :: Path ReportValueApproachInfo JSONText
           peekValue (Proxy) (Peek_ReportValueApproachInfo_JSONText _ _x) = _x :: Maybe JSONText
           peekCons _p _x = Peek_ReportValueApproachInfo_JSONText _p _x :: Peek ReportValueApproachInfo
@@ -2187,15 +2093,15 @@ instance Paths ReportValueApproachInfo Markup
           paths (_s@(ReportValueApproachInfo {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_ReportValueApproachInfo_reportValueApproachName,
                                                                                                                           reportValueApproachName _s)],
                                                                 concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_ReportValueApproachInfo_reportValueApproachDescription, reportValueApproachDescription _s)]]
-          peek (Path_ReportValueApproachInfo_reportValueApproachName _) _ = undefined "doField" :: Peek ReportValueApproachInfo
-          peek (Path_ReportValueApproachInfo_reportValueApproachDescription _) _ = undefined "doField" :: Peek ReportValueApproachInfo
+          peek (p@(Path_ReportValueApproachInfo_reportValueApproachName _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportValueApproachInfo
+          peek (p@(Path_ReportValueApproachInfo_reportValueApproachDescription _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportValueApproachInfo
           peekPath (Proxy) (Peek_ReportValueApproachInfo_Markup _p _) = _p :: Path ReportValueApproachInfo Markup
           peekValue (Proxy) (Peek_ReportValueApproachInfo_Markup _ _x) = _x :: Maybe Markup
           peekCons _p _x = Peek_ReportValueApproachInfo_Markup _p _x :: Peek ReportValueApproachInfo
 instance Paths ReportValueApproachInfo ReportValueApproachInfo
     where type Path ReportValueApproachInfo ReportValueApproachInfo = Path_ReportValueApproachInfo ReportValueApproachInfo
           paths _ _ = [idPath]
-          peek _ _ = undefined "idpeek" :: Peek ReportValueApproachInfo
+          peek p x = peekCons p (Just x) :: Peek ReportValueApproachInfo
           peekPath (Proxy) (Peek_ReportValueApproachInfo_ReportValueApproachInfo _p _) = _p :: Path ReportValueApproachInfo ReportValueApproachInfo
           peekValue (Proxy) (Peek_ReportValueApproachInfo_ReportValueApproachInfo _ _x) = _x :: Maybe ReportValueApproachInfo
           peekCons _p _x = Peek_ReportValueApproachInfo_ReportValueApproachInfo _p _x :: Peek ReportValueApproachInfo
@@ -2204,8 +2110,8 @@ instance Paths ReportValueApproachInfo Text
           paths (_s@(ReportValueApproachInfo {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_ReportValueApproachInfo_reportValueApproachName,
                                                                                                                           reportValueApproachName _s)],
                                                                 concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_ReportValueApproachInfo_reportValueApproachDescription, reportValueApproachDescription _s)]]
-          peek (Path_ReportValueApproachInfo_reportValueApproachName _) _ = undefined "doField" :: Peek ReportValueApproachInfo
-          peek (Path_ReportValueApproachInfo_reportValueApproachDescription _) _ = undefined "doField" :: Peek ReportValueApproachInfo
+          peek (p@(Path_ReportValueApproachInfo_reportValueApproachName _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportValueApproachInfo
+          peek (p@(Path_ReportValueApproachInfo_reportValueApproachDescription _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportValueApproachInfo
           peekPath (Proxy) (Peek_ReportValueApproachInfo_Text _p _) = _p :: Path ReportValueApproachInfo Text
           peekValue (Proxy) (Peek_ReportValueApproachInfo_Text _ _x) = _x :: Maybe Text
           peekCons _p _x = Peek_ReportValueApproachInfo_Text _p _x :: Peek ReportValueApproachInfo
@@ -2215,9 +2121,9 @@ instance Paths ReportValueTypeInfo JSONText
                                                                                                                       reportValueTypeName _s)],
                                                             concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_ReportValueTypeInfo_reportValueTypeDescription, reportValueTypeDescription _s)],
                                                             concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_ReportValueTypeInfo_reportValueTypeDefinition, reportValueTypeDefinition _s)]]
-          peek (Path_ReportValueTypeInfo_reportValueTypeName _) _ = undefined "doField" :: Peek ReportValueTypeInfo
-          peek (Path_ReportValueTypeInfo_reportValueTypeDescription _) _ = undefined "doField" :: Peek ReportValueTypeInfo
-          peek (Path_ReportValueTypeInfo_reportValueTypeDefinition _) _ = undefined "doField" :: Peek ReportValueTypeInfo
+          peek (p@(Path_ReportValueTypeInfo_reportValueTypeName _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportValueTypeInfo
+          peek (p@(Path_ReportValueTypeInfo_reportValueTypeDescription _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportValueTypeInfo
+          peek (p@(Path_ReportValueTypeInfo_reportValueTypeDefinition _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportValueTypeInfo
           peekPath (Proxy) (Peek_ReportValueTypeInfo_JSONText _p _) = _p :: Path ReportValueTypeInfo JSONText
           peekValue (Proxy) (Peek_ReportValueTypeInfo_JSONText _ _x) = _x :: Maybe JSONText
           peekCons _p _x = Peek_ReportValueTypeInfo_JSONText _p _x :: Peek ReportValueTypeInfo
@@ -2227,16 +2133,16 @@ instance Paths ReportValueTypeInfo Markup
                                                                                                                       reportValueTypeName _s)],
                                                             concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_ReportValueTypeInfo_reportValueTypeDescription, reportValueTypeDescription _s)],
                                                             concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_ReportValueTypeInfo_reportValueTypeDefinition, reportValueTypeDefinition _s)]]
-          peek (Path_ReportValueTypeInfo_reportValueTypeName _) _ = undefined "doField" :: Peek ReportValueTypeInfo
-          peek (Path_ReportValueTypeInfo_reportValueTypeDescription _) _ = undefined "doField" :: Peek ReportValueTypeInfo
-          peek (Path_ReportValueTypeInfo_reportValueTypeDefinition _) _ = undefined "doField" :: Peek ReportValueTypeInfo
+          peek (p@(Path_ReportValueTypeInfo_reportValueTypeName _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportValueTypeInfo
+          peek (p@(Path_ReportValueTypeInfo_reportValueTypeDescription _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportValueTypeInfo
+          peek (p@(Path_ReportValueTypeInfo_reportValueTypeDefinition _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportValueTypeInfo
           peekPath (Proxy) (Peek_ReportValueTypeInfo_Markup _p _) = _p :: Path ReportValueTypeInfo Markup
           peekValue (Proxy) (Peek_ReportValueTypeInfo_Markup _ _x) = _x :: Maybe Markup
           peekCons _p _x = Peek_ReportValueTypeInfo_Markup _p _x :: Peek ReportValueTypeInfo
 instance Paths ReportValueTypeInfo ReportValueTypeInfo
     where type Path ReportValueTypeInfo ReportValueTypeInfo = Path_ReportValueTypeInfo ReportValueTypeInfo
           paths _ _ = [idPath]
-          peek _ _ = undefined "idpeek" :: Peek ReportValueTypeInfo
+          peek p x = peekCons p (Just x) :: Peek ReportValueTypeInfo
           peekPath (Proxy) (Peek_ReportValueTypeInfo_ReportValueTypeInfo _p _) = _p :: Path ReportValueTypeInfo ReportValueTypeInfo
           peekValue (Proxy) (Peek_ReportValueTypeInfo_ReportValueTypeInfo _ _x) = _x :: Maybe ReportValueTypeInfo
           peekCons _p _x = Peek_ReportValueTypeInfo_ReportValueTypeInfo _p _x :: Peek ReportValueTypeInfo
@@ -2246,9 +2152,9 @@ instance Paths ReportValueTypeInfo Text
                                                                                                                       reportValueTypeName _s)],
                                                             concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_ReportValueTypeInfo_reportValueTypeDescription, reportValueTypeDescription _s)],
                                                             concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_ReportValueTypeInfo_reportValueTypeDefinition, reportValueTypeDefinition _s)]]
-          peek (Path_ReportValueTypeInfo_reportValueTypeName _) _ = undefined "doField" :: Peek ReportValueTypeInfo
-          peek (Path_ReportValueTypeInfo_reportValueTypeDescription _) _ = undefined "doField" :: Peek ReportValueTypeInfo
-          peek (Path_ReportValueTypeInfo_reportValueTypeDefinition _) _ = undefined "doField" :: Peek ReportValueTypeInfo
+          peek (p@(Path_ReportValueTypeInfo_reportValueTypeName _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportValueTypeInfo
+          peek (p@(Path_ReportValueTypeInfo_reportValueTypeDescription _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportValueTypeInfo
+          peek (p@(Path_ReportValueTypeInfo_reportValueTypeDefinition _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportValueTypeInfo
           peekPath (Proxy) (Peek_ReportValueTypeInfo_Text _p _) = _p :: Path ReportValueTypeInfo Text
           peekValue (Proxy) (Peek_ReportValueTypeInfo_Text _ _x) = _x :: Maybe Text
           peekCons _p _x = Peek_ReportValueTypeInfo_Text _p _x :: Peek ReportValueTypeInfo
@@ -2258,14 +2164,14 @@ instance Paths EUI ImageFile
           paths (_s@(Right _)) _g = concatMap (\(p, a') -> map p (paths (a' :: ImageFile) _g)) (case _s of
                                                                                                     Left _ -> []
                                                                                                     Right a' -> [(Path_Right, a')])
-          peek _ _ = undefined "idpeek" :: Peek EUI
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek EUI
           peekPath (Proxy) (Peek_EUI_ImageFile _p _) = _p :: Path EUI ImageFile
           peekValue (Proxy) (Peek_EUI_ImageFile _ _x) = _x :: Maybe ImageFile
           peekCons _p _x = Peek_EUI_ImageFile _p _x :: Peek EUI
 instance Paths EUI EUI
     where type Path EUI EUI = Path_Either (Path_URI EUI) (Path_ImageFile EUI)
           paths _ _ = [idPath]
-          peek _ _ = undefined "idpeek" :: Peek EUI
+          peek p x = peekCons p (Just x) :: Peek EUI
           peekPath (Proxy) (Peek_EUI_EUI _p _) = _p :: Path EUI EUI
           peekValue (Proxy) (Peek_EUI_EUI _ _x) = _x :: Maybe EUI
           peekCons _p _x = Peek_EUI_EUI _p _x :: Peek EUI
@@ -2275,7 +2181,7 @@ instance Paths EUI URI
                                                                                              Left a' -> [(Path_Left, a')]
                                                                                              Right _ -> [])
           paths (_s@(Right _)) _g = mempty
-          peek _ _ = undefined "idpeek" :: Peek EUI
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek EUI
           peekPath (Proxy) (Peek_EUI_URI _p _) = _p :: Path EUI URI
           peekValue (Proxy) (Peek_EUI_URI _ _x) = _x :: Maybe URI
           peekCons _p _x = Peek_EUI_URI _p _x :: Peek EUI
@@ -2284,7 +2190,7 @@ instance Paths MEUI ImageFile
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: EUI) _g)) (case _s of
                                                                                   Nothing -> []
                                                                                   Just a' -> [(Path_Just, a')])
-          peek _ _ = undefined "idpeek" :: Peek MEUI
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek MEUI
           peekPath (Proxy) (Peek_MEUI_ImageFile _p _) = _p :: Path MEUI ImageFile
           peekValue (Proxy) (Peek_MEUI_ImageFile _ _x) = _x :: Maybe ImageFile
           peekCons _p _x = Peek_MEUI_ImageFile _p _x :: Peek MEUI
@@ -2293,14 +2199,14 @@ instance Paths MEUI EUI
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: EUI) _g)) (case _s of
                                                                                   Nothing -> []
                                                                                   Just a' -> [(Path_Just, a')])
-          peek _ _ = undefined "idpeek" :: Peek MEUI
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek MEUI
           peekPath (Proxy) (Peek_MEUI_EUI _p _) = _p :: Path MEUI EUI
           peekValue (Proxy) (Peek_MEUI_EUI _ _x) = _x :: Maybe EUI
           peekCons _p _x = Peek_MEUI_EUI _p _x :: Peek MEUI
 instance Paths MEUI MEUI
     where type Path MEUI MEUI = Path_Maybe (Path_Either (Path_URI MEUI) (Path_ImageFile MEUI))
           paths _ _ = [idPath]
-          peek _ _ = undefined "idpeek" :: Peek MEUI
+          peek p x = peekCons p (Just x) :: Peek MEUI
           peekPath (Proxy) (Peek_MEUI_MEUI _p _) = _p :: Path MEUI MEUI
           peekValue (Proxy) (Peek_MEUI_MEUI _ _x) = _x :: Maybe MEUI
           peekCons _p _x = Peek_MEUI_MEUI _p _x :: Peek MEUI
@@ -2309,7 +2215,7 @@ instance Paths MEUI URI
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: EUI) _g)) (case _s of
                                                                                   Nothing -> []
                                                                                   Just a' -> [(Path_Just, a')])
-          peek _ _ = undefined "idpeek" :: Peek MEUI
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek MEUI
           peekPath (Proxy) (Peek_MEUI_URI _p _) = _p :: Path MEUI URI
           peekValue (Proxy) (Peek_MEUI_URI _ _x) = _x :: Maybe URI
           peekCons _p _x = Peek_MEUI_URI _p _x :: Peek MEUI
@@ -2317,8 +2223,7 @@ instance Paths MaybeImageFile String
     where type Path MaybeImageFile String = Path_MaybeImageFile String
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: String) _g)) (map (\a' -> (Path_MaybeImageFile_View,
                                                                                               a')) (toListOf (toLens (Path_MaybeImageFile_View (idPath :: Path String String))) _s))
-          peek (Path_MaybeImageFile_View _) _ = undefined "doView1" :: Peek MaybeImageFile
-          peek (Path_MaybeImageFile) _ = undefined "doView2" :: Peek MaybeImageFile
+          peek (p@(Path_MaybeImageFile_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek MaybeImageFile
           peekPath (Proxy) (Peek_MaybeImageFile_String _p _) = _p :: Path MaybeImageFile String
           peekValue (Proxy) (Peek_MaybeImageFile_String _ _x) = _x :: Maybe String
           peekCons _p _x = Peek_MaybeImageFile_String _p _x :: Peek MaybeImageFile
@@ -2326,15 +2231,14 @@ instance Paths MaybeImageFile JSONText
     where type Path MaybeImageFile JSONText = Path_MaybeImageFile JSONText
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: String) _g)) (map (\a' -> (Path_MaybeImageFile_View,
                                                                                               a')) (toListOf (toLens (Path_MaybeImageFile_View (idPath :: Path String String))) _s))
-          peek (Path_MaybeImageFile_View _) _ = undefined "doView1" :: Peek MaybeImageFile
-          peek (Path_MaybeImageFile) _ = undefined "doView2" :: Peek MaybeImageFile
+          peek (p@(Path_MaybeImageFile_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek MaybeImageFile
           peekPath (Proxy) (Peek_MaybeImageFile_JSONText _p _) = _p :: Path MaybeImageFile JSONText
           peekValue (Proxy) (Peek_MaybeImageFile_JSONText _ _x) = _x :: Maybe JSONText
           peekCons _p _x = Peek_MaybeImageFile_JSONText _p _x :: Peek MaybeImageFile
 instance Paths MaybeImageFile MaybeImageFile
     where type Path MaybeImageFile MaybeImageFile = Path_MaybeImageFile MaybeImageFile
           paths _ _ = [idPath]
-          peek _ _ = undefined "idpeek" :: Peek MaybeImageFile
+          peek p x = peekCons p (Just x) :: Peek MaybeImageFile
           peekPath (Proxy) (Peek_MaybeImageFile_MaybeImageFile _p _) = _p :: Path MaybeImageFile MaybeImageFile
           peekValue (Proxy) (Peek_MaybeImageFile_MaybeImageFile _ _x) = _x :: Maybe MaybeImageFile
           peekCons _p _x = Peek_MaybeImageFile_MaybeImageFile _p _x :: Peek MaybeImageFile
@@ -2342,8 +2246,7 @@ instance Paths ReportImage String
     where type Path ReportImage String = Path_ReportImage String
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImageView) _g)) (map (\a' -> (Path_ReportImage_View,
                                                                                                        a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView ReportImageView))) _s))
-          peek (Path_ReportImage_View _) _ = undefined "doView1" :: Peek ReportImage
-          peek (Path_ReportImage) _ = undefined "doView2" :: Peek ReportImage
+          peek (p@(Path_ReportImage_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportImage
           peekPath (Proxy) (Peek_ReportImage_String _p _) = _p :: Path ReportImage String
           peekValue (Proxy) (Peek_ReportImage_String _ _x) = _x :: Maybe String
           peekCons _p _x = Peek_ReportImage_String _p _x :: Peek ReportImage
@@ -2351,8 +2254,7 @@ instance Paths ReportImage Bool
     where type Path ReportImage Bool = Path_ReportImage Bool
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImageView) _g)) (map (\a' -> (Path_ReportImage_View,
                                                                                                        a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView ReportImageView))) _s))
-          peek (Path_ReportImage_View _) _ = undefined "doView1" :: Peek ReportImage
-          peek (Path_ReportImage) _ = undefined "doView2" :: Peek ReportImage
+          peek (p@(Path_ReportImage_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportImage
           peekPath (Proxy) (Peek_ReportImage_Bool _p _) = _p :: Path ReportImage Bool
           peekValue (Proxy) (Peek_ReportImage_Bool _ _x) = _x :: Maybe Bool
           peekCons _p _x = Peek_ReportImage_Bool _p _x :: Peek ReportImage
@@ -2360,8 +2262,7 @@ instance Paths ReportImage Double
     where type Path ReportImage Double = Path_ReportImage Double
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImageView) _g)) (map (\a' -> (Path_ReportImage_View,
                                                                                                        a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView ReportImageView))) _s))
-          peek (Path_ReportImage_View _) _ = undefined "doView1" :: Peek ReportImage
-          peek (Path_ReportImage) _ = undefined "doView2" :: Peek ReportImage
+          peek (p@(Path_ReportImage_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportImage
           peekPath (Proxy) (Peek_ReportImage_Double _p _) = _p :: Path ReportImage Double
           peekValue (Proxy) (Peek_ReportImage_Double _ _x) = _x :: Maybe Double
           peekCons _p _x = Peek_ReportImage_Double _p _x :: Peek ReportImage
@@ -2369,8 +2270,7 @@ instance Paths ReportImage Dimension
     where type Path ReportImage Dimension = Path_ReportImage Dimension
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImageView) _g)) (map (\a' -> (Path_ReportImage_View,
                                                                                                        a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView ReportImageView))) _s))
-          peek (Path_ReportImage_View _) _ = undefined "doView1" :: Peek ReportImage
-          peek (Path_ReportImage) _ = undefined "doView2" :: Peek ReportImage
+          peek (p@(Path_ReportImage_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportImage
           peekPath (Proxy) (Peek_ReportImage_Dimension _p _) = _p :: Path ReportImage Dimension
           peekValue (Proxy) (Peek_ReportImage_Dimension _ _x) = _x :: Maybe Dimension
           peekCons _p _x = Peek_ReportImage_Dimension _p _x :: Peek ReportImage
@@ -2378,8 +2278,7 @@ instance Paths ReportImage ImageCrop
     where type Path ReportImage ImageCrop = Path_ReportImage ImageCrop
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImageView) _g)) (map (\a' -> (Path_ReportImage_View,
                                                                                                        a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView ReportImageView))) _s))
-          peek (Path_ReportImage_View _) _ = undefined "doView1" :: Peek ReportImage
-          peek (Path_ReportImage) _ = undefined "doView2" :: Peek ReportImage
+          peek (p@(Path_ReportImage_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportImage
           peekPath (Proxy) (Peek_ReportImage_ImageCrop _p _) = _p :: Path ReportImage ImageCrop
           peekValue (Proxy) (Peek_ReportImage_ImageCrop _ _x) = _x :: Maybe ImageCrop
           peekCons _p _x = Peek_ReportImage_ImageCrop _p _x :: Peek ReportImage
@@ -2387,8 +2286,7 @@ instance Paths ReportImage ImageSize
     where type Path ReportImage ImageSize = Path_ReportImage ImageSize
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImageView) _g)) (map (\a' -> (Path_ReportImage_View,
                                                                                                        a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView ReportImageView))) _s))
-          peek (Path_ReportImage_View _) _ = undefined "doView1" :: Peek ReportImage
-          peek (Path_ReportImage) _ = undefined "doView2" :: Peek ReportImage
+          peek (p@(Path_ReportImage_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportImage
           peekPath (Proxy) (Peek_ReportImage_ImageSize _p _) = _p :: Path ReportImage ImageSize
           peekValue (Proxy) (Peek_ReportImage_ImageSize _ _x) = _x :: Maybe ImageSize
           peekCons _p _x = Peek_ReportImage_ImageSize _p _x :: Peek ReportImage
@@ -2396,8 +2294,7 @@ instance Paths ReportImage Units
     where type Path ReportImage Units = Path_ReportImage Units
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImageView) _g)) (map (\a' -> (Path_ReportImage_View,
                                                                                                        a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView ReportImageView))) _s))
-          peek (Path_ReportImage_View _) _ = undefined "doView1" :: Peek ReportImage
-          peek (Path_ReportImage) _ = undefined "doView2" :: Peek ReportImage
+          peek (p@(Path_ReportImage_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportImage
           peekPath (Proxy) (Peek_ReportImage_Units _p _) = _p :: Path ReportImage Units
           peekValue (Proxy) (Peek_ReportImage_Units _ _x) = _x :: Maybe Units
           peekCons _p _x = Peek_ReportImage_Units _p _x :: Peek ReportImage
@@ -2405,8 +2302,7 @@ instance Paths ReportImage ImageFile
     where type Path ReportImage ImageFile = Path_ReportImage ImageFile
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImageView) _g)) (map (\a' -> (Path_ReportImage_View,
                                                                                                        a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView ReportImageView))) _s))
-          peek (Path_ReportImage_View _) _ = undefined "doView1" :: Peek ReportImage
-          peek (Path_ReportImage) _ = undefined "doView2" :: Peek ReportImage
+          peek (p@(Path_ReportImage_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportImage
           peekPath (Proxy) (Peek_ReportImage_ImageFile _p _) = _p :: Path ReportImage ImageFile
           peekValue (Proxy) (Peek_ReportImage_ImageFile _ _x) = _x :: Maybe ImageFile
           peekCons _p _x = Peek_ReportImage_ImageFile _p _x :: Peek ReportImage
@@ -2414,8 +2310,7 @@ instance Paths ReportImage JSONText
     where type Path ReportImage JSONText = Path_ReportImage JSONText
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImageView) _g)) (map (\a' -> (Path_ReportImage_View,
                                                                                                        a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView ReportImageView))) _s))
-          peek (Path_ReportImage_View _) _ = undefined "doView1" :: Peek ReportImage
-          peek (Path_ReportImage) _ = undefined "doView2" :: Peek ReportImage
+          peek (p@(Path_ReportImage_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportImage
           peekPath (Proxy) (Peek_ReportImage_JSONText _p _) = _p :: Path ReportImage JSONText
           peekValue (Proxy) (Peek_ReportImage_JSONText _ _x) = _x :: Maybe JSONText
           peekCons _p _x = Peek_ReportImage_JSONText _p _x :: Peek ReportImage
@@ -2423,8 +2318,7 @@ instance Paths ReportImage Markup
     where type Path ReportImage Markup = Path_ReportImage Markup
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImageView) _g)) (map (\a' -> (Path_ReportImage_View,
                                                                                                        a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView ReportImageView))) _s))
-          peek (Path_ReportImage_View _) _ = undefined "doView1" :: Peek ReportImage
-          peek (Path_ReportImage) _ = undefined "doView2" :: Peek ReportImage
+          peek (p@(Path_ReportImage_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportImage
           peekPath (Proxy) (Peek_ReportImage_Markup _p _) = _p :: Path ReportImage Markup
           peekValue (Proxy) (Peek_ReportImage_Markup _ _x) = _x :: Maybe Markup
           peekCons _p _x = Peek_ReportImage_Markup _p _x :: Peek ReportImage
@@ -2432,8 +2326,7 @@ instance Paths ReportImage EUI
     where type Path ReportImage EUI = Path_ReportImage EUI
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImageView) _g)) (map (\a' -> (Path_ReportImage_View,
                                                                                                        a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView ReportImageView))) _s))
-          peek (Path_ReportImage_View _) _ = undefined "doView1" :: Peek ReportImage
-          peek (Path_ReportImage) _ = undefined "doView2" :: Peek ReportImage
+          peek (p@(Path_ReportImage_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportImage
           peekPath (Proxy) (Peek_ReportImage_EUI _p _) = _p :: Path ReportImage EUI
           peekValue (Proxy) (Peek_ReportImage_EUI _ _x) = _x :: Maybe EUI
           peekCons _p _x = Peek_ReportImage_EUI _p _x :: Peek ReportImage
@@ -2441,8 +2334,7 @@ instance Paths ReportImage MEUI
     where type Path ReportImage MEUI = Path_ReportImage MEUI
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImageView) _g)) (map (\a' -> (Path_ReportImage_View,
                                                                                                        a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView ReportImageView))) _s))
-          peek (Path_ReportImage_View _) _ = undefined "doView1" :: Peek ReportImage
-          peek (Path_ReportImage) _ = undefined "doView2" :: Peek ReportImage
+          peek (p@(Path_ReportImage_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportImage
           peekPath (Proxy) (Peek_ReportImage_MEUI _p _) = _p :: Path ReportImage MEUI
           peekValue (Proxy) (Peek_ReportImage_MEUI _ _x) = _x :: Maybe MEUI
           peekCons _p _x = Peek_ReportImage_MEUI _p _x :: Peek ReportImage
@@ -2450,15 +2342,14 @@ instance Paths ReportImage MaybeImageFile
     where type Path ReportImage MaybeImageFile = Path_ReportImage MaybeImageFile
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImageView) _g)) (map (\a' -> (Path_ReportImage_View,
                                                                                                        a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView ReportImageView))) _s))
-          peek (Path_ReportImage_View _) _ = undefined "doView1" :: Peek ReportImage
-          peek (Path_ReportImage) _ = undefined "doView2" :: Peek ReportImage
+          peek (p@(Path_ReportImage_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportImage
           peekPath (Proxy) (Peek_ReportImage_MaybeImageFile _p _) = _p :: Path ReportImage MaybeImageFile
           peekValue (Proxy) (Peek_ReportImage_MaybeImageFile _ _x) = _x :: Maybe MaybeImageFile
           peekCons _p _x = Peek_ReportImage_MaybeImageFile _p _x :: Peek ReportImage
 instance Paths ReportImage ReportImage
     where type Path ReportImage ReportImage = Path_ReportImage ReportImage
           paths _ _ = [idPath]
-          peek _ _ = undefined "idpeek" :: Peek ReportImage
+          peek p x = peekCons p (Just x) :: Peek ReportImage
           peekPath (Proxy) (Peek_ReportImage_ReportImage _p _) = _p :: Path ReportImage ReportImage
           peekValue (Proxy) (Peek_ReportImage_ReportImage _ _x) = _x :: Maybe ReportImage
           peekCons _p _x = Peek_ReportImage_ReportImage _p _x :: Peek ReportImage
@@ -2466,8 +2357,7 @@ instance Paths ReportImage ReportImageView
     where type Path ReportImage ReportImageView = Path_ReportImage ReportImageView
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImageView) _g)) (map (\a' -> (Path_ReportImage_View,
                                                                                                        a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView ReportImageView))) _s))
-          peek (Path_ReportImage_View _) _ = undefined "doView1" :: Peek ReportImage
-          peek (Path_ReportImage) _ = undefined "doView2" :: Peek ReportImage
+          peek (p@(Path_ReportImage_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportImage
           peekPath (Proxy) (Peek_ReportImage_ReportImageView _p _) = _p :: Path ReportImage ReportImageView
           peekValue (Proxy) (Peek_ReportImage_ReportImageView _ _x) = _x :: Maybe ReportImageView
           peekCons _p _x = Peek_ReportImage_ReportImageView _p _x :: Peek ReportImage
@@ -2475,8 +2365,7 @@ instance Paths ReportImage SaneSizeImageSize
     where type Path ReportImage SaneSizeImageSize = Path_ReportImage SaneSizeImageSize
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImageView) _g)) (map (\a' -> (Path_ReportImage_View,
                                                                                                        a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView ReportImageView))) _s))
-          peek (Path_ReportImage_View _) _ = undefined "doView1" :: Peek ReportImage
-          peek (Path_ReportImage) _ = undefined "doView2" :: Peek ReportImage
+          peek (p@(Path_ReportImage_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportImage
           peekPath (Proxy) (Peek_ReportImage_SaneSizeImageSize _p _) = _p :: Path ReportImage SaneSizeImageSize
           peekValue (Proxy) (Peek_ReportImage_SaneSizeImageSize _ _x) = _x :: Maybe SaneSizeImageSize
           peekCons _p _x = Peek_ReportImage_SaneSizeImageSize _p _x :: Peek ReportImage
@@ -2484,8 +2373,7 @@ instance Paths ReportImage URI
     where type Path ReportImage URI = Path_ReportImage URI
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImageView) _g)) (map (\a' -> (Path_ReportImage_View,
                                                                                                        a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView ReportImageView))) _s))
-          peek (Path_ReportImage_View _) _ = undefined "doView1" :: Peek ReportImage
-          peek (Path_ReportImage) _ = undefined "doView2" :: Peek ReportImage
+          peek (p@(Path_ReportImage_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportImage
           peekPath (Proxy) (Peek_ReportImage_URI _p _) = _p :: Path ReportImage URI
           peekValue (Proxy) (Peek_ReportImage_URI _ _x) = _x :: Maybe URI
           peekCons _p _x = Peek_ReportImage_URI _p _x :: Peek ReportImage
@@ -2493,141 +2381,140 @@ instance Paths ReportImage Text
     where type Path ReportImage Text = Path_ReportImage Text
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImageView) _g)) (map (\a' -> (Path_ReportImage_View,
                                                                                                        a')) (toListOf (toLens (Path_ReportImage_View (idPath :: Path ReportImageView ReportImageView))) _s))
-          peek (Path_ReportImage_View _) _ = undefined "doView1" :: Peek ReportImage
-          peek (Path_ReportImage) _ = undefined "doView2" :: Peek ReportImage
+          peek (p@(Path_ReportImage_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportImage
           peekPath (Proxy) (Peek_ReportImage_Text _p _) = _p :: Path ReportImage Text
           peekValue (Proxy) (Peek_ReportImage_Text _ _x) = _x :: Maybe Text
           peekCons _p _x = Peek_ReportImage_Text _p _x :: Peek ReportImage
 instance Paths ReportImages String
     where type Path ReportImages String = Path_OMap ReportImageID (Path_ReportImage String)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImage) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
-          peek _ _ = undefined "idpeek" :: Peek ReportImages
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportImages
           peekPath (Proxy) (Peek_ReportImages_String _p _) = _p :: Path ReportImages String
           peekValue (Proxy) (Peek_ReportImages_String _ _x) = _x :: Maybe String
           peekCons _p _x = Peek_ReportImages_String _p _x :: Peek ReportImages
 instance Paths ReportImages Bool
     where type Path ReportImages Bool = Path_OMap ReportImageID (Path_ReportImage Bool)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImage) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
-          peek _ _ = undefined "idpeek" :: Peek ReportImages
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportImages
           peekPath (Proxy) (Peek_ReportImages_Bool _p _) = _p :: Path ReportImages Bool
           peekValue (Proxy) (Peek_ReportImages_Bool _ _x) = _x :: Maybe Bool
           peekCons _p _x = Peek_ReportImages_Bool _p _x :: Peek ReportImages
 instance Paths ReportImages Double
     where type Path ReportImages Double = Path_OMap ReportImageID (Path_ReportImage Double)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImage) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
-          peek _ _ = undefined "idpeek" :: Peek ReportImages
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportImages
           peekPath (Proxy) (Peek_ReportImages_Double _p _) = _p :: Path ReportImages Double
           peekValue (Proxy) (Peek_ReportImages_Double _ _x) = _x :: Maybe Double
           peekCons _p _x = Peek_ReportImages_Double _p _x :: Peek ReportImages
 instance Paths ReportImages Dimension
     where type Path ReportImages Dimension = Path_OMap ReportImageID (Path_ReportImage Dimension)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImage) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
-          peek _ _ = undefined "idpeek" :: Peek ReportImages
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportImages
           peekPath (Proxy) (Peek_ReportImages_Dimension _p _) = _p :: Path ReportImages Dimension
           peekValue (Proxy) (Peek_ReportImages_Dimension _ _x) = _x :: Maybe Dimension
           peekCons _p _x = Peek_ReportImages_Dimension _p _x :: Peek ReportImages
 instance Paths ReportImages ImageCrop
     where type Path ReportImages ImageCrop = Path_OMap ReportImageID (Path_ReportImage ImageCrop)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImage) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
-          peek _ _ = undefined "idpeek" :: Peek ReportImages
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportImages
           peekPath (Proxy) (Peek_ReportImages_ImageCrop _p _) = _p :: Path ReportImages ImageCrop
           peekValue (Proxy) (Peek_ReportImages_ImageCrop _ _x) = _x :: Maybe ImageCrop
           peekCons _p _x = Peek_ReportImages_ImageCrop _p _x :: Peek ReportImages
 instance Paths ReportImages ImageSize
     where type Path ReportImages ImageSize = Path_OMap ReportImageID (Path_ReportImage ImageSize)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImage) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
-          peek _ _ = undefined "idpeek" :: Peek ReportImages
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportImages
           peekPath (Proxy) (Peek_ReportImages_ImageSize _p _) = _p :: Path ReportImages ImageSize
           peekValue (Proxy) (Peek_ReportImages_ImageSize _ _x) = _x :: Maybe ImageSize
           peekCons _p _x = Peek_ReportImages_ImageSize _p _x :: Peek ReportImages
 instance Paths ReportImages Units
     where type Path ReportImages Units = Path_OMap ReportImageID (Path_ReportImage Units)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImage) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
-          peek _ _ = undefined "idpeek" :: Peek ReportImages
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportImages
           peekPath (Proxy) (Peek_ReportImages_Units _p _) = _p :: Path ReportImages Units
           peekValue (Proxy) (Peek_ReportImages_Units _ _x) = _x :: Maybe Units
           peekCons _p _x = Peek_ReportImages_Units _p _x :: Peek ReportImages
 instance Paths ReportImages ImageFile
     where type Path ReportImages ImageFile = Path_OMap ReportImageID (Path_ReportImage ImageFile)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImage) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
-          peek _ _ = undefined "idpeek" :: Peek ReportImages
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportImages
           peekPath (Proxy) (Peek_ReportImages_ImageFile _p _) = _p :: Path ReportImages ImageFile
           peekValue (Proxy) (Peek_ReportImages_ImageFile _ _x) = _x :: Maybe ImageFile
           peekCons _p _x = Peek_ReportImages_ImageFile _p _x :: Peek ReportImages
 instance Paths ReportImages JSONText
     where type Path ReportImages JSONText = Path_OMap ReportImageID (Path_ReportImage JSONText)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImage) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
-          peek _ _ = undefined "idpeek" :: Peek ReportImages
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportImages
           peekPath (Proxy) (Peek_ReportImages_JSONText _p _) = _p :: Path ReportImages JSONText
           peekValue (Proxy) (Peek_ReportImages_JSONText _ _x) = _x :: Maybe JSONText
           peekCons _p _x = Peek_ReportImages_JSONText _p _x :: Peek ReportImages
 instance Paths ReportImages Markup
     where type Path ReportImages Markup = Path_OMap ReportImageID (Path_ReportImage Markup)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImage) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
-          peek _ _ = undefined "idpeek" :: Peek ReportImages
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportImages
           peekPath (Proxy) (Peek_ReportImages_Markup _p _) = _p :: Path ReportImages Markup
           peekValue (Proxy) (Peek_ReportImages_Markup _ _x) = _x :: Maybe Markup
           peekCons _p _x = Peek_ReportImages_Markup _p _x :: Peek ReportImages
 instance Paths ReportImages EUI
     where type Path ReportImages EUI = Path_OMap ReportImageID (Path_ReportImage EUI)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImage) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
-          peek _ _ = undefined "idpeek" :: Peek ReportImages
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportImages
           peekPath (Proxy) (Peek_ReportImages_EUI _p _) = _p :: Path ReportImages EUI
           peekValue (Proxy) (Peek_ReportImages_EUI _ _x) = _x :: Maybe EUI
           peekCons _p _x = Peek_ReportImages_EUI _p _x :: Peek ReportImages
 instance Paths ReportImages MEUI
     where type Path ReportImages MEUI = Path_OMap ReportImageID (Path_ReportImage MEUI)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImage) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
-          peek _ _ = undefined "idpeek" :: Peek ReportImages
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportImages
           peekPath (Proxy) (Peek_ReportImages_MEUI _p _) = _p :: Path ReportImages MEUI
           peekValue (Proxy) (Peek_ReportImages_MEUI _ _x) = _x :: Maybe MEUI
           peekCons _p _x = Peek_ReportImages_MEUI _p _x :: Peek ReportImages
 instance Paths ReportImages MaybeImageFile
     where type Path ReportImages MaybeImageFile = Path_OMap ReportImageID (Path_ReportImage MaybeImageFile)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImage) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
-          peek _ _ = undefined "idpeek" :: Peek ReportImages
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportImages
           peekPath (Proxy) (Peek_ReportImages_MaybeImageFile _p _) = _p :: Path ReportImages MaybeImageFile
           peekValue (Proxy) (Peek_ReportImages_MaybeImageFile _ _x) = _x :: Maybe MaybeImageFile
           peekCons _p _x = Peek_ReportImages_MaybeImageFile _p _x :: Peek ReportImages
 instance Paths ReportImages ReportImage
     where type Path ReportImages ReportImage = Path_OMap ReportImageID (Path_ReportImage ReportImage)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImage) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
-          peek _ _ = undefined "idpeek" :: Peek ReportImages
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportImages
           peekPath (Proxy) (Peek_ReportImages_ReportImage _p _) = _p :: Path ReportImages ReportImage
           peekValue (Proxy) (Peek_ReportImages_ReportImage _ _x) = _x :: Maybe ReportImage
           peekCons _p _x = Peek_ReportImages_ReportImage _p _x :: Peek ReportImages
 instance Paths ReportImages ReportImages
     where type Path ReportImages ReportImages = Path_OMap ReportImageID (Path_ReportImage ReportImages)
           paths _ _ = [idPath]
-          peek _ _ = undefined "idpeek" :: Peek ReportImages
+          peek p x = peekCons p (Just x) :: Peek ReportImages
           peekPath (Proxy) (Peek_ReportImages_ReportImages _p _) = _p :: Path ReportImages ReportImages
           peekValue (Proxy) (Peek_ReportImages_ReportImages _ _x) = _x :: Maybe ReportImages
           peekCons _p _x = Peek_ReportImages_ReportImages _p _x :: Peek ReportImages
 instance Paths ReportImages ReportImageView
     where type Path ReportImages ReportImageView = Path_OMap ReportImageID (Path_ReportImage ReportImageView)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImage) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
-          peek _ _ = undefined "idpeek" :: Peek ReportImages
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportImages
           peekPath (Proxy) (Peek_ReportImages_ReportImageView _p _) = _p :: Path ReportImages ReportImageView
           peekValue (Proxy) (Peek_ReportImages_ReportImageView _ _x) = _x :: Maybe ReportImageView
           peekCons _p _x = Peek_ReportImages_ReportImageView _p _x :: Peek ReportImages
 instance Paths ReportImages SaneSizeImageSize
     where type Path ReportImages SaneSizeImageSize = Path_OMap ReportImageID (Path_ReportImage SaneSizeImageSize)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImage) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
-          peek _ _ = undefined "idpeek" :: Peek ReportImages
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportImages
           peekPath (Proxy) (Peek_ReportImages_SaneSizeImageSize _p _) = _p :: Path ReportImages SaneSizeImageSize
           peekValue (Proxy) (Peek_ReportImages_SaneSizeImageSize _ _x) = _x :: Maybe SaneSizeImageSize
           peekCons _p _x = Peek_ReportImages_SaneSizeImageSize _p _x :: Peek ReportImages
 instance Paths ReportImages URI
     where type Path ReportImages URI = Path_OMap ReportImageID (Path_ReportImage URI)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImage) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
-          peek _ _ = undefined "idpeek" :: Peek ReportImages
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportImages
           peekPath (Proxy) (Peek_ReportImages_URI _p _) = _p :: Path ReportImages URI
           peekValue (Proxy) (Peek_ReportImages_URI _ _x) = _x :: Maybe URI
           peekCons _p _x = Peek_ReportImages_URI _p _x :: Peek ReportImages
 instance Paths ReportImages Text
     where type Path ReportImages Text = Path_OMap ReportImageID (Path_ReportImage Text)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImage) _g)) (map (\(idx, val) -> (Path_At idx, val)) (toPairs _s))
-          peek _ _ = undefined "idpeek" :: Peek ReportImages
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportImages
           peekPath (Proxy) (Peek_ReportImages_Text _p _) = _p :: Path ReportImages Text
           peekValue (Proxy) (Peek_ReportImages_Text _ _x) = _x :: Maybe Text
           peekCons _p _x = Peek_ReportImages_Text _p _x :: Peek ReportImages
@@ -2635,8 +2522,7 @@ instance Paths ReadOnlyFilePath String
     where type Path ReadOnlyFilePath String = Path_ReadOnlyFilePath String
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: String) _g)) (map (\a' -> (Path_ReadOnlyFilePath_View,
                                                                                               a')) (toListOf (toLens (Path_ReadOnlyFilePath_View (idPath :: Path String String))) _s))
-          peek (Path_ReadOnlyFilePath_View _) _ = undefined "doView1" :: Peek ReadOnlyFilePath
-          peek (Path_ReadOnlyFilePath) _ = undefined "doView2" :: Peek ReadOnlyFilePath
+          peek (p@(Path_ReadOnlyFilePath_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReadOnlyFilePath
           peekPath (Proxy) (Peek_ReadOnlyFilePath_String _p _) = _p :: Path ReadOnlyFilePath String
           peekValue (Proxy) (Peek_ReadOnlyFilePath_String _ _x) = _x :: Maybe String
           peekCons _p _x = Peek_ReadOnlyFilePath_String _p _x :: Peek ReadOnlyFilePath
@@ -2644,15 +2530,14 @@ instance Paths ReadOnlyFilePath JSONText
     where type Path ReadOnlyFilePath JSONText = Path_ReadOnlyFilePath JSONText
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: String) _g)) (map (\a' -> (Path_ReadOnlyFilePath_View,
                                                                                               a')) (toListOf (toLens (Path_ReadOnlyFilePath_View (idPath :: Path String String))) _s))
-          peek (Path_ReadOnlyFilePath_View _) _ = undefined "doView1" :: Peek ReadOnlyFilePath
-          peek (Path_ReadOnlyFilePath) _ = undefined "doView2" :: Peek ReadOnlyFilePath
+          peek (p@(Path_ReadOnlyFilePath_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReadOnlyFilePath
           peekPath (Proxy) (Peek_ReadOnlyFilePath_JSONText _p _) = _p :: Path ReadOnlyFilePath JSONText
           peekValue (Proxy) (Peek_ReadOnlyFilePath_JSONText _ _x) = _x :: Maybe JSONText
           peekCons _p _x = Peek_ReadOnlyFilePath_JSONText _p _x :: Peek ReadOnlyFilePath
 instance Paths ReadOnlyFilePath ReadOnlyFilePath
     where type Path ReadOnlyFilePath ReadOnlyFilePath = Path_ReadOnlyFilePath ReadOnlyFilePath
           paths _ _ = [idPath]
-          peek _ _ = undefined "idpeek" :: Peek ReadOnlyFilePath
+          peek p x = peekCons p (Just x) :: Peek ReadOnlyFilePath
           peekPath (Proxy) (Peek_ReadOnlyFilePath_ReadOnlyFilePath _p _) = _p :: Path ReadOnlyFilePath ReadOnlyFilePath
           peekValue (Proxy) (Peek_ReadOnlyFilePath_ReadOnlyFilePath _ _x) = _x :: Maybe ReadOnlyFilePath
           peekCons _p _x = Peek_ReadOnlyFilePath_ReadOnlyFilePath _p _x :: Peek ReadOnlyFilePath
@@ -2664,105 +2549,54 @@ instance Paths ReportImageView String
                                                         concatMap (\(p, a') -> map p (paths (a' :: MaybeImageFile) _g)) [(Path_ReportImageView__picPrinterDeprecated, _picPrinterDeprecated _s)],
                                                         concatMap (\(p, a') -> map p (paths (a' :: Bool) _g)) [(Path_ReportImageView__picMustEnlarge, _picMustEnlarge _s)],
                                                         concatMap (\(p, a') -> map p (paths (a' :: MaybeImageFile) _g)) [(Path_ReportImageView__picEnlargedDeprecated, _picEnlargedDeprecated _s)]]
-          peek (Path_ReportImageView__picSize _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picCrop _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picCaption _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picOriginal _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picEditedDeprecated _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picThumbDeprecated _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picPrinterDeprecated _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picMustEnlarge _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picEnlargedDeprecated _) _ = undefined "doField" :: Peek ReportImageView
+          peek (p@(Path_ReportImageView__picSize _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportImageView
+          peek (p@(Path_ReportImageView__picEditedDeprecated _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportImageView
+          peek (p@(Path_ReportImageView__picThumbDeprecated _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportImageView
+          peek (p@(Path_ReportImageView__picPrinterDeprecated _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportImageView
+          peek (p@(Path_ReportImageView__picMustEnlarge _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportImageView
+          peek (p@(Path_ReportImageView__picEnlargedDeprecated _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportImageView
           peekPath (Proxy) (Peek_ReportImageView_String _p _) = _p :: Path ReportImageView String
           peekValue (Proxy) (Peek_ReportImageView_String _ _x) = _x :: Maybe String
           peekCons _p _x = Peek_ReportImageView_String _p _x :: Peek ReportImageView
 instance Paths ReportImageView Bool
     where type Path ReportImageView Bool = Path_ReportImageView Bool
           paths (_s@(ReportImageView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Bool) _g)) [(Path_ReportImageView__picMustEnlarge, _picMustEnlarge _s)]
-          peek (Path_ReportImageView__picSize _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picCrop _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picCaption _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picOriginal _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picEditedDeprecated _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picThumbDeprecated _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picPrinterDeprecated _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picMustEnlarge _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picEnlargedDeprecated _) _ = undefined "doField" :: Peek ReportImageView
+          peek (p@(Path_ReportImageView__picMustEnlarge _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportImageView
           peekPath (Proxy) (Peek_ReportImageView_Bool _p _) = _p :: Path ReportImageView Bool
           peekValue (Proxy) (Peek_ReportImageView_Bool _ _x) = _x :: Maybe Bool
           peekCons _p _x = Peek_ReportImageView_Bool _p _x :: Peek ReportImageView
 instance Paths ReportImageView Double
     where type Path ReportImageView Double = Path_ReportImageView Double
           paths (_s@(ReportImageView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: SaneSizeImageSize) _g)) [(Path_ReportImageView__picSize, _picSize _s)]
-          peek (Path_ReportImageView__picSize _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picCrop _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picCaption _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picOriginal _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picEditedDeprecated _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picThumbDeprecated _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picPrinterDeprecated _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picMustEnlarge _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picEnlargedDeprecated _) _ = undefined "doField" :: Peek ReportImageView
+          peek (p@(Path_ReportImageView__picSize _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportImageView
           peekPath (Proxy) (Peek_ReportImageView_Double _p _) = _p :: Path ReportImageView Double
           peekValue (Proxy) (Peek_ReportImageView_Double _ _x) = _x :: Maybe Double
           peekCons _p _x = Peek_ReportImageView_Double _p _x :: Peek ReportImageView
 instance Paths ReportImageView Dimension
     where type Path ReportImageView Dimension = Path_ReportImageView Dimension
           paths (_s@(ReportImageView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: SaneSizeImageSize) _g)) [(Path_ReportImageView__picSize, _picSize _s)]
-          peek (Path_ReportImageView__picSize _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picCrop _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picCaption _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picOriginal _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picEditedDeprecated _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picThumbDeprecated _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picPrinterDeprecated _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picMustEnlarge _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picEnlargedDeprecated _) _ = undefined "doField" :: Peek ReportImageView
+          peek (p@(Path_ReportImageView__picSize _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportImageView
           peekPath (Proxy) (Peek_ReportImageView_Dimension _p _) = _p :: Path ReportImageView Dimension
           peekValue (Proxy) (Peek_ReportImageView_Dimension _ _x) = _x :: Maybe Dimension
           peekCons _p _x = Peek_ReportImageView_Dimension _p _x :: Peek ReportImageView
 instance Paths ReportImageView ImageCrop
     where type Path ReportImageView ImageCrop = Path_ReportImageView ImageCrop
           paths (_s@(ReportImageView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ImageCrop) _g)) [(Path_ReportImageView__picCrop, _picCrop _s)]
-          peek (Path_ReportImageView__picSize _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picCrop _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picCaption _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picOriginal _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picEditedDeprecated _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picThumbDeprecated _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picPrinterDeprecated _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picMustEnlarge _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picEnlargedDeprecated _) _ = undefined "doField" :: Peek ReportImageView
+          peek (p@(Path_ReportImageView__picCrop _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportImageView
           peekPath (Proxy) (Peek_ReportImageView_ImageCrop _p _) = _p :: Path ReportImageView ImageCrop
           peekValue (Proxy) (Peek_ReportImageView_ImageCrop _ _x) = _x :: Maybe ImageCrop
           peekCons _p _x = Peek_ReportImageView_ImageCrop _p _x :: Peek ReportImageView
 instance Paths ReportImageView ImageSize
     where type Path ReportImageView ImageSize = Path_ReportImageView ImageSize
           paths (_s@(ReportImageView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: SaneSizeImageSize) _g)) [(Path_ReportImageView__picSize, _picSize _s)]
-          peek (Path_ReportImageView__picSize _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picCrop _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picCaption _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picOriginal _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picEditedDeprecated _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picThumbDeprecated _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picPrinterDeprecated _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picMustEnlarge _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picEnlargedDeprecated _) _ = undefined "doField" :: Peek ReportImageView
+          peek (p@(Path_ReportImageView__picSize _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportImageView
           peekPath (Proxy) (Peek_ReportImageView_ImageSize _p _) = _p :: Path ReportImageView ImageSize
           peekValue (Proxy) (Peek_ReportImageView_ImageSize _ _x) = _x :: Maybe ImageSize
           peekCons _p _x = Peek_ReportImageView_ImageSize _p _x :: Peek ReportImageView
 instance Paths ReportImageView Units
     where type Path ReportImageView Units = Path_ReportImageView Units
           paths (_s@(ReportImageView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: SaneSizeImageSize) _g)) [(Path_ReportImageView__picSize, _picSize _s)]
-          peek (Path_ReportImageView__picSize _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picCrop _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picCaption _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picOriginal _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picEditedDeprecated _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picThumbDeprecated _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picPrinterDeprecated _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picMustEnlarge _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picEnlargedDeprecated _) _ = undefined "doField" :: Peek ReportImageView
+          peek (p@(Path_ReportImageView__picSize _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportImageView
           peekPath (Proxy) (Peek_ReportImageView_Units _p _) = _p :: Path ReportImageView Units
           peekValue (Proxy) (Peek_ReportImageView_Units _ _x) = _x :: Maybe Units
           peekCons _p _x = Peek_ReportImageView_Units _p _x :: Peek ReportImageView
@@ -2770,15 +2604,7 @@ instance Paths ReportImageView ImageFile
     where type Path ReportImageView ImageFile = Path_ReportImageView ImageFile
           paths (_s@(ReportImageView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Maybe (Either URI ImageFile)) _g)) [(Path_ReportImageView__picOriginal,
                                                                                                                                _picOriginal _s)]
-          peek (Path_ReportImageView__picSize _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picCrop _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picCaption _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picOriginal _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picEditedDeprecated _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picThumbDeprecated _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picPrinterDeprecated _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picMustEnlarge _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picEnlargedDeprecated _) _ = undefined "doField" :: Peek ReportImageView
+          peek (p@(Path_ReportImageView__picOriginal _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportImageView
           peekPath (Proxy) (Peek_ReportImageView_ImageFile _p _) = _p :: Path ReportImageView ImageFile
           peekValue (Proxy) (Peek_ReportImageView_ImageFile _ _x) = _x :: Maybe ImageFile
           peekCons _p _x = Peek_ReportImageView_ImageFile _p _x :: Peek ReportImageView
@@ -2791,30 +2617,20 @@ instance Paths ReportImageView JSONText
                                                         concatMap (\(p, a') -> map p (paths (a' :: MaybeImageFile) _g)) [(Path_ReportImageView__picPrinterDeprecated, _picPrinterDeprecated _s)],
                                                         concatMap (\(p, a') -> map p (paths (a' :: Bool) _g)) [(Path_ReportImageView__picMustEnlarge, _picMustEnlarge _s)],
                                                         concatMap (\(p, a') -> map p (paths (a' :: MaybeImageFile) _g)) [(Path_ReportImageView__picEnlargedDeprecated, _picEnlargedDeprecated _s)]]
-          peek (Path_ReportImageView__picSize _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picCrop _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picCaption _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picOriginal _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picEditedDeprecated _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picThumbDeprecated _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picPrinterDeprecated _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picMustEnlarge _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picEnlargedDeprecated _) _ = undefined "doField" :: Peek ReportImageView
+          peek (p@(Path_ReportImageView__picSize _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportImageView
+          peek (p@(Path_ReportImageView__picCaption _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportImageView
+          peek (p@(Path_ReportImageView__picEditedDeprecated _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportImageView
+          peek (p@(Path_ReportImageView__picThumbDeprecated _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportImageView
+          peek (p@(Path_ReportImageView__picPrinterDeprecated _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportImageView
+          peek (p@(Path_ReportImageView__picMustEnlarge _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportImageView
+          peek (p@(Path_ReportImageView__picEnlargedDeprecated _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportImageView
           peekPath (Proxy) (Peek_ReportImageView_JSONText _p _) = _p :: Path ReportImageView JSONText
           peekValue (Proxy) (Peek_ReportImageView_JSONText _ _x) = _x :: Maybe JSONText
           peekCons _p _x = Peek_ReportImageView_JSONText _p _x :: Peek ReportImageView
 instance Paths ReportImageView Markup
     where type Path ReportImageView Markup = Path_ReportImageView Markup
           paths (_s@(ReportImageView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_ReportImageView__picCaption, _picCaption _s)]
-          peek (Path_ReportImageView__picSize _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picCrop _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picCaption _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picOriginal _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picEditedDeprecated _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picThumbDeprecated _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picPrinterDeprecated _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picMustEnlarge _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picEnlargedDeprecated _) _ = undefined "doField" :: Peek ReportImageView
+          peek (p@(Path_ReportImageView__picCaption _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportImageView
           peekPath (Proxy) (Peek_ReportImageView_Markup _p _) = _p :: Path ReportImageView Markup
           peekValue (Proxy) (Peek_ReportImageView_Markup _ _x) = _x :: Maybe Markup
           peekCons _p _x = Peek_ReportImageView_Markup _p _x :: Peek ReportImageView
@@ -2822,15 +2638,7 @@ instance Paths ReportImageView EUI
     where type Path ReportImageView EUI = Path_ReportImageView EUI
           paths (_s@(ReportImageView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Maybe (Either URI ImageFile)) _g)) [(Path_ReportImageView__picOriginal,
                                                                                                                                _picOriginal _s)]
-          peek (Path_ReportImageView__picSize _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picCrop _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picCaption _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picOriginal _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picEditedDeprecated _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picThumbDeprecated _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picPrinterDeprecated _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picMustEnlarge _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picEnlargedDeprecated _) _ = undefined "doField" :: Peek ReportImageView
+          peek (p@(Path_ReportImageView__picOriginal _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportImageView
           peekPath (Proxy) (Peek_ReportImageView_EUI _p _) = _p :: Path ReportImageView EUI
           peekValue (Proxy) (Peek_ReportImageView_EUI _ _x) = _x :: Maybe EUI
           peekCons _p _x = Peek_ReportImageView_EUI _p _x :: Peek ReportImageView
@@ -2838,15 +2646,7 @@ instance Paths ReportImageView MEUI
     where type Path ReportImageView MEUI = Path_ReportImageView MEUI
           paths (_s@(ReportImageView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Maybe (Either URI ImageFile)) _g)) [(Path_ReportImageView__picOriginal,
                                                                                                                                _picOriginal _s)]
-          peek (Path_ReportImageView__picSize _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picCrop _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picCaption _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picOriginal _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picEditedDeprecated _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picThumbDeprecated _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picPrinterDeprecated _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picMustEnlarge _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picEnlargedDeprecated _) _ = undefined "doField" :: Peek ReportImageView
+          peek (p@(Path_ReportImageView__picOriginal _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportImageView
           peekPath (Proxy) (Peek_ReportImageView_MEUI _p _) = _p :: Path ReportImageView MEUI
           peekValue (Proxy) (Peek_ReportImageView_MEUI _ _x) = _x :: Maybe MEUI
           peekCons _p _x = Peek_ReportImageView_MEUI _p _x :: Peek ReportImageView
@@ -2857,37 +2657,24 @@ instance Paths ReportImageView MaybeImageFile
                                                         concatMap (\(p, a') -> map p (paths (a' :: MaybeImageFile) _g)) [(Path_ReportImageView__picThumbDeprecated, _picThumbDeprecated _s)],
                                                         concatMap (\(p, a') -> map p (paths (a' :: MaybeImageFile) _g)) [(Path_ReportImageView__picPrinterDeprecated, _picPrinterDeprecated _s)],
                                                         concatMap (\(p, a') -> map p (paths (a' :: MaybeImageFile) _g)) [(Path_ReportImageView__picEnlargedDeprecated, _picEnlargedDeprecated _s)]]
-          peek (Path_ReportImageView__picSize _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picCrop _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picCaption _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picOriginal _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picEditedDeprecated _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picThumbDeprecated _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picPrinterDeprecated _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picMustEnlarge _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picEnlargedDeprecated _) _ = undefined "doField" :: Peek ReportImageView
+          peek (p@(Path_ReportImageView__picEditedDeprecated _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportImageView
+          peek (p@(Path_ReportImageView__picThumbDeprecated _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportImageView
+          peek (p@(Path_ReportImageView__picPrinterDeprecated _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportImageView
+          peek (p@(Path_ReportImageView__picEnlargedDeprecated _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportImageView
           peekPath (Proxy) (Peek_ReportImageView_MaybeImageFile _p _) = _p :: Path ReportImageView MaybeImageFile
           peekValue (Proxy) (Peek_ReportImageView_MaybeImageFile _ _x) = _x :: Maybe MaybeImageFile
           peekCons _p _x = Peek_ReportImageView_MaybeImageFile _p _x :: Peek ReportImageView
 instance Paths ReportImageView ReportImageView
     where type Path ReportImageView ReportImageView = Path_ReportImageView ReportImageView
           paths _ _ = [idPath]
-          peek _ _ = undefined "idpeek" :: Peek ReportImageView
+          peek p x = peekCons p (Just x) :: Peek ReportImageView
           peekPath (Proxy) (Peek_ReportImageView_ReportImageView _p _) = _p :: Path ReportImageView ReportImageView
           peekValue (Proxy) (Peek_ReportImageView_ReportImageView _ _x) = _x :: Maybe ReportImageView
           peekCons _p _x = Peek_ReportImageView_ReportImageView _p _x :: Peek ReportImageView
 instance Paths ReportImageView SaneSizeImageSize
     where type Path ReportImageView SaneSizeImageSize = Path_ReportImageView SaneSizeImageSize
           paths (_s@(ReportImageView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: SaneSizeImageSize) _g)) [(Path_ReportImageView__picSize, _picSize _s)]
-          peek (Path_ReportImageView__picSize _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picCrop _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picCaption _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picOriginal _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picEditedDeprecated _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picThumbDeprecated _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picPrinterDeprecated _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picMustEnlarge _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picEnlargedDeprecated _) _ = undefined "doField" :: Peek ReportImageView
+          peek (p@(Path_ReportImageView__picSize _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportImageView
           peekPath (Proxy) (Peek_ReportImageView_SaneSizeImageSize _p _) = _p :: Path ReportImageView SaneSizeImageSize
           peekValue (Proxy) (Peek_ReportImageView_SaneSizeImageSize _ _x) = _x :: Maybe SaneSizeImageSize
           peekCons _p _x = Peek_ReportImageView_SaneSizeImageSize _p _x :: Peek ReportImageView
@@ -2895,30 +2682,14 @@ instance Paths ReportImageView URI
     where type Path ReportImageView URI = Path_ReportImageView URI
           paths (_s@(ReportImageView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Maybe (Either URI ImageFile)) _g)) [(Path_ReportImageView__picOriginal,
                                                                                                                                _picOriginal _s)]
-          peek (Path_ReportImageView__picSize _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picCrop _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picCaption _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picOriginal _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picEditedDeprecated _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picThumbDeprecated _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picPrinterDeprecated _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picMustEnlarge _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picEnlargedDeprecated _) _ = undefined "doField" :: Peek ReportImageView
+          peek (p@(Path_ReportImageView__picOriginal _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportImageView
           peekPath (Proxy) (Peek_ReportImageView_URI _p _) = _p :: Path ReportImageView URI
           peekValue (Proxy) (Peek_ReportImageView_URI _ _x) = _x :: Maybe URI
           peekCons _p _x = Peek_ReportImageView_URI _p _x :: Peek ReportImageView
 instance Paths ReportImageView Text
     where type Path ReportImageView Text = Path_ReportImageView Text
           paths (_s@(ReportImageView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_ReportImageView__picCaption, _picCaption _s)]
-          peek (Path_ReportImageView__picSize _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picCrop _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picCaption _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picOriginal _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picEditedDeprecated _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picThumbDeprecated _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picPrinterDeprecated _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picMustEnlarge _) _ = undefined "doField" :: Peek ReportImageView
-          peek (Path_ReportImageView__picEnlargedDeprecated _) _ = undefined "doField" :: Peek ReportImageView
+          peek (p@(Path_ReportImageView__picCaption _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportImageView
           peekPath (Proxy) (Peek_ReportImageView_Text _p _) = _p :: Path ReportImageView Text
           peekValue (Proxy) (Peek_ReportImageView_Text _ _x) = _x :: Maybe Text
           peekCons _p _x = Peek_ReportImageView_Text _p _x :: Peek ReportImageView
@@ -2932,102 +2703,21 @@ instance Paths ReportView String
                                                    concatMap (\(p, a') -> map p (paths (a' :: ReportFlags) _g)) [(Path_ReportView__reportFlags, _reportFlags _s)],
                                                    concatMap (\(p, a') -> map p (paths (a' :: Bool) _g)) [(Path_ReportView__reportOrderByItemName, _reportOrderByItemName _s)],
                                                    concatMap (\(p, a') -> map p (paths (a' :: Bool) _g)) [(Path_ReportView__reportDisplayItemName, _reportDisplayItemName _s)]]
-          peek (Path_ReportView__reportFolder _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportContractDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportEffectiveDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAuthors _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparer _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEIN _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEMail _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerWebsite _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAbbrevs _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportTitle _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportHeader _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFooter _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportIntendedUse _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueTypeInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueApproachInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientGreeting _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwnerFull _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwner _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBriefItems _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionLocation _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBody _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportGlossary _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportSources _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLetterOfTransmittal _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportScopeOfWork _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCertification _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLimitingConditions _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPrivacyPolicy _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPerms _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRevision _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCreated _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBranding _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStatus _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRedacted _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFlags _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportUUID _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportOrderByItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDisplayItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStandardsVersion _) _ = undefined "doField" :: Peek ReportView
+          peek (p@(Path_ReportView__reportFolder _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportIntendedUse _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportBody _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportStatus _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportRedacted _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportFlags _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportOrderByItemName _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportDisplayItemName _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
           peekPath (Proxy) (Peek_ReportView_String _p _) = _p :: Path ReportView String
           peekValue (Proxy) (Peek_ReportView_String _ _x) = _x :: Maybe String
           peekCons _p _x = Peek_ReportView_String _p _x :: Peek ReportView
 instance Paths ReportView Int64
     where type Path ReportView Int64 = Path_ReportView Int64
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: EpochMilli) _g)) [(Path_ReportView__reportCreated, _reportCreated _s)]
-          peek (Path_ReportView__reportFolder _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportContractDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportEffectiveDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAuthors _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparer _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEIN _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEMail _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerWebsite _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAbbrevs _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportTitle _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportHeader _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFooter _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportIntendedUse _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueTypeInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueApproachInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientGreeting _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwnerFull _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwner _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBriefItems _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionLocation _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBody _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportGlossary _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportSources _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLetterOfTransmittal _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportScopeOfWork _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCertification _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLimitingConditions _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPrivacyPolicy _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPerms _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRevision _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCreated _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBranding _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStatus _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRedacted _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFlags _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportUUID _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportOrderByItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDisplayItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStandardsVersion _) _ = undefined "doField" :: Peek ReportView
+          peek (p@(Path_ReportView__reportCreated _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
           peekPath (Proxy) (Peek_ReportView_Int64 _p _) = _p :: Path ReportView Int64
           peekValue (Proxy) (Peek_ReportView_Int64 _ _x) = _x :: Maybe Int64
           peekCons _p _x = Peek_ReportView_Int64 _p _x :: Peek ReportView
@@ -3038,459 +2728,67 @@ instance Paths ReportView Bool
                                                    concatMap (\(p, a') -> map p (paths (a' :: ReportFlags) _g)) [(Path_ReportView__reportFlags, _reportFlags _s)],
                                                    concatMap (\(p, a') -> map p (paths (a' :: Bool) _g)) [(Path_ReportView__reportOrderByItemName, _reportOrderByItemName _s)],
                                                    concatMap (\(p, a') -> map p (paths (a' :: Bool) _g)) [(Path_ReportView__reportDisplayItemName, _reportDisplayItemName _s)]]
-          peek (Path_ReportView__reportFolder _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportContractDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportEffectiveDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAuthors _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparer _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEIN _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEMail _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerWebsite _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAbbrevs _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportTitle _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportHeader _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFooter _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportIntendedUse _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueTypeInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueApproachInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientGreeting _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwnerFull _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwner _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBriefItems _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionLocation _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBody _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportGlossary _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportSources _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLetterOfTransmittal _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportScopeOfWork _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCertification _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLimitingConditions _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPrivacyPolicy _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPerms _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRevision _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCreated _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBranding _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStatus _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRedacted _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFlags _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportUUID _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportOrderByItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDisplayItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStandardsVersion _) _ = undefined "doField" :: Peek ReportView
+          peek (p@(Path_ReportView__reportBody _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportRedacted _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportFlags _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportOrderByItemName _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportDisplayItemName _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
           peekPath (Proxy) (Peek_ReportView_Bool _p _) = _p :: Path ReportView Bool
           peekValue (Proxy) (Peek_ReportView_Bool _ _x) = _x :: Maybe Bool
           peekCons _p _x = Peek_ReportView_Bool _p _x :: Peek ReportView
 instance Paths ReportView Double
     where type Path ReportView Double = Path_ReportView Double
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElems) _g)) [(Path_ReportView__reportBody, _reportBody _s)]
-          peek (Path_ReportView__reportFolder _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportContractDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportEffectiveDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAuthors _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparer _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEIN _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEMail _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerWebsite _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAbbrevs _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportTitle _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportHeader _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFooter _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportIntendedUse _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueTypeInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueApproachInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientGreeting _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwnerFull _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwner _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBriefItems _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionLocation _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBody _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportGlossary _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportSources _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLetterOfTransmittal _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportScopeOfWork _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCertification _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLimitingConditions _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPrivacyPolicy _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPerms _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRevision _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCreated _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBranding _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStatus _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRedacted _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFlags _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportUUID _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportOrderByItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDisplayItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStandardsVersion _) _ = undefined "doField" :: Peek ReportView
+          peek (p@(Path_ReportView__reportBody _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
           peekPath (Proxy) (Peek_ReportView_Double _p _) = _p :: Path ReportView Double
           peekValue (Proxy) (Peek_ReportView_Double _ _x) = _x :: Maybe Double
           peekCons _p _x = Peek_ReportView_Double _p _x :: Peek ReportView
 instance Paths ReportView Int
     where type Path ReportView Int = Path_ReportView Int
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportStandard) _g)) [(Path_ReportView__reportStandardsVersion, _reportStandardsVersion _s)]
-          peek (Path_ReportView__reportFolder _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportContractDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportEffectiveDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAuthors _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparer _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEIN _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEMail _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerWebsite _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAbbrevs _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportTitle _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportHeader _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFooter _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportIntendedUse _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueTypeInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueApproachInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientGreeting _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwnerFull _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwner _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBriefItems _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionLocation _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBody _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportGlossary _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportSources _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLetterOfTransmittal _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportScopeOfWork _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCertification _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLimitingConditions _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPrivacyPolicy _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPerms _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRevision _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCreated _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBranding _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStatus _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRedacted _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFlags _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportUUID _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportOrderByItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDisplayItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStandardsVersion _) _ = undefined "doField" :: Peek ReportView
+          peek (p@(Path_ReportView__reportStandardsVersion _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
           peekPath (Proxy) (Peek_ReportView_Int _p _) = _p :: Path ReportView Int
           peekValue (Proxy) (Peek_ReportView_Int _ _x) = _x :: Maybe Int
           peekCons _p _x = Peek_ReportView_Int _p _x :: Peek ReportView
 instance Paths ReportView Dimension
     where type Path ReportView Dimension = Path_ReportView Dimension
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElems) _g)) [(Path_ReportView__reportBody, _reportBody _s)]
-          peek (Path_ReportView__reportFolder _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportContractDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportEffectiveDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAuthors _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparer _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEIN _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEMail _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerWebsite _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAbbrevs _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportTitle _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportHeader _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFooter _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportIntendedUse _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueTypeInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueApproachInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientGreeting _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwnerFull _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwner _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBriefItems _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionLocation _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBody _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportGlossary _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportSources _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLetterOfTransmittal _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportScopeOfWork _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCertification _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLimitingConditions _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPrivacyPolicy _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPerms _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRevision _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCreated _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBranding _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStatus _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRedacted _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFlags _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportUUID _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportOrderByItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDisplayItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStandardsVersion _) _ = undefined "doField" :: Peek ReportView
+          peek (p@(Path_ReportView__reportBody _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
           peekPath (Proxy) (Peek_ReportView_Dimension _p _) = _p :: Path ReportView Dimension
           peekValue (Proxy) (Peek_ReportView_Dimension _ _x) = _x :: Maybe Dimension
           peekCons _p _x = Peek_ReportView_Dimension _p _x :: Peek ReportView
 instance Paths ReportView ImageCrop
     where type Path ReportView ImageCrop = Path_ReportView ImageCrop
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElems) _g)) [(Path_ReportView__reportBody, _reportBody _s)]
-          peek (Path_ReportView__reportFolder _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportContractDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportEffectiveDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAuthors _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparer _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEIN _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEMail _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerWebsite _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAbbrevs _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportTitle _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportHeader _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFooter _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportIntendedUse _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueTypeInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueApproachInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientGreeting _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwnerFull _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwner _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBriefItems _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionLocation _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBody _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportGlossary _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportSources _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLetterOfTransmittal _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportScopeOfWork _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCertification _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLimitingConditions _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPrivacyPolicy _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPerms _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRevision _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCreated _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBranding _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStatus _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRedacted _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFlags _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportUUID _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportOrderByItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDisplayItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStandardsVersion _) _ = undefined "doField" :: Peek ReportView
+          peek (p@(Path_ReportView__reportBody _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
           peekPath (Proxy) (Peek_ReportView_ImageCrop _p _) = _p :: Path ReportView ImageCrop
           peekValue (Proxy) (Peek_ReportView_ImageCrop _ _x) = _x :: Maybe ImageCrop
           peekCons _p _x = Peek_ReportView_ImageCrop _p _x :: Peek ReportView
 instance Paths ReportView ImageSize
     where type Path ReportView ImageSize = Path_ReportView ImageSize
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElems) _g)) [(Path_ReportView__reportBody, _reportBody _s)]
-          peek (Path_ReportView__reportFolder _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportContractDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportEffectiveDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAuthors _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparer _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEIN _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEMail _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerWebsite _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAbbrevs _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportTitle _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportHeader _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFooter _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportIntendedUse _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueTypeInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueApproachInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientGreeting _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwnerFull _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwner _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBriefItems _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionLocation _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBody _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportGlossary _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportSources _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLetterOfTransmittal _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportScopeOfWork _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCertification _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLimitingConditions _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPrivacyPolicy _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPerms _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRevision _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCreated _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBranding _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStatus _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRedacted _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFlags _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportUUID _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportOrderByItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDisplayItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStandardsVersion _) _ = undefined "doField" :: Peek ReportView
+          peek (p@(Path_ReportView__reportBody _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
           peekPath (Proxy) (Peek_ReportView_ImageSize _p _) = _p :: Path ReportView ImageSize
           peekValue (Proxy) (Peek_ReportView_ImageSize _ _x) = _x :: Maybe ImageSize
           peekCons _p _x = Peek_ReportView_ImageSize _p _x :: Peek ReportView
 instance Paths ReportView Units
     where type Path ReportView Units = Path_ReportView Units
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElems) _g)) [(Path_ReportView__reportBody, _reportBody _s)]
-          peek (Path_ReportView__reportFolder _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportContractDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportEffectiveDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAuthors _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparer _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEIN _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEMail _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerWebsite _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAbbrevs _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportTitle _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportHeader _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFooter _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportIntendedUse _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueTypeInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueApproachInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientGreeting _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwnerFull _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwner _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBriefItems _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionLocation _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBody _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportGlossary _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportSources _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLetterOfTransmittal _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportScopeOfWork _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCertification _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLimitingConditions _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPrivacyPolicy _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPerms _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRevision _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCreated _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBranding _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStatus _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRedacted _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFlags _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportUUID _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportOrderByItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDisplayItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStandardsVersion _) _ = undefined "doField" :: Peek ReportView
+          peek (p@(Path_ReportView__reportBody _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
           peekPath (Proxy) (Peek_ReportView_Units _p _) = _p :: Path ReportView Units
           peekValue (Proxy) (Peek_ReportView_Units _ _x) = _x :: Maybe Units
           peekCons _p _x = Peek_ReportView_Units _p _x :: Peek ReportView
 instance Paths ReportView ImageFile
     where type Path ReportView ImageFile = Path_ReportView ImageFile
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElems) _g)) [(Path_ReportView__reportBody, _reportBody _s)]
-          peek (Path_ReportView__reportFolder _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportContractDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportEffectiveDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAuthors _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparer _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEIN _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEMail _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerWebsite _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAbbrevs _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportTitle _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportHeader _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFooter _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportIntendedUse _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueTypeInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueApproachInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientGreeting _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwnerFull _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwner _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBriefItems _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionLocation _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBody _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportGlossary _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportSources _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLetterOfTransmittal _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportScopeOfWork _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCertification _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLimitingConditions _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPrivacyPolicy _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPerms _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRevision _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCreated _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBranding _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStatus _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRedacted _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFlags _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportUUID _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportOrderByItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDisplayItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStandardsVersion _) _ = undefined "doField" :: Peek ReportView
+          peek (p@(Path_ReportView__reportBody _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
           peekPath (Proxy) (Peek_ReportView_ImageFile _p _) = _p :: Path ReportView ImageFile
           peekValue (Proxy) (Peek_ReportView_ImageFile _ _x) = _x :: Maybe ImageFile
           peekCons _p _x = Peek_ReportView_ImageFile _p _x :: Peek ReportView
 instance Paths ReportView Integer
     where type Path ReportView Integer = Path_ReportView Integer
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Integer) _g)) [(Path_ReportView__reportRevision, _reportRevision _s)]
-          peek (Path_ReportView__reportFolder _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportContractDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportEffectiveDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAuthors _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparer _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEIN _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEMail _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerWebsite _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAbbrevs _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportTitle _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportHeader _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFooter _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportIntendedUse _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueTypeInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueApproachInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientGreeting _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwnerFull _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwner _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBriefItems _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionLocation _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBody _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportGlossary _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportSources _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLetterOfTransmittal _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportScopeOfWork _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCertification _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLimitingConditions _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPrivacyPolicy _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPerms _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRevision _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCreated _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBranding _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStatus _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRedacted _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFlags _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportUUID _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportOrderByItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDisplayItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStandardsVersion _) _ = undefined "doField" :: Peek ReportView
+          peek (p@(Path_ReportView__reportRevision _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
           peekPath (Proxy) (Peek_ReportView_Integer _p _) = _p :: Path ReportView Integer
           peekValue (Proxy) (Peek_ReportView_Integer _ _x) = _x :: Maybe Integer
           peekCons _p _x = Peek_ReportView_Integer _p _x :: Peek ReportView
@@ -3537,51 +2835,47 @@ instance Paths ReportView JSONText
                                                    concatMap (\(p, a') -> map p (paths (a' :: ReportFlags) _g)) [(Path_ReportView__reportFlags, _reportFlags _s)],
                                                    concatMap (\(p, a') -> map p (paths (a' :: Bool) _g)) [(Path_ReportView__reportOrderByItemName, _reportOrderByItemName _s)],
                                                    concatMap (\(p, a') -> map p (paths (a' :: Bool) _g)) [(Path_ReportView__reportDisplayItemName, _reportDisplayItemName _s)]]
-          peek (Path_ReportView__reportFolder _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportContractDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportEffectiveDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAuthors _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparer _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEIN _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEMail _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerWebsite _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAbbrevs _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportTitle _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportHeader _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFooter _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportIntendedUse _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueTypeInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueApproachInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientGreeting _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwnerFull _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwner _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBriefItems _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionLocation _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBody _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportGlossary _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportSources _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLetterOfTransmittal _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportScopeOfWork _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCertification _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLimitingConditions _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPrivacyPolicy _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPerms _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRevision _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCreated _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBranding _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStatus _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRedacted _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFlags _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportUUID _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportOrderByItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDisplayItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStandardsVersion _) _ = undefined "doField" :: Peek ReportView
+          peek (p@(Path_ReportView__reportFolder _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportName _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportDate _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportContractDate _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportInspectionDate _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportEffectiveDate _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportAuthors _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportPreparer _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportPreparerEIN _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportPreparerAddress _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportPreparerEMail _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportPreparerWebsite _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportAbbrevs _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportTitle _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportHeader _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportFooter _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportIntendedUse _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportValueTypeInfo _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportValueApproachInfo _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportClientName _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportClientAddress _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportClientGreeting _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportItemsOwnerFull _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportItemsOwner _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportBriefItems _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportInspectionLocation _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportBody _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportGlossary _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportSources _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportLetterOfTransmittal _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportScopeOfWork _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportCertification _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportLimitingConditions _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportPrivacyPolicy _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportPerms _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportBranding _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportStatus _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportRedacted _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportFlags _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportOrderByItemName _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportDisplayItemName _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
           peekPath (Proxy) (Peek_ReportView_JSONText _p _) = _p :: Path ReportView JSONText
           peekValue (Proxy) (Peek_ReportView_JSONText _ _x) = _x :: Maybe JSONText
           peekCons _p _x = Peek_ReportView_JSONText _p _x :: Peek ReportView
@@ -3619,408 +2913,87 @@ instance Paths ReportView Markup
                                                    concatMap (\(p, a') -> map p (paths (a' :: Markups) _g)) [(Path_ReportView__reportCertification, _reportCertification _s)],
                                                    concatMap (\(p, a') -> map p (paths (a' :: Markups) _g)) [(Path_ReportView__reportLimitingConditions, _reportLimitingConditions _s)],
                                                    concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_ReportView__reportPrivacyPolicy, _reportPrivacyPolicy _s)]]
-          peek (Path_ReportView__reportFolder _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportContractDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportEffectiveDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAuthors _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparer _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEIN _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEMail _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerWebsite _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAbbrevs _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportTitle _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportHeader _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFooter _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportIntendedUse _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueTypeInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueApproachInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientGreeting _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwnerFull _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwner _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBriefItems _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionLocation _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBody _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportGlossary _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportSources _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLetterOfTransmittal _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportScopeOfWork _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCertification _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLimitingConditions _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPrivacyPolicy _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPerms _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRevision _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCreated _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBranding _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStatus _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRedacted _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFlags _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportUUID _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportOrderByItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDisplayItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStandardsVersion _) _ = undefined "doField" :: Peek ReportView
+          peek (p@(Path_ReportView__reportName _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportDate _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportContractDate _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportInspectionDate _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportEffectiveDate _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportAuthors _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportPreparer _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportPreparerEIN _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportPreparerAddress _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportPreparerEMail _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportPreparerWebsite _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportAbbrevs _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportTitle _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportHeader _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportFooter _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportValueTypeInfo _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportValueApproachInfo _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportClientName _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportClientAddress _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportClientGreeting _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportItemsOwnerFull _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportItemsOwner _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportBriefItems _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportInspectionLocation _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportBody _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportGlossary _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportSources _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportLetterOfTransmittal _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportScopeOfWork _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportCertification _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportLimitingConditions _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportPrivacyPolicy _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
           peekPath (Proxy) (Peek_ReportView_Markup _p _) = _p :: Path ReportView Markup
           peekValue (Proxy) (Peek_ReportView_Markup _ _x) = _x :: Maybe Markup
           peekCons _p _x = Peek_ReportView_Markup _p _x :: Peek ReportView
 instance Paths ReportView Permissions
     where type Path ReportView Permissions = Path_ReportView Permissions
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Permissions) _g)) [(Path_ReportView__reportPerms, _reportPerms _s)]
-          peek (Path_ReportView__reportFolder _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportContractDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportEffectiveDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAuthors _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparer _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEIN _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEMail _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerWebsite _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAbbrevs _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportTitle _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportHeader _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFooter _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportIntendedUse _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueTypeInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueApproachInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientGreeting _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwnerFull _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwner _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBriefItems _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionLocation _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBody _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportGlossary _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportSources _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLetterOfTransmittal _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportScopeOfWork _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCertification _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLimitingConditions _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPrivacyPolicy _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPerms _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRevision _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCreated _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBranding _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStatus _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRedacted _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFlags _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportUUID _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportOrderByItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDisplayItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStandardsVersion _) _ = undefined "doField" :: Peek ReportView
+          peek (p@(Path_ReportView__reportPerms _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
           peekPath (Proxy) (Peek_ReportView_Permissions _p _) = _p :: Path ReportView Permissions
           peekValue (Proxy) (Peek_ReportView_Permissions _ _x) = _x :: Maybe Permissions
           peekCons _p _x = Peek_ReportView_Permissions _p _x :: Peek ReportView
 instance Paths ReportView UserIds
     where type Path ReportView UserIds = Path_ReportView UserIds
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Permissions) _g)) [(Path_ReportView__reportPerms, _reportPerms _s)]
-          peek (Path_ReportView__reportFolder _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportContractDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportEffectiveDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAuthors _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparer _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEIN _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEMail _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerWebsite _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAbbrevs _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportTitle _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportHeader _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFooter _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportIntendedUse _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueTypeInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueApproachInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientGreeting _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwnerFull _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwner _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBriefItems _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionLocation _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBody _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportGlossary _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportSources _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLetterOfTransmittal _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportScopeOfWork _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCertification _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLimitingConditions _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPrivacyPolicy _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPerms _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRevision _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCreated _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBranding _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStatus _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRedacted _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFlags _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportUUID _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportOrderByItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDisplayItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStandardsVersion _) _ = undefined "doField" :: Peek ReportView
+          peek (p@(Path_ReportView__reportPerms _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
           peekPath (Proxy) (Peek_ReportView_UserIds _p _) = _p :: Path ReportView UserIds
           peekValue (Proxy) (Peek_ReportView_UserIds _ _x) = _x :: Maybe UserIds
           peekCons _p _x = Peek_ReportView_UserIds _p _x :: Peek ReportView
 instance Paths ReportView AbbrevPair
     where type Path ReportView AbbrevPair = Path_ReportView AbbrevPair
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: AbbrevPairs) _g)) [(Path_ReportView__reportAbbrevs, _reportAbbrevs _s)]
-          peek (Path_ReportView__reportFolder _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportContractDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportEffectiveDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAuthors _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparer _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEIN _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEMail _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerWebsite _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAbbrevs _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportTitle _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportHeader _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFooter _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportIntendedUse _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueTypeInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueApproachInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientGreeting _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwnerFull _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwner _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBriefItems _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionLocation _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBody _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportGlossary _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportSources _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLetterOfTransmittal _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportScopeOfWork _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCertification _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLimitingConditions _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPrivacyPolicy _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPerms _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRevision _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCreated _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBranding _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStatus _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRedacted _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFlags _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportUUID _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportOrderByItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDisplayItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStandardsVersion _) _ = undefined "doField" :: Peek ReportView
+          peek (p@(Path_ReportView__reportAbbrevs _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
           peekPath (Proxy) (Peek_ReportView_AbbrevPair _p _) = _p :: Path ReportView AbbrevPair
           peekValue (Proxy) (Peek_ReportView_AbbrevPair _ _x) = _x :: Maybe AbbrevPair
           peekCons _p _x = Peek_ReportView_AbbrevPair _p _x :: Peek ReportView
 instance Paths ReportView AbbrevPairs
     where type Path ReportView AbbrevPairs = Path_ReportView AbbrevPairs
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: AbbrevPairs) _g)) [(Path_ReportView__reportAbbrevs, _reportAbbrevs _s)]
-          peek (Path_ReportView__reportFolder _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportContractDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportEffectiveDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAuthors _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparer _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEIN _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEMail _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerWebsite _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAbbrevs _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportTitle _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportHeader _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFooter _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportIntendedUse _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueTypeInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueApproachInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientGreeting _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwnerFull _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwner _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBriefItems _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionLocation _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBody _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportGlossary _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportSources _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLetterOfTransmittal _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportScopeOfWork _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCertification _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLimitingConditions _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPrivacyPolicy _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPerms _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRevision _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCreated _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBranding _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStatus _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRedacted _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFlags _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportUUID _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportOrderByItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDisplayItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStandardsVersion _) _ = undefined "doField" :: Peek ReportView
+          peek (p@(Path_ReportView__reportAbbrevs _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
           peekPath (Proxy) (Peek_ReportView_AbbrevPairs _p _) = _p :: Path ReportView AbbrevPairs
           peekValue (Proxy) (Peek_ReportView_AbbrevPairs _ _x) = _x :: Maybe AbbrevPairs
           peekCons _p _x = Peek_ReportView_AbbrevPairs _p _x :: Peek ReportView
 instance Paths ReportView Author
     where type Path ReportView Author = Path_ReportView Author
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Authors) _g)) [(Path_ReportView__reportAuthors, _reportAuthors _s)]
-          peek (Path_ReportView__reportFolder _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportContractDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportEffectiveDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAuthors _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparer _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEIN _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEMail _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerWebsite _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAbbrevs _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportTitle _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportHeader _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFooter _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportIntendedUse _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueTypeInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueApproachInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientGreeting _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwnerFull _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwner _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBriefItems _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionLocation _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBody _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportGlossary _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportSources _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLetterOfTransmittal _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportScopeOfWork _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCertification _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLimitingConditions _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPrivacyPolicy _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPerms _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRevision _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCreated _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBranding _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStatus _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRedacted _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFlags _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportUUID _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportOrderByItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDisplayItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStandardsVersion _) _ = undefined "doField" :: Peek ReportView
+          peek (p@(Path_ReportView__reportAuthors _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
           peekPath (Proxy) (Peek_ReportView_Author _p _) = _p :: Path ReportView Author
           peekValue (Proxy) (Peek_ReportView_Author _ _x) = _x :: Maybe Author
           peekCons _p _x = Peek_ReportView_Author _p _x :: Peek ReportView
 instance Paths ReportView Authors
     where type Path ReportView Authors = Path_ReportView Authors
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Authors) _g)) [(Path_ReportView__reportAuthors, _reportAuthors _s)]
-          peek (Path_ReportView__reportFolder _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportContractDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportEffectiveDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAuthors _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparer _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEIN _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEMail _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerWebsite _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAbbrevs _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportTitle _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportHeader _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFooter _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportIntendedUse _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueTypeInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueApproachInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientGreeting _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwnerFull _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwner _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBriefItems _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionLocation _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBody _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportGlossary _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportSources _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLetterOfTransmittal _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportScopeOfWork _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCertification _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLimitingConditions _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPrivacyPolicy _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPerms _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRevision _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCreated _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBranding _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStatus _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRedacted _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFlags _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportUUID _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportOrderByItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDisplayItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStandardsVersion _) _ = undefined "doField" :: Peek ReportView
+          peek (p@(Path_ReportView__reportAuthors _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
           peekPath (Proxy) (Peek_ReportView_Authors _p _) = _p :: Path ReportView Authors
           peekValue (Proxy) (Peek_ReportView_Authors _ _x) = _x :: Maybe Authors
           peekCons _p _x = Peek_ReportView_Authors _p _x :: Peek ReportView
 instance Paths ReportView Branding
     where type Path ReportView Branding = Path_ReportView Branding
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Branding) _g)) [(Path_ReportView__reportBranding, _reportBranding _s)]
-          peek (Path_ReportView__reportFolder _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportContractDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportEffectiveDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAuthors _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparer _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEIN _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEMail _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerWebsite _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAbbrevs _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportTitle _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportHeader _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFooter _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportIntendedUse _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueTypeInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueApproachInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientGreeting _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwnerFull _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwner _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBriefItems _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionLocation _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBody _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportGlossary _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportSources _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLetterOfTransmittal _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportScopeOfWork _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCertification _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLimitingConditions _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPrivacyPolicy _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPerms _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRevision _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCreated _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBranding _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStatus _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRedacted _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFlags _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportUUID _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportOrderByItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDisplayItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStandardsVersion _) _ = undefined "doField" :: Peek ReportView
+          peek (p@(Path_ReportView__reportBranding _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
           peekPath (Proxy) (Peek_ReportView_Branding _p _) = _p :: Path ReportView Branding
           peekValue (Proxy) (Peek_ReportView_Branding _ _x) = _x :: Maybe Branding
           peekCons _p _x = Peek_ReportView_Branding _p _x :: Peek ReportView
@@ -4028,51 +3001,8 @@ instance Paths ReportView MarkupPair
     where type Path ReportView MarkupPair = Path_ReportView MarkupPair
           paths (_s@(ReportView {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: MarkupPairs) _g)) [(Path_ReportView__reportGlossary, _reportGlossary _s)],
                                                    concatMap (\(p, a') -> map p (paths (a' :: MarkupPairs) _g)) [(Path_ReportView__reportSources, _reportSources _s)]]
-          peek (Path_ReportView__reportFolder _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportContractDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportEffectiveDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAuthors _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparer _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEIN _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEMail _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerWebsite _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAbbrevs _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportTitle _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportHeader _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFooter _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportIntendedUse _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueTypeInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueApproachInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientGreeting _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwnerFull _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwner _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBriefItems _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionLocation _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBody _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportGlossary _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportSources _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLetterOfTransmittal _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportScopeOfWork _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCertification _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLimitingConditions _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPrivacyPolicy _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPerms _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRevision _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCreated _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBranding _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStatus _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRedacted _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFlags _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportUUID _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportOrderByItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDisplayItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStandardsVersion _) _ = undefined "doField" :: Peek ReportView
+          peek (p@(Path_ReportView__reportGlossary _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportSources _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
           peekPath (Proxy) (Peek_ReportView_MarkupPair _p _) = _p :: Path ReportView MarkupPair
           peekValue (Proxy) (Peek_ReportView_MarkupPair _ _x) = _x :: Maybe MarkupPair
           peekCons _p _x = Peek_ReportView_MarkupPair _p _x :: Peek ReportView
@@ -4080,51 +3010,8 @@ instance Paths ReportView MarkupPairs
     where type Path ReportView MarkupPairs = Path_ReportView MarkupPairs
           paths (_s@(ReportView {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: MarkupPairs) _g)) [(Path_ReportView__reportGlossary, _reportGlossary _s)],
                                                    concatMap (\(p, a') -> map p (paths (a' :: MarkupPairs) _g)) [(Path_ReportView__reportSources, _reportSources _s)]]
-          peek (Path_ReportView__reportFolder _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportContractDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportEffectiveDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAuthors _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparer _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEIN _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEMail _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerWebsite _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAbbrevs _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportTitle _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportHeader _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFooter _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportIntendedUse _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueTypeInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueApproachInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientGreeting _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwnerFull _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwner _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBriefItems _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionLocation _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBody _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportGlossary _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportSources _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLetterOfTransmittal _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportScopeOfWork _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCertification _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLimitingConditions _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPrivacyPolicy _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPerms _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRevision _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCreated _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBranding _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStatus _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRedacted _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFlags _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportUUID _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportOrderByItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDisplayItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStandardsVersion _) _ = undefined "doField" :: Peek ReportView
+          peek (p@(Path_ReportView__reportGlossary _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportSources _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
           peekPath (Proxy) (Peek_ReportView_MarkupPairs _p _) = _p :: Path ReportView MarkupPairs
           peekValue (Proxy) (Peek_ReportView_MarkupPairs _ _x) = _x :: Maybe MarkupPairs
           peekCons _p _x = Peek_ReportView_MarkupPairs _p _x :: Peek ReportView
@@ -4132,357 +3019,50 @@ instance Paths ReportView Markups
     where type Path ReportView Markups = Path_ReportView Markups
           paths (_s@(ReportView {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: Markups) _g)) [(Path_ReportView__reportCertification, _reportCertification _s)],
                                                    concatMap (\(p, a') -> map p (paths (a' :: Markups) _g)) [(Path_ReportView__reportLimitingConditions, _reportLimitingConditions _s)]]
-          peek (Path_ReportView__reportFolder _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportContractDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportEffectiveDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAuthors _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparer _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEIN _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEMail _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerWebsite _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAbbrevs _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportTitle _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportHeader _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFooter _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportIntendedUse _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueTypeInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueApproachInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientGreeting _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwnerFull _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwner _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBriefItems _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionLocation _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBody _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportGlossary _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportSources _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLetterOfTransmittal _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportScopeOfWork _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCertification _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLimitingConditions _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPrivacyPolicy _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPerms _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRevision _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCreated _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBranding _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStatus _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRedacted _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFlags _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportUUID _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportOrderByItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDisplayItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStandardsVersion _) _ = undefined "doField" :: Peek ReportView
+          peek (p@(Path_ReportView__reportCertification _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportLimitingConditions _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
           peekPath (Proxy) (Peek_ReportView_Markups _p _) = _p :: Path ReportView Markups
           peekValue (Proxy) (Peek_ReportView_Markups _ _x) = _x :: Maybe Markups
           peekCons _p _x = Peek_ReportView_Markups _p _x :: Peek ReportView
 instance Paths ReportView MaybeReportIntendedUse
     where type Path ReportView MaybeReportIntendedUse = Path_ReportView MaybeReportIntendedUse
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MaybeReportIntendedUse) _g)) [(Path_ReportView__reportIntendedUse, _reportIntendedUse _s)]
-          peek (Path_ReportView__reportFolder _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportContractDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportEffectiveDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAuthors _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparer _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEIN _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEMail _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerWebsite _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAbbrevs _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportTitle _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportHeader _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFooter _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportIntendedUse _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueTypeInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueApproachInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientGreeting _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwnerFull _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwner _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBriefItems _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionLocation _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBody _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportGlossary _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportSources _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLetterOfTransmittal _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportScopeOfWork _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCertification _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLimitingConditions _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPrivacyPolicy _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPerms _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRevision _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCreated _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBranding _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStatus _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRedacted _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFlags _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportUUID _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportOrderByItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDisplayItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStandardsVersion _) _ = undefined "doField" :: Peek ReportView
+          peek (p@(Path_ReportView__reportIntendedUse _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
           peekPath (Proxy) (Peek_ReportView_MaybeReportIntendedUse _p _) = _p :: Path ReportView MaybeReportIntendedUse
           peekValue (Proxy) (Peek_ReportView_MaybeReportIntendedUse _ _x) = _x :: Maybe MaybeReportIntendedUse
           peekCons _p _x = Peek_ReportView_MaybeReportIntendedUse _p _x :: Peek ReportView
 instance Paths ReportView ReportElem
     where type Path ReportView ReportElem = Path_ReportView ReportElem
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElems) _g)) [(Path_ReportView__reportBody, _reportBody _s)]
-          peek (Path_ReportView__reportFolder _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportContractDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportEffectiveDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAuthors _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparer _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEIN _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEMail _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerWebsite _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAbbrevs _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportTitle _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportHeader _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFooter _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportIntendedUse _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueTypeInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueApproachInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientGreeting _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwnerFull _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwner _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBriefItems _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionLocation _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBody _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportGlossary _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportSources _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLetterOfTransmittal _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportScopeOfWork _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCertification _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLimitingConditions _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPrivacyPolicy _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPerms _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRevision _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCreated _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBranding _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStatus _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRedacted _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFlags _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportUUID _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportOrderByItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDisplayItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStandardsVersion _) _ = undefined "doField" :: Peek ReportView
+          peek (p@(Path_ReportView__reportBody _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
           peekPath (Proxy) (Peek_ReportView_ReportElem _p _) = _p :: Path ReportView ReportElem
           peekValue (Proxy) (Peek_ReportView_ReportElem _ _x) = _x :: Maybe ReportElem
           peekCons _p _x = Peek_ReportView_ReportElem _p _x :: Peek ReportView
 instance Paths ReportView ReportElems
     where type Path ReportView ReportElems = Path_ReportView ReportElems
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElems) _g)) [(Path_ReportView__reportBody, _reportBody _s)]
-          peek (Path_ReportView__reportFolder _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportContractDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportEffectiveDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAuthors _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparer _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEIN _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEMail _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerWebsite _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAbbrevs _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportTitle _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportHeader _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFooter _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportIntendedUse _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueTypeInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueApproachInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientGreeting _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwnerFull _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwner _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBriefItems _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionLocation _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBody _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportGlossary _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportSources _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLetterOfTransmittal _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportScopeOfWork _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCertification _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLimitingConditions _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPrivacyPolicy _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPerms _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRevision _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCreated _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBranding _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStatus _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRedacted _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFlags _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportUUID _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportOrderByItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDisplayItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStandardsVersion _) _ = undefined "doField" :: Peek ReportView
+          peek (p@(Path_ReportView__reportBody _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
           peekPath (Proxy) (Peek_ReportView_ReportElems _p _) = _p :: Path ReportView ReportElems
           peekValue (Proxy) (Peek_ReportView_ReportElems _ _x) = _x :: Maybe ReportElems
           peekCons _p _x = Peek_ReportView_ReportElems _p _x :: Peek ReportView
 instance Paths ReportView ReportFlags
     where type Path ReportView ReportFlags = Path_ReportView ReportFlags
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportFlags) _g)) [(Path_ReportView__reportFlags, _reportFlags _s)]
-          peek (Path_ReportView__reportFolder _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportContractDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportEffectiveDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAuthors _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparer _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEIN _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEMail _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerWebsite _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAbbrevs _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportTitle _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportHeader _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFooter _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportIntendedUse _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueTypeInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueApproachInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientGreeting _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwnerFull _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwner _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBriefItems _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionLocation _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBody _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportGlossary _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportSources _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLetterOfTransmittal _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportScopeOfWork _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCertification _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLimitingConditions _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPrivacyPolicy _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPerms _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRevision _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCreated _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBranding _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStatus _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRedacted _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFlags _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportUUID _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportOrderByItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDisplayItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStandardsVersion _) _ = undefined "doField" :: Peek ReportView
+          peek (p@(Path_ReportView__reportFlags _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
           peekPath (Proxy) (Peek_ReportView_ReportFlags _p _) = _p :: Path ReportView ReportFlags
           peekValue (Proxy) (Peek_ReportView_ReportFlags _ _x) = _x :: Maybe ReportFlags
           peekCons _p _x = Peek_ReportView_ReportFlags _p _x :: Peek ReportView
 instance Paths ReportView ReportStandard
     where type Path ReportView ReportStandard = Path_ReportView ReportStandard
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportStandard) _g)) [(Path_ReportView__reportStandardsVersion, _reportStandardsVersion _s)]
-          peek (Path_ReportView__reportFolder _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportContractDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportEffectiveDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAuthors _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparer _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEIN _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEMail _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerWebsite _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAbbrevs _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportTitle _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportHeader _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFooter _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportIntendedUse _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueTypeInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueApproachInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientGreeting _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwnerFull _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwner _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBriefItems _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionLocation _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBody _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportGlossary _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportSources _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLetterOfTransmittal _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportScopeOfWork _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCertification _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLimitingConditions _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPrivacyPolicy _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPerms _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRevision _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCreated _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBranding _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStatus _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRedacted _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFlags _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportUUID _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportOrderByItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDisplayItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStandardsVersion _) _ = undefined "doField" :: Peek ReportView
+          peek (p@(Path_ReportView__reportStandardsVersion _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
           peekPath (Proxy) (Peek_ReportView_ReportStandard _p _) = _p :: Path ReportView ReportStandard
           peekValue (Proxy) (Peek_ReportView_ReportStandard _ _x) = _x :: Maybe ReportStandard
           peekCons _p _x = Peek_ReportView_ReportStandard _p _x :: Peek ReportView
 instance Paths ReportView ReportStatus
     where type Path ReportView ReportStatus = Path_ReportView ReportStatus
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportStatus) _g)) [(Path_ReportView__reportStatus, _reportStatus _s)]
-          peek (Path_ReportView__reportFolder _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportContractDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportEffectiveDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAuthors _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparer _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEIN _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEMail _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerWebsite _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAbbrevs _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportTitle _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportHeader _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFooter _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportIntendedUse _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueTypeInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueApproachInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientGreeting _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwnerFull _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwner _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBriefItems _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionLocation _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBody _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportGlossary _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportSources _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLetterOfTransmittal _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportScopeOfWork _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCertification _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLimitingConditions _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPrivacyPolicy _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPerms _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRevision _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCreated _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBranding _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStatus _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRedacted _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFlags _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportUUID _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportOrderByItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDisplayItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStandardsVersion _) _ = undefined "doField" :: Peek ReportView
+          peek (p@(Path_ReportView__reportStatus _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
           peekPath (Proxy) (Peek_ReportView_ReportStatus _p _) = _p :: Path ReportView ReportStatus
           peekValue (Proxy) (Peek_ReportView_ReportStatus _ _x) = _x :: Maybe ReportStatus
           peekCons _p _x = Peek_ReportView_ReportStatus _p _x :: Peek ReportView
@@ -4490,721 +3070,105 @@ instance Paths ReportView ReportValueApproachInfo
     where type Path ReportView ReportValueApproachInfo = Path_ReportView ReportValueApproachInfo
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportValueApproachInfo) _g)) [(Path_ReportView__reportValueApproachInfo,
                                                                                                                      _reportValueApproachInfo _s)]
-          peek (Path_ReportView__reportFolder _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportContractDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportEffectiveDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAuthors _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparer _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEIN _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEMail _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerWebsite _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAbbrevs _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportTitle _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportHeader _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFooter _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportIntendedUse _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueTypeInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueApproachInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientGreeting _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwnerFull _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwner _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBriefItems _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionLocation _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBody _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportGlossary _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportSources _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLetterOfTransmittal _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportScopeOfWork _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCertification _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLimitingConditions _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPrivacyPolicy _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPerms _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRevision _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCreated _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBranding _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStatus _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRedacted _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFlags _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportUUID _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportOrderByItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDisplayItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStandardsVersion _) _ = undefined "doField" :: Peek ReportView
+          peek (p@(Path_ReportView__reportValueApproachInfo _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
           peekPath (Proxy) (Peek_ReportView_ReportValueApproachInfo _p _) = _p :: Path ReportView ReportValueApproachInfo
           peekValue (Proxy) (Peek_ReportView_ReportValueApproachInfo _ _x) = _x :: Maybe ReportValueApproachInfo
           peekCons _p _x = Peek_ReportView_ReportValueApproachInfo _p _x :: Peek ReportView
 instance Paths ReportView ReportValueTypeInfo
     where type Path ReportView ReportValueTypeInfo = Path_ReportView ReportValueTypeInfo
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportValueTypeInfo) _g)) [(Path_ReportView__reportValueTypeInfo, _reportValueTypeInfo _s)]
-          peek (Path_ReportView__reportFolder _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportContractDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportEffectiveDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAuthors _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparer _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEIN _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEMail _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerWebsite _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAbbrevs _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportTitle _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportHeader _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFooter _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportIntendedUse _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueTypeInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueApproachInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientGreeting _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwnerFull _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwner _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBriefItems _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionLocation _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBody _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportGlossary _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportSources _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLetterOfTransmittal _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportScopeOfWork _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCertification _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLimitingConditions _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPrivacyPolicy _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPerms _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRevision _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCreated _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBranding _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStatus _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRedacted _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFlags _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportUUID _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportOrderByItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDisplayItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStandardsVersion _) _ = undefined "doField" :: Peek ReportView
+          peek (p@(Path_ReportView__reportValueTypeInfo _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
           peekPath (Proxy) (Peek_ReportView_ReportValueTypeInfo _p _) = _p :: Path ReportView ReportValueTypeInfo
           peekValue (Proxy) (Peek_ReportView_ReportValueTypeInfo _ _x) = _x :: Maybe ReportValueTypeInfo
           peekCons _p _x = Peek_ReportView_ReportValueTypeInfo _p _x :: Peek ReportView
 instance Paths ReportView EUI
     where type Path ReportView EUI = Path_ReportView EUI
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElems) _g)) [(Path_ReportView__reportBody, _reportBody _s)]
-          peek (Path_ReportView__reportFolder _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportContractDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportEffectiveDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAuthors _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparer _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEIN _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEMail _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerWebsite _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAbbrevs _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportTitle _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportHeader _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFooter _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportIntendedUse _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueTypeInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueApproachInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientGreeting _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwnerFull _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwner _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBriefItems _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionLocation _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBody _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportGlossary _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportSources _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLetterOfTransmittal _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportScopeOfWork _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCertification _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLimitingConditions _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPrivacyPolicy _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPerms _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRevision _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCreated _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBranding _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStatus _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRedacted _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFlags _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportUUID _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportOrderByItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDisplayItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStandardsVersion _) _ = undefined "doField" :: Peek ReportView
+          peek (p@(Path_ReportView__reportBody _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
           peekPath (Proxy) (Peek_ReportView_EUI _p _) = _p :: Path ReportView EUI
           peekValue (Proxy) (Peek_ReportView_EUI _ _x) = _x :: Maybe EUI
           peekCons _p _x = Peek_ReportView_EUI _p _x :: Peek ReportView
 instance Paths ReportView MEUI
     where type Path ReportView MEUI = Path_ReportView MEUI
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElems) _g)) [(Path_ReportView__reportBody, _reportBody _s)]
-          peek (Path_ReportView__reportFolder _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportContractDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportEffectiveDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAuthors _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparer _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEIN _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEMail _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerWebsite _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAbbrevs _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportTitle _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportHeader _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFooter _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportIntendedUse _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueTypeInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueApproachInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientGreeting _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwnerFull _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwner _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBriefItems _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionLocation _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBody _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportGlossary _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportSources _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLetterOfTransmittal _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportScopeOfWork _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCertification _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLimitingConditions _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPrivacyPolicy _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPerms _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRevision _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCreated _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBranding _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStatus _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRedacted _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFlags _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportUUID _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportOrderByItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDisplayItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStandardsVersion _) _ = undefined "doField" :: Peek ReportView
+          peek (p@(Path_ReportView__reportBody _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
           peekPath (Proxy) (Peek_ReportView_MEUI _p _) = _p :: Path ReportView MEUI
           peekValue (Proxy) (Peek_ReportView_MEUI _ _x) = _x :: Maybe MEUI
           peekCons _p _x = Peek_ReportView_MEUI _p _x :: Peek ReportView
 instance Paths ReportView MaybeImageFile
     where type Path ReportView MaybeImageFile = Path_ReportView MaybeImageFile
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElems) _g)) [(Path_ReportView__reportBody, _reportBody _s)]
-          peek (Path_ReportView__reportFolder _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportContractDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportEffectiveDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAuthors _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparer _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEIN _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEMail _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerWebsite _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAbbrevs _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportTitle _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportHeader _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFooter _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportIntendedUse _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueTypeInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueApproachInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientGreeting _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwnerFull _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwner _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBriefItems _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionLocation _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBody _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportGlossary _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportSources _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLetterOfTransmittal _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportScopeOfWork _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCertification _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLimitingConditions _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPrivacyPolicy _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPerms _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRevision _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCreated _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBranding _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStatus _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRedacted _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFlags _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportUUID _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportOrderByItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDisplayItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStandardsVersion _) _ = undefined "doField" :: Peek ReportView
+          peek (p@(Path_ReportView__reportBody _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
           peekPath (Proxy) (Peek_ReportView_MaybeImageFile _p _) = _p :: Path ReportView MaybeImageFile
           peekValue (Proxy) (Peek_ReportView_MaybeImageFile _ _x) = _x :: Maybe MaybeImageFile
           peekCons _p _x = Peek_ReportView_MaybeImageFile _p _x :: Peek ReportView
 instance Paths ReportView ReportImage
     where type Path ReportView ReportImage = Path_ReportView ReportImage
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElems) _g)) [(Path_ReportView__reportBody, _reportBody _s)]
-          peek (Path_ReportView__reportFolder _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportContractDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportEffectiveDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAuthors _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparer _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEIN _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEMail _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerWebsite _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAbbrevs _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportTitle _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportHeader _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFooter _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportIntendedUse _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueTypeInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueApproachInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientGreeting _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwnerFull _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwner _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBriefItems _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionLocation _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBody _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportGlossary _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportSources _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLetterOfTransmittal _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportScopeOfWork _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCertification _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLimitingConditions _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPrivacyPolicy _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPerms _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRevision _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCreated _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBranding _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStatus _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRedacted _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFlags _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportUUID _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportOrderByItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDisplayItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStandardsVersion _) _ = undefined "doField" :: Peek ReportView
+          peek (p@(Path_ReportView__reportBody _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
           peekPath (Proxy) (Peek_ReportView_ReportImage _p _) = _p :: Path ReportView ReportImage
           peekValue (Proxy) (Peek_ReportView_ReportImage _ _x) = _x :: Maybe ReportImage
           peekCons _p _x = Peek_ReportView_ReportImage _p _x :: Peek ReportView
 instance Paths ReportView ReportImages
     where type Path ReportView ReportImages = Path_ReportView ReportImages
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElems) _g)) [(Path_ReportView__reportBody, _reportBody _s)]
-          peek (Path_ReportView__reportFolder _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportContractDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportEffectiveDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAuthors _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparer _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEIN _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEMail _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerWebsite _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAbbrevs _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportTitle _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportHeader _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFooter _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportIntendedUse _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueTypeInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueApproachInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientGreeting _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwnerFull _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwner _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBriefItems _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionLocation _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBody _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportGlossary _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportSources _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLetterOfTransmittal _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportScopeOfWork _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCertification _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLimitingConditions _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPrivacyPolicy _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPerms _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRevision _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCreated _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBranding _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStatus _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRedacted _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFlags _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportUUID _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportOrderByItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDisplayItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStandardsVersion _) _ = undefined "doField" :: Peek ReportView
+          peek (p@(Path_ReportView__reportBody _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
           peekPath (Proxy) (Peek_ReportView_ReportImages _p _) = _p :: Path ReportView ReportImages
           peekValue (Proxy) (Peek_ReportView_ReportImages _ _x) = _x :: Maybe ReportImages
           peekCons _p _x = Peek_ReportView_ReportImages _p _x :: Peek ReportView
 instance Paths ReportView ReadOnlyFilePath
     where type Path ReportView ReadOnlyFilePath = Path_ReportView ReadOnlyFilePath
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReadOnlyFilePath) _g)) [(Path_ReportView__reportFolder, _reportFolder _s)]
-          peek (Path_ReportView__reportFolder _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportContractDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportEffectiveDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAuthors _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparer _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEIN _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEMail _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerWebsite _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAbbrevs _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportTitle _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportHeader _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFooter _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportIntendedUse _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueTypeInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueApproachInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientGreeting _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwnerFull _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwner _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBriefItems _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionLocation _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBody _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportGlossary _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportSources _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLetterOfTransmittal _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportScopeOfWork _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCertification _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLimitingConditions _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPrivacyPolicy _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPerms _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRevision _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCreated _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBranding _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStatus _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRedacted _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFlags _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportUUID _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportOrderByItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDisplayItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStandardsVersion _) _ = undefined "doField" :: Peek ReportView
+          peek (p@(Path_ReportView__reportFolder _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
           peekPath (Proxy) (Peek_ReportView_ReadOnlyFilePath _p _) = _p :: Path ReportView ReadOnlyFilePath
           peekValue (Proxy) (Peek_ReportView_ReadOnlyFilePath _ _x) = _x :: Maybe ReadOnlyFilePath
           peekCons _p _x = Peek_ReportView_ReadOnlyFilePath _p _x :: Peek ReportView
 instance Paths ReportView ReportImageView
     where type Path ReportView ReportImageView = Path_ReportView ReportImageView
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElems) _g)) [(Path_ReportView__reportBody, _reportBody _s)]
-          peek (Path_ReportView__reportFolder _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportContractDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportEffectiveDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAuthors _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparer _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEIN _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEMail _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerWebsite _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAbbrevs _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportTitle _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportHeader _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFooter _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportIntendedUse _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueTypeInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueApproachInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientGreeting _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwnerFull _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwner _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBriefItems _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionLocation _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBody _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportGlossary _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportSources _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLetterOfTransmittal _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportScopeOfWork _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCertification _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLimitingConditions _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPrivacyPolicy _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPerms _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRevision _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCreated _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBranding _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStatus _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRedacted _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFlags _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportUUID _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportOrderByItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDisplayItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStandardsVersion _) _ = undefined "doField" :: Peek ReportView
+          peek (p@(Path_ReportView__reportBody _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
           peekPath (Proxy) (Peek_ReportView_ReportImageView _p _) = _p :: Path ReportView ReportImageView
           peekValue (Proxy) (Peek_ReportView_ReportImageView _ _x) = _x :: Maybe ReportImageView
           peekCons _p _x = Peek_ReportView_ReportImageView _p _x :: Peek ReportView
 instance Paths ReportView ReportView
     where type Path ReportView ReportView = Path_ReportView ReportView
           paths _ _ = [idPath]
-          peek _ _ = undefined "idpeek" :: Peek ReportView
+          peek p x = peekCons p (Just x) :: Peek ReportView
           peekPath (Proxy) (Peek_ReportView_ReportView _p _) = _p :: Path ReportView ReportView
           peekValue (Proxy) (Peek_ReportView_ReportView _ _x) = _x :: Maybe ReportView
           peekCons _p _x = Peek_ReportView_ReportView _p _x :: Peek ReportView
 instance Paths ReportView SaneSizeImageSize
     where type Path ReportView SaneSizeImageSize = Path_ReportView SaneSizeImageSize
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElems) _g)) [(Path_ReportView__reportBody, _reportBody _s)]
-          peek (Path_ReportView__reportFolder _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportContractDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportEffectiveDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAuthors _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparer _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEIN _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEMail _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerWebsite _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAbbrevs _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportTitle _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportHeader _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFooter _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportIntendedUse _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueTypeInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueApproachInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientGreeting _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwnerFull _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwner _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBriefItems _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionLocation _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBody _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportGlossary _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportSources _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLetterOfTransmittal _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportScopeOfWork _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCertification _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLimitingConditions _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPrivacyPolicy _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPerms _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRevision _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCreated _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBranding _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStatus _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRedacted _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFlags _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportUUID _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportOrderByItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDisplayItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStandardsVersion _) _ = undefined "doField" :: Peek ReportView
+          peek (p@(Path_ReportView__reportBody _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
           peekPath (Proxy) (Peek_ReportView_SaneSizeImageSize _p _) = _p :: Path ReportView SaneSizeImageSize
           peekValue (Proxy) (Peek_ReportView_SaneSizeImageSize _ _x) = _x :: Maybe SaneSizeImageSize
           peekCons _p _x = Peek_ReportView_SaneSizeImageSize _p _x :: Peek ReportView
 instance Paths ReportView Item
     where type Path ReportView Item = Path_ReportView Item
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElems) _g)) [(Path_ReportView__reportBody, _reportBody _s)]
-          peek (Path_ReportView__reportFolder _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportContractDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportEffectiveDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAuthors _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparer _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEIN _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEMail _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerWebsite _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAbbrevs _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportTitle _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportHeader _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFooter _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportIntendedUse _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueTypeInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueApproachInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientGreeting _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwnerFull _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwner _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBriefItems _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionLocation _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBody _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportGlossary _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportSources _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLetterOfTransmittal _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportScopeOfWork _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCertification _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLimitingConditions _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPrivacyPolicy _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPerms _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRevision _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCreated _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBranding _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStatus _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRedacted _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFlags _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportUUID _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportOrderByItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDisplayItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStandardsVersion _) _ = undefined "doField" :: Peek ReportView
+          peek (p@(Path_ReportView__reportBody _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
           peekPath (Proxy) (Peek_ReportView_Item _p _) = _p :: Path ReportView Item
           peekValue (Proxy) (Peek_ReportView_Item _ _x) = _x :: Maybe Item
           peekCons _p _x = Peek_ReportView_Item _p _x :: Peek ReportView
 instance Paths ReportView MIM
     where type Path ReportView MIM = Path_ReportView MIM
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElems) _g)) [(Path_ReportView__reportBody, _reportBody _s)]
-          peek (Path_ReportView__reportFolder _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportContractDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportEffectiveDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAuthors _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparer _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEIN _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEMail _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerWebsite _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAbbrevs _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportTitle _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportHeader _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFooter _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportIntendedUse _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueTypeInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueApproachInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientGreeting _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwnerFull _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwner _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBriefItems _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionLocation _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBody _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportGlossary _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportSources _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLetterOfTransmittal _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportScopeOfWork _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCertification _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLimitingConditions _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPrivacyPolicy _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPerms _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRevision _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCreated _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBranding _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStatus _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRedacted _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFlags _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportUUID _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportOrderByItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDisplayItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStandardsVersion _) _ = undefined "doField" :: Peek ReportView
+          peek (p@(Path_ReportView__reportBody _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
           peekPath (Proxy) (Peek_ReportView_MIM _p _) = _p :: Path ReportView MIM
           peekValue (Proxy) (Peek_ReportView_MIM _ _x) = _x :: Maybe MIM
           peekCons _p _x = Peek_ReportView_MIM _p _x :: Peek ReportView
 instance Paths ReportView CIString
     where type Path ReportView CIString = Path_ReportView CIString
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: AbbrevPairs) _g)) [(Path_ReportView__reportAbbrevs, _reportAbbrevs _s)]
-          peek (Path_ReportView__reportFolder _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportContractDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportEffectiveDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAuthors _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparer _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEIN _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEMail _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerWebsite _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAbbrevs _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportTitle _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportHeader _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFooter _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportIntendedUse _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueTypeInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueApproachInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientGreeting _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwnerFull _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwner _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBriefItems _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionLocation _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBody _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportGlossary _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportSources _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLetterOfTransmittal _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportScopeOfWork _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCertification _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLimitingConditions _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPrivacyPolicy _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPerms _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRevision _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCreated _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBranding _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStatus _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRedacted _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFlags _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportUUID _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportOrderByItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDisplayItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStandardsVersion _) _ = undefined "doField" :: Peek ReportView
+          peek (p@(Path_ReportView__reportAbbrevs _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
           peekPath (Proxy) (Peek_ReportView_CIString _p _) = _p :: Path ReportView CIString
           peekValue (Proxy) (Peek_ReportView_CIString _ _x) = _x :: Maybe CIString
           peekCons _p _x = Peek_ReportView_CIString _p _x :: Peek ReportView
 instance Paths ReportView URI
     where type Path ReportView URI = Path_ReportView URI
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportElems) _g)) [(Path_ReportView__reportBody, _reportBody _s)]
-          peek (Path_ReportView__reportFolder _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportContractDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportEffectiveDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAuthors _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparer _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEIN _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEMail _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerWebsite _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAbbrevs _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportTitle _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportHeader _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFooter _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportIntendedUse _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueTypeInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueApproachInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientGreeting _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwnerFull _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwner _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBriefItems _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionLocation _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBody _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportGlossary _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportSources _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLetterOfTransmittal _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportScopeOfWork _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCertification _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLimitingConditions _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPrivacyPolicy _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPerms _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRevision _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCreated _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBranding _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStatus _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRedacted _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFlags _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportUUID _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportOrderByItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDisplayItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStandardsVersion _) _ = undefined "doField" :: Peek ReportView
+          peek (p@(Path_ReportView__reportBody _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
           peekPath (Proxy) (Peek_ReportView_URI _p _) = _p :: Path ReportView URI
           peekValue (Proxy) (Peek_ReportView_URI _ _x) = _x :: Maybe URI
           peekCons _p _x = Peek_ReportView_URI _p _x :: Peek ReportView
@@ -5244,153 +3208,54 @@ instance Paths ReportView Text
                                                    concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) [(Path_ReportView__reportPrivacyPolicy, _reportPrivacyPolicy _s)],
                                                    concatMap (\(p, a') -> map p (paths (a' :: Permissions) _g)) [(Path_ReportView__reportPerms, _reportPerms _s)],
                                                    concatMap (\(p, a') -> map p (paths (a' :: Branding) _g)) [(Path_ReportView__reportBranding, _reportBranding _s)]]
-          peek (Path_ReportView__reportFolder _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportContractDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportEffectiveDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAuthors _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparer _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEIN _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEMail _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerWebsite _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAbbrevs _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportTitle _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportHeader _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFooter _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportIntendedUse _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueTypeInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueApproachInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientGreeting _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwnerFull _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwner _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBriefItems _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionLocation _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBody _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportGlossary _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportSources _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLetterOfTransmittal _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportScopeOfWork _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCertification _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLimitingConditions _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPrivacyPolicy _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPerms _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRevision _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCreated _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBranding _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStatus _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRedacted _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFlags _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportUUID _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportOrderByItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDisplayItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStandardsVersion _) _ = undefined "doField" :: Peek ReportView
+          peek (p@(Path_ReportView__reportName _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportDate _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportContractDate _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportInspectionDate _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportEffectiveDate _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportAuthors _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportPreparer _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportPreparerEIN _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportPreparerAddress _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportPreparerEMail _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportPreparerWebsite _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportAbbrevs _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportTitle _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportHeader _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportFooter _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportValueTypeInfo _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportValueApproachInfo _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportClientName _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportClientAddress _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportClientGreeting _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportItemsOwnerFull _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportItemsOwner _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportBriefItems _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportInspectionLocation _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportBody _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportGlossary _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportSources _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportLetterOfTransmittal _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportScopeOfWork _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportCertification _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportLimitingConditions _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportPrivacyPolicy _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportPerms _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
+          peek (p@(Path_ReportView__reportBranding _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
           peekPath (Proxy) (Peek_ReportView_Text _p _) = _p :: Path ReportView Text
           peekValue (Proxy) (Peek_ReportView_Text _ _x) = _x :: Maybe Text
           peekCons _p _x = Peek_ReportView_Text _p _x :: Peek ReportView
 instance Paths ReportView UserId
     where type Path ReportView UserId = Path_ReportView UserId
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: Permissions) _g)) [(Path_ReportView__reportPerms, _reportPerms _s)]
-          peek (Path_ReportView__reportFolder _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportContractDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportEffectiveDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAuthors _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparer _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEIN _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEMail _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerWebsite _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAbbrevs _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportTitle _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportHeader _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFooter _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportIntendedUse _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueTypeInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueApproachInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientGreeting _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwnerFull _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwner _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBriefItems _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionLocation _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBody _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportGlossary _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportSources _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLetterOfTransmittal _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportScopeOfWork _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCertification _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLimitingConditions _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPrivacyPolicy _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPerms _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRevision _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCreated _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBranding _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStatus _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRedacted _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFlags _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportUUID _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportOrderByItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDisplayItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStandardsVersion _) _ = undefined "doField" :: Peek ReportView
+          peek (p@(Path_ReportView__reportPerms _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
           peekPath (Proxy) (Peek_ReportView_UserId _p _) = _p :: Path ReportView UserId
           peekValue (Proxy) (Peek_ReportView_UserId _ _x) = _x :: Maybe UserId
           peekCons _p _x = Peek_ReportView_UserId _p _x :: Peek ReportView
 instance Paths ReportView UUID
     where type Path ReportView UUID = Path_ReportView UUID
           paths (_s@(ReportView {})) _g = concatMap (\(p, a') -> map p (paths (a' :: UUID) _g)) [(Path_ReportView__reportUUID, _reportUUID _s)]
-          peek (Path_ReportView__reportFolder _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportContractDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportEffectiveDate _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAuthors _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparer _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEIN _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerEMail _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPreparerWebsite _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportAbbrevs _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportTitle _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportHeader _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFooter _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportIntendedUse _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueTypeInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportValueApproachInfo _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientAddress _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportClientGreeting _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwnerFull _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportItemsOwner _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBriefItems _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportInspectionLocation _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBody _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportGlossary _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportSources _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLetterOfTransmittal _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportScopeOfWork _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCertification _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportLimitingConditions _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPrivacyPolicy _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportPerms _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRevision _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportCreated _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportBranding _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStatus _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportRedacted _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportFlags _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportUUID _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportOrderByItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportDisplayItemName _) _ = undefined "doField" :: Peek ReportView
-          peek (Path_ReportView__reportStandardsVersion _) _ = undefined "doField" :: Peek ReportView
+          peek (p@(Path_ReportView__reportUUID _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportView
           peekPath (Proxy) (Peek_ReportView_UUID _p _) = _p :: Path ReportView UUID
           peekValue (Proxy) (Peek_ReportView_UUID _ _x) = _x :: Maybe UUID
           peekCons _p _x = Peek_ReportView_UUID _p _x :: Peek ReportView
@@ -5398,8 +3263,7 @@ instance Paths SaneSizeImageSize String
     where type Path SaneSizeImageSize String = Path_SaneSizeImageSize String
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ImageSize) _g)) (map (\a' -> (Path_SaneSizeImageSize_View,
                                                                                                  a')) (toListOf (toLens (Path_SaneSizeImageSize_View (idPath :: Path ImageSize ImageSize))) _s))
-          peek (Path_SaneSizeImageSize_View _) _ = undefined "doView1" :: Peek SaneSizeImageSize
-          peek (Path_SaneSizeImageSize) _ = undefined "doView2" :: Peek SaneSizeImageSize
+          peek (p@(Path_SaneSizeImageSize_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek SaneSizeImageSize
           peekPath (Proxy) (Peek_SaneSizeImageSize_String _p _) = _p :: Path SaneSizeImageSize String
           peekValue (Proxy) (Peek_SaneSizeImageSize_String _ _x) = _x :: Maybe String
           peekCons _p _x = Peek_SaneSizeImageSize_String _p _x :: Peek SaneSizeImageSize
@@ -5407,8 +3271,7 @@ instance Paths SaneSizeImageSize Double
     where type Path SaneSizeImageSize Double = Path_SaneSizeImageSize Double
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ImageSize) _g)) (map (\a' -> (Path_SaneSizeImageSize_View,
                                                                                                  a')) (toListOf (toLens (Path_SaneSizeImageSize_View (idPath :: Path ImageSize ImageSize))) _s))
-          peek (Path_SaneSizeImageSize_View _) _ = undefined "doView1" :: Peek SaneSizeImageSize
-          peek (Path_SaneSizeImageSize) _ = undefined "doView2" :: Peek SaneSizeImageSize
+          peek (p@(Path_SaneSizeImageSize_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek SaneSizeImageSize
           peekPath (Proxy) (Peek_SaneSizeImageSize_Double _p _) = _p :: Path SaneSizeImageSize Double
           peekValue (Proxy) (Peek_SaneSizeImageSize_Double _ _x) = _x :: Maybe Double
           peekCons _p _x = Peek_SaneSizeImageSize_Double _p _x :: Peek SaneSizeImageSize
@@ -5416,8 +3279,7 @@ instance Paths SaneSizeImageSize Dimension
     where type Path SaneSizeImageSize Dimension = Path_SaneSizeImageSize Dimension
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ImageSize) _g)) (map (\a' -> (Path_SaneSizeImageSize_View,
                                                                                                  a')) (toListOf (toLens (Path_SaneSizeImageSize_View (idPath :: Path ImageSize ImageSize))) _s))
-          peek (Path_SaneSizeImageSize_View _) _ = undefined "doView1" :: Peek SaneSizeImageSize
-          peek (Path_SaneSizeImageSize) _ = undefined "doView2" :: Peek SaneSizeImageSize
+          peek (p@(Path_SaneSizeImageSize_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek SaneSizeImageSize
           peekPath (Proxy) (Peek_SaneSizeImageSize_Dimension _p _) = _p :: Path SaneSizeImageSize Dimension
           peekValue (Proxy) (Peek_SaneSizeImageSize_Dimension _ _x) = _x :: Maybe Dimension
           peekCons _p _x = Peek_SaneSizeImageSize_Dimension _p _x :: Peek SaneSizeImageSize
@@ -5425,8 +3287,7 @@ instance Paths SaneSizeImageSize ImageSize
     where type Path SaneSizeImageSize ImageSize = Path_SaneSizeImageSize ImageSize
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ImageSize) _g)) (map (\a' -> (Path_SaneSizeImageSize_View,
                                                                                                  a')) (toListOf (toLens (Path_SaneSizeImageSize_View (idPath :: Path ImageSize ImageSize))) _s))
-          peek (Path_SaneSizeImageSize_View _) _ = undefined "doView1" :: Peek SaneSizeImageSize
-          peek (Path_SaneSizeImageSize) _ = undefined "doView2" :: Peek SaneSizeImageSize
+          peek (p@(Path_SaneSizeImageSize_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek SaneSizeImageSize
           peekPath (Proxy) (Peek_SaneSizeImageSize_ImageSize _p _) = _p :: Path SaneSizeImageSize ImageSize
           peekValue (Proxy) (Peek_SaneSizeImageSize_ImageSize _ _x) = _x :: Maybe ImageSize
           peekCons _p _x = Peek_SaneSizeImageSize_ImageSize _p _x :: Peek SaneSizeImageSize
@@ -5434,8 +3295,7 @@ instance Paths SaneSizeImageSize Units
     where type Path SaneSizeImageSize Units = Path_SaneSizeImageSize Units
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ImageSize) _g)) (map (\a' -> (Path_SaneSizeImageSize_View,
                                                                                                  a')) (toListOf (toLens (Path_SaneSizeImageSize_View (idPath :: Path ImageSize ImageSize))) _s))
-          peek (Path_SaneSizeImageSize_View _) _ = undefined "doView1" :: Peek SaneSizeImageSize
-          peek (Path_SaneSizeImageSize) _ = undefined "doView2" :: Peek SaneSizeImageSize
+          peek (p@(Path_SaneSizeImageSize_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek SaneSizeImageSize
           peekPath (Proxy) (Peek_SaneSizeImageSize_Units _p _) = _p :: Path SaneSizeImageSize Units
           peekValue (Proxy) (Peek_SaneSizeImageSize_Units _ _x) = _x :: Maybe Units
           peekCons _p _x = Peek_SaneSizeImageSize_Units _p _x :: Peek SaneSizeImageSize
@@ -5443,87 +3303,70 @@ instance Paths SaneSizeImageSize JSONText
     where type Path SaneSizeImageSize JSONText = Path_SaneSizeImageSize JSONText
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: ImageSize) _g)) (map (\a' -> (Path_SaneSizeImageSize_View,
                                                                                                  a')) (toListOf (toLens (Path_SaneSizeImageSize_View (idPath :: Path ImageSize ImageSize))) _s))
-          peek (Path_SaneSizeImageSize_View _) _ = undefined "doView1" :: Peek SaneSizeImageSize
-          peek (Path_SaneSizeImageSize) _ = undefined "doView2" :: Peek SaneSizeImageSize
+          peek (p@(Path_SaneSizeImageSize_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek SaneSizeImageSize
           peekPath (Proxy) (Peek_SaneSizeImageSize_JSONText _p _) = _p :: Path SaneSizeImageSize JSONText
           peekValue (Proxy) (Peek_SaneSizeImageSize_JSONText _ _x) = _x :: Maybe JSONText
           peekCons _p _x = Peek_SaneSizeImageSize_JSONText _p _x :: Peek SaneSizeImageSize
 instance Paths SaneSizeImageSize SaneSizeImageSize
     where type Path SaneSizeImageSize SaneSizeImageSize = Path_SaneSizeImageSize SaneSizeImageSize
           paths _ _ = [idPath]
-          peek _ _ = undefined "idpeek" :: Peek SaneSizeImageSize
+          peek p x = peekCons p (Just x) :: Peek SaneSizeImageSize
           peekPath (Proxy) (Peek_SaneSizeImageSize_SaneSizeImageSize _p _) = _p :: Path SaneSizeImageSize SaneSizeImageSize
           peekValue (Proxy) (Peek_SaneSizeImageSize_SaneSizeImageSize _ _x) = _x :: Maybe SaneSizeImageSize
           peekCons _p _x = Peek_SaneSizeImageSize_SaneSizeImageSize _p _x :: Peek SaneSizeImageSize
 instance Paths Item String
     where type Path Item String = Path_Item String
           paths (_s@(Item {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImages) _g)) [(Path_Item_images, images _s)]
-          peek (Path_Item_itemName _) _ = undefined "doField" :: Peek Item
-          peek (Path_Item_fields _) _ = undefined "doField" :: Peek Item
-          peek (Path_Item_images _) _ = undefined "doField" :: Peek Item
+          peek (p@(Path_Item_images _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Item
           peekPath (Proxy) (Peek_Item_String _p _) = _p :: Path Item String
           peekValue (Proxy) (Peek_Item_String _ _x) = _x :: Maybe String
           peekCons _p _x = Peek_Item_String _p _x :: Peek Item
 instance Paths Item Bool
     where type Path Item Bool = Path_Item Bool
           paths (_s@(Item {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImages) _g)) [(Path_Item_images, images _s)]
-          peek (Path_Item_itemName _) _ = undefined "doField" :: Peek Item
-          peek (Path_Item_fields _) _ = undefined "doField" :: Peek Item
-          peek (Path_Item_images _) _ = undefined "doField" :: Peek Item
+          peek (p@(Path_Item_images _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Item
           peekPath (Proxy) (Peek_Item_Bool _p _) = _p :: Path Item Bool
           peekValue (Proxy) (Peek_Item_Bool _ _x) = _x :: Maybe Bool
           peekCons _p _x = Peek_Item_Bool _p _x :: Peek Item
 instance Paths Item Double
     where type Path Item Double = Path_Item Double
           paths (_s@(Item {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImages) _g)) [(Path_Item_images, images _s)]
-          peek (Path_Item_itemName _) _ = undefined "doField" :: Peek Item
-          peek (Path_Item_fields _) _ = undefined "doField" :: Peek Item
-          peek (Path_Item_images _) _ = undefined "doField" :: Peek Item
+          peek (p@(Path_Item_images _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Item
           peekPath (Proxy) (Peek_Item_Double _p _) = _p :: Path Item Double
           peekValue (Proxy) (Peek_Item_Double _ _x) = _x :: Maybe Double
           peekCons _p _x = Peek_Item_Double _p _x :: Peek Item
 instance Paths Item Dimension
     where type Path Item Dimension = Path_Item Dimension
           paths (_s@(Item {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImages) _g)) [(Path_Item_images, images _s)]
-          peek (Path_Item_itemName _) _ = undefined "doField" :: Peek Item
-          peek (Path_Item_fields _) _ = undefined "doField" :: Peek Item
-          peek (Path_Item_images _) _ = undefined "doField" :: Peek Item
+          peek (p@(Path_Item_images _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Item
           peekPath (Proxy) (Peek_Item_Dimension _p _) = _p :: Path Item Dimension
           peekValue (Proxy) (Peek_Item_Dimension _ _x) = _x :: Maybe Dimension
           peekCons _p _x = Peek_Item_Dimension _p _x :: Peek Item
 instance Paths Item ImageCrop
     where type Path Item ImageCrop = Path_Item ImageCrop
           paths (_s@(Item {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImages) _g)) [(Path_Item_images, images _s)]
-          peek (Path_Item_itemName _) _ = undefined "doField" :: Peek Item
-          peek (Path_Item_fields _) _ = undefined "doField" :: Peek Item
-          peek (Path_Item_images _) _ = undefined "doField" :: Peek Item
+          peek (p@(Path_Item_images _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Item
           peekPath (Proxy) (Peek_Item_ImageCrop _p _) = _p :: Path Item ImageCrop
           peekValue (Proxy) (Peek_Item_ImageCrop _ _x) = _x :: Maybe ImageCrop
           peekCons _p _x = Peek_Item_ImageCrop _p _x :: Peek Item
 instance Paths Item ImageSize
     where type Path Item ImageSize = Path_Item ImageSize
           paths (_s@(Item {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImages) _g)) [(Path_Item_images, images _s)]
-          peek (Path_Item_itemName _) _ = undefined "doField" :: Peek Item
-          peek (Path_Item_fields _) _ = undefined "doField" :: Peek Item
-          peek (Path_Item_images _) _ = undefined "doField" :: Peek Item
+          peek (p@(Path_Item_images _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Item
           peekPath (Proxy) (Peek_Item_ImageSize _p _) = _p :: Path Item ImageSize
           peekValue (Proxy) (Peek_Item_ImageSize _ _x) = _x :: Maybe ImageSize
           peekCons _p _x = Peek_Item_ImageSize _p _x :: Peek Item
 instance Paths Item Units
     where type Path Item Units = Path_Item Units
           paths (_s@(Item {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImages) _g)) [(Path_Item_images, images _s)]
-          peek (Path_Item_itemName _) _ = undefined "doField" :: Peek Item
-          peek (Path_Item_fields _) _ = undefined "doField" :: Peek Item
-          peek (Path_Item_images _) _ = undefined "doField" :: Peek Item
+          peek (p@(Path_Item_images _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Item
           peekPath (Proxy) (Peek_Item_Units _p _) = _p :: Path Item Units
           peekValue (Proxy) (Peek_Item_Units _ _x) = _x :: Maybe Units
           peekCons _p _x = Peek_Item_Units _p _x :: Peek Item
 instance Paths Item ImageFile
     where type Path Item ImageFile = Path_Item ImageFile
           paths (_s@(Item {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImages) _g)) [(Path_Item_images, images _s)]
-          peek (Path_Item_itemName _) _ = undefined "doField" :: Peek Item
-          peek (Path_Item_fields _) _ = undefined "doField" :: Peek Item
-          peek (Path_Item_images _) _ = undefined "doField" :: Peek Item
+          peek (p@(Path_Item_images _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Item
           peekPath (Proxy) (Peek_Item_ImageFile _p _) = _p :: Path Item ImageFile
           peekValue (Proxy) (Peek_Item_ImageFile _ _x) = _x :: Maybe ImageFile
           peekCons _p _x = Peek_Item_ImageFile _p _x :: Peek Item
@@ -5532,9 +3375,9 @@ instance Paths Item JSONText
           paths (_s@(Item {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: Text) _g)) [(Path_Item_itemName, itemName _s)],
                                              concatMap (\(p, a') -> map p (paths (a' :: MIM) _g)) [(Path_Item_fields, fields _s)],
                                              concatMap (\(p, a') -> map p (paths (a' :: ReportImages) _g)) [(Path_Item_images, images _s)]]
-          peek (Path_Item_itemName _) _ = undefined "doField" :: Peek Item
-          peek (Path_Item_fields _) _ = undefined "doField" :: Peek Item
-          peek (Path_Item_images _) _ = undefined "doField" :: Peek Item
+          peek (p@(Path_Item_itemName _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Item
+          peek (p@(Path_Item_fields _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Item
+          peek (p@(Path_Item_images _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Item
           peekPath (Proxy) (Peek_Item_JSONText _p _) = _p :: Path Item JSONText
           peekValue (Proxy) (Peek_Item_JSONText _ _x) = _x :: Maybe JSONText
           peekCons _p _x = Peek_Item_JSONText _p _x :: Peek Item
@@ -5542,97 +3385,78 @@ instance Paths Item Markup
     where type Path Item Markup = Path_Item Markup
           paths (_s@(Item {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: MIM) _g)) [(Path_Item_fields, fields _s)],
                                              concatMap (\(p, a') -> map p (paths (a' :: ReportImages) _g)) [(Path_Item_images, images _s)]]
-          peek (Path_Item_itemName _) _ = undefined "doField" :: Peek Item
-          peek (Path_Item_fields _) _ = undefined "doField" :: Peek Item
-          peek (Path_Item_images _) _ = undefined "doField" :: Peek Item
+          peek (p@(Path_Item_fields _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Item
+          peek (p@(Path_Item_images _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Item
           peekPath (Proxy) (Peek_Item_Markup _p _) = _p :: Path Item Markup
           peekValue (Proxy) (Peek_Item_Markup _ _x) = _x :: Maybe Markup
           peekCons _p _x = Peek_Item_Markup _p _x :: Peek Item
 instance Paths Item EUI
     where type Path Item EUI = Path_Item EUI
           paths (_s@(Item {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImages) _g)) [(Path_Item_images, images _s)]
-          peek (Path_Item_itemName _) _ = undefined "doField" :: Peek Item
-          peek (Path_Item_fields _) _ = undefined "doField" :: Peek Item
-          peek (Path_Item_images _) _ = undefined "doField" :: Peek Item
+          peek (p@(Path_Item_images _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Item
           peekPath (Proxy) (Peek_Item_EUI _p _) = _p :: Path Item EUI
           peekValue (Proxy) (Peek_Item_EUI _ _x) = _x :: Maybe EUI
           peekCons _p _x = Peek_Item_EUI _p _x :: Peek Item
 instance Paths Item MEUI
     where type Path Item MEUI = Path_Item MEUI
           paths (_s@(Item {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImages) _g)) [(Path_Item_images, images _s)]
-          peek (Path_Item_itemName _) _ = undefined "doField" :: Peek Item
-          peek (Path_Item_fields _) _ = undefined "doField" :: Peek Item
-          peek (Path_Item_images _) _ = undefined "doField" :: Peek Item
+          peek (p@(Path_Item_images _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Item
           peekPath (Proxy) (Peek_Item_MEUI _p _) = _p :: Path Item MEUI
           peekValue (Proxy) (Peek_Item_MEUI _ _x) = _x :: Maybe MEUI
           peekCons _p _x = Peek_Item_MEUI _p _x :: Peek Item
 instance Paths Item MaybeImageFile
     where type Path Item MaybeImageFile = Path_Item MaybeImageFile
           paths (_s@(Item {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImages) _g)) [(Path_Item_images, images _s)]
-          peek (Path_Item_itemName _) _ = undefined "doField" :: Peek Item
-          peek (Path_Item_fields _) _ = undefined "doField" :: Peek Item
-          peek (Path_Item_images _) _ = undefined "doField" :: Peek Item
+          peek (p@(Path_Item_images _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Item
           peekPath (Proxy) (Peek_Item_MaybeImageFile _p _) = _p :: Path Item MaybeImageFile
           peekValue (Proxy) (Peek_Item_MaybeImageFile _ _x) = _x :: Maybe MaybeImageFile
           peekCons _p _x = Peek_Item_MaybeImageFile _p _x :: Peek Item
 instance Paths Item ReportImage
     where type Path Item ReportImage = Path_Item ReportImage
           paths (_s@(Item {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImages) _g)) [(Path_Item_images, images _s)]
-          peek (Path_Item_itemName _) _ = undefined "doField" :: Peek Item
-          peek (Path_Item_fields _) _ = undefined "doField" :: Peek Item
-          peek (Path_Item_images _) _ = undefined "doField" :: Peek Item
+          peek (p@(Path_Item_images _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Item
           peekPath (Proxy) (Peek_Item_ReportImage _p _) = _p :: Path Item ReportImage
           peekValue (Proxy) (Peek_Item_ReportImage _ _x) = _x :: Maybe ReportImage
           peekCons _p _x = Peek_Item_ReportImage _p _x :: Peek Item
 instance Paths Item ReportImages
     where type Path Item ReportImages = Path_Item ReportImages
           paths (_s@(Item {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImages) _g)) [(Path_Item_images, images _s)]
-          peek (Path_Item_itemName _) _ = undefined "doField" :: Peek Item
-          peek (Path_Item_fields _) _ = undefined "doField" :: Peek Item
-          peek (Path_Item_images _) _ = undefined "doField" :: Peek Item
+          peek (p@(Path_Item_images _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Item
           peekPath (Proxy) (Peek_Item_ReportImages _p _) = _p :: Path Item ReportImages
           peekValue (Proxy) (Peek_Item_ReportImages _ _x) = _x :: Maybe ReportImages
           peekCons _p _x = Peek_Item_ReportImages _p _x :: Peek Item
 instance Paths Item ReportImageView
     where type Path Item ReportImageView = Path_Item ReportImageView
           paths (_s@(Item {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImages) _g)) [(Path_Item_images, images _s)]
-          peek (Path_Item_itemName _) _ = undefined "doField" :: Peek Item
-          peek (Path_Item_fields _) _ = undefined "doField" :: Peek Item
-          peek (Path_Item_images _) _ = undefined "doField" :: Peek Item
+          peek (p@(Path_Item_images _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Item
           peekPath (Proxy) (Peek_Item_ReportImageView _p _) = _p :: Path Item ReportImageView
           peekValue (Proxy) (Peek_Item_ReportImageView _ _x) = _x :: Maybe ReportImageView
           peekCons _p _x = Peek_Item_ReportImageView _p _x :: Peek Item
 instance Paths Item SaneSizeImageSize
     where type Path Item SaneSizeImageSize = Path_Item SaneSizeImageSize
           paths (_s@(Item {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImages) _g)) [(Path_Item_images, images _s)]
-          peek (Path_Item_itemName _) _ = undefined "doField" :: Peek Item
-          peek (Path_Item_fields _) _ = undefined "doField" :: Peek Item
-          peek (Path_Item_images _) _ = undefined "doField" :: Peek Item
+          peek (p@(Path_Item_images _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Item
           peekPath (Proxy) (Peek_Item_SaneSizeImageSize _p _) = _p :: Path Item SaneSizeImageSize
           peekValue (Proxy) (Peek_Item_SaneSizeImageSize _ _x) = _x :: Maybe SaneSizeImageSize
           peekCons _p _x = Peek_Item_SaneSizeImageSize _p _x :: Peek Item
 instance Paths Item Item
     where type Path Item Item = Path_Item Item
           paths _ _ = [idPath]
-          peek _ _ = undefined "idpeek" :: Peek Item
+          peek p x = peekCons p (Just x) :: Peek Item
           peekPath (Proxy) (Peek_Item_Item _p _) = _p :: Path Item Item
           peekValue (Proxy) (Peek_Item_Item _ _x) = _x :: Maybe Item
           peekCons _p _x = Peek_Item_Item _p _x :: Peek Item
 instance Paths Item MIM
     where type Path Item MIM = Path_Item MIM
           paths (_s@(Item {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MIM) _g)) [(Path_Item_fields, fields _s)]
-          peek (Path_Item_itemName _) _ = undefined "doField" :: Peek Item
-          peek (Path_Item_fields _) _ = undefined "doField" :: Peek Item
-          peek (Path_Item_images _) _ = undefined "doField" :: Peek Item
+          peek (p@(Path_Item_fields _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Item
           peekPath (Proxy) (Peek_Item_MIM _p _) = _p :: Path Item MIM
           peekValue (Proxy) (Peek_Item_MIM _ _x) = _x :: Maybe MIM
           peekCons _p _x = Peek_Item_MIM _p _x :: Peek Item
 instance Paths Item URI
     where type Path Item URI = Path_Item URI
           paths (_s@(Item {})) _g = concatMap (\(p, a') -> map p (paths (a' :: ReportImages) _g)) [(Path_Item_images, images _s)]
-          peek (Path_Item_itemName _) _ = undefined "doField" :: Peek Item
-          peek (Path_Item_fields _) _ = undefined "doField" :: Peek Item
-          peek (Path_Item_images _) _ = undefined "doField" :: Peek Item
+          peek (p@(Path_Item_images _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Item
           peekPath (Proxy) (Peek_Item_URI _p _) = _p :: Path Item URI
           peekValue (Proxy) (Peek_Item_URI _ _x) = _x :: Maybe URI
           peekCons _p _x = Peek_Item_URI _p _x :: Peek Item
@@ -5641,730 +3465,730 @@ instance Paths Item Text
           paths (_s@(Item {})) _g = mconcat [concatMap (\(p, a') -> map p (paths (a' :: Text) _g)) [(Path_Item_itemName, itemName _s)],
                                              concatMap (\(p, a') -> map p (paths (a' :: MIM) _g)) [(Path_Item_fields, fields _s)],
                                              concatMap (\(p, a') -> map p (paths (a' :: ReportImages) _g)) [(Path_Item_images, images _s)]]
-          peek (Path_Item_itemName _) _ = undefined "doField" :: Peek Item
-          peek (Path_Item_fields _) _ = undefined "doField" :: Peek Item
-          peek (Path_Item_images _) _ = undefined "doField" :: Peek Item
+          peek (p@(Path_Item_itemName _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Item
+          peek (p@(Path_Item_fields _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Item
+          peek (p@(Path_Item_images _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Item
           peekPath (Proxy) (Peek_Item_Text _p _) = _p :: Path Item Text
           peekValue (Proxy) (Peek_Item_Text _ _x) = _x :: Maybe Text
           peekCons _p _x = Peek_Item_Text _p _x :: Peek Item
 instance Paths MIM JSONText
     where type Path MIM JSONText = Path_Map ItemFieldName (Path_Markup JSONText)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
-          peek _ _ = undefined "idpeek" :: Peek MIM
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek MIM
           peekPath (Proxy) (Peek_MIM_JSONText _p _) = _p :: Path MIM JSONText
           peekValue (Proxy) (Peek_MIM_JSONText _ _x) = _x :: Maybe JSONText
           peekCons _p _x = Peek_MIM_JSONText _p _x :: Peek MIM
 instance Paths MIM Markup
     where type Path MIM Markup = Path_Map ItemFieldName (Path_Markup Markup)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
-          peek _ _ = undefined "idpeek" :: Peek MIM
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek MIM
           peekPath (Proxy) (Peek_MIM_Markup _p _) = _p :: Path MIM Markup
           peekValue (Proxy) (Peek_MIM_Markup _ _x) = _x :: Maybe Markup
           peekCons _p _x = Peek_MIM_Markup _p _x :: Peek MIM
 instance Paths MIM MIM
     where type Path MIM MIM = Path_Map ItemFieldName (Path_Markup MIM)
           paths _ _ = [idPath]
-          peek _ _ = undefined "idpeek" :: Peek MIM
+          peek p x = peekCons p (Just x) :: Peek MIM
           peekPath (Proxy) (Peek_MIM_MIM _p _) = _p :: Path MIM MIM
           peekValue (Proxy) (Peek_MIM_MIM _ _x) = _x :: Maybe MIM
           peekCons _p _x = Peek_MIM_MIM _p _x :: Peek MIM
 instance Paths MIM Text
     where type Path MIM Text = Path_Map ItemFieldName (Path_Markup Text)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Markup) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
-          peek _ _ = undefined "idpeek" :: Peek MIM
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek MIM
           peekPath (Proxy) (Peek_MIM_Text _p _) = _p :: Path MIM Text
           peekValue (Proxy) (Peek_MIM_Text _ _x) = _x :: Maybe Text
           peekCons _p _x = Peek_MIM_Text _p _x :: Peek MIM
 instance Paths MRR String
     where type Path MRR String = Path_Map ReportID (Path_Report String)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
-          peek _ _ = undefined "idpeek" :: Peek MRR
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek MRR
           peekPath (Proxy) (Peek_MRR_String _p _) = _p :: Path MRR String
           peekValue (Proxy) (Peek_MRR_String _ _x) = _x :: Maybe String
           peekCons _p _x = Peek_MRR_String _p _x :: Peek MRR
 instance Paths MRR Int64
     where type Path MRR Int64 = Path_Map ReportID (Path_Report Int64)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
-          peek _ _ = undefined "idpeek" :: Peek MRR
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek MRR
           peekPath (Proxy) (Peek_MRR_Int64 _p _) = _p :: Path MRR Int64
           peekValue (Proxy) (Peek_MRR_Int64 _ _x) = _x :: Maybe Int64
           peekCons _p _x = Peek_MRR_Int64 _p _x :: Peek MRR
 instance Paths MRR Bool
     where type Path MRR Bool = Path_Map ReportID (Path_Report Bool)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
-          peek _ _ = undefined "idpeek" :: Peek MRR
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek MRR
           peekPath (Proxy) (Peek_MRR_Bool _p _) = _p :: Path MRR Bool
           peekValue (Proxy) (Peek_MRR_Bool _ _x) = _x :: Maybe Bool
           peekCons _p _x = Peek_MRR_Bool _p _x :: Peek MRR
 instance Paths MRR Double
     where type Path MRR Double = Path_Map ReportID (Path_Report Double)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
-          peek _ _ = undefined "idpeek" :: Peek MRR
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek MRR
           peekPath (Proxy) (Peek_MRR_Double _p _) = _p :: Path MRR Double
           peekValue (Proxy) (Peek_MRR_Double _ _x) = _x :: Maybe Double
           peekCons _p _x = Peek_MRR_Double _p _x :: Peek MRR
 instance Paths MRR Int
     where type Path MRR Int = Path_Map ReportID (Path_Report Int)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
-          peek _ _ = undefined "idpeek" :: Peek MRR
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek MRR
           peekPath (Proxy) (Peek_MRR_Int _p _) = _p :: Path MRR Int
           peekValue (Proxy) (Peek_MRR_Int _ _x) = _x :: Maybe Int
           peekCons _p _x = Peek_MRR_Int _p _x :: Peek MRR
 instance Paths MRR Dimension
     where type Path MRR Dimension = Path_Map ReportID (Path_Report Dimension)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
-          peek _ _ = undefined "idpeek" :: Peek MRR
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek MRR
           peekPath (Proxy) (Peek_MRR_Dimension _p _) = _p :: Path MRR Dimension
           peekValue (Proxy) (Peek_MRR_Dimension _ _x) = _x :: Maybe Dimension
           peekCons _p _x = Peek_MRR_Dimension _p _x :: Peek MRR
 instance Paths MRR ImageCrop
     where type Path MRR ImageCrop = Path_Map ReportID (Path_Report ImageCrop)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
-          peek _ _ = undefined "idpeek" :: Peek MRR
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek MRR
           peekPath (Proxy) (Peek_MRR_ImageCrop _p _) = _p :: Path MRR ImageCrop
           peekValue (Proxy) (Peek_MRR_ImageCrop _ _x) = _x :: Maybe ImageCrop
           peekCons _p _x = Peek_MRR_ImageCrop _p _x :: Peek MRR
 instance Paths MRR ImageSize
     where type Path MRR ImageSize = Path_Map ReportID (Path_Report ImageSize)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
-          peek _ _ = undefined "idpeek" :: Peek MRR
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek MRR
           peekPath (Proxy) (Peek_MRR_ImageSize _p _) = _p :: Path MRR ImageSize
           peekValue (Proxy) (Peek_MRR_ImageSize _ _x) = _x :: Maybe ImageSize
           peekCons _p _x = Peek_MRR_ImageSize _p _x :: Peek MRR
 instance Paths MRR Units
     where type Path MRR Units = Path_Map ReportID (Path_Report Units)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
-          peek _ _ = undefined "idpeek" :: Peek MRR
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek MRR
           peekPath (Proxy) (Peek_MRR_Units _p _) = _p :: Path MRR Units
           peekValue (Proxy) (Peek_MRR_Units _ _x) = _x :: Maybe Units
           peekCons _p _x = Peek_MRR_Units _p _x :: Peek MRR
 instance Paths MRR ImageFile
     where type Path MRR ImageFile = Path_Map ReportID (Path_Report ImageFile)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
-          peek _ _ = undefined "idpeek" :: Peek MRR
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek MRR
           peekPath (Proxy) (Peek_MRR_ImageFile _p _) = _p :: Path MRR ImageFile
           peekValue (Proxy) (Peek_MRR_ImageFile _ _x) = _x :: Maybe ImageFile
           peekCons _p _x = Peek_MRR_ImageFile _p _x :: Peek MRR
 instance Paths MRR Integer
     where type Path MRR Integer = Path_Map ReportID (Path_Report Integer)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
-          peek _ _ = undefined "idpeek" :: Peek MRR
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek MRR
           peekPath (Proxy) (Peek_MRR_Integer _p _) = _p :: Path MRR Integer
           peekValue (Proxy) (Peek_MRR_Integer _ _x) = _x :: Maybe Integer
           peekCons _p _x = Peek_MRR_Integer _p _x :: Peek MRR
 instance Paths MRR JSONText
     where type Path MRR JSONText = Path_Map ReportID (Path_Report JSONText)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
-          peek _ _ = undefined "idpeek" :: Peek MRR
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek MRR
           peekPath (Proxy) (Peek_MRR_JSONText _p _) = _p :: Path MRR JSONText
           peekValue (Proxy) (Peek_MRR_JSONText _ _x) = _x :: Maybe JSONText
           peekCons _p _x = Peek_MRR_JSONText _p _x :: Peek MRR
 instance Paths MRR Markup
     where type Path MRR Markup = Path_Map ReportID (Path_Report Markup)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
-          peek _ _ = undefined "idpeek" :: Peek MRR
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek MRR
           peekPath (Proxy) (Peek_MRR_Markup _p _) = _p :: Path MRR Markup
           peekValue (Proxy) (Peek_MRR_Markup _ _x) = _x :: Maybe Markup
           peekCons _p _x = Peek_MRR_Markup _p _x :: Peek MRR
 instance Paths MRR Permissions
     where type Path MRR Permissions = Path_Map ReportID (Path_Report Permissions)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
-          peek _ _ = undefined "idpeek" :: Peek MRR
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek MRR
           peekPath (Proxy) (Peek_MRR_Permissions _p _) = _p :: Path MRR Permissions
           peekValue (Proxy) (Peek_MRR_Permissions _ _x) = _x :: Maybe Permissions
           peekCons _p _x = Peek_MRR_Permissions _p _x :: Peek MRR
 instance Paths MRR UserIds
     where type Path MRR UserIds = Path_Map ReportID (Path_Report UserIds)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
-          peek _ _ = undefined "idpeek" :: Peek MRR
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek MRR
           peekPath (Proxy) (Peek_MRR_UserIds _p _) = _p :: Path MRR UserIds
           peekValue (Proxy) (Peek_MRR_UserIds _ _x) = _x :: Maybe UserIds
           peekCons _p _x = Peek_MRR_UserIds _p _x :: Peek MRR
 instance Paths MRR AbbrevPair
     where type Path MRR AbbrevPair = Path_Map ReportID (Path_Report AbbrevPair)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
-          peek _ _ = undefined "idpeek" :: Peek MRR
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek MRR
           peekPath (Proxy) (Peek_MRR_AbbrevPair _p _) = _p :: Path MRR AbbrevPair
           peekValue (Proxy) (Peek_MRR_AbbrevPair _ _x) = _x :: Maybe AbbrevPair
           peekCons _p _x = Peek_MRR_AbbrevPair _p _x :: Peek MRR
 instance Paths MRR AbbrevPairs
     where type Path MRR AbbrevPairs = Path_Map ReportID (Path_Report AbbrevPairs)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
-          peek _ _ = undefined "idpeek" :: Peek MRR
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek MRR
           peekPath (Proxy) (Peek_MRR_AbbrevPairs _p _) = _p :: Path MRR AbbrevPairs
           peekValue (Proxy) (Peek_MRR_AbbrevPairs _ _x) = _x :: Maybe AbbrevPairs
           peekCons _p _x = Peek_MRR_AbbrevPairs _p _x :: Peek MRR
 instance Paths MRR Author
     where type Path MRR Author = Path_Map ReportID (Path_Report Author)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
-          peek _ _ = undefined "idpeek" :: Peek MRR
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek MRR
           peekPath (Proxy) (Peek_MRR_Author _p _) = _p :: Path MRR Author
           peekValue (Proxy) (Peek_MRR_Author _ _x) = _x :: Maybe Author
           peekCons _p _x = Peek_MRR_Author _p _x :: Peek MRR
 instance Paths MRR Authors
     where type Path MRR Authors = Path_Map ReportID (Path_Report Authors)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
-          peek _ _ = undefined "idpeek" :: Peek MRR
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek MRR
           peekPath (Proxy) (Peek_MRR_Authors _p _) = _p :: Path MRR Authors
           peekValue (Proxy) (Peek_MRR_Authors _ _x) = _x :: Maybe Authors
           peekCons _p _x = Peek_MRR_Authors _p _x :: Peek MRR
 instance Paths MRR Branding
     where type Path MRR Branding = Path_Map ReportID (Path_Report Branding)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
-          peek _ _ = undefined "idpeek" :: Peek MRR
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek MRR
           peekPath (Proxy) (Peek_MRR_Branding _p _) = _p :: Path MRR Branding
           peekValue (Proxy) (Peek_MRR_Branding _ _x) = _x :: Maybe Branding
           peekCons _p _x = Peek_MRR_Branding _p _x :: Peek MRR
 instance Paths MRR MarkupPair
     where type Path MRR MarkupPair = Path_Map ReportID (Path_Report MarkupPair)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
-          peek _ _ = undefined "idpeek" :: Peek MRR
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek MRR
           peekPath (Proxy) (Peek_MRR_MarkupPair _p _) = _p :: Path MRR MarkupPair
           peekValue (Proxy) (Peek_MRR_MarkupPair _ _x) = _x :: Maybe MarkupPair
           peekCons _p _x = Peek_MRR_MarkupPair _p _x :: Peek MRR
 instance Paths MRR MarkupPairs
     where type Path MRR MarkupPairs = Path_Map ReportID (Path_Report MarkupPairs)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
-          peek _ _ = undefined "idpeek" :: Peek MRR
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek MRR
           peekPath (Proxy) (Peek_MRR_MarkupPairs _p _) = _p :: Path MRR MarkupPairs
           peekValue (Proxy) (Peek_MRR_MarkupPairs _ _x) = _x :: Maybe MarkupPairs
           peekCons _p _x = Peek_MRR_MarkupPairs _p _x :: Peek MRR
 instance Paths MRR Markups
     where type Path MRR Markups = Path_Map ReportID (Path_Report Markups)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
-          peek _ _ = undefined "idpeek" :: Peek MRR
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek MRR
           peekPath (Proxy) (Peek_MRR_Markups _p _) = _p :: Path MRR Markups
           peekValue (Proxy) (Peek_MRR_Markups _ _x) = _x :: Maybe Markups
           peekCons _p _x = Peek_MRR_Markups _p _x :: Peek MRR
 instance Paths MRR MaybeReportIntendedUse
     where type Path MRR MaybeReportIntendedUse = Path_Map ReportID (Path_Report MaybeReportIntendedUse)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
-          peek _ _ = undefined "idpeek" :: Peek MRR
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek MRR
           peekPath (Proxy) (Peek_MRR_MaybeReportIntendedUse _p _) = _p :: Path MRR MaybeReportIntendedUse
           peekValue (Proxy) (Peek_MRR_MaybeReportIntendedUse _ _x) = _x :: Maybe MaybeReportIntendedUse
           peekCons _p _x = Peek_MRR_MaybeReportIntendedUse _p _x :: Peek MRR
 instance Paths MRR Report
     where type Path MRR Report = Path_Map ReportID (Path_Report Report)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
-          peek _ _ = undefined "idpeek" :: Peek MRR
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek MRR
           peekPath (Proxy) (Peek_MRR_Report _p _) = _p :: Path MRR Report
           peekValue (Proxy) (Peek_MRR_Report _ _x) = _x :: Maybe Report
           peekCons _p _x = Peek_MRR_Report _p _x :: Peek MRR
 instance Paths MRR ReportElem
     where type Path MRR ReportElem = Path_Map ReportID (Path_Report ReportElem)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
-          peek _ _ = undefined "idpeek" :: Peek MRR
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek MRR
           peekPath (Proxy) (Peek_MRR_ReportElem _p _) = _p :: Path MRR ReportElem
           peekValue (Proxy) (Peek_MRR_ReportElem _ _x) = _x :: Maybe ReportElem
           peekCons _p _x = Peek_MRR_ReportElem _p _x :: Peek MRR
 instance Paths MRR ReportElems
     where type Path MRR ReportElems = Path_Map ReportID (Path_Report ReportElems)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
-          peek _ _ = undefined "idpeek" :: Peek MRR
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek MRR
           peekPath (Proxy) (Peek_MRR_ReportElems _p _) = _p :: Path MRR ReportElems
           peekValue (Proxy) (Peek_MRR_ReportElems _ _x) = _x :: Maybe ReportElems
           peekCons _p _x = Peek_MRR_ReportElems _p _x :: Peek MRR
 instance Paths MRR ReportFlags
     where type Path MRR ReportFlags = Path_Map ReportID (Path_Report ReportFlags)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
-          peek _ _ = undefined "idpeek" :: Peek MRR
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek MRR
           peekPath (Proxy) (Peek_MRR_ReportFlags _p _) = _p :: Path MRR ReportFlags
           peekValue (Proxy) (Peek_MRR_ReportFlags _ _x) = _x :: Maybe ReportFlags
           peekCons _p _x = Peek_MRR_ReportFlags _p _x :: Peek MRR
 instance Paths MRR ReportStandard
     where type Path MRR ReportStandard = Path_Map ReportID (Path_Report ReportStandard)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
-          peek _ _ = undefined "idpeek" :: Peek MRR
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek MRR
           peekPath (Proxy) (Peek_MRR_ReportStandard _p _) = _p :: Path MRR ReportStandard
           peekValue (Proxy) (Peek_MRR_ReportStandard _ _x) = _x :: Maybe ReportStandard
           peekCons _p _x = Peek_MRR_ReportStandard _p _x :: Peek MRR
 instance Paths MRR ReportStatus
     where type Path MRR ReportStatus = Path_Map ReportID (Path_Report ReportStatus)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
-          peek _ _ = undefined "idpeek" :: Peek MRR
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek MRR
           peekPath (Proxy) (Peek_MRR_ReportStatus _p _) = _p :: Path MRR ReportStatus
           peekValue (Proxy) (Peek_MRR_ReportStatus _ _x) = _x :: Maybe ReportStatus
           peekCons _p _x = Peek_MRR_ReportStatus _p _x :: Peek MRR
 instance Paths MRR ReportValueApproachInfo
     where type Path MRR ReportValueApproachInfo = Path_Map ReportID (Path_Report ReportValueApproachInfo)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
-          peek _ _ = undefined "idpeek" :: Peek MRR
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek MRR
           peekPath (Proxy) (Peek_MRR_ReportValueApproachInfo _p _) = _p :: Path MRR ReportValueApproachInfo
           peekValue (Proxy) (Peek_MRR_ReportValueApproachInfo _ _x) = _x :: Maybe ReportValueApproachInfo
           peekCons _p _x = Peek_MRR_ReportValueApproachInfo _p _x :: Peek MRR
 instance Paths MRR ReportValueTypeInfo
     where type Path MRR ReportValueTypeInfo = Path_Map ReportID (Path_Report ReportValueTypeInfo)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
-          peek _ _ = undefined "idpeek" :: Peek MRR
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek MRR
           peekPath (Proxy) (Peek_MRR_ReportValueTypeInfo _p _) = _p :: Path MRR ReportValueTypeInfo
           peekValue (Proxy) (Peek_MRR_ReportValueTypeInfo _ _x) = _x :: Maybe ReportValueTypeInfo
           peekCons _p _x = Peek_MRR_ReportValueTypeInfo _p _x :: Peek MRR
 instance Paths MRR EUI
     where type Path MRR EUI = Path_Map ReportID (Path_Report EUI)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
-          peek _ _ = undefined "idpeek" :: Peek MRR
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek MRR
           peekPath (Proxy) (Peek_MRR_EUI _p _) = _p :: Path MRR EUI
           peekValue (Proxy) (Peek_MRR_EUI _ _x) = _x :: Maybe EUI
           peekCons _p _x = Peek_MRR_EUI _p _x :: Peek MRR
 instance Paths MRR MEUI
     where type Path MRR MEUI = Path_Map ReportID (Path_Report MEUI)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
-          peek _ _ = undefined "idpeek" :: Peek MRR
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek MRR
           peekPath (Proxy) (Peek_MRR_MEUI _p _) = _p :: Path MRR MEUI
           peekValue (Proxy) (Peek_MRR_MEUI _ _x) = _x :: Maybe MEUI
           peekCons _p _x = Peek_MRR_MEUI _p _x :: Peek MRR
 instance Paths MRR MaybeImageFile
     where type Path MRR MaybeImageFile = Path_Map ReportID (Path_Report MaybeImageFile)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
-          peek _ _ = undefined "idpeek" :: Peek MRR
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek MRR
           peekPath (Proxy) (Peek_MRR_MaybeImageFile _p _) = _p :: Path MRR MaybeImageFile
           peekValue (Proxy) (Peek_MRR_MaybeImageFile _ _x) = _x :: Maybe MaybeImageFile
           peekCons _p _x = Peek_MRR_MaybeImageFile _p _x :: Peek MRR
 instance Paths MRR ReportImage
     where type Path MRR ReportImage = Path_Map ReportID (Path_Report ReportImage)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
-          peek _ _ = undefined "idpeek" :: Peek MRR
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek MRR
           peekPath (Proxy) (Peek_MRR_ReportImage _p _) = _p :: Path MRR ReportImage
           peekValue (Proxy) (Peek_MRR_ReportImage _ _x) = _x :: Maybe ReportImage
           peekCons _p _x = Peek_MRR_ReportImage _p _x :: Peek MRR
 instance Paths MRR ReportImages
     where type Path MRR ReportImages = Path_Map ReportID (Path_Report ReportImages)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
-          peek _ _ = undefined "idpeek" :: Peek MRR
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek MRR
           peekPath (Proxy) (Peek_MRR_ReportImages _p _) = _p :: Path MRR ReportImages
           peekValue (Proxy) (Peek_MRR_ReportImages _ _x) = _x :: Maybe ReportImages
           peekCons _p _x = Peek_MRR_ReportImages _p _x :: Peek MRR
 instance Paths MRR ReadOnlyFilePath
     where type Path MRR ReadOnlyFilePath = Path_Map ReportID (Path_Report ReadOnlyFilePath)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
-          peek _ _ = undefined "idpeek" :: Peek MRR
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek MRR
           peekPath (Proxy) (Peek_MRR_ReadOnlyFilePath _p _) = _p :: Path MRR ReadOnlyFilePath
           peekValue (Proxy) (Peek_MRR_ReadOnlyFilePath _ _x) = _x :: Maybe ReadOnlyFilePath
           peekCons _p _x = Peek_MRR_ReadOnlyFilePath _p _x :: Peek MRR
 instance Paths MRR ReportImageView
     where type Path MRR ReportImageView = Path_Map ReportID (Path_Report ReportImageView)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
-          peek _ _ = undefined "idpeek" :: Peek MRR
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek MRR
           peekPath (Proxy) (Peek_MRR_ReportImageView _p _) = _p :: Path MRR ReportImageView
           peekValue (Proxy) (Peek_MRR_ReportImageView _ _x) = _x :: Maybe ReportImageView
           peekCons _p _x = Peek_MRR_ReportImageView _p _x :: Peek MRR
 instance Paths MRR ReportView
     where type Path MRR ReportView = Path_Map ReportID (Path_Report ReportView)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
-          peek _ _ = undefined "idpeek" :: Peek MRR
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek MRR
           peekPath (Proxy) (Peek_MRR_ReportView _p _) = _p :: Path MRR ReportView
           peekValue (Proxy) (Peek_MRR_ReportView _ _x) = _x :: Maybe ReportView
           peekCons _p _x = Peek_MRR_ReportView _p _x :: Peek MRR
 instance Paths MRR SaneSizeImageSize
     where type Path MRR SaneSizeImageSize = Path_Map ReportID (Path_Report SaneSizeImageSize)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
-          peek _ _ = undefined "idpeek" :: Peek MRR
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek MRR
           peekPath (Proxy) (Peek_MRR_SaneSizeImageSize _p _) = _p :: Path MRR SaneSizeImageSize
           peekValue (Proxy) (Peek_MRR_SaneSizeImageSize _ _x) = _x :: Maybe SaneSizeImageSize
           peekCons _p _x = Peek_MRR_SaneSizeImageSize _p _x :: Peek MRR
 instance Paths MRR Item
     where type Path MRR Item = Path_Map ReportID (Path_Report Item)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
-          peek _ _ = undefined "idpeek" :: Peek MRR
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek MRR
           peekPath (Proxy) (Peek_MRR_Item _p _) = _p :: Path MRR Item
           peekValue (Proxy) (Peek_MRR_Item _ _x) = _x :: Maybe Item
           peekCons _p _x = Peek_MRR_Item _p _x :: Peek MRR
 instance Paths MRR MIM
     where type Path MRR MIM = Path_Map ReportID (Path_Report MIM)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
-          peek _ _ = undefined "idpeek" :: Peek MRR
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek MRR
           peekPath (Proxy) (Peek_MRR_MIM _p _) = _p :: Path MRR MIM
           peekValue (Proxy) (Peek_MRR_MIM _ _x) = _x :: Maybe MIM
           peekCons _p _x = Peek_MRR_MIM _p _x :: Peek MRR
 instance Paths MRR MRR
     where type Path MRR MRR = Path_Map ReportID (Path_Report MRR)
           paths _ _ = [idPath]
-          peek _ _ = undefined "idpeek" :: Peek MRR
+          peek p x = peekCons p (Just x) :: Peek MRR
           peekPath (Proxy) (Peek_MRR_MRR _p _) = _p :: Path MRR MRR
           peekValue (Proxy) (Peek_MRR_MRR _ _x) = _x :: Maybe MRR
           peekCons _p _x = Peek_MRR_MRR _p _x :: Peek MRR
 instance Paths MRR CIString
     where type Path MRR CIString = Path_Map ReportID (Path_Report CIString)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
-          peek _ _ = undefined "idpeek" :: Peek MRR
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek MRR
           peekPath (Proxy) (Peek_MRR_CIString _p _) = _p :: Path MRR CIString
           peekValue (Proxy) (Peek_MRR_CIString _ _x) = _x :: Maybe CIString
           peekCons _p _x = Peek_MRR_CIString _p _x :: Peek MRR
 instance Paths MRR URI
     where type Path MRR URI = Path_Map ReportID (Path_Report URI)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
-          peek _ _ = undefined "idpeek" :: Peek MRR
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek MRR
           peekPath (Proxy) (Peek_MRR_URI _p _) = _p :: Path MRR URI
           peekValue (Proxy) (Peek_MRR_URI _ _x) = _x :: Maybe URI
           peekCons _p _x = Peek_MRR_URI _p _x :: Peek MRR
 instance Paths MRR Text
     where type Path MRR Text = Path_Map ReportID (Path_Report Text)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
-          peek _ _ = undefined "idpeek" :: Peek MRR
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek MRR
           peekPath (Proxy) (Peek_MRR_Text _p _) = _p :: Path MRR Text
           peekValue (Proxy) (Peek_MRR_Text _ _x) = _x :: Maybe Text
           peekCons _p _x = Peek_MRR_Text _p _x :: Peek MRR
 instance Paths MRR UserId
     where type Path MRR UserId = Path_Map ReportID (Path_Report UserId)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
-          peek _ _ = undefined "idpeek" :: Peek MRR
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek MRR
           peekPath (Proxy) (Peek_MRR_UserId _p _) = _p :: Path MRR UserId
           peekValue (Proxy) (Peek_MRR_UserId _ _x) = _x :: Maybe UserId
           peekCons _p _x = Peek_MRR_UserId _p _x :: Peek MRR
 instance Paths MRR UUID
     where type Path MRR UUID = Path_Map ReportID (Path_Report UUID)
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Report) _g)) (map (\(idx, val) -> (Path_Look idx, val)) (toList _s))
-          peek _ _ = undefined "idpeek" :: Peek MRR
+          peek p x = peekCons p (Just (view' (toLens p) x)) :: Peek MRR
           peekPath (Proxy) (Peek_MRR_UUID _p _) = _p :: Path MRR UUID
           peekValue (Proxy) (Peek_MRR_UUID _ _x) = _x :: Maybe UUID
           peekCons _p _x = Peek_MRR_UUID _p _x :: Peek MRR
 instance Paths ReportMap String
     where type Path ReportMap String = Path_ReportMap String
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
-          peek (Path_ReportMap_unReportMap _) _ = undefined "doField" :: Peek ReportMap
+          peek (p@(Path_ReportMap_unReportMap _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportMap
           peekPath (Proxy) (Peek_ReportMap_String _p _) = _p :: Path ReportMap String
           peekValue (Proxy) (Peek_ReportMap_String _ _x) = _x :: Maybe String
           peekCons _p _x = Peek_ReportMap_String _p _x :: Peek ReportMap
 instance Paths ReportMap Int64
     where type Path ReportMap Int64 = Path_ReportMap Int64
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
-          peek (Path_ReportMap_unReportMap _) _ = undefined "doField" :: Peek ReportMap
+          peek (p@(Path_ReportMap_unReportMap _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportMap
           peekPath (Proxy) (Peek_ReportMap_Int64 _p _) = _p :: Path ReportMap Int64
           peekValue (Proxy) (Peek_ReportMap_Int64 _ _x) = _x :: Maybe Int64
           peekCons _p _x = Peek_ReportMap_Int64 _p _x :: Peek ReportMap
 instance Paths ReportMap Bool
     where type Path ReportMap Bool = Path_ReportMap Bool
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
-          peek (Path_ReportMap_unReportMap _) _ = undefined "doField" :: Peek ReportMap
+          peek (p@(Path_ReportMap_unReportMap _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportMap
           peekPath (Proxy) (Peek_ReportMap_Bool _p _) = _p :: Path ReportMap Bool
           peekValue (Proxy) (Peek_ReportMap_Bool _ _x) = _x :: Maybe Bool
           peekCons _p _x = Peek_ReportMap_Bool _p _x :: Peek ReportMap
 instance Paths ReportMap Double
     where type Path ReportMap Double = Path_ReportMap Double
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
-          peek (Path_ReportMap_unReportMap _) _ = undefined "doField" :: Peek ReportMap
+          peek (p@(Path_ReportMap_unReportMap _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportMap
           peekPath (Proxy) (Peek_ReportMap_Double _p _) = _p :: Path ReportMap Double
           peekValue (Proxy) (Peek_ReportMap_Double _ _x) = _x :: Maybe Double
           peekCons _p _x = Peek_ReportMap_Double _p _x :: Peek ReportMap
 instance Paths ReportMap Int
     where type Path ReportMap Int = Path_ReportMap Int
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
-          peek (Path_ReportMap_unReportMap _) _ = undefined "doField" :: Peek ReportMap
+          peek (p@(Path_ReportMap_unReportMap _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportMap
           peekPath (Proxy) (Peek_ReportMap_Int _p _) = _p :: Path ReportMap Int
           peekValue (Proxy) (Peek_ReportMap_Int _ _x) = _x :: Maybe Int
           peekCons _p _x = Peek_ReportMap_Int _p _x :: Peek ReportMap
 instance Paths ReportMap Dimension
     where type Path ReportMap Dimension = Path_ReportMap Dimension
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
-          peek (Path_ReportMap_unReportMap _) _ = undefined "doField" :: Peek ReportMap
+          peek (p@(Path_ReportMap_unReportMap _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportMap
           peekPath (Proxy) (Peek_ReportMap_Dimension _p _) = _p :: Path ReportMap Dimension
           peekValue (Proxy) (Peek_ReportMap_Dimension _ _x) = _x :: Maybe Dimension
           peekCons _p _x = Peek_ReportMap_Dimension _p _x :: Peek ReportMap
 instance Paths ReportMap ImageCrop
     where type Path ReportMap ImageCrop = Path_ReportMap ImageCrop
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
-          peek (Path_ReportMap_unReportMap _) _ = undefined "doField" :: Peek ReportMap
+          peek (p@(Path_ReportMap_unReportMap _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportMap
           peekPath (Proxy) (Peek_ReportMap_ImageCrop _p _) = _p :: Path ReportMap ImageCrop
           peekValue (Proxy) (Peek_ReportMap_ImageCrop _ _x) = _x :: Maybe ImageCrop
           peekCons _p _x = Peek_ReportMap_ImageCrop _p _x :: Peek ReportMap
 instance Paths ReportMap ImageSize
     where type Path ReportMap ImageSize = Path_ReportMap ImageSize
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
-          peek (Path_ReportMap_unReportMap _) _ = undefined "doField" :: Peek ReportMap
+          peek (p@(Path_ReportMap_unReportMap _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportMap
           peekPath (Proxy) (Peek_ReportMap_ImageSize _p _) = _p :: Path ReportMap ImageSize
           peekValue (Proxy) (Peek_ReportMap_ImageSize _ _x) = _x :: Maybe ImageSize
           peekCons _p _x = Peek_ReportMap_ImageSize _p _x :: Peek ReportMap
 instance Paths ReportMap Units
     where type Path ReportMap Units = Path_ReportMap Units
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
-          peek (Path_ReportMap_unReportMap _) _ = undefined "doField" :: Peek ReportMap
+          peek (p@(Path_ReportMap_unReportMap _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportMap
           peekPath (Proxy) (Peek_ReportMap_Units _p _) = _p :: Path ReportMap Units
           peekValue (Proxy) (Peek_ReportMap_Units _ _x) = _x :: Maybe Units
           peekCons _p _x = Peek_ReportMap_Units _p _x :: Peek ReportMap
 instance Paths ReportMap ImageFile
     where type Path ReportMap ImageFile = Path_ReportMap ImageFile
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
-          peek (Path_ReportMap_unReportMap _) _ = undefined "doField" :: Peek ReportMap
+          peek (p@(Path_ReportMap_unReportMap _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportMap
           peekPath (Proxy) (Peek_ReportMap_ImageFile _p _) = _p :: Path ReportMap ImageFile
           peekValue (Proxy) (Peek_ReportMap_ImageFile _ _x) = _x :: Maybe ImageFile
           peekCons _p _x = Peek_ReportMap_ImageFile _p _x :: Peek ReportMap
 instance Paths ReportMap Integer
     where type Path ReportMap Integer = Path_ReportMap Integer
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
-          peek (Path_ReportMap_unReportMap _) _ = undefined "doField" :: Peek ReportMap
+          peek (p@(Path_ReportMap_unReportMap _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportMap
           peekPath (Proxy) (Peek_ReportMap_Integer _p _) = _p :: Path ReportMap Integer
           peekValue (Proxy) (Peek_ReportMap_Integer _ _x) = _x :: Maybe Integer
           peekCons _p _x = Peek_ReportMap_Integer _p _x :: Peek ReportMap
 instance Paths ReportMap JSONText
     where type Path ReportMap JSONText = Path_ReportMap JSONText
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
-          peek (Path_ReportMap_unReportMap _) _ = undefined "doField" :: Peek ReportMap
+          peek (p@(Path_ReportMap_unReportMap _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportMap
           peekPath (Proxy) (Peek_ReportMap_JSONText _p _) = _p :: Path ReportMap JSONText
           peekValue (Proxy) (Peek_ReportMap_JSONText _ _x) = _x :: Maybe JSONText
           peekCons _p _x = Peek_ReportMap_JSONText _p _x :: Peek ReportMap
 instance Paths ReportMap Markup
     where type Path ReportMap Markup = Path_ReportMap Markup
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
-          peek (Path_ReportMap_unReportMap _) _ = undefined "doField" :: Peek ReportMap
+          peek (p@(Path_ReportMap_unReportMap _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportMap
           peekPath (Proxy) (Peek_ReportMap_Markup _p _) = _p :: Path ReportMap Markup
           peekValue (Proxy) (Peek_ReportMap_Markup _ _x) = _x :: Maybe Markup
           peekCons _p _x = Peek_ReportMap_Markup _p _x :: Peek ReportMap
 instance Paths ReportMap Permissions
     where type Path ReportMap Permissions = Path_ReportMap Permissions
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
-          peek (Path_ReportMap_unReportMap _) _ = undefined "doField" :: Peek ReportMap
+          peek (p@(Path_ReportMap_unReportMap _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportMap
           peekPath (Proxy) (Peek_ReportMap_Permissions _p _) = _p :: Path ReportMap Permissions
           peekValue (Proxy) (Peek_ReportMap_Permissions _ _x) = _x :: Maybe Permissions
           peekCons _p _x = Peek_ReportMap_Permissions _p _x :: Peek ReportMap
 instance Paths ReportMap UserIds
     where type Path ReportMap UserIds = Path_ReportMap UserIds
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
-          peek (Path_ReportMap_unReportMap _) _ = undefined "doField" :: Peek ReportMap
+          peek (p@(Path_ReportMap_unReportMap _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportMap
           peekPath (Proxy) (Peek_ReportMap_UserIds _p _) = _p :: Path ReportMap UserIds
           peekValue (Proxy) (Peek_ReportMap_UserIds _ _x) = _x :: Maybe UserIds
           peekCons _p _x = Peek_ReportMap_UserIds _p _x :: Peek ReportMap
 instance Paths ReportMap AbbrevPair
     where type Path ReportMap AbbrevPair = Path_ReportMap AbbrevPair
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
-          peek (Path_ReportMap_unReportMap _) _ = undefined "doField" :: Peek ReportMap
+          peek (p@(Path_ReportMap_unReportMap _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportMap
           peekPath (Proxy) (Peek_ReportMap_AbbrevPair _p _) = _p :: Path ReportMap AbbrevPair
           peekValue (Proxy) (Peek_ReportMap_AbbrevPair _ _x) = _x :: Maybe AbbrevPair
           peekCons _p _x = Peek_ReportMap_AbbrevPair _p _x :: Peek ReportMap
 instance Paths ReportMap AbbrevPairs
     where type Path ReportMap AbbrevPairs = Path_ReportMap AbbrevPairs
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
-          peek (Path_ReportMap_unReportMap _) _ = undefined "doField" :: Peek ReportMap
+          peek (p@(Path_ReportMap_unReportMap _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportMap
           peekPath (Proxy) (Peek_ReportMap_AbbrevPairs _p _) = _p :: Path ReportMap AbbrevPairs
           peekValue (Proxy) (Peek_ReportMap_AbbrevPairs _ _x) = _x :: Maybe AbbrevPairs
           peekCons _p _x = Peek_ReportMap_AbbrevPairs _p _x :: Peek ReportMap
 instance Paths ReportMap Author
     where type Path ReportMap Author = Path_ReportMap Author
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
-          peek (Path_ReportMap_unReportMap _) _ = undefined "doField" :: Peek ReportMap
+          peek (p@(Path_ReportMap_unReportMap _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportMap
           peekPath (Proxy) (Peek_ReportMap_Author _p _) = _p :: Path ReportMap Author
           peekValue (Proxy) (Peek_ReportMap_Author _ _x) = _x :: Maybe Author
           peekCons _p _x = Peek_ReportMap_Author _p _x :: Peek ReportMap
 instance Paths ReportMap Authors
     where type Path ReportMap Authors = Path_ReportMap Authors
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
-          peek (Path_ReportMap_unReportMap _) _ = undefined "doField" :: Peek ReportMap
+          peek (p@(Path_ReportMap_unReportMap _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportMap
           peekPath (Proxy) (Peek_ReportMap_Authors _p _) = _p :: Path ReportMap Authors
           peekValue (Proxy) (Peek_ReportMap_Authors _ _x) = _x :: Maybe Authors
           peekCons _p _x = Peek_ReportMap_Authors _p _x :: Peek ReportMap
 instance Paths ReportMap Branding
     where type Path ReportMap Branding = Path_ReportMap Branding
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
-          peek (Path_ReportMap_unReportMap _) _ = undefined "doField" :: Peek ReportMap
+          peek (p@(Path_ReportMap_unReportMap _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportMap
           peekPath (Proxy) (Peek_ReportMap_Branding _p _) = _p :: Path ReportMap Branding
           peekValue (Proxy) (Peek_ReportMap_Branding _ _x) = _x :: Maybe Branding
           peekCons _p _x = Peek_ReportMap_Branding _p _x :: Peek ReportMap
 instance Paths ReportMap MarkupPair
     where type Path ReportMap MarkupPair = Path_ReportMap MarkupPair
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
-          peek (Path_ReportMap_unReportMap _) _ = undefined "doField" :: Peek ReportMap
+          peek (p@(Path_ReportMap_unReportMap _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportMap
           peekPath (Proxy) (Peek_ReportMap_MarkupPair _p _) = _p :: Path ReportMap MarkupPair
           peekValue (Proxy) (Peek_ReportMap_MarkupPair _ _x) = _x :: Maybe MarkupPair
           peekCons _p _x = Peek_ReportMap_MarkupPair _p _x :: Peek ReportMap
 instance Paths ReportMap MarkupPairs
     where type Path ReportMap MarkupPairs = Path_ReportMap MarkupPairs
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
-          peek (Path_ReportMap_unReportMap _) _ = undefined "doField" :: Peek ReportMap
+          peek (p@(Path_ReportMap_unReportMap _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportMap
           peekPath (Proxy) (Peek_ReportMap_MarkupPairs _p _) = _p :: Path ReportMap MarkupPairs
           peekValue (Proxy) (Peek_ReportMap_MarkupPairs _ _x) = _x :: Maybe MarkupPairs
           peekCons _p _x = Peek_ReportMap_MarkupPairs _p _x :: Peek ReportMap
 instance Paths ReportMap Markups
     where type Path ReportMap Markups = Path_ReportMap Markups
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
-          peek (Path_ReportMap_unReportMap _) _ = undefined "doField" :: Peek ReportMap
+          peek (p@(Path_ReportMap_unReportMap _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportMap
           peekPath (Proxy) (Peek_ReportMap_Markups _p _) = _p :: Path ReportMap Markups
           peekValue (Proxy) (Peek_ReportMap_Markups _ _x) = _x :: Maybe Markups
           peekCons _p _x = Peek_ReportMap_Markups _p _x :: Peek ReportMap
 instance Paths ReportMap MaybeReportIntendedUse
     where type Path ReportMap MaybeReportIntendedUse = Path_ReportMap MaybeReportIntendedUse
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
-          peek (Path_ReportMap_unReportMap _) _ = undefined "doField" :: Peek ReportMap
+          peek (p@(Path_ReportMap_unReportMap _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportMap
           peekPath (Proxy) (Peek_ReportMap_MaybeReportIntendedUse _p _) = _p :: Path ReportMap MaybeReportIntendedUse
           peekValue (Proxy) (Peek_ReportMap_MaybeReportIntendedUse _ _x) = _x :: Maybe MaybeReportIntendedUse
           peekCons _p _x = Peek_ReportMap_MaybeReportIntendedUse _p _x :: Peek ReportMap
 instance Paths ReportMap Report
     where type Path ReportMap Report = Path_ReportMap Report
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
-          peek (Path_ReportMap_unReportMap _) _ = undefined "doField" :: Peek ReportMap
+          peek (p@(Path_ReportMap_unReportMap _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportMap
           peekPath (Proxy) (Peek_ReportMap_Report _p _) = _p :: Path ReportMap Report
           peekValue (Proxy) (Peek_ReportMap_Report _ _x) = _x :: Maybe Report
           peekCons _p _x = Peek_ReportMap_Report _p _x :: Peek ReportMap
 instance Paths ReportMap ReportElem
     where type Path ReportMap ReportElem = Path_ReportMap ReportElem
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
-          peek (Path_ReportMap_unReportMap _) _ = undefined "doField" :: Peek ReportMap
+          peek (p@(Path_ReportMap_unReportMap _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportMap
           peekPath (Proxy) (Peek_ReportMap_ReportElem _p _) = _p :: Path ReportMap ReportElem
           peekValue (Proxy) (Peek_ReportMap_ReportElem _ _x) = _x :: Maybe ReportElem
           peekCons _p _x = Peek_ReportMap_ReportElem _p _x :: Peek ReportMap
 instance Paths ReportMap ReportElems
     where type Path ReportMap ReportElems = Path_ReportMap ReportElems
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
-          peek (Path_ReportMap_unReportMap _) _ = undefined "doField" :: Peek ReportMap
+          peek (p@(Path_ReportMap_unReportMap _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportMap
           peekPath (Proxy) (Peek_ReportMap_ReportElems _p _) = _p :: Path ReportMap ReportElems
           peekValue (Proxy) (Peek_ReportMap_ReportElems _ _x) = _x :: Maybe ReportElems
           peekCons _p _x = Peek_ReportMap_ReportElems _p _x :: Peek ReportMap
 instance Paths ReportMap ReportFlags
     where type Path ReportMap ReportFlags = Path_ReportMap ReportFlags
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
-          peek (Path_ReportMap_unReportMap _) _ = undefined "doField" :: Peek ReportMap
+          peek (p@(Path_ReportMap_unReportMap _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportMap
           peekPath (Proxy) (Peek_ReportMap_ReportFlags _p _) = _p :: Path ReportMap ReportFlags
           peekValue (Proxy) (Peek_ReportMap_ReportFlags _ _x) = _x :: Maybe ReportFlags
           peekCons _p _x = Peek_ReportMap_ReportFlags _p _x :: Peek ReportMap
 instance Paths ReportMap ReportStandard
     where type Path ReportMap ReportStandard = Path_ReportMap ReportStandard
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
-          peek (Path_ReportMap_unReportMap _) _ = undefined "doField" :: Peek ReportMap
+          peek (p@(Path_ReportMap_unReportMap _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportMap
           peekPath (Proxy) (Peek_ReportMap_ReportStandard _p _) = _p :: Path ReportMap ReportStandard
           peekValue (Proxy) (Peek_ReportMap_ReportStandard _ _x) = _x :: Maybe ReportStandard
           peekCons _p _x = Peek_ReportMap_ReportStandard _p _x :: Peek ReportMap
 instance Paths ReportMap ReportStatus
     where type Path ReportMap ReportStatus = Path_ReportMap ReportStatus
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
-          peek (Path_ReportMap_unReportMap _) _ = undefined "doField" :: Peek ReportMap
+          peek (p@(Path_ReportMap_unReportMap _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportMap
           peekPath (Proxy) (Peek_ReportMap_ReportStatus _p _) = _p :: Path ReportMap ReportStatus
           peekValue (Proxy) (Peek_ReportMap_ReportStatus _ _x) = _x :: Maybe ReportStatus
           peekCons _p _x = Peek_ReportMap_ReportStatus _p _x :: Peek ReportMap
 instance Paths ReportMap ReportValueApproachInfo
     where type Path ReportMap ReportValueApproachInfo = Path_ReportMap ReportValueApproachInfo
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
-          peek (Path_ReportMap_unReportMap _) _ = undefined "doField" :: Peek ReportMap
+          peek (p@(Path_ReportMap_unReportMap _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportMap
           peekPath (Proxy) (Peek_ReportMap_ReportValueApproachInfo _p _) = _p :: Path ReportMap ReportValueApproachInfo
           peekValue (Proxy) (Peek_ReportMap_ReportValueApproachInfo _ _x) = _x :: Maybe ReportValueApproachInfo
           peekCons _p _x = Peek_ReportMap_ReportValueApproachInfo _p _x :: Peek ReportMap
 instance Paths ReportMap ReportValueTypeInfo
     where type Path ReportMap ReportValueTypeInfo = Path_ReportMap ReportValueTypeInfo
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
-          peek (Path_ReportMap_unReportMap _) _ = undefined "doField" :: Peek ReportMap
+          peek (p@(Path_ReportMap_unReportMap _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportMap
           peekPath (Proxy) (Peek_ReportMap_ReportValueTypeInfo _p _) = _p :: Path ReportMap ReportValueTypeInfo
           peekValue (Proxy) (Peek_ReportMap_ReportValueTypeInfo _ _x) = _x :: Maybe ReportValueTypeInfo
           peekCons _p _x = Peek_ReportMap_ReportValueTypeInfo _p _x :: Peek ReportMap
 instance Paths ReportMap EUI
     where type Path ReportMap EUI = Path_ReportMap EUI
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
-          peek (Path_ReportMap_unReportMap _) _ = undefined "doField" :: Peek ReportMap
+          peek (p@(Path_ReportMap_unReportMap _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportMap
           peekPath (Proxy) (Peek_ReportMap_EUI _p _) = _p :: Path ReportMap EUI
           peekValue (Proxy) (Peek_ReportMap_EUI _ _x) = _x :: Maybe EUI
           peekCons _p _x = Peek_ReportMap_EUI _p _x :: Peek ReportMap
 instance Paths ReportMap MEUI
     where type Path ReportMap MEUI = Path_ReportMap MEUI
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
-          peek (Path_ReportMap_unReportMap _) _ = undefined "doField" :: Peek ReportMap
+          peek (p@(Path_ReportMap_unReportMap _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportMap
           peekPath (Proxy) (Peek_ReportMap_MEUI _p _) = _p :: Path ReportMap MEUI
           peekValue (Proxy) (Peek_ReportMap_MEUI _ _x) = _x :: Maybe MEUI
           peekCons _p _x = Peek_ReportMap_MEUI _p _x :: Peek ReportMap
 instance Paths ReportMap MaybeImageFile
     where type Path ReportMap MaybeImageFile = Path_ReportMap MaybeImageFile
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
-          peek (Path_ReportMap_unReportMap _) _ = undefined "doField" :: Peek ReportMap
+          peek (p@(Path_ReportMap_unReportMap _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportMap
           peekPath (Proxy) (Peek_ReportMap_MaybeImageFile _p _) = _p :: Path ReportMap MaybeImageFile
           peekValue (Proxy) (Peek_ReportMap_MaybeImageFile _ _x) = _x :: Maybe MaybeImageFile
           peekCons _p _x = Peek_ReportMap_MaybeImageFile _p _x :: Peek ReportMap
 instance Paths ReportMap ReportImage
     where type Path ReportMap ReportImage = Path_ReportMap ReportImage
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
-          peek (Path_ReportMap_unReportMap _) _ = undefined "doField" :: Peek ReportMap
+          peek (p@(Path_ReportMap_unReportMap _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportMap
           peekPath (Proxy) (Peek_ReportMap_ReportImage _p _) = _p :: Path ReportMap ReportImage
           peekValue (Proxy) (Peek_ReportMap_ReportImage _ _x) = _x :: Maybe ReportImage
           peekCons _p _x = Peek_ReportMap_ReportImage _p _x :: Peek ReportMap
 instance Paths ReportMap ReportImages
     where type Path ReportMap ReportImages = Path_ReportMap ReportImages
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
-          peek (Path_ReportMap_unReportMap _) _ = undefined "doField" :: Peek ReportMap
+          peek (p@(Path_ReportMap_unReportMap _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportMap
           peekPath (Proxy) (Peek_ReportMap_ReportImages _p _) = _p :: Path ReportMap ReportImages
           peekValue (Proxy) (Peek_ReportMap_ReportImages _ _x) = _x :: Maybe ReportImages
           peekCons _p _x = Peek_ReportMap_ReportImages _p _x :: Peek ReportMap
 instance Paths ReportMap ReadOnlyFilePath
     where type Path ReportMap ReadOnlyFilePath = Path_ReportMap ReadOnlyFilePath
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
-          peek (Path_ReportMap_unReportMap _) _ = undefined "doField" :: Peek ReportMap
+          peek (p@(Path_ReportMap_unReportMap _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportMap
           peekPath (Proxy) (Peek_ReportMap_ReadOnlyFilePath _p _) = _p :: Path ReportMap ReadOnlyFilePath
           peekValue (Proxy) (Peek_ReportMap_ReadOnlyFilePath _ _x) = _x :: Maybe ReadOnlyFilePath
           peekCons _p _x = Peek_ReportMap_ReadOnlyFilePath _p _x :: Peek ReportMap
 instance Paths ReportMap ReportImageView
     where type Path ReportMap ReportImageView = Path_ReportMap ReportImageView
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
-          peek (Path_ReportMap_unReportMap _) _ = undefined "doField" :: Peek ReportMap
+          peek (p@(Path_ReportMap_unReportMap _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportMap
           peekPath (Proxy) (Peek_ReportMap_ReportImageView _p _) = _p :: Path ReportMap ReportImageView
           peekValue (Proxy) (Peek_ReportMap_ReportImageView _ _x) = _x :: Maybe ReportImageView
           peekCons _p _x = Peek_ReportMap_ReportImageView _p _x :: Peek ReportMap
 instance Paths ReportMap ReportView
     where type Path ReportMap ReportView = Path_ReportMap ReportView
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
-          peek (Path_ReportMap_unReportMap _) _ = undefined "doField" :: Peek ReportMap
+          peek (p@(Path_ReportMap_unReportMap _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportMap
           peekPath (Proxy) (Peek_ReportMap_ReportView _p _) = _p :: Path ReportMap ReportView
           peekValue (Proxy) (Peek_ReportMap_ReportView _ _x) = _x :: Maybe ReportView
           peekCons _p _x = Peek_ReportMap_ReportView _p _x :: Peek ReportMap
 instance Paths ReportMap SaneSizeImageSize
     where type Path ReportMap SaneSizeImageSize = Path_ReportMap SaneSizeImageSize
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
-          peek (Path_ReportMap_unReportMap _) _ = undefined "doField" :: Peek ReportMap
+          peek (p@(Path_ReportMap_unReportMap _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportMap
           peekPath (Proxy) (Peek_ReportMap_SaneSizeImageSize _p _) = _p :: Path ReportMap SaneSizeImageSize
           peekValue (Proxy) (Peek_ReportMap_SaneSizeImageSize _ _x) = _x :: Maybe SaneSizeImageSize
           peekCons _p _x = Peek_ReportMap_SaneSizeImageSize _p _x :: Peek ReportMap
 instance Paths ReportMap Item
     where type Path ReportMap Item = Path_ReportMap Item
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
-          peek (Path_ReportMap_unReportMap _) _ = undefined "doField" :: Peek ReportMap
+          peek (p@(Path_ReportMap_unReportMap _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportMap
           peekPath (Proxy) (Peek_ReportMap_Item _p _) = _p :: Path ReportMap Item
           peekValue (Proxy) (Peek_ReportMap_Item _ _x) = _x :: Maybe Item
           peekCons _p _x = Peek_ReportMap_Item _p _x :: Peek ReportMap
 instance Paths ReportMap MIM
     where type Path ReportMap MIM = Path_ReportMap MIM
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
-          peek (Path_ReportMap_unReportMap _) _ = undefined "doField" :: Peek ReportMap
+          peek (p@(Path_ReportMap_unReportMap _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportMap
           peekPath (Proxy) (Peek_ReportMap_MIM _p _) = _p :: Path ReportMap MIM
           peekValue (Proxy) (Peek_ReportMap_MIM _ _x) = _x :: Maybe MIM
           peekCons _p _x = Peek_ReportMap_MIM _p _x :: Peek ReportMap
 instance Paths ReportMap MRR
     where type Path ReportMap MRR = Path_ReportMap MRR
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
-          peek (Path_ReportMap_unReportMap _) _ = undefined "doField" :: Peek ReportMap
+          peek (p@(Path_ReportMap_unReportMap _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportMap
           peekPath (Proxy) (Peek_ReportMap_MRR _p _) = _p :: Path ReportMap MRR
           peekValue (Proxy) (Peek_ReportMap_MRR _ _x) = _x :: Maybe MRR
           peekCons _p _x = Peek_ReportMap_MRR _p _x :: Peek ReportMap
 instance Paths ReportMap ReportMap
     where type Path ReportMap ReportMap = Path_ReportMap ReportMap
           paths _ _ = [idPath]
-          peek _ _ = undefined "idpeek" :: Peek ReportMap
+          peek p x = peekCons p (Just x) :: Peek ReportMap
           peekPath (Proxy) (Peek_ReportMap_ReportMap _p _) = _p :: Path ReportMap ReportMap
           peekValue (Proxy) (Peek_ReportMap_ReportMap _ _x) = _x :: Maybe ReportMap
           peekCons _p _x = Peek_ReportMap_ReportMap _p _x :: Peek ReportMap
 instance Paths ReportMap CIString
     where type Path ReportMap CIString = Path_ReportMap CIString
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
-          peek (Path_ReportMap_unReportMap _) _ = undefined "doField" :: Peek ReportMap
+          peek (p@(Path_ReportMap_unReportMap _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportMap
           peekPath (Proxy) (Peek_ReportMap_CIString _p _) = _p :: Path ReportMap CIString
           peekValue (Proxy) (Peek_ReportMap_CIString _ _x) = _x :: Maybe CIString
           peekCons _p _x = Peek_ReportMap_CIString _p _x :: Peek ReportMap
 instance Paths ReportMap URI
     where type Path ReportMap URI = Path_ReportMap URI
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
-          peek (Path_ReportMap_unReportMap _) _ = undefined "doField" :: Peek ReportMap
+          peek (p@(Path_ReportMap_unReportMap _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportMap
           peekPath (Proxy) (Peek_ReportMap_URI _p _) = _p :: Path ReportMap URI
           peekValue (Proxy) (Peek_ReportMap_URI _ _x) = _x :: Maybe URI
           peekCons _p _x = Peek_ReportMap_URI _p _x :: Peek ReportMap
 instance Paths ReportMap Text
     where type Path ReportMap Text = Path_ReportMap Text
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
-          peek (Path_ReportMap_unReportMap _) _ = undefined "doField" :: Peek ReportMap
+          peek (p@(Path_ReportMap_unReportMap _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportMap
           peekPath (Proxy) (Peek_ReportMap_Text _p _) = _p :: Path ReportMap Text
           peekValue (Proxy) (Peek_ReportMap_Text _ _x) = _x :: Maybe Text
           peekCons _p _x = Peek_ReportMap_Text _p _x :: Peek ReportMap
 instance Paths ReportMap UserId
     where type Path ReportMap UserId = Path_ReportMap UserId
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
-          peek (Path_ReportMap_unReportMap _) _ = undefined "doField" :: Peek ReportMap
+          peek (p@(Path_ReportMap_unReportMap _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportMap
           peekPath (Proxy) (Peek_ReportMap_UserId _p _) = _p :: Path ReportMap UserId
           peekValue (Proxy) (Peek_ReportMap_UserId _ _x) = _x :: Maybe UserId
           peekCons _p _x = Peek_ReportMap_UserId _p _x :: Peek ReportMap
 instance Paths ReportMap UUID
     where type Path ReportMap UUID = Path_ReportMap UUID
           paths (_s@(ReportMap {})) _g = concatMap (\(p, a') -> map p (paths (a' :: MRR) _g)) [(Path_ReportMap_unReportMap, unReportMap _s)]
-          peek (Path_ReportMap_unReportMap _) _ = undefined "doField" :: Peek ReportMap
+          peek (p@(Path_ReportMap_unReportMap _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek ReportMap
           peekPath (Proxy) (Peek_ReportMap_UUID _p _) = _p :: Path ReportMap UUID
           peekValue (Proxy) (Peek_ReportMap_UUID _ _x) = _x :: Maybe UUID
           peekCons _p _x = Peek_ReportMap_UUID _p _x :: Peek ReportMap
@@ -6372,15 +4196,14 @@ instance Paths CIString JSONText
     where type Path CIString JSONText = Path_CIString JSONText
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Text) _g)) (map (\a' -> (Path_CIString_View, a')) (toListOf (toLens (Path_CIString_View (idPath :: Path Text
                                                                                                                                                                            Text))) _s))
-          peek (Path_CIString_View _) _ = undefined "doView1" :: Peek CIString
-          peek (Path_CIString) _ = undefined "doView2" :: Peek CIString
+          peek (p@(Path_CIString_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek CIString
           peekPath (Proxy) (Peek_CIString_JSONText _p _) = _p :: Path CIString JSONText
           peekValue (Proxy) (Peek_CIString_JSONText _ _x) = _x :: Maybe JSONText
           peekCons _p _x = Peek_CIString_JSONText _p _x :: Peek CIString
 instance Paths CIString CIString
     where type Path CIString CIString = Path_CIString CIString
           paths _ _ = [idPath]
-          peek _ _ = undefined "idpeek" :: Peek CIString
+          peek p x = peekCons p (Just x) :: Peek CIString
           peekPath (Proxy) (Peek_CIString_CIString _p _) = _p :: Path CIString CIString
           peekValue (Proxy) (Peek_CIString_CIString _ _x) = _x :: Maybe CIString
           peekCons _p _x = Peek_CIString_CIString _p _x :: Peek CIString
@@ -6388,15 +4211,14 @@ instance Paths CIString Text
     where type Path CIString Text = Path_CIString Text
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: Text) _g)) (map (\a' -> (Path_CIString_View, a')) (toListOf (toLens (Path_CIString_View (idPath :: Path Text
                                                                                                                                                                            Text))) _s))
-          peek (Path_CIString_View _) _ = undefined "doView1" :: Peek CIString
-          peek (Path_CIString) _ = undefined "doView2" :: Peek CIString
+          peek (p@(Path_CIString_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek CIString
           peekPath (Proxy) (Peek_CIString_Text _p _) = _p :: Path CIString Text
           peekValue (Proxy) (Peek_CIString_Text _ _x) = _x :: Maybe Text
           peekCons _p _x = Peek_CIString_Text _p _x :: Peek CIString
 instance Paths URI URI
     where type Path URI URI = Path_URI URI
           paths _ _ = [idPath]
-          peek _ _ = undefined "idpeek" :: Peek URI
+          peek p x = peekCons p (Just x) :: Peek URI
           peekPath (Proxy) (Peek_URI_URI _p _) = _p :: Path URI URI
           peekValue (Proxy) (Peek_URI_URI _ _x) = _x :: Maybe URI
           peekCons _p _x = Peek_URI_URI _p _x :: Peek URI
@@ -6404,29 +4226,28 @@ instance Paths Text JSONText
     where type Path Text JSONText = Path_Text JSONText
           paths _s _g = concatMap (\(p, a') -> map p (paths (a' :: JSONText) _g)) (map (\a' -> (Path_Text_View, a')) (toListOf (toLens (Path_Text_View (idPath :: Path JSONText
                                                                                                                                                                        JSONText))) _s))
-          peek (Path_Text_View _) _ = undefined "doView1" :: Peek Text
-          peek (Path_Text) _ = undefined "doView2" :: Peek Text
+          peek (p@(Path_Text_View _)) x = peekCons p (Just (view' (toLens p) x)) :: Peek Text
           peekPath (Proxy) (Peek_Text_JSONText _p _) = _p :: Path Text JSONText
           peekValue (Proxy) (Peek_Text_JSONText _ _x) = _x :: Maybe JSONText
           peekCons _p _x = Peek_Text_JSONText _p _x :: Peek Text
 instance Paths Text Text
     where type Path Text Text = Path_Text Text
           paths _ _ = [idPath]
-          peek _ _ = undefined "idpeek" :: Peek Text
+          peek p x = peekCons p (Just x) :: Peek Text
           peekPath (Proxy) (Peek_Text_Text _p _) = _p :: Path Text Text
           peekValue (Proxy) (Peek_Text_Text _ _x) = _x :: Maybe Text
           peekCons _p _x = Peek_Text_Text _p _x :: Peek Text
 instance Paths UserId UserId
     where type Path UserId UserId = Path_UserId UserId
           paths _ _ = [idPath]
-          peek _ _ = undefined "idpeek" :: Peek UserId
+          peek p x = peekCons p (Just x) :: Peek UserId
           peekPath (Proxy) (Peek_UserId_UserId _p _) = _p :: Path UserId UserId
           peekValue (Proxy) (Peek_UserId_UserId _ _x) = _x :: Maybe UserId
           peekCons _p _x = Peek_UserId_UserId _p _x :: Peek UserId
 instance Paths UUID UUID
     where type Path UUID UUID = Path_UUID UUID
           paths _ _ = [idPath]
-          peek _ _ = undefined "idpeek" :: Peek UUID
+          peek p x = peekCons p (Just x) :: Peek UUID
           peekPath (Proxy) (Peek_UUID_UUID _p _) = _p :: Path UUID UUID
           peekValue (Proxy) (Peek_UUID_UUID _ _x) = _x :: Maybe UUID
           peekCons _p _x = Peek_UUID_UUID _p _x :: Peek UUID

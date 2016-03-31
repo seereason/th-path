@@ -37,12 +37,14 @@ module Language.Haskell.TH.Path.Common
     , telld
     , mconcatQ
     , tagExp
+    , view'
     ) where
 
 import Control.Lens hiding (cons, Strict)
 import Control.Monad.Writer (MonadWriter, tell)
 import Data.Bool (bool)
 import Data.List as List (map)
+import Data.Monoid (Endo)
 import Data.Set as Set (map, minView, Set)
 import Language.Haskell.TH
 import Language.Haskell.TH.Instances ()
@@ -201,3 +203,10 @@ mconcatQ xs = [|mconcat $(listE xs)|]
 -- | Insert a string into an expression by applying an id function
 tagExp :: String -> ExpQ -> ExpQ
 tagExp s e = [|bool (undefined $(lift s)) $e True|]
+
+view' :: Getting (Endo [a]) s a -> s -> a
+view' lns x =
+    case toListOf lns x of
+      [y] -> y
+      [] -> error $ "view' empty failure"
+      _ -> error $ "view' multi failure"
