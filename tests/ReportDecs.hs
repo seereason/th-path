@@ -13805,106 +13805,157 @@ instance ToLens Univ (Path_Maybe (Path_Either (Path_URI URI) (Path_ImageFile URI
           toLens (Proxy) (Path_Just v) = _Just . toLens (Proxy :: Proxy Univ) v
 instance U Univ String
     where u = U1
+          unU (U1 a) = a
 instance U Univ Int64
     where u = U2
+          unU (U2 a) = a
 instance U Univ Bool
     where u = U4
+          unU (U4 a) = a
 instance U Univ Double
     where u = U5
+          unU (U5 a) = a
 instance U Univ Int
     where u = U3
+          unU (U3 a) = a
 instance U Univ Dimension
     where u = U6
+          unU (U6 a) = a
 instance U Univ ImageCrop
     where u = U7
+          unU (U7 a) = a
 instance U Univ ImageSize
     where u = U8
+          unU (U8 a) = a
 instance U Univ Units
     where u = U9
+          unU (U9 a) = a
 instance U Univ ImageFile
     where u = U10
+          unU (U10 a) = a
 instance U Univ Integer
     where u = U11
+          unU (U11 a) = a
 instance U Univ JSONText
     where u = U12
+          unU (U12 a) = a
 instance U Univ Markup
     where u = U13
+          unU (U13 a) = a
 instance U Univ Permissions
     where u = U14
+          unU (U14 a) = a
 instance U Univ UserIds
     where u = U15
+          unU (U15 a) = a
 instance U Univ AbbrevPair
     where u = U16
+          unU (U16 a) = a
 instance U Univ AbbrevPairs
     where u = U17
+          unU (U17 a) = a
 instance U Univ Author
     where u = U18
+          unU (U18 a) = a
 instance U Univ Authors
     where u = U19
+          unU (U19 a) = a
 instance U Univ Branding
     where u = U20
+          unU (U20 a) = a
 instance U Univ MarkupPair
     where u = U21
+          unU (U21 a) = a
 instance U Univ MarkupPairs
     where u = U22
+          unU (U22 a) = a
 instance U Univ Markups
     where u = U23
+          unU (U23 a) = a
 instance U Univ MaybeReportIntendedUse
     where u = U24
+          unU (U24 a) = a
 instance U Univ Report
     where u = U25
+          unU (U25 a) = a
 instance U Univ ReportElem
     where u = U26
+          unU (U26 a) = a
 instance U Univ ReportElems
     where u = U27
+          unU (U27 a) = a
 instance U Univ ReportFlags
     where u = U28
+          unU (U28 a) = a
 instance U Univ ReportIntendedUse
     where u = U29
+          unU (U29 a) = a
 instance U Univ ReportStandard
     where u = U30
+          unU (U30 a) = a
 instance U Univ ReportStatus
     where u = U31
+          unU (U31 a) = a
 instance U Univ ReportValueApproachInfo
     where u = U32
+          unU (U32 a) = a
 instance U Univ ReportValueTypeInfo
     where u = U33
+          unU (U33 a) = a
 instance U Univ EUI
     where u = U34
+          unU (U34 a) = a
 instance U Univ MEUI
     where u = U35
+          unU (U35 a) = a
 instance U Univ MaybeImageFile
     where u = U36
+          unU (U36 a) = a
 instance U Univ ReportImage
     where u = U37
+          unU (U37 a) = a
 instance U Univ ReportImages
     where u = U38
+          unU (U38 a) = a
 instance U Univ ReadOnlyFilePath
     where u = U39
+          unU (U39 a) = a
 instance U Univ ReportImageView
     where u = U40
+          unU (U40 a) = a
 instance U Univ ReportView
     where u = U41
+          unU (U41 a) = a
 instance U Univ SaneSizeImageSize
     where u = U42
+          unU (U42 a) = a
 instance U Univ Item
     where u = U43
+          unU (U43 a) = a
 instance U Univ MIM
     where u = U44
+          unU (U44 a) = a
 instance U Univ MRR
     where u = U45
+          unU (U45 a) = a
 instance U Univ ReportMap
     where u = U46
+          unU (U46 a) = a
 instance U Univ CIString
     where u = U47
+          unU (U47 a) = a
 instance U Univ URI
     where u = U48
+          unU (U48 a) = a
 instance U Univ Text
     where u = U49
+          unU (U49 a) = a
 instance U Univ UserId
     where u = U50
+          unU (U50 a) = a
 instance U Univ UUID
     where u = U51
+          unU (U51 a) = a
 instance HasAuthor Author
     where lens_author = id
           lens_Author_authorCredentials f (Author x1 x2) = fmap (\y1 -> Author x1 y1) (f x2)

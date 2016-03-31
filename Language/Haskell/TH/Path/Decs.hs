@@ -27,7 +27,7 @@ import Data.Set as Set (toList)
 import Language.Haskell.TH
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Common (HasTypeQ(asTypeQ), tells)
-import Language.Haskell.TH.Path.Core (U(u))
+import Language.Haskell.TH.Path.Core (U(u, unU))
 import Language.Haskell.TH.Path.Decs.Lens (lensDecs)
 import Language.Haskell.TH.Path.Decs.Paths (pathDecs)
 import Language.Haskell.TH.Path.Decs.PathStart (peekDecs)
@@ -60,7 +60,9 @@ doUniv = do
   types <- (map asTypeQ . Set.toList) <$> allPathStarts
   cons <- mapM (\(typ, n) -> do
                   ucon <- runQ $ newName ("U" ++ show n)
-                  tells [instanceD (cxt []) [t|U $(conT uname) $typ|] [funD 'u [clause [] (normalB [|$(conE ucon)|]) []]]]
+                  tells [newName "a" >>= \a ->
+                         instanceD (cxt []) [t|U $(conT uname) $typ|] [funD 'u [clause [] (normalB (conE ucon)) []],
+                                                                       funD 'unU [clause [conP ucon [varP a]] (normalB (varE a)) []]]]
                   return $ normalC ucon [strictType notStrict typ])
                (zip types ([1..] :: [Int]))
   tells [dataD (pure []) uname [] cons []]
