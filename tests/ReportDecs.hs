@@ -156,6 +156,58 @@ data Path_UUID _a = Path_UUID deriving (Eq, Ord, Read, Show, Typeable, Data)
 data Path_Units _a = Path_Units_View (Path_JSONText _a) | Path_Units deriving (Eq, Ord, Read, Show, Typeable, Data)
 data Path_UserId _a = Path_UserId deriving (Eq, Ord, Read, Show, Typeable, Data)
 data Path_UserIds _a = Path_UserIds_View (Path_Text _a) | Path_UserIds deriving (Eq, Ord, Read, Show, Typeable, Data)
+data Univ
+    = U1 String
+    | U2 Int64
+    | U3 Int
+    | U4 Bool
+    | U5 Double
+    | U6 Dimension
+    | U7 ImageCrop
+    | U8 ImageSize
+    | U9 Units
+    | U10 ImageFile
+    | U11 Integer
+    | U12 JSONText
+    | U13 Markup
+    | U14 Permissions
+    | U15 UserIds
+    | U16 AbbrevPair
+    | U17 AbbrevPairs
+    | U18 Author
+    | U19 Authors
+    | U20 Branding
+    | U21 MarkupPair
+    | U22 MarkupPairs
+    | U23 Markups
+    | U24 MaybeReportIntendedUse
+    | U25 Report
+    | U26 ReportElem
+    | U27 ReportElems
+    | U28 ReportFlags
+    | U29 ReportIntendedUse
+    | U30 ReportStandard
+    | U31 ReportStatus
+    | U32 ReportValueApproachInfo
+    | U33 ReportValueTypeInfo
+    | U34 EUI
+    | U35 MEUI
+    | U36 MaybeImageFile
+    | U37 ReportImage
+    | U38 ReportImages
+    | U39 ReadOnlyFilePath
+    | U40 ReportImageView
+    | U41 ReportView
+    | U42 SaneSizeImageSize
+    | U43 Item
+    | U44 MIM
+    | U45 MRR
+    | U46 ReportMap
+    | U47 CIString
+    | U48 URI
+    | U49 Text
+    | U50 UserId
+    | U51 UUID
 type Path_AbbrevPair _a = Path_Pair (Path_CIString _a) (Path_Markup _a)
 type Path_AbbrevPairs _a = Path_OMap AbbrevPairID (Path_Pair (Path_CIString _a) (Path_Markup _a))
 type Path_Authors _a = Path_OMap AuthorID (Path_Author _a)
@@ -4251,6 +4303,108 @@ instance Paths UUID UUID
           peekPath (Proxy) (Peek_UUID_UUID _p _) = _p :: Path UUID UUID
           peekValue (Proxy) (Peek_UUID_UUID _ _x) = _x :: Maybe UUID
           peekCons _p _x = Peek_UUID_UUID _p _x :: Peek UUID
+instance U Univ String
+    where u = U1
+instance U Univ Int64
+    where u = U2
+instance U Univ Bool
+    where u = U4
+instance U Univ Double
+    where u = U5
+instance U Univ Int
+    where u = U3
+instance U Univ Dimension
+    where u = U6
+instance U Univ ImageCrop
+    where u = U7
+instance U Univ ImageSize
+    where u = U8
+instance U Univ Units
+    where u = U9
+instance U Univ ImageFile
+    where u = U10
+instance U Univ Integer
+    where u = U11
+instance U Univ JSONText
+    where u = U12
+instance U Univ Markup
+    where u = U13
+instance U Univ Permissions
+    where u = U14
+instance U Univ UserIds
+    where u = U15
+instance U Univ AbbrevPair
+    where u = U16
+instance U Univ AbbrevPairs
+    where u = U17
+instance U Univ Author
+    where u = U18
+instance U Univ Authors
+    where u = U19
+instance U Univ Branding
+    where u = U20
+instance U Univ MarkupPair
+    where u = U21
+instance U Univ MarkupPairs
+    where u = U22
+instance U Univ Markups
+    where u = U23
+instance U Univ MaybeReportIntendedUse
+    where u = U24
+instance U Univ Report
+    where u = U25
+instance U Univ ReportElem
+    where u = U26
+instance U Univ ReportElems
+    where u = U27
+instance U Univ ReportFlags
+    where u = U28
+instance U Univ ReportIntendedUse
+    where u = U29
+instance U Univ ReportStandard
+    where u = U30
+instance U Univ ReportStatus
+    where u = U31
+instance U Univ ReportValueApproachInfo
+    where u = U32
+instance U Univ ReportValueTypeInfo
+    where u = U33
+instance U Univ EUI
+    where u = U34
+instance U Univ MEUI
+    where u = U35
+instance U Univ MaybeImageFile
+    where u = U36
+instance U Univ ReportImage
+    where u = U37
+instance U Univ ReportImages
+    where u = U38
+instance U Univ ReadOnlyFilePath
+    where u = U39
+instance U Univ ReportImageView
+    where u = U40
+instance U Univ ReportView
+    where u = U41
+instance U Univ SaneSizeImageSize
+    where u = U42
+instance U Univ Item
+    where u = U43
+instance U Univ MIM
+    where u = U44
+instance U Univ MRR
+    where u = U45
+instance U Univ ReportMap
+    where u = U46
+instance U Univ CIString
+    where u = U47
+instance U Univ URI
+    where u = U48
+instance U Univ Text
+    where u = U49
+instance U Univ UserId
+    where u = U50
+instance U Univ UUID
+    where u = U51
 instance HasAuthor Author
     where lens_author = id
           lens_Author_authorCredentials f (Author x1 x2) = fmap (\y1 -> Author x1 y1) (f x2)

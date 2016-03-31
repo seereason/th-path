@@ -23,6 +23,7 @@ module Language.Haskell.TH.Path.Core
     , PathStart(Peek, peekTree, peekRow)
     , ToLens(S, A, toLens)
     , (:.:)(..)
+    , U(u)
 
     -- * Hint classes
     , SinkType
@@ -174,6 +175,9 @@ class (PathStart s, IdPath (Path s a), ToLens (Path s a), S (Path s a) ~ s, A (P
     -- ^ Accessor for value field of a Peek type
     peekCons :: Path s a -> Maybe a -> Peek s
     -- ^ Construct a Peek s
+
+class U univ a where
+    u :: a -> univ
 
 -- | Nodes along a path can be customized by declaring types to be
 -- instances of this class and the ones that follow.  If a type is an

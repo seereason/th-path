@@ -23,8 +23,11 @@ import Control.Exception as E (IOException, throw, try)
 import Control.Monad.Writer (MonadWriter, execWriterT)
 import Data.Maybe (catMaybes)
 import Data.Monoid ((<>))
+import Data.Set as Set (toList)
 import Language.Haskell.TH
 import Language.Haskell.TH.Instances ()
+import Language.Haskell.TH.Path.Common (HasTypeQ(asTypeQ), tells)
+import Language.Haskell.TH.Path.Core (U(u))
 import Language.Haskell.TH.Path.Decs.Lens (lensDecs)
 import Language.Haskell.TH.Path.Decs.Paths (pathDecs)
 import Language.Haskell.TH.Path.Decs.PathStart (peekDecs)
@@ -39,12 +42,26 @@ import Language.Haskell.TH.TypeGraph.Vertex (TGVSimple)
 import System.Directory (removeFile)
 import System.IO.Error (isDoesNotExistError)
 
+-- instance TypeGraphM m => TypeGraphM (StateT Int m)
+
 derivePaths :: [TypeQ] -> TypeQ -> Q [Dec]
 derivePaths topTypes thisType =
     runTypeGraphT (execWriterT . doType =<< runQ thisType) =<< sequence topTypes
 
 allDecs :: forall m. (TypeGraphM m) => ([Dec] -> [Dec]) -> m [Dec]
-allDecs order = order <$> execWriterT (allPathStarts >>= mapM_ doNode) >>= pure . order
+allDecs order = order <$> ((<>) <$> execWriterT doUniv
+                                <*> execWriterT (allPathStarts >>= mapM_ doNode))
+
+doUniv :: (TypeGraphM m, MonadWriter [Dec] m) => m ()
+doUniv = do
+  types <- (map asTypeQ . Set.toList) <$> allPathStarts
+  cons <- mapM (\(typ, n) -> do
+                  let ucon = mkName ("U" ++ show n)
+                      univ = conT (mkName "Univ")
+                  tells [instanceD (cxt []) [t|U $univ $typ|] [funD 'u [clause [] (normalB [|$(conE ucon)|]) []]]]
+                  return $ normalC ucon [strictType notStrict typ])
+               (zip types ([1..] :: [Int]))
+  tells [dataD (pure []) (mkName "Univ") [] cons []]
 
 allDecsToFile :: ([Dec] -> [Dec]) -> [TypeQ] -> Maybe FilePath -> Maybe FilePath -> FilePath -> [FilePath] -> Q [Dec]
 allDecsToFile order st hd tl dest deps = do
