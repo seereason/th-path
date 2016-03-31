@@ -109,33 +109,33 @@ class IdPath p where
 -- returns all the paths starting from a particular value of type @s@,
 -- along with the value found at the end of that path.  The 'Peek'
 -- type is constructed to be able to represent this result.
-class PathStart s where
-    data Peek s
+class PathStart u s where
+    data Peek u s
     -- ^ 'Peek' is a type function that maps a type to the union of
     -- all paths that start at that type, and (maybe) the value found
     -- by following the path.
-    peekTree :: s -> Forest (Peek s)
+    peekTree :: Proxy u -> s -> Forest (Peek u s)
     -- ^ Given a value of type @s@, return a forest containing every
     -- 'Peek' that can be reached from it.  The order of the nodes in
     -- the forest reflects the order the elements were encountered
     -- during the traversal.
-    peekRow :: s -> [Peek s]
+    peekRow :: Proxy u -> s -> [Peek u s]
     -- ^ In this function only one layer of the forest is returned, no
     -- recursive peek calls are made.
 
-class ToLens p where
-    type S p
-    type A p
-    toLens :: p -> Traversal' (S p) (A p)
+class ToLens u p where
+    type S u p
+    type A u p
+    toLens :: Proxy u -> p -> Traversal' (S u p) (A u p)
 
 data (f :.: g) = f :.: g deriving (Eq, Generic, Read, Show)
 
-instance (ToLens f, ToLens g, A f ~ S g {-, B f ~ T g-}) => ToLens (f :.: g) where
-  type S (f :.: g) = S f
+instance (ToLens u f, ToLens u g, A u f ~ S u g {-, B f ~ T g-}) => ToLens u (f :.: g) where
+  type S u (f :.: g) = S u f
   -- type T (f :.: g) = T f
-  type A (f :.: g) = A g
+  type A u (f :.: g) = A u g
   -- type B (f :.: g) = B g
-  toLens (f :.: g) = toLens f . toLens g
+  toLens p (f :.: g) = toLens p f . toLens p g
   -- ^ Function to turn a path value of type @p@ into a lens to access
   -- (one of) the @A p@ values in an @S p@.
 
@@ -152,28 +152,28 @@ instance (ToLens f, ToLens g, A f ~ S g {-, B f ~ T g-}) => ToLens (f :.: g) whe
 -- eponymously named @Path_Pair@, but that is the identity
 -- constructor, so it can not represent a path from @(Int, Int)@ to
 -- @Int@.
-class (PathStart s, IdPath (Path s a), ToLens (Path s a), S (Path s a) ~ s, A (Path s a) ~ a) => Paths s a where
-    type Path s a
+class (PathStart u s, IdPath (Path u s a), ToLens u (Path u s a), S u (Path u s a) ~ s, A u (Path u s a) ~ a) => Paths u s a where
+    type Path u s a
     -- ^ Each instance defines this type function which returns the
     -- path type.  Each value of this type represents a different way
     -- of obtaining the @a@ from the @s@.  For example, if @s@ is a
     -- record with two fields of type 'Int', the type @PathType s Int@
     -- would have distinct values for those two fields, and the lenses
     -- returned by 'toLens would access those two fields.
-    paths :: s -> Proxy a -> [Path s a]
+    paths :: Proxy u -> s -> Proxy a -> [Path u s a]
     -- ^ Build the paths corresponding to a particular @s@ value and a
     -- particular @a@ type.  Returns a list because there may be
     -- several @a@ reachable from this @s@.  This function will freak
     -- out if called with types for which there is no instance
     -- @Paths s a@.
-    peek :: Path s a -> s -> Peek s
+    peek :: Path u s a -> s -> Peek u s
     -- ^ Build a 'Peek' @s@ value for a specific path from @s@ to @a@.
 
-    peekPath :: Proxy a -> Peek s -> Path s a
+    peekPath :: Proxy a -> Peek u s -> Path u s a
     -- ^ Accessor for path field of a Peek type
-    peekValue :: Proxy a -> Peek s -> Maybe a
+    peekValue :: Proxy a -> Peek u s -> Maybe a
     -- ^ Accessor for value field of a Peek type
-    peekCons :: Path s a -> Maybe a -> Peek s
+    peekCons :: Path u s a -> Maybe a -> Peek u s
     -- ^ Construct a Peek s
 
 class U univ a where

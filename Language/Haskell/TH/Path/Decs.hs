@@ -20,7 +20,7 @@ module Language.Haskell.TH.Path.Decs
     ) where
 
 import Control.Exception as E (IOException, throw, try)
-import Control.Monad.Writer (MonadWriter, execWriterT)
+import Control.Monad.Writer (MonadWriter, execWriterT, runWriterT)
 import Data.Maybe (catMaybes)
 import Data.Monoid ((<>))
 import Data.Set as Set (toList)
@@ -44,24 +44,27 @@ import System.IO.Error (isDoesNotExistError)
 
 -- instance TypeGraphM m => TypeGraphM (StateT Int m)
 
-derivePaths :: [TypeQ] -> TypeQ -> Q [Dec]
-derivePaths topTypes thisType =
-    runTypeGraphT (execWriterT . doType =<< runQ thisType) =<< sequence topTypes
+derivePaths :: TypeQ -> [TypeQ] -> TypeQ -> Q [Dec]
+derivePaths utype topTypes thisType =
+    runTypeGraphT (execWriterT . doType utype =<< runQ thisType) =<< sequence topTypes
 
 allDecs :: forall m. (TypeGraphM m) => ([Dec] -> [Dec]) -> m [Dec]
-allDecs order = order <$> ((<>) <$> execWriterT doUniv
-                                <*> execWriterT (allPathStarts >>= mapM_ doNode))
+allDecs order = do
+  (uname, udecs) <- runWriterT doUniv
+  moreDecs <- execWriterT (allPathStarts >>= mapM_ (doNode uname))
+  return $ order (udecs <> moreDecs)
 
-doUniv :: (TypeGraphM m, MonadWriter [Dec] m) => m ()
+doUniv :: (TypeGraphM m, MonadWriter [Dec] m) => m TypeQ
 doUniv = do
+  uname <- runQ $ newName "Univ"
   types <- (map asTypeQ . Set.toList) <$> allPathStarts
   cons <- mapM (\(typ, n) -> do
-                  let ucon = mkName ("U" ++ show n)
-                      univ = conT (mkName "Univ")
-                  tells [instanceD (cxt []) [t|U $univ $typ|] [funD 'u [clause [] (normalB [|$(conE ucon)|]) []]]]
+                  ucon <- runQ $ newName ("U" ++ show n)
+                  tells [instanceD (cxt []) [t|U $(conT uname) $typ|] [funD 'u [clause [] (normalB [|$(conE ucon)|]) []]]]
                   return $ normalC ucon [strictType notStrict typ])
                (zip types ([1..] :: [Int]))
-  tells [dataD (pure []) (mkName "Univ") [] cons []]
+  tells [dataD (pure []) uname [] cons []]
+  return $ conT uname
 
 allDecsToFile :: ([Dec] -> [Dec]) -> [TypeQ] -> Maybe FilePath -> Maybe FilePath -> FilePath -> [FilePath] -> Q [Dec]
 allDecsToFile order st hd tl dest deps = do
@@ -92,13 +95,13 @@ allDecsToFile order st hd tl dest deps = do
       error $ "Generated " <> dest <> ".new does not match existing " <> dest
   pure decs
 
-doType :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => Type -> m ()
-doType t = tgvSimple t >>= maybe (error $ "doType: No node for " ++ pprint1 t) doNode
+doType :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TypeQ -> Type -> m ()
+doType utype t = tgvSimple t >>= maybe (error $ "doType: No node for " ++ pprint1 t) (doNode utype)
 
-doNode :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TGVSimple -> m ()
-doNode v = do
+doNode :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TypeQ -> TGVSimple -> m ()
+doNode utype v = do
   pathTypeDecs v  -- generate Path types and the IdPath instances
   lensDecs v      -- generate lenses using makeClassyFor
-  pathDecs v      -- generate HasPaths instances
-  peekDecs v      -- generate PathStart instances
-  toLensDecs v    -- generate ToLens instances
+  pathDecs utype v      -- generate HasPaths instances
+  peekDecs utype v      -- generate PathStart instances
+  toLensDecs utype v    -- generate ToLens instances

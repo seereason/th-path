@@ -57,7 +57,7 @@ import Language.Haskell.TH.TypeGraph.TypeGraph ()
 -- in ReportDecs will have meaningful line numbers.
 import ReportPaths
 
-peekReportView :: [Tree (Peek ReportView)]
+peekReportView :: [Tree (Peek Univ ReportView)]
 peekReportView =          [Node {rootLabel = Peek_ReportView_ReadOnlyFilePath (Path_ReportView__reportFolder Path_ReadOnlyFilePath) Nothing,
                                  subForest = [Node {rootLabel = Peek_ReportView_String (Path_ReportView__reportFolder (Path_ReadOnlyFilePath_View Path_String)) Nothing,
                                                     subForest = [Node {rootLabel = Peek_ReportView_JSONText (Path_ReportView__reportFolder (Path_ReadOnlyFilePath_View (Path_String_View Path_JSONText))) (Just (JSONText {unJSONText = "\"\""})),
@@ -2780,7 +2780,7 @@ peekReportView =          [Node {rootLabel = Peek_ReportView_ReadOnlyFilePath (P
                                  subForest = [Node {rootLabel = Peek_ReportView_Int (Path_ReportView__reportStandardsVersion (Path_ReportStandard_unReportStandard Path_Int)) (Just 1),
                                                     subForest = []}]}]
 
-peekAbbrevPairs :: [Tree (Peek (Order AbbrevPairID (CIString, Markup)))]
+peekAbbrevPairs :: [Tree (Peek Univ (Order AbbrevPairID (CIString, Markup)))]
 peekAbbrevPairs =         [Node {rootLabel = Peek_AbbrevPairs_AbbrevPair (Path_At (AbbrevPairID {unAbbrevPairID = 0}) Path_Pair) Nothing,
                                  subForest = [Node {rootLabel = Peek_AbbrevPairs_CIString (Path_At (AbbrevPairID {unAbbrevPairID = 0}) (Path_First Path_CIString)) Nothing,
                                                     subForest = [Node {rootLabel = Peek_AbbrevPairs_Text (Path_At (AbbrevPairID {unAbbrevPairID = 0}) (Path_First (Path_CIString_View Path_Text))) Nothing,
