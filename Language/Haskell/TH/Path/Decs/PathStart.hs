@@ -179,8 +179,10 @@ pathControl utype v x wPathVar = do
         \xpat concs -> do
           rs <- mapM (\conc@(PathConc w ppat pcon) ->
                           do describeConc utype v wPathVar conc
-                             hf <- doRow utype x v w ppat
-                             pf <- doTree utype x v w ppat pcon
+                             p <- runQ $ newName "p"
+                             hf <- pure $ peekList utype x p w ppat [| \a -> peekCons $(varE p) (Just a) |]
+                             gs <- pathKeys' w
+                             pf <- pure $ peekList utype x p w ppat $ doTree p utype v w pcon gs
                              return (hf, pf))
                      concs
           let (hfs, pfs) = unzip rs
@@ -197,22 +199,29 @@ concatMapQ [] = [|mempty|]
 concatMapQ [x] = x
 concatMapQ xs = [|mconcat $(listE xs)|]
 
-doRow :: forall m. (TypeGraphM m) => TypeQ -> Name -> TGVSimple -> TGV -> PatQ -> m ExpQ
-doRow utype x v w ppat = do
-  p <- runQ $ newName "p"
-  pure [| \a -> peekCons $(varE p) (Just a) |] >>= peekList utype x p w ppat
+-- | Get the list of paths to subvalues of x *of type w only*.
+-- This needs to be changed to get all subvalues in proper order.
+-- This further means we need a version of paths that isn't tied
+-- to the goal type, which means we need a new @Path u s@ type.
+peekList :: TypeQ -> Name -> Name -> TGV -> PatQ -> ExpQ -> ExpQ
+peekList utype x p w ppat node =
+    [| concatMap
+              (\pth -> case pth of
+                         $(asP p ppat) ->
+                             map $node (toListOf (toLens $(varE p)) $(varE x) :: [$(asTypeQ w)])
+                         _ -> [])
+              (paths (Proxy :: Proxy $utype) $(varE x) (Proxy :: Proxy $(asTypeQ w))
+                 {-:: [$(asTypeQ (makePathType (ModelType (asName v)))) $(asTypeQ w)]-}) |]
 
-doTree :: forall m. (TypeGraphM m) => TypeQ -> Name -> TGVSimple -> TGV -> PatQ -> ExpQ -> m ExpQ
-doTree utype x v w ppat pcon = do
-  p <- runQ $ newName "p"
-  gs <- pathKeys' w
-  pure [| \a -> -- Get the peek forest for the w value
+doTree :: Name -> TypeQ -> TGVSimple -> TGV -> ExpQ -> Set TGVSimple -> ExpQ
+doTree p utype v w pcon gs =
+       [| \a -> -- Get the peek forest for the w value
                 let wtree = peekTree Proxy (a :: $(asTypeQ w)) :: Forest (Peek $utype $(asTypeQ w)) in
                 let node = Node (peekCons $(varE p) (if null wtree then Just a else Nothing))
                                 -- Build a function with type such as Peek_AbbrevPair -> Peek_AbbrevPairs, so we
                                 -- can lift the forest of type AbbrevPair to be a forest of type AbbrevPairs.
                                 (forestMap ($(liftPeekE utype v w pcon gs)) wtree) in
-                node |] >>= peekList utype x p w ppat
+                node |]
 
 liftPeekE :: TypeQ -> TGVSimple -> TGV -> ExpQ -> Set TGVSimple -> ExpQ
 liftPeekE utype v w pcon gs = do
@@ -226,16 +235,6 @@ liftPeekE utype v w pcon gs = do
                                                                :: Path $utype $(asTypeQ w) $(asTypeQ g)))
                                                          (peekValue (Proxy :: Proxy $(asTypeQ g)) $(varE pk))|])
                                      []) (Set.toList gs)))) {-:: Peek $utype $(asTypeQ v)-} |]
-
-peekList :: TypeGraphM m => TypeQ -> Name -> Name -> TGV -> PatQ -> ExpQ -> m ExpQ
-peekList utype x p w ppat node =
-    pure [| concatMap
-              (\pth -> case pth of
-                         $(asP p ppat) ->
-                             map $node (toListOf (toLens $(varE p)) $(varE x) :: [$(asTypeQ w)])
-                         _ -> [])
-              (paths (Proxy :: Proxy $utype) $(varE x) (Proxy :: Proxy $(asTypeQ w))
-                 {-:: [$(asTypeQ (makePathType (ModelType (asName v)))) $(asTypeQ w)]-}) |]
 
 -- Insert a string into an expression by applying an id function
 -- tag :: String -> ExpQ -> ExpQ

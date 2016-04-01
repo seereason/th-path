@@ -26,8 +26,9 @@ import Data.Set.Extra as Set (mapM_, member)
 import Language.Haskell.TH
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Common (asConQ, asType, asTypeQ, bestPathTypeName, HasName(asName),
-                                        makePathCon, makePathType, mconcatQ, ModelType(ModelType), tells, view')
-import Language.Haskell.TH.Path.Core (Describe(..), IdPath(idPath), Paths(..), PathStart(Peek), ToLens(..), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
+                                        makePathCon, makePathType, mconcatQ, ModelType(ModelType), tells)
+import Language.Haskell.TH.Path.Core (Describe(..), IdPath(idPath), Paths(..), PathStart(Peek), ToLens(..),
+                                      Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..), view')
 import Language.Haskell.TH.Path.Decs.PathStart (makePeekCon)
 import Language.Haskell.TH.Path.Decs.PathType (pathType)
 import Language.Haskell.TH.Path.Decs.PathTypeDecs (fieldPathType)
