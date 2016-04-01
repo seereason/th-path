@@ -57,8 +57,8 @@ data PathConc
 $(makeLenses ''PathConc)
 
 data WriterType
-    = PeekClause ClauseQ
-    | HopClause ClauseQ
+    = TreeClause ClauseQ
+    | RowClause ClauseQ
     | DescClause ClauseQ
     | PathDec DecQ
 
@@ -66,15 +66,15 @@ partitionClauses :: [WriterType] -> ([ClauseQ], [ClauseQ], [ClauseQ], [DecQ])
 partitionClauses xs =
     foldr f ([], [], [], []) xs
         where
-          f (PeekClause x) (pcs, hcs, dcs, pds) = (x : pcs, hcs, dcs, pds)
-          f (HopClause x) (pcs, hcs, dcs, pds) = (pcs, x : hcs, dcs, pds)
-          f (DescClause x) (pcs, hcs, dcs, pds) = (pcs, hcs, x : dcs, pds)
-          f (PathDec x) (pcs, hcs, dcs, pds) = (pcs, hcs, dcs, x : pds)
+          f (TreeClause x) (tcs, rcs, dcs, pds) = (x : tcs, rcs, dcs, pds)
+          f (RowClause x) (tcs, rcs, dcs, pds) = (tcs, x : rcs, dcs, pds)
+          f (DescClause x) (tcs, rcs, dcs, pds) = (tcs, rcs, x : dcs, pds)
+          f (PathDec x) (tcs, rcs, dcs, pds) = (tcs, rcs, dcs, x : pds)
 
 peekDecs :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TypeQ -> TGVSimple -> m ()
 peekDecs utype v =
     do (clauses :: [WriterType]) <- execWriterT (peekClauses utype v)
-       let (pcs, hcs, dcs, pds) = partitionClauses clauses
+       let (tcs, rcs, dcs, pds) = partitionClauses clauses
        instanceD' (cxt []) [t|PathStart $utype $(asTypeQ v)|]
          (sequence
           [dataInstD' (cxt []) ''Peek [utype, asTypeQ v]
@@ -83,12 +83,12 @@ peekDecs utype v =
                                                  [(,) <$> notStrict <*> [t|Path $utype $(asTypeQ v) $(asTypeQ g)|],
                                                   (,) <$> notStrict <*> [t|Maybe $(asTypeQ g)|] ]]) .
                         toList) <$> (pathKeys v)) [''Eq, ''Show],
-           funD' 'peekTree (case pcs of
+           funD' 'peekTree (case tcs of
                               [] -> pure [clause [wildP, wildP] (normalB [| [] |]) []]
-                              _ -> pure pcs),
-           funD' 'peekRow (case hcs of
+                              _ -> pure tcs),
+           funD' 'peekRow (case rcs of
                              [] -> pure [clause [wildP, wildP] (normalB [| [] |]) []]
-                             _ -> pure hcs)])
+                             _ -> pure rcs)])
        tells pds
        instanceD' (cxt []) [t|Describe (Peek $utype $(asTypeQ v))|]
                   (pure [funD 'describe' (case dcs of
@@ -179,13 +179,13 @@ pathControl utype v x wPathVar = do
           rs <- mapM (\conc@(PathConc w ppat pcon) ->
                           do describeConc utype v wPathVar conc
                              p <- runQ $ newName "_pp"
-                             hf <- doHop v w p pcon >>= liftPeek utype x p w ppat
-                             pf <- doPeek utype v w p pcon >>= liftPeek utype x p w ppat
+                             hf <- doRow v w p >>= liftPeek utype x p w ppat
+                             pf <- doTree utype v w p pcon >>= liftPeek utype x p w ppat
                              return (hf, pf))
                      concs
           let (hfs, pfs) = unzip rs
-          tell [PeekClause $ clause [conP 'Proxy [], asP' x xpat] (normalB [| $(concatMapQ pfs) :: Forest (Peek $utype $(asTypeQ v)) |]) [],
-                HopClause $ clause [conP 'Proxy [], asP' x xpat] (normalB [| $(concatMapQ hfs) :: [Peek $utype $(asTypeQ v)] |]) []]
+          tell [TreeClause $ clause [conP 'Proxy [], asP' x xpat] (normalB [| $(concatMapQ pfs) :: Forest (Peek $utype $(asTypeQ v)) |]) [],
+                RowClause $ clause [conP 'Proxy [], asP' x xpat] (normalB [| $(concatMapQ hfs) :: [Peek $utype $(asTypeQ v)] |]) []]
     , _doSyn =
         \_tname _typ -> pure ()
     , _doAlts = \_ -> pure ()
@@ -197,14 +197,15 @@ concatMapQ [] = [|mempty|]
 concatMapQ [x] = x
 concatMapQ xs = [|mconcat $(listE xs)|]
 
-doHop :: forall m. (TypeGraphM m) => TGVSimple -> TGV -> Name -> ExpQ -> m ExpQ
-doHop v w p _pcon =
+doRow :: forall m. (TypeGraphM m) => TGVSimple -> TGV -> Name -> m ExpQ
+doRow v w p =
     pure [| \a -> peekCons $(varE p) (Just a) |]
 
-doPeek :: forall m. (TypeGraphM m) => TypeQ -> TGVSimple -> TGV -> Name -> ExpQ -> m ExpQ
-doPeek utype v w p pcon = do
+doTree :: forall m. (TypeGraphM m) => TypeQ -> TGVSimple -> TGV -> Name -> ExpQ -> m ExpQ
+doTree utype v w p pcon = do
   gs <- pathKeys' w
   let lp = mkName "liftPeek"
+  rowExp <- doRow v w p
   pure [| \a -> let f = peekTree Proxy a {-:: Forest (Peek $utype $(asTypeQ w))-} in
                 Node (peekCons $(varE p) (if null f then Just a else Nothing))
                               -- Build a function with type such as Peek_AbbrevPair -> Peek_AbbrevPairs, so we
