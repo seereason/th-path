@@ -206,12 +206,13 @@ doTree utype v w p pcon = do
   gs <- pathKeys' w
   let lp = mkName "liftPeek"
   rowExp <- doRow v w p
-  pure [| \a -> let f = peekTree Proxy a {-:: Forest (Peek $utype $(asTypeQ w))-} in
-                Node (peekCons $(varE p) (if null f then Just a else Nothing))
+  pure [| \a -> -- Get the peek forest for the w value
+                let wtree = peekTree Proxy (a :: $(asTypeQ w)) :: Forest (Peek $utype $(asTypeQ w)) in
+                Node (peekCons $(varE p) (if null wtree then Just a else Nothing))
                               -- Build a function with type such as Peek_AbbrevPair -> Peek_AbbrevPairs, so we
                               -- can lift the forest of type AbbrevPair to be a forest of type AbbrevPairs.
                      $(letE [funD lp (map (doGoal utype v w pcon) (Foldable.toList gs))]
-                       [|forestMap $(varE lp) f|]) |]
+                       [|forestMap ($(varE lp) :: Peek $utype $(asTypeQ w) -> Peek $utype $(asTypeQ v)) wtree|]) |]
 
 liftPeek :: TypeGraphM m => TypeQ -> Name -> Name -> TGV -> PatQ -> ExpQ -> m ExpQ
 liftPeek utype x p w ppat node =
