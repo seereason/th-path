@@ -35,17 +35,52 @@ import Language.Haskell.TH.Path.View (viewLens)
 import Language.Haskell.TH.TypeGraph.TypeGraph (goalReachableSimple, pathKeys, tgv, tgvSimple')
 import Language.Haskell.TH.TypeGraph.Vertex (field, TGVSimple, TypeGraphVertex(bestType))
 
+toLensDecs :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TypeQ -> TGVSimple -> m ()
+toLensDecs utype v =
+    pathKeys v >>= Set.mapM_ (toLensDecs' utype v)
+
+toLensDecs' :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TypeQ -> TGVSimple -> TGVSimple -> m ()
+toLensDecs' utype v gkey = do
+  ptyp <- pathType (pure (bestType gkey)) v
+  tlc <- execWriterT $ toLensClauses utype v gkey
+  when (not (null tlc)) $
+       (runQ $ sequence
+            [ instanceD (pure []) [t|ToLens $utype $(pure ptyp)|]
+                [ tySynInstD ''S (tySynEqn [utype, pure ptyp] (pure (bestType v)))
+                , tySynInstD ''A (tySynEqn [utype, pure ptyp] (pure (bestType gkey)))
+                , funD 'toLens tlc -- [clause [wildP] (normalB (if v == gkey then [|id|] else [|undefined|])) []]
+                ] ]) >>= tell
+
+
+toLensClauses :: forall m. (TypeGraphM m, MonadWriter [ClauseQ] m) =>
+                 TypeQ
+              -> TGVSimple -- ^ the type whose clauses we are generating
+              -> TGVSimple -- ^ the goal type key
+              -> m ()
+toLensClauses utype v gkey = do
+  case v == gkey of
+    True -> tell [clause [conP 'Proxy [], wildP] (normalB [|id|]) []]
+    False -> do
+      -- Use this to raise errors when the path patterns aren't exhaustive.
+      -- That is supposed to be impossible, so this is debugging code.
+      -- toLensClauses v gkey ptyp = do
+      --   r <- foldPath control v
+      --   return $ r ++ [clause [varP x] (normalB [|error ("toLens' (" ++ $(lift (pprint' v)) ++ ") -> (" ++ $(lift (pprint' gkey)) ++ ") - unmatched: " ++ show $(varE x))|]) []]
+      x <- runQ (newName "_x")
+      let control = toLensControl utype v gkey x :: Control m () () ()
+      doNode control v
+
 toLensControl :: (TypeGraphM m, MonadWriter [ClauseQ] m) => TypeQ -> TGVSimple -> TGVSimple -> Name -> Control m () () ()
-toLensControl utype key gkey x =
+toLensControl utype v gkey x =
     Control
     { _doSimple = pure ()
     , _doSelf = pure ()
     , _doView =
         \w -> do
-          ptyp <- pathType (pure (bestType gkey)) key
-          lns <- runQ [|viewLens :: Lens' $(return (asType key)) $(asTypeQ w)|]
-          -- Ok, we have a type key, and a lens that goes between key and
-          -- w, and we need to create a toLens' function for key's path type.
+          ptyp <- pathType (pure (bestType gkey)) v
+          lns <- runQ [|viewLens :: Lens' $(return (asType v)) $(asTypeQ w)|]
+          -- Ok, we have a type v, and a lens that goes between v and
+          -- w, and we need to create a toLens' function for v's path type.
           -- The tricky bit is to extract the path value for w from the path
           -- value we have.
           let (AppT (ConT pname) _gtyp) = ptyp
@@ -88,7 +123,7 @@ toLensControl utype key gkey x =
                    -- These are the field's clauses.  Each pattern gets wrapped
                    -- with the field path constructor, and each field lens gets
                    -- composed with the lens produced for the field's type.
-                   let hop = varE (fieldLensNameOld (asName key) fname)
+                   let hop = varE (fieldLensNameOld (asName v) fname)
                        lns = if skey == gkey then hop else [|$hop . toLens (Proxy :: Proxy $utype) $(varE x)|]
                    tell [clause [conP 'Proxy [], conP (asName pcname) [varP x]] (normalB lns) []]
             (True, Just (_tname, _cname, Left _fpos)) -> pure ()
@@ -100,50 +135,15 @@ toLensControl utype key gkey x =
     , _doSyns = \() _ -> pure ()
     }
 
-toLensDecs :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TypeQ -> TGVSimple -> m ()
-toLensDecs utype v =
-    pathKeys v >>= Set.mapM_ (toLensDecs' utype v)
-
-toLensDecs' :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TypeQ -> TGVSimple -> TGVSimple -> m ()
-toLensDecs' utype key gkey = do
-  ptyp <- pathType (pure (bestType gkey)) key
-  tlc <- execWriterT $ toLensClauses utype key gkey
-  when (not (null tlc)) $
-       (runQ $ sequence
-            [ instanceD (pure []) [t|ToLens $utype $(pure ptyp)|]
-                [ tySynInstD ''S (tySynEqn [utype, pure ptyp] (pure (bestType key)))
-                , tySynInstD ''A (tySynEqn [utype, pure ptyp] (pure (bestType gkey)))
-                , funD 'toLens tlc -- [clause [wildP] (normalB (if key == gkey then [|id|] else [|undefined|])) []]
-                ] ]) >>= tell
-
-
-toLensClauses :: forall m. (TypeGraphM m, MonadWriter [ClauseQ] m) =>
-                 TypeQ
-              -> TGVSimple -- ^ the type whose clauses we are generating
-              -> TGVSimple -- ^ the goal type key
-              -> m ()
-toLensClauses utype key gkey = do
-  case key == gkey of
-    True -> tell [clause [conP 'Proxy [], wildP] (normalB [|id|]) []]
-    False -> do
-      -- Use this to raise errors when the path patterns aren't exhaustive.
-      -- That is supposed to be impossible, so this is debugging code.
-      -- toLensClauses key gkey ptyp = do
-      --   r <- foldPath control key
-      --   return $ r ++ [clause [varP x] (normalB [|error ("toLens' (" ++ $(lift (pprint' key)) ++ ") -> (" ++ $(lift (pprint' gkey)) ++ ") - unmatched: " ++ show $(varE x))|]) []]
-      x <- runQ (newName "_x")
-      let control = toLensControl utype key gkey x :: Control m () () ()
-      doNode control key
-
 -- | Given a function pfunc that modifies a pattern, add a
 -- 'Language.Haskell.TH.Clause' (a function with a typically incomplete
 -- pattern) to the toLens' method we are building to handle the new
 -- pattern.
 doClause :: forall m. (TypeGraphM m, MonadWriter [ClauseQ] m) =>
             TypeQ -> TGVSimple -> TGVSimple -> (PatQ -> PatQ) -> ExpQ -> m ()
-doClause utype gkey key pfunc lns = do
-  v <- runQ (newName "v")
-  ok <- goalReachableSimple gkey key
-  let pat = bool wildP (varP v) (key /= gkey)
-      lns' = bool lns [|$lns . toLens (Proxy:: Proxy $utype) $(varE v)|] (key /= gkey)
+doClause utype gkey v pfunc lns = do
+  p <- runQ (newName "v")
+  ok <- goalReachableSimple gkey v
+  let pat = bool wildP (varP p) (v /= gkey)
+      lns' = bool lns [|$lns . toLens (Proxy:: Proxy $utype) $(varE p)|] (v /= gkey)
   when ok $ tell [clause [conP 'Proxy [], pfunc pat] (normalB lns') []]

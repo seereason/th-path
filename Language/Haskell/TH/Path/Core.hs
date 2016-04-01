@@ -99,11 +99,32 @@ treeMap f (Node x ns) = Node (f x) (forestMap f ns)
 forestMap :: (a -> b) -> Forest a -> Forest b
 forestMap f = List.map (treeMap f)
 
+class U univ a where
+    u :: a -> univ
+    unU :: univ -> a
+
 -- | Every path type must have an identity value, such that 'toLens'
 -- 'idPath' is just 'id'.
 class IdPath p where
     idPath :: p -- ^ The identity value for path type @p@.  Obeys the law
                 -- @toLens idPath == iso id id@.
+
+-- | Every path has start and end types and can be converted to a lens.
+class ToLens u p where
+    type S u p
+    type A u p
+    toLens :: Proxy u -> p -> Traversal' (S u p) (A u p)
+
+data (f :.: g) = f :.: g deriving (Eq, Generic, Read, Show)
+
+instance (ToLens u f, ToLens u g, A u f ~ S u g {-, B f ~ T g-}) => ToLens u (f :.: g) where
+  type S u (f :.: g) = S u f
+  -- type T (f :.: g) = T f
+  type A u (f :.: g) = A u g
+  -- type B (f :.: g) = B g
+  toLens p (f :.: g) = toLens p f . toLens p g
+  -- ^ Function to turn a path value of type @p@ into a lens to access
+  -- (one of) the @A p@ values in an @S p@.
 
 -- | If there are paths that begin from type @s@, the 'peek' function
 -- returns all the paths starting from a particular value of type @s@,
@@ -122,22 +143,6 @@ class PathStart u s where
     peekRow :: Proxy u -> s -> [Peek u s]
     -- ^ In this function only one layer of the forest is returned, no
     -- recursive peek calls are made.
-
-class ToLens u p where
-    type S u p
-    type A u p
-    toLens :: Proxy u -> p -> Traversal' (S u p) (A u p)
-
-data (f :.: g) = f :.: g deriving (Eq, Generic, Read, Show)
-
-instance (ToLens u f, ToLens u g, A u f ~ S u g {-, B f ~ T g-}) => ToLens u (f :.: g) where
-  type S u (f :.: g) = S u f
-  -- type T (f :.: g) = T f
-  type A u (f :.: g) = A u g
-  -- type B (f :.: g) = B g
-  toLens p (f :.: g) = toLens p f . toLens p g
-  -- ^ Function to turn a path value of type @p@ into a lens to access
-  -- (one of) the @A p@ values in an @S p@.
 
 -- | For any two types @s@ and @a@, there is an instance of @Paths
 -- s a@ if there is any path from @s@ to @a@.  The @Path@ type
@@ -175,10 +180,6 @@ class (PathStart u s, IdPath (Path u s a), ToLens u (Path u s a), S u (Path u s 
     -- ^ Accessor for value field of a Peek type
     peekCons :: Path u s a -> Maybe a -> Peek u s
     -- ^ Construct a Peek s
-
-class U univ a where
-    u :: a -> univ
-    unU :: univ -> a
 
 -- | Nodes along a path can be customized by declaring types to be
 -- instances of this class and the ones that follow.  If a type is an
