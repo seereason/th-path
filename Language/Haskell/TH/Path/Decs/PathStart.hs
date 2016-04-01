@@ -180,9 +180,16 @@ pathControl utype v x wPathVar = do
           rs <- mapM (\conc@(PathConc w ppat pcon) ->
                           do describeConc utype v wPathVar conc
                              p <- runQ $ newName "p"
-                             hf <- pure $ peekList utype x p w ppat [| \a -> peekCons $(varE p) (Just a) |]
+                             let hf = peekList utype x p w ppat
+                                        [| \a -> peekCons $(varE p) (Just a) |]
                              gs <- pathKeys' w
-                             pf <- pure $ peekList utype x p w ppat $ doTree p utype v w pcon gs
+                             let pf = peekList utype x p w ppat
+                                        [| \a -> -- Get the peek forest for the w value
+                                                 let wtree = peekTree Proxy (a :: $(asTypeQ w)) :: Forest (Peek $utype $(asTypeQ w)) in
+                                                 Node (peekCons $(varE p) (if null wtree then Just a else Nothing))
+                                                      -- Build a function with type such as Peek_AbbrevPair -> Peek_AbbrevPairs, so we
+                                                      -- can lift the forest of type AbbrevPair to be a forest of type AbbrevPairs.
+                                                      (forestMap ($(liftPeekE utype v w pcon gs)) wtree) |]
                              return (hf, pf))
                      concs
           let (hfs, pfs) = unzip rs
@@ -212,16 +219,6 @@ peekList utype x p w ppat node =
                          _ -> [])
               (paths (Proxy :: Proxy $utype) $(varE x) (Proxy :: Proxy $(asTypeQ w))
                  {-:: [$(asTypeQ (makePathType (ModelType (asName v)))) $(asTypeQ w)]-}) |]
-
-doTree :: Name -> TypeQ -> TGVSimple -> TGV -> ExpQ -> Set TGVSimple -> ExpQ
-doTree p utype v w pcon gs =
-       [| \a -> -- Get the peek forest for the w value
-                let wtree = peekTree Proxy (a :: $(asTypeQ w)) :: Forest (Peek $utype $(asTypeQ w)) in
-                let node = Node (peekCons $(varE p) (if null wtree then Just a else Nothing))
-                                -- Build a function with type such as Peek_AbbrevPair -> Peek_AbbrevPairs, so we
-                                -- can lift the forest of type AbbrevPair to be a forest of type AbbrevPairs.
-                                (forestMap ($(liftPeekE utype v w pcon gs)) wtree) in
-                node |]
 
 liftPeekE :: TypeQ -> TGVSimple -> TGV -> ExpQ -> Set TGVSimple -> ExpQ
 liftPeekE utype v w pcon gs = do
