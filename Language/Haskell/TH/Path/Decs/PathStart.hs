@@ -178,9 +178,8 @@ pathControl utype v x wPathVar = do
         \xpat concs -> do
           rs <- mapM (\conc@(PathConc w ppat pcon) ->
                           do describeConc utype v wPathVar conc
-                             p <- runQ $ newName "_pp"
-                             hf <- doRow v w p >>= liftPeek utype x p w ppat
-                             pf <- doTree utype v w p pcon >>= liftPeek utype x p w ppat
+                             hf <- doRow utype x v w ppat
+                             pf <- doTree utype x v w ppat pcon
                              return (hf, pf))
                      concs
           let (hfs, pfs) = unzip rs
@@ -197,22 +196,24 @@ concatMapQ [] = [|mempty|]
 concatMapQ [x] = x
 concatMapQ xs = [|mconcat $(listE xs)|]
 
-doRow :: forall m. (TypeGraphM m) => TGVSimple -> TGV -> Name -> m ExpQ
-doRow v w p =
-    pure [| \a -> peekCons $(varE p) (Just a) |]
+doRow :: forall m. (TypeGraphM m) => TypeQ -> Name -> TGVSimple -> TGV -> PatQ -> m ExpQ
+doRow utype x v w ppat = do
+  p <- runQ $ newName "p"
+  pure [| \a -> peekCons $(varE p) (Just a) |] >>= liftPeek utype x p w ppat
 
-doTree :: forall m. (TypeGraphM m) => TypeQ -> TGVSimple -> TGV -> Name -> ExpQ -> m ExpQ
-doTree utype v w p pcon = do
+doTree :: forall m. (TypeGraphM m) => TypeQ -> Name -> TGVSimple -> TGV -> PatQ -> ExpQ -> m ExpQ
+doTree utype x v w ppat pcon = do
+  p <- runQ $ newName "p"
   gs <- pathKeys' w
   let lp = mkName "liftPeek"
-  rowExp <- doRow v w p
   pure [| \a -> -- Get the peek forest for the w value
                 let wtree = peekTree Proxy (a :: $(asTypeQ w)) :: Forest (Peek $utype $(asTypeQ w)) in
-                Node (peekCons $(varE p) (if null wtree then Just a else Nothing))
-                              -- Build a function with type such as Peek_AbbrevPair -> Peek_AbbrevPairs, so we
-                              -- can lift the forest of type AbbrevPair to be a forest of type AbbrevPairs.
-                     $(letE [funD lp (map (doGoal utype v w pcon) (Foldable.toList gs))]
-                       [|forestMap ($(varE lp) :: Peek $utype $(asTypeQ w) -> Peek $utype $(asTypeQ v)) wtree|]) |]
+                let node = Node (peekCons $(varE p) (if null wtree then Just a else Nothing))
+                                -- Build a function with type such as Peek_AbbrevPair -> Peek_AbbrevPairs, so we
+                                -- can lift the forest of type AbbrevPair to be a forest of type AbbrevPairs.
+                                $(letE [funD lp (map (doGoal utype v w pcon) (Foldable.toList gs))]
+                                  [|forestMap ($(varE lp) :: Peek $utype $(asTypeQ w) -> Peek $utype $(asTypeQ v)) wtree|]) in
+                node |] >>= liftPeek utype x p w ppat
 
 liftPeek :: TypeGraphM m => TypeQ -> Name -> Name -> TGV -> PatQ -> ExpQ -> m ExpQ
 liftPeek utype x p w ppat node =
@@ -226,11 +227,11 @@ liftPeek utype x p w ppat node =
 
 doGoal :: TypeQ -> TGVSimple -> TGV -> ExpQ -> TGVSimple -> ClauseQ
 doGoal utype v w pcon g =
-    do p <- newName "p"
-       clause [asP p (conP (asName (makePeekCon (ModelType (asName w)) (ModelType (asName g)))) [wildP, wildP])]
+    do pk <- newName "pk"
+       clause [asP pk (conP (asName (makePeekCon (ModelType (asName w)) (ModelType (asName g)))) [wildP, wildP])]
               (normalB [|peekCons
                          (($pcon {- :: Path $(asTypeQ w) $(asTypeQ g) ->
-                                       Path $(asTypeQ v) $(asTypeQ g) -}) (peekPath (Proxy :: Proxy $(asTypeQ g)) $(varE p) :: Path $utype $(asTypeQ w) $(asTypeQ g))) (peekValue (Proxy :: Proxy $(asTypeQ g)) $(varE p))|])
+                                       Path $(asTypeQ v) $(asTypeQ g) -}) (peekPath (Proxy :: Proxy $(asTypeQ g)) $(varE pk) :: Path $utype $(asTypeQ w) $(asTypeQ g))) (peekValue (Proxy :: Proxy $(asTypeQ g)) $(varE pk))|])
               []
 
 -- Insert a string into an expression by applying an id function
