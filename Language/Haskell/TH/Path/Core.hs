@@ -110,19 +110,19 @@ class IdPath p where
                 -- @toLens idPath == iso id id@.
 
 -- | Every path has start and end types and can be converted to a lens.
-class ToLens u p where
-    type S u p
-    type A u p
-    toLens :: Proxy u -> p -> Traversal' (S u p) (A u p)
+class ToLens p where
+    type S p
+    type A p
+    toLens :: p -> Traversal' (S p) (A p)
 
 data (f :.: g) = f :.: g deriving (Eq, Generic, Read, Show)
 
-instance (ToLens u f, ToLens u g, A u f ~ S u g {-, B f ~ T g-}) => ToLens u (f :.: g) where
-  type S u (f :.: g) = S u f
+instance (ToLens f, ToLens g, A f ~ S g {-, B f ~ T g-}) => ToLens (f :.: g) where
+  type S (f :.: g) = S f
   -- type T (f :.: g) = T f
-  type A u (f :.: g) = A u g
+  type A (f :.: g) = A g
   -- type B (f :.: g) = B g
-  toLens p (f :.: g) = toLens p f . toLens p g
+  toLens (f :.: g) = toLens f . toLens g
   -- ^ Function to turn a path value of type @p@ into a lens to access
   -- (one of) the @A p@ values in an @S p@.
 
@@ -157,7 +157,7 @@ class PathStart u s where
 -- eponymously named @Path_Pair@, but that is the identity
 -- constructor, so it can not represent a path from @(Int, Int)@ to
 -- @Int@.
-class (PathStart u s, IdPath (Path u s a), ToLens u (Path u s a), S u (Path u s a) ~ s, A u (Path u s a) ~ a) => Paths u s a where
+class (PathStart u s, IdPath (Path u s a), ToLens (Path u s a), S (Path u s a) ~ s, A (Path u s a) ~ a) => Paths u s a where
     type Path u s a
     -- ^ Each instance defines this type function which returns the
     -- path type.  Each value of this type represents a different way

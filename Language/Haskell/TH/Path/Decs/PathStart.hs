@@ -217,7 +217,7 @@ liftPeek utype x p w ppat node =
     pure [| concatMap
               (\pth -> case pth of
                          $(asP p ppat) ->
-                             map $node (toListOf (toLens (Proxy :: Proxy $utype) $(varE p)) $(varE x) :: [$(asTypeQ w)])
+                             map $node (toListOf (toLens $(varE p)) $(varE x) :: [$(asTypeQ w)])
                          _ -> [])
               (paths (Proxy :: Proxy $utype) $(varE x) (Proxy :: Proxy $(asTypeQ w))
                  {-:: [$(asTypeQ (makePathType (ModelType (asName v)))) $(asTypeQ w)]-}) |]

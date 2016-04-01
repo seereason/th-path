@@ -45,10 +45,10 @@ toLensDecs' utype v gkey = do
   tlc <- execWriterT $ toLensClauses utype v gkey
   when (not (null tlc)) $
        (runQ $ sequence
-            [ instanceD (pure []) [t|ToLens $utype $(pure ptyp)|]
-                [ tySynInstD ''S (tySynEqn [utype, pure ptyp] (pure (bestType v)))
-                , tySynInstD ''A (tySynEqn [utype, pure ptyp] (pure (bestType gkey)))
-                , funD 'toLens tlc -- [clause [wildP] (normalB (if v == gkey then [|id|] else [|undefined|])) []]
+            [ instanceD (pure []) [t|ToLens $(pure ptyp)|]
+                [ tySynInstD ''S (tySynEqn [pure ptyp] (pure (bestType v)))
+                , tySynInstD ''A (tySynEqn [pure ptyp] (pure (bestType gkey)))
+                , funD 'toLens tlc
                 ] ]) >>= tell
 
 
@@ -59,7 +59,7 @@ toLensClauses :: forall m. (TypeGraphM m, MonadWriter [ClauseQ] m) =>
               -> m ()
 toLensClauses utype v gkey = do
   case v == gkey of
-    True -> tell [clause [conP 'Proxy [], wildP] (normalB [|id|]) []]
+    True -> tell [clause [wildP] (normalB [|id|]) []]
     False -> do
       -- Use this to raise errors when the path patterns aren't exhaustive.
       -- That is supposed to be impossible, so this is debugging code.
@@ -124,8 +124,8 @@ toLensControl utype v gkey x =
                    -- with the field path constructor, and each field lens gets
                    -- composed with the lens produced for the field's type.
                    let hop = varE (fieldLensNameOld (asName v) fname)
-                       lns = if skey == gkey then hop else [|$hop . toLens (Proxy :: Proxy $utype) $(varE x)|]
-                   tell [clause [conP 'Proxy [], conP (asName pcname) [varP x]] (normalB lns) []]
+                       lns = if skey == gkey then hop else [|$hop . toLens $(varE x)|]
+                   tell [clause [conP (asName pcname) [varP x]] (normalB lns) []]
             (True, Just (_tname, _cname, Left _fpos)) -> pure ()
             (True, Nothing) -> pure ()
             (False, _) -> pure ()
@@ -145,5 +145,5 @@ doClause utype gkey v pfunc lns = do
   p <- runQ (newName "v")
   ok <- goalReachableSimple gkey v
   let pat = bool wildP (varP p) (v /= gkey)
-      lns' = bool lns [|$lns . toLens (Proxy:: Proxy $utype) $(varE p)|] (v /= gkey)
-  when ok $ tell [clause [conP 'Proxy [], pfunc pat] (normalB lns') []]
+      lns' = bool lns [|$lns . toLens $(varE p)|] (v /= gkey)
+  when ok $ tell [clause [pfunc pat] (normalB lns') []]
