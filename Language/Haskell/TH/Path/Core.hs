@@ -384,7 +384,7 @@ lens_UserIds_Text = iso (encode') (decode')
 -- | Find all the names of the path types.
 pathTypeNames :: DsMonad m => m (Set Name)
 pathTypeNames = do
-  (FamilyI (FamilyD TypeFam _pathtype [_,_] (Just StarT)) tySynInsts) <- qReify ''Path
+  (FamilyI (FamilyD TypeFam _pathtype [_,_,_] (Just StarT)) tySynInsts) <- qReify ''Path
   return . {-flip Set.difference primitivePathTypeNames .-} Set.fromList . List.map (\(TySynInstD _ (TySynEqn _ typ)) -> doTySyn typ) $ tySynInsts
     where
       doTySyn (AppT x _) = doTySyn x
