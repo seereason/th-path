@@ -15,7 +15,8 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
 module Language.Haskell.TH.Path.Core
-    ( treeMap
+    ( view'
+    , treeMap
     , forestMap
       -- * Type classes and associated types
     , Paths(paths, Path, peek, peekPath, peekValue, peekCons)
@@ -92,6 +93,13 @@ import Language.Haskell.TH.TypeGraph.Prelude (pprint1)
 import Prelude hiding (exp)
 import Safe (readMay)
 import Web.Routes.TH (derivePathInfo)
+
+view' :: Getting (Endo [a]) s a -> s -> a
+view' lns x =
+    case toListOf lns x of
+      [y] -> y
+      [] -> error $ "view' empty failure"
+      _ -> error $ "view' multi failure"
 
 treeMap :: (a -> b) -> Tree a -> Tree b
 treeMap f (Node x ns) = Node (f x) (forestMap f ns)
