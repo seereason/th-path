@@ -173,7 +173,7 @@ class (PathStart u s, IdPath (Path u s a), ToLens (Path u s a), S (Path u s a) ~
     -- record with two fields of type 'Int', the type @PathType s Int@
     -- would have distinct values for those two fields, and the lenses
     -- returned by 'toLens would access those two fields.
-    paths :: Proxy u -> s -> Proxy a -> [Path u s a]
+    paths :: Proxy u -> s -> Proxy a -> (Path u s a -> r -> r) -> r -> r
     -- ^ Build the paths corresponding to a particular @s@ value and a
     -- particular @a@ type.  Returns a list because there may be
     -- several @a@ reachable from this @s@.  This function will freak

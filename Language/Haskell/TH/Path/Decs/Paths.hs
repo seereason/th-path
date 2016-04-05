@@ -75,7 +75,9 @@ pathDecs' utype v gkey = do
   (pcs, dcs, pkcs, ppcs, pvcs, pccs) <-
       partitionClauses <$>
       case v == gkey of
-        True -> pure ([PathClause $ clause [conP 'Proxy [], wildP, wildP] (normalB [| [idPath] |]) []] ++
+        True -> pure ([PathClause $ do f <- newName "f"
+                                       r0 <- newName "r0"
+                                       clause [conP 'Proxy [], wildP, wildP, varP f, varP r0] (normalB [| $(varE f) idPath $(varE r0) |]) []] ++
                       peekAccessors utype v gkey)
         False -> execWriterT (doNode (hasPathControl utype v gkey g x) v)
   when (not (null pcs))
@@ -175,18 +177,21 @@ hasPathControl utype v gkey g x =
                                                     lamE (replicate (fpos-1) wildP ++ [varP p] ++ replicate (2-fpos) wildP) (varE p)) $(varE x))] |])
             , _doConcs =
                 \xpat concs -> do
+                  let _thisPathType = [t|Path $utype $(asTypeQ v) $(asTypeQ gkey)|]
                   exps <- concat <$>
                           mapM (\(typ, asList) ->
                                     do isPath <- testIsPath typ gkey
                                        let _nextPathType = [t|Path $utype $(pure typ) $(asTypeQ gkey)|]
-                                           _thisPathType = [t|Path $utype $(asTypeQ v) $(asTypeQ gkey)|]
                                        case isPath of
                                          False -> pure []
                                          True -> pure [ [| List.concatMap
-                                                             (\(p, a') -> (List.map p (paths (Proxy :: Proxy $utype) (a' :: $(pure typ)) $(varE g) :: [$_nextPathType])) :: [$_thisPathType])
+                                                             -- (\(p, a') -> (List.map p (paths (Proxy :: Proxy $utype) (a' :: $(pure typ)) $(varE g) :: [$_nextPathType])) :: [$_thisPathType])
+                                                             (\(p, a') -> paths (Proxy :: Proxy $utype) (a' :: $(pure typ)) $(varE g) (\npt r -> p npt : r) [])
                                                              ($asList :: [($_nextPathType -> $_thisPathType, $(pure typ))]) |] ])
                                concs
-                  tell [PathClause $ clause [conP 'Proxy [], asP' x xpat, varP g] (normalB (mconcatQ exps)) []]
+                  tell [PathClause $ do f <- newName "f"
+                                        r0 <- newName "r0"
+                                        clause [conP 'Proxy [], asP' x xpat, varP g, varP f, varP r0] (normalB [|foldr $(varE f) $(varE r0) ($(mconcatQ exps) :: [$_thisPathType])|]) []]
             , _doSyn =
                 \_tname _typ -> tell [PeekClause $ do
                                         p <- newName "p"

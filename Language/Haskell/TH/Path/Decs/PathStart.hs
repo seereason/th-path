@@ -212,13 +212,12 @@ concatMapQ xs = [|mconcat $(listE xs)|]
 -- to the goal type, which means we need a new @Path u s@ type.
 peekList :: TypeQ -> Name -> Name -> TGV -> PatQ -> ExpQ -> ExpQ
 peekList utype x p w ppat node =
-    [| concatMap
-              (\pth -> case pth of
-                         $(asP p ppat) ->
-                             map $node (toListOf (toLens $(varE p)) $(varE x) :: [$(asTypeQ w)])
-                         _ -> [])
-              (paths (Proxy :: Proxy $utype) $(varE x) (Proxy :: Proxy $(asTypeQ w))
-                 {-:: [$(asTypeQ (makePathType (ModelType (asName v)))) $(asTypeQ w)]-}) |]
+    [| let dopath pth = case pth of
+                          $(asP p ppat) ->
+                              map $node (toListOf (toLens $(varE p)) $(varE x) :: [$(asTypeQ w)])
+                          _ -> [] in
+       paths (Proxy :: Proxy $utype) $(varE x) (Proxy :: Proxy $(asTypeQ w)) (\pth r -> dopath pth ++ r) []
+                                              {-:: [$(asTypeQ (makePathType (ModelType (asName v)))) $(asTypeQ w)]-} |]
 
 liftPeekE :: TypeQ -> TGVSimple -> TGV -> ExpQ -> Set TGVSimple -> ExpQ
 liftPeekE utype v w pcon gs = do
