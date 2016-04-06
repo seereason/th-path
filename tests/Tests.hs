@@ -150,6 +150,12 @@ testUPaths =
           [usize] = toListOf (toLens imageSizePath) Report.report
           actual = upaths (Proxy :: Proxy Univ) (unU usize :: ImageSize) (:) [] in
       assertEqual' "testUPaths 4" expected actual
+    , let expected = [UPeek_ImageSize (UPath_ImageSize_dim UPath_Dimension) (Just (U6 TheHeight)),
+                      UPeek_ImageSize (UPath_ImageSize_size UPath_Double) (Just (U5 3.0)),
+                      UPeek_ImageSize (UPath_ImageSize_units UPath_Units) (Just (U9 Inches))]
+          [usize] = map unU (toListOf (toLens imageSizePath) Report.report) :: [ImageSize]
+          actual = peekRow (Proxy :: Proxy Univ) usize in
+      assertEqual' "testUPaths 5" expected actual
     ]
     where imageSizePath =
                  UPath_Report_View
