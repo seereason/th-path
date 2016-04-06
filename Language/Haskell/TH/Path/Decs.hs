@@ -33,6 +33,7 @@ import Language.Haskell.TH.Path.Decs.Paths (pathDecs)
 import Language.Haskell.TH.Path.Decs.PathStart (peekDecs)
 import Language.Haskell.TH.Path.Decs.PathTypeDecs (pathTypeDecs)
 import Language.Haskell.TH.Path.Decs.ToLens (toLensDecs)
+import Language.Haskell.TH.Path.Decs.ULens (uLensDecs)
 import Language.Haskell.TH.Path.Decs.UPath (upathTypeDecs)
 import Language.Haskell.TH.Path.Graph (runTypeGraphT, TypeGraphM)
 import Language.Haskell.TH.Path.Instances ()
@@ -109,3 +110,4 @@ doNode utype v = do
   pathDecs utype v      -- generate HasPaths instances
   peekDecs utype v      -- generate PathStart instances
   toLensDecs utype v    -- generate ToLens instances
+  uLensDecs utype v    -- generate ToLens instances for UPath types

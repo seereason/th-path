@@ -19200,6 +19200,12 @@ instance ToLens (Path_Either (Path_URI URI) (Path_ImageFile URI))
     where type S (Path_Either (Path_URI URI) (Path_ImageFile URI)) = EUI
           type A (Path_Either (Path_URI URI) (Path_ImageFile URI)) = URI
           toLens (Path_Left _) = _Left
+instance ToLens (Path_Either UPath_URI UPath_ImageFile)
+    where type S (Path_Either UPath_URI UPath_ImageFile) = EUI
+          type A (Path_Either UPath_URI UPath_ImageFile) = Univ
+          toLens p | p == idPath = iso u unU
+          toLens (Path_Left v) = _Left . toLens v
+          toLens (Path_Right v) = _Right . toLens v
 instance ToLens (Path_Map ItemFieldName (Path_Markup JSONText))
     where type S (Path_Map ItemFieldName (Path_Markup JSONText)) = MIM
           type A (Path_Map ItemFieldName (Path_Markup JSONText)) = JSONText
@@ -19215,6 +19221,11 @@ instance ToLens (Path_Map ItemFieldName (Path_Markup MIM))
 instance ToLens (Path_Map ItemFieldName (Path_Markup Text))
     where type S (Path_Map ItemFieldName (Path_Markup Text)) = MIM
           type A (Path_Map ItemFieldName (Path_Markup Text)) = Text
+          toLens (Path_Look k v) = mat k . toLens v
+instance ToLens (Path_Map ItemFieldName UPath_Markup)
+    where type S (Path_Map ItemFieldName UPath_Markup) = MIM
+          type A (Path_Map ItemFieldName UPath_Markup) = Univ
+          toLens p | p == idPath = iso u unU
           toLens (Path_Look k v) = mat k . toLens v
 instance ToLens (Path_Map ReportID (Path_Report String))
     where type S (Path_Map ReportID (Path_Report String)) = MRR
@@ -19412,6 +19423,11 @@ instance ToLens (Path_Map ReportID (Path_Report UUID))
     where type S (Path_Map ReportID (Path_Report UUID)) = MRR
           type A (Path_Map ReportID (Path_Report UUID)) = UUID
           toLens (Path_Look k v) = mat k . toLens v
+instance ToLens (Path_Map ReportID UPath_Report)
+    where type S (Path_Map ReportID UPath_Report) = MRR
+          type A (Path_Map ReportID UPath_Report) = Univ
+          toLens p | p == idPath = iso u unU
+          toLens (Path_Look k v) = mat k . toLens v
 instance ToLens (Path_Pair (Path_CIString JSONText) (Path_Markup JSONText))
     where type S (Path_Pair (Path_CIString JSONText) (Path_Markup JSONText)) = AbbrevPair
           type A (Path_Pair (Path_CIString JSONText) (Path_Markup JSONText)) = JSONText
@@ -19453,6 +19469,18 @@ instance ToLens (Path_Pair (Path_Markup Text) (Path_Markup Text))
           type A (Path_Pair (Path_Markup Text) (Path_Markup Text)) = Text
           toLens (Path_First v) = _1 . toLens v
           toLens (Path_Second v) = _2 . toLens v
+instance ToLens (Path_Pair UPath_CIString UPath_Markup)
+    where type S (Path_Pair UPath_CIString UPath_Markup) = AbbrevPair
+          type A (Path_Pair UPath_CIString UPath_Markup) = Univ
+          toLens p | p == idPath = iso u unU
+          toLens (Path_First v) = _1 . toLens v
+          toLens (Path_Second v) = _2 . toLens v
+instance ToLens (Path_Pair UPath_Markup UPath_Markup)
+    where type S (Path_Pair UPath_Markup UPath_Markup) = MarkupPair
+          type A (Path_Pair UPath_Markup UPath_Markup) = Univ
+          toLens p | p == idPath = iso u unU
+          toLens (Path_First v) = _1 . toLens v
+          toLens (Path_Second v) = _2 . toLens v
 instance ToLens (Path_OMap AbbrevPairID (Path_Pair (Path_CIString JSONText) (Path_Markup JSONText)))
     where type S (Path_OMap AbbrevPairID (Path_Pair (Path_CIString JSONText) (Path_Markup JSONText))) = AbbrevPairs
           type A (Path_OMap AbbrevPairID (Path_Pair (Path_CIString JSONText) (Path_Markup JSONText))) = JSONText
@@ -19477,6 +19505,11 @@ instance ToLens (Path_OMap AbbrevPairID (Path_Pair (Path_CIString Text) (Path_Ma
     where type S (Path_OMap AbbrevPairID (Path_Pair (Path_CIString Text) (Path_Markup Text))) = AbbrevPairs
           type A (Path_OMap AbbrevPairID (Path_Pair (Path_CIString Text) (Path_Markup Text))) = Text
           toLens (Path_At k v) = lens_omat k . toLens v
+instance ToLens (Path_OMap AbbrevPairID (Path_Pair UPath_CIString UPath_Markup))
+    where type S (Path_OMap AbbrevPairID (Path_Pair UPath_CIString UPath_Markup)) = AbbrevPairs
+          type A (Path_OMap AbbrevPairID (Path_Pair UPath_CIString UPath_Markup)) = Univ
+          toLens p | p == idPath = iso u unU
+          toLens (Path_At k v) = lens_omat k . toLens v
 instance ToLens (Path_OMap AuthorID (Path_Author JSONText))
     where type S (Path_OMap AuthorID (Path_Author JSONText)) = Authors
           type A (Path_OMap AuthorID (Path_Author JSONText)) = JSONText
@@ -19497,6 +19530,11 @@ instance ToLens (Path_OMap AuthorID (Path_Author Text))
     where type S (Path_OMap AuthorID (Path_Author Text)) = Authors
           type A (Path_OMap AuthorID (Path_Author Text)) = Text
           toLens (Path_At k v) = lens_omat k . toLens v
+instance ToLens (Path_OMap AuthorID UPath_Author)
+    where type S (Path_OMap AuthorID UPath_Author) = Authors
+          type A (Path_OMap AuthorID UPath_Author) = Univ
+          toLens p | p == idPath = iso u unU
+          toLens (Path_At k v) = lens_omat k . toLens v
 instance ToLens (Path_OMap MarkupID (Path_Markup JSONText))
     where type S (Path_OMap MarkupID (Path_Markup JSONText)) = Markups
           type A (Path_OMap MarkupID (Path_Markup JSONText)) = JSONText
@@ -19512,6 +19550,11 @@ instance ToLens (Path_OMap MarkupID (Path_Markup Markups))
 instance ToLens (Path_OMap MarkupID (Path_Markup Text))
     where type S (Path_OMap MarkupID (Path_Markup Text)) = Markups
           type A (Path_OMap MarkupID (Path_Markup Text)) = Text
+          toLens (Path_At k v) = lens_omat k . toLens v
+instance ToLens (Path_OMap MarkupID UPath_Markup)
+    where type S (Path_OMap MarkupID UPath_Markup) = Markups
+          type A (Path_OMap MarkupID UPath_Markup) = Univ
+          toLens p | p == idPath = iso u unU
           toLens (Path_At k v) = lens_omat k . toLens v
 instance ToLens (Path_OMap MarkupPairID (Path_Pair (Path_Markup JSONText) (Path_Markup JSONText)))
     where type S (Path_OMap MarkupPairID (Path_Pair (Path_Markup JSONText) (Path_Markup JSONText))) = MarkupPairs
@@ -19532,6 +19575,11 @@ instance ToLens (Path_OMap MarkupPairID (Path_Pair (Path_Markup MarkupPairs) (Pa
 instance ToLens (Path_OMap MarkupPairID (Path_Pair (Path_Markup Text) (Path_Markup Text)))
     where type S (Path_OMap MarkupPairID (Path_Pair (Path_Markup Text) (Path_Markup Text))) = MarkupPairs
           type A (Path_OMap MarkupPairID (Path_Pair (Path_Markup Text) (Path_Markup Text))) = Text
+          toLens (Path_At k v) = lens_omat k . toLens v
+instance ToLens (Path_OMap MarkupPairID (Path_Pair UPath_Markup UPath_Markup))
+    where type S (Path_OMap MarkupPairID (Path_Pair UPath_Markup UPath_Markup)) = MarkupPairs
+          type A (Path_OMap MarkupPairID (Path_Pair UPath_Markup UPath_Markup)) = Univ
+          toLens p | p == idPath = iso u unU
           toLens (Path_At k v) = lens_omat k . toLens v
 instance ToLens (Path_OMap ReportElemID (Path_ReportElem String))
     where type S (Path_OMap ReportElemID (Path_ReportElem String)) = ReportElems
@@ -19625,6 +19673,11 @@ instance ToLens (Path_OMap ReportElemID (Path_ReportElem Text))
     where type S (Path_OMap ReportElemID (Path_ReportElem Text)) = ReportElems
           type A (Path_OMap ReportElemID (Path_ReportElem Text)) = Text
           toLens (Path_At k v) = lens_omat k . toLens v
+instance ToLens (Path_OMap ReportElemID UPath_ReportElem)
+    where type S (Path_OMap ReportElemID UPath_ReportElem) = ReportElems
+          type A (Path_OMap ReportElemID UPath_ReportElem) = Univ
+          toLens p | p == idPath = iso u unU
+          toLens (Path_At k v) = lens_omat k . toLens v
 instance ToLens (Path_OMap ReportImageID (Path_ReportImage String))
     where type S (Path_OMap ReportImageID (Path_ReportImage String)) = ReportImages
           type A (Path_OMap ReportImageID (Path_ReportImage String)) = String
@@ -19700,6 +19753,11 @@ instance ToLens (Path_OMap ReportImageID (Path_ReportImage URI))
 instance ToLens (Path_OMap ReportImageID (Path_ReportImage Text))
     where type S (Path_OMap ReportImageID (Path_ReportImage Text)) = ReportImages
           type A (Path_OMap ReportImageID (Path_ReportImage Text)) = Text
+          toLens (Path_At k v) = lens_omat k . toLens v
+instance ToLens (Path_OMap ReportImageID UPath_ReportImage)
+    where type S (Path_OMap ReportImageID UPath_ReportImage) = ReportImages
+          type A (Path_OMap ReportImageID UPath_ReportImage) = Univ
+          toLens p | p == idPath = iso u unU
           toLens (Path_At k v) = lens_omat k . toLens v
 instance ToLens (Path_Author JSONText)
     where type S (Path_Author JSONText) = Author
@@ -21112,3 +21170,258 @@ instance ToLens (Path_Maybe (Path_Either (Path_URI URI) (Path_ImageFile URI)))
     where type S (Path_Maybe (Path_Either (Path_URI URI) (Path_ImageFile URI))) = MEUI
           type A (Path_Maybe (Path_Either (Path_URI URI) (Path_ImageFile URI))) = URI
           toLens (Path_Just v) = _Just . toLens v
+instance ToLens (Path_Maybe (Path_Either UPath_URI UPath_ImageFile))
+    where type S (Path_Maybe (Path_Either UPath_URI UPath_ImageFile)) = MEUI
+          type A (Path_Maybe (Path_Either UPath_URI UPath_ImageFile)) = Univ
+          toLens p | p == idPath = iso u unU
+          toLens (Path_Just v) = _Just . toLens v
+instance ToLens UPath_Author
+    where type S UPath_Author = Author
+          type A UPath_Author = Univ
+          toLens p | p == idPath = iso u unU
+          toLens (UPath_Author_authorName _p) = lens_Author_authorName . toLens _p
+          toLens (UPath_Author_authorCredentials _p) = lens_Author_authorCredentials . toLens _p
+instance ToLens UPath_Bool
+    where type S UPath_Bool = Bool
+          type A UPath_Bool = Univ
+          toLens p | p == idPath = iso u unU
+          toLens (UPath_Bool_View v) = (viewLens :: Lens' Bool String) . toLens v
+instance ToLens UPath_Branding
+    where type S UPath_Branding = Branding
+          type A UPath_Branding = Univ
+          toLens p | p == idPath = iso u unU
+          toLens (UPath_Branding_View v) = (viewLens :: Lens' Branding Text) . toLens v
+instance ToLens UPath_CIString
+    where type S UPath_CIString = CIString
+          type A UPath_CIString = Univ
+          toLens p | p == idPath = iso u unU
+          toLens (UPath_CIString_View v) = (viewLens :: Lens' CIString Text) . toLens v
+instance ToLens UPath_Dimension
+    where type S UPath_Dimension = Dimension
+          type A UPath_Dimension = Univ
+          toLens p | p == idPath = iso u unU
+          toLens (UPath_Dimension_View v) = (viewLens :: Lens' Dimension JSONText) . toLens v
+instance ToLens UPath_Double
+    where type S UPath_Double = Double
+          type A UPath_Double = Univ
+          toLens p | p == idPath = iso u unU
+          toLens (UPath_Double_View v) = (viewLens :: Lens' Double String) . toLens v
+instance ToLens UPath_ImageCrop
+    where type S UPath_ImageCrop = ImageCrop
+          type A UPath_ImageCrop = Univ
+          toLens p | p == idPath = iso u unU
+instance ToLens UPath_ImageFile
+    where type S UPath_ImageFile = ImageFile
+          type A UPath_ImageFile = Univ
+          toLens p | p == idPath = iso u unU
+instance ToLens UPath_ImageSize
+    where type S UPath_ImageSize = ImageSize
+          type A UPath_ImageSize = Univ
+          toLens p | p == idPath = iso u unU
+          toLens (UPath_ImageSize_dim _p) = lens_ImageSize_dim . toLens _p
+          toLens (UPath_ImageSize_size _p) = lens_ImageSize_size . toLens _p
+          toLens (UPath_ImageSize_units _p) = lens_ImageSize_units . toLens _p
+instance ToLens UPath_Int
+    where type S UPath_Int = Int
+          type A UPath_Int = Univ
+          toLens p | p == idPath = iso u unU
+instance ToLens UPath_Int64
+    where type S UPath_Int64 = Int64
+          type A UPath_Int64 = Univ
+          toLens p | p == idPath = iso u unU
+instance ToLens UPath_Integer
+    where type S UPath_Integer = Integer
+          type A UPath_Integer = Univ
+          toLens p | p == idPath = iso u unU
+instance ToLens UPath_Item
+    where type S UPath_Item = Item
+          type A UPath_Item = Univ
+          toLens p | p == idPath = iso u unU
+          toLens (UPath_Item_itemName _p) = lens_Item_itemName . toLens _p
+          toLens (UPath_Item_fields _p) = lens_Item_fields . toLens _p
+          toLens (UPath_Item_images _p) = lens_Item_images . toLens _p
+instance ToLens UPath_JSONText
+    where type S UPath_JSONText = JSONText
+          type A UPath_JSONText = Univ
+          toLens p | p == idPath = iso u unU
+instance ToLens UPath_Markup
+    where type S UPath_Markup = Markup
+          type A UPath_Markup = Univ
+          toLens p | p == idPath = iso u unU
+          toLens (UPath_Markup_markdownText _p) = lens_Markup_markdownText . toLens _p
+          toLens (UPath_Markup_htmlText _p) = lens_Markup_htmlText . toLens _p
+instance ToLens UPath_MaybeImageFile
+    where type S UPath_MaybeImageFile = MaybeImageFile
+          type A UPath_MaybeImageFile = Univ
+          toLens p | p == idPath = iso u unU
+          toLens (UPath_MaybeImageFile_View v) = (viewLens :: Lens' MaybeImageFile String) . toLens v
+instance ToLens UPath_MaybeReportIntendedUse
+    where type S UPath_MaybeReportIntendedUse = MaybeReportIntendedUse
+          type A UPath_MaybeReportIntendedUse = Univ
+          toLens p | p == idPath = iso u unU
+          toLens (UPath_MaybeReportIntendedUse_View v) = (viewLens :: Lens' MaybeReportIntendedUse String) . toLens v
+instance ToLens UPath_Permissions
+    where type S UPath_Permissions = Permissions
+          type A UPath_Permissions = Univ
+          toLens p | p == idPath = iso u unU
+          toLens (UPath_Permissions_owner _p) = lens_Permissions_owner . toLens _p
+          toLens (UPath_Permissions_writers _p) = lens_Permissions_writers . toLens _p
+          toLens (UPath_Permissions_readers _p) = lens_Permissions_readers . toLens _p
+instance ToLens UPath_ReadOnlyFilePath
+    where type S UPath_ReadOnlyFilePath = ReadOnlyFilePath
+          type A UPath_ReadOnlyFilePath = Univ
+          toLens p | p == idPath = iso u unU
+          toLens (UPath_ReadOnlyFilePath_View v) = (viewLens :: Lens' ReadOnlyFilePath String) . toLens v
+instance ToLens UPath_Report
+    where type S UPath_Report = Report
+          type A UPath_Report = Univ
+          toLens p | p == idPath = iso u unU
+          toLens (UPath_Report_View v) = (viewLens :: Lens' Report ReportView) . toLens v
+instance ToLens UPath_ReportElem
+    where type S UPath_ReportElem = ReportElem
+          type A UPath_ReportElem = Univ
+          toLens p | p == idPath = iso u unU
+          toLens (UPath_ReportElem_elemItem _p) = lens_ReportElem_elemItem . toLens _p
+          toLens (UPath_ReportElem_elemText _p) = lens_ReportElem_elemText . toLens _p
+instance ToLens UPath_ReportFlags
+    where type S UPath_ReportFlags = ReportFlags
+          type A UPath_ReportFlags = Univ
+          toLens p | p == idPath = iso u unU
+          toLens (UPath_ReportFlags_hideEmptyItemFields _p) = lens_ReportFlags_hideEmptyItemFields . toLens _p
+instance ToLens UPath_ReportImage
+    where type S UPath_ReportImage = ReportImage
+          type A UPath_ReportImage = Univ
+          toLens p | p == idPath = iso u unU
+          toLens (UPath_ReportImage_View v) = (viewLens :: Lens' ReportImage ReportImageView) . toLens v
+instance ToLens UPath_ReportImageView
+    where type S UPath_ReportImageView = ReportImageView
+          type A UPath_ReportImageView = Univ
+          toLens p | p == idPath = iso u unU
+          toLens (UPath_ReportImageView__picSize _p) = lens_ReportImageView__picSize . toLens _p
+          toLens (UPath_ReportImageView__picCrop _p) = lens_ReportImageView__picCrop . toLens _p
+          toLens (UPath_ReportImageView__picCaption _p) = lens_ReportImageView__picCaption . toLens _p
+          toLens (UPath_ReportImageView__picOriginal _p) = lens_ReportImageView__picOriginal . toLens _p
+          toLens (UPath_ReportImageView__picEditedDeprecated _p) = lens_ReportImageView__picEditedDeprecated . toLens _p
+          toLens (UPath_ReportImageView__picThumbDeprecated _p) = lens_ReportImageView__picThumbDeprecated . toLens _p
+          toLens (UPath_ReportImageView__picPrinterDeprecated _p) = lens_ReportImageView__picPrinterDeprecated . toLens _p
+          toLens (UPath_ReportImageView__picMustEnlarge _p) = lens_ReportImageView__picMustEnlarge . toLens _p
+          toLens (UPath_ReportImageView__picEnlargedDeprecated _p) = lens_ReportImageView__picEnlargedDeprecated . toLens _p
+instance ToLens UPath_ReportIntendedUse
+    where type S UPath_ReportIntendedUse = ReportIntendedUse
+          type A UPath_ReportIntendedUse = Univ
+          toLens p | p == idPath = iso u unU
+          toLens (UPath_ReportIntendedUse_View v) = (viewLens :: Lens' ReportIntendedUse String) . toLens v
+instance ToLens UPath_ReportMap
+    where type S UPath_ReportMap = ReportMap
+          type A UPath_ReportMap = Univ
+          toLens p | p == idPath = iso u unU
+          toLens (UPath_ReportMap_unReportMap _p) = lens_ReportMap_unReportMap . toLens _p
+instance ToLens UPath_ReportStandard
+    where type S UPath_ReportStandard = ReportStandard
+          type A UPath_ReportStandard = Univ
+          toLens p | p == idPath = iso u unU
+          toLens (UPath_ReportStandard_unReportStandard _p) = lens_ReportStandard_unReportStandard . toLens _p
+instance ToLens UPath_ReportStatus
+    where type S UPath_ReportStatus = ReportStatus
+          type A UPath_ReportStatus = Univ
+          toLens p | p == idPath = iso u unU
+          toLens (UPath_ReportStatus_View v) = (viewLens :: Lens' ReportStatus String) . toLens v
+instance ToLens UPath_ReportValueApproachInfo
+    where type S UPath_ReportValueApproachInfo = ReportValueApproachInfo
+          type A UPath_ReportValueApproachInfo = Univ
+          toLens p | p == idPath = iso u unU
+          toLens (UPath_ReportValueApproachInfo_reportValueApproachName _p) = lens_ReportValueApproachInfo_reportValueApproachName . toLens _p
+          toLens (UPath_ReportValueApproachInfo_reportValueApproachDescription _p) = lens_ReportValueApproachInfo_reportValueApproachDescription . toLens _p
+instance ToLens UPath_ReportValueTypeInfo
+    where type S UPath_ReportValueTypeInfo = ReportValueTypeInfo
+          type A UPath_ReportValueTypeInfo = Univ
+          toLens p | p == idPath = iso u unU
+          toLens (UPath_ReportValueTypeInfo_reportValueTypeName _p) = lens_ReportValueTypeInfo_reportValueTypeName . toLens _p
+          toLens (UPath_ReportValueTypeInfo_reportValueTypeDescription _p) = lens_ReportValueTypeInfo_reportValueTypeDescription . toLens _p
+          toLens (UPath_ReportValueTypeInfo_reportValueTypeDefinition _p) = lens_ReportValueTypeInfo_reportValueTypeDefinition . toLens _p
+instance ToLens UPath_ReportView
+    where type S UPath_ReportView = ReportView
+          type A UPath_ReportView = Univ
+          toLens p | p == idPath = iso u unU
+          toLens (UPath_ReportView__reportFolder _p) = lens_ReportView__reportFolder . toLens _p
+          toLens (UPath_ReportView__reportName _p) = lens_ReportView__reportName . toLens _p
+          toLens (UPath_ReportView__reportDate _p) = lens_ReportView__reportDate . toLens _p
+          toLens (UPath_ReportView__reportContractDate _p) = lens_ReportView__reportContractDate . toLens _p
+          toLens (UPath_ReportView__reportInspectionDate _p) = lens_ReportView__reportInspectionDate . toLens _p
+          toLens (UPath_ReportView__reportEffectiveDate _p) = lens_ReportView__reportEffectiveDate . toLens _p
+          toLens (UPath_ReportView__reportAuthors _p) = lens_ReportView__reportAuthors . toLens _p
+          toLens (UPath_ReportView__reportPreparer _p) = lens_ReportView__reportPreparer . toLens _p
+          toLens (UPath_ReportView__reportPreparerEIN _p) = lens_ReportView__reportPreparerEIN . toLens _p
+          toLens (UPath_ReportView__reportPreparerAddress _p) = lens_ReportView__reportPreparerAddress . toLens _p
+          toLens (UPath_ReportView__reportPreparerEMail _p) = lens_ReportView__reportPreparerEMail . toLens _p
+          toLens (UPath_ReportView__reportPreparerWebsite _p) = lens_ReportView__reportPreparerWebsite . toLens _p
+          toLens (UPath_ReportView__reportAbbrevs _p) = lens_ReportView__reportAbbrevs . toLens _p
+          toLens (UPath_ReportView__reportTitle _p) = lens_ReportView__reportTitle . toLens _p
+          toLens (UPath_ReportView__reportHeader _p) = lens_ReportView__reportHeader . toLens _p
+          toLens (UPath_ReportView__reportFooter _p) = lens_ReportView__reportFooter . toLens _p
+          toLens (UPath_ReportView__reportIntendedUse _p) = lens_ReportView__reportIntendedUse . toLens _p
+          toLens (UPath_ReportView__reportValueTypeInfo _p) = lens_ReportView__reportValueTypeInfo . toLens _p
+          toLens (UPath_ReportView__reportValueApproachInfo _p) = lens_ReportView__reportValueApproachInfo . toLens _p
+          toLens (UPath_ReportView__reportClientName _p) = lens_ReportView__reportClientName . toLens _p
+          toLens (UPath_ReportView__reportClientAddress _p) = lens_ReportView__reportClientAddress . toLens _p
+          toLens (UPath_ReportView__reportClientGreeting _p) = lens_ReportView__reportClientGreeting . toLens _p
+          toLens (UPath_ReportView__reportItemsOwnerFull _p) = lens_ReportView__reportItemsOwnerFull . toLens _p
+          toLens (UPath_ReportView__reportItemsOwner _p) = lens_ReportView__reportItemsOwner . toLens _p
+          toLens (UPath_ReportView__reportBriefItems _p) = lens_ReportView__reportBriefItems . toLens _p
+          toLens (UPath_ReportView__reportInspectionLocation _p) = lens_ReportView__reportInspectionLocation . toLens _p
+          toLens (UPath_ReportView__reportBody _p) = lens_ReportView__reportBody . toLens _p
+          toLens (UPath_ReportView__reportGlossary _p) = lens_ReportView__reportGlossary . toLens _p
+          toLens (UPath_ReportView__reportSources _p) = lens_ReportView__reportSources . toLens _p
+          toLens (UPath_ReportView__reportLetterOfTransmittal _p) = lens_ReportView__reportLetterOfTransmittal . toLens _p
+          toLens (UPath_ReportView__reportScopeOfWork _p) = lens_ReportView__reportScopeOfWork . toLens _p
+          toLens (UPath_ReportView__reportCertification _p) = lens_ReportView__reportCertification . toLens _p
+          toLens (UPath_ReportView__reportLimitingConditions _p) = lens_ReportView__reportLimitingConditions . toLens _p
+          toLens (UPath_ReportView__reportPrivacyPolicy _p) = lens_ReportView__reportPrivacyPolicy . toLens _p
+          toLens (UPath_ReportView__reportPerms _p) = lens_ReportView__reportPerms . toLens _p
+          toLens (UPath_ReportView__reportRevision _p) = lens_ReportView__reportRevision . toLens _p
+          toLens (UPath_ReportView__reportCreated _p) = lens_ReportView__reportCreated . toLens _p
+          toLens (UPath_ReportView__reportBranding _p) = lens_ReportView__reportBranding . toLens _p
+          toLens (UPath_ReportView__reportStatus _p) = lens_ReportView__reportStatus . toLens _p
+          toLens (UPath_ReportView__reportRedacted _p) = lens_ReportView__reportRedacted . toLens _p
+          toLens (UPath_ReportView__reportFlags _p) = lens_ReportView__reportFlags . toLens _p
+          toLens (UPath_ReportView__reportUUID _p) = lens_ReportView__reportUUID . toLens _p
+          toLens (UPath_ReportView__reportOrderByItemName _p) = lens_ReportView__reportOrderByItemName . toLens _p
+          toLens (UPath_ReportView__reportDisplayItemName _p) = lens_ReportView__reportDisplayItemName . toLens _p
+          toLens (UPath_ReportView__reportStandardsVersion _p) = lens_ReportView__reportStandardsVersion . toLens _p
+instance ToLens UPath_SaneSizeImageSize
+    where type S UPath_SaneSizeImageSize = SaneSizeImageSize
+          type A UPath_SaneSizeImageSize = Univ
+          toLens p | p == idPath = iso u unU
+          toLens (UPath_SaneSizeImageSize_View v) = (viewLens :: Lens' SaneSizeImageSize ImageSize) . toLens v
+instance ToLens UPath_String
+    where type S UPath_String = String
+          type A UPath_String = Univ
+          toLens p | p == idPath = iso u unU
+          toLens (UPath_String_View v) = (viewLens :: Lens' String JSONText) . toLens v
+instance ToLens UPath_Text
+    where type S UPath_Text = Text
+          type A UPath_Text = Univ
+          toLens p | p == idPath = iso u unU
+          toLens (UPath_Text_View v) = (viewLens :: Lens' Text JSONText) . toLens v
+instance ToLens UPath_URI
+    where type S UPath_URI = URI
+          type A UPath_URI = Univ
+          toLens p | p == idPath = iso u unU
+instance ToLens UPath_UUID
+    where type S UPath_UUID = UUID
+          type A UPath_UUID = Univ
+          toLens p | p == idPath = iso u unU
+instance ToLens UPath_Units
+    where type S UPath_Units = Units
+          type A UPath_Units = Univ
+          toLens p | p == idPath = iso u unU
+          toLens (UPath_Units_View v) = (viewLens :: Lens' Units JSONText) . toLens v
+instance ToLens UPath_UserId
+    where type S UPath_UserId = UserId
+          type A UPath_UserId = Univ
+          toLens p | p == idPath = iso u unU
+instance ToLens UPath_UserIds
+    where type S UPath_UserIds = UserIds
+          type A UPath_UserIds = Univ
+          toLens p | p == idPath = iso u unU
+          toLens (UPath_UserIds_View v) = (viewLens :: Lens' UserIds Text) . toLens v
