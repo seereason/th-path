@@ -68,6 +68,7 @@ library
       Language.Haskell.TH.Path.Decs.PathType
       Language.Haskell.TH.Path.Decs.PathTypeDecs
       Language.Haskell.TH.Path.Decs.ToLens
+      Language.Haskell.TH.Path.Decs.UPath
       Language.Haskell.TH.Path.Graph
       Language.Haskell.TH.Path.Instances
       Language.Haskell.TH.Path.Traverse

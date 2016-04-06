@@ -16,12 +16,13 @@
 {-# LANGUAGE TypeSynonymInstances #-}
 module Language.Haskell.TH.Path.Decs.PathType
     ( pathType
+    , upathType
     ) where
 
 import Language.Haskell.TH
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.Path.Common (asName, asType, asTypeQ, bestPathTypeName, ModelType(ModelType),
-                                        makePathType)
+import Language.Haskell.TH.Path.Common (asName, asType, asTypeQ, bestPathTypeName, bestUPathTypeName, ModelType(ModelType),
+                                        makePathType, makeUPathType)
 import Language.Haskell.TH.Path.Core (Path_List, Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
 import Language.Haskell.TH.Path.Graph (TypeGraphM)
 import Language.Haskell.TH.Path.Order (Path_OMap(..))
@@ -74,5 +75,53 @@ pathTypeControl gtyp key =
             runQ $ [t|$(asTypeQ (makePathType (ModelType tname))) $gtyp|]
     , _doAlts =
         \_ -> runQ $ [t|$(asTypeQ (makePathType (ModelType (asName key)))) $gtyp|]
+    , _doSyns = \r0 _rs -> pure r0
+    }
+
+-- | Given a type, compute the corresponding path type.
+upathType :: forall m. TypeGraphM m =>
+             TGVSimple -- ^ The type to convert to a path type
+          -> m Type
+upathType key = doNode (upathTypeControl key) key
+
+upathTypeControl :: (TypeGraphM m) => TGVSimple -> Control m () () Type
+upathTypeControl key =
+    Control
+    { _doSelf = pure $ asType key
+    , _doSimple = runQ (asTypeQ (bestUPathTypeName key))
+    , _doView = \_ -> runQ (asTypeQ (bestUPathTypeName key))
+    , _doOrder =
+        \ityp etyp ->
+            do epath <- upathType etyp
+               runQ [t|Path_OMap $(pure ityp) $(pure epath)|]
+    , _doMap =
+        \ktyp vtyp ->
+            do vpath <- upathType vtyp
+               runQ [t| Path_Map $(pure ktyp) $(pure vpath)|]
+    , _doList =
+        \etyp ->
+            do epath <- upathType etyp
+               runQ [t|Path_List $(return epath)|]
+    , _doPair =
+        \ftyp styp ->
+            do fpath <- upathType ftyp
+               spath <- upathType styp
+               runQ [t| Path_Pair $(return fpath) $(return spath) |]
+    , _doMaybe =
+        \typ ->
+            do epath <- upathType typ
+               runQ [t|Path_Maybe $(pure epath)|]
+    , _doEither =
+        \ltyp rtyp ->
+            do lpath <- upathType ltyp
+               rpath <- upathType rtyp
+               runQ [t| Path_Either $(return lpath) $(return rpath) |]
+    , _doField = \_ _ -> pure ()
+    , _doConcs = \_ _ -> pure ()
+    , _doSyn =
+        \tname _typ ->
+            runQ $ (asTypeQ (makeUPathType (ModelType tname)))
+    , _doAlts =
+        \_ -> runQ $ (asTypeQ (makeUPathType (ModelType (asName key))))
     , _doSyns = \r0 _rs -> pure r0
     }

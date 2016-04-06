@@ -29,7 +29,7 @@ import Language.Haskell.TH.Context (reifyInstancesWithContext)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Common (HasConQ(asConQ), HasCon(asCon), HasName(asName), HasType(asType), HasTypeQ(asTypeQ),
                                         makeFieldCon, makePathCon, makePathType, ModelType(ModelType), tells)
-import Language.Haskell.TH.Path.Core (camelWords, fieldStrings, PathStart(Peek, peekTree, peekRow), Paths(..), ToLens(toLens),
+import Language.Haskell.TH.Path.Core (camelWords, fieldStrings, PathStart(..), Paths(..), ToLens(toLens),
                                       Describe(describe'), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..), forestMap)
 import Language.Haskell.TH.Path.Graph (TypeGraphM)
 import Language.Haskell.TH.Path.Order (Path_OMap(..))
@@ -61,21 +61,21 @@ data WriterType
     = TreeClause ClauseQ
     | RowClause ClauseQ
     | DescClause ClauseQ
-    | PathDec DecQ
+    | UPathField StrictTypeQ
 
-partitionClauses :: [WriterType] -> ([ClauseQ], [ClauseQ], [ClauseQ], [DecQ])
+partitionClauses :: [WriterType] -> ([ClauseQ], [ClauseQ], [ClauseQ], [StrictTypeQ])
 partitionClauses xs =
     foldr f ([], [], [], []) xs
         where
-          f (TreeClause x) (tcs, rcs, dcs, pds) = (x : tcs, rcs, dcs, pds)
-          f (RowClause x) (tcs, rcs, dcs, pds) = (tcs, x : rcs, dcs, pds)
-          f (DescClause x) (tcs, rcs, dcs, pds) = (tcs, rcs, x : dcs, pds)
-          f (PathDec x) (tcs, rcs, dcs, pds) = (tcs, rcs, dcs, x : pds)
+          f (TreeClause x) (tcs, rcs, dcs, upfs) = (x : tcs, rcs, dcs, upfs)
+          f (RowClause x) (tcs, rcs, dcs, upfs) = (tcs, x : rcs, dcs, upfs)
+          f (DescClause x) (tcs, rcs, dcs, upfs) = (tcs, rcs, x : dcs, upfs)
+          f (UPathField x) (tcs, rcs, dcs, upfs) = (tcs, rcs, dcs, x : upfs)
 
 peekDecs :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TypeQ -> TGVSimple -> m ()
 peekDecs utype v =
     do (clauses :: [WriterType]) <- execWriterT (peekClauses utype v)
-       let (tcs, rcs, dcs, pds) = partitionClauses clauses
+       let (tcs, rcs, dcs, upfs) = partitionClauses clauses
        instanceD' (cxt []) [t|PathStart $utype $(asTypeQ v)|]
          (sequence
           [dataInstD' (cxt []) ''Peek [utype, asTypeQ v]
@@ -89,8 +89,8 @@ peekDecs utype v =
                               _ -> pure tcs),
            funD' 'peekRow (case rcs of
                              [] -> pure [clause [wildP, wildP] (normalB [| [] |]) []]
-                             _ -> pure rcs)])
-       tells pds
+                             _ -> pure rcs),
+           pure (tySynInstD ''UPath (tySynEqn [utype, asTypeQ v] (conT (mkName ("UPath_" ++ nameBase (asName v))))))])
        instanceD' (cxt []) [t|Describe (Peek $utype $(asTypeQ v))|]
                   (pure [funD 'describe' (case dcs of
                                            [] -> [clause [wildP, wildP] (normalB [|Nothing|]) []]

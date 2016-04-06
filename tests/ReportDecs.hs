@@ -155,6 +155,118 @@ data Path_UUID _a = Path_UUID deriving (Eq, Ord, Read, Show, Typeable, Data)
 data Path_Units _a = Path_Units_View (Path_JSONText _a) | Path_Units deriving (Eq, Ord, Read, Show, Typeable, Data)
 data Path_UserId _a = Path_UserId deriving (Eq, Ord, Read, Show, Typeable, Data)
 data Path_UserIds _a = Path_UserIds_View (Path_Text _a) | Path_UserIds deriving (Eq, Ord, Read, Show, Typeable, Data)
+data UPath_Author = UPath_Author_authorName UPath_Markup | UPath_Author_authorCredentials UPath_Markup | UPath_Author deriving (Eq, Ord, Read, Show, Typeable, Data)
+data UPath_Bool = UPath_Bool_View UPath_String | UPath_Bool deriving (Eq, Ord, Read, Show, Typeable, Data)
+data UPath_Branding = UPath_Branding_View UPath_Text | UPath_Branding deriving (Eq, Ord, Read, Show, Typeable, Data)
+data UPath_CIString = UPath_CIString_View UPath_Text | UPath_CIString deriving (Eq, Ord, Read, Show, Typeable, Data)
+data UPath_Dimension = UPath_Dimension_View UPath_JSONText | UPath_Dimension deriving (Eq, Ord, Read, Show, Typeable, Data)
+data UPath_Double = UPath_Double_View UPath_String | UPath_Double deriving (Eq, Ord, Read, Show, Typeable, Data)
+data UPath_ImageCrop = UPath_ImageCrop deriving (Eq, Ord, Read, Show, Typeable, Data)
+data UPath_ImageFile = UPath_ImageFile deriving (Eq, Ord, Read, Show, Typeable, Data)
+data UPath_ImageSize
+    = UPath_ImageSize_dim UPath_Dimension | UPath_ImageSize_size UPath_Double | UPath_ImageSize_units UPath_Units | UPath_ImageSize
+    deriving (Eq, Ord, Read, Show, Typeable, Data)
+data UPath_Int = UPath_Int deriving (Eq, Ord, Read, Show, Typeable, Data)
+data UPath_Int64 = UPath_Int64 deriving (Eq, Ord, Read, Show, Typeable, Data)
+data UPath_Integer = UPath_Integer deriving (Eq, Ord, Read, Show, Typeable, Data)
+data UPath_Item
+    = UPath_Item_itemName UPath_Text | UPath_Item_fields UPath_MIM | UPath_Item_images UPath_ReportImages | UPath_Item
+    deriving (Eq, Ord, Read, Show, Typeable, Data)
+data UPath_JSONText = UPath_JSONText deriving (Eq, Ord, Read, Show, Typeable, Data)
+data UPath_Markup = UPath_Markup_markdownText UPath_Text | UPath_Markup_htmlText UPath_Text | UPath_Markup deriving (Eq, Ord, Read, Show, Typeable, Data)
+data UPath_MaybeImageFile = UPath_MaybeImageFile_View UPath_String | UPath_MaybeImageFile deriving (Eq, Ord, Read, Show, Typeable, Data)
+data UPath_MaybeReportIntendedUse = UPath_MaybeReportIntendedUse_View UPath_String | UPath_MaybeReportIntendedUse deriving (Eq, Ord, Read, Show, Typeable, Data)
+data UPath_Permissions
+    = UPath_Permissions_owner UPath_UserId | UPath_Permissions_writers UPath_UserIds | UPath_Permissions_readers UPath_UserIds | UPath_Permissions
+    deriving (Eq, Ord, Read, Show, Typeable, Data)
+data UPath_ReadOnlyFilePath = UPath_ReadOnlyFilePath_View UPath_String | UPath_ReadOnlyFilePath deriving (Eq, Ord, Read, Show, Typeable, Data)
+data UPath_Report = UPath_Report_View UPath_ReportView | UPath_Report deriving (Eq, Ord, Read, Show, Typeable, Data)
+data UPath_ReportElem = UPath_ReportElem_elemItem UPath_Item | UPath_ReportElem_elemText UPath_Markup | UPath_ReportElem deriving (Eq, Ord, Read, Show, Typeable, Data)
+data UPath_ReportFlags = UPath_ReportFlags_hideEmptyItemFields UPath_Bool | UPath_ReportFlags deriving (Eq, Ord, Read, Show, Typeable, Data)
+data UPath_ReportImage = UPath_ReportImage_View UPath_ReportImageView | UPath_ReportImage deriving (Eq, Ord, Read, Show, Typeable, Data)
+data UPath_ReportImageView
+    = UPath_ReportImageView__picSize UPath_SaneSizeImageSize
+    | UPath_ReportImageView__picCrop UPath_ImageCrop
+    | UPath_ReportImageView__picCaption UPath_Markup
+    | UPath_ReportImageView__picOriginal (Path_Maybe (Path_Either UPath_URI UPath_ImageFile))
+    | UPath_ReportImageView__picEditedDeprecated UPath_MaybeImageFile
+    | UPath_ReportImageView__picThumbDeprecated UPath_MaybeImageFile
+    | UPath_ReportImageView__picPrinterDeprecated UPath_MaybeImageFile
+    | UPath_ReportImageView__picMustEnlarge UPath_Bool
+    | UPath_ReportImageView__picEnlargedDeprecated UPath_MaybeImageFile
+    | UPath_ReportImageView
+    deriving (Eq, Ord, Read, Show, Typeable, Data)
+data UPath_ReportIntendedUse = UPath_ReportIntendedUse_View UPath_String | UPath_ReportIntendedUse deriving (Eq, Ord, Read, Show, Typeable, Data)
+data UPath_ReportMap = UPath_ReportMap_unReportMap UPath_MRR | UPath_ReportMap deriving (Eq, Ord, Read, Show, Typeable, Data)
+data UPath_ReportStandard = UPath_ReportStandard_unReportStandard UPath_Int | UPath_ReportStandard deriving (Eq, Ord, Read, Show, Typeable, Data)
+data UPath_ReportStatus = UPath_ReportStatus_View UPath_String | UPath_ReportStatus deriving (Eq, Ord, Read, Show, Typeable, Data)
+data UPath_ReportValueApproachInfo
+    = UPath_ReportValueApproachInfo_reportValueApproachName UPath_Markup
+    | UPath_ReportValueApproachInfo_reportValueApproachDescription UPath_Markup
+    | UPath_ReportValueApproachInfo
+    deriving (Eq, Ord, Read, Show, Typeable, Data)
+data UPath_ReportValueTypeInfo
+    = UPath_ReportValueTypeInfo_reportValueTypeName UPath_Markup
+    | UPath_ReportValueTypeInfo_reportValueTypeDescription UPath_Markup
+    | UPath_ReportValueTypeInfo_reportValueTypeDefinition UPath_Markup
+    | UPath_ReportValueTypeInfo
+    deriving (Eq, Ord, Read, Show, Typeable, Data)
+data UPath_ReportView
+    = UPath_ReportView__reportFolder UPath_ReadOnlyFilePath
+    | UPath_ReportView__reportName UPath_Markup
+    | UPath_ReportView__reportDate UPath_Markup
+    | UPath_ReportView__reportContractDate UPath_Markup
+    | UPath_ReportView__reportInspectionDate UPath_Markup
+    | UPath_ReportView__reportEffectiveDate UPath_Markup
+    | UPath_ReportView__reportAuthors UPath_Authors
+    | UPath_ReportView__reportPreparer UPath_Markup
+    | UPath_ReportView__reportPreparerEIN UPath_Markup
+    | UPath_ReportView__reportPreparerAddress UPath_Markup
+    | UPath_ReportView__reportPreparerEMail UPath_Markup
+    | UPath_ReportView__reportPreparerWebsite UPath_Markup
+    | UPath_ReportView__reportAbbrevs UPath_AbbrevPairs
+    | UPath_ReportView__reportTitle UPath_Markup
+    | UPath_ReportView__reportHeader UPath_Markup
+    | UPath_ReportView__reportFooter UPath_Markup
+    | UPath_ReportView__reportIntendedUse UPath_MaybeReportIntendedUse
+    | UPath_ReportView__reportValueTypeInfo UPath_ReportValueTypeInfo
+    | UPath_ReportView__reportValueApproachInfo UPath_ReportValueApproachInfo
+    | UPath_ReportView__reportClientName UPath_Markup
+    | UPath_ReportView__reportClientAddress UPath_Markup
+    | UPath_ReportView__reportClientGreeting UPath_Markup
+    | UPath_ReportView__reportItemsOwnerFull UPath_Markup
+    | UPath_ReportView__reportItemsOwner UPath_Markup
+    | UPath_ReportView__reportBriefItems UPath_Markup
+    | UPath_ReportView__reportInspectionLocation UPath_Markup
+    | UPath_ReportView__reportBody UPath_ReportElems
+    | UPath_ReportView__reportGlossary UPath_MarkupPairs
+    | UPath_ReportView__reportSources UPath_MarkupPairs
+    | UPath_ReportView__reportLetterOfTransmittal UPath_Markup
+    | UPath_ReportView__reportScopeOfWork UPath_Markup
+    | UPath_ReportView__reportCertification UPath_Markups
+    | UPath_ReportView__reportLimitingConditions UPath_Markups
+    | UPath_ReportView__reportPrivacyPolicy UPath_Markup
+    | UPath_ReportView__reportPerms UPath_Permissions
+    | UPath_ReportView__reportRevision UPath_Integer
+    | UPath_ReportView__reportCreated UPath_EpochMilli
+    | UPath_ReportView__reportBranding UPath_Branding
+    | UPath_ReportView__reportStatus UPath_ReportStatus
+    | UPath_ReportView__reportRedacted UPath_Bool
+    | UPath_ReportView__reportFlags UPath_ReportFlags
+    | UPath_ReportView__reportUUID UPath_UUID
+    | UPath_ReportView__reportOrderByItemName UPath_Bool
+    | UPath_ReportView__reportDisplayItemName UPath_Bool
+    | UPath_ReportView__reportStandardsVersion UPath_ReportStandard
+    | UPath_ReportView
+    deriving (Eq, Ord, Read, Show, Typeable, Data)
+data UPath_SaneSizeImageSize = UPath_SaneSizeImageSize_View UPath_ImageSize | UPath_SaneSizeImageSize deriving (Eq, Ord, Read, Show, Typeable, Data)
+data UPath_String = UPath_String_View UPath_JSONText | UPath_String deriving (Eq, Ord, Read, Show, Typeable, Data)
+data UPath_Text = UPath_Text_View UPath_JSONText | UPath_Text deriving (Eq, Ord, Read, Show, Typeable, Data)
+data UPath_URI = UPath_URI deriving (Eq, Ord, Read, Show, Typeable, Data)
+data UPath_UUID = UPath_UUID deriving (Eq, Ord, Read, Show, Typeable, Data)
+data UPath_Units = UPath_Units_View UPath_JSONText | UPath_Units deriving (Eq, Ord, Read, Show, Typeable, Data)
+data UPath_UserId = UPath_UserId deriving (Eq, Ord, Read, Show, Typeable, Data)
+data UPath_UserIds = UPath_UserIds_View UPath_Text | UPath_UserIds deriving (Eq, Ord, Read, Show, Typeable, Data)
 data Univ
     = U1 String
     | U2 Int64
@@ -223,6 +335,22 @@ type Path_Markups _a = Path_OMap MarkupID (Path_Markup _a)
 type Path_ReportElems _a = Path_OMap ReportElemID (Path_ReportElem _a)
 type Path_ReportImages _a = Path_OMap ReportImageID (Path_ReportImage _a)
 type Path_Size _a = Path_Int _a
+type UPath_AbbrevPair = Path_Pair UPath_CIString UPath_Markup
+type UPath_AbbrevPairs = Path_OMap AbbrevPairID (Path_Pair UPath_CIString UPath_Markup)
+type UPath_Authors = Path_OMap AuthorID UPath_Author
+type UPath_Checksum = UPath_String
+type UPath_EUI = Path_Either UPath_URI UPath_ImageFile
+type UPath_EpochMilli = UPath_Int64
+type UPath_FilePath = UPath_String
+type UPath_MEUI = Path_Maybe (Path_Either UPath_URI UPath_ImageFile)
+type UPath_MIM = Path_Map ItemFieldName UPath_Markup
+type UPath_MRR = Path_Map ReportID UPath_Report
+type UPath_MarkupPair = Path_Pair UPath_Markup UPath_Markup
+type UPath_MarkupPairs = Path_OMap MarkupPairID (Path_Pair UPath_Markup UPath_Markup)
+type UPath_Markups = Path_OMap MarkupID UPath_Markup
+type UPath_ReportElems = Path_OMap ReportElemID UPath_ReportElem
+type UPath_ReportImages = Path_OMap ReportImageID UPath_ReportImage
+type UPath_Size = UPath_Int
 class HasAuthor c
     where lens_author :: Lens' c Author
           lens_Author_authorCredentials :: forall . Lens' c Markup
@@ -7426,10 +7554,12 @@ instance PathStart Univ String
                                                     p@(Path_String_View _wp) -> map (\a -> peekCons p (Just a)) (toListOf (toLens p) _s :: [JSONText])
                                                     _ -> []
                                 in paths (Proxy :: Proxy Univ) _s (Proxy :: Proxy JSONText) (\pth r -> dopath pth ++ r) [] :: [Peek Univ String]
+          type UPath Univ String = UPath_String
 instance PathStart Univ Int64
     where data Peek Univ Int64 = Peek_Int64_Int64 (Path Univ Int64 Int64) (Maybe Int64) deriving (Eq, Show)
           peekTree _ _ = []
           peekRow _ _ = []
+          type UPath Univ Int64 = UPath_Int64
 instance PathStart Univ Bool
     where data Peek Univ Bool
               = Peek_Bool_String (Path Univ Bool String) (Maybe String)
@@ -7453,6 +7583,7 @@ instance PathStart Univ Bool
                                                     p@(Path_Bool_View _wp) -> map (\a -> peekCons p (Just a)) (toListOf (toLens p) _s :: [String])
                                                     _ -> []
                                 in paths (Proxy :: Proxy Univ) _s (Proxy :: Proxy String) (\pth r -> dopath pth ++ r) [] :: [Peek Univ Bool]
+          type UPath Univ Bool = UPath_Bool
 instance PathStart Univ Double
     where data Peek Univ Double
               = Peek_Double_String (Path Univ Double String) (Maybe String)
@@ -7476,10 +7607,12 @@ instance PathStart Univ Double
                                                     p@(Path_Double_View _wp) -> map (\a -> peekCons p (Just a)) (toListOf (toLens p) _s :: [String])
                                                     _ -> []
                                 in paths (Proxy :: Proxy Univ) _s (Proxy :: Proxy String) (\pth r -> dopath pth ++ r) [] :: [Peek Univ Double]
+          type UPath Univ Double = UPath_Double
 instance PathStart Univ Int
     where data Peek Univ Int = Peek_Int_Int (Path Univ Int Int) (Maybe Int) deriving (Eq, Show)
           peekTree _ _ = []
           peekRow _ _ = []
+          type UPath Univ Int = UPath_Int
 instance PathStart Univ Dimension
     where data Peek Univ Dimension
               = Peek_Dimension_Dimension (Path Univ Dimension Dimension) (Maybe Dimension) | Peek_Dimension_JSONText (Path Univ Dimension JSONText) (Maybe JSONText)
@@ -7497,10 +7630,12 @@ instance PathStart Univ Dimension
                                                     p@(Path_Dimension_View _wp) -> map (\a -> peekCons p (Just a)) (toListOf (toLens p) _s :: [JSONText])
                                                     _ -> []
                                 in paths (Proxy :: Proxy Univ) _s (Proxy :: Proxy JSONText) (\pth r -> dopath pth ++ r) [] :: [Peek Univ Dimension]
+          type UPath Univ Dimension = UPath_Dimension
 instance PathStart Univ ImageCrop
     where data Peek Univ ImageCrop = Peek_ImageCrop_ImageCrop (Path Univ ImageCrop ImageCrop) (Maybe ImageCrop) deriving (Eq, Show)
           peekTree _ _ = []
           peekRow _ _ = []
+          type UPath Univ ImageCrop = UPath_ImageCrop
 instance PathStart Univ ImageSize
     where data Peek Univ ImageSize
               = Peek_ImageSize_String (Path Univ ImageSize String) (Maybe String)
@@ -7565,6 +7700,7 @@ instance PathStart Univ ImageSize
                                                                               p@(Path_ImageSize_units _wp) -> map (\a -> peekCons p (Just a)) (toListOf (toLens p) _s :: [Units])
                                                                               _ -> []
                                                           in paths (Proxy :: Proxy Univ) _s (Proxy :: Proxy Units) (\pth r -> dopath pth ++ r) []] :: [Peek Univ ImageSize]
+          type UPath Univ ImageSize = UPath_ImageSize
 instance PathStart Univ Units
     where data Peek Univ Units
               = Peek_Units_Units (Path Univ Units Units) (Maybe Units) | Peek_Units_JSONText (Path Univ Units JSONText) (Maybe JSONText)
@@ -7582,18 +7718,22 @@ instance PathStart Univ Units
                                                     p@(Path_Units_View _wp) -> map (\a -> peekCons p (Just a)) (toListOf (toLens p) _s :: [JSONText])
                                                     _ -> []
                                 in paths (Proxy :: Proxy Univ) _s (Proxy :: Proxy JSONText) (\pth r -> dopath pth ++ r) [] :: [Peek Univ Units]
+          type UPath Univ Units = UPath_Units
 instance PathStart Univ ImageFile
     where data Peek Univ ImageFile = Peek_ImageFile_ImageFile (Path Univ ImageFile ImageFile) (Maybe ImageFile) deriving (Eq, Show)
           peekTree _ _ = []
           peekRow _ _ = []
+          type UPath Univ ImageFile = UPath_ImageFile
 instance PathStart Univ Integer
     where data Peek Univ Integer = Peek_Integer_Integer (Path Univ Integer Integer) (Maybe Integer) deriving (Eq, Show)
           peekTree _ _ = []
           peekRow _ _ = []
+          type UPath Univ Integer = UPath_Integer
 instance PathStart Univ JSONText
     where data Peek Univ JSONText = Peek_JSONText_JSONText (Path Univ JSONText JSONText) (Maybe JSONText) deriving (Eq, Show)
           peekTree _ _ = []
           peekRow _ _ = []
+          type UPath Univ JSONText = UPath_JSONText
 instance PathStart Univ Markup
     where data Peek Univ Markup
               = Peek_Markup_JSONText (Path Univ Markup JSONText) (Maybe JSONText)
@@ -7640,6 +7780,7 @@ instance PathStart Univ Markup
           peekRow (Proxy) (_s@(LaTeX {})) = mempty :: [Peek Univ Markup]
           peekRow (Proxy) (_s@(Pandoc {})) = mempty :: [Peek Univ Markup]
           peekRow (Proxy) (_s@(Markup {})) = mempty :: [Peek Univ Markup]
+          type UPath Univ Markup = UPath_Markup
 instance PathStart Univ Permissions
     where data Peek Univ Permissions
               = Peek_Permissions_JSONText (Path Univ Permissions JSONText) (Maybe JSONText)
@@ -7703,6 +7844,7 @@ instance PathStart Univ Permissions
                                                                                 p@(Path_Permissions_readers _wp) -> map (\a -> peekCons p (Just a)) (toListOf (toLens p) _s :: [UserIds])
                                                                                 _ -> []
                                                             in paths (Proxy :: Proxy Univ) _s (Proxy :: Proxy UserIds) (\pth r -> dopath pth ++ r) []] :: [Peek Univ Permissions]
+          type UPath Univ Permissions = UPath_Permissions
 instance PathStart Univ UserIds
     where data Peek Univ UserIds
               = Peek_UserIds_JSONText (Path Univ UserIds JSONText) (Maybe JSONText)
@@ -7726,6 +7868,7 @@ instance PathStart Univ UserIds
                                                     p@(Path_UserIds_View _wp) -> map (\a -> peekCons p (Just a)) (toListOf (toLens p) _s :: [Text])
                                                     _ -> []
                                 in paths (Proxy :: Proxy Univ) _s (Proxy :: Proxy Text) (\pth r -> dopath pth ++ r) [] :: [Peek Univ UserIds]
+          type UPath Univ UserIds = UPath_UserIds
 instance PathStart Univ AbbrevPair
     where data Peek Univ AbbrevPair
               = Peek_AbbrevPair_JSONText (Path Univ AbbrevPair JSONText) (Maybe JSONText)
@@ -7776,6 +7919,7 @@ instance PathStart Univ AbbrevPair
                                                              p@(Path_Second _wp) -> map (\a -> peekCons p (Just a)) (toListOf (toLens p) _s :: [Markup])
                                                              _ -> []
                                          in paths (Proxy :: Proxy Univ) _s (Proxy :: Proxy Markup) (\pth r -> dopath pth ++ r) []] :: [Peek Univ AbbrevPair]
+          type UPath Univ AbbrevPair = UPath_AbbrevPair
 instance PathStart Univ AbbrevPairs
     where data Peek Univ AbbrevPairs
               = Peek_AbbrevPairs_JSONText (Path Univ AbbrevPairs JSONText) (Maybe JSONText)
@@ -7814,6 +7958,7 @@ instance PathStart Univ AbbrevPairs
                                                     p@(Path_At _k _wp) -> map (\a -> peekCons p (Just a)) (toListOf (toLens p) _s :: [AbbrevPair])
                                                     _ -> []
                                 in paths (Proxy :: Proxy Univ) _s (Proxy :: Proxy AbbrevPair) (\pth r -> dopath pth ++ r) [] :: [Peek Univ AbbrevPairs]
+          type UPath Univ AbbrevPairs = UPath_AbbrevPairs
 instance PathStart Univ Author
     where data Peek Univ Author
               = Peek_Author_JSONText (Path Univ Author JSONText) (Maybe JSONText)
@@ -7863,6 +8008,7 @@ instance PathStart Univ Author
                                                                            p@(Path_Author_authorCredentials _wp) -> map (\a -> peekCons p (Just a)) (toListOf (toLens p) _s :: [Markup])
                                                                            _ -> []
                                                        in paths (Proxy :: Proxy Univ) _s (Proxy :: Proxy Markup) (\pth r -> dopath pth ++ r) []] :: [Peek Univ Author]
+          type UPath Univ Author = UPath_Author
 instance PathStart Univ Authors
     where data Peek Univ Authors
               = Peek_Authors_JSONText (Path Univ Authors JSONText) (Maybe JSONText)
@@ -7896,6 +8042,7 @@ instance PathStart Univ Authors
                                                     p@(Path_At _k _wp) -> map (\a -> peekCons p (Just a)) (toListOf (toLens p) _s :: [Author])
                                                     _ -> []
                                 in paths (Proxy :: Proxy Univ) _s (Proxy :: Proxy Author) (\pth r -> dopath pth ++ r) [] :: [Peek Univ Authors]
+          type UPath Univ Authors = UPath_Authors
 instance PathStart Univ Branding
     where data Peek Univ Branding
               = Peek_Branding_JSONText (Path Univ Branding JSONText) (Maybe JSONText)
@@ -7919,6 +8066,7 @@ instance PathStart Univ Branding
                                                     p@(Path_Branding_View _wp) -> map (\a -> peekCons p (Just a)) (toListOf (toLens p) _s :: [Text])
                                                     _ -> []
                                 in paths (Proxy :: Proxy Univ) _s (Proxy :: Proxy Text) (\pth r -> dopath pth ++ r) [] :: [Peek Univ Branding]
+          type UPath Univ Branding = UPath_Branding
 instance PathStart Univ MarkupPair
     where data Peek Univ MarkupPair
               = Peek_MarkupPair_JSONText (Path Univ MarkupPair JSONText) (Maybe JSONText)
@@ -7968,6 +8116,7 @@ instance PathStart Univ MarkupPair
                                                              p@(Path_Second _wp) -> map (\a -> peekCons p (Just a)) (toListOf (toLens p) _s :: [Markup])
                                                              _ -> []
                                          in paths (Proxy :: Proxy Univ) _s (Proxy :: Proxy Markup) (\pth r -> dopath pth ++ r) []] :: [Peek Univ MarkupPair]
+          type UPath Univ MarkupPair = UPath_MarkupPair
 instance PathStart Univ MarkupPairs
     where data Peek Univ MarkupPairs
               = Peek_MarkupPairs_JSONText (Path Univ MarkupPairs JSONText) (Maybe JSONText)
@@ -8001,6 +8150,7 @@ instance PathStart Univ MarkupPairs
                                                     p@(Path_At _k _wp) -> map (\a -> peekCons p (Just a)) (toListOf (toLens p) _s :: [MarkupPair])
                                                     _ -> []
                                 in paths (Proxy :: Proxy Univ) _s (Proxy :: Proxy MarkupPair) (\pth r -> dopath pth ++ r) [] :: [Peek Univ MarkupPairs]
+          type UPath Univ MarkupPairs = UPath_MarkupPairs
 instance PathStart Univ Markups
     where data Peek Univ Markups
               = Peek_Markups_JSONText (Path Univ Markups JSONText) (Maybe JSONText)
@@ -8029,6 +8179,7 @@ instance PathStart Univ Markups
                                                     p@(Path_At _k _wp) -> map (\a -> peekCons p (Just a)) (toListOf (toLens p) _s :: [Markup])
                                                     _ -> []
                                 in paths (Proxy :: Proxy Univ) _s (Proxy :: Proxy Markup) (\pth r -> dopath pth ++ r) [] :: [Peek Univ Markups]
+          type UPath Univ Markups = UPath_Markups
 instance PathStart Univ MaybeReportIntendedUse
     where data Peek Univ MaybeReportIntendedUse
               = Peek_MaybeReportIntendedUse_String (Path Univ MaybeReportIntendedUse String) (Maybe String)
@@ -8052,6 +8203,7 @@ instance PathStart Univ MaybeReportIntendedUse
                                                     p@(Path_MaybeReportIntendedUse_View _wp) -> map (\a -> peekCons p (Just a)) (toListOf (toLens p) _s :: [String])
                                                     _ -> []
                                 in paths (Proxy :: Proxy Univ) _s (Proxy :: Proxy String) (\pth r -> dopath pth ++ r) [] :: [Peek Univ MaybeReportIntendedUse]
+          type UPath Univ MaybeReportIntendedUse = UPath_MaybeReportIntendedUse
 instance PathStart Univ Report
     where data Peek Univ Report
               = Peek_Report_String (Path Univ Report String) (Maybe String)
@@ -8300,6 +8452,7 @@ instance PathStart Univ Report
                                                     p@(Path_Report_View _wp) -> map (\a -> peekCons p (Just a)) (toListOf (toLens p) _s :: [ReportView])
                                                     _ -> []
                                 in paths (Proxy :: Proxy Univ) _s (Proxy :: Proxy ReportView) (\pth r -> dopath pth ++ r) [] :: [Peek Univ Report]
+          type UPath Univ Report = UPath_Report
 instance PathStart Univ ReportElem
     where data Peek Univ ReportElem
               = Peek_ReportElem_String (Path Univ ReportElem String) (Maybe String)
@@ -8441,6 +8594,7 @@ instance PathStart Univ ReportElem
                                                                            _ -> []
                                                        in paths (Proxy :: Proxy Univ) _s (Proxy :: Proxy Markup) (\pth r -> dopath pth ++ r) [] :: [Peek Univ ReportElem]
           peekRow (Proxy) (_s@(ReportUndecided {})) = mempty :: [Peek Univ ReportElem]
+          type UPath Univ ReportElem = UPath_ReportElem
 instance PathStart Univ ReportElems
     where data Peek Univ ReportElems
               = Peek_ReportElems_String (Path Univ ReportElems String) (Maybe String)
@@ -8564,6 +8718,7 @@ instance PathStart Univ ReportElems
                                                     p@(Path_At _k _wp) -> map (\a -> peekCons p (Just a)) (toListOf (toLens p) _s :: [ReportElem])
                                                     _ -> []
                                 in paths (Proxy :: Proxy Univ) _s (Proxy :: Proxy ReportElem) (\pth r -> dopath pth ++ r) [] :: [Peek Univ ReportElems]
+          type UPath Univ ReportElems = UPath_ReportElems
 instance PathStart Univ ReportFlags
     where data Peek Univ ReportFlags
               = Peek_ReportFlags_String (Path Univ ReportFlags String) (Maybe String)
@@ -8592,6 +8747,7 @@ instance PathStart Univ ReportFlags
                                                                        p@(Path_ReportFlags_hideEmptyItemFields _wp) -> map (\a -> peekCons p (Just a)) (toListOf (toLens p) _s :: [Bool])
                                                                        _ -> []
                                                    in paths (Proxy :: Proxy Univ) _s (Proxy :: Proxy Bool) (\pth r -> dopath pth ++ r) [] :: [Peek Univ ReportFlags]
+          type UPath Univ ReportFlags = UPath_ReportFlags
 instance PathStart Univ ReportIntendedUse
     where data Peek Univ ReportIntendedUse
               = Peek_ReportIntendedUse_String (Path Univ ReportIntendedUse String) (Maybe String)
@@ -8615,6 +8771,7 @@ instance PathStart Univ ReportIntendedUse
                                                     p@(Path_ReportIntendedUse_View _wp) -> map (\a -> peekCons p (Just a)) (toListOf (toLens p) _s :: [String])
                                                     _ -> []
                                 in paths (Proxy :: Proxy Univ) _s (Proxy :: Proxy String) (\pth r -> dopath pth ++ r) [] :: [Peek Univ ReportIntendedUse]
+          type UPath Univ ReportIntendedUse = UPath_ReportIntendedUse
 instance PathStart Univ ReportStandard
     where data Peek Univ ReportStandard
               = Peek_ReportStandard_Int (Path Univ ReportStandard Int) (Maybe Int)
@@ -8633,6 +8790,7 @@ instance PathStart Univ ReportStandard
                                                                           p@(Path_ReportStandard_unReportStandard _wp) -> map (\a -> peekCons p (Just a)) (toListOf (toLens p) _s :: [Int])
                                                                           _ -> []
                                                       in paths (Proxy :: Proxy Univ) _s (Proxy :: Proxy Int) (\pth r -> dopath pth ++ r) [] :: [Peek Univ ReportStandard]
+          type UPath Univ ReportStandard = UPath_ReportStandard
 instance PathStart Univ ReportStatus
     where data Peek Univ ReportStatus
               = Peek_ReportStatus_String (Path Univ ReportStatus String) (Maybe String)
@@ -8656,6 +8814,7 @@ instance PathStart Univ ReportStatus
                                                     p@(Path_ReportStatus_View _wp) -> map (\a -> peekCons p (Just a)) (toListOf (toLens p) _s :: [String])
                                                     _ -> []
                                 in paths (Proxy :: Proxy Univ) _s (Proxy :: Proxy String) (\pth r -> dopath pth ++ r) [] :: [Peek Univ ReportStatus]
+          type UPath Univ ReportStatus = UPath_ReportStatus
 instance PathStart Univ ReportValueApproachInfo
     where data Peek Univ ReportValueApproachInfo
               = Peek_ReportValueApproachInfo_JSONText (Path Univ ReportValueApproachInfo JSONText) (Maybe JSONText)
@@ -8711,6 +8870,7 @@ instance PathStart Univ ReportValueApproachInfo
                                                                                             p@(Path_ReportValueApproachInfo_reportValueApproachDescription _wp) -> map (\a -> peekCons p (Just a)) (toListOf (toLens p) _s :: [Markup])
                                                                                             _ -> []
                                                                         in paths (Proxy :: Proxy Univ) _s (Proxy :: Proxy Markup) (\pth r -> dopath pth ++ r) []] :: [Peek Univ ReportValueApproachInfo]
+          type UPath Univ ReportValueApproachInfo = UPath_ReportValueApproachInfo
 instance PathStart Univ ReportValueTypeInfo
     where data Peek Univ ReportValueTypeInfo
               = Peek_ReportValueTypeInfo_JSONText (Path Univ ReportValueTypeInfo JSONText) (Maybe JSONText)
@@ -8787,6 +8947,7 @@ instance PathStart Univ ReportValueTypeInfo
                                                                                         p@(Path_ReportValueTypeInfo_reportValueTypeDefinition _wp) -> map (\a -> peekCons p (Just a)) (toListOf (toLens p) _s :: [Markup])
                                                                                         _ -> []
                                                                     in paths (Proxy :: Proxy Univ) _s (Proxy :: Proxy Markup) (\pth r -> dopath pth ++ r) []] :: [Peek Univ ReportValueTypeInfo]
+          type UPath Univ ReportValueTypeInfo = UPath_ReportValueTypeInfo
 instance PathStart Univ EUI
     where data Peek Univ EUI
               = Peek_EUI_ImageFile (Path Univ EUI ImageFile) (Maybe ImageFile) | Peek_EUI_EUI (Path Univ EUI EUI) (Maybe EUI) | Peek_EUI_URI (Path Univ EUI URI) (Maybe URI)
@@ -8817,6 +8978,7 @@ instance PathStart Univ EUI
                                                                 p@(Path_Right _wp) -> map (\a -> peekCons p (Just a)) (toListOf (toLens p) _s :: [ImageFile])
                                                                 _ -> []
                                             in paths (Proxy :: Proxy Univ) _s (Proxy :: Proxy ImageFile) (\pth r -> dopath pth ++ r) [] :: [Peek Univ EUI]
+          type UPath Univ EUI = UPath_EUI
 instance PathStart Univ MEUI
     where data Peek Univ MEUI
               = Peek_MEUI_ImageFile (Path Univ MEUI ImageFile) (Maybe ImageFile)
@@ -8845,6 +9007,7 @@ instance PathStart Univ MEUI
                                                     p@(Path_Just _wp) -> map (\a -> peekCons p (Just a)) (toListOf (toLens p) _s :: [EUI])
                                                     _ -> []
                                 in paths (Proxy :: Proxy Univ) _s (Proxy :: Proxy EUI) (\pth r -> dopath pth ++ r) [] :: [Peek Univ MEUI]
+          type UPath Univ MEUI = UPath_MEUI
 instance PathStart Univ MaybeImageFile
     where data Peek Univ MaybeImageFile
               = Peek_MaybeImageFile_String (Path Univ MaybeImageFile String) (Maybe String)
@@ -8868,6 +9031,7 @@ instance PathStart Univ MaybeImageFile
                                                     p@(Path_MaybeImageFile_View _wp) -> map (\a -> peekCons p (Just a)) (toListOf (toLens p) _s :: [String])
                                                     _ -> []
                                 in paths (Proxy :: Proxy Univ) _s (Proxy :: Proxy String) (\pth r -> dopath pth ++ r) [] :: [Peek Univ MaybeImageFile]
+          type UPath Univ MaybeImageFile = UPath_MaybeImageFile
 instance PathStart Univ ReportImage
     where data Peek Univ ReportImage
               = Peek_ReportImage_String (Path Univ ReportImage String) (Maybe String)
@@ -8966,6 +9130,7 @@ instance PathStart Univ ReportImage
                                                     p@(Path_ReportImage_View _wp) -> map (\a -> peekCons p (Just a)) (toListOf (toLens p) _s :: [ReportImageView])
                                                     _ -> []
                                 in paths (Proxy :: Proxy Univ) _s (Proxy :: Proxy ReportImageView) (\pth r -> dopath pth ++ r) [] :: [Peek Univ ReportImage]
+          type UPath Univ ReportImage = UPath_ReportImage
 instance PathStart Univ ReportImages
     where data Peek Univ ReportImages
               = Peek_ReportImages_String (Path Univ ReportImages String) (Maybe String)
@@ -9069,6 +9234,7 @@ instance PathStart Univ ReportImages
                                                     p@(Path_At _k _wp) -> map (\a -> peekCons p (Just a)) (toListOf (toLens p) _s :: [ReportImage])
                                                     _ -> []
                                 in paths (Proxy :: Proxy Univ) _s (Proxy :: Proxy ReportImage) (\pth r -> dopath pth ++ r) [] :: [Peek Univ ReportImages]
+          type UPath Univ ReportImages = UPath_ReportImages
 instance PathStart Univ ReadOnlyFilePath
     where data Peek Univ ReadOnlyFilePath
               = Peek_ReadOnlyFilePath_String (Path Univ ReadOnlyFilePath String) (Maybe String)
@@ -9092,6 +9258,7 @@ instance PathStart Univ ReadOnlyFilePath
                                                     p@(Path_ReadOnlyFilePath_View _wp) -> map (\a -> peekCons p (Just a)) (toListOf (toLens p) _s :: [String])
                                                     _ -> []
                                 in paths (Proxy :: Proxy Univ) _s (Proxy :: Proxy String) (\pth r -> dopath pth ++ r) [] :: [Peek Univ ReadOnlyFilePath]
+          type UPath Univ ReadOnlyFilePath = UPath_ReadOnlyFilePath
 instance PathStart Univ ReportImageView
     where data Peek Univ ReportImageView
               = Peek_ReportImageView_String (Path Univ ReportImageView String) (Maybe String)
@@ -9325,6 +9492,7 @@ instance PathStart Univ ReportImageView
                                                                                     p@(Path_ReportImageView__picEnlargedDeprecated _wp) -> map (\a -> peekCons p (Just a)) (toListOf (toLens p) _s :: [MaybeImageFile])
                                                                                     _ -> []
                                                                 in paths (Proxy :: Proxy Univ) _s (Proxy :: Proxy MaybeImageFile) (\pth r -> dopath pth ++ r) []] :: [Peek Univ ReportImageView]
+          type UPath Univ ReportImageView = UPath_ReportImageView
 instance PathStart Univ ReportView
     where data Peek Univ ReportView
               = Peek_ReportView_String (Path Univ ReportView String) (Maybe String)
@@ -10457,6 +10625,7 @@ instance PathStart Univ ReportView
                                                                                p@(Path_ReportView__reportStandardsVersion _wp) -> map (\a -> peekCons p (Just a)) (toListOf (toLens p) _s :: [ReportStandard])
                                                                                _ -> []
                                                            in paths (Proxy :: Proxy Univ) _s (Proxy :: Proxy ReportStandard) (\pth r -> dopath pth ++ r) []] :: [Peek Univ ReportView]
+          type UPath Univ ReportView = UPath_ReportView
 instance PathStart Univ SaneSizeImageSize
     where data Peek Univ SaneSizeImageSize
               = Peek_SaneSizeImageSize_String (Path Univ SaneSizeImageSize String) (Maybe String)
@@ -10500,6 +10669,7 @@ instance PathStart Univ SaneSizeImageSize
                                                     p@(Path_SaneSizeImageSize_View _wp) -> map (\a -> peekCons p (Just a)) (toListOf (toLens p) _s :: [ImageSize])
                                                     _ -> []
                                 in paths (Proxy :: Proxy Univ) _s (Proxy :: Proxy ImageSize) (\pth r -> dopath pth ++ r) [] :: [Peek Univ SaneSizeImageSize]
+          type UPath Univ SaneSizeImageSize = UPath_SaneSizeImageSize
 instance PathStart Univ Item
     where data Peek Univ Item
               = Peek_Item_String (Path Univ Item String) (Maybe String)
@@ -10651,6 +10821,7 @@ instance PathStart Univ Item
                                                                          p@(Path_Item_images _wp) -> map (\a -> peekCons p (Just a)) (toListOf (toLens p) _s :: [ReportImages])
                                                                          _ -> []
                                                      in paths (Proxy :: Proxy Univ) _s (Proxy :: Proxy ReportImages) (\pth r -> dopath pth ++ r) []] :: [Peek Univ Item]
+          type UPath Univ Item = UPath_Item
 instance PathStart Univ MIM
     where data Peek Univ MIM
               = Peek_MIM_JSONText (Path Univ MIM JSONText) (Maybe JSONText)
@@ -10679,6 +10850,7 @@ instance PathStart Univ MIM
                                                     p@(Path_Look _k _wp) -> map (\a -> peekCons p (Just a)) (toListOf (toLens p) _s :: [Markup])
                                                     _ -> []
                                 in paths (Proxy :: Proxy Univ) _s (Proxy :: Proxy Markup) (\pth r -> dopath pth ++ r) [] :: [Peek Univ MIM]
+          type UPath Univ MIM = UPath_MIM
 instance PathStart Univ MRR
     where data Peek Univ MRR
               = Peek_MRR_String (Path Univ MRR String) (Maybe String)
@@ -10932,6 +11104,7 @@ instance PathStart Univ MRR
                                                     p@(Path_Look _k _wp) -> map (\a -> peekCons p (Just a)) (toListOf (toLens p) _s :: [Report])
                                                     _ -> []
                                 in paths (Proxy :: Proxy Univ) _s (Proxy :: Proxy Report) (\pth r -> dopath pth ++ r) [] :: [Peek Univ MRR]
+          type UPath Univ MRR = UPath_MRR
 instance PathStart Univ ReportMap
     where data Peek Univ ReportMap
               = Peek_ReportMap_String (Path Univ ReportMap String) (Maybe String)
@@ -11190,6 +11363,7 @@ instance PathStart Univ ReportMap
                                                                      p@(Path_ReportMap_unReportMap _wp) -> map (\a -> peekCons p (Just a)) (toListOf (toLens p) _s :: [MRR])
                                                                      _ -> []
                                                  in paths (Proxy :: Proxy Univ) _s (Proxy :: Proxy MRR) (\pth r -> dopath pth ++ r) [] :: [Peek Univ ReportMap]
+          type UPath Univ ReportMap = UPath_ReportMap
 instance PathStart Univ CIString
     where data Peek Univ CIString
               = Peek_CIString_JSONText (Path Univ CIString JSONText) (Maybe JSONText)
@@ -11213,10 +11387,12 @@ instance PathStart Univ CIString
                                                     p@(Path_CIString_View _wp) -> map (\a -> peekCons p (Just a)) (toListOf (toLens p) _s :: [Text])
                                                     _ -> []
                                 in paths (Proxy :: Proxy Univ) _s (Proxy :: Proxy Text) (\pth r -> dopath pth ++ r) [] :: [Peek Univ CIString]
+          type UPath Univ CIString = UPath_CIString
 instance PathStart Univ URI
     where data Peek Univ URI = Peek_URI_URI (Path Univ URI URI) (Maybe URI) deriving (Eq, Show)
           peekTree _ _ = []
           peekRow _ _ = []
+          type UPath Univ URI = UPath_URI
 instance PathStart Univ Text
     where data Peek Univ Text = Peek_Text_JSONText (Path Univ Text JSONText) (Maybe JSONText) | Peek_Text_Text (Path Univ Text Text) (Maybe Text) deriving (Eq, Show)
           peekTree (Proxy) _s = let dopath pth = case pth of
@@ -11232,14 +11408,17 @@ instance PathStart Univ Text
                                                     p@(Path_Text_View _wp) -> map (\a -> peekCons p (Just a)) (toListOf (toLens p) _s :: [JSONText])
                                                     _ -> []
                                 in paths (Proxy :: Proxy Univ) _s (Proxy :: Proxy JSONText) (\pth r -> dopath pth ++ r) [] :: [Peek Univ Text]
+          type UPath Univ Text = UPath_Text
 instance PathStart Univ UserId
     where data Peek Univ UserId = Peek_UserId_UserId (Path Univ UserId UserId) (Maybe UserId) deriving (Eq, Show)
           peekTree _ _ = []
           peekRow _ _ = []
+          type UPath Univ UserId = UPath_UserId
 instance PathStart Univ UUID
     where data Peek Univ UUID = Peek_UUID_UUID (Path Univ UUID UUID) (Maybe UUID) deriving (Eq, Show)
           peekTree _ _ = []
           peekRow _ _ = []
+          type UPath Univ UUID = UPath_UUID
 instance U Univ String
     where u = U1
           unU (U1 a) = a
@@ -18931,6 +19110,84 @@ instance IdPath (Path_UserId a)
     where idPath = Path_UserId
 instance IdPath (Path_UserIds a)
     where idPath = Path_UserIds
+instance IdPath UPath_Author
+    where idPath = UPath_Author
+instance IdPath UPath_Bool
+    where idPath = UPath_Bool
+instance IdPath UPath_Branding
+    where idPath = UPath_Branding
+instance IdPath UPath_CIString
+    where idPath = UPath_CIString
+instance IdPath UPath_Dimension
+    where idPath = UPath_Dimension
+instance IdPath UPath_Double
+    where idPath = UPath_Double
+instance IdPath UPath_ImageCrop
+    where idPath = UPath_ImageCrop
+instance IdPath UPath_ImageFile
+    where idPath = UPath_ImageFile
+instance IdPath UPath_ImageSize
+    where idPath = UPath_ImageSize
+instance IdPath UPath_Int
+    where idPath = UPath_Int
+instance IdPath UPath_Int64
+    where idPath = UPath_Int64
+instance IdPath UPath_Integer
+    where idPath = UPath_Integer
+instance IdPath UPath_Item
+    where idPath = UPath_Item
+instance IdPath UPath_JSONText
+    where idPath = UPath_JSONText
+instance IdPath UPath_Markup
+    where idPath = UPath_Markup
+instance IdPath UPath_MaybeImageFile
+    where idPath = UPath_MaybeImageFile
+instance IdPath UPath_MaybeReportIntendedUse
+    where idPath = UPath_MaybeReportIntendedUse
+instance IdPath UPath_Permissions
+    where idPath = UPath_Permissions
+instance IdPath UPath_ReadOnlyFilePath
+    where idPath = UPath_ReadOnlyFilePath
+instance IdPath UPath_Report
+    where idPath = UPath_Report
+instance IdPath UPath_ReportElem
+    where idPath = UPath_ReportElem
+instance IdPath UPath_ReportFlags
+    where idPath = UPath_ReportFlags
+instance IdPath UPath_ReportImage
+    where idPath = UPath_ReportImage
+instance IdPath UPath_ReportImageView
+    where idPath = UPath_ReportImageView
+instance IdPath UPath_ReportIntendedUse
+    where idPath = UPath_ReportIntendedUse
+instance IdPath UPath_ReportMap
+    where idPath = UPath_ReportMap
+instance IdPath UPath_ReportStandard
+    where idPath = UPath_ReportStandard
+instance IdPath UPath_ReportStatus
+    where idPath = UPath_ReportStatus
+instance IdPath UPath_ReportValueApproachInfo
+    where idPath = UPath_ReportValueApproachInfo
+instance IdPath UPath_ReportValueTypeInfo
+    where idPath = UPath_ReportValueTypeInfo
+instance IdPath UPath_ReportView
+    where idPath = UPath_ReportView
+instance IdPath UPath_SaneSizeImageSize
+    where idPath = UPath_SaneSizeImageSize
+instance IdPath UPath_String
+    where idPath = UPath_String
+instance IdPath UPath_Text
+    where idPath = UPath_Text
+instance IdPath UPath_URI
+    where idPath = UPath_URI
+instance IdPath UPath_UUID
+    where idPath = UPath_UUID
+instance IdPath UPath_Units
+    where idPath = UPath_Units
+instance IdPath UPath_UserId
+    where idPath = UPath_UserId
+instance IdPath UPath_UserIds
+    where idPath = UPath_UserIds
 instance ToLens (Path_Either (Path_URI ImageFile) (Path_ImageFile ImageFile))
     where type S (Path_Either (Path_URI ImageFile) (Path_ImageFile ImageFile)) = EUI
           type A (Path_Either (Path_URI ImageFile) (Path_ImageFile ImageFile)) = ImageFile

@@ -55,7 +55,7 @@ import Data.Typeable (Typeable)
 import GHC.Generics (Generic)
 import Language.Haskell.TH
 import Language.Haskell.TH.Path.Core (IdPath(idPath))
-import Language.Haskell.TH.Path.GHCJS (SafeCopy(..), base, contain, deriveSafeCopy, safeGet, safePut)
+-- import Language.Haskell.TH.Path.GHCJS (SafeCopy(..), base, contain, deriveSafeCopy, safeGet, safePut)
 import Language.Haskell.TH.Lift (deriveLiftMany)
 import Prelude hiding (init)
 import Web.Routes.TH (derivePathInfo)

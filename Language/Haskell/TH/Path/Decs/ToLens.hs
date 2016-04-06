@@ -46,8 +46,8 @@ toLensDecs' utype v gkey = do
   when (not (null tlc)) $
        (runQ $ sequence
             [ instanceD (pure []) [t|ToLens $(pure ptyp)|]
-                [ tySynInstD ''S (tySynEqn [pure ptyp] (pure (bestType v)))
-                , tySynInstD ''A (tySynEqn [pure ptyp] (pure (bestType gkey)))
+                [ tySynInstD ''S (tySynEqn [pure ptyp] (asTypeQ v))
+                , tySynInstD ''A (tySynEqn [pure ptyp] (asTypeQ gkey))
                 , funD 'toLens tlc
                 ] ]) >>= tell
 

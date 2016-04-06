@@ -16,6 +16,8 @@
 module Language.Haskell.TH.Path.Common
     ( bestPathTypeName
     , allPathTypeNames
+    , bestUPathTypeName
+    , allUPathTypeNames
     , bestTypeName
     , clauses
     , fieldLensNameOld
@@ -29,9 +31,11 @@ module Language.Haskell.TH.Path.Common
     , ModelType(ModelType)
     , PathType
     , makePathType
+    , makeUPathType
     , makeHopCon
     , makePathCon
     , makeFieldCon
+    , makeUFieldCon
     , uncurry3
     , tells
     , telld
@@ -60,8 +64,14 @@ import Language.Haskell.TH.TypeGraph.Vertex (bestType, bestTypeQ, etype, field, 
 bestPathTypeName :: HasName v => v -> PathType Name
 bestPathTypeName = makePathType . ModelType . asName
 
+bestUPathTypeName :: HasName v => v -> PathType Name
+bestUPathTypeName = makeUPathType . ModelType . asName
+
 allPathTypeNames :: TypeGraphVertex v => v -> Set (PathType Name)
 allPathTypeNames v = Set.map (makePathType . ModelType) (typeNames v)
+
+allUPathTypeNames :: TypeGraphVertex v => v -> Set (PathType Name)
+allUPathTypeNames v = Set.map (makeUPathType . ModelType) (typeNames v)
 
 -- bestTypeName :: (TypeGraphVertex v, HasName v) => v -> ModelType Name
 bestTypeName :: HasName v => v -> ModelType Name
@@ -164,6 +174,9 @@ instance HasTypeQ Type where asTypeQ = pure
 makePathType :: HasName a => ModelType a -> PathType Name
 makePathType (ModelType a) = PathType (mkName ("Path_" ++ nameBase (asName a)))
 
+makeUPathType :: HasName a => ModelType a -> PathType Name
+makeUPathType (ModelType a) = PathType (mkName ("UPath_" ++ nameBase (asName a)))
+
 makeHopCon :: TGVSimple -> TGV -> HopCon Name
 makeHopCon s a =
     HopCon (mkName ("Hop_" ++
@@ -183,6 +196,14 @@ makeFieldCon key =
       Nothing -> Nothing
       Just (tname, _, Right fname) -> Just $ makePathCon (makePathType (ModelType tname)) (nameBase fname)
       Just (tname, _, Left fpos) -> Just $ makePathCon (makePathType (ModelType tname)) (show fpos)
+
+-- | Path type constructor for the field described by key in the parent type named tname.
+makeUFieldCon :: TGV -> Maybe (PathCon Name)
+makeUFieldCon key =
+    case asTGV key ^. field of
+      Nothing -> Nothing
+      Just (tname, _, Right fname) -> Just $ makePathCon (makeUPathType (ModelType tname)) (nameBase fname)
+      Just (tname, _, Left fpos) -> Just $ makePathCon (makeUPathType (ModelType tname)) (show fpos)
 
 uncurry3 :: (a -> b -> c -> d) -> (a, b, c) -> d
 uncurry3 f (a, b, c) = f a b c

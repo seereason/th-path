@@ -21,7 +21,7 @@ module Language.Haskell.TH.Path.Core
       -- * Type classes and associated types
     , Paths(paths, Path, peek, peekPath, peekValue, peekCons)
     , IdPath(idPath)
-    , PathStart(Peek, peekTree, peekRow)
+    , PathStart(Peek, peekTree, peekRow, UPath)
     , ToLens(S, A, toLens)
     , (:.:)(..)
     , U(u, unU)
@@ -151,6 +151,8 @@ class PathStart u s where
     peekRow :: Proxy u -> s -> [Peek u s]
     -- ^ In this function only one layer of the forest is returned, no
     -- recursive peek calls are made.
+    type UPath u s
+    -- ^ Like type Path, but uses the universal type instead of @a@.
 
 -- | For any two types @s@ and @a@, there is an instance of @Paths
 -- s a@ if there is any path from @s@ to @a@.  The @Path@ type
