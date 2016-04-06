@@ -67,7 +67,7 @@ doUniv = do
                                                                        funD 'unU [clause [conP ucon [varP a]] (normalB (varE a)) []]]]
                   return $ normalC ucon [strictType notStrict typ])
                (zip types ([1..] :: [Int]))
-  tells [dataD (pure []) uname [] cons []]
+  tells [dataD (pure []) uname [] cons [''Eq, ''Show]]
   return $ conT uname
 
 allDecsToFile :: ([Dec] -> [Dec]) -> [TypeQ] -> Maybe FilePath -> Maybe FilePath -> FilePath -> [FilePath] -> Q [Dec]

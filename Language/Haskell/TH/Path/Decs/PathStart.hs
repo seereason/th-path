@@ -21,6 +21,7 @@ import Control.Monad (when)
 import Control.Monad.Writer (execWriterT, MonadWriter, tell)
 import Data.Foldable as Foldable
 import Data.List as List (map)
+import Data.Map as Map (toList)
 import Data.Proxy
 import Data.Set as Set (Set, toList)
 import Data.Tree (Tree(Node), Forest)
@@ -28,11 +29,11 @@ import Language.Haskell.TH
 import Language.Haskell.TH.Context (reifyInstancesWithContext)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Common (HasConQ(asConQ), HasCon(asCon), HasName(asName), HasType(asType), HasTypeQ(asTypeQ),
-                                        makeFieldCon, makePathCon, makePathType, ModelType(ModelType), tells)
-import Language.Haskell.TH.Path.Core (camelWords, fieldStrings, PathStart(..), Paths(..), ToLens(toLens),
+                                        makeFieldCon, makeUFieldCon, makePathCon, makePathType, makeUPathType, ModelType(ModelType))
+import Language.Haskell.TH.Path.Core (camelWords, fieldStrings, IdPath(idPath), PathStart(..), Paths(..), ToLens(toLens),
                                       Describe(describe'), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..), forestMap)
 import Language.Haskell.TH.Path.Graph (TypeGraphM)
-import Language.Haskell.TH.Path.Order (Path_OMap(..))
+import Language.Haskell.TH.Path.Order (Path_OMap(..), toPairs)
 import Language.Haskell.TH.Path.Traverse (asP', Control(..), doNode, finishConcs)
 import Language.Haskell.TH.Syntax (liftString)
 import Language.Haskell.TH.TypeGraph.TypeGraph (pathKeys, pathKeys', tgv, tgvSimple')
@@ -53,29 +54,30 @@ data PathConc
       { _concTGV :: TGV
       , _concPat :: PatQ
       , _concExp :: ExpQ
+      , _concUCon :: ExpQ
       }
-
-$(makeLenses ''PathConc)
 
 data WriterType
     = TreeClause ClauseQ
     | RowClause ClauseQ
     | DescClause ClauseQ
     | UPathField StrictTypeQ
+    | UPathClause ClauseQ
 
-partitionClauses :: [WriterType] -> ([ClauseQ], [ClauseQ], [ClauseQ], [StrictTypeQ])
+partitionClauses :: [WriterType] -> ([ClauseQ], [ClauseQ], [ClauseQ], [StrictTypeQ], [ClauseQ])
 partitionClauses xs =
-    foldr f ([], [], [], []) xs
+    foldr f ([], [], [], [], []) xs
         where
-          f (TreeClause x) (tcs, rcs, dcs, upfs) = (x : tcs, rcs, dcs, upfs)
-          f (RowClause x) (tcs, rcs, dcs, upfs) = (tcs, x : rcs, dcs, upfs)
-          f (DescClause x) (tcs, rcs, dcs, upfs) = (tcs, rcs, x : dcs, upfs)
-          f (UPathField x) (tcs, rcs, dcs, upfs) = (tcs, rcs, dcs, x : upfs)
+          f (TreeClause x) (tcs, rcs, dcs, upfs, upcs) = (x : tcs, rcs, dcs, upfs, upcs)
+          f (RowClause x) (tcs, rcs, dcs, upfs, upcs) = (tcs, x : rcs, dcs, upfs, upcs)
+          f (DescClause x) (tcs, rcs, dcs, upfs, upcs) = (tcs, rcs, x : dcs, upfs, upcs)
+          f (UPathField x) (tcs, rcs, dcs, upfs, upcs) = (tcs, rcs, dcs, x : upfs, upcs)
+          f (UPathClause x) (tcs, rcs, dcs, upfs, upcs) = (tcs, rcs, dcs, upfs, x : upcs)
 
 peekDecs :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TypeQ -> TGVSimple -> m ()
 peekDecs utype v =
     do (clauses :: [WriterType]) <- execWriterT (peekClauses utype v)
-       let (tcs, rcs, dcs, upfs) = partitionClauses clauses
+       let (tcs, rcs, dcs, upfs, upcs) = partitionClauses clauses
        instanceD' (cxt []) [t|PathStart $utype $(asTypeQ v)|]
          (sequence
           [dataInstD' (cxt []) ''Peek [utype, asTypeQ v]
@@ -90,7 +92,10 @@ peekDecs utype v =
            funD' 'peekRow (case rcs of
                              [] -> pure [clause [wildP, wildP] (normalB [| [] |]) []]
                              _ -> pure rcs),
-           pure (tySynInstD ''UPath (tySynEqn [utype, asTypeQ v] (conT (mkName ("UPath_" ++ nameBase (asName v))))))])
+           pure (tySynInstD ''UPath (tySynEqn [utype, asTypeQ v] (conT (mkName ("UPath_" ++ nameBase (asName v)))))),
+           funD' 'upaths (case upcs of
+                            [] -> pure [newName "r" >>= \r -> clause [wildP, wildP, wildP, varP r] (normalB (varE r)) []]
+                            _ -> pure upcs)])
        instanceD' (cxt []) [t|Describe (Peek $utype $(asTypeQ v))|]
                   (pure [funD 'describe' (case dcs of
                                            [] -> [clause [wildP, wildP] (normalB [|Nothing|]) []]
@@ -140,44 +145,91 @@ pathControl utype v x wPathVar = do
         \typ ->
             do w <- tgv Nothing typ
                let vPathConName = makePathCon (makePathType (ModelType (asName v))) "View"
-               finishConcs control [(wildP, [PathConc w (conP (asName vPathConName) [varP wPathVar]) (conE (asName vPathConName))])]
+               let vUPathConName = makePathCon (makeUPathType (ModelType (asName v))) "View"
+{-
+               tell [UPathClause $ do f <- newName "f"
+                                      r0 <- newName "r0"
+                                      clause [wildP, wildP, varP f, varP r0] (normalB [|$(varE f) ($(conE (asName vUPathConName)) idPath) $(varE r0)|]) []]
+-}
+               x <- runQ $ newName "_x"
+               finishConcs control [(varP x, [PathConc w (conP (asName vPathConName) [varP wPathVar]) (conE (asName vPathConName)) [|[$(conE (asName vUPathConName)) idPath]|]])]
     , _doOrder =
         \_i typ ->
             do w <- tgv Nothing typ
+{-
+               tell [UPathClause $ do x <- newName "x"
+                                      f <- newName "f"
+                                      r0 <- newName "r0"
+                                      clause [wildP, varP x, varP f, varP r0]
+                                             (normalB [|foldr $(varE f) $(varE r0) (Prelude.map (\(k, _) -> Path_At k idPath) (toPairs $(varE x)))|]) []]
+-}
                k <- runQ $ newName "_k"
-               finishConcs control [(wildP, [PathConc w (conP 'Path_At [varP k, varP wPathVar]) [|Path_At $(varE k)|]])]
+               x <- runQ $ newName "_x"
+               finishConcs control [(varP x, [PathConc w (conP 'Path_At [varP k, varP wPathVar]) [|Path_At $(varE k)|]
+                                                        [|map (\(k, _v) -> Path_At k idPath) (toPairs $(varE x))|]])]
     , _doMap =
         \_i typ ->
             do w <- tgv Nothing typ
+{-
+               tell [UPathClause $ do x <- newName "x"
+                                      f <- newName "f"
+                                      r0 <- newName "r0"
+                                      clause [wildP, varP x, varP f, varP r0]
+                                             (normalB [|foldr $(varE f) $(varE r0) (Prelude.map (\(k, _) -> Path_Look k idPath) (Map.toList $(varE x)))|]) []]
+-}
                k <- runQ $ newName "_k"
-               finishConcs control [(wildP, [PathConc w (conP 'Path_Look [varP k, varP wPathVar]) [|Path_Look $(varE k)|]])]
+               x <- runQ $ newName "_x"
+               finishConcs control [(varP x, [PathConc w (conP 'Path_Look [varP k, varP wPathVar]) [|Path_Look $(varE k)|]
+                                                       [|map (\(k, v) -> Path_Look k idPath) (Map.toList $(varE x))|]
+                                             ])]
     , _doList =
         \_e -> pure ()
     , _doPair =
         \ftyp styp ->
             do f <- tgv Nothing ftyp
                s <- tgv Nothing styp
+{-
+               tell [UPathClause $ do f <- newName "f"
+                                      r0 <- newName "r0"
+                                      clause [wildP, wildP, varP f, varP r0]
+                                             (normalB [|foldr $(varE f) $(varE r0) [Path_First idPath, Path_Second idPath]|]) []]
+-}
                finishConcs control
-                       [(wildP, [PathConc f (conP 'Path_First [varP wPathVar]) [|Path_First|],
-                                 PathConc s (conP 'Path_Second [varP wPathVar]) [|Path_Second|]])]
+                       [(wildP, [PathConc f (conP 'Path_First [varP wPathVar]) [|Path_First|] [|[Path_First idPath]|],
+                                 PathConc s (conP 'Path_Second [varP wPathVar]) [|Path_Second|] [|[Path_Second idPath]|]])]
     , _doMaybe =
         \typ ->
             do w <- tgv Nothing typ
-               finishConcs control [(wildP, [PathConc w (conP 'Path_Just [varP wPathVar]) [|Path_Just|]])]
+{-
+               tell [UPathClause $ do f <- newName "f"
+                                      x <- newName "x"
+                                      r0 <- newName "r0"
+                                      clause [wildP, wildP, varP f, varP r0]
+                                             (normalB [|foldr $(varE f) $(varE r0) (maybe [] (\_ -> [Path_Just idPath]) $(varE x))|]) []]
+-}
+               finishConcs control [(wildP, [PathConc w (conP 'Path_Just [varP wPathVar]) [|Path_Just|] [|[Path_Just idPath]|]])]
     , _doEither =
         \ltyp rtyp ->
             do l <- tgv Nothing ltyp
                r <- tgv Nothing rtyp
-               finishConcs control [(conP 'Left [wildP], [PathConc l (conP 'Path_Left [varP wPathVar]) [|Path_Left|]]),
-                                    (conP 'Right [wildP], [PathConc r (conP 'Path_Right [varP wPathVar]) [|Path_Right|]])]
+{-
+               tell [UPathClause $ do f <- newName "f"
+                                      x <- newName "x"
+                                      r0 <- newName "r0"
+                                      clause [wildP, varP x, varP f, varP r0]
+                                             (normalB [|foldr $(varE f) $(varE r0) (either (const [Path_Left idPath]) (const [Path_Right idPath]) $(varE x))|]) []]
+-}
+               finishConcs control [(conP 'Left [wildP], [PathConc l (conP 'Path_Left [varP wPathVar]) [|Path_Left|] [|[Path_Left idPath]|]]),
+                                    (conP 'Right [wildP], [PathConc r (conP 'Path_Right [varP wPathVar]) [|Path_Right|] [|[Path_Right idPath]|]])]
     , _doField =
         \fld typ ->
             do f <- tgvSimple' typ >>= tgv (Just fld)
                let fieldPathConName = maybe (error $ "Not a field: " ++ show f) id (makeFieldCon f)
-               pure (PathConc f (conP (asName fieldPathConName) [varP wPathVar]) (asConQ fieldPathConName))
+               let fieldUPathConName = maybe (error $ "Not a field: " ++ show f) id (makeUFieldCon f)
+               pure (PathConc f (conP (asName fieldPathConName) [varP wPathVar]) (asConQ fieldPathConName) [|[$(asConQ fieldUPathConName) idPath]|])
     , _doConcs =
         \xpat concs -> do
-          rs <- mapM (\conc@(PathConc w ppat pcon) ->
+          rs <- mapM (\conc@(PathConc w ppat pcon ucons) ->
                           do describeConc utype v wPathVar conc
                              p <- runQ $ newName "p"
                              let hf = peekList utype x p w ppat
@@ -194,7 +246,16 @@ pathControl utype v x wPathVar = do
                      concs
           let (hfs, pfs) = unzip rs
           tell [TreeClause $ clause [conP 'Proxy [], asP' x xpat] (normalB [| $(concatMapQ pfs) :: Forest (Peek $utype $(asTypeQ v)) |]) [],
-                RowClause $ clause [conP 'Proxy [], asP' x xpat] (normalB [| $(concatMapQ hfs) :: [Peek $utype $(asTypeQ v)] |]) []]
+                RowClause $ clause [conP 'Proxy [], asP' x xpat] (normalB [| $(concatMapQ hfs) :: [Peek $utype $(asTypeQ v)] |]) [],
+                UPathClause $ do f <- newName "_f"
+                                 r0 <- newName "r0"
+                                 let upathss = map (\(PathConc _ _ _ x) -> x) concs
+                                 let f' :: ExpQ -> ExpQ -> ExpQ
+                                     f' upaths r = [|foldr $(varE f) $r $upaths|]
+                                 clause [wildP, xpat, varP f, varP r0]
+                                        (normalB (foldr f' (varE r0) upathss)) []]
+                                        -- (normalB [|foldr $(varE f) $(varE r0) $upaths|])
+                                        -- (normalB (foldr (\upath r -> (appE (appE (varE f) upath) (varE r0))) (varE r0) upaths)) []
     , _doSyn =
         \_tname _typ -> pure ()
     , _doAlts = \_ -> pure ()
@@ -244,7 +305,7 @@ liftPeekE utype v w pcon gs = do
 --    ppat = Path_ReportView__reportLetterOfTransmittal _wp
 describeConc :: forall m. (TypeGraphM m, MonadWriter [WriterType] m) =>
                 TypeQ -> TGVSimple -> Name -> PathConc -> m ()
-describeConc utype v wPathVar (PathConc w ppat _pcon) =
+describeConc utype v wPathVar (PathConc w ppat _pcon _ucon) =
     do p <- runQ $ newName "_p"
        x <- runQ $ newName "_x"
        f <- runQ $ newName "_f"

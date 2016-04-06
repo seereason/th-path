@@ -21,7 +21,7 @@ module Language.Haskell.TH.Path.Core
       -- * Type classes and associated types
     , Paths(paths, Path, peek, peekPath, peekValue, peekCons)
     , IdPath(idPath)
-    , PathStart(Peek, peekTree, peekRow, UPath)
+    , PathStart(Peek, peekTree, peekRow, UPath, upaths)
     , ToLens(S, A, toLens)
     , (:.:)(..)
     , U(u, unU)
@@ -153,6 +153,8 @@ class PathStart u s where
     -- recursive peek calls are made.
     type UPath u s
     -- ^ Like type Path, but uses the universal type instead of @a@.
+    upaths :: Proxy u -> s -> (UPath u s -> r -> r) -> r -> r
+    -- ^ UPath version of 'paths'
 
 -- | For any two types @s@ and @a@, there is an instance of @Paths
 -- s a@ if there is any path from @s@ to @a@.  The @Path@ type
@@ -190,6 +192,10 @@ class (PathStart u s, IdPath (Path u s a), ToLens (Path u s a), S (Path u s a) ~
     -- ^ Accessor for value field of a Peek type
     peekCons :: Path u s a -> Maybe a -> Peek u s
     -- ^ Construct a Peek s
+{-
+    upath :: Path u s a -> UPath u s
+    -- ^ Convert a Path to a UPath
+-}
 
 -- | Nodes along a path can be customized by declaring types to be
 -- instances of this class and the ones that follow.  If a type is an

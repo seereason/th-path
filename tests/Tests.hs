@@ -16,6 +16,7 @@
 -- The generated toLens instances will have incomplete patterns where
 -- we tried to generate a clause but we found no path to the goal type.
 
+import Appraisal.Utils.CIString
 import Appraisal.Markup (rawMarkdown)
 import Appraisal.Report
 import Appraisal.ReportImage
@@ -116,6 +117,53 @@ testPeekOrder =
       actual :: Forest (Peek Univ AbbrevPairs)
       actual = peekTree (Proxy :: Proxy Univ) (reportAbbrevs Report.report)
 
+testUPaths :: Test
+testUPaths =
+    TestList
+    [ let expected :: [UPath Univ AbbrevPairs]
+          expected = [Path_At (AbbrevPairID {unAbbrevPairID = 0}) Path_Pair,
+                      Path_At (AbbrevPairID {unAbbrevPairID = 1}) Path_Pair,
+                      Path_At (AbbrevPairID {unAbbrevPairID = 2}) Path_Pair,
+                      Path_At (AbbrevPairID {unAbbrevPairID = 3}) Path_Pair,
+                      Path_At (AbbrevPairID {unAbbrevPairID = 4}) Path_Pair,
+                      Path_At (AbbrevPairID {unAbbrevPairID = 5}) Path_Pair,
+                      Path_At (AbbrevPairID {unAbbrevPairID = 6}) Path_Pair,
+                      Path_At (AbbrevPairID {unAbbrevPairID = 7}) Path_Pair,
+                      Path_At (AbbrevPairID {unAbbrevPairID = 8}) Path_Pair,
+                      Path_At (AbbrevPairID {unAbbrevPairID = 9}) Path_Pair,
+                      Path_At (AbbrevPairID {unAbbrevPairID = 10}) Path_Pair]
+          actual :: [UPath Univ AbbrevPairs]
+          actual = upaths (Proxy :: Proxy Univ) (reportAbbrevs Report.report) ((:)) [] in
+      assertEqual' "testUPaths 1" expected actual
+    , let expected :: [AbbrevPair]
+          expected = [(CIString "USPAP", rawMarkdown "_Uniform Standards of Professional Appraisal Practice_, the 2012-2013 Edition (USPAP)")]
+          abbrevs = reportAbbrevs Report.report
+          actual :: [AbbrevPair]
+          actual = map unU (toListOf (toLens (upaths (Proxy :: Proxy Univ) abbrevs (:) [] !! 3)) abbrevs) in
+      assertEqual' "testUPaths 2" expected actual
+    , let expected = ImageSize TheHeight 3.0 Inches
+          [actual] = map unU (toListOf (toLens imageSizePath) Report.report) in
+      assertEqual' "testUPaths 3" expected actual
+    , let expected = [UPath_ImageSize_dim UPath_Dimension,
+                      UPath_ImageSize_size UPath_Double,
+                      UPath_ImageSize_units UPath_Units]
+          [usize] = toListOf (toLens imageSizePath) Report.report
+          actual = upaths (Proxy :: Proxy Univ) (unU usize :: ImageSize) (:) [] in
+      assertEqual' "testUPaths 4" expected actual
+    ]
+    where imageSizePath =
+                 UPath_Report_View
+                  (UPath_ReportView__reportBody
+                   (Path_At
+                    (ReportElemID {unReportElemID = 1})
+                    (UPath_ReportElem_elemItem
+                     (UPath_Item_images
+                      (Path_At
+                       (ReportImageID {unReportImageID = 0})
+                       (UPath_ReportImage_View
+                        (UPath_ReportImageView__picSize
+                         (UPath_SaneSizeImageSize_View idPath))))))))
+
 main :: IO ()
 main = do
   r <- runTestTT $ TestList $
@@ -125,6 +173,7 @@ main = do
          , testLabels
          , testPeekReport
          , testPeekOrder
+         , testUPaths
          , assertEqual' "toLens3" (toListOf (toLens (Path_ImageSize_dim (idPath :: Path_Dimension Dimension))) (picSize image)) [dim (picSize image) :: Dimension]
          , assertEqual' "toLens4" (toListOf (toLens (Path_ImageSize_units (idPath :: Path_Units Units))) (picSize image)) [units (picSize image)]
          , assertEqual' "toLens5" (toListOf (toLens (Path_ReportImage_View (idPath :: Path_ReportImageView ReportImageView))) image) [view viewLens image]
