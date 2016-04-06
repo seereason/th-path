@@ -83,10 +83,10 @@ testPeekReportView =
     assertEqual' "peek ReportView" expected actual
     -- assertEqual' "peek ReportView" (pprint expected) (pprint actual)
     where
-      expected :: Forest (Peek Univ ReportView)
+      expected :: Forest (UPeek Univ ReportView)
       expected = peekReportView
-      actual :: Forest (Peek Univ ReportView)
-      actual = peekTree (Proxy :: Proxy Univ) (head (toListOf (toLens (Path_Report_View (idPath :: Path_ReportView ReportView))) Report.report) :: ReportView)
+      actual :: Forest (UPeek Univ ReportView)
+      actual = peekTree (Proxy :: Proxy Univ) (unU (head (toListOf (toLens (UPath_Report_View (idPath :: UPath_ReportView))) Report.report) :: Univ))
 
 testLabels :: Test
 testLabels =
@@ -101,20 +101,20 @@ testPeekReport :: Test
 testPeekReport =
     assertEqual' "Peek_Report_ReportElem" expected actual
     where
-      expected :: Peek Univ Report
-      expected = Peek_Report_ReportElem (Path_Report_View (Path_ReportView__reportBody (Path_At (ReportElemID {unReportElemID = 0}) Path_ReportElem))) (Just (ReportParagraph {elemText = (rawMarkdown "## Market Overview\n\nThe collection consists of a group of nine contemporary Chinese jade and agate sculptures, one glass sculpture of a horse and three ink paintings which were purchased in the United States and in China. \n\nIn recent years the rising affluence of mainland Chinese buyers has fueled the market for both antique and contemporary jade at auction and at  retail venues. There are two types of jade, nephrite and jadeite. Nephrite has been used in China since prehistoric times for weapons and ritual objects. It wasn\8217t until the 18th century that large quantities of jadeite were imported from Burma, the country recognized as having some of the best jadeite in the world. The surface of jadeite tends to be vitreous or glassy while nephrite\8217s surface tends to appear more waxy. Pale colors such as lavender, light green, yellow are desirable, and the combination of colors such as lavender, white and green even more so.  Design, carving technique, and skillful exploitation of the jade\8217s colors are important characteristics of value. The same value characteristics  pertain to agate carving. Contemporary jade and agate carvings are typically found at decorative art galleries and regional auction houses that cater to enthusiasts of Asian collectibles. \n\nThe three ink paintings in the collection were acquired in mainland China in 2002. Only one of the artists, Xiao Shunzhi, has an international market. Market data for the other two artists, Liu Zuozhong and Li Jialin was not available, and the valuation of their works is based on comparable works by Chinese artists available in galleries in the United States and China. \n\n\n\n \n\t")}))
-      actual :: Peek Univ Report
-      actual = let p = head (paths (Proxy :: Proxy Univ) Report.report (undefined :: Proxy ReportElem) (:) []) in
-               Peek_Report_ReportElem p (Just (head (toListOf (toLens p) Report.report)))
+      expected :: UPeek Univ Report
+      expected = UPeek_Report (UPath_Report_View (UPath_ReportView__reportBody (Path_At (ReportElemID {unReportElemID = 0}) UPath_ReportElem))) (Just (u (ReportParagraph {elemText = (rawMarkdown "## Market Overview\n\nThe collection consists of a group of nine contemporary Chinese jade and agate sculptures, one glass sculpture of a horse and three ink paintings which were purchased in the United States and in China. \n\nIn recent years the rising affluence of mainland Chinese buyers has fueled the market for both antique and contemporary jade at auction and at  retail venues. There are two types of jade, nephrite and jadeite. Nephrite has been used in China since prehistoric times for weapons and ritual objects. It wasn\8217t until the 18th century that large quantities of jadeite were imported from Burma, the country recognized as having some of the best jadeite in the world. The surface of jadeite tends to be vitreous or glassy while nephrite\8217s surface tends to appear more waxy. Pale colors such as lavender, light green, yellow are desirable, and the combination of colors such as lavender, white and green even more so.  Design, carving technique, and skillful exploitation of the jade\8217s colors are important characteristics of value. The same value characteristics  pertain to agate carving. Contemporary jade and agate carvings are typically found at decorative art galleries and regional auction houses that cater to enthusiasts of Asian collectibles. \n\nThe three ink paintings in the collection were acquired in mainland China in 2002. Only one of the artists, Xiao Shunzhi, has an international market. Market data for the other two artists, Liu Zuozhong and Li Jialin was not available, and the valuation of their works is based on comparable works by Chinese artists available in galleries in the United States and China. \n\n\n\n \n\t")})))
+      actual :: UPeek Univ Report
+      actual = let p = head (upaths (Proxy :: Proxy Univ) Report.report (:) []) in
+               UPeek_Report p (Just (head (toListOf (toLens p) Report.report)))
 
 testPeekOrder :: Test
 testPeekOrder =
     assertEqual' "peekNodes order" expected actual
     -- assertEqual' "peekNodes order" (pprint expected) (pprint actual)
     where
-      expected :: Forest (Peek Univ AbbrevPairs)
+      expected :: Forest (UPeek Univ AbbrevPairs)
       expected = peekAbbrevPairs
-      actual :: Forest (Peek Univ AbbrevPairs)
+      actual :: Forest (UPeek Univ AbbrevPairs)
       actual = peekTree (Proxy :: Proxy Univ) (reportAbbrevs Report.report)
 
 testUPaths :: Test

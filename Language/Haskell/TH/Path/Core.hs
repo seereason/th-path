@@ -21,7 +21,7 @@ module Language.Haskell.TH.Path.Core
       -- * Type classes and associated types
     , Paths(paths, Path, peek, peekPath, peekValue, peekCons)
     , IdPath(idPath)
-    , PathStart(Peek, UPeek, upeekCons, peekTree, peekRow, UPath, upaths)
+    , PathStart(Peek, UPeek, upeekCons, upeekPath, upeekValue, peekTree, peekRow, UPath, upaths)
     , ToLens(S, A, toLens)
     , (:.:)(..)
     , U(u, unU)
@@ -147,8 +147,12 @@ class PathStart u s where
     -- ^ 'UPath' version of 'Peek'.
     upeekCons :: UPath u s -> Maybe u -> UPeek u s
     -- ^ Construct a UPeek u s
+    upeekPath :: UPeek u s -> UPath u s
+    -- ^ Accessor for path field of a Peek type
+    upeekValue :: UPeek u s -> Maybe u
+    -- ^ Accessor for value field of a Peek type
 
-    peekTree :: Proxy u -> s -> Forest (Peek u s)
+    peekTree :: Proxy u -> s -> Forest (UPeek u s)
     -- ^ Given a value of type @s@, return a forest containing every
     -- 'Peek' that can be reached from it.  The order of the nodes in
     -- the forest reflects the order the elements were encountered
