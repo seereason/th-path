@@ -21,10 +21,10 @@ module Language.Haskell.TH.Path.Core
       -- * Type classes and associated types
     , Paths(paths, Path, peek, peekPath, peekValue, peekCons)
     , IdPath(idPath)
-    , PathStart(Peek, UPeek, upeekCons, upeekPath, upeekValue, peekTree, peekRow, UPath, upaths)
+    , PathStart(Peek, UPeek, upeekCons, upeekPath, upeekValue, peekTree, peekRow, UPath, upaths, upathRow, upathTree)
     , ToLens(S, A, toLens)
     , (:.:)(..)
-    , U(u, unU)
+    , U(u, unU')
 
     -- * Hint classes
     , SinkType
@@ -109,7 +109,7 @@ forestMap f = List.map (treeMap f)
 
 class U univ a where
     u :: a -> univ
-    unU :: univ -> a
+    unU' :: univ -> Maybe a
 
 -- | Every path type must have an identity value, such that 'toLens'
 -- 'idPath' is just 'id'.
@@ -164,6 +164,10 @@ class PathStart u s where
     -- ^ Like type Path, but uses the universal type instead of @a@.
     upaths :: Proxy u -> (UPath u s -> r -> r) -> r -> s -> r
     -- ^ UPath version of 'paths'
+    upathRow :: Proxy u -> s -> [UPath u s]
+    -- ^ UPath version of 'peekRow'
+    upathTree :: Proxy u -> s -> Forest (UPath u s)
+    -- ^ UPath version of 'peekTree'
 
 -- | For any two types @s@ and @a@, there is an instance of @Paths
 -- s a@ if there is any path from @s@ to @a@.  The @Path@ type

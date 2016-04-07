@@ -27,7 +27,7 @@ import Data.Set as Set (toList)
 import Language.Haskell.TH
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Common (HasTypeQ(asTypeQ), tells)
-import Language.Haskell.TH.Path.Core (U(u, unU))
+import Language.Haskell.TH.Path.Core (U(u, unU'))
 import Language.Haskell.TH.Path.Decs.Lens (lensDecs)
 import Language.Haskell.TH.Path.Decs.Paths (pathDecs)
 import Language.Haskell.TH.Path.Decs.PathStart (peekDecs)
@@ -64,7 +64,8 @@ doUniv = do
                   ucon <- runQ $ newName ("U" ++ show n)
                   tells [newName "a" >>= \a ->
                          instanceD (cxt []) [t|U $(conT uname) $typ|] [funD 'u [clause [] (normalB (conE ucon)) []],
-                                                                       funD 'unU [clause [conP ucon [varP a]] (normalB (varE a)) []]]]
+                                                                       funD 'unU' [clause [conP ucon [varP a]] (normalB [|Just $(varE a)|]) [],
+                                                                                   clause [wildP] (normalB [|Nothing|]) []]]]
                   return $ normalC ucon [strictType notStrict typ])
                (zip types ([1..] :: [Int]))
   tells [dataD (pure []) uname [] cons [''Eq, ''Show]]

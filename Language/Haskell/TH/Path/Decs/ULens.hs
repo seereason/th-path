@@ -21,12 +21,13 @@ import Control.Monad (when)
 import Control.Monad.Writer (execWriterT, MonadWriter, tell)
 import Data.Bool (bool)
 import Data.Default (Default(def))
+import Data.Maybe (fromJust)
 import Data.Proxy (Proxy(Proxy))
 import Data.Set.Extra as Set (mapM_)
 import Language.Haskell.TH
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Common (fieldLensNameOld, HasName(asName), HasType(asType), HasTypeQ(asTypeQ), makeUFieldCon, tells)
-import Language.Haskell.TH.Path.Core (mat, S, A, IdPath(idPath), ToLens(toLens), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..), U(u, unU))
+import Language.Haskell.TH.Path.Core (mat, S, A, IdPath(idPath), ToLens(toLens), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..), U(u, unU'))
 import Language.Haskell.TH.Path.Decs.PathType (pathType, upathType)
 import Language.Haskell.TH.Path.Graph (TypeGraphM)
 import Language.Haskell.TH.Path.Order (lens_omat, Path_OMap(..))
@@ -38,7 +39,7 @@ import Language.Haskell.TH.TypeGraph.Vertex (field, TGVSimple, TypeGraphVertex(b
 uLensDecs :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TypeQ -> TGVSimple -> m ()
 uLensDecs utype v = do
   ptyp <- upathType v
-  tlc <- execWriterT (do tell [newName "p" >>= \p -> clause [varP p] (guardedB [normalGE [|$(varE p) == idPath|] [|iso u unU|]]) []]
+  tlc <- execWriterT (do tell [newName "p" >>= \p -> clause [varP p] (guardedB [normalGE [|$(varE p) == idPath|] [|lens u (\s a -> maybe s id (unU' a))|]]) []]
                          toLensClauses utype v)
   tells [instanceD (pure []) [t|ToLens $(pure ptyp)|]
            [ tySynInstD ''S (tySynEqn [pure ptyp] (asTypeQ v))

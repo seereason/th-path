@@ -24,10 +24,11 @@ import Appraisal.ReportInstances
 import Appraisal.ReportItem
 import Appraisal.ReportMap (ReportID(..), ReportMap(..), MRR)
 import Appraisal.Utils.CIString (CIString(..))
-import Control.Lens (iso, _Just, _1, _2, _Left, _Right, Lens', toListOf, Traversal')
+import Control.Lens (iso, lens, _Just, _1, _2, _Left, _Right, Lens', toListOf, Traversal')
 import Data.Generics (Data, Typeable)
 import Data.Int (Int64)
 import Data.Map (toList)
+import Data.Maybe (fromJust)
 import Data.Proxy
 import Data.Text (Text)
 import Data.Tree (Tree(Node), Forest)

@@ -24,10 +24,11 @@ import Appraisal.ReportInstances
 import Appraisal.ReportItem
 import Appraisal.ReportMap (ReportID(..), ReportMap(..), MRR)
 import Appraisal.Utils.CIString (CIString(..))
-import Control.Lens (iso, _Just, _1, _2, _Left, _Right, Lens', toListOf, Traversal')
+import Control.Lens (iso, lens, _Just, _1, _2, _Left, _Right, Lens', toListOf, Traversal')
 import Data.Generics (Data, Typeable)
 import Data.Int (Int64)
 import Data.Map (toList)
+import Data.Maybe (fromJust)
 import Data.Proxy
 import Data.Text (Text)
 import Data.Tree (Tree(Node), Forest)
@@ -7547,7 +7548,7 @@ instance PathStart Univ String
           upeekPath (UPeek_String p _) = p
           upeekValue (UPeek_String _ x) = x
           peekTree (Proxy) (_s@_x) = let dopath pth = case pth of
-                                                          p@(UPath_String_View _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: JSONText) :: Forest (UPeek Univ JSONText)
+                                                          p@(UPath_String_View _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: JSONText) :: Forest (UPeek Univ JSONText)
                                                                                                    in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ JSONText of
                                                                                                                                                                                          UPeek_JSONText _
                                                                                                                                                                                                         _ -> upeekCons (UPath_String_View (upeekPath pk)) (upeekValue pk)) wtree)) (toListOf (toLens p) _s :: [Univ])
@@ -7559,6 +7560,8 @@ instance PathStart Univ String
                                      in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s :: [UPeek Univ String]
           type UPath Univ String = UPath_String
           upaths _ _f r0 _x = foldr _f r0 [UPath_String_View idPath]
+          upathRow _ _x = concat [[UPath_String_View undefined]]
+          upathTree _ _ = []
 instance PathStart Univ Int64
     where data Peek Univ Int64 = Peek_Int64_Int64 (Path Univ Int64 Int64) (Maybe Int64) deriving (Eq, Show)
           data UPeek Univ Int64 = UPeek_Int64 (UPath Univ Int64) (Maybe Univ) deriving (Eq, Show)
@@ -7569,6 +7572,8 @@ instance PathStart Univ Int64
           peekRow _ _ = []
           type UPath Univ Int64 = UPath_Int64
           upaths _ _ r _ = r
+          upathRow _ _ = []
+          upathTree _ _ = []
 instance PathStart Univ Bool
     where data Peek Univ Bool
               = Peek_Bool_String (Path Univ Bool String) (Maybe String)
@@ -7580,7 +7585,7 @@ instance PathStart Univ Bool
           upeekPath (UPeek_Bool p _) = p
           upeekValue (UPeek_Bool _ x) = x
           peekTree (Proxy) (_s@_x) = let dopath pth = case pth of
-                                                          p@(UPath_Bool_View _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: String) :: Forest (UPeek Univ String)
+                                                          p@(UPath_Bool_View _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: String) :: Forest (UPeek Univ String)
                                                                                                  in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ String of
                                                                                                                                                                                        UPeek_String _
                                                                                                                                                                                                     _ -> upeekCons (UPath_Bool_View (upeekPath pk)) (upeekValue pk)) wtree)) (toListOf (toLens p) _s :: [Univ])
@@ -7592,6 +7597,8 @@ instance PathStart Univ Bool
                                      in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s :: [UPeek Univ Bool]
           type UPath Univ Bool = UPath_Bool
           upaths _ _f r0 _x = foldr _f r0 [UPath_Bool_View idPath]
+          upathRow _ _x = concat [[UPath_Bool_View undefined]]
+          upathTree _ _ = []
 instance PathStart Univ Double
     where data Peek Univ Double
               = Peek_Double_String (Path Univ Double String) (Maybe String)
@@ -7603,7 +7610,7 @@ instance PathStart Univ Double
           upeekPath (UPeek_Double p _) = p
           upeekValue (UPeek_Double _ x) = x
           peekTree (Proxy) (_s@_x) = let dopath pth = case pth of
-                                                          p@(UPath_Double_View _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: String) :: Forest (UPeek Univ String)
+                                                          p@(UPath_Double_View _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: String) :: Forest (UPeek Univ String)
                                                                                                    in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ String of
                                                                                                                                                                                          UPeek_String _
                                                                                                                                                                                                       _ -> upeekCons (UPath_Double_View (upeekPath pk)) (upeekValue pk)) wtree)) (toListOf (toLens p) _s :: [Univ])
@@ -7615,6 +7622,8 @@ instance PathStart Univ Double
                                      in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s :: [UPeek Univ Double]
           type UPath Univ Double = UPath_Double
           upaths _ _f r0 _x = foldr _f r0 [UPath_Double_View idPath]
+          upathRow _ _x = concat [[UPath_Double_View undefined]]
+          upathTree _ _ = []
 instance PathStart Univ Int
     where data Peek Univ Int = Peek_Int_Int (Path Univ Int Int) (Maybe Int) deriving (Eq, Show)
           data UPeek Univ Int = UPeek_Int (UPath Univ Int) (Maybe Univ) deriving (Eq, Show)
@@ -7625,6 +7634,8 @@ instance PathStart Univ Int
           peekRow _ _ = []
           type UPath Univ Int = UPath_Int
           upaths _ _ r _ = r
+          upathRow _ _ = []
+          upathTree _ _ = []
 instance PathStart Univ Dimension
     where data Peek Univ Dimension
               = Peek_Dimension_Dimension (Path Univ Dimension Dimension) (Maybe Dimension) | Peek_Dimension_JSONText (Path Univ Dimension JSONText) (Maybe JSONText)
@@ -7634,7 +7645,7 @@ instance PathStart Univ Dimension
           upeekPath (UPeek_Dimension p _) = p
           upeekValue (UPeek_Dimension _ x) = x
           peekTree (Proxy) (_s@_x) = let dopath pth = case pth of
-                                                          p@(UPath_Dimension_View _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: JSONText) :: Forest (UPeek Univ JSONText)
+                                                          p@(UPath_Dimension_View _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: JSONText) :: Forest (UPeek Univ JSONText)
                                                                                                       in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ JSONText of
                                                                                                                                                                                             UPeek_JSONText _
                                                                                                                                                                                                            _ -> upeekCons (UPath_Dimension_View (upeekPath pk)) (upeekValue pk)) wtree)) (toListOf (toLens p) _s :: [Univ])
@@ -7646,6 +7657,8 @@ instance PathStart Univ Dimension
                                      in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s :: [UPeek Univ Dimension]
           type UPath Univ Dimension = UPath_Dimension
           upaths _ _f r0 _x = foldr _f r0 [UPath_Dimension_View idPath]
+          upathRow _ _x = concat [[UPath_Dimension_View undefined]]
+          upathTree _ _ = []
 instance PathStart Univ ImageCrop
     where data Peek Univ ImageCrop = Peek_ImageCrop_ImageCrop (Path Univ ImageCrop ImageCrop) (Maybe ImageCrop) deriving (Eq, Show)
           data UPeek Univ ImageCrop = UPeek_ImageCrop (UPath Univ ImageCrop) (Maybe Univ) deriving (Eq, Show)
@@ -7656,6 +7669,8 @@ instance PathStart Univ ImageCrop
           peekRow _ _ = []
           type UPath Univ ImageCrop = UPath_ImageCrop
           upaths _ _ r _ = r
+          upathRow _ _ = []
+          upathTree _ _ = []
 instance PathStart Univ ImageSize
     where data Peek Univ ImageSize
               = Peek_ImageSize_String (Path Univ ImageSize String) (Maybe String)
@@ -7670,21 +7685,21 @@ instance PathStart Univ ImageSize
           upeekPath (UPeek_ImageSize p _) = p
           upeekValue (UPeek_ImageSize _ x) = x
           peekTree (Proxy) (_s@(ImageSize {})) = mconcat [let dopath pth = case pth of
-                                                                               p@(UPath_ImageSize_dim _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: Dimension) :: Forest (UPeek Univ Dimension)
+                                                                               p@(UPath_ImageSize_dim _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: Dimension) :: Forest (UPeek Univ Dimension)
                                                                                                                           in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ Dimension of
                                                                                                                                                                                                                 UPeek_Dimension _
                                                                                                                                                                                                                                 _ -> upeekCons (UPath_ImageSize_dim (upeekPath pk)) (upeekValue pk)) wtree)) (toListOf (toLens p) _s :: [Univ])
                                                                                _ -> []
                                                            in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s,
                                                           let dopath pth = case pth of
-                                                                               p@(UPath_ImageSize_size _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: Double) :: Forest (UPeek Univ Double)
+                                                                               p@(UPath_ImageSize_size _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: Double) :: Forest (UPeek Univ Double)
                                                                                                                            in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ Double of
                                                                                                                                                                                                                  UPeek_Double _
                                                                                                                                                                                                                               _ -> upeekCons (UPath_ImageSize_size (upeekPath pk)) (upeekValue pk)) wtree)) (toListOf (toLens p) _s :: [Univ])
                                                                                _ -> []
                                                            in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s,
                                                           let dopath pth = case pth of
-                                                                               p@(UPath_ImageSize_units _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: Units) :: Forest (UPeek Univ Units)
+                                                                               p@(UPath_ImageSize_units _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: Units) :: Forest (UPeek Univ Units)
                                                                                                                             in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ Units of
                                                                                                                                                                                                                   UPeek_Units _
                                                                                                                                                                                                                               _ -> upeekCons (UPath_ImageSize_units (upeekPath pk)) (upeekValue pk)) wtree)) (toListOf (toLens p) _s :: [Univ])
@@ -7704,6 +7719,8 @@ instance PathStart Univ ImageSize
                                                           in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s] :: [UPeek Univ ImageSize]
           type UPath Univ ImageSize = UPath_ImageSize
           upaths _ _f r0 (ImageSize {}) = foldr _f (foldr _f (foldr _f r0 [UPath_ImageSize_units idPath]) [UPath_ImageSize_size idPath]) [UPath_ImageSize_dim idPath]
+          upathRow _ (ImageSize {}) = concat [[UPath_ImageSize_dim undefined], [UPath_ImageSize_size undefined], [UPath_ImageSize_units undefined]]
+          upathTree _ _ = []
 instance PathStart Univ Units
     where data Peek Univ Units
               = Peek_Units_Units (Path Univ Units Units) (Maybe Units) | Peek_Units_JSONText (Path Univ Units JSONText) (Maybe JSONText)
@@ -7713,7 +7730,7 @@ instance PathStart Univ Units
           upeekPath (UPeek_Units p _) = p
           upeekValue (UPeek_Units _ x) = x
           peekTree (Proxy) (_s@_x) = let dopath pth = case pth of
-                                                          p@(UPath_Units_View _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: JSONText) :: Forest (UPeek Univ JSONText)
+                                                          p@(UPath_Units_View _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: JSONText) :: Forest (UPeek Univ JSONText)
                                                                                                   in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ JSONText of
                                                                                                                                                                                         UPeek_JSONText _
                                                                                                                                                                                                        _ -> upeekCons (UPath_Units_View (upeekPath pk)) (upeekValue pk)) wtree)) (toListOf (toLens p) _s :: [Univ])
@@ -7725,6 +7742,8 @@ instance PathStart Univ Units
                                      in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s :: [UPeek Univ Units]
           type UPath Univ Units = UPath_Units
           upaths _ _f r0 _x = foldr _f r0 [UPath_Units_View idPath]
+          upathRow _ _x = concat [[UPath_Units_View undefined]]
+          upathTree _ _ = []
 instance PathStart Univ ImageFile
     where data Peek Univ ImageFile = Peek_ImageFile_ImageFile (Path Univ ImageFile ImageFile) (Maybe ImageFile) deriving (Eq, Show)
           data UPeek Univ ImageFile = UPeek_ImageFile (UPath Univ ImageFile) (Maybe Univ) deriving (Eq, Show)
@@ -7735,6 +7754,8 @@ instance PathStart Univ ImageFile
           peekRow _ _ = []
           type UPath Univ ImageFile = UPath_ImageFile
           upaths _ _ r _ = r
+          upathRow _ _ = []
+          upathTree _ _ = []
 instance PathStart Univ Integer
     where data Peek Univ Integer = Peek_Integer_Integer (Path Univ Integer Integer) (Maybe Integer) deriving (Eq, Show)
           data UPeek Univ Integer = UPeek_Integer (UPath Univ Integer) (Maybe Univ) deriving (Eq, Show)
@@ -7745,6 +7766,8 @@ instance PathStart Univ Integer
           peekRow _ _ = []
           type UPath Univ Integer = UPath_Integer
           upaths _ _ r _ = r
+          upathRow _ _ = []
+          upathTree _ _ = []
 instance PathStart Univ JSONText
     where data Peek Univ JSONText = Peek_JSONText_JSONText (Path Univ JSONText JSONText) (Maybe JSONText) deriving (Eq, Show)
           data UPeek Univ JSONText = UPeek_JSONText (UPath Univ JSONText) (Maybe Univ) deriving (Eq, Show)
@@ -7755,6 +7778,8 @@ instance PathStart Univ JSONText
           peekRow _ _ = []
           type UPath Univ JSONText = UPath_JSONText
           upaths _ _ r _ = r
+          upathRow _ _ = []
+          upathTree _ _ = []
 instance PathStart Univ Markup
     where data Peek Univ Markup
               = Peek_Markup_JSONText (Path Univ Markup JSONText) (Maybe JSONText)
@@ -7766,14 +7791,14 @@ instance PathStart Univ Markup
           upeekPath (UPeek_Markup p _) = p
           upeekValue (UPeek_Markup _ x) = x
           peekTree (Proxy) (_s@(Markdown {})) = let dopath pth = case pth of
-                                                                     p@(UPath_Markup_markdownText _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: Text) :: Forest (UPeek Univ Text)
+                                                                     p@(UPath_Markup_markdownText _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: Text) :: Forest (UPeek Univ Text)
                                                                                                                       in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ Text of
                                                                                                                                                                                                             UPeek_Text _
                                                                                                                                                                                                                        _ -> upeekCons (UPath_Markup_markdownText (upeekPath pk)) (upeekValue pk)) wtree)) (toListOf (toLens p) _s :: [Univ])
                                                                      _ -> []
                                                  in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s :: Forest (UPeek Univ Markup)
           peekTree (Proxy) (_s@(Html {})) = let dopath pth = case pth of
-                                                                 p@(UPath_Markup_htmlText _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: Text) :: Forest (UPeek Univ Text)
+                                                                 p@(UPath_Markup_htmlText _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: Text) :: Forest (UPeek Univ Text)
                                                                                                               in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ Text of
                                                                                                                                                                                                     UPeek_Text _
                                                                                                                                                                                                                _ -> upeekCons (UPath_Markup_htmlText (upeekPath pk)) (upeekValue pk)) wtree)) (toListOf (toLens p) _s :: [Univ])
@@ -7799,6 +7824,12 @@ instance PathStart Univ Markup
           upaths _ _f r0 (LaTeX {}) = r0
           upaths _ _f r0 (Pandoc {}) = r0
           upaths _ _f r0 (Markup {}) = r0
+          upathRow _ (Markdown {}) = concat [[UPath_Markup_markdownText undefined]]
+          upathRow _ (Html {}) = concat [[UPath_Markup_htmlText undefined]]
+          upathRow _ (LaTeX {}) = concat []
+          upathRow _ (Pandoc {}) = concat []
+          upathRow _ (Markup {}) = concat []
+          upathTree _ _ = []
 instance PathStart Univ Permissions
     where data Peek Univ Permissions
               = Peek_Permissions_JSONText (Path Univ Permissions JSONText) (Maybe JSONText)
@@ -7812,21 +7843,21 @@ instance PathStart Univ Permissions
           upeekPath (UPeek_Permissions p _) = p
           upeekValue (UPeek_Permissions _ x) = x
           peekTree (Proxy) (_s@(Permissions {})) = mconcat [let dopath pth = case pth of
-                                                                                 p@(UPath_Permissions_owner _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: UserId) :: Forest (UPeek Univ UserId)
+                                                                                 p@(UPath_Permissions_owner _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: UserId) :: Forest (UPeek Univ UserId)
                                                                                                                                 in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ UserId of
                                                                                                                                                                                                                       UPeek_UserId _
                                                                                                                                                                                                                                    _ -> upeekCons (UPath_Permissions_owner (upeekPath pk)) (upeekValue pk)) wtree)) (toListOf (toLens p) _s :: [Univ])
                                                                                  _ -> []
                                                              in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s,
                                                             let dopath pth = case pth of
-                                                                                 p@(UPath_Permissions_writers _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: UserIds) :: Forest (UPeek Univ UserIds)
+                                                                                 p@(UPath_Permissions_writers _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: UserIds) :: Forest (UPeek Univ UserIds)
                                                                                                                                   in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ UserIds of
                                                                                                                                                                                                                         UPeek_UserIds _
                                                                                                                                                                                                                                       _ -> upeekCons (UPath_Permissions_writers (upeekPath pk)) (upeekValue pk)) wtree)) (toListOf (toLens p) _s :: [Univ])
                                                                                  _ -> []
                                                              in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s,
                                                             let dopath pth = case pth of
-                                                                                 p@(UPath_Permissions_readers _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: UserIds) :: Forest (UPeek Univ UserIds)
+                                                                                 p@(UPath_Permissions_readers _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: UserIds) :: Forest (UPeek Univ UserIds)
                                                                                                                                   in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ UserIds of
                                                                                                                                                                                                                         UPeek_UserIds _
                                                                                                                                                                                                                                       _ -> upeekCons (UPath_Permissions_readers (upeekPath pk)) (upeekValue pk)) wtree)) (toListOf (toLens p) _s :: [Univ])
@@ -7846,6 +7877,8 @@ instance PathStart Univ Permissions
                                                             in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s] :: [UPeek Univ Permissions]
           type UPath Univ Permissions = UPath_Permissions
           upaths _ _f r0 (Permissions {}) = foldr _f (foldr _f (foldr _f r0 [UPath_Permissions_readers idPath]) [UPath_Permissions_writers idPath]) [UPath_Permissions_owner idPath]
+          upathRow _ (Permissions {}) = concat [[UPath_Permissions_owner undefined], [UPath_Permissions_writers undefined], [UPath_Permissions_readers undefined]]
+          upathTree _ _ = []
 instance PathStart Univ UserIds
     where data Peek Univ UserIds
               = Peek_UserIds_JSONText (Path Univ UserIds JSONText) (Maybe JSONText)
@@ -7857,7 +7890,7 @@ instance PathStart Univ UserIds
           upeekPath (UPeek_UserIds p _) = p
           upeekValue (UPeek_UserIds _ x) = x
           peekTree (Proxy) (_s@_x) = let dopath pth = case pth of
-                                                          p@(UPath_UserIds_View _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: Text) :: Forest (UPeek Univ Text)
+                                                          p@(UPath_UserIds_View _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: Text) :: Forest (UPeek Univ Text)
                                                                                                     in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ Text of
                                                                                                                                                                                           UPeek_Text _
                                                                                                                                                                                                      _ -> upeekCons (UPath_UserIds_View (upeekPath pk)) (upeekValue pk)) wtree)) (toListOf (toLens p) _s :: [Univ])
@@ -7869,6 +7902,8 @@ instance PathStart Univ UserIds
                                      in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s :: [UPeek Univ UserIds]
           type UPath Univ UserIds = UPath_UserIds
           upaths _ _f r0 _x = foldr _f r0 [UPath_UserIds_View idPath]
+          upathRow _ _x = concat [[UPath_UserIds_View undefined]]
+          upathTree _ _ = []
 instance PathStart Univ AbbrevPair
     where data Peek Univ AbbrevPair
               = Peek_AbbrevPair_JSONText (Path Univ AbbrevPair JSONText) (Maybe JSONText)
@@ -7882,14 +7917,14 @@ instance PathStart Univ AbbrevPair
           upeekPath (UPeek_AbbrevPair p _) = p
           upeekValue (UPeek_AbbrevPair _ x) = x
           peekTree (Proxy) _s = mconcat [let dopath pth = case pth of
-                                                              p@(Path_First _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: CIString) :: Forest (UPeek Univ CIString)
+                                                              p@(Path_First _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: CIString) :: Forest (UPeek Univ CIString)
                                                                                                 in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ CIString of
                                                                                                                                                                                       UPeek_CIString _
                                                                                                                                                                                                      _ -> upeekCons (Path_First (upeekPath pk)) (upeekValue pk)) wtree)) (toListOf (toLens p) _s :: [Univ])
                                                               _ -> []
                                           in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s,
                                          let dopath pth = case pth of
-                                                              p@(Path_Second _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: Markup) :: Forest (UPeek Univ Markup)
+                                                              p@(Path_Second _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: Markup) :: Forest (UPeek Univ Markup)
                                                                                                  in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ Markup of
                                                                                                                                                                                        UPeek_Markup _
                                                                                                                                                                                                     _ -> upeekCons (Path_Second (upeekPath pk)) (upeekValue pk)) wtree)) (toListOf (toLens p) _s :: [Univ])
@@ -7905,6 +7940,8 @@ instance PathStart Univ AbbrevPair
                                          in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s] :: [UPeek Univ AbbrevPair]
           type UPath Univ AbbrevPair = UPath_AbbrevPair
           upaths _ _f r0 _ = foldr _f (foldr _f r0 [Path_Second idPath]) [Path_First idPath]
+          upathRow _ _ = concat [[Path_First undefined], [Path_Second undefined]]
+          upathTree _ _ = []
 instance PathStart Univ AbbrevPairs
     where data Peek Univ AbbrevPairs
               = Peek_AbbrevPairs_JSONText (Path Univ AbbrevPairs JSONText) (Maybe JSONText)
@@ -7919,7 +7956,7 @@ instance PathStart Univ AbbrevPairs
           upeekPath (UPeek_AbbrevPairs p _) = p
           upeekValue (UPeek_AbbrevPairs _ x) = x
           peekTree (Proxy) (_s@_x) = let dopath pth = case pth of
-                                                          p@(Path_At _k _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: AbbrevPair) :: Forest (UPeek Univ AbbrevPair)
+                                                          p@(Path_At _k _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: AbbrevPair) :: Forest (UPeek Univ AbbrevPair)
                                                                                             in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ AbbrevPair of
                                                                                                                                                                                   UPeek_AbbrevPair _
                                                                                                                                                                                                    _ -> upeekCons (Path_At _k (upeekPath pk)) (upeekValue pk)) wtree)) (toListOf (toLens p) _s :: [Univ])
@@ -7931,6 +7968,8 @@ instance PathStart Univ AbbrevPairs
                                      in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s :: [UPeek Univ AbbrevPairs]
           type UPath Univ AbbrevPairs = UPath_AbbrevPairs
           upaths _ _f r0 _x = foldr _f r0 (map (\(k, _v) -> Path_At k idPath) (toPairs _x))
+          upathRow _ _x = concat [map (\(k, _v) -> Path_At k undefined) (toPairs _x)]
+          upathTree _ _ = []
 instance PathStart Univ Author
     where data Peek Univ Author
               = Peek_Author_JSONText (Path Univ Author JSONText) (Maybe JSONText)
@@ -7943,14 +7982,14 @@ instance PathStart Univ Author
           upeekPath (UPeek_Author p _) = p
           upeekValue (UPeek_Author _ x) = x
           peekTree (Proxy) (_s@(Author {})) = mconcat [let dopath pth = case pth of
-                                                                            p@(UPath_Author_authorName _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: Markup) :: Forest (UPeek Univ Markup)
+                                                                            p@(UPath_Author_authorName _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: Markup) :: Forest (UPeek Univ Markup)
                                                                                                                            in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ Markup of
                                                                                                                                                                                                                  UPeek_Markup _
                                                                                                                                                                                                                               _ -> upeekCons (UPath_Author_authorName (upeekPath pk)) (upeekValue pk)) wtree)) (toListOf (toLens p) _s :: [Univ])
                                                                             _ -> []
                                                         in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s,
                                                        let dopath pth = case pth of
-                                                                            p@(UPath_Author_authorCredentials _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: Markup) :: Forest (UPeek Univ Markup)
+                                                                            p@(UPath_Author_authorCredentials _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: Markup) :: Forest (UPeek Univ Markup)
                                                                                                                                   in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ Markup of
                                                                                                                                                                                                                         UPeek_Markup _
                                                                                                                                                                                                                                      _ -> upeekCons (UPath_Author_authorCredentials (upeekPath pk)) (upeekValue pk)) wtree)) (toListOf (toLens p) _s :: [Univ])
@@ -7966,6 +8005,8 @@ instance PathStart Univ Author
                                                        in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s] :: [UPeek Univ Author]
           type UPath Univ Author = UPath_Author
           upaths _ _f r0 (Author {}) = foldr _f (foldr _f r0 [UPath_Author_authorCredentials idPath]) [UPath_Author_authorName idPath]
+          upathRow _ (Author {}) = concat [[UPath_Author_authorName undefined], [UPath_Author_authorCredentials undefined]]
+          upathTree _ _ = []
 instance PathStart Univ Authors
     where data Peek Univ Authors
               = Peek_Authors_JSONText (Path Univ Authors JSONText) (Maybe JSONText)
@@ -7979,7 +8020,7 @@ instance PathStart Univ Authors
           upeekPath (UPeek_Authors p _) = p
           upeekValue (UPeek_Authors _ x) = x
           peekTree (Proxy) (_s@_x) = let dopath pth = case pth of
-                                                          p@(Path_At _k _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: Author) :: Forest (UPeek Univ Author)
+                                                          p@(Path_At _k _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: Author) :: Forest (UPeek Univ Author)
                                                                                             in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ Author of
                                                                                                                                                                                   UPeek_Author _
                                                                                                                                                                                                _ -> upeekCons (Path_At _k (upeekPath pk)) (upeekValue pk)) wtree)) (toListOf (toLens p) _s :: [Univ])
@@ -7991,6 +8032,8 @@ instance PathStart Univ Authors
                                      in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s :: [UPeek Univ Authors]
           type UPath Univ Authors = UPath_Authors
           upaths _ _f r0 _x = foldr _f r0 (map (\(k, _v) -> Path_At k idPath) (toPairs _x))
+          upathRow _ _x = concat [map (\(k, _v) -> Path_At k undefined) (toPairs _x)]
+          upathTree _ _ = []
 instance PathStart Univ Branding
     where data Peek Univ Branding
               = Peek_Branding_JSONText (Path Univ Branding JSONText) (Maybe JSONText)
@@ -8002,7 +8045,7 @@ instance PathStart Univ Branding
           upeekPath (UPeek_Branding p _) = p
           upeekValue (UPeek_Branding _ x) = x
           peekTree (Proxy) (_s@_x) = let dopath pth = case pth of
-                                                          p@(UPath_Branding_View _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: Text) :: Forest (UPeek Univ Text)
+                                                          p@(UPath_Branding_View _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: Text) :: Forest (UPeek Univ Text)
                                                                                                      in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ Text of
                                                                                                                                                                                            UPeek_Text _
                                                                                                                                                                                                       _ -> upeekCons (UPath_Branding_View (upeekPath pk)) (upeekValue pk)) wtree)) (toListOf (toLens p) _s :: [Univ])
@@ -8014,6 +8057,8 @@ instance PathStart Univ Branding
                                      in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s :: [UPeek Univ Branding]
           type UPath Univ Branding = UPath_Branding
           upaths _ _f r0 _x = foldr _f r0 [UPath_Branding_View idPath]
+          upathRow _ _x = concat [[UPath_Branding_View undefined]]
+          upathTree _ _ = []
 instance PathStart Univ MarkupPair
     where data Peek Univ MarkupPair
               = Peek_MarkupPair_JSONText (Path Univ MarkupPair JSONText) (Maybe JSONText)
@@ -8026,14 +8071,14 @@ instance PathStart Univ MarkupPair
           upeekPath (UPeek_MarkupPair p _) = p
           upeekValue (UPeek_MarkupPair _ x) = x
           peekTree (Proxy) _s = mconcat [let dopath pth = case pth of
-                                                              p@(Path_First _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: Markup) :: Forest (UPeek Univ Markup)
+                                                              p@(Path_First _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: Markup) :: Forest (UPeek Univ Markup)
                                                                                                 in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ Markup of
                                                                                                                                                                                       UPeek_Markup _
                                                                                                                                                                                                    _ -> upeekCons (Path_First (upeekPath pk)) (upeekValue pk)) wtree)) (toListOf (toLens p) _s :: [Univ])
                                                               _ -> []
                                           in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s,
                                          let dopath pth = case pth of
-                                                              p@(Path_Second _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: Markup) :: Forest (UPeek Univ Markup)
+                                                              p@(Path_Second _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: Markup) :: Forest (UPeek Univ Markup)
                                                                                                  in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ Markup of
                                                                                                                                                                                        UPeek_Markup _
                                                                                                                                                                                                     _ -> upeekCons (Path_Second (upeekPath pk)) (upeekValue pk)) wtree)) (toListOf (toLens p) _s :: [Univ])
@@ -8049,6 +8094,8 @@ instance PathStart Univ MarkupPair
                                          in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s] :: [UPeek Univ MarkupPair]
           type UPath Univ MarkupPair = UPath_MarkupPair
           upaths _ _f r0 _ = foldr _f (foldr _f r0 [Path_Second idPath]) [Path_First idPath]
+          upathRow _ _ = concat [[Path_First undefined], [Path_Second undefined]]
+          upathTree _ _ = []
 instance PathStart Univ MarkupPairs
     where data Peek Univ MarkupPairs
               = Peek_MarkupPairs_JSONText (Path Univ MarkupPairs JSONText) (Maybe JSONText)
@@ -8062,7 +8109,7 @@ instance PathStart Univ MarkupPairs
           upeekPath (UPeek_MarkupPairs p _) = p
           upeekValue (UPeek_MarkupPairs _ x) = x
           peekTree (Proxy) (_s@_x) = let dopath pth = case pth of
-                                                          p@(Path_At _k _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: MarkupPair) :: Forest (UPeek Univ MarkupPair)
+                                                          p@(Path_At _k _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: MarkupPair) :: Forest (UPeek Univ MarkupPair)
                                                                                             in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ MarkupPair of
                                                                                                                                                                                   UPeek_MarkupPair _
                                                                                                                                                                                                    _ -> upeekCons (Path_At _k (upeekPath pk)) (upeekValue pk)) wtree)) (toListOf (toLens p) _s :: [Univ])
@@ -8074,6 +8121,8 @@ instance PathStart Univ MarkupPairs
                                      in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s :: [UPeek Univ MarkupPairs]
           type UPath Univ MarkupPairs = UPath_MarkupPairs
           upaths _ _f r0 _x = foldr _f r0 (map (\(k, _v) -> Path_At k idPath) (toPairs _x))
+          upathRow _ _x = concat [map (\(k, _v) -> Path_At k undefined) (toPairs _x)]
+          upathTree _ _ = []
 instance PathStart Univ Markups
     where data Peek Univ Markups
               = Peek_Markups_JSONText (Path Univ Markups JSONText) (Maybe JSONText)
@@ -8086,7 +8135,7 @@ instance PathStart Univ Markups
           upeekPath (UPeek_Markups p _) = p
           upeekValue (UPeek_Markups _ x) = x
           peekTree (Proxy) (_s@_x) = let dopath pth = case pth of
-                                                          p@(Path_At _k _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: Markup) :: Forest (UPeek Univ Markup)
+                                                          p@(Path_At _k _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: Markup) :: Forest (UPeek Univ Markup)
                                                                                             in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ Markup of
                                                                                                                                                                                   UPeek_Markup _
                                                                                                                                                                                                _ -> upeekCons (Path_At _k (upeekPath pk)) (upeekValue pk)) wtree)) (toListOf (toLens p) _s :: [Univ])
@@ -8098,6 +8147,8 @@ instance PathStart Univ Markups
                                      in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s :: [UPeek Univ Markups]
           type UPath Univ Markups = UPath_Markups
           upaths _ _f r0 _x = foldr _f r0 (map (\(k, _v) -> Path_At k idPath) (toPairs _x))
+          upathRow _ _x = concat [map (\(k, _v) -> Path_At k undefined) (toPairs _x)]
+          upathTree _ _ = []
 instance PathStart Univ MaybeReportIntendedUse
     where data Peek Univ MaybeReportIntendedUse
               = Peek_MaybeReportIntendedUse_String (Path Univ MaybeReportIntendedUse String) (Maybe String)
@@ -8109,7 +8160,7 @@ instance PathStart Univ MaybeReportIntendedUse
           upeekPath (UPeek_MaybeReportIntendedUse p _) = p
           upeekValue (UPeek_MaybeReportIntendedUse _ x) = x
           peekTree (Proxy) (_s@_x) = let dopath pth = case pth of
-                                                          p@(UPath_MaybeReportIntendedUse_View _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: String) :: Forest (UPeek Univ String)
+                                                          p@(UPath_MaybeReportIntendedUse_View _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: String) :: Forest (UPeek Univ String)
                                                                                                                    in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ String of
                                                                                                                                                                                                          UPeek_String _
                                                                                                                                                                                                                       _ -> upeekCons (UPath_MaybeReportIntendedUse_View (upeekPath pk)) (upeekValue pk)) wtree)) (toListOf (toLens p) _s :: [Univ])
@@ -8121,6 +8172,8 @@ instance PathStart Univ MaybeReportIntendedUse
                                      in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s :: [UPeek Univ MaybeReportIntendedUse]
           type UPath Univ MaybeReportIntendedUse = UPath_MaybeReportIntendedUse
           upaths _ _f r0 _x = foldr _f r0 [UPath_MaybeReportIntendedUse_View idPath]
+          upathRow _ _x = concat [[UPath_MaybeReportIntendedUse_View undefined]]
+          upathTree _ _ = []
 instance PathStart Univ Report
     where data Peek Univ Report
               = Peek_Report_String (Path Univ Report String) (Maybe String)
@@ -8177,7 +8230,7 @@ instance PathStart Univ Report
           upeekPath (UPeek_Report p _) = p
           upeekValue (UPeek_Report _ x) = x
           peekTree (Proxy) (_s@_x) = let dopath pth = case pth of
-                                                          p@(UPath_Report_View _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: ReportView) :: Forest (UPeek Univ ReportView)
+                                                          p@(UPath_Report_View _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: ReportView) :: Forest (UPeek Univ ReportView)
                                                                                                    in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ ReportView of
                                                                                                                                                                                          UPeek_ReportView _
                                                                                                                                                                                                           _ -> upeekCons (UPath_Report_View (upeekPath pk)) (upeekValue pk)) wtree)) (toListOf (toLens p) _s :: [Univ])
@@ -8189,6 +8242,8 @@ instance PathStart Univ Report
                                      in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s :: [UPeek Univ Report]
           type UPath Univ Report = UPath_Report
           upaths _ _f r0 _x = foldr _f r0 [UPath_Report_View idPath]
+          upathRow _ _x = concat [[UPath_Report_View undefined]]
+          upathTree _ _ = []
 instance PathStart Univ ReportElem
     where data Peek Univ ReportElem
               = Peek_ReportElem_String (Path Univ ReportElem String) (Maybe String)
@@ -8219,14 +8274,14 @@ instance PathStart Univ ReportElem
           upeekPath (UPeek_ReportElem p _) = p
           upeekValue (UPeek_ReportElem _ x) = x
           peekTree (Proxy) (_s@(ReportItem {})) = let dopath pth = case pth of
-                                                                       p@(UPath_ReportElem_elemItem _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: Item) :: Forest (UPeek Univ Item)
+                                                                       p@(UPath_ReportElem_elemItem _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: Item) :: Forest (UPeek Univ Item)
                                                                                                                         in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ Item of
                                                                                                                                                                                                               UPeek_Item _
                                                                                                                                                                                                                          _ -> upeekCons (UPath_ReportElem_elemItem (upeekPath pk)) (upeekValue pk)) wtree)) (toListOf (toLens p) _s :: [Univ])
                                                                        _ -> []
                                                    in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s :: Forest (UPeek Univ ReportElem)
           peekTree (Proxy) (_s@(ReportParagraph {})) = let dopath pth = case pth of
-                                                                            p@(UPath_ReportElem_elemText _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: Markup) :: Forest (UPeek Univ Markup)
+                                                                            p@(UPath_ReportElem_elemText _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: Markup) :: Forest (UPeek Univ Markup)
                                                                                                                              in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ Markup of
                                                                                                                                                                                                                    UPeek_Markup _
                                                                                                                                                                                                                                 _ -> upeekCons (UPath_ReportElem_elemText (upeekPath pk)) (upeekValue pk)) wtree)) (toListOf (toLens p) _s :: [Univ])
@@ -8246,6 +8301,10 @@ instance PathStart Univ ReportElem
           upaths _ _f r0 (ReportItem {}) = foldr _f r0 [UPath_ReportElem_elemItem idPath]
           upaths _ _f r0 (ReportParagraph {}) = foldr _f r0 [UPath_ReportElem_elemText idPath]
           upaths _ _f r0 (ReportUndecided {}) = r0
+          upathRow _ (ReportItem {}) = concat [[UPath_ReportElem_elemItem undefined]]
+          upathRow _ (ReportParagraph {}) = concat [[UPath_ReportElem_elemText undefined]]
+          upathRow _ (ReportUndecided {}) = concat []
+          upathTree _ _ = []
 instance PathStart Univ ReportElems
     where data Peek Univ ReportElems
               = Peek_ReportElems_String (Path Univ ReportElems String) (Maybe String)
@@ -8277,7 +8336,7 @@ instance PathStart Univ ReportElems
           upeekPath (UPeek_ReportElems p _) = p
           upeekValue (UPeek_ReportElems _ x) = x
           peekTree (Proxy) (_s@_x) = let dopath pth = case pth of
-                                                          p@(Path_At _k _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: ReportElem) :: Forest (UPeek Univ ReportElem)
+                                                          p@(Path_At _k _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: ReportElem) :: Forest (UPeek Univ ReportElem)
                                                                                             in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ ReportElem of
                                                                                                                                                                                   UPeek_ReportElem _
                                                                                                                                                                                                    _ -> upeekCons (Path_At _k (upeekPath pk)) (upeekValue pk)) wtree)) (toListOf (toLens p) _s :: [Univ])
@@ -8289,6 +8348,8 @@ instance PathStart Univ ReportElems
                                      in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s :: [UPeek Univ ReportElems]
           type UPath Univ ReportElems = UPath_ReportElems
           upaths _ _f r0 _x = foldr _f r0 (map (\(k, _v) -> Path_At k idPath) (toPairs _x))
+          upathRow _ _x = concat [map (\(k, _v) -> Path_At k undefined) (toPairs _x)]
+          upathTree _ _ = []
 instance PathStart Univ ReportFlags
     where data Peek Univ ReportFlags
               = Peek_ReportFlags_String (Path Univ ReportFlags String) (Maybe String)
@@ -8301,7 +8362,7 @@ instance PathStart Univ ReportFlags
           upeekPath (UPeek_ReportFlags p _) = p
           upeekValue (UPeek_ReportFlags _ x) = x
           peekTree (Proxy) (_s@(ReportFlags {})) = let dopath pth = case pth of
-                                                                        p@(UPath_ReportFlags_hideEmptyItemFields _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: Bool) :: Forest (UPeek Univ Bool)
+                                                                        p@(UPath_ReportFlags_hideEmptyItemFields _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: Bool) :: Forest (UPeek Univ Bool)
                                                                                                                                      in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ Bool of
                                                                                                                                                                                                                            UPeek_Bool _
                                                                                                                                                                                                                                       _ -> upeekCons (UPath_ReportFlags_hideEmptyItemFields (upeekPath pk)) (upeekValue pk)) wtree)) (toListOf (toLens p) _s :: [Univ])
@@ -8313,6 +8374,8 @@ instance PathStart Univ ReportFlags
                                                    in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s :: [UPeek Univ ReportFlags]
           type UPath Univ ReportFlags = UPath_ReportFlags
           upaths _ _f r0 (ReportFlags {}) = foldr _f r0 [UPath_ReportFlags_hideEmptyItemFields idPath]
+          upathRow _ (ReportFlags {}) = concat [[UPath_ReportFlags_hideEmptyItemFields undefined]]
+          upathTree _ _ = []
 instance PathStart Univ ReportIntendedUse
     where data Peek Univ ReportIntendedUse
               = Peek_ReportIntendedUse_String (Path Univ ReportIntendedUse String) (Maybe String)
@@ -8324,7 +8387,7 @@ instance PathStart Univ ReportIntendedUse
           upeekPath (UPeek_ReportIntendedUse p _) = p
           upeekValue (UPeek_ReportIntendedUse _ x) = x
           peekTree (Proxy) (_s@_x) = let dopath pth = case pth of
-                                                          p@(UPath_ReportIntendedUse_View _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: String) :: Forest (UPeek Univ String)
+                                                          p@(UPath_ReportIntendedUse_View _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: String) :: Forest (UPeek Univ String)
                                                                                                               in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ String of
                                                                                                                                                                                                     UPeek_String _
                                                                                                                                                                                                                  _ -> upeekCons (UPath_ReportIntendedUse_View (upeekPath pk)) (upeekValue pk)) wtree)) (toListOf (toLens p) _s :: [Univ])
@@ -8336,6 +8399,8 @@ instance PathStart Univ ReportIntendedUse
                                      in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s :: [UPeek Univ ReportIntendedUse]
           type UPath Univ ReportIntendedUse = UPath_ReportIntendedUse
           upaths _ _f r0 _x = foldr _f r0 [UPath_ReportIntendedUse_View idPath]
+          upathRow _ _x = concat [[UPath_ReportIntendedUse_View undefined]]
+          upathTree _ _ = []
 instance PathStart Univ ReportStandard
     where data Peek Univ ReportStandard
               = Peek_ReportStandard_Int (Path Univ ReportStandard Int) (Maybe Int)
@@ -8346,7 +8411,7 @@ instance PathStart Univ ReportStandard
           upeekPath (UPeek_ReportStandard p _) = p
           upeekValue (UPeek_ReportStandard _ x) = x
           peekTree (Proxy) (_s@(ReportStandard {})) = let dopath pth = case pth of
-                                                                           p@(UPath_ReportStandard_unReportStandard _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: Int) :: Forest (UPeek Univ Int)
+                                                                           p@(UPath_ReportStandard_unReportStandard _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: Int) :: Forest (UPeek Univ Int)
                                                                                                                                         in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ Int of
                                                                                                                                                                                                                               UPeek_Int _
                                                                                                                                                                                                                                         _ -> upeekCons (UPath_ReportStandard_unReportStandard (upeekPath pk)) (upeekValue pk)) wtree)) (toListOf (toLens p) _s :: [Univ])
@@ -8358,6 +8423,8 @@ instance PathStart Univ ReportStandard
                                                       in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s :: [UPeek Univ ReportStandard]
           type UPath Univ ReportStandard = UPath_ReportStandard
           upaths _ _f r0 (ReportStandard {}) = foldr _f r0 [UPath_ReportStandard_unReportStandard idPath]
+          upathRow _ (ReportStandard {}) = concat [[UPath_ReportStandard_unReportStandard undefined]]
+          upathTree _ _ = []
 instance PathStart Univ ReportStatus
     where data Peek Univ ReportStatus
               = Peek_ReportStatus_String (Path Univ ReportStatus String) (Maybe String)
@@ -8369,7 +8436,7 @@ instance PathStart Univ ReportStatus
           upeekPath (UPeek_ReportStatus p _) = p
           upeekValue (UPeek_ReportStatus _ x) = x
           peekTree (Proxy) (_s@_x) = let dopath pth = case pth of
-                                                          p@(UPath_ReportStatus_View _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: String) :: Forest (UPeek Univ String)
+                                                          p@(UPath_ReportStatus_View _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: String) :: Forest (UPeek Univ String)
                                                                                                          in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ String of
                                                                                                                                                                                                UPeek_String _
                                                                                                                                                                                                             _ -> upeekCons (UPath_ReportStatus_View (upeekPath pk)) (upeekValue pk)) wtree)) (toListOf (toLens p) _s :: [Univ])
@@ -8381,6 +8448,8 @@ instance PathStart Univ ReportStatus
                                      in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s :: [UPeek Univ ReportStatus]
           type UPath Univ ReportStatus = UPath_ReportStatus
           upaths _ _f r0 _x = foldr _f r0 [UPath_ReportStatus_View idPath]
+          upathRow _ _x = concat [[UPath_ReportStatus_View undefined]]
+          upathTree _ _ = []
 instance PathStart Univ ReportValueApproachInfo
     where data Peek Univ ReportValueApproachInfo
               = Peek_ReportValueApproachInfo_JSONText (Path Univ ReportValueApproachInfo JSONText) (Maybe JSONText)
@@ -8393,7 +8462,8 @@ instance PathStart Univ ReportValueApproachInfo
           upeekPath (UPeek_ReportValueApproachInfo p _) = p
           upeekValue (UPeek_ReportValueApproachInfo _ x) = x
           peekTree (Proxy) (_s@(ReportValueApproachInfo {})) = mconcat [let dopath pth = case pth of
-                                                                                             p@(UPath_ReportValueApproachInfo_reportValueApproachName _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: Markup) :: Forest (UPeek Univ Markup)
+                                                                                             p@(UPath_ReportValueApproachInfo_reportValueApproachName _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: Markup) :: Forest (UPeek Univ
+                                                                                                                                                                                                                                                   Markup)
                                                                                                                                                                           in Node (upeekCons p (if null wtree
                                                                                                                                                                                                  then Just a
                                                                                                                                                                                                  else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ
@@ -8403,7 +8473,8 @@ instance PathStart Univ ReportValueApproachInfo
                                                                                              _ -> []
                                                                          in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s,
                                                                         let dopath pth = case pth of
-                                                                                             p@(UPath_ReportValueApproachInfo_reportValueApproachDescription _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: Markup) :: Forest (UPeek Univ Markup)
+                                                                                             p@(UPath_ReportValueApproachInfo_reportValueApproachDescription _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: Markup) :: Forest (UPeek Univ
+                                                                                                                                                                                                                                                          Markup)
                                                                                                                                                                                  in Node (upeekCons p (if null wtree
                                                                                                                                                                                                         then Just a
                                                                                                                                                                                                         else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ
@@ -8422,6 +8493,9 @@ instance PathStart Univ ReportValueApproachInfo
                                                                         in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s] :: [UPeek Univ ReportValueApproachInfo]
           type UPath Univ ReportValueApproachInfo = UPath_ReportValueApproachInfo
           upaths _ _f r0 (ReportValueApproachInfo {}) = foldr _f (foldr _f r0 [UPath_ReportValueApproachInfo_reportValueApproachDescription idPath]) [UPath_ReportValueApproachInfo_reportValueApproachName idPath]
+          upathRow _ (ReportValueApproachInfo {}) = concat [[UPath_ReportValueApproachInfo_reportValueApproachName undefined],
+                                                            [UPath_ReportValueApproachInfo_reportValueApproachDescription undefined]]
+          upathTree _ _ = []
 instance PathStart Univ ReportValueTypeInfo
     where data Peek Univ ReportValueTypeInfo
               = Peek_ReportValueTypeInfo_JSONText (Path Univ ReportValueTypeInfo JSONText) (Maybe JSONText)
@@ -8434,7 +8508,7 @@ instance PathStart Univ ReportValueTypeInfo
           upeekPath (UPeek_ReportValueTypeInfo p _) = p
           upeekValue (UPeek_ReportValueTypeInfo _ x) = x
           peekTree (Proxy) (_s@(ReportValueTypeInfo {})) = mconcat [let dopath pth = case pth of
-                                                                                         p@(UPath_ReportValueTypeInfo_reportValueTypeName _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: Markup) :: Forest (UPeek Univ Markup)
+                                                                                         p@(UPath_ReportValueTypeInfo_reportValueTypeName _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: Markup) :: Forest (UPeek Univ Markup)
                                                                                                                                                               in Node (upeekCons p (if null wtree
                                                                                                                                                                                      then Just a
                                                                                                                                                                                      else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ Markup of
@@ -8443,7 +8517,7 @@ instance PathStart Univ ReportValueTypeInfo
                                                                                          _ -> []
                                                                      in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s,
                                                                     let dopath pth = case pth of
-                                                                                         p@(UPath_ReportValueTypeInfo_reportValueTypeDescription _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: Markup) :: Forest (UPeek Univ Markup)
+                                                                                         p@(UPath_ReportValueTypeInfo_reportValueTypeDescription _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: Markup) :: Forest (UPeek Univ Markup)
                                                                                                                                                                      in Node (upeekCons p (if null wtree
                                                                                                                                                                                             then Just a
                                                                                                                                                                                             else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ
@@ -8453,7 +8527,7 @@ instance PathStart Univ ReportValueTypeInfo
                                                                                          _ -> []
                                                                      in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s,
                                                                     let dopath pth = case pth of
-                                                                                         p@(UPath_ReportValueTypeInfo_reportValueTypeDefinition _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: Markup) :: Forest (UPeek Univ Markup)
+                                                                                         p@(UPath_ReportValueTypeInfo_reportValueTypeDefinition _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: Markup) :: Forest (UPeek Univ Markup)
                                                                                                                                                                     in Node (upeekCons p (if null wtree
                                                                                                                                                                                            then Just a
                                                                                                                                                                                            else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ
@@ -8476,6 +8550,10 @@ instance PathStart Univ ReportValueTypeInfo
                                                                     in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s] :: [UPeek Univ ReportValueTypeInfo]
           type UPath Univ ReportValueTypeInfo = UPath_ReportValueTypeInfo
           upaths _ _f r0 (ReportValueTypeInfo {}) = foldr _f (foldr _f (foldr _f r0 [UPath_ReportValueTypeInfo_reportValueTypeDefinition idPath]) [UPath_ReportValueTypeInfo_reportValueTypeDescription idPath]) [UPath_ReportValueTypeInfo_reportValueTypeName idPath]
+          upathRow _ (ReportValueTypeInfo {}) = concat [[UPath_ReportValueTypeInfo_reportValueTypeName undefined],
+                                                        [UPath_ReportValueTypeInfo_reportValueTypeDescription undefined],
+                                                        [UPath_ReportValueTypeInfo_reportValueTypeDefinition undefined]]
+          upathTree _ _ = []
 instance PathStart Univ EUI
     where data Peek Univ EUI
               = Peek_EUI_ImageFile (Path Univ EUI ImageFile) (Maybe ImageFile) | Peek_EUI_EUI (Path Univ EUI EUI) (Maybe EUI) | Peek_EUI_URI (Path Univ EUI URI) (Maybe URI)
@@ -8485,14 +8563,14 @@ instance PathStart Univ EUI
           upeekPath (UPeek_EUI p _) = p
           upeekValue (UPeek_EUI _ x) = x
           peekTree (Proxy) (_s@(Left _)) = let dopath pth = case pth of
-                                                                p@(Path_Left _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: URI) :: Forest (UPeek Univ URI)
+                                                                p@(Path_Left _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: URI) :: Forest (UPeek Univ URI)
                                                                                                  in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ URI of
                                                                                                                                                                                        UPeek_URI _
                                                                                                                                                                                                  _ -> upeekCons (Path_Left (upeekPath pk)) (upeekValue pk)) wtree)) (toListOf (toLens p) _s :: [Univ])
                                                                 _ -> []
                                             in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s :: Forest (UPeek Univ EUI)
           peekTree (Proxy) (_s@(Right _)) = let dopath pth = case pth of
-                                                                 p@(Path_Right _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: ImageFile) :: Forest (UPeek Univ ImageFile)
+                                                                 p@(Path_Right _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: ImageFile) :: Forest (UPeek Univ ImageFile)
                                                                                                    in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ ImageFile of
                                                                                                                                                                                          UPeek_ImageFile _
                                                                                                                                                                                                          _ -> upeekCons (Path_Right (upeekPath pk)) (upeekValue pk)) wtree)) (toListOf (toLens p) _s :: [Univ])
@@ -8509,6 +8587,9 @@ instance PathStart Univ EUI
           type UPath Univ EUI = UPath_EUI
           upaths _ _f r0 (Left _) = foldr _f r0 [Path_Left idPath]
           upaths _ _f r0 (Right _) = foldr _f r0 [Path_Right idPath]
+          upathRow _ (Left _) = concat [[Path_Left undefined]]
+          upathRow _ (Right _) = concat [[Path_Right undefined]]
+          upathTree _ _ = []
 instance PathStart Univ MEUI
     where data Peek Univ MEUI
               = Peek_MEUI_ImageFile (Path Univ MEUI ImageFile) (Maybe ImageFile)
@@ -8521,7 +8602,7 @@ instance PathStart Univ MEUI
           upeekPath (UPeek_MEUI p _) = p
           upeekValue (UPeek_MEUI _ x) = x
           peekTree (Proxy) _s = let dopath pth = case pth of
-                                                     p@(Path_Just _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: EUI) :: Forest (UPeek Univ EUI)
+                                                     p@(Path_Just _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: EUI) :: Forest (UPeek Univ EUI)
                                                                                       in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ EUI of
                                                                                                                                                                             UPeek_EUI _
                                                                                                                                                                                       _ -> upeekCons (Path_Just (upeekPath pk)) (upeekValue pk)) wtree)) (toListOf (toLens p) _s :: [Univ])
@@ -8533,6 +8614,8 @@ instance PathStart Univ MEUI
                                 in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s :: [UPeek Univ MEUI]
           type UPath Univ MEUI = UPath_MEUI
           upaths _ _f r0 _ = foldr _f r0 [Path_Just idPath]
+          upathRow _ _ = concat [[Path_Just undefined]]
+          upathTree _ _ = []
 instance PathStart Univ MaybeImageFile
     where data Peek Univ MaybeImageFile
               = Peek_MaybeImageFile_String (Path Univ MaybeImageFile String) (Maybe String)
@@ -8544,7 +8627,7 @@ instance PathStart Univ MaybeImageFile
           upeekPath (UPeek_MaybeImageFile p _) = p
           upeekValue (UPeek_MaybeImageFile _ x) = x
           peekTree (Proxy) (_s@_x) = let dopath pth = case pth of
-                                                          p@(UPath_MaybeImageFile_View _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: String) :: Forest (UPeek Univ String)
+                                                          p@(UPath_MaybeImageFile_View _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: String) :: Forest (UPeek Univ String)
                                                                                                            in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ String of
                                                                                                                                                                                                  UPeek_String _
                                                                                                                                                                                                               _ -> upeekCons (UPath_MaybeImageFile_View (upeekPath pk)) (upeekValue pk)) wtree)) (toListOf (toLens p) _s :: [Univ])
@@ -8556,6 +8639,8 @@ instance PathStart Univ MaybeImageFile
                                      in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s :: [UPeek Univ MaybeImageFile]
           type UPath Univ MaybeImageFile = UPath_MaybeImageFile
           upaths _ _f r0 _x = foldr _f r0 [UPath_MaybeImageFile_View idPath]
+          upathRow _ _x = concat [[UPath_MaybeImageFile_View undefined]]
+          upathTree _ _ = []
 instance PathStart Univ ReportImage
     where data Peek Univ ReportImage
               = Peek_ReportImage_String (Path Univ ReportImage String) (Maybe String)
@@ -8582,7 +8667,7 @@ instance PathStart Univ ReportImage
           upeekPath (UPeek_ReportImage p _) = p
           upeekValue (UPeek_ReportImage _ x) = x
           peekTree (Proxy) (_s@_x) = let dopath pth = case pth of
-                                                          p@(UPath_ReportImage_View _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: ReportImageView) :: Forest (UPeek Univ ReportImageView)
+                                                          p@(UPath_ReportImage_View _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: ReportImageView) :: Forest (UPeek Univ ReportImageView)
                                                                                                         in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ ReportImageView of
                                                                                                                                                                                               UPeek_ReportImageView _
                                                                                                                                                                                                                     _ -> upeekCons (UPath_ReportImage_View (upeekPath pk)) (upeekValue pk)) wtree)) (toListOf (toLens p) _s :: [Univ])
@@ -8594,6 +8679,8 @@ instance PathStart Univ ReportImage
                                      in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s :: [UPeek Univ ReportImage]
           type UPath Univ ReportImage = UPath_ReportImage
           upaths _ _f r0 _x = foldr _f r0 [UPath_ReportImage_View idPath]
+          upathRow _ _x = concat [[UPath_ReportImage_View undefined]]
+          upathTree _ _ = []
 instance PathStart Univ ReportImages
     where data Peek Univ ReportImages
               = Peek_ReportImages_String (Path Univ ReportImages String) (Maybe String)
@@ -8621,7 +8708,7 @@ instance PathStart Univ ReportImages
           upeekPath (UPeek_ReportImages p _) = p
           upeekValue (UPeek_ReportImages _ x) = x
           peekTree (Proxy) (_s@_x) = let dopath pth = case pth of
-                                                          p@(Path_At _k _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: ReportImage) :: Forest (UPeek Univ ReportImage)
+                                                          p@(Path_At _k _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: ReportImage) :: Forest (UPeek Univ ReportImage)
                                                                                             in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ ReportImage of
                                                                                                                                                                                   UPeek_ReportImage _
                                                                                                                                                                                                     _ -> upeekCons (Path_At _k (upeekPath pk)) (upeekValue pk)) wtree)) (toListOf (toLens p) _s :: [Univ])
@@ -8633,6 +8720,8 @@ instance PathStart Univ ReportImages
                                      in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s :: [UPeek Univ ReportImages]
           type UPath Univ ReportImages = UPath_ReportImages
           upaths _ _f r0 _x = foldr _f r0 (map (\(k, _v) -> Path_At k idPath) (toPairs _x))
+          upathRow _ _x = concat [map (\(k, _v) -> Path_At k undefined) (toPairs _x)]
+          upathTree _ _ = []
 instance PathStart Univ ReadOnlyFilePath
     where data Peek Univ ReadOnlyFilePath
               = Peek_ReadOnlyFilePath_String (Path Univ ReadOnlyFilePath String) (Maybe String)
@@ -8644,7 +8733,7 @@ instance PathStart Univ ReadOnlyFilePath
           upeekPath (UPeek_ReadOnlyFilePath p _) = p
           upeekValue (UPeek_ReadOnlyFilePath _ x) = x
           peekTree (Proxy) (_s@_x) = let dopath pth = case pth of
-                                                          p@(UPath_ReadOnlyFilePath_View _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: String) :: Forest (UPeek Univ String)
+                                                          p@(UPath_ReadOnlyFilePath_View _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: String) :: Forest (UPeek Univ String)
                                                                                                              in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ String of
                                                                                                                                                                                                    UPeek_String _
                                                                                                                                                                                                                 _ -> upeekCons (UPath_ReadOnlyFilePath_View (upeekPath pk)) (upeekValue pk)) wtree)) (toListOf (toLens p) _s :: [Univ])
@@ -8656,6 +8745,8 @@ instance PathStart Univ ReadOnlyFilePath
                                      in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s :: [UPeek Univ ReadOnlyFilePath]
           type UPath Univ ReadOnlyFilePath = UPath_ReadOnlyFilePath
           upaths _ _f r0 _x = foldr _f r0 [UPath_ReadOnlyFilePath_View idPath]
+          upathRow _ _x = concat [[UPath_ReadOnlyFilePath_View undefined]]
+          upathTree _ _ = []
 instance PathStart Univ ReportImageView
     where data Peek Univ ReportImageView
               = Peek_ReportImageView_String (Path Univ ReportImageView String) (Maybe String)
@@ -8681,7 +8772,7 @@ instance PathStart Univ ReportImageView
           upeekPath (UPeek_ReportImageView p _) = p
           upeekValue (UPeek_ReportImageView _ x) = x
           peekTree (Proxy) (_s@(ReportImageView {})) = mconcat [let dopath pth = case pth of
-                                                                                     p@(UPath_ReportImageView__picSize _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: SaneSizeImageSize) :: Forest (UPeek Univ SaneSizeImageSize)
+                                                                                     p@(UPath_ReportImageView__picSize _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: SaneSizeImageSize) :: Forest (UPeek Univ SaneSizeImageSize)
                                                                                                                                            in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ
                                                                                                                                                                                                                                               SaneSizeImageSize of
                                                                                                                                                                                                                                  UPeek_SaneSizeImageSize _
@@ -8689,7 +8780,7 @@ instance PathStart Univ ReportImageView
                                                                                      _ -> []
                                                                  in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s,
                                                                 let dopath pth = case pth of
-                                                                                     p@(UPath_ReportImageView__picCrop _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: ImageCrop) :: Forest (UPeek Univ ImageCrop)
+                                                                                     p@(UPath_ReportImageView__picCrop _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: ImageCrop) :: Forest (UPeek Univ ImageCrop)
                                                                                                                                            in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ
                                                                                                                                                                                                                                               ImageCrop of
                                                                                                                                                                                                                                  UPeek_ImageCrop _
@@ -8697,7 +8788,7 @@ instance PathStart Univ ReportImageView
                                                                                      _ -> []
                                                                  in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s,
                                                                 let dopath pth = case pth of
-                                                                                     p@(UPath_ReportImageView__picCaption _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: Markup) :: Forest (UPeek Univ Markup)
+                                                                                     p@(UPath_ReportImageView__picCaption _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: Markup) :: Forest (UPeek Univ Markup)
                                                                                                                                               in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ
                                                                                                                                                                                                                                                  Markup of
                                                                                                                                                                                                                                     UPeek_Markup _
@@ -8705,7 +8796,7 @@ instance PathStart Univ ReportImageView
                                                                                      _ -> []
                                                                  in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s,
                                                                 let dopath pth = case pth of
-                                                                                     p@(UPath_ReportImageView__picOriginal _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: MEUI) :: Forest (UPeek Univ MEUI)
+                                                                                     p@(UPath_ReportImageView__picOriginal _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: MEUI) :: Forest (UPeek Univ MEUI)
                                                                                                                                                in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ
                                                                                                                                                                                                                                                   MEUI of
                                                                                                                                                                                                                                      UPeek_MEUI _
@@ -8713,7 +8804,8 @@ instance PathStart Univ ReportImageView
                                                                                      _ -> []
                                                                  in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s,
                                                                 let dopath pth = case pth of
-                                                                                     p@(UPath_ReportImageView__picEditedDeprecated _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: MaybeImageFile) :: Forest (UPeek Univ MaybeImageFile)
+                                                                                     p@(UPath_ReportImageView__picEditedDeprecated _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: MaybeImageFile) :: Forest (UPeek Univ
+                                                                                                                                                                                                                                        MaybeImageFile)
                                                                                                                                                        in Node (upeekCons p (if null wtree
                                                                                                                                                                               then Just a
                                                                                                                                                                               else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ MaybeImageFile of
@@ -8722,7 +8814,8 @@ instance PathStart Univ ReportImageView
                                                                                      _ -> []
                                                                  in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s,
                                                                 let dopath pth = case pth of
-                                                                                     p@(UPath_ReportImageView__picThumbDeprecated _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: MaybeImageFile) :: Forest (UPeek Univ MaybeImageFile)
+                                                                                     p@(UPath_ReportImageView__picThumbDeprecated _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: MaybeImageFile) :: Forest (UPeek Univ
+                                                                                                                                                                                                                                       MaybeImageFile)
                                                                                                                                                       in Node (upeekCons p (if null wtree
                                                                                                                                                                              then Just a
                                                                                                                                                                              else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ MaybeImageFile of
@@ -8731,7 +8824,8 @@ instance PathStart Univ ReportImageView
                                                                                      _ -> []
                                                                  in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s,
                                                                 let dopath pth = case pth of
-                                                                                     p@(UPath_ReportImageView__picPrinterDeprecated _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: MaybeImageFile) :: Forest (UPeek Univ MaybeImageFile)
+                                                                                     p@(UPath_ReportImageView__picPrinterDeprecated _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: MaybeImageFile) :: Forest (UPeek Univ
+                                                                                                                                                                                                                                         MaybeImageFile)
                                                                                                                                                         in Node (upeekCons p (if null wtree
                                                                                                                                                                                then Just a
                                                                                                                                                                                else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ MaybeImageFile of
@@ -8740,7 +8834,7 @@ instance PathStart Univ ReportImageView
                                                                                      _ -> []
                                                                  in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s,
                                                                 let dopath pth = case pth of
-                                                                                     p@(UPath_ReportImageView__picMustEnlarge _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: Bool) :: Forest (UPeek Univ Bool)
+                                                                                     p@(UPath_ReportImageView__picMustEnlarge _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: Bool) :: Forest (UPeek Univ Bool)
                                                                                                                                                   in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ
                                                                                                                                                                                                                                                      Bool of
                                                                                                                                                                                                                                         UPeek_Bool _
@@ -8748,7 +8842,8 @@ instance PathStart Univ ReportImageView
                                                                                      _ -> []
                                                                  in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s,
                                                                 let dopath pth = case pth of
-                                                                                     p@(UPath_ReportImageView__picEnlargedDeprecated _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: MaybeImageFile) :: Forest (UPeek Univ MaybeImageFile)
+                                                                                     p@(UPath_ReportImageView__picEnlargedDeprecated _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: MaybeImageFile) :: Forest (UPeek Univ
+                                                                                                                                                                                                                                          MaybeImageFile)
                                                                                                                                                          in Node (upeekCons p (if null wtree
                                                                                                                                                                                 then Just a
                                                                                                                                                                                 else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ MaybeImageFile of
@@ -8794,6 +8889,16 @@ instance PathStart Univ ReportImageView
                                                                 in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s] :: [UPeek Univ ReportImageView]
           type UPath Univ ReportImageView = UPath_ReportImageView
           upaths _ _f r0 (ReportImageView {}) = foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f r0 [UPath_ReportImageView__picEnlargedDeprecated idPath]) [UPath_ReportImageView__picMustEnlarge idPath]) [UPath_ReportImageView__picPrinterDeprecated idPath]) [UPath_ReportImageView__picThumbDeprecated idPath]) [UPath_ReportImageView__picEditedDeprecated idPath]) [UPath_ReportImageView__picOriginal idPath]) [UPath_ReportImageView__picCaption idPath]) [UPath_ReportImageView__picCrop idPath]) [UPath_ReportImageView__picSize idPath]
+          upathRow _ (ReportImageView {}) = concat [[UPath_ReportImageView__picSize undefined],
+                                                    [UPath_ReportImageView__picCrop undefined],
+                                                    [UPath_ReportImageView__picCaption undefined],
+                                                    [UPath_ReportImageView__picOriginal undefined],
+                                                    [UPath_ReportImageView__picEditedDeprecated undefined],
+                                                    [UPath_ReportImageView__picThumbDeprecated undefined],
+                                                    [UPath_ReportImageView__picPrinterDeprecated undefined],
+                                                    [UPath_ReportImageView__picMustEnlarge undefined],
+                                                    [UPath_ReportImageView__picEnlargedDeprecated undefined]]
+          upathTree _ _ = []
 instance PathStart Univ ReportView
     where data Peek Univ ReportView
               = Peek_ReportView_String (Path Univ ReportView String) (Maybe String)
@@ -8849,7 +8954,7 @@ instance PathStart Univ ReportView
           upeekPath (UPeek_ReportView p _) = p
           upeekValue (UPeek_ReportView _ x) = x
           peekTree (Proxy) (_s@(ReportView {})) = mconcat [let dopath pth = case pth of
-                                                                                p@(UPath_ReportView__reportFolder _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: ReadOnlyFilePath) :: Forest (UPeek Univ ReadOnlyFilePath)
+                                                                                p@(UPath_ReportView__reportFolder _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: ReadOnlyFilePath) :: Forest (UPeek Univ ReadOnlyFilePath)
                                                                                                                                       in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ
                                                                                                                                                                                                                                          ReadOnlyFilePath of
                                                                                                                                                                                                                             UPeek_ReadOnlyFilePath _
@@ -8857,21 +8962,21 @@ instance PathStart Univ ReportView
                                                                                 _ -> []
                                                             in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s,
                                                            let dopath pth = case pth of
-                                                                                p@(UPath_ReportView__reportName _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: Markup) :: Forest (UPeek Univ Markup)
+                                                                                p@(UPath_ReportView__reportName _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: Markup) :: Forest (UPeek Univ Markup)
                                                                                                                                     in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ Markup of
                                                                                                                                                                                                                           UPeek_Markup _
                                                                                                                                                                                                                                        _ -> upeekCons (UPath_ReportView__reportName (upeekPath pk)) (upeekValue pk)) wtree)) (toListOf (toLens p) _s :: [Univ])
                                                                                 _ -> []
                                                             in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s,
                                                            let dopath pth = case pth of
-                                                                                p@(UPath_ReportView__reportDate _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: Markup) :: Forest (UPeek Univ Markup)
+                                                                                p@(UPath_ReportView__reportDate _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: Markup) :: Forest (UPeek Univ Markup)
                                                                                                                                     in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ Markup of
                                                                                                                                                                                                                           UPeek_Markup _
                                                                                                                                                                                                                                        _ -> upeekCons (UPath_ReportView__reportDate (upeekPath pk)) (upeekValue pk)) wtree)) (toListOf (toLens p) _s :: [Univ])
                                                                                 _ -> []
                                                             in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s,
                                                            let dopath pth = case pth of
-                                                                                p@(UPath_ReportView__reportContractDate _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: Markup) :: Forest (UPeek Univ Markup)
+                                                                                p@(UPath_ReportView__reportContractDate _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: Markup) :: Forest (UPeek Univ Markup)
                                                                                                                                             in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ
                                                                                                                                                                                                                                                Markup of
                                                                                                                                                                                                                                   UPeek_Markup _
@@ -8879,7 +8984,7 @@ instance PathStart Univ ReportView
                                                                                 _ -> []
                                                             in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s,
                                                            let dopath pth = case pth of
-                                                                                p@(UPath_ReportView__reportInspectionDate _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: Markup) :: Forest (UPeek Univ Markup)
+                                                                                p@(UPath_ReportView__reportInspectionDate _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: Markup) :: Forest (UPeek Univ Markup)
                                                                                                                                               in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ
                                                                                                                                                                                                                                                  Markup of
                                                                                                                                                                                                                                     UPeek_Markup _
@@ -8887,7 +8992,7 @@ instance PathStart Univ ReportView
                                                                                 _ -> []
                                                             in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s,
                                                            let dopath pth = case pth of
-                                                                                p@(UPath_ReportView__reportEffectiveDate _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: Markup) :: Forest (UPeek Univ Markup)
+                                                                                p@(UPath_ReportView__reportEffectiveDate _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: Markup) :: Forest (UPeek Univ Markup)
                                                                                                                                              in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ
                                                                                                                                                                                                                                                 Markup of
                                                                                                                                                                                                                                    UPeek_Markup _
@@ -8895,21 +9000,21 @@ instance PathStart Univ ReportView
                                                                                 _ -> []
                                                             in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s,
                                                            let dopath pth = case pth of
-                                                                                p@(UPath_ReportView__reportAuthors _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: Authors) :: Forest (UPeek Univ Authors)
+                                                                                p@(UPath_ReportView__reportAuthors _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: Authors) :: Forest (UPeek Univ Authors)
                                                                                                                                        in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ Authors of
                                                                                                                                                                                                                              UPeek_Authors _
                                                                                                                                                                                                                                            _ -> upeekCons (UPath_ReportView__reportAuthors (upeekPath pk)) (upeekValue pk)) wtree)) (toListOf (toLens p) _s :: [Univ])
                                                                                 _ -> []
                                                             in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s,
                                                            let dopath pth = case pth of
-                                                                                p@(UPath_ReportView__reportPreparer _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: Markup) :: Forest (UPeek Univ Markup)
+                                                                                p@(UPath_ReportView__reportPreparer _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: Markup) :: Forest (UPeek Univ Markup)
                                                                                                                                         in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ Markup of
                                                                                                                                                                                                                               UPeek_Markup _
                                                                                                                                                                                                                                            _ -> upeekCons (UPath_ReportView__reportPreparer (upeekPath pk)) (upeekValue pk)) wtree)) (toListOf (toLens p) _s :: [Univ])
                                                                                 _ -> []
                                                             in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s,
                                                            let dopath pth = case pth of
-                                                                                p@(UPath_ReportView__reportPreparerEIN _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: Markup) :: Forest (UPeek Univ Markup)
+                                                                                p@(UPath_ReportView__reportPreparerEIN _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: Markup) :: Forest (UPeek Univ Markup)
                                                                                                                                            in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ
                                                                                                                                                                                                                                               Markup of
                                                                                                                                                                                                                                  UPeek_Markup _
@@ -8917,7 +9022,7 @@ instance PathStart Univ ReportView
                                                                                 _ -> []
                                                             in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s,
                                                            let dopath pth = case pth of
-                                                                                p@(UPath_ReportView__reportPreparerAddress _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: Markup) :: Forest (UPeek Univ Markup)
+                                                                                p@(UPath_ReportView__reportPreparerAddress _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: Markup) :: Forest (UPeek Univ Markup)
                                                                                                                                                in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ
                                                                                                                                                                                                                                                   Markup of
                                                                                                                                                                                                                                      UPeek_Markup _
@@ -8925,7 +9030,7 @@ instance PathStart Univ ReportView
                                                                                 _ -> []
                                                             in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s,
                                                            let dopath pth = case pth of
-                                                                                p@(UPath_ReportView__reportPreparerEMail _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: Markup) :: Forest (UPeek Univ Markup)
+                                                                                p@(UPath_ReportView__reportPreparerEMail _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: Markup) :: Forest (UPeek Univ Markup)
                                                                                                                                              in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ
                                                                                                                                                                                                                                                 Markup of
                                                                                                                                                                                                                                    UPeek_Markup _
@@ -8933,7 +9038,7 @@ instance PathStart Univ ReportView
                                                                                 _ -> []
                                                             in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s,
                                                            let dopath pth = case pth of
-                                                                                p@(UPath_ReportView__reportPreparerWebsite _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: Markup) :: Forest (UPeek Univ Markup)
+                                                                                p@(UPath_ReportView__reportPreparerWebsite _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: Markup) :: Forest (UPeek Univ Markup)
                                                                                                                                                in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ
                                                                                                                                                                                                                                                   Markup of
                                                                                                                                                                                                                                      UPeek_Markup _
@@ -8941,7 +9046,7 @@ instance PathStart Univ ReportView
                                                                                 _ -> []
                                                             in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s,
                                                            let dopath pth = case pth of
-                                                                                p@(UPath_ReportView__reportAbbrevs _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: AbbrevPairs) :: Forest (UPeek Univ AbbrevPairs)
+                                                                                p@(UPath_ReportView__reportAbbrevs _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: AbbrevPairs) :: Forest (UPeek Univ AbbrevPairs)
                                                                                                                                        in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ
                                                                                                                                                                                                                                           AbbrevPairs of
                                                                                                                                                                                                                              UPeek_AbbrevPairs _
@@ -8949,28 +9054,29 @@ instance PathStart Univ ReportView
                                                                                 _ -> []
                                                             in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s,
                                                            let dopath pth = case pth of
-                                                                                p@(UPath_ReportView__reportTitle _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: Markup) :: Forest (UPeek Univ Markup)
+                                                                                p@(UPath_ReportView__reportTitle _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: Markup) :: Forest (UPeek Univ Markup)
                                                                                                                                      in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ Markup of
                                                                                                                                                                                                                            UPeek_Markup _
                                                                                                                                                                                                                                         _ -> upeekCons (UPath_ReportView__reportTitle (upeekPath pk)) (upeekValue pk)) wtree)) (toListOf (toLens p) _s :: [Univ])
                                                                                 _ -> []
                                                             in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s,
                                                            let dopath pth = case pth of
-                                                                                p@(UPath_ReportView__reportHeader _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: Markup) :: Forest (UPeek Univ Markup)
+                                                                                p@(UPath_ReportView__reportHeader _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: Markup) :: Forest (UPeek Univ Markup)
                                                                                                                                       in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ Markup of
                                                                                                                                                                                                                             UPeek_Markup _
                                                                                                                                                                                                                                          _ -> upeekCons (UPath_ReportView__reportHeader (upeekPath pk)) (upeekValue pk)) wtree)) (toListOf (toLens p) _s :: [Univ])
                                                                                 _ -> []
                                                             in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s,
                                                            let dopath pth = case pth of
-                                                                                p@(UPath_ReportView__reportFooter _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: Markup) :: Forest (UPeek Univ Markup)
+                                                                                p@(UPath_ReportView__reportFooter _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: Markup) :: Forest (UPeek Univ Markup)
                                                                                                                                       in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ Markup of
                                                                                                                                                                                                                             UPeek_Markup _
                                                                                                                                                                                                                                          _ -> upeekCons (UPath_ReportView__reportFooter (upeekPath pk)) (upeekValue pk)) wtree)) (toListOf (toLens p) _s :: [Univ])
                                                                                 _ -> []
                                                             in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s,
                                                            let dopath pth = case pth of
-                                                                                p@(UPath_ReportView__reportIntendedUse _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: MaybeReportIntendedUse) :: Forest (UPeek Univ MaybeReportIntendedUse)
+                                                                                p@(UPath_ReportView__reportIntendedUse _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: MaybeReportIntendedUse) :: Forest (UPeek Univ
+                                                                                                                                                                                                                                    MaybeReportIntendedUse)
                                                                                                                                            in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ
                                                                                                                                                                                                                                               MaybeReportIntendedUse of
                                                                                                                                                                                                                                  UPeek_MaybeReportIntendedUse _
@@ -8978,7 +9084,8 @@ instance PathStart Univ ReportView
                                                                                 _ -> []
                                                             in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s,
                                                            let dopath pth = case pth of
-                                                                                p@(UPath_ReportView__reportValueTypeInfo _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: ReportValueTypeInfo) :: Forest (UPeek Univ ReportValueTypeInfo)
+                                                                                p@(UPath_ReportView__reportValueTypeInfo _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: ReportValueTypeInfo) :: Forest (UPeek Univ
+                                                                                                                                                                                                                                   ReportValueTypeInfo)
                                                                                                                                              in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ
                                                                                                                                                                                                                                                 ReportValueTypeInfo of
                                                                                                                                                                                                                                    UPeek_ReportValueTypeInfo _
@@ -8986,8 +9093,8 @@ instance PathStart Univ ReportView
                                                                                 _ -> []
                                                             in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s,
                                                            let dopath pth = case pth of
-                                                                                p@(UPath_ReportView__reportValueApproachInfo _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: ReportValueApproachInfo) :: Forest (UPeek Univ
-                                                                                                                                                                                                                               ReportValueApproachInfo)
+                                                                                p@(UPath_ReportView__reportValueApproachInfo _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: ReportValueApproachInfo) :: Forest (UPeek Univ
+                                                                                                                                                                                                                                           ReportValueApproachInfo)
                                                                                                                                                  in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ
                                                                                                                                                                                                                                                     ReportValueApproachInfo of
                                                                                                                                                                                                                                        UPeek_ReportValueApproachInfo _
@@ -8995,7 +9102,7 @@ instance PathStart Univ ReportView
                                                                                 _ -> []
                                                             in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s,
                                                            let dopath pth = case pth of
-                                                                                p@(UPath_ReportView__reportClientName _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: Markup) :: Forest (UPeek Univ Markup)
+                                                                                p@(UPath_ReportView__reportClientName _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: Markup) :: Forest (UPeek Univ Markup)
                                                                                                                                           in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ
                                                                                                                                                                                                                                              Markup of
                                                                                                                                                                                                                                 UPeek_Markup _
@@ -9003,7 +9110,7 @@ instance PathStart Univ ReportView
                                                                                 _ -> []
                                                             in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s,
                                                            let dopath pth = case pth of
-                                                                                p@(UPath_ReportView__reportClientAddress _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: Markup) :: Forest (UPeek Univ Markup)
+                                                                                p@(UPath_ReportView__reportClientAddress _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: Markup) :: Forest (UPeek Univ Markup)
                                                                                                                                              in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ
                                                                                                                                                                                                                                                 Markup of
                                                                                                                                                                                                                                    UPeek_Markup _
@@ -9011,7 +9118,7 @@ instance PathStart Univ ReportView
                                                                                 _ -> []
                                                             in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s,
                                                            let dopath pth = case pth of
-                                                                                p@(UPath_ReportView__reportClientGreeting _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: Markup) :: Forest (UPeek Univ Markup)
+                                                                                p@(UPath_ReportView__reportClientGreeting _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: Markup) :: Forest (UPeek Univ Markup)
                                                                                                                                               in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ
                                                                                                                                                                                                                                                  Markup of
                                                                                                                                                                                                                                     UPeek_Markup _
@@ -9019,7 +9126,7 @@ instance PathStart Univ ReportView
                                                                                 _ -> []
                                                             in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s,
                                                            let dopath pth = case pth of
-                                                                                p@(UPath_ReportView__reportItemsOwnerFull _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: Markup) :: Forest (UPeek Univ Markup)
+                                                                                p@(UPath_ReportView__reportItemsOwnerFull _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: Markup) :: Forest (UPeek Univ Markup)
                                                                                                                                               in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ
                                                                                                                                                                                                                                                  Markup of
                                                                                                                                                                                                                                     UPeek_Markup _
@@ -9027,7 +9134,7 @@ instance PathStart Univ ReportView
                                                                                 _ -> []
                                                             in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s,
                                                            let dopath pth = case pth of
-                                                                                p@(UPath_ReportView__reportItemsOwner _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: Markup) :: Forest (UPeek Univ Markup)
+                                                                                p@(UPath_ReportView__reportItemsOwner _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: Markup) :: Forest (UPeek Univ Markup)
                                                                                                                                           in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ
                                                                                                                                                                                                                                              Markup of
                                                                                                                                                                                                                                 UPeek_Markup _
@@ -9035,7 +9142,7 @@ instance PathStart Univ ReportView
                                                                                 _ -> []
                                                             in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s,
                                                            let dopath pth = case pth of
-                                                                                p@(UPath_ReportView__reportBriefItems _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: Markup) :: Forest (UPeek Univ Markup)
+                                                                                p@(UPath_ReportView__reportBriefItems _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: Markup) :: Forest (UPeek Univ Markup)
                                                                                                                                           in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ
                                                                                                                                                                                                                                              Markup of
                                                                                                                                                                                                                                 UPeek_Markup _
@@ -9043,7 +9150,7 @@ instance PathStart Univ ReportView
                                                                                 _ -> []
                                                             in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s,
                                                            let dopath pth = case pth of
-                                                                                p@(UPath_ReportView__reportInspectionLocation _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: Markup) :: Forest (UPeek Univ Markup)
+                                                                                p@(UPath_ReportView__reportInspectionLocation _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: Markup) :: Forest (UPeek Univ Markup)
                                                                                                                                                   in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ
                                                                                                                                                                                                                                                      Markup of
                                                                                                                                                                                                                                         UPeek_Markup _
@@ -9051,14 +9158,14 @@ instance PathStart Univ ReportView
                                                                                 _ -> []
                                                             in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s,
                                                            let dopath pth = case pth of
-                                                                                p@(UPath_ReportView__reportBody _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: ReportElems) :: Forest (UPeek Univ ReportElems)
+                                                                                p@(UPath_ReportView__reportBody _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: ReportElems) :: Forest (UPeek Univ ReportElems)
                                                                                                                                     in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ ReportElems of
                                                                                                                                                                                                                           UPeek_ReportElems _
                                                                                                                                                                                                                                             _ -> upeekCons (UPath_ReportView__reportBody (upeekPath pk)) (upeekValue pk)) wtree)) (toListOf (toLens p) _s :: [Univ])
                                                                                 _ -> []
                                                             in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s,
                                                            let dopath pth = case pth of
-                                                                                p@(UPath_ReportView__reportGlossary _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: MarkupPairs) :: Forest (UPeek Univ MarkupPairs)
+                                                                                p@(UPath_ReportView__reportGlossary _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: MarkupPairs) :: Forest (UPeek Univ MarkupPairs)
                                                                                                                                         in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ
                                                                                                                                                                                                                                            MarkupPairs of
                                                                                                                                                                                                                               UPeek_MarkupPairs _
@@ -9066,7 +9173,7 @@ instance PathStart Univ ReportView
                                                                                 _ -> []
                                                             in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s,
                                                            let dopath pth = case pth of
-                                                                                p@(UPath_ReportView__reportSources _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: MarkupPairs) :: Forest (UPeek Univ MarkupPairs)
+                                                                                p@(UPath_ReportView__reportSources _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: MarkupPairs) :: Forest (UPeek Univ MarkupPairs)
                                                                                                                                        in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ
                                                                                                                                                                                                                                           MarkupPairs of
                                                                                                                                                                                                                              UPeek_MarkupPairs _
@@ -9074,7 +9181,7 @@ instance PathStart Univ ReportView
                                                                                 _ -> []
                                                             in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s,
                                                            let dopath pth = case pth of
-                                                                                p@(UPath_ReportView__reportLetterOfTransmittal _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: Markup) :: Forest (UPeek Univ Markup)
+                                                                                p@(UPath_ReportView__reportLetterOfTransmittal _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: Markup) :: Forest (UPeek Univ Markup)
                                                                                                                                                    in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ
                                                                                                                                                                                                                                                       Markup of
                                                                                                                                                                                                                                          UPeek_Markup _
@@ -9082,7 +9189,7 @@ instance PathStart Univ ReportView
                                                                                 _ -> []
                                                             in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s,
                                                            let dopath pth = case pth of
-                                                                                p@(UPath_ReportView__reportScopeOfWork _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: Markup) :: Forest (UPeek Univ Markup)
+                                                                                p@(UPath_ReportView__reportScopeOfWork _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: Markup) :: Forest (UPeek Univ Markup)
                                                                                                                                            in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ
                                                                                                                                                                                                                                               Markup of
                                                                                                                                                                                                                                  UPeek_Markup _
@@ -9090,7 +9197,7 @@ instance PathStart Univ ReportView
                                                                                 _ -> []
                                                             in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s,
                                                            let dopath pth = case pth of
-                                                                                p@(UPath_ReportView__reportCertification _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: Markups) :: Forest (UPeek Univ Markups)
+                                                                                p@(UPath_ReportView__reportCertification _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: Markups) :: Forest (UPeek Univ Markups)
                                                                                                                                              in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ
                                                                                                                                                                                                                                                 Markups of
                                                                                                                                                                                                                                    UPeek_Markups _
@@ -9098,7 +9205,7 @@ instance PathStart Univ ReportView
                                                                                 _ -> []
                                                             in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s,
                                                            let dopath pth = case pth of
-                                                                                p@(UPath_ReportView__reportLimitingConditions _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: Markups) :: Forest (UPeek Univ Markups)
+                                                                                p@(UPath_ReportView__reportLimitingConditions _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: Markups) :: Forest (UPeek Univ Markups)
                                                                                                                                                   in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ
                                                                                                                                                                                                                                                      Markups of
                                                                                                                                                                                                                                         UPeek_Markups _
@@ -9106,7 +9213,7 @@ instance PathStart Univ ReportView
                                                                                 _ -> []
                                                             in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s,
                                                            let dopath pth = case pth of
-                                                                                p@(UPath_ReportView__reportPrivacyPolicy _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: Markup) :: Forest (UPeek Univ Markup)
+                                                                                p@(UPath_ReportView__reportPrivacyPolicy _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: Markup) :: Forest (UPeek Univ Markup)
                                                                                                                                              in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ
                                                                                                                                                                                                                                                 Markup of
                                                                                                                                                                                                                                    UPeek_Markup _
@@ -9114,7 +9221,7 @@ instance PathStart Univ ReportView
                                                                                 _ -> []
                                                             in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s,
                                                            let dopath pth = case pth of
-                                                                                p@(UPath_ReportView__reportPerms _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: Permissions) :: Forest (UPeek Univ Permissions)
+                                                                                p@(UPath_ReportView__reportPerms _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: Permissions) :: Forest (UPeek Univ Permissions)
                                                                                                                                      in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ
                                                                                                                                                                                                                                         Permissions of
                                                                                                                                                                                                                            UPeek_Permissions _
@@ -9122,21 +9229,21 @@ instance PathStart Univ ReportView
                                                                                 _ -> []
                                                             in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s,
                                                            let dopath pth = case pth of
-                                                                                p@(UPath_ReportView__reportRevision _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: Integer) :: Forest (UPeek Univ Integer)
+                                                                                p@(UPath_ReportView__reportRevision _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: Integer) :: Forest (UPeek Univ Integer)
                                                                                                                                         in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ Integer of
                                                                                                                                                                                                                               UPeek_Integer _
                                                                                                                                                                                                                                             _ -> upeekCons (UPath_ReportView__reportRevision (upeekPath pk)) (upeekValue pk)) wtree)) (toListOf (toLens p) _s :: [Univ])
                                                                                 _ -> []
                                                             in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s,
                                                            let dopath pth = case pth of
-                                                                                p@(UPath_ReportView__reportCreated _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: Int64) :: Forest (UPeek Univ Int64)
+                                                                                p@(UPath_ReportView__reportCreated _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: Int64) :: Forest (UPeek Univ Int64)
                                                                                                                                        in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ Int64 of
                                                                                                                                                                                                                              UPeek_Int64 _
                                                                                                                                                                                                                                          _ -> upeekCons (UPath_ReportView__reportCreated (upeekPath pk)) (upeekValue pk)) wtree)) (toListOf (toLens p) _s :: [Univ])
                                                                                 _ -> []
                                                             in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s,
                                                            let dopath pth = case pth of
-                                                                                p@(UPath_ReportView__reportBranding _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: Branding) :: Forest (UPeek Univ Branding)
+                                                                                p@(UPath_ReportView__reportBranding _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: Branding) :: Forest (UPeek Univ Branding)
                                                                                                                                         in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ
                                                                                                                                                                                                                                            Branding of
                                                                                                                                                                                                                               UPeek_Branding _
@@ -9144,7 +9251,7 @@ instance PathStart Univ ReportView
                                                                                 _ -> []
                                                             in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s,
                                                            let dopath pth = case pth of
-                                                                                p@(UPath_ReportView__reportStatus _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: ReportStatus) :: Forest (UPeek Univ ReportStatus)
+                                                                                p@(UPath_ReportView__reportStatus _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: ReportStatus) :: Forest (UPeek Univ ReportStatus)
                                                                                                                                       in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ
                                                                                                                                                                                                                                          ReportStatus of
                                                                                                                                                                                                                             UPeek_ReportStatus _
@@ -9152,14 +9259,14 @@ instance PathStart Univ ReportView
                                                                                 _ -> []
                                                             in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s,
                                                            let dopath pth = case pth of
-                                                                                p@(UPath_ReportView__reportRedacted _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: Bool) :: Forest (UPeek Univ Bool)
+                                                                                p@(UPath_ReportView__reportRedacted _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: Bool) :: Forest (UPeek Univ Bool)
                                                                                                                                         in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ Bool of
                                                                                                                                                                                                                               UPeek_Bool _
                                                                                                                                                                                                                                          _ -> upeekCons (UPath_ReportView__reportRedacted (upeekPath pk)) (upeekValue pk)) wtree)) (toListOf (toLens p) _s :: [Univ])
                                                                                 _ -> []
                                                             in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s,
                                                            let dopath pth = case pth of
-                                                                                p@(UPath_ReportView__reportFlags _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: ReportFlags) :: Forest (UPeek Univ ReportFlags)
+                                                                                p@(UPath_ReportView__reportFlags _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: ReportFlags) :: Forest (UPeek Univ ReportFlags)
                                                                                                                                      in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ
                                                                                                                                                                                                                                         ReportFlags of
                                                                                                                                                                                                                            UPeek_ReportFlags _
@@ -9167,14 +9274,14 @@ instance PathStart Univ ReportView
                                                                                 _ -> []
                                                             in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s,
                                                            let dopath pth = case pth of
-                                                                                p@(UPath_ReportView__reportUUID _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: UUID) :: Forest (UPeek Univ UUID)
+                                                                                p@(UPath_ReportView__reportUUID _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: UUID) :: Forest (UPeek Univ UUID)
                                                                                                                                     in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ UUID of
                                                                                                                                                                                                                           UPeek_UUID _
                                                                                                                                                                                                                                      _ -> upeekCons (UPath_ReportView__reportUUID (upeekPath pk)) (upeekValue pk)) wtree)) (toListOf (toLens p) _s :: [Univ])
                                                                                 _ -> []
                                                             in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s,
                                                            let dopath pth = case pth of
-                                                                                p@(UPath_ReportView__reportOrderByItemName _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: Bool) :: Forest (UPeek Univ Bool)
+                                                                                p@(UPath_ReportView__reportOrderByItemName _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: Bool) :: Forest (UPeek Univ Bool)
                                                                                                                                                in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ
                                                                                                                                                                                                                                                   Bool of
                                                                                                                                                                                                                                      UPeek_Bool _
@@ -9182,7 +9289,7 @@ instance PathStart Univ ReportView
                                                                                 _ -> []
                                                             in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s,
                                                            let dopath pth = case pth of
-                                                                                p@(UPath_ReportView__reportDisplayItemName _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: Bool) :: Forest (UPeek Univ Bool)
+                                                                                p@(UPath_ReportView__reportDisplayItemName _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: Bool) :: Forest (UPeek Univ Bool)
                                                                                                                                                in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ
                                                                                                                                                                                                                                                   Bool of
                                                                                                                                                                                                                                      UPeek_Bool _
@@ -9190,7 +9297,7 @@ instance PathStart Univ ReportView
                                                                                 _ -> []
                                                             in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s,
                                                            let dopath pth = case pth of
-                                                                                p@(UPath_ReportView__reportStandardsVersion _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: ReportStandard) :: Forest (UPeek Univ ReportStandard)
+                                                                                p@(UPath_ReportView__reportStandardsVersion _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: ReportStandard) :: Forest (UPeek Univ ReportStandard)
                                                                                                                                                 in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ
                                                                                                                                                                                                                                                    ReportStandard of
                                                                                                                                                                                                                                       UPeek_ReportStandard _
@@ -9379,6 +9486,52 @@ instance PathStart Univ ReportView
                                                            in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s] :: [UPeek Univ ReportView]
           type UPath Univ ReportView = UPath_ReportView
           upaths _ _f r0 (ReportView {}) = foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f r0 [UPath_ReportView__reportStandardsVersion idPath]) [UPath_ReportView__reportDisplayItemName idPath]) [UPath_ReportView__reportOrderByItemName idPath]) [UPath_ReportView__reportUUID idPath]) [UPath_ReportView__reportFlags idPath]) [UPath_ReportView__reportRedacted idPath]) [UPath_ReportView__reportStatus idPath]) [UPath_ReportView__reportBranding idPath]) [UPath_ReportView__reportCreated idPath]) [UPath_ReportView__reportRevision idPath]) [UPath_ReportView__reportPerms idPath]) [UPath_ReportView__reportPrivacyPolicy idPath]) [UPath_ReportView__reportLimitingConditions idPath]) [UPath_ReportView__reportCertification idPath]) [UPath_ReportView__reportScopeOfWork idPath]) [UPath_ReportView__reportLetterOfTransmittal idPath]) [UPath_ReportView__reportSources idPath]) [UPath_ReportView__reportGlossary idPath]) [UPath_ReportView__reportBody idPath]) [UPath_ReportView__reportInspectionLocation idPath]) [UPath_ReportView__reportBriefItems idPath]) [UPath_ReportView__reportItemsOwner idPath]) [UPath_ReportView__reportItemsOwnerFull idPath]) [UPath_ReportView__reportClientGreeting idPath]) [UPath_ReportView__reportClientAddress idPath]) [UPath_ReportView__reportClientName idPath]) [UPath_ReportView__reportValueApproachInfo idPath]) [UPath_ReportView__reportValueTypeInfo idPath]) [UPath_ReportView__reportIntendedUse idPath]) [UPath_ReportView__reportFooter idPath]) [UPath_ReportView__reportHeader idPath]) [UPath_ReportView__reportTitle idPath]) [UPath_ReportView__reportAbbrevs idPath]) [UPath_ReportView__reportPreparerWebsite idPath]) [UPath_ReportView__reportPreparerEMail idPath]) [UPath_ReportView__reportPreparerAddress idPath]) [UPath_ReportView__reportPreparerEIN idPath]) [UPath_ReportView__reportPreparer idPath]) [UPath_ReportView__reportAuthors idPath]) [UPath_ReportView__reportEffectiveDate idPath]) [UPath_ReportView__reportInspectionDate idPath]) [UPath_ReportView__reportContractDate idPath]) [UPath_ReportView__reportDate idPath]) [UPath_ReportView__reportName idPath]) [UPath_ReportView__reportFolder idPath]
+          upathRow _ (ReportView {}) = concat [[UPath_ReportView__reportFolder undefined],
+                                               [UPath_ReportView__reportName undefined],
+                                               [UPath_ReportView__reportDate undefined],
+                                               [UPath_ReportView__reportContractDate undefined],
+                                               [UPath_ReportView__reportInspectionDate undefined],
+                                               [UPath_ReportView__reportEffectiveDate undefined],
+                                               [UPath_ReportView__reportAuthors undefined],
+                                               [UPath_ReportView__reportPreparer undefined],
+                                               [UPath_ReportView__reportPreparerEIN undefined],
+                                               [UPath_ReportView__reportPreparerAddress undefined],
+                                               [UPath_ReportView__reportPreparerEMail undefined],
+                                               [UPath_ReportView__reportPreparerWebsite undefined],
+                                               [UPath_ReportView__reportAbbrevs undefined],
+                                               [UPath_ReportView__reportTitle undefined],
+                                               [UPath_ReportView__reportHeader undefined],
+                                               [UPath_ReportView__reportFooter undefined],
+                                               [UPath_ReportView__reportIntendedUse undefined],
+                                               [UPath_ReportView__reportValueTypeInfo undefined],
+                                               [UPath_ReportView__reportValueApproachInfo undefined],
+                                               [UPath_ReportView__reportClientName undefined],
+                                               [UPath_ReportView__reportClientAddress undefined],
+                                               [UPath_ReportView__reportClientGreeting undefined],
+                                               [UPath_ReportView__reportItemsOwnerFull undefined],
+                                               [UPath_ReportView__reportItemsOwner undefined],
+                                               [UPath_ReportView__reportBriefItems undefined],
+                                               [UPath_ReportView__reportInspectionLocation undefined],
+                                               [UPath_ReportView__reportBody undefined],
+                                               [UPath_ReportView__reportGlossary undefined],
+                                               [UPath_ReportView__reportSources undefined],
+                                               [UPath_ReportView__reportLetterOfTransmittal undefined],
+                                               [UPath_ReportView__reportScopeOfWork undefined],
+                                               [UPath_ReportView__reportCertification undefined],
+                                               [UPath_ReportView__reportLimitingConditions undefined],
+                                               [UPath_ReportView__reportPrivacyPolicy undefined],
+                                               [UPath_ReportView__reportPerms undefined],
+                                               [UPath_ReportView__reportRevision undefined],
+                                               [UPath_ReportView__reportCreated undefined],
+                                               [UPath_ReportView__reportBranding undefined],
+                                               [UPath_ReportView__reportStatus undefined],
+                                               [UPath_ReportView__reportRedacted undefined],
+                                               [UPath_ReportView__reportFlags undefined],
+                                               [UPath_ReportView__reportUUID undefined],
+                                               [UPath_ReportView__reportOrderByItemName undefined],
+                                               [UPath_ReportView__reportDisplayItemName undefined],
+                                               [UPath_ReportView__reportStandardsVersion undefined]]
+          upathTree _ _ = []
 instance PathStart Univ SaneSizeImageSize
     where data Peek Univ SaneSizeImageSize
               = Peek_SaneSizeImageSize_String (Path Univ SaneSizeImageSize String) (Maybe String)
@@ -9394,7 +9547,7 @@ instance PathStart Univ SaneSizeImageSize
           upeekPath (UPeek_SaneSizeImageSize p _) = p
           upeekValue (UPeek_SaneSizeImageSize _ x) = x
           peekTree (Proxy) (_s@_x) = let dopath pth = case pth of
-                                                          p@(UPath_SaneSizeImageSize_View _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: ImageSize) :: Forest (UPeek Univ ImageSize)
+                                                          p@(UPath_SaneSizeImageSize_View _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: ImageSize) :: Forest (UPeek Univ ImageSize)
                                                                                                               in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ ImageSize of
                                                                                                                                                                                                     UPeek_ImageSize _
                                                                                                                                                                                                                     _ -> upeekCons (UPath_SaneSizeImageSize_View (upeekPath pk)) (upeekValue pk)) wtree)) (toListOf (toLens p) _s :: [Univ])
@@ -9406,6 +9559,8 @@ instance PathStart Univ SaneSizeImageSize
                                      in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s :: [UPeek Univ SaneSizeImageSize]
           type UPath Univ SaneSizeImageSize = UPath_SaneSizeImageSize
           upaths _ _f r0 _x = foldr _f r0 [UPath_SaneSizeImageSize_View idPath]
+          upathRow _ _x = concat [[UPath_SaneSizeImageSize_View undefined]]
+          upathTree _ _ = []
 instance PathStart Univ Item
     where data Peek Univ Item
               = Peek_Item_String (Path Univ Item String) (Maybe String)
@@ -9435,21 +9590,21 @@ instance PathStart Univ Item
           upeekPath (UPeek_Item p _) = p
           upeekValue (UPeek_Item _ x) = x
           peekTree (Proxy) (_s@(Item {})) = mconcat [let dopath pth = case pth of
-                                                                          p@(UPath_Item_itemName _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: Text) :: Forest (UPeek Univ Text)
+                                                                          p@(UPath_Item_itemName _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: Text) :: Forest (UPeek Univ Text)
                                                                                                                      in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ Text of
                                                                                                                                                                                                            UPeek_Text _
                                                                                                                                                                                                                       _ -> upeekCons (UPath_Item_itemName (upeekPath pk)) (upeekValue pk)) wtree)) (toListOf (toLens p) _s :: [Univ])
                                                                           _ -> []
                                                       in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s,
                                                      let dopath pth = case pth of
-                                                                          p@(UPath_Item_fields _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: MIM) :: Forest (UPeek Univ MIM)
+                                                                          p@(UPath_Item_fields _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: MIM) :: Forest (UPeek Univ MIM)
                                                                                                                    in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ MIM of
                                                                                                                                                                                                          UPeek_MIM _
                                                                                                                                                                                                                    _ -> upeekCons (UPath_Item_fields (upeekPath pk)) (upeekValue pk)) wtree)) (toListOf (toLens p) _s :: [Univ])
                                                                           _ -> []
                                                       in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s,
                                                      let dopath pth = case pth of
-                                                                          p@(UPath_Item_images _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: ReportImages) :: Forest (UPeek Univ ReportImages)
+                                                                          p@(UPath_Item_images _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: ReportImages) :: Forest (UPeek Univ ReportImages)
                                                                                                                    in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ ReportImages of
                                                                                                                                                                                                          UPeek_ReportImages _
                                                                                                                                                                                                                             _ -> upeekCons (UPath_Item_images (upeekPath pk)) (upeekValue pk)) wtree)) (toListOf (toLens p) _s :: [Univ])
@@ -9469,6 +9624,8 @@ instance PathStart Univ Item
                                                      in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s] :: [UPeek Univ Item]
           type UPath Univ Item = UPath_Item
           upaths _ _f r0 (Item {}) = foldr _f (foldr _f (foldr _f r0 [UPath_Item_images idPath]) [UPath_Item_fields idPath]) [UPath_Item_itemName idPath]
+          upathRow _ (Item {}) = concat [[UPath_Item_itemName undefined], [UPath_Item_fields undefined], [UPath_Item_images undefined]]
+          upathTree _ _ = []
 instance PathStart Univ MIM
     where data Peek Univ MIM
               = Peek_MIM_JSONText (Path Univ MIM JSONText) (Maybe JSONText)
@@ -9481,7 +9638,7 @@ instance PathStart Univ MIM
           upeekPath (UPeek_MIM p _) = p
           upeekValue (UPeek_MIM _ x) = x
           peekTree (Proxy) (_s@_x) = let dopath pth = case pth of
-                                                          p@(Path_Look _k _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: Markup) :: Forest (UPeek Univ Markup)
+                                                          p@(Path_Look _k _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: Markup) :: Forest (UPeek Univ Markup)
                                                                                               in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ Markup of
                                                                                                                                                                                     UPeek_Markup _
                                                                                                                                                                                                  _ -> upeekCons (Path_Look _k (upeekPath pk)) (upeekValue pk)) wtree)) (toListOf (toLens p) _s :: [Univ])
@@ -9493,6 +9650,8 @@ instance PathStart Univ MIM
                                      in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s :: [UPeek Univ MIM]
           type UPath Univ MIM = UPath_MIM
           upaths _ _f r0 _x = foldr _f r0 (map (\(k, v) -> Path_Look k idPath) (toList _x))
+          upathRow _ _x = concat [map (\(k, v) -> Path_Look k undefined) (toList _x)]
+          upathTree _ _ = []
 instance PathStart Univ MRR
     where data Peek Univ MRR
               = Peek_MRR_String (Path Univ MRR String) (Maybe String)
@@ -9550,7 +9709,7 @@ instance PathStart Univ MRR
           upeekPath (UPeek_MRR p _) = p
           upeekValue (UPeek_MRR _ x) = x
           peekTree (Proxy) (_s@_x) = let dopath pth = case pth of
-                                                          p@(Path_Look _k _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: Report) :: Forest (UPeek Univ Report)
+                                                          p@(Path_Look _k _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: Report) :: Forest (UPeek Univ Report)
                                                                                               in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ Report of
                                                                                                                                                                                     UPeek_Report _
                                                                                                                                                                                                  _ -> upeekCons (Path_Look _k (upeekPath pk)) (upeekValue pk)) wtree)) (toListOf (toLens p) _s :: [Univ])
@@ -9562,6 +9721,8 @@ instance PathStart Univ MRR
                                      in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s :: [UPeek Univ MRR]
           type UPath Univ MRR = UPath_MRR
           upaths _ _f r0 _x = foldr _f r0 (map (\(k, v) -> Path_Look k idPath) (toList _x))
+          upathRow _ _x = concat [map (\(k, v) -> Path_Look k undefined) (toList _x)]
+          upathTree _ _ = []
 instance PathStart Univ ReportMap
     where data Peek Univ ReportMap
               = Peek_ReportMap_String (Path Univ ReportMap String) (Maybe String)
@@ -9620,7 +9781,7 @@ instance PathStart Univ ReportMap
           upeekPath (UPeek_ReportMap p _) = p
           upeekValue (UPeek_ReportMap _ x) = x
           peekTree (Proxy) (_s@(ReportMap {})) = let dopath pth = case pth of
-                                                                      p@(UPath_ReportMap_unReportMap _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: MRR) :: Forest (UPeek Univ MRR)
+                                                                      p@(UPath_ReportMap_unReportMap _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: MRR) :: Forest (UPeek Univ MRR)
                                                                                                                          in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ MRR of
                                                                                                                                                                                                                UPeek_MRR _
                                                                                                                                                                                                                          _ -> upeekCons (UPath_ReportMap_unReportMap (upeekPath pk)) (upeekValue pk)) wtree)) (toListOf (toLens p) _s :: [Univ])
@@ -9632,6 +9793,8 @@ instance PathStart Univ ReportMap
                                                  in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s :: [UPeek Univ ReportMap]
           type UPath Univ ReportMap = UPath_ReportMap
           upaths _ _f r0 (ReportMap {}) = foldr _f r0 [UPath_ReportMap_unReportMap idPath]
+          upathRow _ (ReportMap {}) = concat [[UPath_ReportMap_unReportMap undefined]]
+          upathTree _ _ = []
 instance PathStart Univ CIString
     where data Peek Univ CIString
               = Peek_CIString_JSONText (Path Univ CIString JSONText) (Maybe JSONText)
@@ -9643,7 +9806,7 @@ instance PathStart Univ CIString
           upeekPath (UPeek_CIString p _) = p
           upeekValue (UPeek_CIString _ x) = x
           peekTree (Proxy) (_s@_x) = let dopath pth = case pth of
-                                                          p@(UPath_CIString_View _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: Text) :: Forest (UPeek Univ Text)
+                                                          p@(UPath_CIString_View _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: Text) :: Forest (UPeek Univ Text)
                                                                                                      in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ Text of
                                                                                                                                                                                            UPeek_Text _
                                                                                                                                                                                                       _ -> upeekCons (UPath_CIString_View (upeekPath pk)) (upeekValue pk)) wtree)) (toListOf (toLens p) _s :: [Univ])
@@ -9655,6 +9818,8 @@ instance PathStart Univ CIString
                                      in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s :: [UPeek Univ CIString]
           type UPath Univ CIString = UPath_CIString
           upaths _ _f r0 _x = foldr _f r0 [UPath_CIString_View idPath]
+          upathRow _ _x = concat [[UPath_CIString_View undefined]]
+          upathTree _ _ = []
 instance PathStart Univ URI
     where data Peek Univ URI = Peek_URI_URI (Path Univ URI URI) (Maybe URI) deriving (Eq, Show)
           data UPeek Univ URI = UPeek_URI (UPath Univ URI) (Maybe Univ) deriving (Eq, Show)
@@ -9665,6 +9830,8 @@ instance PathStart Univ URI
           peekRow _ _ = []
           type UPath Univ URI = UPath_URI
           upaths _ _ r _ = r
+          upathRow _ _ = []
+          upathTree _ _ = []
 instance PathStart Univ Text
     where data Peek Univ Text = Peek_Text_JSONText (Path Univ Text JSONText) (Maybe JSONText) | Peek_Text_Text (Path Univ Text Text) (Maybe Text) deriving (Eq, Show)
           data UPeek Univ Text = UPeek_Text (UPath Univ Text) (Maybe Univ) deriving (Eq, Show)
@@ -9672,7 +9839,7 @@ instance PathStart Univ Text
           upeekPath (UPeek_Text p _) = p
           upeekValue (UPeek_Text _ x) = x
           peekTree (Proxy) (_s@_x) = let dopath pth = case pth of
-                                                          p@(UPath_Text_View _wp) -> map (\a -> let wtree = peekTree Proxy (unU a :: JSONText) :: Forest (UPeek Univ JSONText)
+                                                          p@(UPath_Text_View _wp) -> map (\a -> let wtree = peekTree Proxy (fromJust (unU' a) :: JSONText) :: Forest (UPeek Univ JSONText)
                                                                                                  in Node (upeekCons p (if null wtree then Just a else Nothing)) (forestMap (\pk -> case pk :: UPeek Univ JSONText of
                                                                                                                                                                                        UPeek_JSONText _
                                                                                                                                                                                                       _ -> upeekCons (UPath_Text_View (upeekPath pk)) (upeekValue pk)) wtree)) (toListOf (toLens p) _s :: [Univ])
@@ -9684,6 +9851,8 @@ instance PathStart Univ Text
                                      in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s :: [UPeek Univ Text]
           type UPath Univ Text = UPath_Text
           upaths _ _f r0 _x = foldr _f r0 [UPath_Text_View idPath]
+          upathRow _ _x = concat [[UPath_Text_View undefined]]
+          upathTree _ _ = []
 instance PathStart Univ UserId
     where data Peek Univ UserId = Peek_UserId_UserId (Path Univ UserId UserId) (Maybe UserId) deriving (Eq, Show)
           data UPeek Univ UserId = UPeek_UserId (UPath Univ UserId) (Maybe Univ) deriving (Eq, Show)
@@ -9694,6 +9863,8 @@ instance PathStart Univ UserId
           peekRow _ _ = []
           type UPath Univ UserId = UPath_UserId
           upaths _ _ r _ = r
+          upathRow _ _ = []
+          upathTree _ _ = []
 instance PathStart Univ UUID
     where data Peek Univ UUID = Peek_UUID_UUID (Path Univ UUID UUID) (Maybe UUID) deriving (Eq, Show)
           data UPeek Univ UUID = UPeek_UUID (UPath Univ UUID) (Maybe Univ) deriving (Eq, Show)
@@ -9704,159 +9875,212 @@ instance PathStart Univ UUID
           peekRow _ _ = []
           type UPath Univ UUID = UPath_UUID
           upaths _ _ r _ = r
+          upathRow _ _ = []
+          upathTree _ _ = []
 instance U Univ String
     where u = U1
-          unU (U1 a) = a
+          unU' (U1 a) = Just a
+          unU' _ = Nothing
 instance U Univ Int64
     where u = U2
-          unU (U2 a) = a
+          unU' (U2 a) = Just a
+          unU' _ = Nothing
 instance U Univ Bool
     where u = U4
-          unU (U4 a) = a
+          unU' (U4 a) = Just a
+          unU' _ = Nothing
 instance U Univ Double
     where u = U5
-          unU (U5 a) = a
+          unU' (U5 a) = Just a
+          unU' _ = Nothing
 instance U Univ Int
     where u = U3
-          unU (U3 a) = a
+          unU' (U3 a) = Just a
+          unU' _ = Nothing
 instance U Univ Dimension
     where u = U6
-          unU (U6 a) = a
+          unU' (U6 a) = Just a
+          unU' _ = Nothing
 instance U Univ ImageCrop
     where u = U7
-          unU (U7 a) = a
+          unU' (U7 a) = Just a
+          unU' _ = Nothing
 instance U Univ ImageSize
     where u = U8
-          unU (U8 a) = a
+          unU' (U8 a) = Just a
+          unU' _ = Nothing
 instance U Univ Units
     where u = U9
-          unU (U9 a) = a
+          unU' (U9 a) = Just a
+          unU' _ = Nothing
 instance U Univ ImageFile
     where u = U10
-          unU (U10 a) = a
+          unU' (U10 a) = Just a
+          unU' _ = Nothing
 instance U Univ Integer
     where u = U11
-          unU (U11 a) = a
+          unU' (U11 a) = Just a
+          unU' _ = Nothing
 instance U Univ JSONText
     where u = U12
-          unU (U12 a) = a
+          unU' (U12 a) = Just a
+          unU' _ = Nothing
 instance U Univ Markup
     where u = U13
-          unU (U13 a) = a
+          unU' (U13 a) = Just a
+          unU' _ = Nothing
 instance U Univ Permissions
     where u = U14
-          unU (U14 a) = a
+          unU' (U14 a) = Just a
+          unU' _ = Nothing
 instance U Univ UserIds
     where u = U15
-          unU (U15 a) = a
+          unU' (U15 a) = Just a
+          unU' _ = Nothing
 instance U Univ AbbrevPair
     where u = U16
-          unU (U16 a) = a
+          unU' (U16 a) = Just a
+          unU' _ = Nothing
 instance U Univ AbbrevPairs
     where u = U17
-          unU (U17 a) = a
+          unU' (U17 a) = Just a
+          unU' _ = Nothing
 instance U Univ Author
     where u = U18
-          unU (U18 a) = a
+          unU' (U18 a) = Just a
+          unU' _ = Nothing
 instance U Univ Authors
     where u = U19
-          unU (U19 a) = a
+          unU' (U19 a) = Just a
+          unU' _ = Nothing
 instance U Univ Branding
     where u = U20
-          unU (U20 a) = a
+          unU' (U20 a) = Just a
+          unU' _ = Nothing
 instance U Univ MarkupPair
     where u = U21
-          unU (U21 a) = a
+          unU' (U21 a) = Just a
+          unU' _ = Nothing
 instance U Univ MarkupPairs
     where u = U22
-          unU (U22 a) = a
+          unU' (U22 a) = Just a
+          unU' _ = Nothing
 instance U Univ Markups
     where u = U23
-          unU (U23 a) = a
+          unU' (U23 a) = Just a
+          unU' _ = Nothing
 instance U Univ MaybeReportIntendedUse
     where u = U24
-          unU (U24 a) = a
+          unU' (U24 a) = Just a
+          unU' _ = Nothing
 instance U Univ Report
     where u = U25
-          unU (U25 a) = a
+          unU' (U25 a) = Just a
+          unU' _ = Nothing
 instance U Univ ReportElem
     where u = U26
-          unU (U26 a) = a
+          unU' (U26 a) = Just a
+          unU' _ = Nothing
 instance U Univ ReportElems
     where u = U27
-          unU (U27 a) = a
+          unU' (U27 a) = Just a
+          unU' _ = Nothing
 instance U Univ ReportFlags
     where u = U28
-          unU (U28 a) = a
+          unU' (U28 a) = Just a
+          unU' _ = Nothing
 instance U Univ ReportIntendedUse
     where u = U29
-          unU (U29 a) = a
+          unU' (U29 a) = Just a
+          unU' _ = Nothing
 instance U Univ ReportStandard
     where u = U30
-          unU (U30 a) = a
+          unU' (U30 a) = Just a
+          unU' _ = Nothing
 instance U Univ ReportStatus
     where u = U31
-          unU (U31 a) = a
+          unU' (U31 a) = Just a
+          unU' _ = Nothing
 instance U Univ ReportValueApproachInfo
     where u = U32
-          unU (U32 a) = a
+          unU' (U32 a) = Just a
+          unU' _ = Nothing
 instance U Univ ReportValueTypeInfo
     where u = U33
-          unU (U33 a) = a
+          unU' (U33 a) = Just a
+          unU' _ = Nothing
 instance U Univ EUI
     where u = U34
-          unU (U34 a) = a
+          unU' (U34 a) = Just a
+          unU' _ = Nothing
 instance U Univ MEUI
     where u = U35
-          unU (U35 a) = a
+          unU' (U35 a) = Just a
+          unU' _ = Nothing
 instance U Univ MaybeImageFile
     where u = U36
-          unU (U36 a) = a
+          unU' (U36 a) = Just a
+          unU' _ = Nothing
 instance U Univ ReportImage
     where u = U37
-          unU (U37 a) = a
+          unU' (U37 a) = Just a
+          unU' _ = Nothing
 instance U Univ ReportImages
     where u = U38
-          unU (U38 a) = a
+          unU' (U38 a) = Just a
+          unU' _ = Nothing
 instance U Univ ReadOnlyFilePath
     where u = U39
-          unU (U39 a) = a
+          unU' (U39 a) = Just a
+          unU' _ = Nothing
 instance U Univ ReportImageView
     where u = U40
-          unU (U40 a) = a
+          unU' (U40 a) = Just a
+          unU' _ = Nothing
 instance U Univ ReportView
     where u = U41
-          unU (U41 a) = a
+          unU' (U41 a) = Just a
+          unU' _ = Nothing
 instance U Univ SaneSizeImageSize
     where u = U42
-          unU (U42 a) = a
+          unU' (U42 a) = Just a
+          unU' _ = Nothing
 instance U Univ Item
     where u = U43
-          unU (U43 a) = a
+          unU' (U43 a) = Just a
+          unU' _ = Nothing
 instance U Univ MIM
     where u = U44
-          unU (U44 a) = a
+          unU' (U44 a) = Just a
+          unU' _ = Nothing
 instance U Univ MRR
     where u = U45
-          unU (U45 a) = a
+          unU' (U45 a) = Just a
+          unU' _ = Nothing
 instance U Univ ReportMap
     where u = U46
-          unU (U46 a) = a
+          unU' (U46 a) = Just a
+          unU' _ = Nothing
 instance U Univ CIString
     where u = U47
-          unU (U47 a) = a
+          unU' (U47 a) = Just a
+          unU' _ = Nothing
 instance U Univ URI
     where u = U48
-          unU (U48 a) = a
+          unU' (U48 a) = Just a
+          unU' _ = Nothing
 instance U Univ Text
     where u = U49
-          unU (U49 a) = a
+          unU' (U49 a) = Just a
+          unU' _ = Nothing
 instance U Univ UserId
     where u = U50
-          unU (U50 a) = a
+          unU' (U50 a) = Just a
+          unU' _ = Nothing
 instance U Univ UUID
     where u = U51
-          unU (U51 a) = a
+          unU' (U51 a) = Just a
+          unU' _ = Nothing
 instance HasAuthor Author
     where lens_author = id
           lens_Author_authorCredentials f (Author x1 x2) = fmap (\y1 -> Author x1 y1) (f x2)
@@ -17488,7 +17712,7 @@ instance ToLens (Path_Either (Path_URI URI) (Path_ImageFile URI))
 instance ToLens (Path_Either UPath_URI UPath_ImageFile)
     where type S (Path_Either UPath_URI UPath_ImageFile) = EUI
           type A (Path_Either UPath_URI UPath_ImageFile) = Univ
-          toLens p | p == idPath = iso u unU
+          toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
           toLens (Path_Left v) = _Left . toLens v
           toLens (Path_Right v) = _Right . toLens v
 instance ToLens (Path_Map ItemFieldName (Path_Markup JSONText))
@@ -17510,7 +17734,7 @@ instance ToLens (Path_Map ItemFieldName (Path_Markup Text))
 instance ToLens (Path_Map ItemFieldName UPath_Markup)
     where type S (Path_Map ItemFieldName UPath_Markup) = MIM
           type A (Path_Map ItemFieldName UPath_Markup) = Univ
-          toLens p | p == idPath = iso u unU
+          toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
           toLens (Path_Look k v) = mat k . toLens v
 instance ToLens (Path_Map ReportID (Path_Report String))
     where type S (Path_Map ReportID (Path_Report String)) = MRR
@@ -17711,7 +17935,7 @@ instance ToLens (Path_Map ReportID (Path_Report UUID))
 instance ToLens (Path_Map ReportID UPath_Report)
     where type S (Path_Map ReportID UPath_Report) = MRR
           type A (Path_Map ReportID UPath_Report) = Univ
-          toLens p | p == idPath = iso u unU
+          toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
           toLens (Path_Look k v) = mat k . toLens v
 instance ToLens (Path_Pair (Path_CIString JSONText) (Path_Markup JSONText))
     where type S (Path_Pair (Path_CIString JSONText) (Path_Markup JSONText)) = AbbrevPair
@@ -17757,13 +17981,13 @@ instance ToLens (Path_Pair (Path_Markup Text) (Path_Markup Text))
 instance ToLens (Path_Pair UPath_CIString UPath_Markup)
     where type S (Path_Pair UPath_CIString UPath_Markup) = AbbrevPair
           type A (Path_Pair UPath_CIString UPath_Markup) = Univ
-          toLens p | p == idPath = iso u unU
+          toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
           toLens (Path_First v) = _1 . toLens v
           toLens (Path_Second v) = _2 . toLens v
 instance ToLens (Path_Pair UPath_Markup UPath_Markup)
     where type S (Path_Pair UPath_Markup UPath_Markup) = MarkupPair
           type A (Path_Pair UPath_Markup UPath_Markup) = Univ
-          toLens p | p == idPath = iso u unU
+          toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
           toLens (Path_First v) = _1 . toLens v
           toLens (Path_Second v) = _2 . toLens v
 instance ToLens (Path_OMap AbbrevPairID (Path_Pair (Path_CIString JSONText) (Path_Markup JSONText)))
@@ -17793,7 +18017,7 @@ instance ToLens (Path_OMap AbbrevPairID (Path_Pair (Path_CIString Text) (Path_Ma
 instance ToLens (Path_OMap AbbrevPairID (Path_Pair UPath_CIString UPath_Markup))
     where type S (Path_OMap AbbrevPairID (Path_Pair UPath_CIString UPath_Markup)) = AbbrevPairs
           type A (Path_OMap AbbrevPairID (Path_Pair UPath_CIString UPath_Markup)) = Univ
-          toLens p | p == idPath = iso u unU
+          toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
           toLens (Path_At k v) = lens_omat k . toLens v
 instance ToLens (Path_OMap AuthorID (Path_Author JSONText))
     where type S (Path_OMap AuthorID (Path_Author JSONText)) = Authors
@@ -17818,7 +18042,7 @@ instance ToLens (Path_OMap AuthorID (Path_Author Text))
 instance ToLens (Path_OMap AuthorID UPath_Author)
     where type S (Path_OMap AuthorID UPath_Author) = Authors
           type A (Path_OMap AuthorID UPath_Author) = Univ
-          toLens p | p == idPath = iso u unU
+          toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
           toLens (Path_At k v) = lens_omat k . toLens v
 instance ToLens (Path_OMap MarkupID (Path_Markup JSONText))
     where type S (Path_OMap MarkupID (Path_Markup JSONText)) = Markups
@@ -17839,7 +18063,7 @@ instance ToLens (Path_OMap MarkupID (Path_Markup Text))
 instance ToLens (Path_OMap MarkupID UPath_Markup)
     where type S (Path_OMap MarkupID UPath_Markup) = Markups
           type A (Path_OMap MarkupID UPath_Markup) = Univ
-          toLens p | p == idPath = iso u unU
+          toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
           toLens (Path_At k v) = lens_omat k . toLens v
 instance ToLens (Path_OMap MarkupPairID (Path_Pair (Path_Markup JSONText) (Path_Markup JSONText)))
     where type S (Path_OMap MarkupPairID (Path_Pair (Path_Markup JSONText) (Path_Markup JSONText))) = MarkupPairs
@@ -17864,7 +18088,7 @@ instance ToLens (Path_OMap MarkupPairID (Path_Pair (Path_Markup Text) (Path_Mark
 instance ToLens (Path_OMap MarkupPairID (Path_Pair UPath_Markup UPath_Markup))
     where type S (Path_OMap MarkupPairID (Path_Pair UPath_Markup UPath_Markup)) = MarkupPairs
           type A (Path_OMap MarkupPairID (Path_Pair UPath_Markup UPath_Markup)) = Univ
-          toLens p | p == idPath = iso u unU
+          toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
           toLens (Path_At k v) = lens_omat k . toLens v
 instance ToLens (Path_OMap ReportElemID (Path_ReportElem String))
     where type S (Path_OMap ReportElemID (Path_ReportElem String)) = ReportElems
@@ -17961,7 +18185,7 @@ instance ToLens (Path_OMap ReportElemID (Path_ReportElem Text))
 instance ToLens (Path_OMap ReportElemID UPath_ReportElem)
     where type S (Path_OMap ReportElemID UPath_ReportElem) = ReportElems
           type A (Path_OMap ReportElemID UPath_ReportElem) = Univ
-          toLens p | p == idPath = iso u unU
+          toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
           toLens (Path_At k v) = lens_omat k . toLens v
 instance ToLens (Path_OMap ReportImageID (Path_ReportImage String))
     where type S (Path_OMap ReportImageID (Path_ReportImage String)) = ReportImages
@@ -18042,7 +18266,7 @@ instance ToLens (Path_OMap ReportImageID (Path_ReportImage Text))
 instance ToLens (Path_OMap ReportImageID UPath_ReportImage)
     where type S (Path_OMap ReportImageID UPath_ReportImage) = ReportImages
           type A (Path_OMap ReportImageID UPath_ReportImage) = Univ
-          toLens p | p == idPath = iso u unU
+          toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
           toLens (Path_At k v) = lens_omat k . toLens v
 instance ToLens (Path_Author JSONText)
     where type S (Path_Author JSONText) = Author
@@ -19458,130 +19682,130 @@ instance ToLens (Path_Maybe (Path_Either (Path_URI URI) (Path_ImageFile URI)))
 instance ToLens (Path_Maybe (Path_Either UPath_URI UPath_ImageFile))
     where type S (Path_Maybe (Path_Either UPath_URI UPath_ImageFile)) = MEUI
           type A (Path_Maybe (Path_Either UPath_URI UPath_ImageFile)) = Univ
-          toLens p | p == idPath = iso u unU
+          toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
           toLens (Path_Just v) = _Just . toLens v
 instance ToLens UPath_Author
     where type S UPath_Author = Author
           type A UPath_Author = Univ
-          toLens p | p == idPath = iso u unU
+          toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
           toLens (UPath_Author_authorName _p) = lens_Author_authorName . toLens _p
           toLens (UPath_Author_authorCredentials _p) = lens_Author_authorCredentials . toLens _p
 instance ToLens UPath_Bool
     where type S UPath_Bool = Bool
           type A UPath_Bool = Univ
-          toLens p | p == idPath = iso u unU
+          toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
           toLens (UPath_Bool_View v) = (viewLens :: Lens' Bool String) . toLens v
 instance ToLens UPath_Branding
     where type S UPath_Branding = Branding
           type A UPath_Branding = Univ
-          toLens p | p == idPath = iso u unU
+          toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
           toLens (UPath_Branding_View v) = (viewLens :: Lens' Branding Text) . toLens v
 instance ToLens UPath_CIString
     where type S UPath_CIString = CIString
           type A UPath_CIString = Univ
-          toLens p | p == idPath = iso u unU
+          toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
           toLens (UPath_CIString_View v) = (viewLens :: Lens' CIString Text) . toLens v
 instance ToLens UPath_Dimension
     where type S UPath_Dimension = Dimension
           type A UPath_Dimension = Univ
-          toLens p | p == idPath = iso u unU
+          toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
           toLens (UPath_Dimension_View v) = (viewLens :: Lens' Dimension JSONText) . toLens v
 instance ToLens UPath_Double
     where type S UPath_Double = Double
           type A UPath_Double = Univ
-          toLens p | p == idPath = iso u unU
+          toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
           toLens (UPath_Double_View v) = (viewLens :: Lens' Double String) . toLens v
 instance ToLens UPath_ImageCrop
     where type S UPath_ImageCrop = ImageCrop
           type A UPath_ImageCrop = Univ
-          toLens p | p == idPath = iso u unU
+          toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
 instance ToLens UPath_ImageFile
     where type S UPath_ImageFile = ImageFile
           type A UPath_ImageFile = Univ
-          toLens p | p == idPath = iso u unU
+          toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
 instance ToLens UPath_ImageSize
     where type S UPath_ImageSize = ImageSize
           type A UPath_ImageSize = Univ
-          toLens p | p == idPath = iso u unU
+          toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
           toLens (UPath_ImageSize_dim _p) = lens_ImageSize_dim . toLens _p
           toLens (UPath_ImageSize_size _p) = lens_ImageSize_size . toLens _p
           toLens (UPath_ImageSize_units _p) = lens_ImageSize_units . toLens _p
 instance ToLens UPath_Int
     where type S UPath_Int = Int
           type A UPath_Int = Univ
-          toLens p | p == idPath = iso u unU
+          toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
 instance ToLens UPath_Int64
     where type S UPath_Int64 = Int64
           type A UPath_Int64 = Univ
-          toLens p | p == idPath = iso u unU
+          toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
 instance ToLens UPath_Integer
     where type S UPath_Integer = Integer
           type A UPath_Integer = Univ
-          toLens p | p == idPath = iso u unU
+          toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
 instance ToLens UPath_Item
     where type S UPath_Item = Item
           type A UPath_Item = Univ
-          toLens p | p == idPath = iso u unU
+          toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
           toLens (UPath_Item_itemName _p) = lens_Item_itemName . toLens _p
           toLens (UPath_Item_fields _p) = lens_Item_fields . toLens _p
           toLens (UPath_Item_images _p) = lens_Item_images . toLens _p
 instance ToLens UPath_JSONText
     where type S UPath_JSONText = JSONText
           type A UPath_JSONText = Univ
-          toLens p | p == idPath = iso u unU
+          toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
 instance ToLens UPath_Markup
     where type S UPath_Markup = Markup
           type A UPath_Markup = Univ
-          toLens p | p == idPath = iso u unU
+          toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
           toLens (UPath_Markup_markdownText _p) = lens_Markup_markdownText . toLens _p
           toLens (UPath_Markup_htmlText _p) = lens_Markup_htmlText . toLens _p
 instance ToLens UPath_MaybeImageFile
     where type S UPath_MaybeImageFile = MaybeImageFile
           type A UPath_MaybeImageFile = Univ
-          toLens p | p == idPath = iso u unU
+          toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
           toLens (UPath_MaybeImageFile_View v) = (viewLens :: Lens' MaybeImageFile String) . toLens v
 instance ToLens UPath_MaybeReportIntendedUse
     where type S UPath_MaybeReportIntendedUse = MaybeReportIntendedUse
           type A UPath_MaybeReportIntendedUse = Univ
-          toLens p | p == idPath = iso u unU
+          toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
           toLens (UPath_MaybeReportIntendedUse_View v) = (viewLens :: Lens' MaybeReportIntendedUse String) . toLens v
 instance ToLens UPath_Permissions
     where type S UPath_Permissions = Permissions
           type A UPath_Permissions = Univ
-          toLens p | p == idPath = iso u unU
+          toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
           toLens (UPath_Permissions_owner _p) = lens_Permissions_owner . toLens _p
           toLens (UPath_Permissions_writers _p) = lens_Permissions_writers . toLens _p
           toLens (UPath_Permissions_readers _p) = lens_Permissions_readers . toLens _p
 instance ToLens UPath_ReadOnlyFilePath
     where type S UPath_ReadOnlyFilePath = ReadOnlyFilePath
           type A UPath_ReadOnlyFilePath = Univ
-          toLens p | p == idPath = iso u unU
+          toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
           toLens (UPath_ReadOnlyFilePath_View v) = (viewLens :: Lens' ReadOnlyFilePath String) . toLens v
 instance ToLens UPath_Report
     where type S UPath_Report = Report
           type A UPath_Report = Univ
-          toLens p | p == idPath = iso u unU
+          toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
           toLens (UPath_Report_View v) = (viewLens :: Lens' Report ReportView) . toLens v
 instance ToLens UPath_ReportElem
     where type S UPath_ReportElem = ReportElem
           type A UPath_ReportElem = Univ
-          toLens p | p == idPath = iso u unU
+          toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
           toLens (UPath_ReportElem_elemItem _p) = lens_ReportElem_elemItem . toLens _p
           toLens (UPath_ReportElem_elemText _p) = lens_ReportElem_elemText . toLens _p
 instance ToLens UPath_ReportFlags
     where type S UPath_ReportFlags = ReportFlags
           type A UPath_ReportFlags = Univ
-          toLens p | p == idPath = iso u unU
+          toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
           toLens (UPath_ReportFlags_hideEmptyItemFields _p) = lens_ReportFlags_hideEmptyItemFields . toLens _p
 instance ToLens UPath_ReportImage
     where type S UPath_ReportImage = ReportImage
           type A UPath_ReportImage = Univ
-          toLens p | p == idPath = iso u unU
+          toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
           toLens (UPath_ReportImage_View v) = (viewLens :: Lens' ReportImage ReportImageView) . toLens v
 instance ToLens UPath_ReportImageView
     where type S UPath_ReportImageView = ReportImageView
           type A UPath_ReportImageView = Univ
-          toLens p | p == idPath = iso u unU
+          toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
           toLens (UPath_ReportImageView__picSize _p) = lens_ReportImageView__picSize . toLens _p
           toLens (UPath_ReportImageView__picCrop _p) = lens_ReportImageView__picCrop . toLens _p
           toLens (UPath_ReportImageView__picCaption _p) = lens_ReportImageView__picCaption . toLens _p
@@ -19594,40 +19818,40 @@ instance ToLens UPath_ReportImageView
 instance ToLens UPath_ReportIntendedUse
     where type S UPath_ReportIntendedUse = ReportIntendedUse
           type A UPath_ReportIntendedUse = Univ
-          toLens p | p == idPath = iso u unU
+          toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
           toLens (UPath_ReportIntendedUse_View v) = (viewLens :: Lens' ReportIntendedUse String) . toLens v
 instance ToLens UPath_ReportMap
     where type S UPath_ReportMap = ReportMap
           type A UPath_ReportMap = Univ
-          toLens p | p == idPath = iso u unU
+          toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
           toLens (UPath_ReportMap_unReportMap _p) = lens_ReportMap_unReportMap . toLens _p
 instance ToLens UPath_ReportStandard
     where type S UPath_ReportStandard = ReportStandard
           type A UPath_ReportStandard = Univ
-          toLens p | p == idPath = iso u unU
+          toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
           toLens (UPath_ReportStandard_unReportStandard _p) = lens_ReportStandard_unReportStandard . toLens _p
 instance ToLens UPath_ReportStatus
     where type S UPath_ReportStatus = ReportStatus
           type A UPath_ReportStatus = Univ
-          toLens p | p == idPath = iso u unU
+          toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
           toLens (UPath_ReportStatus_View v) = (viewLens :: Lens' ReportStatus String) . toLens v
 instance ToLens UPath_ReportValueApproachInfo
     where type S UPath_ReportValueApproachInfo = ReportValueApproachInfo
           type A UPath_ReportValueApproachInfo = Univ
-          toLens p | p == idPath = iso u unU
+          toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
           toLens (UPath_ReportValueApproachInfo_reportValueApproachName _p) = lens_ReportValueApproachInfo_reportValueApproachName . toLens _p
           toLens (UPath_ReportValueApproachInfo_reportValueApproachDescription _p) = lens_ReportValueApproachInfo_reportValueApproachDescription . toLens _p
 instance ToLens UPath_ReportValueTypeInfo
     where type S UPath_ReportValueTypeInfo = ReportValueTypeInfo
           type A UPath_ReportValueTypeInfo = Univ
-          toLens p | p == idPath = iso u unU
+          toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
           toLens (UPath_ReportValueTypeInfo_reportValueTypeName _p) = lens_ReportValueTypeInfo_reportValueTypeName . toLens _p
           toLens (UPath_ReportValueTypeInfo_reportValueTypeDescription _p) = lens_ReportValueTypeInfo_reportValueTypeDescription . toLens _p
           toLens (UPath_ReportValueTypeInfo_reportValueTypeDefinition _p) = lens_ReportValueTypeInfo_reportValueTypeDefinition . toLens _p
 instance ToLens UPath_ReportView
     where type S UPath_ReportView = ReportView
           type A UPath_ReportView = Univ
-          toLens p | p == idPath = iso u unU
+          toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
           toLens (UPath_ReportView__reportFolder _p) = lens_ReportView__reportFolder . toLens _p
           toLens (UPath_ReportView__reportName _p) = lens_ReportView__reportName . toLens _p
           toLens (UPath_ReportView__reportDate _p) = lens_ReportView__reportDate . toLens _p
@@ -19676,37 +19900,37 @@ instance ToLens UPath_ReportView
 instance ToLens UPath_SaneSizeImageSize
     where type S UPath_SaneSizeImageSize = SaneSizeImageSize
           type A UPath_SaneSizeImageSize = Univ
-          toLens p | p == idPath = iso u unU
+          toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
           toLens (UPath_SaneSizeImageSize_View v) = (viewLens :: Lens' SaneSizeImageSize ImageSize) . toLens v
 instance ToLens UPath_String
     where type S UPath_String = String
           type A UPath_String = Univ
-          toLens p | p == idPath = iso u unU
+          toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
           toLens (UPath_String_View v) = (viewLens :: Lens' String JSONText) . toLens v
 instance ToLens UPath_Text
     where type S UPath_Text = Text
           type A UPath_Text = Univ
-          toLens p | p == idPath = iso u unU
+          toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
           toLens (UPath_Text_View v) = (viewLens :: Lens' Text JSONText) . toLens v
 instance ToLens UPath_URI
     where type S UPath_URI = URI
           type A UPath_URI = Univ
-          toLens p | p == idPath = iso u unU
+          toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
 instance ToLens UPath_UUID
     where type S UPath_UUID = UUID
           type A UPath_UUID = Univ
-          toLens p | p == idPath = iso u unU
+          toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
 instance ToLens UPath_Units
     where type S UPath_Units = Units
           type A UPath_Units = Univ
-          toLens p | p == idPath = iso u unU
+          toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
           toLens (UPath_Units_View v) = (viewLens :: Lens' Units JSONText) . toLens v
 instance ToLens UPath_UserId
     where type S UPath_UserId = UserId
           type A UPath_UserId = Univ
-          toLens p | p == idPath = iso u unU
+          toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
 instance ToLens UPath_UserIds
     where type S UPath_UserIds = UserIds
           type A UPath_UserIds = Univ
-          toLens p | p == idPath = iso u unU
+          toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
           toLens (UPath_UserIds_View v) = (viewLens :: Lens' UserIds Text) . toLens v

@@ -25,6 +25,7 @@ import Appraisal.ReportInstances
 import Control.Lens (toListOf, view)
 -- import Data.Algorithm.DiffContext (getContextDiff, prettyContextDiff)
 -- import Data.ByteString.UTF8 (toString)
+import Data.Maybe (fromJust, mapMaybe)
 import Data.Proxy (Proxy(Proxy))
 import Data.Tree
 import Language.Haskell.TH
@@ -104,8 +105,15 @@ testPeekReport =
       expected :: UPeek Univ Report
       expected = UPeek_Report (UPath_Report_View (UPath_ReportView__reportBody (Path_At (ReportElemID {unReportElemID = 0}) UPath_ReportElem))) (Just (u (ReportParagraph {elemText = (rawMarkdown "## Market Overview\n\nThe collection consists of a group of nine contemporary Chinese jade and agate sculptures, one glass sculpture of a horse and three ink paintings which were purchased in the United States and in China. \n\nIn recent years the rising affluence of mainland Chinese buyers has fueled the market for both antique and contemporary jade at auction and at  retail venues. There are two types of jade, nephrite and jadeite. Nephrite has been used in China since prehistoric times for weapons and ritual objects. It wasn\8217t until the 18th century that large quantities of jadeite were imported from Burma, the country recognized as having some of the best jadeite in the world. The surface of jadeite tends to be vitreous or glassy while nephrite\8217s surface tends to appear more waxy. Pale colors such as lavender, light green, yellow are desirable, and the combination of colors such as lavender, white and green even more so.  Design, carving technique, and skillful exploitation of the jade\8217s colors are important characteristics of value. The same value characteristics  pertain to agate carving. Contemporary jade and agate carvings are typically found at decorative art galleries and regional auction houses that cater to enthusiasts of Asian collectibles. \n\nThe three ink paintings in the collection were acquired in mainland China in 2002. Only one of the artists, Xiao Shunzhi, has an international market. Market data for the other two artists, Liu Zuozhong and Li Jialin was not available, and the valuation of their works is based on comparable works by Chinese artists available in galleries in the United States and China. \n\n\n\n \n\t")})))
       actual :: UPeek Univ Report
-      actual = let p = head (upaths (Proxy :: Proxy Univ) Report.report (:) []) in
-               UPeek_Report p (Just (head (toListOf (toLens p) Report.report)))
+      actual = let reportpath :: UPath Univ Report
+                   [reportpath] = upaths (Proxy :: Proxy Univ) (:) [] Report.report
+                   reportview :: ReportView
+                   [reportview] = mapMaybe unU' (toListOf (toLens reportpath) Report.report)
+                   reportviewpath :: UPath Univ ReportView
+                   (reportviewpath : _) = upaths (Proxy :: Proxy Univ) (:) [] reportview
+               in
+               -- peekTree (Proxy :: Proxy Univ) p
+               UPeek_Report {-reportviewpath-} reportpath (Just (head (toListOf (toLens {-reportviewpath-} reportpath) Report.report)))
 
 testPeekOrder :: Test
 testPeekOrder =
@@ -139,21 +147,21 @@ testUPaths =
           expected = [(CIString "USPAP", rawMarkdown "_Uniform Standards of Professional Appraisal Practice_, the 2012-2013 Edition (USPAP)")]
           abbrevs = reportAbbrevs Report.report
           actual :: [AbbrevPair]
-          actual = map unU (toListOf (toLens (upaths (Proxy :: Proxy Univ) (:) [] abbrevs !! 3)) abbrevs) in
+          actual = mapMaybe unU' (toListOf (toLens (upaths (Proxy :: Proxy Univ) (:) [] abbrevs !! 3)) abbrevs) in
       assertEqual' "testUPaths 2" expected actual
     , let expected = ImageSize TheHeight 3.0 Inches
-          [actual] = map unU (toListOf (toLens imageSizePath) Report.report) in
+          [actual] = mapMaybe unU' (toListOf (toLens imageSizePath) Report.report) in
       assertEqual' "testUPaths 3" expected actual
     , let expected = [UPath_ImageSize_dim UPath_Dimension,
                       UPath_ImageSize_size UPath_Double,
                       UPath_ImageSize_units UPath_Units]
           [usize] = toListOf (toLens imageSizePath) Report.report
-          actual = upaths (Proxy :: Proxy Univ) (:) [] (unU usize :: ImageSize) in
+          actual = upaths (Proxy :: Proxy Univ) (:) [] (fromJust (unU' usize) :: ImageSize) in
       assertEqual' "testUPaths 4" expected actual
     , let expected = [UPeek_ImageSize (UPath_ImageSize_dim UPath_Dimension) (Just (U6 TheHeight)),
                       UPeek_ImageSize (UPath_ImageSize_size UPath_Double) (Just (U5 3.0)),
                       UPeek_ImageSize (UPath_ImageSize_units UPath_Units) (Just (U9 Inches))]
-          [usize] = map unU (toListOf (toLens imageSizePath) Report.report) :: [ImageSize]
+          [usize] = mapMaybe unU' (toListOf (toLens imageSizePath) Report.report) :: [ImageSize]
           actual = peekRow (Proxy :: Proxy Univ) usize in
       assertEqual' "testUPaths 5" expected actual
     ]
