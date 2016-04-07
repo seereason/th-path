@@ -103,7 +103,7 @@ peekDecs utype v =
                              _ -> pure rcs),
            pure (tySynInstD ''UPath (tySynEqn [utype, asTypeQ v] (conT (mkName ("UPath_" ++ nameBase (asName v)))))),
            funD' 'upaths (case upcs of
-                            [] -> pure [newName "r" >>= \r -> clause [wildP, wildP, wildP, varP r] (normalB (varE r)) []]
+                            [] -> pure [newName "r" >>= \r -> clause [wildP, wildP, varP r, wildP] (normalB (varE r)) []]
                             _ -> pure upcs)])
        instanceD' (cxt []) [t|Describe (Peek $utype $(asTypeQ v))|]
                   (pure [funD 'describe' (case dcs of
@@ -225,7 +225,7 @@ pathControl utype v x wPathVar = do
                                  let upathss = map (\(PathConc _ _ _ _ x) -> x) concs
                                  let f' :: ExpQ -> ExpQ -> ExpQ
                                      f' upaths r = [|foldr $(varE f) $r $upaths|]
-                                 clause [wildP, xpat, varP f, varP r0]
+                                 clause [wildP, varP f, varP r0, xpat]
                                         (normalB (foldr f' (varE r0) upathss)) []]
                                         -- (normalB [|foldr $(varE f) $(varE r0) $upaths|])
                                         -- (normalB (foldr (\upath r -> (appE (appE (varE f) upath) (varE r0))) (varE r0) upaths)) []
@@ -261,7 +261,7 @@ peekList' utype x p v w upat node =
                           $(asP p upat) ->
                               map ($node) (toListOf (toLens $(varE p)) $(varE x) :: [$utype])
                           _ -> [] in
-       upaths (Proxy :: Proxy $utype) $(varE x) (\pth r -> dopath pth ++ r) []
+       upaths (Proxy :: Proxy $utype) (\pth r -> dopath pth ++ r) [] $(varE x)
                                               {-:: [$(asTypeQ (makeUPathType (ModelType (asName v)))) $(asTypeQ w)]-} |]
 
 liftPeekE :: TypeQ -> TGVSimple -> TGV -> ExpQ -> Set TGVSimple -> ExpQ

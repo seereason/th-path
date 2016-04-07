@@ -162,7 +162,7 @@ class PathStart u s where
     -- recursive peek calls are made.
     type UPath u s
     -- ^ Like type Path, but uses the universal type instead of @a@.
-    upaths :: Proxy u -> s -> (UPath u s -> r -> r) -> r -> r
+    upaths :: Proxy u -> (UPath u s -> r -> r) -> r -> s -> r
     -- ^ UPath version of 'paths'
 
 -- | For any two types @s@ and @a@, there is an instance of @Paths

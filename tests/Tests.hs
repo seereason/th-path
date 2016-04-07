@@ -133,13 +133,13 @@ testUPaths =
                       Path_At (AbbrevPairID {unAbbrevPairID = 9}) Path_Pair,
                       Path_At (AbbrevPairID {unAbbrevPairID = 10}) Path_Pair]
           actual :: [UPath Univ AbbrevPairs]
-          actual = upaths (Proxy :: Proxy Univ) (reportAbbrevs Report.report) ((:)) [] in
+          actual = upaths (Proxy :: Proxy Univ) ((:)) [] (reportAbbrevs Report.report) in
       assertEqual' "testUPaths 1" expected actual
     , let expected :: [AbbrevPair]
           expected = [(CIString "USPAP", rawMarkdown "_Uniform Standards of Professional Appraisal Practice_, the 2012-2013 Edition (USPAP)")]
           abbrevs = reportAbbrevs Report.report
           actual :: [AbbrevPair]
-          actual = map unU (toListOf (toLens (upaths (Proxy :: Proxy Univ) abbrevs (:) [] !! 3)) abbrevs) in
+          actual = map unU (toListOf (toLens (upaths (Proxy :: Proxy Univ) (:) [] abbrevs !! 3)) abbrevs) in
       assertEqual' "testUPaths 2" expected actual
     , let expected = ImageSize TheHeight 3.0 Inches
           [actual] = map unU (toListOf (toLens imageSizePath) Report.report) in
@@ -148,7 +148,7 @@ testUPaths =
                       UPath_ImageSize_size UPath_Double,
                       UPath_ImageSize_units UPath_Units]
           [usize] = toListOf (toLens imageSizePath) Report.report
-          actual = upaths (Proxy :: Proxy Univ) (unU usize :: ImageSize) (:) [] in
+          actual = upaths (Proxy :: Proxy Univ) (:) [] (unU usize :: ImageSize) in
       assertEqual' "testUPaths 4" expected actual
     , let expected = [UPeek_ImageSize (UPath_ImageSize_dim UPath_Dimension) (Just (U6 TheHeight)),
                       UPeek_ImageSize (UPath_ImageSize_size UPath_Double) (Just (U5 3.0)),
