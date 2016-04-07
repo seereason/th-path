@@ -87,8 +87,10 @@ testPeekReportView =
       expected :: Forest (UPeek Univ ReportView)
       expected = peekReportView
       actual :: Forest (UPeek Univ ReportView)
-      actual = peekTree (Proxy :: Proxy Univ) (unU (head (toListOf (toLens (UPath_Report_View (idPath :: UPath_ReportView))) Report.report) :: Univ))
+      actual = let [Just reportview] = map unU' (toListOf (toLens (UPath_Report_View (idPath :: UPath_ReportView))) Report.report) in
+               peekTree (Proxy :: Proxy Univ) reportview
 
+{-
 testLabels :: Test
 testLabels =
     assertEqual' "peek labels" expected actual
@@ -97,6 +99,7 @@ testLabels =
       expected = peekLabels
       actual :: Forest (Maybe String)
       actual = map (fmap describe) peekReportView
+-}
 
 testPeekReport :: Test
 testPeekReport =
@@ -184,7 +187,7 @@ main = do
          [ testReportElems
          , testShowInstance
          , testPeekReportView
-         , testLabels
+         -- , testLabels
          , testPeekReport
          , testPeekOrder
          , testUPaths
