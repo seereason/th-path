@@ -7560,7 +7560,7 @@ instance PathStart Univ String
                                      in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s :: [UPeek Univ String]
           type UPath Univ String = UPath_String
           upaths _ _f r0 _x = foldr _f r0 [UPath_String_View idPath]
-          upathRow _ _x = concat [[UPath_String_View undefined]]
+          upathRow _ _x = concat [[UPath_String_View idPath]]
           upathTree _ _ = Node idPath []
 instance PathStart Univ Int64
     where data Peek Univ Int64 = Peek_Int64_Int64 (Path Univ Int64 Int64) (Maybe Int64) deriving (Eq, Show)
@@ -7597,7 +7597,7 @@ instance PathStart Univ Bool
                                      in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s :: [UPeek Univ Bool]
           type UPath Univ Bool = UPath_Bool
           upaths _ _f r0 _x = foldr _f r0 [UPath_Bool_View idPath]
-          upathRow _ _x = concat [[UPath_Bool_View undefined]]
+          upathRow _ _x = concat [[UPath_Bool_View idPath]]
           upathTree _ _ = Node idPath []
 instance PathStart Univ Double
     where data Peek Univ Double
@@ -7622,7 +7622,7 @@ instance PathStart Univ Double
                                      in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s :: [UPeek Univ Double]
           type UPath Univ Double = UPath_Double
           upaths _ _f r0 _x = foldr _f r0 [UPath_Double_View idPath]
-          upathRow _ _x = concat [[UPath_Double_View undefined]]
+          upathRow _ _x = concat [[UPath_Double_View idPath]]
           upathTree _ _ = Node idPath []
 instance PathStart Univ Int
     where data Peek Univ Int = Peek_Int_Int (Path Univ Int Int) (Maybe Int) deriving (Eq, Show)
@@ -7657,7 +7657,7 @@ instance PathStart Univ Dimension
                                      in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s :: [UPeek Univ Dimension]
           type UPath Univ Dimension = UPath_Dimension
           upaths _ _f r0 _x = foldr _f r0 [UPath_Dimension_View idPath]
-          upathRow _ _x = concat [[UPath_Dimension_View undefined]]
+          upathRow _ _x = concat [[UPath_Dimension_View idPath]]
           upathTree _ _ = Node idPath []
 instance PathStart Univ ImageCrop
     where data Peek Univ ImageCrop = Peek_ImageCrop_ImageCrop (Path Univ ImageCrop ImageCrop) (Maybe ImageCrop) deriving (Eq, Show)
@@ -7719,7 +7719,7 @@ instance PathStart Univ ImageSize
                                                           in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s] :: [UPeek Univ ImageSize]
           type UPath Univ ImageSize = UPath_ImageSize
           upaths _ _f r0 (ImageSize {}) = foldr _f (foldr _f (foldr _f r0 [UPath_ImageSize_units idPath]) [UPath_ImageSize_size idPath]) [UPath_ImageSize_dim idPath]
-          upathRow _ (ImageSize {}) = concat [[UPath_ImageSize_dim undefined], [UPath_ImageSize_size undefined], [UPath_ImageSize_units undefined]]
+          upathRow _ (ImageSize {}) = concat [[UPath_ImageSize_dim idPath], [UPath_ImageSize_size idPath], [UPath_ImageSize_units idPath]]
           upathTree _ _ = Node idPath []
 instance PathStart Univ Units
     where data Peek Univ Units
@@ -7742,7 +7742,7 @@ instance PathStart Univ Units
                                      in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s :: [UPeek Univ Units]
           type UPath Univ Units = UPath_Units
           upaths _ _f r0 _x = foldr _f r0 [UPath_Units_View idPath]
-          upathRow _ _x = concat [[UPath_Units_View undefined]]
+          upathRow _ _x = concat [[UPath_Units_View idPath]]
           upathTree _ _ = Node idPath []
 instance PathStart Univ ImageFile
     where data Peek Univ ImageFile = Peek_ImageFile_ImageFile (Path Univ ImageFile ImageFile) (Maybe ImageFile) deriving (Eq, Show)
@@ -7824,8 +7824,8 @@ instance PathStart Univ Markup
           upaths _ _f r0 (LaTeX {}) = r0
           upaths _ _f r0 (Pandoc {}) = r0
           upaths _ _f r0 (Markup {}) = r0
-          upathRow _ (Markdown {}) = concat [[UPath_Markup_markdownText undefined]]
-          upathRow _ (Html {}) = concat [[UPath_Markup_htmlText undefined]]
+          upathRow _ (Markdown {}) = concat [[UPath_Markup_markdownText idPath]]
+          upathRow _ (Html {}) = concat [[UPath_Markup_htmlText idPath]]
           upathRow _ (LaTeX {}) = concat []
           upathRow _ (Pandoc {}) = concat []
           upathRow _ (Markup {}) = concat []
@@ -7877,7 +7877,7 @@ instance PathStart Univ Permissions
                                                             in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s] :: [UPeek Univ Permissions]
           type UPath Univ Permissions = UPath_Permissions
           upaths _ _f r0 (Permissions {}) = foldr _f (foldr _f (foldr _f r0 [UPath_Permissions_readers idPath]) [UPath_Permissions_writers idPath]) [UPath_Permissions_owner idPath]
-          upathRow _ (Permissions {}) = concat [[UPath_Permissions_owner undefined], [UPath_Permissions_writers undefined], [UPath_Permissions_readers undefined]]
+          upathRow _ (Permissions {}) = concat [[UPath_Permissions_owner idPath], [UPath_Permissions_writers idPath], [UPath_Permissions_readers idPath]]
           upathTree _ _ = Node idPath []
 instance PathStart Univ UserIds
     where data Peek Univ UserIds
@@ -7902,7 +7902,7 @@ instance PathStart Univ UserIds
                                      in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s :: [UPeek Univ UserIds]
           type UPath Univ UserIds = UPath_UserIds
           upaths _ _f r0 _x = foldr _f r0 [UPath_UserIds_View idPath]
-          upathRow _ _x = concat [[UPath_UserIds_View undefined]]
+          upathRow _ _x = concat [[UPath_UserIds_View idPath]]
           upathTree _ _ = Node idPath []
 instance PathStart Univ AbbrevPair
     where data Peek Univ AbbrevPair
@@ -7940,7 +7940,7 @@ instance PathStart Univ AbbrevPair
                                          in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s] :: [UPeek Univ AbbrevPair]
           type UPath Univ AbbrevPair = UPath_AbbrevPair
           upaths _ _f r0 _ = foldr _f (foldr _f r0 [Path_Second idPath]) [Path_First idPath]
-          upathRow _ _ = concat [[Path_First undefined], [Path_Second undefined]]
+          upathRow _ _ = concat [[Path_First idPath], [Path_Second idPath]]
           upathTree _ _ = Node idPath []
 instance PathStart Univ AbbrevPairs
     where data Peek Univ AbbrevPairs
@@ -7968,7 +7968,7 @@ instance PathStart Univ AbbrevPairs
                                      in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s :: [UPeek Univ AbbrevPairs]
           type UPath Univ AbbrevPairs = UPath_AbbrevPairs
           upaths _ _f r0 _x = foldr _f r0 (map (\(k, _v) -> Path_At k idPath) (toPairs _x))
-          upathRow _ _x = concat [map (\(k, _v) -> Path_At k undefined) (toPairs _x)]
+          upathRow _ _x = concat [map (\(k, _v) -> Path_At k idPath) (toPairs _x)]
           upathTree _ _ = Node idPath []
 instance PathStart Univ Author
     where data Peek Univ Author
@@ -8005,7 +8005,7 @@ instance PathStart Univ Author
                                                        in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s] :: [UPeek Univ Author]
           type UPath Univ Author = UPath_Author
           upaths _ _f r0 (Author {}) = foldr _f (foldr _f r0 [UPath_Author_authorCredentials idPath]) [UPath_Author_authorName idPath]
-          upathRow _ (Author {}) = concat [[UPath_Author_authorName undefined], [UPath_Author_authorCredentials undefined]]
+          upathRow _ (Author {}) = concat [[UPath_Author_authorName idPath], [UPath_Author_authorCredentials idPath]]
           upathTree _ _ = Node idPath []
 instance PathStart Univ Authors
     where data Peek Univ Authors
@@ -8032,7 +8032,7 @@ instance PathStart Univ Authors
                                      in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s :: [UPeek Univ Authors]
           type UPath Univ Authors = UPath_Authors
           upaths _ _f r0 _x = foldr _f r0 (map (\(k, _v) -> Path_At k idPath) (toPairs _x))
-          upathRow _ _x = concat [map (\(k, _v) -> Path_At k undefined) (toPairs _x)]
+          upathRow _ _x = concat [map (\(k, _v) -> Path_At k idPath) (toPairs _x)]
           upathTree _ _ = Node idPath []
 instance PathStart Univ Branding
     where data Peek Univ Branding
@@ -8057,7 +8057,7 @@ instance PathStart Univ Branding
                                      in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s :: [UPeek Univ Branding]
           type UPath Univ Branding = UPath_Branding
           upaths _ _f r0 _x = foldr _f r0 [UPath_Branding_View idPath]
-          upathRow _ _x = concat [[UPath_Branding_View undefined]]
+          upathRow _ _x = concat [[UPath_Branding_View idPath]]
           upathTree _ _ = Node idPath []
 instance PathStart Univ MarkupPair
     where data Peek Univ MarkupPair
@@ -8094,7 +8094,7 @@ instance PathStart Univ MarkupPair
                                          in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s] :: [UPeek Univ MarkupPair]
           type UPath Univ MarkupPair = UPath_MarkupPair
           upaths _ _f r0 _ = foldr _f (foldr _f r0 [Path_Second idPath]) [Path_First idPath]
-          upathRow _ _ = concat [[Path_First undefined], [Path_Second undefined]]
+          upathRow _ _ = concat [[Path_First idPath], [Path_Second idPath]]
           upathTree _ _ = Node idPath []
 instance PathStart Univ MarkupPairs
     where data Peek Univ MarkupPairs
@@ -8121,7 +8121,7 @@ instance PathStart Univ MarkupPairs
                                      in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s :: [UPeek Univ MarkupPairs]
           type UPath Univ MarkupPairs = UPath_MarkupPairs
           upaths _ _f r0 _x = foldr _f r0 (map (\(k, _v) -> Path_At k idPath) (toPairs _x))
-          upathRow _ _x = concat [map (\(k, _v) -> Path_At k undefined) (toPairs _x)]
+          upathRow _ _x = concat [map (\(k, _v) -> Path_At k idPath) (toPairs _x)]
           upathTree _ _ = Node idPath []
 instance PathStart Univ Markups
     where data Peek Univ Markups
@@ -8147,7 +8147,7 @@ instance PathStart Univ Markups
                                      in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s :: [UPeek Univ Markups]
           type UPath Univ Markups = UPath_Markups
           upaths _ _f r0 _x = foldr _f r0 (map (\(k, _v) -> Path_At k idPath) (toPairs _x))
-          upathRow _ _x = concat [map (\(k, _v) -> Path_At k undefined) (toPairs _x)]
+          upathRow _ _x = concat [map (\(k, _v) -> Path_At k idPath) (toPairs _x)]
           upathTree _ _ = Node idPath []
 instance PathStart Univ MaybeReportIntendedUse
     where data Peek Univ MaybeReportIntendedUse
@@ -8172,7 +8172,7 @@ instance PathStart Univ MaybeReportIntendedUse
                                      in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s :: [UPeek Univ MaybeReportIntendedUse]
           type UPath Univ MaybeReportIntendedUse = UPath_MaybeReportIntendedUse
           upaths _ _f r0 _x = foldr _f r0 [UPath_MaybeReportIntendedUse_View idPath]
-          upathRow _ _x = concat [[UPath_MaybeReportIntendedUse_View undefined]]
+          upathRow _ _x = concat [[UPath_MaybeReportIntendedUse_View idPath]]
           upathTree _ _ = Node idPath []
 instance PathStart Univ Report
     where data Peek Univ Report
@@ -8242,7 +8242,7 @@ instance PathStart Univ Report
                                      in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s :: [UPeek Univ Report]
           type UPath Univ Report = UPath_Report
           upaths _ _f r0 _x = foldr _f r0 [UPath_Report_View idPath]
-          upathRow _ _x = concat [[UPath_Report_View undefined]]
+          upathRow _ _x = concat [[UPath_Report_View idPath]]
           upathTree _ _ = Node idPath []
 instance PathStart Univ ReportElem
     where data Peek Univ ReportElem
@@ -8301,8 +8301,8 @@ instance PathStart Univ ReportElem
           upaths _ _f r0 (ReportItem {}) = foldr _f r0 [UPath_ReportElem_elemItem idPath]
           upaths _ _f r0 (ReportParagraph {}) = foldr _f r0 [UPath_ReportElem_elemText idPath]
           upaths _ _f r0 (ReportUndecided {}) = r0
-          upathRow _ (ReportItem {}) = concat [[UPath_ReportElem_elemItem undefined]]
-          upathRow _ (ReportParagraph {}) = concat [[UPath_ReportElem_elemText undefined]]
+          upathRow _ (ReportItem {}) = concat [[UPath_ReportElem_elemItem idPath]]
+          upathRow _ (ReportParagraph {}) = concat [[UPath_ReportElem_elemText idPath]]
           upathRow _ (ReportUndecided {}) = concat []
           upathTree _ _ = Node idPath []
 instance PathStart Univ ReportElems
@@ -8348,7 +8348,7 @@ instance PathStart Univ ReportElems
                                      in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s :: [UPeek Univ ReportElems]
           type UPath Univ ReportElems = UPath_ReportElems
           upaths _ _f r0 _x = foldr _f r0 (map (\(k, _v) -> Path_At k idPath) (toPairs _x))
-          upathRow _ _x = concat [map (\(k, _v) -> Path_At k undefined) (toPairs _x)]
+          upathRow _ _x = concat [map (\(k, _v) -> Path_At k idPath) (toPairs _x)]
           upathTree _ _ = Node idPath []
 instance PathStart Univ ReportFlags
     where data Peek Univ ReportFlags
@@ -8374,7 +8374,7 @@ instance PathStart Univ ReportFlags
                                                    in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s :: [UPeek Univ ReportFlags]
           type UPath Univ ReportFlags = UPath_ReportFlags
           upaths _ _f r0 (ReportFlags {}) = foldr _f r0 [UPath_ReportFlags_hideEmptyItemFields idPath]
-          upathRow _ (ReportFlags {}) = concat [[UPath_ReportFlags_hideEmptyItemFields undefined]]
+          upathRow _ (ReportFlags {}) = concat [[UPath_ReportFlags_hideEmptyItemFields idPath]]
           upathTree _ _ = Node idPath []
 instance PathStart Univ ReportIntendedUse
     where data Peek Univ ReportIntendedUse
@@ -8399,7 +8399,7 @@ instance PathStart Univ ReportIntendedUse
                                      in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s :: [UPeek Univ ReportIntendedUse]
           type UPath Univ ReportIntendedUse = UPath_ReportIntendedUse
           upaths _ _f r0 _x = foldr _f r0 [UPath_ReportIntendedUse_View idPath]
-          upathRow _ _x = concat [[UPath_ReportIntendedUse_View undefined]]
+          upathRow _ _x = concat [[UPath_ReportIntendedUse_View idPath]]
           upathTree _ _ = Node idPath []
 instance PathStart Univ ReportStandard
     where data Peek Univ ReportStandard
@@ -8423,7 +8423,7 @@ instance PathStart Univ ReportStandard
                                                       in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s :: [UPeek Univ ReportStandard]
           type UPath Univ ReportStandard = UPath_ReportStandard
           upaths _ _f r0 (ReportStandard {}) = foldr _f r0 [UPath_ReportStandard_unReportStandard idPath]
-          upathRow _ (ReportStandard {}) = concat [[UPath_ReportStandard_unReportStandard undefined]]
+          upathRow _ (ReportStandard {}) = concat [[UPath_ReportStandard_unReportStandard idPath]]
           upathTree _ _ = Node idPath []
 instance PathStart Univ ReportStatus
     where data Peek Univ ReportStatus
@@ -8448,7 +8448,7 @@ instance PathStart Univ ReportStatus
                                      in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s :: [UPeek Univ ReportStatus]
           type UPath Univ ReportStatus = UPath_ReportStatus
           upaths _ _f r0 _x = foldr _f r0 [UPath_ReportStatus_View idPath]
-          upathRow _ _x = concat [[UPath_ReportStatus_View undefined]]
+          upathRow _ _x = concat [[UPath_ReportStatus_View idPath]]
           upathTree _ _ = Node idPath []
 instance PathStart Univ ReportValueApproachInfo
     where data Peek Univ ReportValueApproachInfo
@@ -8493,8 +8493,8 @@ instance PathStart Univ ReportValueApproachInfo
                                                                         in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s] :: [UPeek Univ ReportValueApproachInfo]
           type UPath Univ ReportValueApproachInfo = UPath_ReportValueApproachInfo
           upaths _ _f r0 (ReportValueApproachInfo {}) = foldr _f (foldr _f r0 [UPath_ReportValueApproachInfo_reportValueApproachDescription idPath]) [UPath_ReportValueApproachInfo_reportValueApproachName idPath]
-          upathRow _ (ReportValueApproachInfo {}) = concat [[UPath_ReportValueApproachInfo_reportValueApproachName undefined],
-                                                            [UPath_ReportValueApproachInfo_reportValueApproachDescription undefined]]
+          upathRow _ (ReportValueApproachInfo {}) = concat [[UPath_ReportValueApproachInfo_reportValueApproachName idPath],
+                                                            [UPath_ReportValueApproachInfo_reportValueApproachDescription idPath]]
           upathTree _ _ = Node idPath []
 instance PathStart Univ ReportValueTypeInfo
     where data Peek Univ ReportValueTypeInfo
@@ -8550,9 +8550,9 @@ instance PathStart Univ ReportValueTypeInfo
                                                                     in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s] :: [UPeek Univ ReportValueTypeInfo]
           type UPath Univ ReportValueTypeInfo = UPath_ReportValueTypeInfo
           upaths _ _f r0 (ReportValueTypeInfo {}) = foldr _f (foldr _f (foldr _f r0 [UPath_ReportValueTypeInfo_reportValueTypeDefinition idPath]) [UPath_ReportValueTypeInfo_reportValueTypeDescription idPath]) [UPath_ReportValueTypeInfo_reportValueTypeName idPath]
-          upathRow _ (ReportValueTypeInfo {}) = concat [[UPath_ReportValueTypeInfo_reportValueTypeName undefined],
-                                                        [UPath_ReportValueTypeInfo_reportValueTypeDescription undefined],
-                                                        [UPath_ReportValueTypeInfo_reportValueTypeDefinition undefined]]
+          upathRow _ (ReportValueTypeInfo {}) = concat [[UPath_ReportValueTypeInfo_reportValueTypeName idPath],
+                                                        [UPath_ReportValueTypeInfo_reportValueTypeDescription idPath],
+                                                        [UPath_ReportValueTypeInfo_reportValueTypeDefinition idPath]]
           upathTree _ _ = Node idPath []
 instance PathStart Univ EUI
     where data Peek Univ EUI
@@ -8587,8 +8587,8 @@ instance PathStart Univ EUI
           type UPath Univ EUI = UPath_EUI
           upaths _ _f r0 (Left _) = foldr _f r0 [Path_Left idPath]
           upaths _ _f r0 (Right _) = foldr _f r0 [Path_Right idPath]
-          upathRow _ (Left _) = concat [[Path_Left undefined]]
-          upathRow _ (Right _) = concat [[Path_Right undefined]]
+          upathRow _ (Left _) = concat [[Path_Left idPath]]
+          upathRow _ (Right _) = concat [[Path_Right idPath]]
           upathTree _ _ = Node idPath []
 instance PathStart Univ MEUI
     where data Peek Univ MEUI
@@ -8614,7 +8614,7 @@ instance PathStart Univ MEUI
                                 in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s :: [UPeek Univ MEUI]
           type UPath Univ MEUI = UPath_MEUI
           upaths _ _f r0 _ = foldr _f r0 [Path_Just idPath]
-          upathRow _ _ = concat [[Path_Just undefined]]
+          upathRow _ _ = concat [[Path_Just idPath]]
           upathTree _ _ = Node idPath []
 instance PathStart Univ MaybeImageFile
     where data Peek Univ MaybeImageFile
@@ -8639,7 +8639,7 @@ instance PathStart Univ MaybeImageFile
                                      in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s :: [UPeek Univ MaybeImageFile]
           type UPath Univ MaybeImageFile = UPath_MaybeImageFile
           upaths _ _f r0 _x = foldr _f r0 [UPath_MaybeImageFile_View idPath]
-          upathRow _ _x = concat [[UPath_MaybeImageFile_View undefined]]
+          upathRow _ _x = concat [[UPath_MaybeImageFile_View idPath]]
           upathTree _ _ = Node idPath []
 instance PathStart Univ ReportImage
     where data Peek Univ ReportImage
@@ -8679,7 +8679,7 @@ instance PathStart Univ ReportImage
                                      in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s :: [UPeek Univ ReportImage]
           type UPath Univ ReportImage = UPath_ReportImage
           upaths _ _f r0 _x = foldr _f r0 [UPath_ReportImage_View idPath]
-          upathRow _ _x = concat [[UPath_ReportImage_View undefined]]
+          upathRow _ _x = concat [[UPath_ReportImage_View idPath]]
           upathTree _ _ = Node idPath []
 instance PathStart Univ ReportImages
     where data Peek Univ ReportImages
@@ -8720,7 +8720,7 @@ instance PathStart Univ ReportImages
                                      in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s :: [UPeek Univ ReportImages]
           type UPath Univ ReportImages = UPath_ReportImages
           upaths _ _f r0 _x = foldr _f r0 (map (\(k, _v) -> Path_At k idPath) (toPairs _x))
-          upathRow _ _x = concat [map (\(k, _v) -> Path_At k undefined) (toPairs _x)]
+          upathRow _ _x = concat [map (\(k, _v) -> Path_At k idPath) (toPairs _x)]
           upathTree _ _ = Node idPath []
 instance PathStart Univ ReadOnlyFilePath
     where data Peek Univ ReadOnlyFilePath
@@ -8745,7 +8745,7 @@ instance PathStart Univ ReadOnlyFilePath
                                      in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s :: [UPeek Univ ReadOnlyFilePath]
           type UPath Univ ReadOnlyFilePath = UPath_ReadOnlyFilePath
           upaths _ _f r0 _x = foldr _f r0 [UPath_ReadOnlyFilePath_View idPath]
-          upathRow _ _x = concat [[UPath_ReadOnlyFilePath_View undefined]]
+          upathRow _ _x = concat [[UPath_ReadOnlyFilePath_View idPath]]
           upathTree _ _ = Node idPath []
 instance PathStart Univ ReportImageView
     where data Peek Univ ReportImageView
@@ -8889,15 +8889,15 @@ instance PathStart Univ ReportImageView
                                                                 in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s] :: [UPeek Univ ReportImageView]
           type UPath Univ ReportImageView = UPath_ReportImageView
           upaths _ _f r0 (ReportImageView {}) = foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f r0 [UPath_ReportImageView__picEnlargedDeprecated idPath]) [UPath_ReportImageView__picMustEnlarge idPath]) [UPath_ReportImageView__picPrinterDeprecated idPath]) [UPath_ReportImageView__picThumbDeprecated idPath]) [UPath_ReportImageView__picEditedDeprecated idPath]) [UPath_ReportImageView__picOriginal idPath]) [UPath_ReportImageView__picCaption idPath]) [UPath_ReportImageView__picCrop idPath]) [UPath_ReportImageView__picSize idPath]
-          upathRow _ (ReportImageView {}) = concat [[UPath_ReportImageView__picSize undefined],
-                                                    [UPath_ReportImageView__picCrop undefined],
-                                                    [UPath_ReportImageView__picCaption undefined],
-                                                    [UPath_ReportImageView__picOriginal undefined],
-                                                    [UPath_ReportImageView__picEditedDeprecated undefined],
-                                                    [UPath_ReportImageView__picThumbDeprecated undefined],
-                                                    [UPath_ReportImageView__picPrinterDeprecated undefined],
-                                                    [UPath_ReportImageView__picMustEnlarge undefined],
-                                                    [UPath_ReportImageView__picEnlargedDeprecated undefined]]
+          upathRow _ (ReportImageView {}) = concat [[UPath_ReportImageView__picSize idPath],
+                                                    [UPath_ReportImageView__picCrop idPath],
+                                                    [UPath_ReportImageView__picCaption idPath],
+                                                    [UPath_ReportImageView__picOriginal idPath],
+                                                    [UPath_ReportImageView__picEditedDeprecated idPath],
+                                                    [UPath_ReportImageView__picThumbDeprecated idPath],
+                                                    [UPath_ReportImageView__picPrinterDeprecated idPath],
+                                                    [UPath_ReportImageView__picMustEnlarge idPath],
+                                                    [UPath_ReportImageView__picEnlargedDeprecated idPath]]
           upathTree _ _ = Node idPath []
 instance PathStart Univ ReportView
     where data Peek Univ ReportView
@@ -9486,51 +9486,51 @@ instance PathStart Univ ReportView
                                                            in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s] :: [UPeek Univ ReportView]
           type UPath Univ ReportView = UPath_ReportView
           upaths _ _f r0 (ReportView {}) = foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f (foldr _f r0 [UPath_ReportView__reportStandardsVersion idPath]) [UPath_ReportView__reportDisplayItemName idPath]) [UPath_ReportView__reportOrderByItemName idPath]) [UPath_ReportView__reportUUID idPath]) [UPath_ReportView__reportFlags idPath]) [UPath_ReportView__reportRedacted idPath]) [UPath_ReportView__reportStatus idPath]) [UPath_ReportView__reportBranding idPath]) [UPath_ReportView__reportCreated idPath]) [UPath_ReportView__reportRevision idPath]) [UPath_ReportView__reportPerms idPath]) [UPath_ReportView__reportPrivacyPolicy idPath]) [UPath_ReportView__reportLimitingConditions idPath]) [UPath_ReportView__reportCertification idPath]) [UPath_ReportView__reportScopeOfWork idPath]) [UPath_ReportView__reportLetterOfTransmittal idPath]) [UPath_ReportView__reportSources idPath]) [UPath_ReportView__reportGlossary idPath]) [UPath_ReportView__reportBody idPath]) [UPath_ReportView__reportInspectionLocation idPath]) [UPath_ReportView__reportBriefItems idPath]) [UPath_ReportView__reportItemsOwner idPath]) [UPath_ReportView__reportItemsOwnerFull idPath]) [UPath_ReportView__reportClientGreeting idPath]) [UPath_ReportView__reportClientAddress idPath]) [UPath_ReportView__reportClientName idPath]) [UPath_ReportView__reportValueApproachInfo idPath]) [UPath_ReportView__reportValueTypeInfo idPath]) [UPath_ReportView__reportIntendedUse idPath]) [UPath_ReportView__reportFooter idPath]) [UPath_ReportView__reportHeader idPath]) [UPath_ReportView__reportTitle idPath]) [UPath_ReportView__reportAbbrevs idPath]) [UPath_ReportView__reportPreparerWebsite idPath]) [UPath_ReportView__reportPreparerEMail idPath]) [UPath_ReportView__reportPreparerAddress idPath]) [UPath_ReportView__reportPreparerEIN idPath]) [UPath_ReportView__reportPreparer idPath]) [UPath_ReportView__reportAuthors idPath]) [UPath_ReportView__reportEffectiveDate idPath]) [UPath_ReportView__reportInspectionDate idPath]) [UPath_ReportView__reportContractDate idPath]) [UPath_ReportView__reportDate idPath]) [UPath_ReportView__reportName idPath]) [UPath_ReportView__reportFolder idPath]
-          upathRow _ (ReportView {}) = concat [[UPath_ReportView__reportFolder undefined],
-                                               [UPath_ReportView__reportName undefined],
-                                               [UPath_ReportView__reportDate undefined],
-                                               [UPath_ReportView__reportContractDate undefined],
-                                               [UPath_ReportView__reportInspectionDate undefined],
-                                               [UPath_ReportView__reportEffectiveDate undefined],
-                                               [UPath_ReportView__reportAuthors undefined],
-                                               [UPath_ReportView__reportPreparer undefined],
-                                               [UPath_ReportView__reportPreparerEIN undefined],
-                                               [UPath_ReportView__reportPreparerAddress undefined],
-                                               [UPath_ReportView__reportPreparerEMail undefined],
-                                               [UPath_ReportView__reportPreparerWebsite undefined],
-                                               [UPath_ReportView__reportAbbrevs undefined],
-                                               [UPath_ReportView__reportTitle undefined],
-                                               [UPath_ReportView__reportHeader undefined],
-                                               [UPath_ReportView__reportFooter undefined],
-                                               [UPath_ReportView__reportIntendedUse undefined],
-                                               [UPath_ReportView__reportValueTypeInfo undefined],
-                                               [UPath_ReportView__reportValueApproachInfo undefined],
-                                               [UPath_ReportView__reportClientName undefined],
-                                               [UPath_ReportView__reportClientAddress undefined],
-                                               [UPath_ReportView__reportClientGreeting undefined],
-                                               [UPath_ReportView__reportItemsOwnerFull undefined],
-                                               [UPath_ReportView__reportItemsOwner undefined],
-                                               [UPath_ReportView__reportBriefItems undefined],
-                                               [UPath_ReportView__reportInspectionLocation undefined],
-                                               [UPath_ReportView__reportBody undefined],
-                                               [UPath_ReportView__reportGlossary undefined],
-                                               [UPath_ReportView__reportSources undefined],
-                                               [UPath_ReportView__reportLetterOfTransmittal undefined],
-                                               [UPath_ReportView__reportScopeOfWork undefined],
-                                               [UPath_ReportView__reportCertification undefined],
-                                               [UPath_ReportView__reportLimitingConditions undefined],
-                                               [UPath_ReportView__reportPrivacyPolicy undefined],
-                                               [UPath_ReportView__reportPerms undefined],
-                                               [UPath_ReportView__reportRevision undefined],
-                                               [UPath_ReportView__reportCreated undefined],
-                                               [UPath_ReportView__reportBranding undefined],
-                                               [UPath_ReportView__reportStatus undefined],
-                                               [UPath_ReportView__reportRedacted undefined],
-                                               [UPath_ReportView__reportFlags undefined],
-                                               [UPath_ReportView__reportUUID undefined],
-                                               [UPath_ReportView__reportOrderByItemName undefined],
-                                               [UPath_ReportView__reportDisplayItemName undefined],
-                                               [UPath_ReportView__reportStandardsVersion undefined]]
+          upathRow _ (ReportView {}) = concat [[UPath_ReportView__reportFolder idPath],
+                                               [UPath_ReportView__reportName idPath],
+                                               [UPath_ReportView__reportDate idPath],
+                                               [UPath_ReportView__reportContractDate idPath],
+                                               [UPath_ReportView__reportInspectionDate idPath],
+                                               [UPath_ReportView__reportEffectiveDate idPath],
+                                               [UPath_ReportView__reportAuthors idPath],
+                                               [UPath_ReportView__reportPreparer idPath],
+                                               [UPath_ReportView__reportPreparerEIN idPath],
+                                               [UPath_ReportView__reportPreparerAddress idPath],
+                                               [UPath_ReportView__reportPreparerEMail idPath],
+                                               [UPath_ReportView__reportPreparerWebsite idPath],
+                                               [UPath_ReportView__reportAbbrevs idPath],
+                                               [UPath_ReportView__reportTitle idPath],
+                                               [UPath_ReportView__reportHeader idPath],
+                                               [UPath_ReportView__reportFooter idPath],
+                                               [UPath_ReportView__reportIntendedUse idPath],
+                                               [UPath_ReportView__reportValueTypeInfo idPath],
+                                               [UPath_ReportView__reportValueApproachInfo idPath],
+                                               [UPath_ReportView__reportClientName idPath],
+                                               [UPath_ReportView__reportClientAddress idPath],
+                                               [UPath_ReportView__reportClientGreeting idPath],
+                                               [UPath_ReportView__reportItemsOwnerFull idPath],
+                                               [UPath_ReportView__reportItemsOwner idPath],
+                                               [UPath_ReportView__reportBriefItems idPath],
+                                               [UPath_ReportView__reportInspectionLocation idPath],
+                                               [UPath_ReportView__reportBody idPath],
+                                               [UPath_ReportView__reportGlossary idPath],
+                                               [UPath_ReportView__reportSources idPath],
+                                               [UPath_ReportView__reportLetterOfTransmittal idPath],
+                                               [UPath_ReportView__reportScopeOfWork idPath],
+                                               [UPath_ReportView__reportCertification idPath],
+                                               [UPath_ReportView__reportLimitingConditions idPath],
+                                               [UPath_ReportView__reportPrivacyPolicy idPath],
+                                               [UPath_ReportView__reportPerms idPath],
+                                               [UPath_ReportView__reportRevision idPath],
+                                               [UPath_ReportView__reportCreated idPath],
+                                               [UPath_ReportView__reportBranding idPath],
+                                               [UPath_ReportView__reportStatus idPath],
+                                               [UPath_ReportView__reportRedacted idPath],
+                                               [UPath_ReportView__reportFlags idPath],
+                                               [UPath_ReportView__reportUUID idPath],
+                                               [UPath_ReportView__reportOrderByItemName idPath],
+                                               [UPath_ReportView__reportDisplayItemName idPath],
+                                               [UPath_ReportView__reportStandardsVersion idPath]]
           upathTree _ _ = Node idPath []
 instance PathStart Univ SaneSizeImageSize
     where data Peek Univ SaneSizeImageSize
@@ -9559,7 +9559,7 @@ instance PathStart Univ SaneSizeImageSize
                                      in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s :: [UPeek Univ SaneSizeImageSize]
           type UPath Univ SaneSizeImageSize = UPath_SaneSizeImageSize
           upaths _ _f r0 _x = foldr _f r0 [UPath_SaneSizeImageSize_View idPath]
-          upathRow _ _x = concat [[UPath_SaneSizeImageSize_View undefined]]
+          upathRow _ _x = concat [[UPath_SaneSizeImageSize_View idPath]]
           upathTree _ _ = Node idPath []
 instance PathStart Univ Item
     where data Peek Univ Item
@@ -9624,7 +9624,7 @@ instance PathStart Univ Item
                                                      in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s] :: [UPeek Univ Item]
           type UPath Univ Item = UPath_Item
           upaths _ _f r0 (Item {}) = foldr _f (foldr _f (foldr _f r0 [UPath_Item_images idPath]) [UPath_Item_fields idPath]) [UPath_Item_itemName idPath]
-          upathRow _ (Item {}) = concat [[UPath_Item_itemName undefined], [UPath_Item_fields undefined], [UPath_Item_images undefined]]
+          upathRow _ (Item {}) = concat [[UPath_Item_itemName idPath], [UPath_Item_fields idPath], [UPath_Item_images idPath]]
           upathTree _ _ = Node idPath []
 instance PathStart Univ MIM
     where data Peek Univ MIM
@@ -9650,7 +9650,7 @@ instance PathStart Univ MIM
                                      in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s :: [UPeek Univ MIM]
           type UPath Univ MIM = UPath_MIM
           upaths _ _f r0 _x = foldr _f r0 (map (\(k, _v) -> Path_Look k idPath) (toList _x))
-          upathRow _ _x = concat [map (\(k, _v) -> Path_Look k undefined) (toList _x)]
+          upathRow _ _x = concat [map (\(k, _v) -> Path_Look k idPath) (toList _x)]
           upathTree _ _ = Node idPath []
 instance PathStart Univ MRR
     where data Peek Univ MRR
@@ -9721,7 +9721,7 @@ instance PathStart Univ MRR
                                      in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s :: [UPeek Univ MRR]
           type UPath Univ MRR = UPath_MRR
           upaths _ _f r0 _x = foldr _f r0 (map (\(k, _v) -> Path_Look k idPath) (toList _x))
-          upathRow _ _x = concat [map (\(k, _v) -> Path_Look k undefined) (toList _x)]
+          upathRow _ _x = concat [map (\(k, _v) -> Path_Look k idPath) (toList _x)]
           upathTree _ _ = Node idPath []
 instance PathStart Univ ReportMap
     where data Peek Univ ReportMap
@@ -9793,7 +9793,7 @@ instance PathStart Univ ReportMap
                                                  in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s :: [UPeek Univ ReportMap]
           type UPath Univ ReportMap = UPath_ReportMap
           upaths _ _f r0 (ReportMap {}) = foldr _f r0 [UPath_ReportMap_unReportMap idPath]
-          upathRow _ (ReportMap {}) = concat [[UPath_ReportMap_unReportMap undefined]]
+          upathRow _ (ReportMap {}) = concat [[UPath_ReportMap_unReportMap idPath]]
           upathTree _ _ = Node idPath []
 instance PathStart Univ CIString
     where data Peek Univ CIString
@@ -9818,7 +9818,7 @@ instance PathStart Univ CIString
                                      in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s :: [UPeek Univ CIString]
           type UPath Univ CIString = UPath_CIString
           upaths _ _f r0 _x = foldr _f r0 [UPath_CIString_View idPath]
-          upathRow _ _x = concat [[UPath_CIString_View undefined]]
+          upathRow _ _x = concat [[UPath_CIString_View idPath]]
           upathTree _ _ = Node idPath []
 instance PathStart Univ URI
     where data Peek Univ URI = Peek_URI_URI (Path Univ URI URI) (Maybe URI) deriving (Eq, Show)
@@ -9851,7 +9851,7 @@ instance PathStart Univ Text
                                      in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s :: [UPeek Univ Text]
           type UPath Univ Text = UPath_Text
           upaths _ _f r0 _x = foldr _f r0 [UPath_Text_View idPath]
-          upathRow _ _x = concat [[UPath_Text_View undefined]]
+          upathRow _ _x = concat [[UPath_Text_View idPath]]
           upathTree _ _ = Node idPath []
 instance PathStart Univ UserId
     where data Peek Univ UserId = Peek_UserId_UserId (Path Univ UserId UserId) (Maybe UserId) deriving (Eq, Show)

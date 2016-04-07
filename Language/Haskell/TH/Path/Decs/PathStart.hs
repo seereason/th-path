@@ -246,7 +246,7 @@ pathControl utype v x wPathVar = do
                             -- (normalB (foldr (\upath r -> (appE (appE (varE f) upath) (varE r0))) (varE r0) upaths)) []
                 UPathRowClause $ do
                   do let upathss = map (\(PathConc _ _ _ _ x _) -> x) concs
-                     clause [wildP, xpat] (normalB [|concat $(listE (map (\p -> p [|undefined|]) upathss))|]) []
+                     clause [wildP, xpat] (normalB [|concat $(listE (map (\p -> p [|idPath|]) upathss))|]) []
                ]
     , _doSyn =
         \_tname _typ -> pure ()
