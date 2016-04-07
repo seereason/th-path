@@ -22,7 +22,7 @@ import Control.Monad.Writer (execWriterT, MonadWriter, tell)
 import Data.Foldable as Foldable
 import Data.List as List (map)
 import Data.Map as Map (toList)
-import Data.Maybe (fromJust)
+import Data.Maybe (fromJust, mapMaybe)
 import Data.Proxy
 import Data.Set as Set (Set, toList)
 import Data.Tree (Tree(Node), Forest)
@@ -159,32 +159,32 @@ peekClauses utype v = do
   doNode (pathControl utype v x wPathVar) v
 
 pathControl :: forall m. (TypeGraphM m, MonadWriter [WriterType] m) => TypeQ -> TGVSimple -> Name -> Name -> Control m PathConc () ()
-pathControl utype v x wPathVar = do
+pathControl utype v _x wPathVar = do
   let control :: Control m PathConc () ()
-      control = pathControl utype v x wPathVar in
+      control = pathControl utype v _x wPathVar in
     Control
     { _doSimple = pure ()
     , _doSelf = pure ()
     , _doView =
         \typ ->
-            do w <- tgv Nothing typ
+            do x <- runQ $ newName "_xyz"
+               w <- tgv Nothing typ
                let vPathConName = makePathCon (makePathType (ModelType (asName v))) "View"
                let vUPathConName = makePathCon (makeUPathType (ModelType (asName v))) "View"
-               x <- runQ $ newName "_x"
                finishConcs control [(varP x, [PathConc w (conP (asName vPathConName) [varP wPathVar]) (conP (asName vUPathConName) [varP wPathVar]) (conE (asName vUPathConName)) (\p -> [| [$(conE (asName vUPathConName)) $p] |]) [| [$(conE (asName vUPathConName))] |]])]
     , _doOrder =
         \_i typ ->
-            do w <- tgv Nothing typ
+            do x <- runQ $ newName "_xyz"
+               w <- tgv Nothing typ
                k <- runQ $ newName "_k"
-               x <- runQ $ newName "_x"
                finishConcs control [(varP x, [PathConc w (conP 'Path_At [varP k, varP wPathVar]) (conP 'Path_At [varP k, varP wPathVar]) [|Path_At $(varE k)|]
                                                         (\p -> [|map (\(k, _v) -> Path_At k $p) (toPairs $(varE x))|])
                                                         [|map (\(k, _v) -> Path_At k) (toPairs $(varE x))|] ])]
     , _doMap =
         \_i typ ->
-            do w <- tgv Nothing typ
+            do x <- runQ $ newName "_xyz"
+               w <- tgv Nothing typ
                k <- runQ $ newName "_k"
-               x <- runQ $ newName "_x"
                finishConcs control [(varP x, [PathConc w (conP 'Path_Look [varP k, varP wPathVar]) (conP 'Path_Look [varP k, varP wPathVar]) [|Path_Look $(varE k)|]
                                                        (\p -> [|map (\(k, _v) -> Path_Look k $p) (Map.toList $(varE x))|])
                                                        [|map (\(k, _v) -> Path_Look k) (Map.toList $(varE x))|]
@@ -216,13 +216,14 @@ pathControl utype v x wPathVar = do
                pure (PathConc f (conP (asName fieldPathConName) [varP wPathVar]) (conP (asName fieldUPathConName) [varP wPathVar]) (asConQ fieldUPathConName) (\p -> [|[$(asConQ fieldUPathConName) $p]|]) [|[$(asConQ fieldUPathConName)]|])
     , _doConcs =
         \xpat concs -> do
+          x <- runQ $ newName "_xconc"
           rs <- mapM (\conc@(PathConc w ppat upat ucon ucons ulift) ->
                           do describeConc utype v wPathVar conc
                              p <- runQ $ newName "p"
-                             let hf = peekList' utype x p v w upat
+                             let hf = peekList' utype (varE x) p v w upat
                                         [| \a -> upeekCons $(varE p) (Just a :: Maybe $utype) |]
                              gs <- pathKeys' w
-                             let pf = peekList' utype x p v w upat
+                             let pf = peekList' utype (varE x) p v w upat
                                         [| \a -> -- Get the peek forest for the w value
                                                  let wtree = peekTree Proxy (fromJust (unU' a) :: $(asTypeQ w)) :: Forest (UPeek $utype $(asTypeQ w)) in
                                                  Node (upeekCons $(varE p) (if null wtree then Just a else Nothing))
@@ -240,13 +241,20 @@ pathControl utype v x wPathVar = do
                      let upathss = map (\(PathConc _ _ _ _ x _) -> x [|idPath|]) concs
                      let f' :: ExpQ -> ExpQ -> ExpQ
                          f' upaths r = [|foldr $(varE f) $r $upaths|]
-                     clause [wildP, varP f, varP r0, xpat]
+                     clause [wildP, varP f, varP r0, asP x xpat]
                             (normalB (foldr f' (varE r0) upathss)) [],
                             -- (normalB [|foldr $(varE f) $(varE r0) $upaths|])
                             -- (normalB (foldr (\upath r -> (appE (appE (varE f) upath) (varE r0))) (varE r0) upaths)) []
                 UPathRowClause $ do
                   do let upathss = map (\(PathConc _ _ _ _ x _) -> x) concs
-                     clause [wildP, xpat] (normalB [|concat $(listE (map (\p -> p [|idPath|]) upathss))|]) []
+                     clause [wildP, xpat] (normalB [|concat $(listE (map (\p -> p [|idPath|]) upathss))|]) [],
+                UPathTreeClause $ do
+                  do u <- newName "_unv"
+                     let pairs = map (\(PathConc w _ _ _ _ fs) -> (w, fs)) concs
+                         fn :: ExpQ -> (TGV, ExpQ) -> ExpQ -> ExpQ
+                         fn x (w, fs) r = [| concatMap (\f -> forestMap f (map (upathTree $(varE u))
+                                                                               (mapMaybe unU' (toListOf (toLens (f idPath)) $x) :: [$(asTypeQ w)]))) $fs ++ $r |] -- [| (map (\f -> map unU' (toListOf (toLens (f idPath)) x) :: [Maybe $(asTypeQ w)]) $fs) : $r |]
+                     clause [varP u, asP' x xpat] (normalB [|Node idPath $(foldr (fn (varE x)) [| [] |] pairs)|]) []
                ]
     , _doSyn =
         \_tname _typ -> pure ()
@@ -274,13 +282,13 @@ peekList utype x p v w ppat node =
                                               {-:: [$(asTypeQ (makePathType (ModelType (asName v)))) $(asTypeQ w)]-} |]
 -}
 
-peekList' :: TypeQ -> Name -> Name -> TGVSimple -> TGV -> PatQ -> ExpQ -> ExpQ
+peekList' :: TypeQ -> ExpQ -> Name -> TGVSimple -> TGV -> PatQ -> ExpQ -> ExpQ
 peekList' utype x p v w upat node =
     [| let dopath pth = case pth of
                           $(asP p upat) ->
-                              map ($node) (toListOf (toLens $(varE p)) $(varE x) :: [$utype])
+                              map ($node) (toListOf (toLens $(varE p)) $x :: [$utype])
                           _ -> [] in
-       upaths (Proxy :: Proxy $utype) (\pth r -> dopath pth ++ r) [] $(varE x)
+       upaths (Proxy :: Proxy $utype) (\pth r -> dopath pth ++ r) [] $x
                                               {-:: [$(asTypeQ (makeUPathType (ModelType (asName v)))) $(asTypeQ w)]-} |]
 
 liftPeekE :: TypeQ -> TGVSimple -> TGV -> ExpQ -> Set TGVSimple -> ExpQ

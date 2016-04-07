@@ -28,7 +28,7 @@ import Control.Lens (iso, lens, _Just, _1, _2, _Left, _Right, Lens', toListOf, T
 import Data.Generics (Data, Typeable)
 import Data.Int (Int64)
 import Data.Map (toList)
-import Data.Maybe (fromJust)
+import Data.Maybe (fromJust, mapMaybe)
 import Data.Proxy
 import Data.Text (Text)
 import Data.Tree (Tree(Node), Forest)
