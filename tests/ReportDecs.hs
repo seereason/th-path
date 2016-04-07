@@ -7561,7 +7561,7 @@ instance PathStart Univ String
           type UPath Univ String = UPath_String
           upaths _ _f r0 _x = foldr _f r0 [UPath_String_View idPath]
           upathRow _ _x = concat [[UPath_String_View undefined]]
-          upathTree _ _ = []
+          upathTree _ _ = Node idPath []
 instance PathStart Univ Int64
     where data Peek Univ Int64 = Peek_Int64_Int64 (Path Univ Int64 Int64) (Maybe Int64) deriving (Eq, Show)
           data UPeek Univ Int64 = UPeek_Int64 (UPath Univ Int64) (Maybe Univ) deriving (Eq, Show)
@@ -7573,7 +7573,7 @@ instance PathStart Univ Int64
           type UPath Univ Int64 = UPath_Int64
           upaths _ _ r _ = r
           upathRow _ _ = []
-          upathTree _ _ = []
+          upathTree _ _ = Node idPath []
 instance PathStart Univ Bool
     where data Peek Univ Bool
               = Peek_Bool_String (Path Univ Bool String) (Maybe String)
@@ -7598,7 +7598,7 @@ instance PathStart Univ Bool
           type UPath Univ Bool = UPath_Bool
           upaths _ _f r0 _x = foldr _f r0 [UPath_Bool_View idPath]
           upathRow _ _x = concat [[UPath_Bool_View undefined]]
-          upathTree _ _ = []
+          upathTree _ _ = Node idPath []
 instance PathStart Univ Double
     where data Peek Univ Double
               = Peek_Double_String (Path Univ Double String) (Maybe String)
@@ -7623,7 +7623,7 @@ instance PathStart Univ Double
           type UPath Univ Double = UPath_Double
           upaths _ _f r0 _x = foldr _f r0 [UPath_Double_View idPath]
           upathRow _ _x = concat [[UPath_Double_View undefined]]
-          upathTree _ _ = []
+          upathTree _ _ = Node idPath []
 instance PathStart Univ Int
     where data Peek Univ Int = Peek_Int_Int (Path Univ Int Int) (Maybe Int) deriving (Eq, Show)
           data UPeek Univ Int = UPeek_Int (UPath Univ Int) (Maybe Univ) deriving (Eq, Show)
@@ -7635,7 +7635,7 @@ instance PathStart Univ Int
           type UPath Univ Int = UPath_Int
           upaths _ _ r _ = r
           upathRow _ _ = []
-          upathTree _ _ = []
+          upathTree _ _ = Node idPath []
 instance PathStart Univ Dimension
     where data Peek Univ Dimension
               = Peek_Dimension_Dimension (Path Univ Dimension Dimension) (Maybe Dimension) | Peek_Dimension_JSONText (Path Univ Dimension JSONText) (Maybe JSONText)
@@ -7658,7 +7658,7 @@ instance PathStart Univ Dimension
           type UPath Univ Dimension = UPath_Dimension
           upaths _ _f r0 _x = foldr _f r0 [UPath_Dimension_View idPath]
           upathRow _ _x = concat [[UPath_Dimension_View undefined]]
-          upathTree _ _ = []
+          upathTree _ _ = Node idPath []
 instance PathStart Univ ImageCrop
     where data Peek Univ ImageCrop = Peek_ImageCrop_ImageCrop (Path Univ ImageCrop ImageCrop) (Maybe ImageCrop) deriving (Eq, Show)
           data UPeek Univ ImageCrop = UPeek_ImageCrop (UPath Univ ImageCrop) (Maybe Univ) deriving (Eq, Show)
@@ -7670,7 +7670,7 @@ instance PathStart Univ ImageCrop
           type UPath Univ ImageCrop = UPath_ImageCrop
           upaths _ _ r _ = r
           upathRow _ _ = []
-          upathTree _ _ = []
+          upathTree _ _ = Node idPath []
 instance PathStart Univ ImageSize
     where data Peek Univ ImageSize
               = Peek_ImageSize_String (Path Univ ImageSize String) (Maybe String)
@@ -7720,7 +7720,7 @@ instance PathStart Univ ImageSize
           type UPath Univ ImageSize = UPath_ImageSize
           upaths _ _f r0 (ImageSize {}) = foldr _f (foldr _f (foldr _f r0 [UPath_ImageSize_units idPath]) [UPath_ImageSize_size idPath]) [UPath_ImageSize_dim idPath]
           upathRow _ (ImageSize {}) = concat [[UPath_ImageSize_dim undefined], [UPath_ImageSize_size undefined], [UPath_ImageSize_units undefined]]
-          upathTree _ _ = []
+          upathTree _ _ = Node idPath []
 instance PathStart Univ Units
     where data Peek Univ Units
               = Peek_Units_Units (Path Univ Units Units) (Maybe Units) | Peek_Units_JSONText (Path Univ Units JSONText) (Maybe JSONText)
@@ -7743,7 +7743,7 @@ instance PathStart Univ Units
           type UPath Univ Units = UPath_Units
           upaths _ _f r0 _x = foldr _f r0 [UPath_Units_View idPath]
           upathRow _ _x = concat [[UPath_Units_View undefined]]
-          upathTree _ _ = []
+          upathTree _ _ = Node idPath []
 instance PathStart Univ ImageFile
     where data Peek Univ ImageFile = Peek_ImageFile_ImageFile (Path Univ ImageFile ImageFile) (Maybe ImageFile) deriving (Eq, Show)
           data UPeek Univ ImageFile = UPeek_ImageFile (UPath Univ ImageFile) (Maybe Univ) deriving (Eq, Show)
@@ -7755,7 +7755,7 @@ instance PathStart Univ ImageFile
           type UPath Univ ImageFile = UPath_ImageFile
           upaths _ _ r _ = r
           upathRow _ _ = []
-          upathTree _ _ = []
+          upathTree _ _ = Node idPath []
 instance PathStart Univ Integer
     where data Peek Univ Integer = Peek_Integer_Integer (Path Univ Integer Integer) (Maybe Integer) deriving (Eq, Show)
           data UPeek Univ Integer = UPeek_Integer (UPath Univ Integer) (Maybe Univ) deriving (Eq, Show)
@@ -7767,7 +7767,7 @@ instance PathStart Univ Integer
           type UPath Univ Integer = UPath_Integer
           upaths _ _ r _ = r
           upathRow _ _ = []
-          upathTree _ _ = []
+          upathTree _ _ = Node idPath []
 instance PathStart Univ JSONText
     where data Peek Univ JSONText = Peek_JSONText_JSONText (Path Univ JSONText JSONText) (Maybe JSONText) deriving (Eq, Show)
           data UPeek Univ JSONText = UPeek_JSONText (UPath Univ JSONText) (Maybe Univ) deriving (Eq, Show)
@@ -7779,7 +7779,7 @@ instance PathStart Univ JSONText
           type UPath Univ JSONText = UPath_JSONText
           upaths _ _ r _ = r
           upathRow _ _ = []
-          upathTree _ _ = []
+          upathTree _ _ = Node idPath []
 instance PathStart Univ Markup
     where data Peek Univ Markup
               = Peek_Markup_JSONText (Path Univ Markup JSONText) (Maybe JSONText)
@@ -7829,7 +7829,7 @@ instance PathStart Univ Markup
           upathRow _ (LaTeX {}) = concat []
           upathRow _ (Pandoc {}) = concat []
           upathRow _ (Markup {}) = concat []
-          upathTree _ _ = []
+          upathTree _ _ = Node idPath []
 instance PathStart Univ Permissions
     where data Peek Univ Permissions
               = Peek_Permissions_JSONText (Path Univ Permissions JSONText) (Maybe JSONText)
@@ -7878,7 +7878,7 @@ instance PathStart Univ Permissions
           type UPath Univ Permissions = UPath_Permissions
           upaths _ _f r0 (Permissions {}) = foldr _f (foldr _f (foldr _f r0 [UPath_Permissions_readers idPath]) [UPath_Permissions_writers idPath]) [UPath_Permissions_owner idPath]
           upathRow _ (Permissions {}) = concat [[UPath_Permissions_owner undefined], [UPath_Permissions_writers undefined], [UPath_Permissions_readers undefined]]
-          upathTree _ _ = []
+          upathTree _ _ = Node idPath []
 instance PathStart Univ UserIds
     where data Peek Univ UserIds
               = Peek_UserIds_JSONText (Path Univ UserIds JSONText) (Maybe JSONText)
@@ -7903,7 +7903,7 @@ instance PathStart Univ UserIds
           type UPath Univ UserIds = UPath_UserIds
           upaths _ _f r0 _x = foldr _f r0 [UPath_UserIds_View idPath]
           upathRow _ _x = concat [[UPath_UserIds_View undefined]]
-          upathTree _ _ = []
+          upathTree _ _ = Node idPath []
 instance PathStart Univ AbbrevPair
     where data Peek Univ AbbrevPair
               = Peek_AbbrevPair_JSONText (Path Univ AbbrevPair JSONText) (Maybe JSONText)
@@ -7941,7 +7941,7 @@ instance PathStart Univ AbbrevPair
           type UPath Univ AbbrevPair = UPath_AbbrevPair
           upaths _ _f r0 _ = foldr _f (foldr _f r0 [Path_Second idPath]) [Path_First idPath]
           upathRow _ _ = concat [[Path_First undefined], [Path_Second undefined]]
-          upathTree _ _ = []
+          upathTree _ _ = Node idPath []
 instance PathStart Univ AbbrevPairs
     where data Peek Univ AbbrevPairs
               = Peek_AbbrevPairs_JSONText (Path Univ AbbrevPairs JSONText) (Maybe JSONText)
@@ -7969,7 +7969,7 @@ instance PathStart Univ AbbrevPairs
           type UPath Univ AbbrevPairs = UPath_AbbrevPairs
           upaths _ _f r0 _x = foldr _f r0 (map (\(k, _v) -> Path_At k idPath) (toPairs _x))
           upathRow _ _x = concat [map (\(k, _v) -> Path_At k undefined) (toPairs _x)]
-          upathTree _ _ = []
+          upathTree _ _ = Node idPath []
 instance PathStart Univ Author
     where data Peek Univ Author
               = Peek_Author_JSONText (Path Univ Author JSONText) (Maybe JSONText)
@@ -8006,7 +8006,7 @@ instance PathStart Univ Author
           type UPath Univ Author = UPath_Author
           upaths _ _f r0 (Author {}) = foldr _f (foldr _f r0 [UPath_Author_authorCredentials idPath]) [UPath_Author_authorName idPath]
           upathRow _ (Author {}) = concat [[UPath_Author_authorName undefined], [UPath_Author_authorCredentials undefined]]
-          upathTree _ _ = []
+          upathTree _ _ = Node idPath []
 instance PathStart Univ Authors
     where data Peek Univ Authors
               = Peek_Authors_JSONText (Path Univ Authors JSONText) (Maybe JSONText)
@@ -8033,7 +8033,7 @@ instance PathStart Univ Authors
           type UPath Univ Authors = UPath_Authors
           upaths _ _f r0 _x = foldr _f r0 (map (\(k, _v) -> Path_At k idPath) (toPairs _x))
           upathRow _ _x = concat [map (\(k, _v) -> Path_At k undefined) (toPairs _x)]
-          upathTree _ _ = []
+          upathTree _ _ = Node idPath []
 instance PathStart Univ Branding
     where data Peek Univ Branding
               = Peek_Branding_JSONText (Path Univ Branding JSONText) (Maybe JSONText)
@@ -8058,7 +8058,7 @@ instance PathStart Univ Branding
           type UPath Univ Branding = UPath_Branding
           upaths _ _f r0 _x = foldr _f r0 [UPath_Branding_View idPath]
           upathRow _ _x = concat [[UPath_Branding_View undefined]]
-          upathTree _ _ = []
+          upathTree _ _ = Node idPath []
 instance PathStart Univ MarkupPair
     where data Peek Univ MarkupPair
               = Peek_MarkupPair_JSONText (Path Univ MarkupPair JSONText) (Maybe JSONText)
@@ -8095,7 +8095,7 @@ instance PathStart Univ MarkupPair
           type UPath Univ MarkupPair = UPath_MarkupPair
           upaths _ _f r0 _ = foldr _f (foldr _f r0 [Path_Second idPath]) [Path_First idPath]
           upathRow _ _ = concat [[Path_First undefined], [Path_Second undefined]]
-          upathTree _ _ = []
+          upathTree _ _ = Node idPath []
 instance PathStart Univ MarkupPairs
     where data Peek Univ MarkupPairs
               = Peek_MarkupPairs_JSONText (Path Univ MarkupPairs JSONText) (Maybe JSONText)
@@ -8122,7 +8122,7 @@ instance PathStart Univ MarkupPairs
           type UPath Univ MarkupPairs = UPath_MarkupPairs
           upaths _ _f r0 _x = foldr _f r0 (map (\(k, _v) -> Path_At k idPath) (toPairs _x))
           upathRow _ _x = concat [map (\(k, _v) -> Path_At k undefined) (toPairs _x)]
-          upathTree _ _ = []
+          upathTree _ _ = Node idPath []
 instance PathStart Univ Markups
     where data Peek Univ Markups
               = Peek_Markups_JSONText (Path Univ Markups JSONText) (Maybe JSONText)
@@ -8148,7 +8148,7 @@ instance PathStart Univ Markups
           type UPath Univ Markups = UPath_Markups
           upaths _ _f r0 _x = foldr _f r0 (map (\(k, _v) -> Path_At k idPath) (toPairs _x))
           upathRow _ _x = concat [map (\(k, _v) -> Path_At k undefined) (toPairs _x)]
-          upathTree _ _ = []
+          upathTree _ _ = Node idPath []
 instance PathStart Univ MaybeReportIntendedUse
     where data Peek Univ MaybeReportIntendedUse
               = Peek_MaybeReportIntendedUse_String (Path Univ MaybeReportIntendedUse String) (Maybe String)
@@ -8173,7 +8173,7 @@ instance PathStart Univ MaybeReportIntendedUse
           type UPath Univ MaybeReportIntendedUse = UPath_MaybeReportIntendedUse
           upaths _ _f r0 _x = foldr _f r0 [UPath_MaybeReportIntendedUse_View idPath]
           upathRow _ _x = concat [[UPath_MaybeReportIntendedUse_View undefined]]
-          upathTree _ _ = []
+          upathTree _ _ = Node idPath []
 instance PathStart Univ Report
     where data Peek Univ Report
               = Peek_Report_String (Path Univ Report String) (Maybe String)
@@ -8243,7 +8243,7 @@ instance PathStart Univ Report
           type UPath Univ Report = UPath_Report
           upaths _ _f r0 _x = foldr _f r0 [UPath_Report_View idPath]
           upathRow _ _x = concat [[UPath_Report_View undefined]]
-          upathTree _ _ = []
+          upathTree _ _ = Node idPath []
 instance PathStart Univ ReportElem
     where data Peek Univ ReportElem
               = Peek_ReportElem_String (Path Univ ReportElem String) (Maybe String)
@@ -8304,7 +8304,7 @@ instance PathStart Univ ReportElem
           upathRow _ (ReportItem {}) = concat [[UPath_ReportElem_elemItem undefined]]
           upathRow _ (ReportParagraph {}) = concat [[UPath_ReportElem_elemText undefined]]
           upathRow _ (ReportUndecided {}) = concat []
-          upathTree _ _ = []
+          upathTree _ _ = Node idPath []
 instance PathStart Univ ReportElems
     where data Peek Univ ReportElems
               = Peek_ReportElems_String (Path Univ ReportElems String) (Maybe String)
@@ -8349,7 +8349,7 @@ instance PathStart Univ ReportElems
           type UPath Univ ReportElems = UPath_ReportElems
           upaths _ _f r0 _x = foldr _f r0 (map (\(k, _v) -> Path_At k idPath) (toPairs _x))
           upathRow _ _x = concat [map (\(k, _v) -> Path_At k undefined) (toPairs _x)]
-          upathTree _ _ = []
+          upathTree _ _ = Node idPath []
 instance PathStart Univ ReportFlags
     where data Peek Univ ReportFlags
               = Peek_ReportFlags_String (Path Univ ReportFlags String) (Maybe String)
@@ -8375,7 +8375,7 @@ instance PathStart Univ ReportFlags
           type UPath Univ ReportFlags = UPath_ReportFlags
           upaths _ _f r0 (ReportFlags {}) = foldr _f r0 [UPath_ReportFlags_hideEmptyItemFields idPath]
           upathRow _ (ReportFlags {}) = concat [[UPath_ReportFlags_hideEmptyItemFields undefined]]
-          upathTree _ _ = []
+          upathTree _ _ = Node idPath []
 instance PathStart Univ ReportIntendedUse
     where data Peek Univ ReportIntendedUse
               = Peek_ReportIntendedUse_String (Path Univ ReportIntendedUse String) (Maybe String)
@@ -8400,7 +8400,7 @@ instance PathStart Univ ReportIntendedUse
           type UPath Univ ReportIntendedUse = UPath_ReportIntendedUse
           upaths _ _f r0 _x = foldr _f r0 [UPath_ReportIntendedUse_View idPath]
           upathRow _ _x = concat [[UPath_ReportIntendedUse_View undefined]]
-          upathTree _ _ = []
+          upathTree _ _ = Node idPath []
 instance PathStart Univ ReportStandard
     where data Peek Univ ReportStandard
               = Peek_ReportStandard_Int (Path Univ ReportStandard Int) (Maybe Int)
@@ -8424,7 +8424,7 @@ instance PathStart Univ ReportStandard
           type UPath Univ ReportStandard = UPath_ReportStandard
           upaths _ _f r0 (ReportStandard {}) = foldr _f r0 [UPath_ReportStandard_unReportStandard idPath]
           upathRow _ (ReportStandard {}) = concat [[UPath_ReportStandard_unReportStandard undefined]]
-          upathTree _ _ = []
+          upathTree _ _ = Node idPath []
 instance PathStart Univ ReportStatus
     where data Peek Univ ReportStatus
               = Peek_ReportStatus_String (Path Univ ReportStatus String) (Maybe String)
@@ -8449,7 +8449,7 @@ instance PathStart Univ ReportStatus
           type UPath Univ ReportStatus = UPath_ReportStatus
           upaths _ _f r0 _x = foldr _f r0 [UPath_ReportStatus_View idPath]
           upathRow _ _x = concat [[UPath_ReportStatus_View undefined]]
-          upathTree _ _ = []
+          upathTree _ _ = Node idPath []
 instance PathStart Univ ReportValueApproachInfo
     where data Peek Univ ReportValueApproachInfo
               = Peek_ReportValueApproachInfo_JSONText (Path Univ ReportValueApproachInfo JSONText) (Maybe JSONText)
@@ -8495,7 +8495,7 @@ instance PathStart Univ ReportValueApproachInfo
           upaths _ _f r0 (ReportValueApproachInfo {}) = foldr _f (foldr _f r0 [UPath_ReportValueApproachInfo_reportValueApproachDescription idPath]) [UPath_ReportValueApproachInfo_reportValueApproachName idPath]
           upathRow _ (ReportValueApproachInfo {}) = concat [[UPath_ReportValueApproachInfo_reportValueApproachName undefined],
                                                             [UPath_ReportValueApproachInfo_reportValueApproachDescription undefined]]
-          upathTree _ _ = []
+          upathTree _ _ = Node idPath []
 instance PathStart Univ ReportValueTypeInfo
     where data Peek Univ ReportValueTypeInfo
               = Peek_ReportValueTypeInfo_JSONText (Path Univ ReportValueTypeInfo JSONText) (Maybe JSONText)
@@ -8553,7 +8553,7 @@ instance PathStart Univ ReportValueTypeInfo
           upathRow _ (ReportValueTypeInfo {}) = concat [[UPath_ReportValueTypeInfo_reportValueTypeName undefined],
                                                         [UPath_ReportValueTypeInfo_reportValueTypeDescription undefined],
                                                         [UPath_ReportValueTypeInfo_reportValueTypeDefinition undefined]]
-          upathTree _ _ = []
+          upathTree _ _ = Node idPath []
 instance PathStart Univ EUI
     where data Peek Univ EUI
               = Peek_EUI_ImageFile (Path Univ EUI ImageFile) (Maybe ImageFile) | Peek_EUI_EUI (Path Univ EUI EUI) (Maybe EUI) | Peek_EUI_URI (Path Univ EUI URI) (Maybe URI)
@@ -8589,7 +8589,7 @@ instance PathStart Univ EUI
           upaths _ _f r0 (Right _) = foldr _f r0 [Path_Right idPath]
           upathRow _ (Left _) = concat [[Path_Left undefined]]
           upathRow _ (Right _) = concat [[Path_Right undefined]]
-          upathTree _ _ = []
+          upathTree _ _ = Node idPath []
 instance PathStart Univ MEUI
     where data Peek Univ MEUI
               = Peek_MEUI_ImageFile (Path Univ MEUI ImageFile) (Maybe ImageFile)
@@ -8615,7 +8615,7 @@ instance PathStart Univ MEUI
           type UPath Univ MEUI = UPath_MEUI
           upaths _ _f r0 _ = foldr _f r0 [Path_Just idPath]
           upathRow _ _ = concat [[Path_Just undefined]]
-          upathTree _ _ = []
+          upathTree _ _ = Node idPath []
 instance PathStart Univ MaybeImageFile
     where data Peek Univ MaybeImageFile
               = Peek_MaybeImageFile_String (Path Univ MaybeImageFile String) (Maybe String)
@@ -8640,7 +8640,7 @@ instance PathStart Univ MaybeImageFile
           type UPath Univ MaybeImageFile = UPath_MaybeImageFile
           upaths _ _f r0 _x = foldr _f r0 [UPath_MaybeImageFile_View idPath]
           upathRow _ _x = concat [[UPath_MaybeImageFile_View undefined]]
-          upathTree _ _ = []
+          upathTree _ _ = Node idPath []
 instance PathStart Univ ReportImage
     where data Peek Univ ReportImage
               = Peek_ReportImage_String (Path Univ ReportImage String) (Maybe String)
@@ -8680,7 +8680,7 @@ instance PathStart Univ ReportImage
           type UPath Univ ReportImage = UPath_ReportImage
           upaths _ _f r0 _x = foldr _f r0 [UPath_ReportImage_View idPath]
           upathRow _ _x = concat [[UPath_ReportImage_View undefined]]
-          upathTree _ _ = []
+          upathTree _ _ = Node idPath []
 instance PathStart Univ ReportImages
     where data Peek Univ ReportImages
               = Peek_ReportImages_String (Path Univ ReportImages String) (Maybe String)
@@ -8721,7 +8721,7 @@ instance PathStart Univ ReportImages
           type UPath Univ ReportImages = UPath_ReportImages
           upaths _ _f r0 _x = foldr _f r0 (map (\(k, _v) -> Path_At k idPath) (toPairs _x))
           upathRow _ _x = concat [map (\(k, _v) -> Path_At k undefined) (toPairs _x)]
-          upathTree _ _ = []
+          upathTree _ _ = Node idPath []
 instance PathStart Univ ReadOnlyFilePath
     where data Peek Univ ReadOnlyFilePath
               = Peek_ReadOnlyFilePath_String (Path Univ ReadOnlyFilePath String) (Maybe String)
@@ -8746,7 +8746,7 @@ instance PathStart Univ ReadOnlyFilePath
           type UPath Univ ReadOnlyFilePath = UPath_ReadOnlyFilePath
           upaths _ _f r0 _x = foldr _f r0 [UPath_ReadOnlyFilePath_View idPath]
           upathRow _ _x = concat [[UPath_ReadOnlyFilePath_View undefined]]
-          upathTree _ _ = []
+          upathTree _ _ = Node idPath []
 instance PathStart Univ ReportImageView
     where data Peek Univ ReportImageView
               = Peek_ReportImageView_String (Path Univ ReportImageView String) (Maybe String)
@@ -8898,7 +8898,7 @@ instance PathStart Univ ReportImageView
                                                     [UPath_ReportImageView__picPrinterDeprecated undefined],
                                                     [UPath_ReportImageView__picMustEnlarge undefined],
                                                     [UPath_ReportImageView__picEnlargedDeprecated undefined]]
-          upathTree _ _ = []
+          upathTree _ _ = Node idPath []
 instance PathStart Univ ReportView
     where data Peek Univ ReportView
               = Peek_ReportView_String (Path Univ ReportView String) (Maybe String)
@@ -9531,7 +9531,7 @@ instance PathStart Univ ReportView
                                                [UPath_ReportView__reportOrderByItemName undefined],
                                                [UPath_ReportView__reportDisplayItemName undefined],
                                                [UPath_ReportView__reportStandardsVersion undefined]]
-          upathTree _ _ = []
+          upathTree _ _ = Node idPath []
 instance PathStart Univ SaneSizeImageSize
     where data Peek Univ SaneSizeImageSize
               = Peek_SaneSizeImageSize_String (Path Univ SaneSizeImageSize String) (Maybe String)
@@ -9560,7 +9560,7 @@ instance PathStart Univ SaneSizeImageSize
           type UPath Univ SaneSizeImageSize = UPath_SaneSizeImageSize
           upaths _ _f r0 _x = foldr _f r0 [UPath_SaneSizeImageSize_View idPath]
           upathRow _ _x = concat [[UPath_SaneSizeImageSize_View undefined]]
-          upathTree _ _ = []
+          upathTree _ _ = Node idPath []
 instance PathStart Univ Item
     where data Peek Univ Item
               = Peek_Item_String (Path Univ Item String) (Maybe String)
@@ -9625,7 +9625,7 @@ instance PathStart Univ Item
           type UPath Univ Item = UPath_Item
           upaths _ _f r0 (Item {}) = foldr _f (foldr _f (foldr _f r0 [UPath_Item_images idPath]) [UPath_Item_fields idPath]) [UPath_Item_itemName idPath]
           upathRow _ (Item {}) = concat [[UPath_Item_itemName undefined], [UPath_Item_fields undefined], [UPath_Item_images undefined]]
-          upathTree _ _ = []
+          upathTree _ _ = Node idPath []
 instance PathStart Univ MIM
     where data Peek Univ MIM
               = Peek_MIM_JSONText (Path Univ MIM JSONText) (Maybe JSONText)
@@ -9649,9 +9649,9 @@ instance PathStart Univ MIM
                                                          _ -> []
                                      in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s :: [UPeek Univ MIM]
           type UPath Univ MIM = UPath_MIM
-          upaths _ _f r0 _x = foldr _f r0 (map (\(k, v) -> Path_Look k idPath) (toList _x))
-          upathRow _ _x = concat [map (\(k, v) -> Path_Look k undefined) (toList _x)]
-          upathTree _ _ = []
+          upaths _ _f r0 _x = foldr _f r0 (map (\(k, _v) -> Path_Look k idPath) (toList _x))
+          upathRow _ _x = concat [map (\(k, _v) -> Path_Look k undefined) (toList _x)]
+          upathTree _ _ = Node idPath []
 instance PathStart Univ MRR
     where data Peek Univ MRR
               = Peek_MRR_String (Path Univ MRR String) (Maybe String)
@@ -9720,9 +9720,9 @@ instance PathStart Univ MRR
                                                          _ -> []
                                      in upaths (Proxy :: Proxy Univ) (\pth r -> dopath pth ++ r) [] _s :: [UPeek Univ MRR]
           type UPath Univ MRR = UPath_MRR
-          upaths _ _f r0 _x = foldr _f r0 (map (\(k, v) -> Path_Look k idPath) (toList _x))
-          upathRow _ _x = concat [map (\(k, v) -> Path_Look k undefined) (toList _x)]
-          upathTree _ _ = []
+          upaths _ _f r0 _x = foldr _f r0 (map (\(k, _v) -> Path_Look k idPath) (toList _x))
+          upathRow _ _x = concat [map (\(k, _v) -> Path_Look k undefined) (toList _x)]
+          upathTree _ _ = Node idPath []
 instance PathStart Univ ReportMap
     where data Peek Univ ReportMap
               = Peek_ReportMap_String (Path Univ ReportMap String) (Maybe String)
@@ -9794,7 +9794,7 @@ instance PathStart Univ ReportMap
           type UPath Univ ReportMap = UPath_ReportMap
           upaths _ _f r0 (ReportMap {}) = foldr _f r0 [UPath_ReportMap_unReportMap idPath]
           upathRow _ (ReportMap {}) = concat [[UPath_ReportMap_unReportMap undefined]]
-          upathTree _ _ = []
+          upathTree _ _ = Node idPath []
 instance PathStart Univ CIString
     where data Peek Univ CIString
               = Peek_CIString_JSONText (Path Univ CIString JSONText) (Maybe JSONText)
@@ -9819,7 +9819,7 @@ instance PathStart Univ CIString
           type UPath Univ CIString = UPath_CIString
           upaths _ _f r0 _x = foldr _f r0 [UPath_CIString_View idPath]
           upathRow _ _x = concat [[UPath_CIString_View undefined]]
-          upathTree _ _ = []
+          upathTree _ _ = Node idPath []
 instance PathStart Univ URI
     where data Peek Univ URI = Peek_URI_URI (Path Univ URI URI) (Maybe URI) deriving (Eq, Show)
           data UPeek Univ URI = UPeek_URI (UPath Univ URI) (Maybe Univ) deriving (Eq, Show)
@@ -9831,7 +9831,7 @@ instance PathStart Univ URI
           type UPath Univ URI = UPath_URI
           upaths _ _ r _ = r
           upathRow _ _ = []
-          upathTree _ _ = []
+          upathTree _ _ = Node idPath []
 instance PathStart Univ Text
     where data Peek Univ Text = Peek_Text_JSONText (Path Univ Text JSONText) (Maybe JSONText) | Peek_Text_Text (Path Univ Text Text) (Maybe Text) deriving (Eq, Show)
           data UPeek Univ Text = UPeek_Text (UPath Univ Text) (Maybe Univ) deriving (Eq, Show)
@@ -9852,7 +9852,7 @@ instance PathStart Univ Text
           type UPath Univ Text = UPath_Text
           upaths _ _f r0 _x = foldr _f r0 [UPath_Text_View idPath]
           upathRow _ _x = concat [[UPath_Text_View undefined]]
-          upathTree _ _ = []
+          upathTree _ _ = Node idPath []
 instance PathStart Univ UserId
     where data Peek Univ UserId = Peek_UserId_UserId (Path Univ UserId UserId) (Maybe UserId) deriving (Eq, Show)
           data UPeek Univ UserId = UPeek_UserId (UPath Univ UserId) (Maybe Univ) deriving (Eq, Show)
@@ -9864,7 +9864,7 @@ instance PathStart Univ UserId
           type UPath Univ UserId = UPath_UserId
           upaths _ _ r _ = r
           upathRow _ _ = []
-          upathTree _ _ = []
+          upathTree _ _ = Node idPath []
 instance PathStart Univ UUID
     where data Peek Univ UUID = Peek_UUID_UUID (Path Univ UUID UUID) (Maybe UUID) deriving (Eq, Show)
           data UPeek Univ UUID = UPeek_UUID (UPath Univ UUID) (Maybe Univ) deriving (Eq, Show)
@@ -9876,7 +9876,7 @@ instance PathStart Univ UUID
           type UPath Univ UUID = UPath_UUID
           upaths _ _ r _ = r
           upathRow _ _ = []
-          upathTree _ _ = []
+          upathTree _ _ = Node idPath []
 instance U Univ String
     where u = U1
           unU' (U1 a) = Just a

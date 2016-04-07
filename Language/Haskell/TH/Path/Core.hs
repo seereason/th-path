@@ -166,8 +166,10 @@ class PathStart u s where
     -- ^ UPath version of 'paths'
     upathRow :: Proxy u -> s -> [UPath u s]
     -- ^ UPath version of 'peekRow'
-    upathTree :: Proxy u -> s -> Forest (UPath u s)
-    -- ^ UPath version of 'peekTree'
+    upathTree :: Proxy u -> s -> Tree (UPath u s)
+    -- ^ Given a starting path @UPath u s@ (perhaps 'idPath') and a
+    -- particular value of type @s@ and, build a tree of @UPath u s@
+    -- representing the value.
 
 -- | For any two types @s@ and @a@, there is an instance of @Paths
 -- s a@ if there is any path from @s@ to @a@.  The @Path@ type

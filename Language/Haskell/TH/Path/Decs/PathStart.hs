@@ -114,7 +114,7 @@ peekDecs utype v =
                               [] -> pure [newName "r" >>= \r -> clause [wildP, wildP] (normalB [| [] |]) []]
                               _ -> pure uprcs),
            funD' 'upathTree (case uptcs of
-                               [] -> pure [newName "r" >>= \r -> clause [wildP, wildP] (normalB [| [] |]) []]
+                               [] -> pure [newName "r" >>= \r -> clause [wildP, wildP] (normalB [| Node idPath [] |]) []]
                                _ -> pure uptcs)])
        instanceD' (cxt []) [t|Describe (Peek $utype $(asTypeQ v))|]
                   (pure [funD 'describe' (case dcs of
@@ -184,7 +184,7 @@ pathControl utype v x wPathVar = do
                k <- runQ $ newName "_k"
                x <- runQ $ newName "_x"
                finishConcs control [(varP x, [PathConc w (conP 'Path_Look [varP k, varP wPathVar]) (conP 'Path_Look [varP k, varP wPathVar]) [|Path_Look $(varE k)|]
-                                                       (\p -> [|map (\(k, v) -> Path_Look k $p) (Map.toList $(varE x))|])
+                                                       (\p -> [|map (\(k, _v) -> Path_Look k $p) (Map.toList $(varE x))|])
                                              ])]
     , _doList =
         \_e -> pure ()
