@@ -64,27 +64,29 @@ data WriterType
     = TreeClause ClauseQ
     | RowClause ClauseQ
     | DescClause ClauseQ
+    | UDescClause ClauseQ
     | UPathField StrictTypeQ
     | UPathClause ClauseQ
     | UPeekRowClause ClauseQ
     | UPeekTreeClause ClauseQ
 
-partitionClauses :: [WriterType] -> ([ClauseQ], [ClauseQ], [ClauseQ], [StrictTypeQ], [ClauseQ], [ClauseQ], [ClauseQ])
+partitionClauses :: [WriterType] -> ([ClauseQ], [ClauseQ], [ClauseQ], [ClauseQ], [StrictTypeQ], [ClauseQ], [ClauseQ], [ClauseQ])
 partitionClauses xs =
-    foldr f ([], [], [], [], [], [], []) xs
+    foldr f ([], [], [], [], [], [], [], []) xs
         where
-          f (TreeClause x) (tcs, rcs, dcs, upfs, upcs, uprcs, uptcs) = (x : tcs, rcs, dcs, upfs, upcs, uprcs, uptcs)
-          f (RowClause x) (tcs, rcs, dcs, upfs, upcs, uprcs, uptcs) = (tcs, x : rcs, dcs, upfs, upcs, uprcs, uptcs)
-          f (DescClause x) (tcs, rcs, dcs, upfs, upcs, uprcs, uptcs) = (tcs, rcs, x : dcs, upfs, upcs, uprcs, uptcs)
-          f (UPathField x) (tcs, rcs, dcs, upfs, upcs, uprcs, uptcs) = (tcs, rcs, dcs, x : upfs, upcs, uprcs, uptcs)
-          f (UPathClause x) (tcs, rcs, dcs, upfs, upcs, uprcs, uptcs) = (tcs, rcs, dcs, upfs, x : upcs, uprcs, uptcs)
-          f (UPeekRowClause x) (tcs, rcs, dcs, upfs, upcs, uprcs, uptcs) = (tcs, rcs, dcs, upfs, upcs, x : uprcs, uptcs)
-          f (UPeekTreeClause x) (tcs, rcs, dcs, upfs, upcs, uprcs, uptcs) = (tcs, rcs, dcs, upfs, upcs, uprcs, x : uptcs)
+          f (TreeClause x)      (tcs, rcs, dcs, udcs, upfs, upcs, uprcs, uptcs) = (x : tcs,     rcs,     dcs,     udcs,     upfs,     upcs,     uprcs,     uptcs)
+          f (RowClause x)       (tcs, rcs, dcs, udcs, upfs, upcs, uprcs, uptcs) = (    tcs, x : rcs,     dcs,     udcs,     upfs,     upcs,     uprcs,     uptcs)
+          f (DescClause x)      (tcs, rcs, dcs, udcs, upfs, upcs, uprcs, uptcs) = (    tcs,     rcs, x : dcs,     udcs,     upfs,     upcs,     uprcs,     uptcs)
+          f (UDescClause x)     (tcs, rcs, dcs, udcs, upfs, upcs, uprcs, uptcs) = (    tcs,     rcs,     dcs, x : udcs,     upfs,     upcs,     uprcs,     uptcs)
+          f (UPathField x)      (tcs, rcs, dcs, udcs, upfs, upcs, uprcs, uptcs) = (    tcs,     rcs,     dcs,     udcs, x : upfs,     upcs,     uprcs,     uptcs)
+          f (UPathClause x)     (tcs, rcs, dcs, udcs, upfs, upcs, uprcs, uptcs) = (    tcs,     rcs,     dcs,     udcs,     upfs, x : upcs,     uprcs,     uptcs)
+          f (UPeekRowClause x)  (tcs, rcs, dcs, udcs, upfs, upcs, uprcs, uptcs) = (    tcs,     rcs,     dcs,     udcs,     upfs,     upcs, x : uprcs,     uptcs)
+          f (UPeekTreeClause x) (tcs, rcs, dcs, udcs, upfs, upcs, uprcs, uptcs) = (    tcs,     rcs,     dcs,     udcs,     upfs,     upcs,     uprcs, x : uptcs)
 
 peekDecs :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TypeQ -> TGVSimple -> m ()
 peekDecs utype v =
     do (clauses :: [WriterType]) <- execWriterT (peekClauses utype v)
-       let (tcs, rcs, dcs, upfs, upcs, uprcs, uptcs) = partitionClauses clauses
+       let (tcs, rcs, dcs, udcs, upfs, upcs, uprcs, uptcs) = partitionClauses clauses
        instanceD' (cxt []) [t|PathStart $utype $(asTypeQ v)|]
          (sequence
           [dataInstD' (cxt []) ''PeekOld [utype, asTypeQ v]
@@ -126,6 +128,10 @@ peekDecs utype v =
                   (pure [funD 'describe' (case dcs of
                                            [] -> [clause [wildP, wildP] (normalB [|Nothing|]) []]
                                            _ -> dcs ++ [newName "_f" >>= \f -> clause [varP f, wildP] (normalB [|describe' $(varE f) (Proxy :: Proxy $(asTypeQ v))|]) []])])
+       instanceD' (cxt []) [t|Describe (UPeek $utype $(asTypeQ v))|]
+                  (pure [funD 'describe' (case udcs of
+                                            [] -> [clause [wildP, wildP] (normalB [|Nothing|]) []]
+                                            _ -> udcs)])
        proxyV <- runQ $ [t|Proxy $(asTypeQ v)|]
        hasCustomInstance <- (not . null) <$> reifyInstancesWithContext ''Describe [proxyV]
        when (not hasCustomInstance)

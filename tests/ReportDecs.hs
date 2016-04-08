@@ -17766,6 +17766,108 @@ instance Describe (PeekOld Univ UserId)
     where describe' _ _ = Nothing
 instance Describe (PeekOld Univ UUID)
     where describe' _ _ = Nothing
+instance Describe (UPeek Univ String)
+    where describe' _ _ = Nothing
+instance Describe (UPeek Univ Int64)
+    where describe' _ _ = Nothing
+instance Describe (UPeek Univ Bool)
+    where describe' _ _ = Nothing
+instance Describe (UPeek Univ Double)
+    where describe' _ _ = Nothing
+instance Describe (UPeek Univ Int)
+    where describe' _ _ = Nothing
+instance Describe (UPeek Univ Dimension)
+    where describe' _ _ = Nothing
+instance Describe (UPeek Univ ImageCrop)
+    where describe' _ _ = Nothing
+instance Describe (UPeek Univ ImageSize)
+    where describe' _ _ = Nothing
+instance Describe (UPeek Univ Units)
+    where describe' _ _ = Nothing
+instance Describe (UPeek Univ ImageFile)
+    where describe' _ _ = Nothing
+instance Describe (UPeek Univ Integer)
+    where describe' _ _ = Nothing
+instance Describe (UPeek Univ JSONText)
+    where describe' _ _ = Nothing
+instance Describe (UPeek Univ Markup)
+    where describe' _ _ = Nothing
+instance Describe (UPeek Univ Permissions)
+    where describe' _ _ = Nothing
+instance Describe (UPeek Univ UserIds)
+    where describe' _ _ = Nothing
+instance Describe (UPeek Univ AbbrevPair)
+    where describe' _ _ = Nothing
+instance Describe (UPeek Univ AbbrevPairs)
+    where describe' _ _ = Nothing
+instance Describe (UPeek Univ Author)
+    where describe' _ _ = Nothing
+instance Describe (UPeek Univ Authors)
+    where describe' _ _ = Nothing
+instance Describe (UPeek Univ Branding)
+    where describe' _ _ = Nothing
+instance Describe (UPeek Univ MarkupPair)
+    where describe' _ _ = Nothing
+instance Describe (UPeek Univ MarkupPairs)
+    where describe' _ _ = Nothing
+instance Describe (UPeek Univ Markups)
+    where describe' _ _ = Nothing
+instance Describe (UPeek Univ MaybeReportIntendedUse)
+    where describe' _ _ = Nothing
+instance Describe (UPeek Univ Report)
+    where describe' _ _ = Nothing
+instance Describe (UPeek Univ ReportElem)
+    where describe' _ _ = Nothing
+instance Describe (UPeek Univ ReportElems)
+    where describe' _ _ = Nothing
+instance Describe (UPeek Univ ReportFlags)
+    where describe' _ _ = Nothing
+instance Describe (UPeek Univ ReportIntendedUse)
+    where describe' _ _ = Nothing
+instance Describe (UPeek Univ ReportStandard)
+    where describe' _ _ = Nothing
+instance Describe (UPeek Univ ReportStatus)
+    where describe' _ _ = Nothing
+instance Describe (UPeek Univ ReportValueApproachInfo)
+    where describe' _ _ = Nothing
+instance Describe (UPeek Univ ReportValueTypeInfo)
+    where describe' _ _ = Nothing
+instance Describe (UPeek Univ EUI)
+    where describe' _ _ = Nothing
+instance Describe (UPeek Univ MEUI)
+    where describe' _ _ = Nothing
+instance Describe (UPeek Univ MaybeImageFile)
+    where describe' _ _ = Nothing
+instance Describe (UPeek Univ ReportImage)
+    where describe' _ _ = Nothing
+instance Describe (UPeek Univ ReportImages)
+    where describe' _ _ = Nothing
+instance Describe (UPeek Univ ReadOnlyFilePath)
+    where describe' _ _ = Nothing
+instance Describe (UPeek Univ ReportImageView)
+    where describe' _ _ = Nothing
+instance Describe (UPeek Univ ReportView)
+    where describe' _ _ = Nothing
+instance Describe (UPeek Univ SaneSizeImageSize)
+    where describe' _ _ = Nothing
+instance Describe (UPeek Univ Item)
+    where describe' _ _ = Nothing
+instance Describe (UPeek Univ MIM)
+    where describe' _ _ = Nothing
+instance Describe (UPeek Univ MRR)
+    where describe' _ _ = Nothing
+instance Describe (UPeek Univ ReportMap)
+    where describe' _ _ = Nothing
+instance Describe (UPeek Univ CIString)
+    where describe' _ _ = Nothing
+instance Describe (UPeek Univ URI)
+    where describe' _ _ = Nothing
+instance Describe (UPeek Univ Text)
+    where describe' _ _ = Nothing
+instance Describe (UPeek Univ UserId)
+    where describe' _ _ = Nothing
+instance Describe (UPeek Univ UUID)
+    where describe' _ _ = Nothing
 instance Describe (Proxy Int64)
     where describe' _f _ = case _f of
                                Nothing -> Just "Int64"
