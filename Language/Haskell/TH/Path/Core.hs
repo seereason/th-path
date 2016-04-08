@@ -19,9 +19,9 @@ module Language.Haskell.TH.Path.Core
     , treeMap
     , forestMap
       -- * Type classes and associated types
-    , Paths(paths, Path, peek, peekPath, peekValue, peekCons)
+    , PathsOld(pathsOld, PathOld, peekOld, peekPathOld, peekValueOld, peekConsOld)
     , IdPath(idPath)
-    , PathStart(Peek, UPeek, upeekCons, upeekPath, upeekValue, peekTree, peekRow, UPath, upaths, upathRow, upathTree)
+    , PathStart(PeekOld, UPeek, upeekCons, upeekPath, upeekValue, peekTreeOld, peekRowOld, UPath, upaths, upathRow, upathTree)
     , ToLens(S, A, toLens)
     , (:.:)(..)
     , U(u, unU')
@@ -63,7 +63,7 @@ module Language.Haskell.TH.Path.Core
     , stringLens
     , lens_UserIds_Text
 #if !__GHCJS__
-    , pathTypeNames
+    , pathTypeNamesOld
 #endif
     , camelWords
     ) where
@@ -139,7 +139,7 @@ instance (ToLens f, ToLens g, A f ~ S g {-, B f ~ T g-}) => ToLens (f :.: g) whe
 -- along with the value found at the end of that path.  The 'Peek'
 -- type is constructed to be able to represent this result.
 class PathStart u s where
-    data Peek u s
+    data PeekOld u s
     -- ^ 'Peek' is a type function that maps a type to the union of
     -- all paths that start at that type, and (maybe) the value found
     -- by following the path.
@@ -152,12 +152,12 @@ class PathStart u s where
     upeekValue :: UPeek u s -> Maybe u
     -- ^ Accessor for value field of a Peek type
 
-    peekTree :: Proxy u -> s -> Forest (UPeek u s)
+    peekTreeOld :: Proxy u -> s -> Forest (UPeek u s)
     -- ^ Given a value of type @s@, return a forest containing every
     -- 'Peek' that can be reached from it.  The order of the nodes in
     -- the forest reflects the order the elements were encountered
     -- during the traversal.
-    peekRow :: Proxy u -> s -> [UPeek u s]
+    peekRowOld :: Proxy u -> s -> [UPeek u s]
     -- ^ In this function only one layer of the forest is returned, no
     -- recursive peek calls are made.
     type UPath u s
@@ -165,11 +165,9 @@ class PathStart u s where
     upaths :: Proxy u -> (UPath u s -> r -> r) -> r -> s -> r
     -- ^ UPath version of 'paths'
     upathRow :: Proxy u -> s -> [UPath u s]
-    -- ^ UPath version of 'peekRow'
+    -- ^ Return the immediate subpaths of s.
     upathTree :: Proxy u -> s -> Tree (UPath u s)
-    -- ^ Given a starting path @UPath u s@ (perhaps 'idPath') and a
-    -- particular value of type @s@ and, build a tree of @UPath u s@
-    -- representing the value.
+    -- ^ Return a tree containing all subpaths of s
 
 -- | For any two types @s@ and @a@, there is an instance of @Paths
 -- s a@ if there is any path from @s@ to @a@.  The @Path@ type
@@ -184,28 +182,28 @@ class PathStart u s where
 -- eponymously named @Path_Pair@, but that is the identity
 -- constructor, so it can not represent a path from @(Int, Int)@ to
 -- @Int@.
-class (PathStart u s, IdPath (Path u s a), ToLens (Path u s a), S (Path u s a) ~ s, A (Path u s a) ~ a) => Paths u s a where
-    type Path u s a
+class (PathStart u s, IdPath (PathOld u s a), ToLens (PathOld u s a), S (PathOld u s a) ~ s, A (PathOld u s a) ~ a) => PathsOld u s a where
+    type PathOld u s a
     -- ^ Each instance defines this type function which returns the
     -- path type.  Each value of this type represents a different way
     -- of obtaining the @a@ from the @s@.  For example, if @s@ is a
     -- record with two fields of type 'Int', the type @PathType s Int@
     -- would have distinct values for those two fields, and the lenses
     -- returned by 'toLens would access those two fields.
-    paths :: Proxy u -> s -> Proxy a -> (Path u s a -> r -> r) -> r -> r
+    pathsOld :: Proxy u -> s -> Proxy a -> (PathOld u s a -> r -> r) -> r -> r
     -- ^ Build the paths corresponding to a particular @s@ value and a
     -- particular @a@ type.  Returns a list because there may be
     -- several @a@ reachable from this @s@.  This function will freak
     -- out if called with types for which there is no instance
     -- @Paths s a@.
-    peek :: Path u s a -> s -> Peek u s
+    peekOld :: PathOld u s a -> s -> PeekOld u s
     -- ^ Build a 'Peek' @s@ value for a specific path from @s@ to @a@.
 
-    peekPath :: Proxy a -> Peek u s -> Path u s a
+    peekPathOld :: Proxy a -> PeekOld u s -> PathOld u s a
     -- ^ Accessor for path field of a Peek type
-    peekValue :: Proxy a -> Peek u s -> Maybe a
+    peekValueOld :: Proxy a -> PeekOld u s -> Maybe a
     -- ^ Accessor for value field of a Peek type
-    peekCons :: Path u s a -> Maybe a -> Peek u s
+    peekConsOld :: PathOld u s a -> Maybe a -> PeekOld u s
     -- ^ Construct a Peek s
 {-
     upath :: Path u s a -> UPath u s
@@ -413,9 +411,9 @@ lens_UserIds_Text = iso (encode') (decode')
 
 #if !__GHCJS__
 -- | Find all the names of the path types.
-pathTypeNames :: DsMonad m => m (Set Name)
-pathTypeNames = do
-  (FamilyI (FamilyD TypeFam _pathtype [_,_,_] (Just StarT)) tySynInsts) <- qReify ''Path
+pathTypeNamesOld :: DsMonad m => m (Set Name)
+pathTypeNamesOld = do
+  (FamilyI (FamilyD TypeFam _pathtype [_,_,_] (Just StarT)) tySynInsts) <- qReify ''PathOld
   return . {-flip Set.difference primitivePathTypeNames .-} Set.fromList . List.map (\(TySynInstD _ (TySynEqn _ typ)) -> doTySyn typ) $ tySynInsts
     where
       doTySyn (AppT x _) = doTySyn x

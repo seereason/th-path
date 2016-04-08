@@ -27,7 +27,7 @@ import Language.Haskell.TH
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Common (asConQ, asType, asTypeQ, bestPathTypeName, HasName(asName),
                                         makePathCon, makePathType, mconcatQ, ModelType(ModelType), tells)
-import Language.Haskell.TH.Path.Core (Describe(..), IdPath(idPath), Paths(..), PathStart(Peek), ToLens(..),
+import Language.Haskell.TH.Path.Core (Describe(..), IdPath(idPath), PathsOld(..), PathStart(PeekOld), ToLens(..),
                                       Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..), view')
 import Language.Haskell.TH.Path.Decs.PathStart (makePeekCon)
 import Language.Haskell.TH.Path.Decs.PathType (pathType)
@@ -81,19 +81,20 @@ pathDecs' utype v gkey = do
                       peekAccessors utype v gkey)
         False -> execWriterT (doNode (hasPathControl utype v gkey g x') v)
   when (not (null pcs))
-       (tells [instanceD (pure []) [t|Paths $utype $(pure (bestType v)) $(pure (bestType gkey))|]
-                 [ tySynInstD ''Path (tySynEqn [utype, pure (bestType v), pure (bestType gkey)] (pure ptyp))
-                 , funD 'paths pcs
-                 , funD 'peek (case pkcs of
+       (tells [instanceD (pure []) [t|PathsOld $utype $(pure (bestType v)) $(pure (bestType gkey))|]
+                 [ tySynInstD ''PathOld (tySynEqn [utype, pure (bestType v), pure (bestType gkey)] (pure ptyp))
+                 , funD 'pathsOld pcs
+                 , funD 'peekOld
+                            (case pkcs of
                                  (_ : _) -> pkcs
                                  _ | v == gkey ->
                                        [do p <- newName "p"
                                            x <- newName "x"
-                                           clause [varP p, varP x] (normalB [| peekCons $(varE p) (Just $(varE x)) :: Peek $utype $(asTypeQ v) |]) []]
-                                 [] -> [clause [conP (asName (bestPathTypeName v)) [], wildP] (normalB [| undefined "no clauses" :: Peek $utype $(asTypeQ v) |]) []])
-                 , funD 'peekPath ppcs
-                 , funD 'peekValue pvcs
-                 , funD 'peekCons pccs ]])
+                                           clause [varP p, varP x] (normalB [| peekConsOld $(varE p) (Just $(varE x)) :: PeekOld $utype $(asTypeQ v) |]) []]
+                                 [] -> [clause [conP (asName (bestPathTypeName v)) [], wildP] (normalB [| undefined "no clauses" :: PeekOld $utype $(asTypeQ v) |]) []])
+                 , funD 'peekPathOld ppcs
+                 , funD 'peekValueOld pvcs
+                 , funD 'peekConsOld pccs ]])
   when (not (null dcs))
        (tells [instanceD (pure []) [t|Describe $(asTypeQ v) $(asTypeQ gkey)|]
                 [ funD 'describe' dcs ]])
@@ -102,8 +103,8 @@ hasPathControl :: (TypeGraphM m, MonadWriter [ClauseType] m) => TypeQ ->  TGVSim
 hasPathControl utype v gkey g x' =
     let control = hasPathControl utype v gkey g x' in
     Control { -- Why doesn't this ever get called?
-              _doSimple = tell [PeekClause $ clause [conP (asName (bestPathTypeName v)) [], wildP] (normalB [| undefined "doSimple" :: Peek $utype $(asTypeQ v) |]) []]
-            , _doSelf = tell [PeekClause $ clause [conP (asName (bestPathTypeName v)) [], wildP] (normalB [| undefined "doSelf" :: Peek $utype $(asTypeQ v) |]) []]
+              _doSimple = tell [PeekClause $ clause [conP (asName (bestPathTypeName v)) [], wildP] (normalB [| undefined "doSimple" :: PeekOld $utype $(asTypeQ v) |]) []]
+            , _doSelf = tell [PeekClause $ clause [conP (asName (bestPathTypeName v)) [], wildP] (normalB [| undefined "doSelf" :: PeekOld $utype $(asTypeQ v) |]) []]
             , _doView =
                 \w -> do
                   let pcname = makePathCon (makePathType (ModelType (asName v))) "View"
@@ -111,7 +112,7 @@ hasPathControl utype v gkey g x' =
                            p <- newName "p"
                            x <- newName "x"
                            clause [asP p (conP (asName pcname) [wildP]), varP x]
-                                  (normalB [| peekCons $(varE p) (Just (view' (toLens $(varE p)) $(varE x))) :: Peek $utype $(asTypeQ v) |])
+                                  (normalB [| peekConsOld $(varE p) (Just (view' (toLens $(varE p)) $(varE x))) :: PeekOld $utype $(asTypeQ v) |])
                                   []
 {-
                        , PeekClause $ do
@@ -126,8 +127,8 @@ hasPathControl utype v gkey g x' =
 -}
                        ]
                   alt <- _doConcs control wildP
-                             [(asType w, [|map (\a' -> ($(asConQ pcname) :: Path $utype $(asTypeQ w) $(asTypeQ gkey) -> Path $utype $(asTypeQ v) $(asTypeQ gkey), a'))
-                                               (toListOf (toLens ($(asConQ pcname) (idPath :: Path $utype $(asTypeQ w) $(asTypeQ w)))) $(varE x')) |])]
+                             [(asType w, [|map (\a' -> ($(asConQ pcname) :: PathOld $utype $(asTypeQ w) $(asTypeQ gkey) -> PathOld $utype $(asTypeQ v) $(asTypeQ gkey), a'))
+                                               (toListOf (toLens ($(asConQ pcname) (idPath :: PathOld $utype $(asTypeQ w) $(asTypeQ w)))) $(varE x')) |])]
                   _doAlts control [alt]
             , _doOrder =
                 \_i w -> do
@@ -168,25 +169,25 @@ hasPathControl utype v gkey g x' =
                                            p <- newName "p"
                                            x <- newName "x"
                                            clause [asP p (conP (asName pcname) [wildP]), varP x]
-                                                  (normalB [| peekCons $(varE p) (Just (view' (toLens $(varE p)) $(varE x))) :: Peek $utype $(asTypeQ v) |]) []])
+                                                  (normalB [| peekConsOld $(varE p) (Just (view' (toLens $(varE p)) $(varE x))) :: PeekOld $utype $(asTypeQ v) |]) []])
                              pure (typ, [| [($(asConQ (makePathCon (makePathType (ModelType (asName v))) (nameBase fname))), ($(varE fname) $(varE x')))] |])
                       (_tname, _cname, Left fpos) ->
-                          tell [PeekClause $ clause [conP (asName (bestPathTypeName v)) [], wildP] (normalB [| undefined "doAnonField" :: Peek $utype $(asTypeQ v) |]) []] >>
+                          tell [PeekClause $ clause [conP (asName (bestPathTypeName v)) [], wildP] (normalB [| undefined "doAnonField" :: PeekOld $utype $(asTypeQ v) |]) []] >>
                           pure (typ, [| [($(asConQ (makePathCon (makePathType (ModelType (asName v))) (show fpos))),
                                                $(do p <- newName "p"
                                                     lamE (replicate (fpos-1) wildP ++ [varP p] ++ replicate (2-fpos) wildP) (varE p)) $(varE x'))] |])
             , _doConcs =
                 \xpat concs -> do
-                  let _thisPathType = [t|Path $utype $(asTypeQ v) $(asTypeQ gkey)|]
+                  let _thisPathType = [t|PathOld $utype $(asTypeQ v) $(asTypeQ gkey)|]
                   exps <- concat <$>
                           mapM (\(typ, asList) ->
                                     do isPath <- testIsPath typ gkey
-                                       let _nextPathType = [t|Path $utype $(pure typ) $(asTypeQ gkey)|]
+                                       let _nextPathType = [t|PathOld $utype $(pure typ) $(asTypeQ gkey)|]
                                        case isPath of
                                          False -> pure []
                                          True -> pure [ [| List.concatMap
                                                              -- (\(p, a') -> (List.map p (paths (Proxy :: Proxy $utype) (a' :: $(pure typ)) $(varE g) :: [$_nextPathType])) :: [$_thisPathType])
-                                                             (\(p, a') -> paths (Proxy :: Proxy $utype) (a' :: $(pure typ)) $(varE g) (\npt r -> p npt : r) [])
+                                                             (\(p, a') -> pathsOld (Proxy :: Proxy $utype) (a' :: $(pure typ)) $(varE g) (\npt r -> p npt : r) [])
                                                              ($asList :: [($_nextPathType -> $_thisPathType, $(pure typ))]) |] ])
                                concs
                   tell [PathClause $ do f <- newName "f"
@@ -197,7 +198,7 @@ hasPathControl utype v gkey g x' =
                                         p <- newName "p"
                                         x <- newName "x"
                                         clause [varP p, varP x]
-                                               (normalB [| peekCons $(varE p) (Just (view' (toLens $(varE p)) $(varE x))) :: Peek $utype $(asTypeQ v) |]) []]
+                                               (normalB [| peekConsOld $(varE p) (Just (view' (toLens $(varE p)) $(varE x))) :: PeekOld $utype $(asTypeQ v) |]) []]
             , _doAlts =
                 \_ -> do
                   keys <- pathKeys v
@@ -210,7 +211,7 @@ peekAccessors utype v gkey =
     [PeekPathClause $
        newName "_p" >>= \p ->
        clause [conP 'Proxy [], conP (asName (makePeekCon (ModelType (asName v)) (ModelType (asName gkey)))) [varP p, wildP]]
-              (normalB [| $(varE p) :: Path $utype $(asTypeQ v) $(asTypeQ gkey)|])
+              (normalB [| $(varE p) :: PathOld $utype $(asTypeQ v) $(asTypeQ gkey)|])
               [],
      PeekValueClause $
        newName "_x" >>= \x ->
@@ -222,5 +223,5 @@ peekAccessors utype v gkey =
        newName "_p" >>= \p ->
        clause [varP p, varP x]
               (normalB [| $(conE (asName (makePeekCon (ModelType (asName v)) (ModelType (asName gkey)))))
-                             $(varE p) $(varE x) :: Peek $utype $(asTypeQ v)|])
+                             $(varE p) $(varE x) :: PeekOld $utype $(asTypeQ v)|])
               []]

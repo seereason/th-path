@@ -29,7 +29,7 @@ import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Common (allUPathTypeNames, asConQ, asName, asTypeQ, bestUPathTypeName, ModelType(ModelType),
                                         makeUFieldCon, makePathCon, makeUPathType, PathCon, telld, tells)
 import Language.Haskell.TH.Path.Core (IdPath(idPath))
-import Language.Haskell.TH.Path.Decs.PathType (pathType, upathType)
+import Language.Haskell.TH.Path.Decs.PathType (upathType)
 import Language.Haskell.TH.Path.Graph (TypeGraphM)
 import Language.Haskell.TH.Path.Traverse (Control(..), doNode)
 import Language.Haskell.TH.TypeGraph.Expand (unE)

@@ -17,24 +17,19 @@
 module Language.Haskell.TH.Path.Decs.ULens (uLensDecs) where
 
 import Control.Lens hiding (cons, Strict)
-import Control.Monad (when)
 import Control.Monad.Writer (execWriterT, MonadWriter, tell)
-import Data.Bool (bool)
 import Data.Default (Default(def))
-import Data.Maybe (fromJust)
-import Data.Proxy (Proxy(Proxy))
-import Data.Set.Extra as Set (mapM_)
 import Language.Haskell.TH
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Common (fieldLensNameOld, HasName(asName), HasType(asType), HasTypeQ(asTypeQ), makeUFieldCon, tells)
 import Language.Haskell.TH.Path.Core (mat, S, A, IdPath(idPath), ToLens(toLens), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..), U(u, unU'))
-import Language.Haskell.TH.Path.Decs.PathType (pathType, upathType)
+import Language.Haskell.TH.Path.Decs.PathType (upathType)
 import Language.Haskell.TH.Path.Graph (TypeGraphM)
 import Language.Haskell.TH.Path.Order (lens_omat, Path_OMap(..))
 import Language.Haskell.TH.Path.Traverse (Control(..), doNode)
 import Language.Haskell.TH.Path.View (viewLens)
-import Language.Haskell.TH.TypeGraph.TypeGraph (goalReachableSimple, pathKeys, tgv, tgvSimple')
-import Language.Haskell.TH.TypeGraph.Vertex (field, TGVSimple, TypeGraphVertex(bestType))
+import Language.Haskell.TH.TypeGraph.TypeGraph (tgv, tgvSimple')
+import Language.Haskell.TH.TypeGraph.Vertex (field, TGVSimple)
 
 uLensDecs :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TypeQ -> TGVSimple -> m ()
 uLensDecs utype v = do

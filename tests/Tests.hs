@@ -60,17 +60,19 @@ testReportElems :: Test
 testReportElems =
     assertEqual' "reportelems" expected actual
     where
-      expected = [Path_Report_View (Path_ReportView__reportBody (Path_At (ReportElemID {unReportElemID = 0}) Path_ReportElem)),
-                  Path_Report_View (Path_ReportView__reportBody (Path_At (ReportElemID {unReportElemID = 1}) Path_ReportElem)),
-                  Path_Report_View (Path_ReportView__reportBody (Path_At (ReportElemID {unReportElemID = 2}) Path_ReportElem)),
-                  Path_Report_View (Path_ReportView__reportBody (Path_At (ReportElemID {unReportElemID = 3}) Path_ReportElem)),
-                  Path_Report_View (Path_ReportView__reportBody (Path_At (ReportElemID {unReportElemID = 4}) Path_ReportElem)),
-                  Path_Report_View (Path_ReportView__reportBody (Path_At (ReportElemID {unReportElemID = 5}) Path_ReportElem)),
-                  Path_Report_View (Path_ReportView__reportBody (Path_At (ReportElemID {unReportElemID = 6}) Path_ReportElem)),
-                  Path_Report_View (Path_ReportView__reportBody (Path_At (ReportElemID {unReportElemID = 7}) Path_ReportElem)),
-                  Path_Report_View (Path_ReportView__reportBody (Path_At (ReportElemID {unReportElemID = 8}) Path_ReportElem)),
-                  Path_Report_View (Path_ReportView__reportBody (Path_At (ReportElemID {unReportElemID = 9}) Path_ReportElem))]
-      actual = take 10 (paths (Proxy :: Proxy Univ) Report.report (Proxy :: Proxy ReportElem) (:) [])
+      expected = [UPath_Report_View (UPath_ReportView__reportBody (Path_At (ReportElemID {unReportElemID = 0}) UPath_ReportElem)),
+                  UPath_Report_View (UPath_ReportView__reportBody (Path_At (ReportElemID {unReportElemID = 1}) UPath_ReportElem)),
+                  UPath_Report_View (UPath_ReportView__reportBody (Path_At (ReportElemID {unReportElemID = 2}) UPath_ReportElem)),
+                  UPath_Report_View (UPath_ReportView__reportBody (Path_At (ReportElemID {unReportElemID = 3}) UPath_ReportElem)),
+                  UPath_Report_View (UPath_ReportView__reportBody (Path_At (ReportElemID {unReportElemID = 4}) UPath_ReportElem)),
+                  UPath_Report_View (UPath_ReportView__reportBody (Path_At (ReportElemID {unReportElemID = 5}) UPath_ReportElem)),
+                  UPath_Report_View (UPath_ReportView__reportBody (Path_At (ReportElemID {unReportElemID = 6}) UPath_ReportElem)),
+                  UPath_Report_View (UPath_ReportView__reportBody (Path_At (ReportElemID {unReportElemID = 7}) UPath_ReportElem)),
+                  UPath_Report_View (UPath_ReportView__reportBody (Path_At (ReportElemID {unReportElemID = 8}) UPath_ReportElem)),
+                  UPath_Report_View (UPath_ReportView__reportBody (Path_At (ReportElemID {unReportElemID = 9}) UPath_ReportElem))]
+      actual :: [UPath_Report]
+      actual = let Node _ [Node _ peeks] = peekTree (Proxy :: Proxy Univ) Report.report in
+               take 10 (map upeekPath peeks)
 
 testShowInstance :: Test
 testShowInstance =

@@ -21,7 +21,6 @@ import Control.Monad (when)
 import Control.Monad.Writer (execWriterT, MonadWriter, tell)
 import Data.Bool (bool)
 import Data.Default (Default(def))
-import Data.Proxy (Proxy(Proxy))
 import Data.Set.Extra as Set (mapM_)
 import Language.Haskell.TH
 import Language.Haskell.TH.Instances ()
