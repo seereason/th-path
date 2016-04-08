@@ -21,7 +21,8 @@ module Language.Haskell.TH.Path.Core
       -- * Type classes and associated types
     , PathsOld(pathsOld, PathOld, peekOld, peekPathOld, peekValueOld, peekConsOld)
     , IdPath(idPath)
-    , PathStart(PeekOld, UPeek, upeekCons, upeekPath, upeekValue, peekTreeOld, peekRowOld, UPath, upaths, upathRow, {-upathTree, upeekRow,-} upeekTree)
+    , PathStart(PeekOld, UPeek, upeekCons, upeekPath, upeekValue, peekTreeOld, peekRowOld, UPath, upaths, upeekRow, {-upathTree, upeekRow,-} upeekTree)
+    , upathRow
     , ToLens(S, A, toLens)
     , (:.:)(..)
     , U(u, unU')
@@ -80,7 +81,7 @@ import Data.Proxy
 import Data.SafeCopy (base, deriveSafeCopy)
 import Data.Set as Set ({-difference,-} fromList, Set)
 import Data.Text as Text (Text, pack, unpack, unwords, words)
-import Data.Tree (Tree(Node), Forest)
+import Data.Tree (Tree(..), Forest)
 import Data.UserId (UserId(..))
 import Debug.Trace (trace)
 import GHC.Generics (Generic)
@@ -164,14 +165,17 @@ class PathStart u s where
     -- ^ Like type Path, but uses the universal type instead of @a@.
     upaths :: Proxy u -> (UPath u s -> r -> r) -> r -> s -> r
     -- ^ UPath version of 'paths'
-    upathRow :: Proxy u -> s -> [UPath u s]
+    -- upathRow :: Proxy u -> s -> [UPath u s]
     -- ^ Return the immediate subpaths of s.
     -- upathTree :: Proxy u -> s -> Tree (UPath u s)
     -- ^ Return a tree containing all subpaths of s
-    -- upeekRow :: Proxy u -> s -> [UPeek u s]
+    upeekRow :: Proxy u -> s -> Tree (UPeek u s)
     -- ^ Like upathRow, but includes the values found at the end of the path
     upeekTree :: Proxy u -> s -> Tree (UPeek u s)
     -- ^ Like upathTree, but includes the values found at the end of the path
+
+upathRow :: forall u s. PathStart u s => Proxy u -> s -> [UPath u s]
+upathRow proxy x = (map (upeekPath . rootLabel) . subForest . upeekRow proxy) x
 
 -- | For any two types @s@ and @a@, there is an instance of @Paths
 -- s a@ if there is any path from @s@ to @a@.  The @Path@ type

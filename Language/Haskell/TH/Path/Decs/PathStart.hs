@@ -66,7 +66,7 @@ data WriterType
     | DescClause ClauseQ
     | UPathField StrictTypeQ
     | UPathClause ClauseQ
-    | UPathRowClause ClauseQ
+    | UPeekRowClause ClauseQ
     | UPeekTreeClause ClauseQ
 
 partitionClauses :: [WriterType] -> ([ClauseQ], [ClauseQ], [ClauseQ], [StrictTypeQ], [ClauseQ], [ClauseQ], [ClauseQ])
@@ -78,7 +78,7 @@ partitionClauses xs =
           f (DescClause x) (tcs, rcs, dcs, upfs, upcs, uprcs, uptcs) = (tcs, rcs, x : dcs, upfs, upcs, uprcs, uptcs)
           f (UPathField x) (tcs, rcs, dcs, upfs, upcs, uprcs, uptcs) = (tcs, rcs, dcs, x : upfs, upcs, uprcs, uptcs)
           f (UPathClause x) (tcs, rcs, dcs, upfs, upcs, uprcs, uptcs) = (tcs, rcs, dcs, upfs, x : upcs, uprcs, uptcs)
-          f (UPathRowClause x) (tcs, rcs, dcs, upfs, upcs, uprcs, uptcs) = (tcs, rcs, dcs, upfs, upcs, x : uprcs, uptcs)
+          f (UPeekRowClause x) (tcs, rcs, dcs, upfs, upcs, uprcs, uptcs) = (tcs, rcs, dcs, upfs, upcs, x : uprcs, uptcs)
           f (UPeekTreeClause x) (tcs, rcs, dcs, upfs, upcs, uprcs, uptcs) = (tcs, rcs, dcs, upfs, upcs, uprcs, x : uptcs)
 
 peekDecs :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TypeQ -> TGVSimple -> m ()
@@ -111,8 +111,13 @@ peekDecs utype v =
            funD' 'upaths (case upcs of
                             [] -> pure [newName "r" >>= \r -> clause [wildP, wildP, varP r, wildP] (normalB (varE r)) []]
                             _ -> pure upcs),
+{-
            funD' 'upathRow (case uprcs of
                               [] -> pure [clause [wildP, wildP] (normalB [| [] |]) []]
+                              _ -> pure uprcs),
+-}
+           funD' 'upeekRow (case uprcs of
+                              [] -> pure [clause [wildP, wildP] (normalB [| Node (upeekCons idPath Nothing) [] |]) []]
                               _ -> pure uprcs),
            funD' 'upeekTree (case uptcs of
                                [] -> pure [newName "x" >>= \x -> clause [wildP, varP x] (normalB [| Node (upeekCons idPath (Just (u $(varE x)))) [] |]) []]
@@ -243,12 +248,16 @@ pathControl utype v _x wPathVar = do
                          f' upaths r = [|foldr $(varE f) $r $upaths|]
                      clause [wildP, varP f, varP r0, asP x xpat]
                             (normalB (foldr f' (varE r0) upathss)) [],
-                            -- (normalB [|foldr $(varE f) $(varE r0) $upaths|])
-                            -- (normalB (foldr (\upath r -> (appE (appE (varE f) upath) (varE r0))) (varE r0) upaths)) []
-                UPathRowClause $ do
-                  do let upathss = map (\(PathConc _ _ _ _ c _) -> c) concs
-                     clause [wildP, xpat] (normalB [|concat $(listE (map (\p -> p [|idPath|]) upathss))|]) [],
-                UPeekTreeClause $ do
+                UPeekRowClause $
+                  do unv <- newName "_unv"
+                     let pairs = map (\(PathConc w _ _ _ _ fs) -> (w, fs)) concs
+                         fn :: ExpQ -> (TGV, ExpQ) -> ExpQ -> ExpQ
+                         fn ex (w, fs) r =
+                             [| concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk))
+                                                           (map ((\_ x -> Node ((upeekCons (idPath) (Just (u (x :: $(asTypeQ w))))) :: UPeek $utype $(asTypeQ w)) []) $(varE unv))
+                                                                (mapMaybe unU' (toListOf (toLens (f idPath)) $ex)))) $fs ++ $r |]
+                     clause [varP unv, asP' x xpat] (normalB [|Node (upeekCons idPath Nothing) $(foldr (fn (varE x)) [| [] |] pairs)|]) [],
+                UPeekTreeClause $
                   do unv <- newName "_unv"
                      let pairs = map (\(PathConc w _ _ _ _ fs) -> (w, fs)) concs
                          fn :: ExpQ -> (TGV, ExpQ) -> ExpQ -> ExpQ
