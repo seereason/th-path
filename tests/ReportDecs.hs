@@ -7884,7 +7884,7 @@ instance PathStart Univ String
           type UPath Univ String = UPath_String
           upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 [UPath_String_View idPath]
           upathRow _ _xyz = concat [[UPath_String_View idPath]]
-          upathTree _unv (_xconc@_xyz) = Node idPath (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [JSONText]))) [UPath_String_View] ++ [])
+          upeekTree _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [JSONText]))) [UPath_String_View] ++ [])
 instance PathStart Univ Int64
     where data PeekOld Univ Int64 = Peek_Int64_Int64 (PathOld Univ Int64 Int64) (Maybe Int64) deriving (Eq, Show)
           data UPeek Univ Int64 = UPeek_Int64 (UPath Univ Int64) (Maybe Univ) deriving (Eq, Show)
@@ -7896,7 +7896,7 @@ instance PathStart Univ Int64
           type UPath Univ Int64 = UPath_Int64
           upaths _ _ r _ = r
           upathRow _ _ = []
-          upathTree _ _ = Node idPath []
+          upeekTree _ x = Node (upeekCons idPath (Just (u x))) []
 instance PathStart Univ Bool
     where data PeekOld Univ Bool
               = Peek_Bool_String (PathOld Univ Bool String) (Maybe String)
@@ -7921,7 +7921,7 @@ instance PathStart Univ Bool
           type UPath Univ Bool = UPath_Bool
           upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 [UPath_Bool_View idPath]
           upathRow _ _xyz = concat [[UPath_Bool_View idPath]]
-          upathTree _unv (_xconc@_xyz) = Node idPath (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [String]))) [UPath_Bool_View] ++ [])
+          upeekTree _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [String]))) [UPath_Bool_View] ++ [])
 instance PathStart Univ Double
     where data PeekOld Univ Double
               = Peek_Double_String (PathOld Univ Double String) (Maybe String)
@@ -7946,7 +7946,7 @@ instance PathStart Univ Double
           type UPath Univ Double = UPath_Double
           upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 [UPath_Double_View idPath]
           upathRow _ _xyz = concat [[UPath_Double_View idPath]]
-          upathTree _unv (_xconc@_xyz) = Node idPath (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [String]))) [UPath_Double_View] ++ [])
+          upeekTree _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [String]))) [UPath_Double_View] ++ [])
 instance PathStart Univ Int
     where data PeekOld Univ Int = Peek_Int_Int (PathOld Univ Int Int) (Maybe Int) deriving (Eq, Show)
           data UPeek Univ Int = UPeek_Int (UPath Univ Int) (Maybe Univ) deriving (Eq, Show)
@@ -7958,7 +7958,7 @@ instance PathStart Univ Int
           type UPath Univ Int = UPath_Int
           upaths _ _ r _ = r
           upathRow _ _ = []
-          upathTree _ _ = Node idPath []
+          upeekTree _ x = Node (upeekCons idPath (Just (u x))) []
 instance PathStart Univ Dimension
     where data PeekOld Univ Dimension
               = Peek_Dimension_Dimension (PathOld Univ Dimension Dimension) (Maybe Dimension) | Peek_Dimension_JSONText (PathOld Univ Dimension JSONText) (Maybe JSONText)
@@ -7981,7 +7981,7 @@ instance PathStart Univ Dimension
           type UPath Univ Dimension = UPath_Dimension
           upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 [UPath_Dimension_View idPath]
           upathRow _ _xyz = concat [[UPath_Dimension_View idPath]]
-          upathTree _unv (_xconc@_xyz) = Node idPath (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [JSONText]))) [UPath_Dimension_View] ++ [])
+          upeekTree _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [JSONText]))) [UPath_Dimension_View] ++ [])
 instance PathStart Univ ImageCrop
     where data PeekOld Univ ImageCrop = Peek_ImageCrop_ImageCrop (PathOld Univ ImageCrop ImageCrop) (Maybe ImageCrop) deriving (Eq, Show)
           data UPeek Univ ImageCrop = UPeek_ImageCrop (UPath Univ ImageCrop) (Maybe Univ) deriving (Eq, Show)
@@ -7993,7 +7993,7 @@ instance PathStart Univ ImageCrop
           type UPath Univ ImageCrop = UPath_ImageCrop
           upaths _ _ r _ = r
           upathRow _ _ = []
-          upathTree _ _ = Node idPath []
+          upeekTree _ x = Node (upeekCons idPath (Just (u x))) []
 instance PathStart Univ ImageSize
     where data PeekOld Univ ImageSize
               = Peek_ImageSize_String (PathOld Univ ImageSize String) (Maybe String)
@@ -8043,7 +8043,7 @@ instance PathStart Univ ImageSize
           type UPath Univ ImageSize = UPath_ImageSize
           upaths _ _f r0 (_xconc@(ImageSize {})) = foldr _f (foldr _f (foldr _f r0 [UPath_ImageSize_units idPath]) [UPath_ImageSize_size idPath]) [UPath_ImageSize_dim idPath]
           upathRow _ (ImageSize {}) = concat [[UPath_ImageSize_dim idPath], [UPath_ImageSize_size idPath], [UPath_ImageSize_units idPath]]
-          upathTree _unv (_xconc@(ImageSize {})) = Node idPath (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Dimension]))) [UPath_ImageSize_dim] ++ (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Double]))) [UPath_ImageSize_size] ++ (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Units]))) [UPath_ImageSize_units] ++ [])))
+          upeekTree _unv (_xconc@(ImageSize {})) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Dimension]))) [UPath_ImageSize_dim] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Double]))) [UPath_ImageSize_size] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Units]))) [UPath_ImageSize_units] ++ [])))
 instance PathStart Univ Units
     where data PeekOld Univ Units
               = Peek_Units_Units (PathOld Univ Units Units) (Maybe Units) | Peek_Units_JSONText (PathOld Univ Units JSONText) (Maybe JSONText)
@@ -8066,7 +8066,7 @@ instance PathStart Univ Units
           type UPath Univ Units = UPath_Units
           upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 [UPath_Units_View idPath]
           upathRow _ _xyz = concat [[UPath_Units_View idPath]]
-          upathTree _unv (_xconc@_xyz) = Node idPath (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [JSONText]))) [UPath_Units_View] ++ [])
+          upeekTree _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [JSONText]))) [UPath_Units_View] ++ [])
 instance PathStart Univ ImageFile
     where data PeekOld Univ ImageFile = Peek_ImageFile_ImageFile (PathOld Univ ImageFile ImageFile) (Maybe ImageFile) deriving (Eq, Show)
           data UPeek Univ ImageFile = UPeek_ImageFile (UPath Univ ImageFile) (Maybe Univ) deriving (Eq, Show)
@@ -8078,7 +8078,7 @@ instance PathStart Univ ImageFile
           type UPath Univ ImageFile = UPath_ImageFile
           upaths _ _ r _ = r
           upathRow _ _ = []
-          upathTree _ _ = Node idPath []
+          upeekTree _ x = Node (upeekCons idPath (Just (u x))) []
 instance PathStart Univ Integer
     where data PeekOld Univ Integer = Peek_Integer_Integer (PathOld Univ Integer Integer) (Maybe Integer) deriving (Eq, Show)
           data UPeek Univ Integer = UPeek_Integer (UPath Univ Integer) (Maybe Univ) deriving (Eq, Show)
@@ -8090,7 +8090,7 @@ instance PathStart Univ Integer
           type UPath Univ Integer = UPath_Integer
           upaths _ _ r _ = r
           upathRow _ _ = []
-          upathTree _ _ = Node idPath []
+          upeekTree _ x = Node (upeekCons idPath (Just (u x))) []
 instance PathStart Univ JSONText
     where data PeekOld Univ JSONText = Peek_JSONText_JSONText (PathOld Univ JSONText JSONText) (Maybe JSONText) deriving (Eq, Show)
           data UPeek Univ JSONText = UPeek_JSONText (UPath Univ JSONText) (Maybe Univ) deriving (Eq, Show)
@@ -8102,7 +8102,7 @@ instance PathStart Univ JSONText
           type UPath Univ JSONText = UPath_JSONText
           upaths _ _ r _ = r
           upathRow _ _ = []
-          upathTree _ _ = Node idPath []
+          upeekTree _ x = Node (upeekCons idPath (Just (u x))) []
 instance PathStart Univ Markup
     where data PeekOld Univ Markup
               = Peek_Markup_JSONText (PathOld Univ Markup JSONText) (Maybe JSONText)
@@ -8152,11 +8152,11 @@ instance PathStart Univ Markup
           upathRow _ (LaTeX {}) = concat []
           upathRow _ (Pandoc {}) = concat []
           upathRow _ (Markup {}) = concat []
-          upathTree _unv (_xconc@(Markdown {})) = Node idPath (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Text]))) [UPath_Markup_markdownText] ++ [])
-          upathTree _unv (_xconc@(Html {})) = Node idPath (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Text]))) [UPath_Markup_htmlText] ++ [])
-          upathTree _unv (_xconc@(LaTeX {})) = Node idPath []
-          upathTree _unv (_xconc@(Pandoc {})) = Node idPath []
-          upathTree _unv (_xconc@(Markup {})) = Node idPath []
+          upeekTree _unv (_xconc@(Markdown {})) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Text]))) [UPath_Markup_markdownText] ++ [])
+          upeekTree _unv (_xconc@(Html {})) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Text]))) [UPath_Markup_htmlText] ++ [])
+          upeekTree _unv (_xconc@(LaTeX {})) = Node (upeekCons idPath Nothing) []
+          upeekTree _unv (_xconc@(Pandoc {})) = Node (upeekCons idPath Nothing) []
+          upeekTree _unv (_xconc@(Markup {})) = Node (upeekCons idPath Nothing) []
 instance PathStart Univ Permissions
     where data PeekOld Univ Permissions
               = Peek_Permissions_JSONText (PathOld Univ Permissions JSONText) (Maybe JSONText)
@@ -8207,7 +8207,7 @@ instance PathStart Univ Permissions
           type UPath Univ Permissions = UPath_Permissions
           upaths _ _f r0 (_xconc@(Permissions {})) = foldr _f (foldr _f (foldr _f r0 [UPath_Permissions_readers idPath]) [UPath_Permissions_writers idPath]) [UPath_Permissions_owner idPath]
           upathRow _ (Permissions {}) = concat [[UPath_Permissions_owner idPath], [UPath_Permissions_writers idPath], [UPath_Permissions_readers idPath]]
-          upathTree _unv (_xconc@(Permissions {})) = Node idPath (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [UserId]))) [UPath_Permissions_owner] ++ (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [UserIds]))) [UPath_Permissions_writers] ++ (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [UserIds]))) [UPath_Permissions_readers] ++ [])))
+          upeekTree _unv (_xconc@(Permissions {})) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [UserId]))) [UPath_Permissions_owner] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [UserIds]))) [UPath_Permissions_writers] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [UserIds]))) [UPath_Permissions_readers] ++ [])))
 instance PathStart Univ UserIds
     where data PeekOld Univ UserIds
               = Peek_UserIds_JSONText (PathOld Univ UserIds JSONText) (Maybe JSONText)
@@ -8232,7 +8232,7 @@ instance PathStart Univ UserIds
           type UPath Univ UserIds = UPath_UserIds
           upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 [UPath_UserIds_View idPath]
           upathRow _ _xyz = concat [[UPath_UserIds_View idPath]]
-          upathTree _unv (_xconc@_xyz) = Node idPath (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Text]))) [UPath_UserIds_View] ++ [])
+          upeekTree _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Text]))) [UPath_UserIds_View] ++ [])
 instance PathStart Univ AbbrevPair
     where data PeekOld Univ AbbrevPair
               = Peek_AbbrevPair_JSONText (PathOld Univ AbbrevPair JSONText) (Maybe JSONText)
@@ -8270,7 +8270,7 @@ instance PathStart Univ AbbrevPair
           type UPath Univ AbbrevPair = UPath_AbbrevPair
           upaths _ _f r0 (_xconc@_) = foldr _f (foldr _f r0 [Path_Second idPath]) [Path_First idPath]
           upathRow _ _ = concat [[Path_First idPath], [Path_Second idPath]]
-          upathTree _unv _xconc = Node idPath (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [CIString]))) [Path_First] ++ (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [Path_Second] ++ []))
+          upeekTree _unv _xconc = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [CIString]))) [Path_First] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [Path_Second] ++ []))
 instance PathStart Univ AbbrevPairs
     where data PeekOld Univ AbbrevPairs
               = Peek_AbbrevPairs_JSONText (PathOld Univ AbbrevPairs JSONText) (Maybe JSONText)
@@ -8298,8 +8298,8 @@ instance PathStart Univ AbbrevPairs
           type UPath Univ AbbrevPairs = UPath_AbbrevPairs
           upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 (map (\(k, _v) -> Path_At k idPath) (toPairs _xyz))
           upathRow _ _xyz = concat [map (\(k, _v) -> Path_At k idPath) (toPairs _xyz)]
-          upathTree _unv (_xconc@_xyz) = Node idPath (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [AbbrevPair]))) (map (\(k,
-                                                                                                                                                                                         _v) -> Path_At k) (toPairs _xyz)) ++ [])
+          upeekTree _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [AbbrevPair]))) (map (\(k,
+                                                                                                                                                                                                                                                                 _v) -> Path_At k) (toPairs _xyz)) ++ [])
 instance PathStart Univ Author
     where data PeekOld Univ Author
               = Peek_Author_JSONText (PathOld Univ Author JSONText) (Maybe JSONText)
@@ -8336,7 +8336,7 @@ instance PathStart Univ Author
           type UPath Univ Author = UPath_Author
           upaths _ _f r0 (_xconc@(Author {})) = foldr _f (foldr _f r0 [UPath_Author_authorCredentials idPath]) [UPath_Author_authorName idPath]
           upathRow _ (Author {}) = concat [[UPath_Author_authorName idPath], [UPath_Author_authorCredentials idPath]]
-          upathTree _unv (_xconc@(Author {})) = Node idPath (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [UPath_Author_authorName] ++ (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [UPath_Author_authorCredentials] ++ []))
+          upeekTree _unv (_xconc@(Author {})) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [UPath_Author_authorName] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [UPath_Author_authorCredentials] ++ []))
 instance PathStart Univ Authors
     where data PeekOld Univ Authors
               = Peek_Authors_JSONText (PathOld Univ Authors JSONText) (Maybe JSONText)
@@ -8363,8 +8363,8 @@ instance PathStart Univ Authors
           type UPath Univ Authors = UPath_Authors
           upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 (map (\(k, _v) -> Path_At k idPath) (toPairs _xyz))
           upathRow _ _xyz = concat [map (\(k, _v) -> Path_At k idPath) (toPairs _xyz)]
-          upathTree _unv (_xconc@_xyz) = Node idPath (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Author]))) (map (\(k,
-                                                                                                                                                                                     _v) -> Path_At k) (toPairs _xyz)) ++ [])
+          upeekTree _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Author]))) (map (\(k,
+                                                                                                                                                                                                                                                             _v) -> Path_At k) (toPairs _xyz)) ++ [])
 instance PathStart Univ Branding
     where data PeekOld Univ Branding
               = Peek_Branding_JSONText (PathOld Univ Branding JSONText) (Maybe JSONText)
@@ -8389,7 +8389,7 @@ instance PathStart Univ Branding
           type UPath Univ Branding = UPath_Branding
           upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 [UPath_Branding_View idPath]
           upathRow _ _xyz = concat [[UPath_Branding_View idPath]]
-          upathTree _unv (_xconc@_xyz) = Node idPath (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Text]))) [UPath_Branding_View] ++ [])
+          upeekTree _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Text]))) [UPath_Branding_View] ++ [])
 instance PathStart Univ MarkupPair
     where data PeekOld Univ MarkupPair
               = Peek_MarkupPair_JSONText (PathOld Univ MarkupPair JSONText) (Maybe JSONText)
@@ -8426,7 +8426,7 @@ instance PathStart Univ MarkupPair
           type UPath Univ MarkupPair = UPath_MarkupPair
           upaths _ _f r0 (_xconc@_) = foldr _f (foldr _f r0 [Path_Second idPath]) [Path_First idPath]
           upathRow _ _ = concat [[Path_First idPath], [Path_Second idPath]]
-          upathTree _unv _xconc = Node idPath (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [Path_First] ++ (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [Path_Second] ++ []))
+          upeekTree _unv _xconc = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [Path_First] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [Path_Second] ++ []))
 instance PathStart Univ MarkupPairs
     where data PeekOld Univ MarkupPairs
               = Peek_MarkupPairs_JSONText (PathOld Univ MarkupPairs JSONText) (Maybe JSONText)
@@ -8453,8 +8453,8 @@ instance PathStart Univ MarkupPairs
           type UPath Univ MarkupPairs = UPath_MarkupPairs
           upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 (map (\(k, _v) -> Path_At k idPath) (toPairs _xyz))
           upathRow _ _xyz = concat [map (\(k, _v) -> Path_At k idPath) (toPairs _xyz)]
-          upathTree _unv (_xconc@_xyz) = Node idPath (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [MarkupPair]))) (map (\(k,
-                                                                                                                                                                                         _v) -> Path_At k) (toPairs _xyz)) ++ [])
+          upeekTree _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [MarkupPair]))) (map (\(k,
+                                                                                                                                                                                                                                                                 _v) -> Path_At k) (toPairs _xyz)) ++ [])
 instance PathStart Univ Markups
     where data PeekOld Univ Markups
               = Peek_Markups_JSONText (PathOld Univ Markups JSONText) (Maybe JSONText)
@@ -8480,8 +8480,8 @@ instance PathStart Univ Markups
           type UPath Univ Markups = UPath_Markups
           upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 (map (\(k, _v) -> Path_At k idPath) (toPairs _xyz))
           upathRow _ _xyz = concat [map (\(k, _v) -> Path_At k idPath) (toPairs _xyz)]
-          upathTree _unv (_xconc@_xyz) = Node idPath (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) (map (\(k,
-                                                                                                                                                                                     _v) -> Path_At k) (toPairs _xyz)) ++ [])
+          upeekTree _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) (map (\(k,
+                                                                                                                                                                                                                                                             _v) -> Path_At k) (toPairs _xyz)) ++ [])
 instance PathStart Univ MaybeReportIntendedUse
     where data PeekOld Univ MaybeReportIntendedUse
               = Peek_MaybeReportIntendedUse_String (PathOld Univ MaybeReportIntendedUse String) (Maybe String)
@@ -8506,7 +8506,7 @@ instance PathStart Univ MaybeReportIntendedUse
           type UPath Univ MaybeReportIntendedUse = UPath_MaybeReportIntendedUse
           upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 [UPath_MaybeReportIntendedUse_View idPath]
           upathRow _ _xyz = concat [[UPath_MaybeReportIntendedUse_View idPath]]
-          upathTree _unv (_xconc@_xyz) = Node idPath (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [String]))) [UPath_MaybeReportIntendedUse_View] ++ [])
+          upeekTree _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [String]))) [UPath_MaybeReportIntendedUse_View] ++ [])
 instance PathStart Univ Report
     where data PeekOld Univ Report
               = Peek_Report_String (PathOld Univ Report String) (Maybe String)
@@ -8576,7 +8576,7 @@ instance PathStart Univ Report
           type UPath Univ Report = UPath_Report
           upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 [UPath_Report_View idPath]
           upathRow _ _xyz = concat [[UPath_Report_View idPath]]
-          upathTree _unv (_xconc@_xyz) = Node idPath (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [ReportView]))) [UPath_Report_View] ++ [])
+          upeekTree _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [ReportView]))) [UPath_Report_View] ++ [])
 instance PathStart Univ ReportElem
     where data PeekOld Univ ReportElem
               = Peek_ReportElem_String (PathOld Univ ReportElem String) (Maybe String)
@@ -8637,9 +8637,9 @@ instance PathStart Univ ReportElem
           upathRow _ (ReportItem {}) = concat [[UPath_ReportElem_elemItem idPath]]
           upathRow _ (ReportParagraph {}) = concat [[UPath_ReportElem_elemText idPath]]
           upathRow _ (ReportUndecided {}) = concat []
-          upathTree _unv (_xconc@(ReportItem {})) = Node idPath (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Item]))) [UPath_ReportElem_elemItem] ++ [])
-          upathTree _unv (_xconc@(ReportParagraph {})) = Node idPath (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [UPath_ReportElem_elemText] ++ [])
-          upathTree _unv (_xconc@(ReportUndecided {})) = Node idPath []
+          upeekTree _unv (_xconc@(ReportItem {})) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Item]))) [UPath_ReportElem_elemItem] ++ [])
+          upeekTree _unv (_xconc@(ReportParagraph {})) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [UPath_ReportElem_elemText] ++ [])
+          upeekTree _unv (_xconc@(ReportUndecided {})) = Node (upeekCons idPath Nothing) []
 instance PathStart Univ ReportElems
     where data PeekOld Univ ReportElems
               = Peek_ReportElems_String (PathOld Univ ReportElems String) (Maybe String)
@@ -8684,8 +8684,8 @@ instance PathStart Univ ReportElems
           type UPath Univ ReportElems = UPath_ReportElems
           upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 (map (\(k, _v) -> Path_At k idPath) (toPairs _xyz))
           upathRow _ _xyz = concat [map (\(k, _v) -> Path_At k idPath) (toPairs _xyz)]
-          upathTree _unv (_xconc@_xyz) = Node idPath (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [ReportElem]))) (map (\(k,
-                                                                                                                                                                                         _v) -> Path_At k) (toPairs _xyz)) ++ [])
+          upeekTree _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [ReportElem]))) (map (\(k,
+                                                                                                                                                                                                                                                                 _v) -> Path_At k) (toPairs _xyz)) ++ [])
 instance PathStart Univ ReportFlags
     where data PeekOld Univ ReportFlags
               = Peek_ReportFlags_String (PathOld Univ ReportFlags String) (Maybe String)
@@ -8712,7 +8712,7 @@ instance PathStart Univ ReportFlags
           type UPath Univ ReportFlags = UPath_ReportFlags
           upaths _ _f r0 (_xconc@(ReportFlags {})) = foldr _f r0 [UPath_ReportFlags_hideEmptyItemFields idPath]
           upathRow _ (ReportFlags {}) = concat [[UPath_ReportFlags_hideEmptyItemFields idPath]]
-          upathTree _unv (_xconc@(ReportFlags {})) = Node idPath (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Bool]))) [UPath_ReportFlags_hideEmptyItemFields] ++ [])
+          upeekTree _unv (_xconc@(ReportFlags {})) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Bool]))) [UPath_ReportFlags_hideEmptyItemFields] ++ [])
 instance PathStart Univ ReportIntendedUse
     where data PeekOld Univ ReportIntendedUse
               = Peek_ReportIntendedUse_String (PathOld Univ ReportIntendedUse String) (Maybe String)
@@ -8737,7 +8737,7 @@ instance PathStart Univ ReportIntendedUse
           type UPath Univ ReportIntendedUse = UPath_ReportIntendedUse
           upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 [UPath_ReportIntendedUse_View idPath]
           upathRow _ _xyz = concat [[UPath_ReportIntendedUse_View idPath]]
-          upathTree _unv (_xconc@_xyz) = Node idPath (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [String]))) [UPath_ReportIntendedUse_View] ++ [])
+          upeekTree _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [String]))) [UPath_ReportIntendedUse_View] ++ [])
 instance PathStart Univ ReportStandard
     where data PeekOld Univ ReportStandard
               = Peek_ReportStandard_Int (PathOld Univ ReportStandard Int) (Maybe Int)
@@ -8762,7 +8762,7 @@ instance PathStart Univ ReportStandard
           type UPath Univ ReportStandard = UPath_ReportStandard
           upaths _ _f r0 (_xconc@(ReportStandard {})) = foldr _f r0 [UPath_ReportStandard_unReportStandard idPath]
           upathRow _ (ReportStandard {}) = concat [[UPath_ReportStandard_unReportStandard idPath]]
-          upathTree _unv (_xconc@(ReportStandard {})) = Node idPath (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Int]))) [UPath_ReportStandard_unReportStandard] ++ [])
+          upeekTree _unv (_xconc@(ReportStandard {})) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Int]))) [UPath_ReportStandard_unReportStandard] ++ [])
 instance PathStart Univ ReportStatus
     where data PeekOld Univ ReportStatus
               = Peek_ReportStatus_String (PathOld Univ ReportStatus String) (Maybe String)
@@ -8787,7 +8787,7 @@ instance PathStart Univ ReportStatus
           type UPath Univ ReportStatus = UPath_ReportStatus
           upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 [UPath_ReportStatus_View idPath]
           upathRow _ _xyz = concat [[UPath_ReportStatus_View idPath]]
-          upathTree _unv (_xconc@_xyz) = Node idPath (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [String]))) [UPath_ReportStatus_View] ++ [])
+          upeekTree _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [String]))) [UPath_ReportStatus_View] ++ [])
 instance PathStart Univ ReportValueApproachInfo
     where data PeekOld Univ ReportValueApproachInfo
               = Peek_ReportValueApproachInfo_JSONText (PathOld Univ ReportValueApproachInfo JSONText) (Maybe JSONText)
@@ -8833,7 +8833,7 @@ instance PathStart Univ ReportValueApproachInfo
           upaths _ _f r0 (_xconc@(ReportValueApproachInfo {})) = foldr _f (foldr _f r0 [UPath_ReportValueApproachInfo_reportValueApproachDescription idPath]) [UPath_ReportValueApproachInfo_reportValueApproachName idPath]
           upathRow _ (ReportValueApproachInfo {}) = concat [[UPath_ReportValueApproachInfo_reportValueApproachName idPath],
                                                             [UPath_ReportValueApproachInfo_reportValueApproachDescription idPath]]
-          upathTree _unv (_xconc@(ReportValueApproachInfo {})) = Node idPath (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [UPath_ReportValueApproachInfo_reportValueApproachName] ++ (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [UPath_ReportValueApproachInfo_reportValueApproachDescription] ++ []))
+          upeekTree _unv (_xconc@(ReportValueApproachInfo {})) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [UPath_ReportValueApproachInfo_reportValueApproachName] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [UPath_ReportValueApproachInfo_reportValueApproachDescription] ++ []))
 instance PathStart Univ ReportValueTypeInfo
     where data PeekOld Univ ReportValueTypeInfo
               = Peek_ReportValueTypeInfo_JSONText (PathOld Univ ReportValueTypeInfo JSONText) (Maybe JSONText)
@@ -8895,7 +8895,7 @@ instance PathStart Univ ReportValueTypeInfo
           upathRow _ (ReportValueTypeInfo {}) = concat [[UPath_ReportValueTypeInfo_reportValueTypeName idPath],
                                                         [UPath_ReportValueTypeInfo_reportValueTypeDescription idPath],
                                                         [UPath_ReportValueTypeInfo_reportValueTypeDefinition idPath]]
-          upathTree _unv (_xconc@(ReportValueTypeInfo {})) = Node idPath (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [UPath_ReportValueTypeInfo_reportValueTypeName] ++ (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [UPath_ReportValueTypeInfo_reportValueTypeDescription] ++ (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [UPath_ReportValueTypeInfo_reportValueTypeDefinition] ++ [])))
+          upeekTree _unv (_xconc@(ReportValueTypeInfo {})) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [UPath_ReportValueTypeInfo_reportValueTypeName] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [UPath_ReportValueTypeInfo_reportValueTypeDescription] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [UPath_ReportValueTypeInfo_reportValueTypeDefinition] ++ [])))
 instance PathStart Univ EUI
     where data PeekOld Univ EUI
               = Peek_EUI_ImageFile (PathOld Univ EUI ImageFile) (Maybe ImageFile) | Peek_EUI_EUI (PathOld Univ EUI EUI) (Maybe EUI) | Peek_EUI_URI (PathOld Univ EUI URI) (Maybe URI)
@@ -8931,8 +8931,8 @@ instance PathStart Univ EUI
           upaths _ _f r0 (_xconc@(Right _)) = foldr _f r0 [Path_Right idPath]
           upathRow _ (Left _) = concat [[Path_Left idPath]]
           upathRow _ (Right _) = concat [[Path_Right idPath]]
-          upathTree _unv (_xconc@(Left _)) = Node idPath (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [URI]))) [Path_Left] ++ [])
-          upathTree _unv (_xconc@(Right _)) = Node idPath (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [ImageFile]))) [Path_Right] ++ [])
+          upeekTree _unv (_xconc@(Left _)) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [URI]))) [Path_Left] ++ [])
+          upeekTree _unv (_xconc@(Right _)) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [ImageFile]))) [Path_Right] ++ [])
 instance PathStart Univ MEUI
     where data PeekOld Univ MEUI
               = Peek_MEUI_ImageFile (PathOld Univ MEUI ImageFile) (Maybe ImageFile)
@@ -8958,7 +8958,7 @@ instance PathStart Univ MEUI
           type UPath Univ MEUI = UPath_MEUI
           upaths _ _f r0 (_xconc@_) = foldr _f r0 [Path_Just idPath]
           upathRow _ _ = concat [[Path_Just idPath]]
-          upathTree _unv _xconc = Node idPath (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [EUI]))) [Path_Just] ++ [])
+          upeekTree _unv _xconc = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [EUI]))) [Path_Just] ++ [])
 instance PathStart Univ MaybeImageFile
     where data PeekOld Univ MaybeImageFile
               = Peek_MaybeImageFile_String (PathOld Univ MaybeImageFile String) (Maybe String)
@@ -8983,7 +8983,7 @@ instance PathStart Univ MaybeImageFile
           type UPath Univ MaybeImageFile = UPath_MaybeImageFile
           upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 [UPath_MaybeImageFile_View idPath]
           upathRow _ _xyz = concat [[UPath_MaybeImageFile_View idPath]]
-          upathTree _unv (_xconc@_xyz) = Node idPath (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [String]))) [UPath_MaybeImageFile_View] ++ [])
+          upeekTree _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [String]))) [UPath_MaybeImageFile_View] ++ [])
 instance PathStart Univ ReportImage
     where data PeekOld Univ ReportImage
               = Peek_ReportImage_String (PathOld Univ ReportImage String) (Maybe String)
@@ -9023,7 +9023,7 @@ instance PathStart Univ ReportImage
           type UPath Univ ReportImage = UPath_ReportImage
           upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 [UPath_ReportImage_View idPath]
           upathRow _ _xyz = concat [[UPath_ReportImage_View idPath]]
-          upathTree _unv (_xconc@_xyz) = Node idPath (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [ReportImageView]))) [UPath_ReportImage_View] ++ [])
+          upeekTree _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [ReportImageView]))) [UPath_ReportImage_View] ++ [])
 instance PathStart Univ ReportImages
     where data PeekOld Univ ReportImages
               = Peek_ReportImages_String (PathOld Univ ReportImages String) (Maybe String)
@@ -9064,8 +9064,8 @@ instance PathStart Univ ReportImages
           type UPath Univ ReportImages = UPath_ReportImages
           upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 (map (\(k, _v) -> Path_At k idPath) (toPairs _xyz))
           upathRow _ _xyz = concat [map (\(k, _v) -> Path_At k idPath) (toPairs _xyz)]
-          upathTree _unv (_xconc@_xyz) = Node idPath (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [ReportImage]))) (map (\(k,
-                                                                                                                                                                                          _v) -> Path_At k) (toPairs _xyz)) ++ [])
+          upeekTree _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [ReportImage]))) (map (\(k,
+                                                                                                                                                                                                                                                                  _v) -> Path_At k) (toPairs _xyz)) ++ [])
 instance PathStart Univ ReadOnlyFilePath
     where data PeekOld Univ ReadOnlyFilePath
               = Peek_ReadOnlyFilePath_String (PathOld Univ ReadOnlyFilePath String) (Maybe String)
@@ -9090,7 +9090,7 @@ instance PathStart Univ ReadOnlyFilePath
           type UPath Univ ReadOnlyFilePath = UPath_ReadOnlyFilePath
           upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 [UPath_ReadOnlyFilePath_View idPath]
           upathRow _ _xyz = concat [[UPath_ReadOnlyFilePath_View idPath]]
-          upathTree _unv (_xconc@_xyz) = Node idPath (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [String]))) [UPath_ReadOnlyFilePath_View] ++ [])
+          upeekTree _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [String]))) [UPath_ReadOnlyFilePath_View] ++ [])
 instance PathStart Univ ReportImageView
     where data PeekOld Univ ReportImageView
               = Peek_ReportImageView_String (PathOld Univ ReportImageView String) (Maybe String)
@@ -9250,7 +9250,7 @@ instance PathStart Univ ReportImageView
                                                     [UPath_ReportImageView__picPrinterDeprecated idPath],
                                                     [UPath_ReportImageView__picMustEnlarge idPath],
                                                     [UPath_ReportImageView__picEnlargedDeprecated idPath]]
-          upathTree _unv (_xconc@(ReportImageView {})) = Node idPath (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [SaneSizeImageSize]))) [UPath_ReportImageView__picSize] ++ (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [ImageCrop]))) [UPath_ReportImageView__picCrop] ++ (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [UPath_ReportImageView__picCaption] ++ (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [MEUI]))) [UPath_ReportImageView__picOriginal] ++ (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [MaybeImageFile]))) [UPath_ReportImageView__picEditedDeprecated] ++ (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [MaybeImageFile]))) [UPath_ReportImageView__picThumbDeprecated] ++ (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [MaybeImageFile]))) [UPath_ReportImageView__picPrinterDeprecated] ++ (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Bool]))) [UPath_ReportImageView__picMustEnlarge] ++ (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [MaybeImageFile]))) [UPath_ReportImageView__picEnlargedDeprecated] ++ [])))))))))
+          upeekTree _unv (_xconc@(ReportImageView {})) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [SaneSizeImageSize]))) [UPath_ReportImageView__picSize] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [ImageCrop]))) [UPath_ReportImageView__picCrop] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [UPath_ReportImageView__picCaption] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [MEUI]))) [UPath_ReportImageView__picOriginal] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [MaybeImageFile]))) [UPath_ReportImageView__picEditedDeprecated] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [MaybeImageFile]))) [UPath_ReportImageView__picThumbDeprecated] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [MaybeImageFile]))) [UPath_ReportImageView__picPrinterDeprecated] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Bool]))) [UPath_ReportImageView__picMustEnlarge] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [MaybeImageFile]))) [UPath_ReportImageView__picEnlargedDeprecated] ++ [])))))))))
 instance PathStart Univ ReportView
     where data PeekOld Univ ReportView
               = Peek_ReportView_String (PathOld Univ ReportView String) (Maybe String)
@@ -9914,7 +9914,7 @@ instance PathStart Univ ReportView
                                                [UPath_ReportView__reportOrderByItemName idPath],
                                                [UPath_ReportView__reportDisplayItemName idPath],
                                                [UPath_ReportView__reportStandardsVersion idPath]]
-          upathTree _unv (_xconc@(ReportView {})) = Node idPath (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [ReadOnlyFilePath]))) [UPath_ReportView__reportFolder] ++ (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [UPath_ReportView__reportName] ++ (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [UPath_ReportView__reportDate] ++ (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [UPath_ReportView__reportContractDate] ++ (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [UPath_ReportView__reportInspectionDate] ++ (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [UPath_ReportView__reportEffectiveDate] ++ (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Authors]))) [UPath_ReportView__reportAuthors] ++ (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [UPath_ReportView__reportPreparer] ++ (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [UPath_ReportView__reportPreparerEIN] ++ (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [UPath_ReportView__reportPreparerAddress] ++ (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [UPath_ReportView__reportPreparerEMail] ++ (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [UPath_ReportView__reportPreparerWebsite] ++ (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [AbbrevPairs]))) [UPath_ReportView__reportAbbrevs] ++ (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [UPath_ReportView__reportTitle] ++ (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [UPath_ReportView__reportHeader] ++ (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [UPath_ReportView__reportFooter] ++ (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [MaybeReportIntendedUse]))) [UPath_ReportView__reportIntendedUse] ++ (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [ReportValueTypeInfo]))) [UPath_ReportView__reportValueTypeInfo] ++ (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [ReportValueApproachInfo]))) [UPath_ReportView__reportValueApproachInfo] ++ (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [UPath_ReportView__reportClientName] ++ (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [UPath_ReportView__reportClientAddress] ++ (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [UPath_ReportView__reportClientGreeting] ++ (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [UPath_ReportView__reportItemsOwnerFull] ++ (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [UPath_ReportView__reportItemsOwner] ++ (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [UPath_ReportView__reportBriefItems] ++ (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [UPath_ReportView__reportInspectionLocation] ++ (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [ReportElems]))) [UPath_ReportView__reportBody] ++ (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [MarkupPairs]))) [UPath_ReportView__reportGlossary] ++ (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [MarkupPairs]))) [UPath_ReportView__reportSources] ++ (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [UPath_ReportView__reportLetterOfTransmittal] ++ (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [UPath_ReportView__reportScopeOfWork] ++ (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markups]))) [UPath_ReportView__reportCertification] ++ (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markups]))) [UPath_ReportView__reportLimitingConditions] ++ (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [UPath_ReportView__reportPrivacyPolicy] ++ (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Permissions]))) [UPath_ReportView__reportPerms] ++ (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Integer]))) [UPath_ReportView__reportRevision] ++ (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Int64]))) [UPath_ReportView__reportCreated] ++ (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Branding]))) [UPath_ReportView__reportBranding] ++ (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [ReportStatus]))) [UPath_ReportView__reportStatus] ++ (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Bool]))) [UPath_ReportView__reportRedacted] ++ (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [ReportFlags]))) [UPath_ReportView__reportFlags] ++ (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [UUID]))) [UPath_ReportView__reportUUID] ++ (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Bool]))) [UPath_ReportView__reportOrderByItemName] ++ (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Bool]))) [UPath_ReportView__reportDisplayItemName] ++ (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [ReportStandard]))) [UPath_ReportView__reportStandardsVersion] ++ [])))))))))))))))))))))))))))))))))))))))))))))
+          upeekTree _unv (_xconc@(ReportView {})) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [ReadOnlyFilePath]))) [UPath_ReportView__reportFolder] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [UPath_ReportView__reportName] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [UPath_ReportView__reportDate] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [UPath_ReportView__reportContractDate] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [UPath_ReportView__reportInspectionDate] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [UPath_ReportView__reportEffectiveDate] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Authors]))) [UPath_ReportView__reportAuthors] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [UPath_ReportView__reportPreparer] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [UPath_ReportView__reportPreparerEIN] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [UPath_ReportView__reportPreparerAddress] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [UPath_ReportView__reportPreparerEMail] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [UPath_ReportView__reportPreparerWebsite] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [AbbrevPairs]))) [UPath_ReportView__reportAbbrevs] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [UPath_ReportView__reportTitle] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [UPath_ReportView__reportHeader] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [UPath_ReportView__reportFooter] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [MaybeReportIntendedUse]))) [UPath_ReportView__reportIntendedUse] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [ReportValueTypeInfo]))) [UPath_ReportView__reportValueTypeInfo] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [ReportValueApproachInfo]))) [UPath_ReportView__reportValueApproachInfo] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [UPath_ReportView__reportClientName] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [UPath_ReportView__reportClientAddress] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [UPath_ReportView__reportClientGreeting] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [UPath_ReportView__reportItemsOwnerFull] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [UPath_ReportView__reportItemsOwner] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [UPath_ReportView__reportBriefItems] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [UPath_ReportView__reportInspectionLocation] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [ReportElems]))) [UPath_ReportView__reportBody] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [MarkupPairs]))) [UPath_ReportView__reportGlossary] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [MarkupPairs]))) [UPath_ReportView__reportSources] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [UPath_ReportView__reportLetterOfTransmittal] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [UPath_ReportView__reportScopeOfWork] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markups]))) [UPath_ReportView__reportCertification] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markups]))) [UPath_ReportView__reportLimitingConditions] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) [UPath_ReportView__reportPrivacyPolicy] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Permissions]))) [UPath_ReportView__reportPerms] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Integer]))) [UPath_ReportView__reportRevision] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Int64]))) [UPath_ReportView__reportCreated] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Branding]))) [UPath_ReportView__reportBranding] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [ReportStatus]))) [UPath_ReportView__reportStatus] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Bool]))) [UPath_ReportView__reportRedacted] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [ReportFlags]))) [UPath_ReportView__reportFlags] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [UUID]))) [UPath_ReportView__reportUUID] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Bool]))) [UPath_ReportView__reportOrderByItemName] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Bool]))) [UPath_ReportView__reportDisplayItemName] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [ReportStandard]))) [UPath_ReportView__reportStandardsVersion] ++ [])))))))))))))))))))))))))))))))))))))))))))))
 instance PathStart Univ SaneSizeImageSize
     where data PeekOld Univ SaneSizeImageSize
               = Peek_SaneSizeImageSize_String (PathOld Univ SaneSizeImageSize String) (Maybe String)
@@ -9943,7 +9943,7 @@ instance PathStart Univ SaneSizeImageSize
           type UPath Univ SaneSizeImageSize = UPath_SaneSizeImageSize
           upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 [UPath_SaneSizeImageSize_View idPath]
           upathRow _ _xyz = concat [[UPath_SaneSizeImageSize_View idPath]]
-          upathTree _unv (_xconc@_xyz) = Node idPath (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [ImageSize]))) [UPath_SaneSizeImageSize_View] ++ [])
+          upeekTree _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [ImageSize]))) [UPath_SaneSizeImageSize_View] ++ [])
 instance PathStart Univ Item
     where data PeekOld Univ Item
               = Peek_Item_String (PathOld Univ Item String) (Maybe String)
@@ -10008,7 +10008,7 @@ instance PathStart Univ Item
           type UPath Univ Item = UPath_Item
           upaths _ _f r0 (_xconc@(Item {})) = foldr _f (foldr _f (foldr _f r0 [UPath_Item_images idPath]) [UPath_Item_fields idPath]) [UPath_Item_itemName idPath]
           upathRow _ (Item {}) = concat [[UPath_Item_itemName idPath], [UPath_Item_fields idPath], [UPath_Item_images idPath]]
-          upathTree _unv (_xconc@(Item {})) = Node idPath (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Text]))) [UPath_Item_itemName] ++ (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [MIM]))) [UPath_Item_fields] ++ (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [ReportImages]))) [UPath_Item_images] ++ [])))
+          upeekTree _unv (_xconc@(Item {})) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Text]))) [UPath_Item_itemName] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [MIM]))) [UPath_Item_fields] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [ReportImages]))) [UPath_Item_images] ++ [])))
 instance PathStart Univ MIM
     where data PeekOld Univ MIM
               = Peek_MIM_JSONText (PathOld Univ MIM JSONText) (Maybe JSONText)
@@ -10034,8 +10034,8 @@ instance PathStart Univ MIM
           type UPath Univ MIM = UPath_MIM
           upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 (map (\(k, _v) -> Path_Look k idPath) (toList _xyz))
           upathRow _ _xyz = concat [map (\(k, _v) -> Path_Look k idPath) (toList _xyz)]
-          upathTree _unv (_xconc@_xyz) = Node idPath (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) (map (\(k,
-                                                                                                                                                                                     _v) -> Path_Look k) (toList _xyz)) ++ [])
+          upeekTree _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Markup]))) (map (\(k,
+                                                                                                                                                                                                                                                             _v) -> Path_Look k) (toList _xyz)) ++ [])
 instance PathStart Univ MRR
     where data PeekOld Univ MRR
               = Peek_MRR_String (PathOld Univ MRR String) (Maybe String)
@@ -10106,8 +10106,8 @@ instance PathStart Univ MRR
           type UPath Univ MRR = UPath_MRR
           upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 (map (\(k, _v) -> Path_Look k idPath) (toList _xyz))
           upathRow _ _xyz = concat [map (\(k, _v) -> Path_Look k idPath) (toList _xyz)]
-          upathTree _unv (_xconc@_xyz) = Node idPath (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Report]))) (map (\(k,
-                                                                                                                                                                                     _v) -> Path_Look k) (toList _xyz)) ++ [])
+          upeekTree _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Report]))) (map (\(k,
+                                                                                                                                                                                                                                                             _v) -> Path_Look k) (toList _xyz)) ++ [])
 instance PathStart Univ ReportMap
     where data PeekOld Univ ReportMap
               = Peek_ReportMap_String (PathOld Univ ReportMap String) (Maybe String)
@@ -10179,7 +10179,7 @@ instance PathStart Univ ReportMap
           type UPath Univ ReportMap = UPath_ReportMap
           upaths _ _f r0 (_xconc@(ReportMap {})) = foldr _f r0 [UPath_ReportMap_unReportMap idPath]
           upathRow _ (ReportMap {}) = concat [[UPath_ReportMap_unReportMap idPath]]
-          upathTree _unv (_xconc@(ReportMap {})) = Node idPath (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [MRR]))) [UPath_ReportMap_unReportMap] ++ [])
+          upeekTree _unv (_xconc@(ReportMap {})) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [MRR]))) [UPath_ReportMap_unReportMap] ++ [])
 instance PathStart Univ CIString
     where data PeekOld Univ CIString
               = Peek_CIString_JSONText (PathOld Univ CIString JSONText) (Maybe JSONText)
@@ -10204,7 +10204,7 @@ instance PathStart Univ CIString
           type UPath Univ CIString = UPath_CIString
           upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 [UPath_CIString_View idPath]
           upathRow _ _xyz = concat [[UPath_CIString_View idPath]]
-          upathTree _unv (_xconc@_xyz) = Node idPath (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Text]))) [UPath_CIString_View] ++ [])
+          upeekTree _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [Text]))) [UPath_CIString_View] ++ [])
 instance PathStart Univ URI
     where data PeekOld Univ URI = Peek_URI_URI (PathOld Univ URI URI) (Maybe URI) deriving (Eq, Show)
           data UPeek Univ URI = UPeek_URI (UPath Univ URI) (Maybe Univ) deriving (Eq, Show)
@@ -10216,7 +10216,7 @@ instance PathStart Univ URI
           type UPath Univ URI = UPath_URI
           upaths _ _ r _ = r
           upathRow _ _ = []
-          upathTree _ _ = Node idPath []
+          upeekTree _ x = Node (upeekCons idPath (Just (u x))) []
 instance PathStart Univ Text
     where data PeekOld Univ Text
               = Peek_Text_JSONText (PathOld Univ Text JSONText) (Maybe JSONText) | Peek_Text_Text (PathOld Univ Text Text) (Maybe Text)
@@ -10239,7 +10239,7 @@ instance PathStart Univ Text
           type UPath Univ Text = UPath_Text
           upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 [UPath_Text_View idPath]
           upathRow _ _xyz = concat [[UPath_Text_View idPath]]
-          upathTree _unv (_xconc@_xyz) = Node idPath (concatMap (\f -> forestMap f (map (upathTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [JSONText]))) [UPath_Text_View] ++ [])
+          upeekTree _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (mapMaybe unU' (toListOf (toLens (f idPath)) _xconc) :: [JSONText]))) [UPath_Text_View] ++ [])
 instance PathStart Univ UserId
     where data PeekOld Univ UserId = Peek_UserId_UserId (PathOld Univ UserId UserId) (Maybe UserId) deriving (Eq, Show)
           data UPeek Univ UserId = UPeek_UserId (UPath Univ UserId) (Maybe Univ) deriving (Eq, Show)
@@ -10251,7 +10251,7 @@ instance PathStart Univ UserId
           type UPath Univ UserId = UPath_UserId
           upaths _ _ r _ = r
           upathRow _ _ = []
-          upathTree _ _ = Node idPath []
+          upeekTree _ x = Node (upeekCons idPath (Just (u x))) []
 instance PathStart Univ UUID
     where data PeekOld Univ UUID = Peek_UUID_UUID (PathOld Univ UUID UUID) (Maybe UUID) deriving (Eq, Show)
           data UPeek Univ UUID = UPeek_UUID (UPath Univ UUID) (Maybe Univ) deriving (Eq, Show)
@@ -10263,7 +10263,7 @@ instance PathStart Univ UUID
           type UPath Univ UUID = UPath_UUID
           upaths _ _ r _ = r
           upathRow _ _ = []
-          upathTree _ _ = Node idPath []
+          upeekTree _ x = Node (upeekCons idPath (Just (u x))) []
 instance U Univ String
     where u = U1
           unU' (U1 a) = Just a

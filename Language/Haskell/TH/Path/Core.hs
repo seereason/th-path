@@ -21,7 +21,7 @@ module Language.Haskell.TH.Path.Core
       -- * Type classes and associated types
     , PathsOld(pathsOld, PathOld, peekOld, peekPathOld, peekValueOld, peekConsOld)
     , IdPath(idPath)
-    , PathStart(PeekOld, UPeek, upeekCons, upeekPath, upeekValue, peekTreeOld, peekRowOld, UPath, upaths, upathRow, upathTree)
+    , PathStart(PeekOld, UPeek, upeekCons, upeekPath, upeekValue, peekTreeOld, peekRowOld, UPath, upaths, upathRow, {-upathTree, upeekRow,-} upeekTree)
     , ToLens(S, A, toLens)
     , (:.:)(..)
     , U(u, unU')
@@ -166,8 +166,12 @@ class PathStart u s where
     -- ^ UPath version of 'paths'
     upathRow :: Proxy u -> s -> [UPath u s]
     -- ^ Return the immediate subpaths of s.
-    upathTree :: Proxy u -> s -> Tree (UPath u s)
+    -- upathTree :: Proxy u -> s -> Tree (UPath u s)
     -- ^ Return a tree containing all subpaths of s
+    -- upeekRow :: Proxy u -> s -> [UPeek u s]
+    -- ^ Like upathRow, but includes the values found at the end of the path
+    upeekTree :: Proxy u -> s -> Tree (UPeek u s)
+    -- ^ Like upathTree, but includes the values found at the end of the path
 
 -- | For any two types @s@ and @a@, there is an instance of @Paths
 -- s a@ if there is any path from @s@ to @a@.  The @Path@ type

@@ -60,19 +60,19 @@ testReportElems :: Test
 testReportElems =
     assertEqual' "reportelems" expected actual
     where
-      expected = [UPath_Report_View (UPath_ReportView__reportBody (Path_At (ReportElemID {unReportElemID = 0}) UPath_ReportElem)),
-                  UPath_Report_View (UPath_ReportView__reportBody (Path_At (ReportElemID {unReportElemID = 1}) UPath_ReportElem)),
-                  UPath_Report_View (UPath_ReportView__reportBody (Path_At (ReportElemID {unReportElemID = 2}) UPath_ReportElem)),
-                  UPath_Report_View (UPath_ReportView__reportBody (Path_At (ReportElemID {unReportElemID = 3}) UPath_ReportElem)),
-                  UPath_Report_View (UPath_ReportView__reportBody (Path_At (ReportElemID {unReportElemID = 4}) UPath_ReportElem)),
-                  UPath_Report_View (UPath_ReportView__reportBody (Path_At (ReportElemID {unReportElemID = 5}) UPath_ReportElem)),
-                  UPath_Report_View (UPath_ReportView__reportBody (Path_At (ReportElemID {unReportElemID = 6}) UPath_ReportElem)),
-                  UPath_Report_View (UPath_ReportView__reportBody (Path_At (ReportElemID {unReportElemID = 7}) UPath_ReportElem)),
-                  UPath_Report_View (UPath_ReportView__reportBody (Path_At (ReportElemID {unReportElemID = 8}) UPath_ReportElem)),
-                  UPath_Report_View (UPath_ReportView__reportBody (Path_At (ReportElemID {unReportElemID = 9}) UPath_ReportElem))]
+      expected = [UPath_Report_View (UPath_ReportView__reportFolder UPath_ReadOnlyFilePath),
+                  UPath_Report_View (UPath_ReportView__reportName UPath_Markup),
+                  UPath_Report_View (UPath_ReportView__reportDate UPath_Markup),
+                  UPath_Report_View (UPath_ReportView__reportContractDate UPath_Markup),
+                  UPath_Report_View (UPath_ReportView__reportInspectionDate UPath_Markup),
+                  UPath_Report_View (UPath_ReportView__reportEffectiveDate UPath_Markup),
+                  UPath_Report_View (UPath_ReportView__reportAuthors Path_OMap),
+                  UPath_Report_View (UPath_ReportView__reportPreparer UPath_Markup),
+                  UPath_Report_View (UPath_ReportView__reportPreparerEIN UPath_Markup),
+                  UPath_Report_View (UPath_ReportView__reportPreparerAddress UPath_Markup)]
       actual :: [UPath_Report]
-      actual = let Node _ [Node _ peeks] = peekTree (Proxy :: Proxy Univ) Report.report in
-               take 10 (map upeekPath peeks)
+      actual = let Node _ [Node _ xs] = upeekTree (Proxy :: Proxy Univ) Report.report in
+               map (upeekPath . rootLabel) (take 10 xs)
 
 testShowInstance :: Test
 testShowInstance =
@@ -86,11 +86,11 @@ testPeekReportView =
     assertEqual' "peek ReportView" expected actual
     -- assertEqual' "peek ReportView" (pprint expected) (pprint actual)
     where
-      expected :: Forest (UPeek Univ ReportView)
+      expected :: Tree (UPeek Univ ReportView)
       expected = peekReportView
-      actual :: Forest (UPeek Univ ReportView)
-      actual = let [Just reportview] = map unU' (toListOf (toLens (UPath_Report_View (idPath :: UPath_ReportView))) Report.report) in
-               peekTree (Proxy :: Proxy Univ) reportview
+      actual :: Tree (UPeek Univ ReportView)
+      actual = let [Just reportview] = map unU' (toListOf (toLens (UPath_Report_View (idPath :: UPath_ReportView))) Report.report) :: [Maybe ReportView] in
+               upeekTree (Proxy :: Proxy Univ) reportview
 
 {-
 testLabels :: Test
@@ -119,10 +119,10 @@ testPeekOrder =
     assertEqual' "peekNodes order" expected actual
     -- assertEqual' "peekNodes order" (pprint expected) (pprint actual)
     where
-      expected :: Forest (UPeek Univ AbbrevPairs)
+      expected :: Tree (UPeek Univ AbbrevPairs)
       expected = peekAbbrevPairs
-      actual :: Forest (UPeek Univ AbbrevPairs)
-      actual = peekTree (Proxy :: Proxy Univ) (reportAbbrevs Report.report)
+      actual :: Tree (UPeek Univ AbbrevPairs)
+      actual = upeekTree (Proxy :: Proxy Univ) (reportAbbrevs Report.report)
 
 testUPaths :: Test
 testUPaths =
@@ -157,11 +157,12 @@ testUPaths =
           [usize] = toListOf (toLens imageSizePath) Report.report
           actual = upaths (Proxy :: Proxy Univ) (:) [] (fromJust (unU' usize) :: ImageSize) in
       assertEqual' "testUPaths 4" expected actual
-    , let expected = [UPeek_ImageSize (UPath_ImageSize_dim UPath_Dimension) (Just (U6 TheHeight)),
-                      UPeek_ImageSize (UPath_ImageSize_size UPath_Double) (Just (U5 3.0)),
-                      UPeek_ImageSize (UPath_ImageSize_units UPath_Units) (Just (U9 Inches))]
+    , let expected = map upeekPath
+                       [UPeek_ImageSize (UPath_ImageSize_dim UPath_Dimension) (Just (U6 TheHeight)),
+                        UPeek_ImageSize (UPath_ImageSize_size UPath_Double) (Just (U5 3.0)),
+                        UPeek_ImageSize (UPath_ImageSize_units UPath_Units) (Just (U9 Inches))]
           [usize] = mapMaybe unU' (toListOf (toLens imageSizePath) Report.report) :: [ImageSize]
-          actual = peekRow (Proxy :: Proxy Univ) usize in
+          actual = upathRow (Proxy :: Proxy Univ) usize in
       assertEqual' "testUPaths 5" expected actual
     ]
     where imageSizePath =
