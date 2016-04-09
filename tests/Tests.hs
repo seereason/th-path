@@ -207,6 +207,16 @@ main = do
          , assertEqual' "Report letter of transmittal field"
                                   (Just "Letter of Transmittal") (describe' (Just $(fieldStrings (''ReportView, 'ReportView, Right '_reportLetterOfTransmittal)))
                                                                            (Peek_ReportView_JSONText (Path_ReportView__reportLetterOfTransmittal (Path_Markup_markdownText (Path_Text_View Path_JSONText))) Nothing))
+         , assertEqual' "label 5" (Just "Report Intended Use") (describe (UPath_Report_View (UPath_ReportView__reportIntendedUse (UPath_MaybeReportIntendedUse_View idPath))))
+         -- There is a custom Describe instance for Markup that returns Nothing, so
+         --    > describe (Just ("ReportView","ReportView",Right "_reportFooter")) (Peek_Markup_Markup Path_Markup undefined)
+         -- returns Nothing.
+         , assertEqual' "label 6" (Just "Report Footer") (describe (UPath_Report_View (UPath_ReportView__reportFooter UPath_Markup)))
+         , assertEqual' "label 7" (Just "Letter of Transmittal") (describe (UPath_Report_View (UPath_ReportView__reportLetterOfTransmittal (UPath_Markup_markdownText UPath_Text))))
+         , assertEqual' "label 8" (Just "Letter of Transmittal") (describe (UPath_ReportView__reportLetterOfTransmittal (UPath_Markup_markdownText UPath_Text)))
+         , assertEqual' "Report letter of transmittal field"
+                                  (Just "Letter of Transmittal") (describe' (Just $(fieldStrings (''ReportView, 'ReportView, Right '_reportLetterOfTransmittal)))
+                                                                            (UPath_ReportView__reportLetterOfTransmittal (UPath_Markup_markdownText (UPath_Text_View UPath_JSONText))))
          ]
 
   case r of

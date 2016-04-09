@@ -33,6 +33,7 @@ import Language.Haskell.TH.Path.Common (HasConQ(asConQ), HasCon(asCon), HasName(
                                         makeFieldCon, makeUFieldCon, makePathCon, makePathType, makeUPathType, ModelType(ModelType))
 import Language.Haskell.TH.Path.Core (camelWords, fieldStrings, IdPath(idPath), PathStart(..), PathsOld(..), ToLens(toLens),
                                       Describe(describe'), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..), forestMap, U(u, unU'))
+import Language.Haskell.TH.Path.Decs.PathType (upathType)
 import Language.Haskell.TH.Path.Graph (TypeGraphM)
 import Language.Haskell.TH.Path.Order (Path_OMap(..), toPairs)
 import Language.Haskell.TH.Path.Traverse (asP', Control(..), doNode, finishConcs)
@@ -128,10 +129,15 @@ peekDecs utype v =
                   (pure [funD 'describe' (case dcs of
                                            [] -> [clause [wildP, wildP] (normalB [|Nothing|]) []]
                                            _ -> dcs ++ [newName "_f" >>= \f -> clause [varP f, wildP] (normalB [|describe' $(varE f) (Proxy :: Proxy $(asTypeQ v))|]) []])])
-       instanceD' (cxt []) [t|Describe (UPeek $utype $(asTypeQ v))|]
-                  (pure [funD 'describe' (case udcs of
-                                            [] -> [clause [wildP, wildP] (normalB [|Nothing|]) []]
-                                            _ -> udcs)])
+       uptype <- upathType v
+       instanceD' (cxt []) [t|Describe $(pure uptype)|]
+                  (pure [do f <- newName "f"
+                            p <- newName "p"
+                            funD 'describe' (udcs ++
+                                             [clause [varP f, varP p] (guardedB [(normalGE [|$(varE p) == idPath|]
+                                                                                  [|describe' $(varE f) (Proxy :: Proxy $(asTypeQ v))|])]) [],
+                                              clause [wildP, wildP] (normalB [|error "Unexpected path"|]) []]
+                                            )])
        proxyV <- runQ $ [t|Proxy $(asTypeQ v)|]
        hasCustomInstance <- (not . null) <$> reifyInstancesWithContext ''Describe [proxyV]
        when (not hasCustomInstance)
@@ -334,13 +340,27 @@ liftPeekE utype v w pcon gs = do
 --    ppat = Path_ReportView__reportLetterOfTransmittal _wp
 describeConc :: forall m. (TypeGraphM m, MonadWriter [WriterType] m) =>
                 TypeQ -> TGVSimple -> Name -> PathConc -> m ()
-describeConc utype v wPathVar (PathConc w ppat _upat _ucon _ucons _ulift) =
+describeConc utype v wPathVar (PathConc w ppat upat _ucon _ucons _ulift) =
     do p <- runQ $ newName "_p"
        x <- runQ $ newName "_x"
        f <- runQ $ newName "_f"
        pathKeys' w >>= mapM_ (doGoal' p x f)
        -- Is there a custom describe instance for Proxy (asType v)?
        -- if so it overrides the default label we build using camelWords.
+       tell [UDescClause $
+             -- f contains the context in which v appears, while we can tell
+             -- the context in which w appears from the path constructor.
+             clause [varP f, asP p upat]
+                    (normalB ([| let -- The context in which the w value appears
+                                   wfld :: Maybe (String, String, Either Int String)
+                                   wfld = ($(maybe [|Nothing|] (\y -> [|Just $(fieldStrings y)|]) (view (_2 . field) w)))
+                                   -- The label for the next hop along the path
+                                   next = describe' wfld $(varE wPathVar)
+                                   -- The label for the current node.  This will call the custom
+                                   -- instance if there is one, otherwise one will have been generated.
+                                   top = describe' $(varE f) (Proxy :: Proxy $(asTypeQ v)) in
+                              maybe top Just next |]))
+                     []]
     where
       doGoal' :: Name -> Name -> Name -> TGVSimple -> m ()
       doGoal' p x f g = do

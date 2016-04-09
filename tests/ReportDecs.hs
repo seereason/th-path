@@ -320,7 +320,7 @@ data Univ
     | U49 Text
     | U50 UserId
     | U51 UUID
-    deriving (Eq, Show)
+    deriving (Eq, Show, Data, Typeable)
 type Path_AbbrevPair _a = Path_Pair (Path_CIString _a) (Path_Markup _a)
 type Path_AbbrevPairs _a = Path_OMap AbbrevPairID (Path_Pair (Path_CIString _a) (Path_Markup _a))
 type Path_Authors _a = Path_OMap AuthorID (Path_Author _a)
@@ -14866,6 +14866,61 @@ instance HasUserId UserId
     where lens_userId = id
           lens_UserId__unUserId = iso (\(UserId x) -> x) UserId
           {-# INLINE lens_UserId__unUserId #-}
+instance Describe (Path_Either UPath_URI UPath_ImageFile)
+    where describe' _f (_p@(Path_Left _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                   wfld = Nothing;
+                                                   next = describe' wfld _wp;
+                                                   top = describe' _f (Proxy :: Proxy EUI)}
+                                               in maybe top Just next
+          describe' _f (_p@(Path_Right _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                    wfld = Nothing;
+                                                    next = describe' wfld _wp;
+                                                    top = describe' _f (Proxy :: Proxy EUI)}
+                                                in maybe top Just next
+          describe' f p | p == idPath = describe' f (Proxy :: Proxy EUI)
+          describe' _ _ = error "Unexpected path"
+instance Describe (Path_Map ItemFieldName UPath_Markup)
+    where describe' _f (_p@(Path_Look _k _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                      wfld = Nothing;
+                                                      next = describe' wfld _wp;
+                                                      top = describe' _f (Proxy :: Proxy MIM)}
+                                                  in maybe top Just next
+          describe' f p | p == idPath = describe' f (Proxy :: Proxy MIM)
+          describe' _ _ = error "Unexpected path"
+instance Describe (Path_Map ReportID UPath_Report)
+    where describe' _f (_p@(Path_Look _k _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                      wfld = Nothing;
+                                                      next = describe' wfld _wp;
+                                                      top = describe' _f (Proxy :: Proxy MRR)}
+                                                  in maybe top Just next
+          describe' f p | p == idPath = describe' f (Proxy :: Proxy MRR)
+          describe' _ _ = error "Unexpected path"
+instance Describe (Path_Pair UPath_CIString UPath_Markup)
+    where describe' _f (_p@(Path_First _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                    wfld = Nothing;
+                                                    next = describe' wfld _wp;
+                                                    top = describe' _f (Proxy :: Proxy AbbrevPair)}
+                                                in maybe top Just next
+          describe' _f (_p@(Path_Second _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                     wfld = Nothing;
+                                                     next = describe' wfld _wp;
+                                                     top = describe' _f (Proxy :: Proxy AbbrevPair)}
+                                                 in maybe top Just next
+          describe' f p | p == idPath = describe' f (Proxy :: Proxy AbbrevPair)
+          describe' _ _ = error "Unexpected path"
+instance Describe (Path_Pair UPath_Markup UPath_Markup)
+    where describe' _f (_p@(Path_First _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                    wfld = Nothing;
+                                                    next = describe' wfld _wp;
+                                                    top = describe' _f (Proxy :: Proxy MarkupPair)}
+                                                in maybe top Just next
+          describe' _f (_p@(Path_Second _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                     wfld = Nothing;
+                                                     next = describe' wfld _wp;
+                                                     top = describe' _f (Proxy :: Proxy MarkupPair)}
+                                                 in maybe top Just next
+          describe' f p | p == idPath = describe' f (Proxy :: Proxy MarkupPair)
+          describe' _ _ = error "Unexpected path"
 instance Describe (PeekOld Univ String)
     where describe' _f (Peek_String_JSONText (_p@(Path_String_View _wp)) _x) = let {wfld :: Maybe ((String, String, Either Int String));
                                                                                     wfld = Nothing;
@@ -17766,108 +17821,54 @@ instance Describe (PeekOld Univ UserId)
     where describe' _ _ = Nothing
 instance Describe (PeekOld Univ UUID)
     where describe' _ _ = Nothing
-instance Describe (UPeek Univ String)
-    where describe' _ _ = Nothing
-instance Describe (UPeek Univ Int64)
-    where describe' _ _ = Nothing
-instance Describe (UPeek Univ Bool)
-    where describe' _ _ = Nothing
-instance Describe (UPeek Univ Double)
-    where describe' _ _ = Nothing
-instance Describe (UPeek Univ Int)
-    where describe' _ _ = Nothing
-instance Describe (UPeek Univ Dimension)
-    where describe' _ _ = Nothing
-instance Describe (UPeek Univ ImageCrop)
-    where describe' _ _ = Nothing
-instance Describe (UPeek Univ ImageSize)
-    where describe' _ _ = Nothing
-instance Describe (UPeek Univ Units)
-    where describe' _ _ = Nothing
-instance Describe (UPeek Univ ImageFile)
-    where describe' _ _ = Nothing
-instance Describe (UPeek Univ Integer)
-    where describe' _ _ = Nothing
-instance Describe (UPeek Univ JSONText)
-    where describe' _ _ = Nothing
-instance Describe (UPeek Univ Markup)
-    where describe' _ _ = Nothing
-instance Describe (UPeek Univ Permissions)
-    where describe' _ _ = Nothing
-instance Describe (UPeek Univ UserIds)
-    where describe' _ _ = Nothing
-instance Describe (UPeek Univ AbbrevPair)
-    where describe' _ _ = Nothing
-instance Describe (UPeek Univ AbbrevPairs)
-    where describe' _ _ = Nothing
-instance Describe (UPeek Univ Author)
-    where describe' _ _ = Nothing
-instance Describe (UPeek Univ Authors)
-    where describe' _ _ = Nothing
-instance Describe (UPeek Univ Branding)
-    where describe' _ _ = Nothing
-instance Describe (UPeek Univ MarkupPair)
-    where describe' _ _ = Nothing
-instance Describe (UPeek Univ MarkupPairs)
-    where describe' _ _ = Nothing
-instance Describe (UPeek Univ Markups)
-    where describe' _ _ = Nothing
-instance Describe (UPeek Univ MaybeReportIntendedUse)
-    where describe' _ _ = Nothing
-instance Describe (UPeek Univ Report)
-    where describe' _ _ = Nothing
-instance Describe (UPeek Univ ReportElem)
-    where describe' _ _ = Nothing
-instance Describe (UPeek Univ ReportElems)
-    where describe' _ _ = Nothing
-instance Describe (UPeek Univ ReportFlags)
-    where describe' _ _ = Nothing
-instance Describe (UPeek Univ ReportIntendedUse)
-    where describe' _ _ = Nothing
-instance Describe (UPeek Univ ReportStandard)
-    where describe' _ _ = Nothing
-instance Describe (UPeek Univ ReportStatus)
-    where describe' _ _ = Nothing
-instance Describe (UPeek Univ ReportValueApproachInfo)
-    where describe' _ _ = Nothing
-instance Describe (UPeek Univ ReportValueTypeInfo)
-    where describe' _ _ = Nothing
-instance Describe (UPeek Univ EUI)
-    where describe' _ _ = Nothing
-instance Describe (UPeek Univ MEUI)
-    where describe' _ _ = Nothing
-instance Describe (UPeek Univ MaybeImageFile)
-    where describe' _ _ = Nothing
-instance Describe (UPeek Univ ReportImage)
-    where describe' _ _ = Nothing
-instance Describe (UPeek Univ ReportImages)
-    where describe' _ _ = Nothing
-instance Describe (UPeek Univ ReadOnlyFilePath)
-    where describe' _ _ = Nothing
-instance Describe (UPeek Univ ReportImageView)
-    where describe' _ _ = Nothing
-instance Describe (UPeek Univ ReportView)
-    where describe' _ _ = Nothing
-instance Describe (UPeek Univ SaneSizeImageSize)
-    where describe' _ _ = Nothing
-instance Describe (UPeek Univ Item)
-    where describe' _ _ = Nothing
-instance Describe (UPeek Univ MIM)
-    where describe' _ _ = Nothing
-instance Describe (UPeek Univ MRR)
-    where describe' _ _ = Nothing
-instance Describe (UPeek Univ ReportMap)
-    where describe' _ _ = Nothing
-instance Describe (UPeek Univ CIString)
-    where describe' _ _ = Nothing
-instance Describe (UPeek Univ URI)
-    where describe' _ _ = Nothing
-instance Describe (UPeek Univ Text)
-    where describe' _ _ = Nothing
-instance Describe (UPeek Univ UserId)
-    where describe' _ _ = Nothing
-instance Describe (UPeek Univ UUID)
-    where describe' _ _ = Nothing
+instance Describe (Path_OMap AbbrevPairID (Path_Pair UPath_CIString UPath_Markup))
+    where describe' _f (_p@(Path_At _k _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                    wfld = Nothing;
+                                                    next = describe' wfld _wp;
+                                                    top = describe' _f (Proxy :: Proxy AbbrevPairs)}
+                                                in maybe top Just next
+          describe' f p | p == idPath = describe' f (Proxy :: Proxy AbbrevPairs)
+          describe' _ _ = error "Unexpected path"
+instance Describe (Path_OMap AuthorID UPath_Author)
+    where describe' _f (_p@(Path_At _k _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                    wfld = Nothing;
+                                                    next = describe' wfld _wp;
+                                                    top = describe' _f (Proxy :: Proxy Authors)}
+                                                in maybe top Just next
+          describe' f p | p == idPath = describe' f (Proxy :: Proxy Authors)
+          describe' _ _ = error "Unexpected path"
+instance Describe (Path_OMap MarkupID UPath_Markup)
+    where describe' _f (_p@(Path_At _k _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                    wfld = Nothing;
+                                                    next = describe' wfld _wp;
+                                                    top = describe' _f (Proxy :: Proxy Markups)}
+                                                in maybe top Just next
+          describe' f p | p == idPath = describe' f (Proxy :: Proxy Markups)
+          describe' _ _ = error "Unexpected path"
+instance Describe (Path_OMap MarkupPairID (Path_Pair UPath_Markup UPath_Markup))
+    where describe' _f (_p@(Path_At _k _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                    wfld = Nothing;
+                                                    next = describe' wfld _wp;
+                                                    top = describe' _f (Proxy :: Proxy MarkupPairs)}
+                                                in maybe top Just next
+          describe' f p | p == idPath = describe' f (Proxy :: Proxy MarkupPairs)
+          describe' _ _ = error "Unexpected path"
+instance Describe (Path_OMap ReportElemID UPath_ReportElem)
+    where describe' _f (_p@(Path_At _k _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                    wfld = Nothing;
+                                                    next = describe' wfld _wp;
+                                                    top = describe' _f (Proxy :: Proxy ReportElems)}
+                                                in maybe top Just next
+          describe' f p | p == idPath = describe' f (Proxy :: Proxy ReportElems)
+          describe' _ _ = error "Unexpected path"
+instance Describe (Path_OMap ReportImageID UPath_ReportImage)
+    where describe' _f (_p@(Path_At _k _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                    wfld = Nothing;
+                                                    next = describe' wfld _wp;
+                                                    top = describe' _f (Proxy :: Proxy ReportImages)}
+                                                in maybe top Just next
+          describe' f p | p == idPath = describe' f (Proxy :: Proxy ReportImages)
+          describe' _ _ = error "Unexpected path"
 instance Describe (Proxy Int64)
     where describe' _f _ = case _f of
                                Nothing -> Just "Int64"
@@ -18093,6 +18094,601 @@ instance Describe (Proxy UUID)
                                Nothing -> Just "UUID"
                                Just (_tname, _cname, Right fname) -> Just (camelWords fname)
                                Just (_tname, cname, Left fpos) -> Just (camelWords $ (cname ++ ("[" ++ (show fpos ++ "]"))))
+instance Describe (Path_Maybe (Path_Either UPath_URI UPath_ImageFile))
+    where describe' _f (_p@(Path_Just _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                   wfld = Nothing;
+                                                   next = describe' wfld _wp;
+                                                   top = describe' _f (Proxy :: Proxy MEUI)}
+                                               in maybe top Just next
+          describe' f p | p == idPath = describe' f (Proxy :: Proxy MEUI)
+          describe' _ _ = error "Unexpected path"
+instance Describe UPath_Author
+    where describe' _f (_p@(UPath_Author_authorName _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                 wfld = Just ("Author", "Author", Right "authorName");
+                                                                 next = describe' wfld _wp;
+                                                                 top = describe' _f (Proxy :: Proxy Author)}
+                                                             in maybe top Just next
+          describe' _f (_p@(UPath_Author_authorCredentials _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                        wfld = Just ("Author", "Author", Right "authorCredentials");
+                                                                        next = describe' wfld _wp;
+                                                                        top = describe' _f (Proxy :: Proxy Author)}
+                                                                    in maybe top Just next
+          describe' f p | p == idPath = describe' f (Proxy :: Proxy Author)
+          describe' _ _ = error "Unexpected path"
+instance Describe UPath_Bool
+    where describe' _f (_p@(UPath_Bool_View _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                         wfld = Nothing;
+                                                         next = describe' wfld _wp;
+                                                         top = describe' _f (Proxy :: Proxy Bool)}
+                                                     in maybe top Just next
+          describe' f p | p == idPath = describe' f (Proxy :: Proxy Bool)
+          describe' _ _ = error "Unexpected path"
+instance Describe UPath_Branding
+    where describe' _f (_p@(UPath_Branding_View _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                             wfld = Nothing;
+                                                             next = describe' wfld _wp;
+                                                             top = describe' _f (Proxy :: Proxy Branding)}
+                                                         in maybe top Just next
+          describe' f p | p == idPath = describe' f (Proxy :: Proxy Branding)
+          describe' _ _ = error "Unexpected path"
+instance Describe UPath_CIString
+    where describe' _f (_p@(UPath_CIString_View _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                             wfld = Nothing;
+                                                             next = describe' wfld _wp;
+                                                             top = describe' _f (Proxy :: Proxy CIString)}
+                                                         in maybe top Just next
+          describe' f p | p == idPath = describe' f (Proxy :: Proxy CIString)
+          describe' _ _ = error "Unexpected path"
+instance Describe UPath_Dimension
+    where describe' _f (_p@(UPath_Dimension_View _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                              wfld = Nothing;
+                                                              next = describe' wfld _wp;
+                                                              top = describe' _f (Proxy :: Proxy Dimension)}
+                                                          in maybe top Just next
+          describe' f p | p == idPath = describe' f (Proxy :: Proxy Dimension)
+          describe' _ _ = error "Unexpected path"
+instance Describe UPath_Double
+    where describe' _f (_p@(UPath_Double_View _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                           wfld = Nothing;
+                                                           next = describe' wfld _wp;
+                                                           top = describe' _f (Proxy :: Proxy Double)}
+                                                       in maybe top Just next
+          describe' f p | p == idPath = describe' f (Proxy :: Proxy Double)
+          describe' _ _ = error "Unexpected path"
+instance Describe UPath_ImageCrop
+    where describe' f p | p == idPath = describe' f (Proxy :: Proxy ImageCrop)
+          describe' _ _ = error "Unexpected path"
+instance Describe UPath_ImageFile
+    where describe' f p | p == idPath = describe' f (Proxy :: Proxy ImageFile)
+          describe' _ _ = error "Unexpected path"
+instance Describe UPath_ImageSize
+    where describe' _f (_p@(UPath_ImageSize_dim _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                             wfld = Just ("ImageSize", "ImageSize", Right "dim");
+                                                             next = describe' wfld _wp;
+                                                             top = describe' _f (Proxy :: Proxy ImageSize)}
+                                                         in maybe top Just next
+          describe' _f (_p@(UPath_ImageSize_size _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                              wfld = Just ("ImageSize", "ImageSize", Right "size");
+                                                              next = describe' wfld _wp;
+                                                              top = describe' _f (Proxy :: Proxy ImageSize)}
+                                                          in maybe top Just next
+          describe' _f (_p@(UPath_ImageSize_units _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                               wfld = Just ("ImageSize", "ImageSize", Right "units");
+                                                               next = describe' wfld _wp;
+                                                               top = describe' _f (Proxy :: Proxy ImageSize)}
+                                                           in maybe top Just next
+          describe' f p | p == idPath = describe' f (Proxy :: Proxy ImageSize)
+          describe' _ _ = error "Unexpected path"
+instance Describe UPath_Int
+    where describe' f p | p == idPath = describe' f (Proxy :: Proxy Int)
+          describe' _ _ = error "Unexpected path"
+instance Describe UPath_Int64
+    where describe' f p | p == idPath = describe' f (Proxy :: Proxy Int64)
+          describe' _ _ = error "Unexpected path"
+instance Describe UPath_Integer
+    where describe' f p | p == idPath = describe' f (Proxy :: Proxy Integer)
+          describe' _ _ = error "Unexpected path"
+instance Describe UPath_Item
+    where describe' _f (_p@(UPath_Item_itemName _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                             wfld = Just ("Item", "Item", Right "itemName");
+                                                             next = describe' wfld _wp;
+                                                             top = describe' _f (Proxy :: Proxy Item)}
+                                                         in maybe top Just next
+          describe' _f (_p@(UPath_Item_fields _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                           wfld = Just ("Item", "Item", Right "fields");
+                                                           next = describe' wfld _wp;
+                                                           top = describe' _f (Proxy :: Proxy Item)}
+                                                       in maybe top Just next
+          describe' _f (_p@(UPath_Item_images _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                           wfld = Just ("Item", "Item", Right "images");
+                                                           next = describe' wfld _wp;
+                                                           top = describe' _f (Proxy :: Proxy Item)}
+                                                       in maybe top Just next
+          describe' f p | p == idPath = describe' f (Proxy :: Proxy Item)
+          describe' _ _ = error "Unexpected path"
+instance Describe UPath_JSONText
+    where describe' f p | p == idPath = describe' f (Proxy :: Proxy JSONText)
+          describe' _ _ = error "Unexpected path"
+instance Describe UPath_Markup
+    where describe' _f (_p@(UPath_Markup_markdownText _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                   wfld = Just ("Markup", "Markdown", Right "markdownText");
+                                                                   next = describe' wfld _wp;
+                                                                   top = describe' _f (Proxy :: Proxy Markup)}
+                                                               in maybe top Just next
+          describe' _f (_p@(UPath_Markup_htmlText _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                               wfld = Just ("Markup", "Html", Right "htmlText");
+                                                               next = describe' wfld _wp;
+                                                               top = describe' _f (Proxy :: Proxy Markup)}
+                                                           in maybe top Just next
+          describe' f p | p == idPath = describe' f (Proxy :: Proxy Markup)
+          describe' _ _ = error "Unexpected path"
+instance Describe UPath_MaybeImageFile
+    where describe' _f (_p@(UPath_MaybeImageFile_View _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                   wfld = Nothing;
+                                                                   next = describe' wfld _wp;
+                                                                   top = describe' _f (Proxy :: Proxy MaybeImageFile)}
+                                                               in maybe top Just next
+          describe' f p | p == idPath = describe' f (Proxy :: Proxy MaybeImageFile)
+          describe' _ _ = error "Unexpected path"
+instance Describe UPath_MaybeReportIntendedUse
+    where describe' _f (_p@(UPath_MaybeReportIntendedUse_View _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                           wfld = Nothing;
+                                                                           next = describe' wfld _wp;
+                                                                           top = describe' _f (Proxy :: Proxy MaybeReportIntendedUse)}
+                                                                       in maybe top Just next
+          describe' f p | p == idPath = describe' f (Proxy :: Proxy MaybeReportIntendedUse)
+          describe' _ _ = error "Unexpected path"
+instance Describe UPath_Permissions
+    where describe' _f (_p@(UPath_Permissions_owner _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                 wfld = Just ("Permissions", "Permissions", Right "owner");
+                                                                 next = describe' wfld _wp;
+                                                                 top = describe' _f (Proxy :: Proxy Permissions)}
+                                                             in maybe top Just next
+          describe' _f (_p@(UPath_Permissions_writers _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                   wfld = Just ("Permissions", "Permissions", Right "writers");
+                                                                   next = describe' wfld _wp;
+                                                                   top = describe' _f (Proxy :: Proxy Permissions)}
+                                                               in maybe top Just next
+          describe' _f (_p@(UPath_Permissions_readers _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                   wfld = Just ("Permissions", "Permissions", Right "readers");
+                                                                   next = describe' wfld _wp;
+                                                                   top = describe' _f (Proxy :: Proxy Permissions)}
+                                                               in maybe top Just next
+          describe' f p | p == idPath = describe' f (Proxy :: Proxy Permissions)
+          describe' _ _ = error "Unexpected path"
+instance Describe UPath_ReadOnlyFilePath
+    where describe' _f (_p@(UPath_ReadOnlyFilePath_View _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                     wfld = Nothing;
+                                                                     next = describe' wfld _wp;
+                                                                     top = describe' _f (Proxy :: Proxy ReadOnlyFilePath)}
+                                                                 in maybe top Just next
+          describe' f p | p == idPath = describe' f (Proxy :: Proxy ReadOnlyFilePath)
+          describe' _ _ = error "Unexpected path"
+instance Describe UPath_Report
+    where describe' _f (_p@(UPath_Report_View _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                           wfld = Nothing;
+                                                           next = describe' wfld _wp;
+                                                           top = describe' _f (Proxy :: Proxy Report)}
+                                                       in maybe top Just next
+          describe' f p | p == idPath = describe' f (Proxy :: Proxy Report)
+          describe' _ _ = error "Unexpected path"
+instance Describe UPath_ReportElem
+    where describe' _f (_p@(UPath_ReportElem_elemItem _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                   wfld = Just ("ReportElem", "ReportItem", Right "elemItem");
+                                                                   next = describe' wfld _wp;
+                                                                   top = describe' _f (Proxy :: Proxy ReportElem)}
+                                                               in maybe top Just next
+          describe' _f (_p@(UPath_ReportElem_elemText _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                   wfld = Just ("ReportElem", "ReportParagraph", Right "elemText");
+                                                                   next = describe' wfld _wp;
+                                                                   top = describe' _f (Proxy :: Proxy ReportElem)}
+                                                               in maybe top Just next
+          describe' f p | p == idPath = describe' f (Proxy :: Proxy ReportElem)
+          describe' _ _ = error "Unexpected path"
+instance Describe UPath_ReportFlags
+    where describe' _f (_p@(UPath_ReportFlags_hideEmptyItemFields _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                               wfld = Just ("ReportFlags", "ReportFlags", Right "hideEmptyItemFields");
+                                                                               next = describe' wfld _wp;
+                                                                               top = describe' _f (Proxy :: Proxy ReportFlags)}
+                                                                           in maybe top Just next
+          describe' f p | p == idPath = describe' f (Proxy :: Proxy ReportFlags)
+          describe' _ _ = error "Unexpected path"
+instance Describe UPath_ReportImage
+    where describe' _f (_p@(UPath_ReportImage_View _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                wfld = Nothing;
+                                                                next = describe' wfld _wp;
+                                                                top = describe' _f (Proxy :: Proxy ReportImage)}
+                                                            in maybe top Just next
+          describe' f p | p == idPath = describe' f (Proxy :: Proxy ReportImage)
+          describe' _ _ = error "Unexpected path"
+instance Describe UPath_ReportImageView
+    where describe' _f (_p@(UPath_ReportImageView__picSize _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                        wfld = Just ("ReportImageView", "ReportImageView", Right "_picSize");
+                                                                        next = describe' wfld _wp;
+                                                                        top = describe' _f (Proxy :: Proxy ReportImageView)}
+                                                                    in maybe top Just next
+          describe' _f (_p@(UPath_ReportImageView__picCrop _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                        wfld = Just ("ReportImageView", "ReportImageView", Right "_picCrop");
+                                                                        next = describe' wfld _wp;
+                                                                        top = describe' _f (Proxy :: Proxy ReportImageView)}
+                                                                    in maybe top Just next
+          describe' _f (_p@(UPath_ReportImageView__picCaption _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                           wfld = Just ("ReportImageView", "ReportImageView", Right "_picCaption");
+                                                                           next = describe' wfld _wp;
+                                                                           top = describe' _f (Proxy :: Proxy ReportImageView)}
+                                                                       in maybe top Just next
+          describe' _f (_p@(UPath_ReportImageView__picOriginal _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                            wfld = Just ("ReportImageView", "ReportImageView", Right "_picOriginal");
+                                                                            next = describe' wfld _wp;
+                                                                            top = describe' _f (Proxy :: Proxy ReportImageView)}
+                                                                        in maybe top Just next
+          describe' _f (_p@(UPath_ReportImageView__picEditedDeprecated _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                    wfld = Just ("ReportImageView", "ReportImageView", Right "_picEditedDeprecated");
+                                                                                    next = describe' wfld _wp;
+                                                                                    top = describe' _f (Proxy :: Proxy ReportImageView)}
+                                                                                in maybe top Just next
+          describe' _f (_p@(UPath_ReportImageView__picThumbDeprecated _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                   wfld = Just ("ReportImageView", "ReportImageView", Right "_picThumbDeprecated");
+                                                                                   next = describe' wfld _wp;
+                                                                                   top = describe' _f (Proxy :: Proxy ReportImageView)}
+                                                                               in maybe top Just next
+          describe' _f (_p@(UPath_ReportImageView__picPrinterDeprecated _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                     wfld = Just ("ReportImageView", "ReportImageView", Right "_picPrinterDeprecated");
+                                                                                     next = describe' wfld _wp;
+                                                                                     top = describe' _f (Proxy :: Proxy ReportImageView)}
+                                                                                 in maybe top Just next
+          describe' _f (_p@(UPath_ReportImageView__picMustEnlarge _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                               wfld = Just ("ReportImageView", "ReportImageView", Right "_picMustEnlarge");
+                                                                               next = describe' wfld _wp;
+                                                                               top = describe' _f (Proxy :: Proxy ReportImageView)}
+                                                                           in maybe top Just next
+          describe' _f (_p@(UPath_ReportImageView__picEnlargedDeprecated _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                      wfld = Just ("ReportImageView", "ReportImageView", Right "_picEnlargedDeprecated");
+                                                                                      next = describe' wfld _wp;
+                                                                                      top = describe' _f (Proxy :: Proxy ReportImageView)}
+                                                                                  in maybe top Just next
+          describe' f p | p == idPath = describe' f (Proxy :: Proxy ReportImageView)
+          describe' _ _ = error "Unexpected path"
+instance Describe UPath_ReportIntendedUse
+    where describe' _f (_p@(UPath_ReportIntendedUse_View _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                      wfld = Nothing;
+                                                                      next = describe' wfld _wp;
+                                                                      top = describe' _f (Proxy :: Proxy ReportIntendedUse)}
+                                                                  in maybe top Just next
+          describe' f p | p == idPath = describe' f (Proxy :: Proxy ReportIntendedUse)
+          describe' _ _ = error "Unexpected path"
+instance Describe UPath_ReportMap
+    where describe' _f (_p@(UPath_ReportMap_unReportMap _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                     wfld = Just ("ReportMap", "ReportMap", Right "unReportMap");
+                                                                     next = describe' wfld _wp;
+                                                                     top = describe' _f (Proxy :: Proxy ReportMap)}
+                                                                 in maybe top Just next
+          describe' f p | p == idPath = describe' f (Proxy :: Proxy ReportMap)
+          describe' _ _ = error "Unexpected path"
+instance Describe UPath_ReportStandard
+    where describe' _f (_p@(UPath_ReportStandard_unReportStandard _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                               wfld = Just ("ReportStandard", "ReportStandard", Right "unReportStandard");
+                                                                               next = describe' wfld _wp;
+                                                                               top = describe' _f (Proxy :: Proxy ReportStandard)}
+                                                                           in maybe top Just next
+          describe' f p | p == idPath = describe' f (Proxy :: Proxy ReportStandard)
+          describe' _ _ = error "Unexpected path"
+instance Describe UPath_ReportStatus
+    where describe' _f (_p@(UPath_ReportStatus_View _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                 wfld = Nothing;
+                                                                 next = describe' wfld _wp;
+                                                                 top = describe' _f (Proxy :: Proxy ReportStatus)}
+                                                             in maybe top Just next
+          describe' f p | p == idPath = describe' f (Proxy :: Proxy ReportStatus)
+          describe' _ _ = error "Unexpected path"
+instance Describe UPath_ReportValueApproachInfo
+    where describe' _f (_p@(UPath_ReportValueApproachInfo_reportValueApproachName _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                               wfld = Just ("ReportValueApproachInfo", "ReportValueApproachInfo", Right "reportValueApproachName");
+                                                                                               next = describe' wfld _wp;
+                                                                                               top = describe' _f (Proxy :: Proxy ReportValueApproachInfo)}
+                                                                                           in maybe top Just next
+          describe' _f (_p@(UPath_ReportValueApproachInfo_reportValueApproachDescription _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                                      wfld = Just ("ReportValueApproachInfo", "ReportValueApproachInfo", Right "reportValueApproachDescription");
+                                                                                                      next = describe' wfld _wp;
+                                                                                                      top = describe' _f (Proxy :: Proxy ReportValueApproachInfo)}
+                                                                                                  in maybe top Just next
+          describe' f p | p == idPath = describe' f (Proxy :: Proxy ReportValueApproachInfo)
+          describe' _ _ = error "Unexpected path"
+instance Describe UPath_ReportValueTypeInfo
+    where describe' _f (_p@(UPath_ReportValueTypeInfo_reportValueTypeName _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                       wfld = Just ("ReportValueTypeInfo", "ReportValueTypeInfo", Right "reportValueTypeName");
+                                                                                       next = describe' wfld _wp;
+                                                                                       top = describe' _f (Proxy :: Proxy ReportValueTypeInfo)}
+                                                                                   in maybe top Just next
+          describe' _f (_p@(UPath_ReportValueTypeInfo_reportValueTypeDescription _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                              wfld = Just ("ReportValueTypeInfo", "ReportValueTypeInfo", Right "reportValueTypeDescription");
+                                                                                              next = describe' wfld _wp;
+                                                                                              top = describe' _f (Proxy :: Proxy ReportValueTypeInfo)}
+                                                                                          in maybe top Just next
+          describe' _f (_p@(UPath_ReportValueTypeInfo_reportValueTypeDefinition _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                             wfld = Just ("ReportValueTypeInfo", "ReportValueTypeInfo", Right "reportValueTypeDefinition");
+                                                                                             next = describe' wfld _wp;
+                                                                                             top = describe' _f (Proxy :: Proxy ReportValueTypeInfo)}
+                                                                                         in maybe top Just next
+          describe' f p | p == idPath = describe' f (Proxy :: Proxy ReportValueTypeInfo)
+          describe' _ _ = error "Unexpected path"
+instance Describe UPath_ReportView
+    where describe' _f (_p@(UPath_ReportView__reportFolder _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                        wfld = Just ("ReportView", "ReportView", Right "_reportFolder");
+                                                                        next = describe' wfld _wp;
+                                                                        top = describe' _f (Proxy :: Proxy ReportView)}
+                                                                    in maybe top Just next
+          describe' _f (_p@(UPath_ReportView__reportName _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                      wfld = Just ("ReportView", "ReportView", Right "_reportName");
+                                                                      next = describe' wfld _wp;
+                                                                      top = describe' _f (Proxy :: Proxy ReportView)}
+                                                                  in maybe top Just next
+          describe' _f (_p@(UPath_ReportView__reportDate _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                      wfld = Just ("ReportView", "ReportView", Right "_reportDate");
+                                                                      next = describe' wfld _wp;
+                                                                      top = describe' _f (Proxy :: Proxy ReportView)}
+                                                                  in maybe top Just next
+          describe' _f (_p@(UPath_ReportView__reportContractDate _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                              wfld = Just ("ReportView", "ReportView", Right "_reportContractDate");
+                                                                              next = describe' wfld _wp;
+                                                                              top = describe' _f (Proxy :: Proxy ReportView)}
+                                                                          in maybe top Just next
+          describe' _f (_p@(UPath_ReportView__reportInspectionDate _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                wfld = Just ("ReportView", "ReportView", Right "_reportInspectionDate");
+                                                                                next = describe' wfld _wp;
+                                                                                top = describe' _f (Proxy :: Proxy ReportView)}
+                                                                            in maybe top Just next
+          describe' _f (_p@(UPath_ReportView__reportEffectiveDate _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                               wfld = Just ("ReportView", "ReportView", Right "_reportEffectiveDate");
+                                                                               next = describe' wfld _wp;
+                                                                               top = describe' _f (Proxy :: Proxy ReportView)}
+                                                                           in maybe top Just next
+          describe' _f (_p@(UPath_ReportView__reportAuthors _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                         wfld = Just ("ReportView", "ReportView", Right "_reportAuthors");
+                                                                         next = describe' wfld _wp;
+                                                                         top = describe' _f (Proxy :: Proxy ReportView)}
+                                                                     in maybe top Just next
+          describe' _f (_p@(UPath_ReportView__reportPreparer _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                          wfld = Just ("ReportView", "ReportView", Right "_reportPreparer");
+                                                                          next = describe' wfld _wp;
+                                                                          top = describe' _f (Proxy :: Proxy ReportView)}
+                                                                      in maybe top Just next
+          describe' _f (_p@(UPath_ReportView__reportPreparerEIN _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                             wfld = Just ("ReportView", "ReportView", Right "_reportPreparerEIN");
+                                                                             next = describe' wfld _wp;
+                                                                             top = describe' _f (Proxy :: Proxy ReportView)}
+                                                                         in maybe top Just next
+          describe' _f (_p@(UPath_ReportView__reportPreparerAddress _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                 wfld = Just ("ReportView", "ReportView", Right "_reportPreparerAddress");
+                                                                                 next = describe' wfld _wp;
+                                                                                 top = describe' _f (Proxy :: Proxy ReportView)}
+                                                                             in maybe top Just next
+          describe' _f (_p@(UPath_ReportView__reportPreparerEMail _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                               wfld = Just ("ReportView", "ReportView", Right "_reportPreparerEMail");
+                                                                               next = describe' wfld _wp;
+                                                                               top = describe' _f (Proxy :: Proxy ReportView)}
+                                                                           in maybe top Just next
+          describe' _f (_p@(UPath_ReportView__reportPreparerWebsite _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                 wfld = Just ("ReportView", "ReportView", Right "_reportPreparerWebsite");
+                                                                                 next = describe' wfld _wp;
+                                                                                 top = describe' _f (Proxy :: Proxy ReportView)}
+                                                                             in maybe top Just next
+          describe' _f (_p@(UPath_ReportView__reportAbbrevs _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                         wfld = Just ("ReportView", "ReportView", Right "_reportAbbrevs");
+                                                                         next = describe' wfld _wp;
+                                                                         top = describe' _f (Proxy :: Proxy ReportView)}
+                                                                     in maybe top Just next
+          describe' _f (_p@(UPath_ReportView__reportTitle _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                       wfld = Just ("ReportView", "ReportView", Right "_reportTitle");
+                                                                       next = describe' wfld _wp;
+                                                                       top = describe' _f (Proxy :: Proxy ReportView)}
+                                                                   in maybe top Just next
+          describe' _f (_p@(UPath_ReportView__reportHeader _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                        wfld = Just ("ReportView", "ReportView", Right "_reportHeader");
+                                                                        next = describe' wfld _wp;
+                                                                        top = describe' _f (Proxy :: Proxy ReportView)}
+                                                                    in maybe top Just next
+          describe' _f (_p@(UPath_ReportView__reportFooter _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                        wfld = Just ("ReportView", "ReportView", Right "_reportFooter");
+                                                                        next = describe' wfld _wp;
+                                                                        top = describe' _f (Proxy :: Proxy ReportView)}
+                                                                    in maybe top Just next
+          describe' _f (_p@(UPath_ReportView__reportIntendedUse _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                             wfld = Just ("ReportView", "ReportView", Right "_reportIntendedUse");
+                                                                             next = describe' wfld _wp;
+                                                                             top = describe' _f (Proxy :: Proxy ReportView)}
+                                                                         in maybe top Just next
+          describe' _f (_p@(UPath_ReportView__reportValueTypeInfo _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                               wfld = Just ("ReportView", "ReportView", Right "_reportValueTypeInfo");
+                                                                               next = describe' wfld _wp;
+                                                                               top = describe' _f (Proxy :: Proxy ReportView)}
+                                                                           in maybe top Just next
+          describe' _f (_p@(UPath_ReportView__reportValueApproachInfo _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                   wfld = Just ("ReportView", "ReportView", Right "_reportValueApproachInfo");
+                                                                                   next = describe' wfld _wp;
+                                                                                   top = describe' _f (Proxy :: Proxy ReportView)}
+                                                                               in maybe top Just next
+          describe' _f (_p@(UPath_ReportView__reportClientName _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                            wfld = Just ("ReportView", "ReportView", Right "_reportClientName");
+                                                                            next = describe' wfld _wp;
+                                                                            top = describe' _f (Proxy :: Proxy ReportView)}
+                                                                        in maybe top Just next
+          describe' _f (_p@(UPath_ReportView__reportClientAddress _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                               wfld = Just ("ReportView", "ReportView", Right "_reportClientAddress");
+                                                                               next = describe' wfld _wp;
+                                                                               top = describe' _f (Proxy :: Proxy ReportView)}
+                                                                           in maybe top Just next
+          describe' _f (_p@(UPath_ReportView__reportClientGreeting _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                wfld = Just ("ReportView", "ReportView", Right "_reportClientGreeting");
+                                                                                next = describe' wfld _wp;
+                                                                                top = describe' _f (Proxy :: Proxy ReportView)}
+                                                                            in maybe top Just next
+          describe' _f (_p@(UPath_ReportView__reportItemsOwnerFull _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                wfld = Just ("ReportView", "ReportView", Right "_reportItemsOwnerFull");
+                                                                                next = describe' wfld _wp;
+                                                                                top = describe' _f (Proxy :: Proxy ReportView)}
+                                                                            in maybe top Just next
+          describe' _f (_p@(UPath_ReportView__reportItemsOwner _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                            wfld = Just ("ReportView", "ReportView", Right "_reportItemsOwner");
+                                                                            next = describe' wfld _wp;
+                                                                            top = describe' _f (Proxy :: Proxy ReportView)}
+                                                                        in maybe top Just next
+          describe' _f (_p@(UPath_ReportView__reportBriefItems _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                            wfld = Just ("ReportView", "ReportView", Right "_reportBriefItems");
+                                                                            next = describe' wfld _wp;
+                                                                            top = describe' _f (Proxy :: Proxy ReportView)}
+                                                                        in maybe top Just next
+          describe' _f (_p@(UPath_ReportView__reportInspectionLocation _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                    wfld = Just ("ReportView", "ReportView", Right "_reportInspectionLocation");
+                                                                                    next = describe' wfld _wp;
+                                                                                    top = describe' _f (Proxy :: Proxy ReportView)}
+                                                                                in maybe top Just next
+          describe' _f (_p@(UPath_ReportView__reportBody _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                      wfld = Just ("ReportView", "ReportView", Right "_reportBody");
+                                                                      next = describe' wfld _wp;
+                                                                      top = describe' _f (Proxy :: Proxy ReportView)}
+                                                                  in maybe top Just next
+          describe' _f (_p@(UPath_ReportView__reportGlossary _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                          wfld = Just ("ReportView", "ReportView", Right "_reportGlossary");
+                                                                          next = describe' wfld _wp;
+                                                                          top = describe' _f (Proxy :: Proxy ReportView)}
+                                                                      in maybe top Just next
+          describe' _f (_p@(UPath_ReportView__reportSources _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                         wfld = Just ("ReportView", "ReportView", Right "_reportSources");
+                                                                         next = describe' wfld _wp;
+                                                                         top = describe' _f (Proxy :: Proxy ReportView)}
+                                                                     in maybe top Just next
+          describe' _f (_p@(UPath_ReportView__reportLetterOfTransmittal _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                     wfld = Just ("ReportView", "ReportView", Right "_reportLetterOfTransmittal");
+                                                                                     next = describe' wfld _wp;
+                                                                                     top = describe' _f (Proxy :: Proxy ReportView)}
+                                                                                 in maybe top Just next
+          describe' _f (_p@(UPath_ReportView__reportScopeOfWork _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                             wfld = Just ("ReportView", "ReportView", Right "_reportScopeOfWork");
+                                                                             next = describe' wfld _wp;
+                                                                             top = describe' _f (Proxy :: Proxy ReportView)}
+                                                                         in maybe top Just next
+          describe' _f (_p@(UPath_ReportView__reportCertification _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                               wfld = Just ("ReportView", "ReportView", Right "_reportCertification");
+                                                                               next = describe' wfld _wp;
+                                                                               top = describe' _f (Proxy :: Proxy ReportView)}
+                                                                           in maybe top Just next
+          describe' _f (_p@(UPath_ReportView__reportLimitingConditions _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                    wfld = Just ("ReportView", "ReportView", Right "_reportLimitingConditions");
+                                                                                    next = describe' wfld _wp;
+                                                                                    top = describe' _f (Proxy :: Proxy ReportView)}
+                                                                                in maybe top Just next
+          describe' _f (_p@(UPath_ReportView__reportPrivacyPolicy _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                               wfld = Just ("ReportView", "ReportView", Right "_reportPrivacyPolicy");
+                                                                               next = describe' wfld _wp;
+                                                                               top = describe' _f (Proxy :: Proxy ReportView)}
+                                                                           in maybe top Just next
+          describe' _f (_p@(UPath_ReportView__reportPerms _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                       wfld = Just ("ReportView", "ReportView", Right "_reportPerms");
+                                                                       next = describe' wfld _wp;
+                                                                       top = describe' _f (Proxy :: Proxy ReportView)}
+                                                                   in maybe top Just next
+          describe' _f (_p@(UPath_ReportView__reportRevision _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                          wfld = Just ("ReportView", "ReportView", Right "_reportRevision");
+                                                                          next = describe' wfld _wp;
+                                                                          top = describe' _f (Proxy :: Proxy ReportView)}
+                                                                      in maybe top Just next
+          describe' _f (_p@(UPath_ReportView__reportCreated _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                         wfld = Just ("ReportView", "ReportView", Right "_reportCreated");
+                                                                         next = describe' wfld _wp;
+                                                                         top = describe' _f (Proxy :: Proxy ReportView)}
+                                                                     in maybe top Just next
+          describe' _f (_p@(UPath_ReportView__reportBranding _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                          wfld = Just ("ReportView", "ReportView", Right "_reportBranding");
+                                                                          next = describe' wfld _wp;
+                                                                          top = describe' _f (Proxy :: Proxy ReportView)}
+                                                                      in maybe top Just next
+          describe' _f (_p@(UPath_ReportView__reportStatus _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                        wfld = Just ("ReportView", "ReportView", Right "_reportStatus");
+                                                                        next = describe' wfld _wp;
+                                                                        top = describe' _f (Proxy :: Proxy ReportView)}
+                                                                    in maybe top Just next
+          describe' _f (_p@(UPath_ReportView__reportRedacted _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                          wfld = Just ("ReportView", "ReportView", Right "_reportRedacted");
+                                                                          next = describe' wfld _wp;
+                                                                          top = describe' _f (Proxy :: Proxy ReportView)}
+                                                                      in maybe top Just next
+          describe' _f (_p@(UPath_ReportView__reportFlags _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                       wfld = Just ("ReportView", "ReportView", Right "_reportFlags");
+                                                                       next = describe' wfld _wp;
+                                                                       top = describe' _f (Proxy :: Proxy ReportView)}
+                                                                   in maybe top Just next
+          describe' _f (_p@(UPath_ReportView__reportUUID _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                      wfld = Just ("ReportView", "ReportView", Right "_reportUUID");
+                                                                      next = describe' wfld _wp;
+                                                                      top = describe' _f (Proxy :: Proxy ReportView)}
+                                                                  in maybe top Just next
+          describe' _f (_p@(UPath_ReportView__reportOrderByItemName _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                 wfld = Just ("ReportView", "ReportView", Right "_reportOrderByItemName");
+                                                                                 next = describe' wfld _wp;
+                                                                                 top = describe' _f (Proxy :: Proxy ReportView)}
+                                                                             in maybe top Just next
+          describe' _f (_p@(UPath_ReportView__reportDisplayItemName _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                 wfld = Just ("ReportView", "ReportView", Right "_reportDisplayItemName");
+                                                                                 next = describe' wfld _wp;
+                                                                                 top = describe' _f (Proxy :: Proxy ReportView)}
+                                                                             in maybe top Just next
+          describe' _f (_p@(UPath_ReportView__reportStandardsVersion _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                                  wfld = Just ("ReportView", "ReportView", Right "_reportStandardsVersion");
+                                                                                  next = describe' wfld _wp;
+                                                                                  top = describe' _f (Proxy :: Proxy ReportView)}
+                                                                              in maybe top Just next
+          describe' f p | p == idPath = describe' f (Proxy :: Proxy ReportView)
+          describe' _ _ = error "Unexpected path"
+instance Describe UPath_SaneSizeImageSize
+    where describe' _f (_p@(UPath_SaneSizeImageSize_View _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                                      wfld = Nothing;
+                                                                      next = describe' wfld _wp;
+                                                                      top = describe' _f (Proxy :: Proxy SaneSizeImageSize)}
+                                                                  in maybe top Just next
+          describe' f p | p == idPath = describe' f (Proxy :: Proxy SaneSizeImageSize)
+          describe' _ _ = error "Unexpected path"
+instance Describe UPath_String
+    where describe' _f (_p@(UPath_String_View _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                           wfld = Nothing;
+                                                           next = describe' wfld _wp;
+                                                           top = describe' _f (Proxy :: Proxy String)}
+                                                       in maybe top Just next
+          describe' f p | p == idPath = describe' f (Proxy :: Proxy String)
+          describe' _ _ = error "Unexpected path"
+instance Describe UPath_Text
+    where describe' _f (_p@(UPath_Text_View _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                         wfld = Nothing;
+                                                         next = describe' wfld _wp;
+                                                         top = describe' _f (Proxy :: Proxy Text)}
+                                                     in maybe top Just next
+          describe' f p | p == idPath = describe' f (Proxy :: Proxy Text)
+          describe' _ _ = error "Unexpected path"
+instance Describe UPath_URI
+    where describe' f p | p == idPath = describe' f (Proxy :: Proxy URI)
+          describe' _ _ = error "Unexpected path"
+instance Describe UPath_UUID
+    where describe' f p | p == idPath = describe' f (Proxy :: Proxy UUID)
+          describe' _ _ = error "Unexpected path"
+instance Describe UPath_Units
+    where describe' _f (_p@(UPath_Units_View _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                          wfld = Nothing;
+                                                          next = describe' wfld _wp;
+                                                          top = describe' _f (Proxy :: Proxy Units)}
+                                                      in maybe top Just next
+          describe' f p | p == idPath = describe' f (Proxy :: Proxy Units)
+          describe' _ _ = error "Unexpected path"
+instance Describe UPath_UserId
+    where describe' f p | p == idPath = describe' f (Proxy :: Proxy UserId)
+          describe' _ _ = error "Unexpected path"
+instance Describe UPath_UserIds
+    where describe' _f (_p@(UPath_UserIds_View _wp)) = let {wfld :: Maybe ((String, String, Either Int String));
+                                                            wfld = Nothing;
+                                                            next = describe' wfld _wp;
+                                                            top = describe' _f (Proxy :: Proxy UserIds)}
+                                                        in maybe top Just next
+          describe' f p | p == idPath = describe' f (Proxy :: Proxy UserIds)
+          describe' _ _ = error "Unexpected path"
 instance IdPath (Path_Author a)
     where idPath = Path_Author
 instance IdPath (Path_Bool a)
