@@ -163,6 +163,11 @@ class PathStart u s where
     -- recursive peek calls are made.
     type UPath u s
     -- ^ Like type Path, but uses the universal type instead of @a@.
+    -- It would be nice to make this a data instead of a type synonym,
+    -- but some UPath types are already defined - e.g. Path_Pair.
+    -- This also means it is impossible to say something like
+    -- @instance Describe (UPath Univ Int64)@, we need to find the
+    -- actual type.
     upaths :: Proxy u -> (UPath u s -> r -> r) -> r -> s -> r
     -- ^ UPath version of 'paths'
     -- upathRow :: Proxy u -> s -> [UPath u s]
