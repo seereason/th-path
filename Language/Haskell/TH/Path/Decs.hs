@@ -21,6 +21,7 @@ module Language.Haskell.TH.Path.Decs
 
 import Control.Exception as E (IOException, throw, try)
 import Control.Monad.Writer (MonadWriter, execWriterT, runWriterT)
+import Data.Data (Data, Typeable)
 import Data.Maybe (catMaybes)
 import Data.Monoid ((<>))
 import Data.Set as Set (toList)
@@ -68,7 +69,7 @@ doUniv = do
                                                                                    clause [wildP] (normalB [|Nothing|]) []]]]
                   return $ normalC ucon [strictType notStrict typ])
                (zip types ([1..] :: [Int]))
-  tells [dataD (pure []) uname [] cons [''Eq, ''Show]]
+  tells [dataD (pure []) uname [] cons [''Eq, ''Show, ''Data, ''Typeable]]
   return $ conT uname
 
 allDecsToFile :: ([Dec] -> [Dec]) -> [TypeQ] -> Maybe FilePath -> Maybe FilePath -> FilePath -> [FilePath] -> Q [Dec]
