@@ -37,7 +37,7 @@ import Language.Haskell.TH.TypeGraph.Shape (Field)
 import Language.Haskell.TH.TypeGraph.TypeGraph (tgv, tgvSimple')
 import Language.Haskell.TH.TypeGraph.Vertex (etype, TGVSimple, typeNames)
 
-upathTypeDecs :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TypeQ -> TGVSimple -> m ()
+upathTypeDecs :: (TypeGraphM m, MonadWriter [Dec] m) => TypeQ -> TGVSimple -> m ()
 upathTypeDecs utype v = do
   let control = upathTypeDecControl utype v
       pname = bestUPathTypeName v

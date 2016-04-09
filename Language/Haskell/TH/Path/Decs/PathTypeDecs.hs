@@ -15,8 +15,8 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeSynonymInstances #-}
 module Language.Haskell.TH.Path.Decs.PathTypeDecs
-    ( pathTypeDecs
-    , fieldPathType
+    ( {-pathTypeDecs
+    , fieldPathType -}
     ) where
 
 import Control.Lens (_2, view)

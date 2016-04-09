@@ -22,7 +22,7 @@ import Appraisal.Report
 import Appraisal.ReportImage
 import Appraisal.Image
 import Appraisal.ReportInstances
-import Control.Lens (toListOf, view)
+import Control.Lens (iso, toListOf, view)
 -- import Data.Algorithm.DiffContext (getContextDiff, prettyContextDiff)
 -- import Data.ByteString.UTF8 (toString)
 import Data.Maybe (fromJust, mapMaybe)
@@ -78,8 +78,8 @@ testShowInstance :: Test
 testShowInstance =
     assertEqual' "Show instance" expected actual
     where
-      expected = "Peek_ReportView_Markup (Path_ReportView__reportContractDate Path_Markup) (Just (rawMarkdown \"\"))"
-      actual = show (Peek_ReportView_Markup (Path_ReportView__reportContractDate Path_Markup) (Just (rawMarkdown "")))
+      expected = "UPeek_ReportView (UPath_ReportView__reportContractDate UPath_Markup) (Just (U13 (rawMarkdown \"\")))"
+      actual = show (UPeek_ReportView (UPath_ReportView__reportContractDate UPath_Markup) (Just (u (rawMarkdown ""))))
 
 testPeekReportView :: Test
 testPeekReportView =
@@ -188,35 +188,32 @@ main = do
          , testPeekReport
          , testPeekOrder
          , testUPaths
-         , assertEqual' "toLens3" (toListOf (toLens (Path_ImageSize_dim (idPath :: Path_Dimension Dimension))) (picSize image)) [dim (picSize image) :: Dimension]
-         , assertEqual' "toLens4" (toListOf (toLens (Path_ImageSize_units (idPath :: Path_Units Units))) (picSize image)) [units (picSize image)]
-         , assertEqual' "toLens5" (toListOf (toLens (Path_ReportImage_View (idPath :: Path_ReportImageView ReportImageView))) image) [view viewLens image]
-         , assertEqual' "toLens6" (toListOf (toLens (Path_ReportImageView__picCrop (idPath :: Path_ImageCrop ImageCrop))) (view viewLens image)) [picCrop image]
-         , assertEqual' "toLens7" (toListOf (toLens ((Path_ReportImage_View (idPath :: Path_ReportImageView ReportImageView)) :.:
-                                                     (Path_ReportImageView__picCrop (idPath :: Path_ImageCrop ImageCrop)))) image) [picCrop image]
-         , assertEqual' "toLens8" ((Path_ReportImage_View (idPath :: Path_ReportImageView Bool) :.: Path_ReportImage_View (idPath :: Path_ReportImageView Bool)) ==
-                                   (Path_ReportImage_View (idPath :: Path_ReportImageView Bool) :.: Path_ReportImage_View (idPath :: Path_ReportImageView Bool))) True
-         , assertEqual' "label 1" (Just "Report Intended Use") (describe (Peek_Report_MaybeReportIntendedUse (Path_Report_View (Path_ReportView__reportIntendedUse Path_MaybeReportIntendedUse)) Nothing))
+         , assertEqual' "toLens3" (mapMaybe unU' (toListOf (toLens (UPath_ImageSize_dim (idPath :: UPath_Dimension))) (picSize image))) [dim (picSize image) :: Dimension]
+         , assertEqual' "toLens4" (mapMaybe unU' (toListOf (toLens (UPath_ImageSize_units (idPath :: UPath_Units))) (picSize image))) [units (picSize image)]
+         , assertEqual' "toLens5" (mapMaybe unU' (toListOf (toLens (UPath_ReportImage_View (idPath :: UPath_ReportImageView))) image)) [view viewLens image]
+         , assertEqual' "toLens6" (mapMaybe unU' (toListOf (toLens (UPath_ReportImageView__picCrop (idPath :: UPath_ImageCrop))) (view viewLens image))) [picCrop image]
+{-
+         , assertEqual' "toLens7" (toListOf (toLens ((UPath_ReportImage_View (idPath :: UPath_ReportImageView {-ReportImageView-})) :.:
+                                                     (UPath_ReportImageView__picCrop (idPath :: UPath_ImageCrop {-ImageCrop-})))) image) [picCrop image :: ImageCrop]
+         , assertEqual' "toLens8" ((UPath_ReportImage_View (idPath :: UPath_ReportImageView) :.: UPath_ReportImage_View (idPath :: UPath_ReportImageView)) ==
+                                   (UPath_ReportImage_View (idPath :: UPath_ReportImageView) :.: UPath_ReportImage_View (idPath :: UPath_ReportImageView))) True
+-}
+         , assertEqual' "label 1" (Just "Report Intended Use") (describe (UPath_Report_View (UPath_ReportView__reportIntendedUse UPath_MaybeReportIntendedUse)))
          -- There is a custom Describe instance for Markup that returns Nothing, so
          --    > describe (Just ("ReportView","ReportView",Right "_reportFooter")) (Peek_Markup_Markup Path_Markup undefined)
          -- returns Nothing.
-         , assertEqual' "label 2" (Just "Report Footer") (describe (Peek_Report_Markup (Path_Report_View (Path_ReportView__reportFooter Path_Markup)) Nothing))
-         , assertEqual' "label 3" (Just "Letter of Transmittal") (describe
-                                                                           (Peek_Report_Text (Path_Report_View (Path_ReportView__reportLetterOfTransmittal (Path_Markup_markdownText Path_Text))) Nothing))
-         , assertEqual' "label 4" (Just "Letter of Transmittal") (describe (Peek_ReportView_Text (Path_ReportView__reportLetterOfTransmittal (Path_Markup_markdownText Path_Text)) Nothing))
-         , assertEqual' "Report letter of transmittal field"
-                                  (Just "Letter of Transmittal") (describe' (Just $(fieldStrings (''ReportView, 'ReportView, Right '_reportLetterOfTransmittal)))
-                                                                           (Peek_ReportView_JSONText (Path_ReportView__reportLetterOfTransmittal (Path_Markup_markdownText (Path_Text_View Path_JSONText))) Nothing))
-         , assertEqual' "label 5" (Just "Report Intended Use") (describe (UPath_Report_View (UPath_ReportView__reportIntendedUse (UPath_MaybeReportIntendedUse_View idPath))))
-         -- There is a custom Describe instance for Markup that returns Nothing, so
-         --    > describe (Just ("ReportView","ReportView",Right "_reportFooter")) (Peek_Markup_Markup Path_Markup undefined)
-         -- returns Nothing.
-         , assertEqual' "label 6" (Just "Report Footer") (describe (UPath_Report_View (UPath_ReportView__reportFooter UPath_Markup)))
-         , assertEqual' "label 7" (Just "Letter of Transmittal") (describe (UPath_Report_View (UPath_ReportView__reportLetterOfTransmittal (UPath_Markup_markdownText UPath_Text))))
-         , assertEqual' "label 8" (Just "Letter of Transmittal") (describe (UPath_ReportView__reportLetterOfTransmittal (UPath_Markup_markdownText UPath_Text)))
+         , assertEqual' "label 2" (Just "Report Footer") (describe (UPath_Report_View (UPath_ReportView__reportFooter UPath_Markup)))
+         , assertEqual' "label 3" (Just "Letter of Transmittal") (describe (UPath_Report_View (UPath_ReportView__reportLetterOfTransmittal (UPath_Markup_markdownText UPath_Text))))
+         , assertEqual' "label 4" (Just "Letter of Transmittal") (describe (UPath_ReportView__reportLetterOfTransmittal (UPath_Markup_markdownText UPath_Text)))
          , assertEqual' "Report letter of transmittal field"
                                   (Just "Letter of Transmittal") (describe' (Just $(fieldStrings (''ReportView, 'ReportView, Right '_reportLetterOfTransmittal)))
                                                                             (UPath_ReportView__reportLetterOfTransmittal (UPath_Markup_markdownText (UPath_Text_View UPath_JSONText))))
+         , assertEqual' "lens to turn Univ lens into regular lens"
+                        (view (iso ((fromJust . unU') :: Univ -> Int) (u :: Int -> Univ)) (u (123 :: Int)))
+                        123
+         , assertEqual' "lens to turn Univ lens into regular lens"
+                        (view (iso (u :: Int -> Univ) ((fromJust . unU') :: Univ -> Int)) 123)
+                        (u (123 :: Int))
          ]
 
   case r of

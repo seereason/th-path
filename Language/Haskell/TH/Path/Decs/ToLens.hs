@@ -14,7 +14,7 @@
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeSynonymInstances #-}
-module Language.Haskell.TH.Path.Decs.ToLens (toLensDecs) where
+module Language.Haskell.TH.Path.Decs.ToLens ({-toLensDecs-}) where
 
 import Control.Lens hiding (cons, Strict)
 import Control.Monad (when)
@@ -34,14 +34,14 @@ import Language.Haskell.TH.Path.View (viewLens)
 import Language.Haskell.TH.TypeGraph.TypeGraph (goalReachableSimple, pathKeys, tgv, tgvSimple')
 import Language.Haskell.TH.TypeGraph.Vertex (field, TGVSimple, TypeGraphVertex(bestType))
 
-toLensDecs :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TypeQ -> TGVSimple -> m ()
-toLensDecs utype v =
-    pathKeys v >>= Set.mapM_ (toLensDecs' utype v)
+toLensDecs :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TGVSimple -> m ()
+toLensDecs v =
+    pathKeys v >>= Set.mapM_ (toLensDecs' v)
 
-toLensDecs' :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TypeQ -> TGVSimple -> TGVSimple -> m ()
-toLensDecs' utype v gkey = do
+toLensDecs' :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TGVSimple -> TGVSimple -> m ()
+toLensDecs' v gkey = do
   ptyp <- pathType (pure (bestType gkey)) v
-  tlc <- execWriterT $ toLensClauses utype v gkey
+  tlc <- execWriterT $ toLensClauses v gkey
   when (not (null tlc)) $
        (runQ $ sequence
             [ instanceD (pure []) [t|ToLens $(pure ptyp)|]
@@ -52,11 +52,10 @@ toLensDecs' utype v gkey = do
 
 
 toLensClauses :: forall m. (TypeGraphM m, MonadWriter [ClauseQ] m) =>
-                 TypeQ
-              -> TGVSimple -- ^ the type whose clauses we are generating
+                 TGVSimple -- ^ the type whose clauses we are generating
               -> TGVSimple -- ^ the goal type key
               -> m ()
-toLensClauses utype v gkey = do
+toLensClauses v gkey = do
   case v == gkey of
     True -> tell [clause [wildP] (normalB [|id|]) []]
     False -> do
@@ -66,11 +65,11 @@ toLensClauses utype v gkey = do
       --   r <- foldPath control v
       --   return $ r ++ [clause [varP x] (normalB [|error ("toLens' (" ++ $(lift (pprint' v)) ++ ") -> (" ++ $(lift (pprint' gkey)) ++ ") - unmatched: " ++ show $(varE x))|]) []]
       x <- runQ (newName "_x")
-      let control = toLensControl utype v gkey x :: Control m () () ()
+      let control = toLensControl v gkey x :: Control m () () ()
       doNode control v
 
-toLensControl :: (TypeGraphM m, MonadWriter [ClauseQ] m) => TypeQ -> TGVSimple -> TGVSimple -> Name -> Control m () () ()
-toLensControl utype v gkey x =
+toLensControl :: (TypeGraphM m, MonadWriter [ClauseQ] m) => TGVSimple -> TGVSimple -> Name -> Control m () () ()
+toLensControl v gkey x =
     Control
     { _doSimple = pure ()
     , _doSelf = pure ()
@@ -83,29 +82,29 @@ toLensControl utype v gkey x =
           -- The tricky bit is to extract the path value for w from the path
           -- value we have.
           let (AppT (ConT pname) _gtyp) = ptyp
-          doClause utype gkey w (\p -> conP (mkName (nameBase pname ++ "_View")) [if asType w == asType gkey then wildP else p]) (pure lns)
+          doClause gkey w (\p -> conP (mkName (nameBase pname ++ "_View")) [if asType w == asType gkey then wildP else p]) (pure lns)
     , _doOrder =
         \_i w -> do
           k <- runQ (newName "k")
-          doClause utype gkey w (\p -> [p|Path_At $(varP k) $p|]) [|lens_omat $(varE k)|]
+          doClause gkey w (\p -> [p|Path_At $(varP k) $p|]) [|lens_omat $(varE k)|]
     , _doMap =
         \_i w -> do
           k <- runQ (newName "k")
-          doClause utype gkey w (\p -> [p|Path_Look $(varP k) $p|]) [|mat $(varE k)|]
+          doClause gkey w (\p -> [p|Path_Look $(varP k) $p|]) [|mat $(varE k)|]
     , _doList =
         \_e -> pure ()
     , _doPair =
         \f s ->
-            do doClause utype gkey f (\p -> [p|Path_First $p|]) [|_1|]
-               doClause utype gkey s (\p -> [p|Path_Second $p|]) [|_2|]
+            do doClause gkey f (\p -> [p|Path_First $p|]) [|_1|]
+               doClause gkey s (\p -> [p|Path_Second $p|]) [|_2|]
                pure def
     , _doMaybe =
         \w -> do
-          doClause utype gkey w (\p -> [p|Path_Just $p|]) [|_Just|]
+          doClause gkey w (\p -> [p|Path_Just $p|]) [|_Just|]
     , _doEither =
         \l r ->
-            do doClause utype gkey l (\p -> [p|Path_Left $p|]) [|_Left|]
-               doClause utype gkey r (\p -> [p|Path_Right $p|]) [|_Right|]
+            do doClause gkey l (\p -> [p|Path_Left $p|]) [|_Left|]
+               doClause gkey r (\p -> [p|Path_Right $p|]) [|_Right|]
                pure def
     , _doField =
         \fld typ -> do
@@ -139,8 +138,8 @@ toLensControl utype v gkey x =
 -- pattern) to the toLens' method we are building to handle the new
 -- pattern.
 doClause :: forall m. (TypeGraphM m, MonadWriter [ClauseQ] m) =>
-            TypeQ -> TGVSimple -> TGVSimple -> (PatQ -> PatQ) -> ExpQ -> m ()
-doClause utype gkey v pfunc lns = do
+            TGVSimple -> TGVSimple -> (PatQ -> PatQ) -> ExpQ -> m ()
+doClause gkey v pfunc lns = do
   p <- runQ (newName "v")
   ok <- goalReachableSimple gkey v
   let pat = bool wildP (varP p) (v /= gkey)

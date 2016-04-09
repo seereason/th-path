@@ -19,9 +19,8 @@ module Language.Haskell.TH.Path.Core
     , treeMap
     , forestMap
       -- * Type classes and associated types
-    , PathsOld(pathsOld, PathOld, peekOld, peekPathOld, peekValueOld, peekConsOld)
     , IdPath(idPath)
-    , PathStart(PeekOld, UPeek, upeekCons, upeekPath, upeekValue, peekTreeOld, peekRowOld, UPath, upaths, upeekRow, {-upathTree, upeekRow,-} upeekTree)
+    , PathStart(UPeek, upeekCons, upeekPath, upeekValue, UPath, upaths, upeekRow, upeekTree)
     , upathRow
     , ToLens(S, A, toLens)
     , (:.:)(..)
@@ -63,9 +62,6 @@ module Language.Haskell.TH.Path.Core
     , IsText(textLens')
     , stringLens
     , lens_UserIds_Text
-#if !__GHCJS__
-    , pathTypeNamesOld
-#endif
     , camelWords
     ) where
 
@@ -79,7 +75,7 @@ import Data.Maybe (catMaybes)
 import Data.Monoid
 import Data.Proxy
 import Data.SafeCopy (base, deriveSafeCopy)
-import Data.Set as Set ({-difference,-} fromList, Set)
+import Data.Set as Set (fromList, Set)
 import Data.Text as Text (Text, pack, unpack, unwords, words)
 import Data.Tree (Tree(..), Forest)
 import Data.UserId (UserId(..))
@@ -140,10 +136,6 @@ instance (ToLens f, ToLens g, A f ~ S g {-, B f ~ T g-}) => ToLens (f :.: g) whe
 -- along with the value found at the end of that path.  The 'Peek'
 -- type is constructed to be able to represent this result.
 class PathStart u s where
-    data PeekOld u s
-    -- ^ 'Peek' is a type function that maps a type to the union of
-    -- all paths that start at that type, and (maybe) the value found
-    -- by following the path.
     data UPeek u s
     -- ^ 'UPath' version of 'Peek'.
     upeekCons :: UPath u s -> Maybe u -> UPeek u s
@@ -153,14 +145,6 @@ class PathStart u s where
     upeekValue :: UPeek u s -> Maybe u
     -- ^ Accessor for value field of a Peek type
 
-    peekTreeOld :: Proxy u -> s -> Forest (UPeek u s)
-    -- ^ Given a value of type @s@, return a forest containing every
-    -- 'Peek' that can be reached from it.  The order of the nodes in
-    -- the forest reflects the order the elements were encountered
-    -- during the traversal.
-    peekRowOld :: Proxy u -> s -> [UPeek u s]
-    -- ^ In this function only one layer of the forest is returned, no
-    -- recursive peek calls are made.
     type UPath u s
     -- ^ Like type Path, but uses the universal type instead of @a@.
     -- It would be nice to make this a data instead of a type synonym,
@@ -174,54 +158,17 @@ class PathStart u s where
     -- ^ Return the immediate subpaths of s.
     -- upathTree :: Proxy u -> s -> Tree (UPath u s)
     -- ^ Return a tree containing all subpaths of s
-    upeekRow :: Proxy u -> s -> Tree (UPeek u s)
-    -- ^ Like upathRow, but includes the values found at the end of the path
     upeekTree :: Proxy u -> s -> Tree (UPeek u s)
-    -- ^ Like upathTree, but includes the values found at the end of the path
+    -- ^ Given a value of type @s@, return a tree containing every
+    -- 'Peek' that can be reached from it.  The order of the nodes in
+    -- the forest reflects the order the elements were encountered
+    -- during the traversal.
+    upeekRow :: Proxy u -> s -> Tree (UPeek u s)
+    -- ^ In this function only one layer of the tree is returned, no
+    -- recursive peek calls are made.
 
 upathRow :: forall u s. PathStart u s => Proxy u -> s -> [UPath u s]
 upathRow proxy x = (map (upeekPath . rootLabel) . subForest . upeekRow proxy) x
-
--- | For any two types @s@ and @a@, there is an instance of @Paths
--- s a@ if there is any path from @s@ to @a@.  The @Path@ type
--- function maps @s@ and @a@ to a path type, and 'paths' returns all
--- possible path values from @s@ to @a@.
---
--- For example, there is one instance of @Paths (Int, Int) Int@.
--- In this case the type function @Path s a@ would return @Path_Pair
--- (Path_Int Int) (Path_Int Int)@. The 'paths' function would return
--- the two possible values of this type: @Path_First Path_Int@ and
--- @Path_Second Path_Int@.  @Path_Pair@ has a third constructor,
--- eponymously named @Path_Pair@, but that is the identity
--- constructor, so it can not represent a path from @(Int, Int)@ to
--- @Int@.
-class (PathStart u s, IdPath (PathOld u s a), ToLens (PathOld u s a), S (PathOld u s a) ~ s, A (PathOld u s a) ~ a) => PathsOld u s a where
-    type PathOld u s a
-    -- ^ Each instance defines this type function which returns the
-    -- path type.  Each value of this type represents a different way
-    -- of obtaining the @a@ from the @s@.  For example, if @s@ is a
-    -- record with two fields of type 'Int', the type @PathType s Int@
-    -- would have distinct values for those two fields, and the lenses
-    -- returned by 'toLens would access those two fields.
-    pathsOld :: Proxy u -> s -> Proxy a -> (PathOld u s a -> r -> r) -> r -> r
-    -- ^ Build the paths corresponding to a particular @s@ value and a
-    -- particular @a@ type.  Returns a list because there may be
-    -- several @a@ reachable from this @s@.  This function will freak
-    -- out if called with types for which there is no instance
-    -- @Paths s a@.
-    peekOld :: PathOld u s a -> s -> PeekOld u s
-    -- ^ Build a 'Peek' @s@ value for a specific path from @s@ to @a@.
-
-    peekPathOld :: Proxy a -> PeekOld u s -> PathOld u s a
-    -- ^ Accessor for path field of a Peek type
-    peekValueOld :: Proxy a -> PeekOld u s -> Maybe a
-    -- ^ Accessor for value field of a Peek type
-    peekConsOld :: PathOld u s a -> Maybe a -> PeekOld u s
-    -- ^ Construct a Peek s
-{-
-    upath :: Path u s a -> UPath u s
-    -- ^ Convert a Path to a UPath
--}
 
 -- | Nodes along a path can be customized by declaring types to be
 -- instances of this class and the ones that follow.  If a type is an
@@ -421,21 +368,6 @@ lens_UserIds_Text = iso (encode') (decode')
       encode' uids =
           Text.unwords . List.map showId $ uids
           where showId = Text.pack . show . _unUserId
-
-#if !__GHCJS__
--- | Find all the names of the path types.
-pathTypeNamesOld :: DsMonad m => m (Set Name)
-pathTypeNamesOld = do
-  (FamilyI (FamilyD TypeFam _pathtype [_,_,_] (Just StarT)) tySynInsts) <- qReify ''PathOld
-  return . {-flip Set.difference primitivePathTypeNames .-} Set.fromList . List.map (\(TySynInstD _ (TySynEqn _ typ)) -> doTySyn typ) $ tySynInsts
-    where
-      doTySyn (AppT x _) = doTySyn x
-      doTySyn (ConT pathTypeName) = pathTypeName
-      doTySyn x = error $ "Unexpected type in pathTypeNames: " ++ pprint1 x ++ " (" ++ show x ++ ")"
-
--- primitivePathTypeNames :: Set Name
--- primitivePathTypeNames = Set.fromList [''Path_Pair, ''Path_List, ''Path_Either, ''Path_Map, ''Path_OMap, ''Path_Maybe]
-#endif
 
 -- | Convert a camel case string (no whitespace) into a natural
 -- language looking phrase:

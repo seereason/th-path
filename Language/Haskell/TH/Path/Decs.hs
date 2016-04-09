@@ -30,10 +30,7 @@ import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Common (HasTypeQ(asTypeQ), tells)
 import Language.Haskell.TH.Path.Core (U(u, unU'))
 import Language.Haskell.TH.Path.Decs.Lens (lensDecs)
-import Language.Haskell.TH.Path.Decs.Paths (pathDecs)
 import Language.Haskell.TH.Path.Decs.PathStart (peekDecs)
-import Language.Haskell.TH.Path.Decs.PathTypeDecs (pathTypeDecs)
-import Language.Haskell.TH.Path.Decs.ToLens (toLensDecs)
 import Language.Haskell.TH.Path.Decs.ULens (uLensDecs)
 import Language.Haskell.TH.Path.Decs.UPath (upathTypeDecs)
 import Language.Haskell.TH.Path.Graph (runTypeGraphT, TypeGraphM)
@@ -106,10 +103,8 @@ doType utype t = tgvSimple t >>= maybe (error $ "doType: No node for " ++ pprint
 
 doNode :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TypeQ -> TGVSimple -> m ()
 doNode utype v = do
-  pathTypeDecs v  -- generate Path types and the IdPath instances
   upathTypeDecs utype v  -- generate Path types and the IdPath instances
   lensDecs v      -- generate lenses using makeClassyFor
-  pathDecs utype v      -- generate HasPaths instances
   peekDecs utype v      -- generate PathStart instances
-  toLensDecs utype v    -- generate ToLens instances
+  -- toLensDecs utype v    -- generate ToLens instances
   uLensDecs utype v    -- generate ToLens instances for UPath types
