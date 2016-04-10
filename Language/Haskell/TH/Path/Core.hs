@@ -23,6 +23,7 @@ module Language.Haskell.TH.Path.Core
     , PathStart(UPeek, upeekCons, upeekPath, upeekValue, UPath, upaths, upeekRow, upeekTree)
     , upathRow
     , ToLens(toLens)
+    , ulens'
     -- , (:.:)(..)
     , U(u, unU')
 
@@ -71,7 +72,7 @@ import Data.Char (isUpper, toUpper)
 import Data.Generics (Data, Typeable)
 import Data.List as List (groupBy, map)
 import qualified Data.Map as M (Map, insert, lookup)
-import Data.Maybe (catMaybes)
+import Data.Maybe (catMaybes, fromJust)
 import Data.Monoid
 import Data.Proxy
 import Data.SafeCopy (base, deriveSafeCopy)
@@ -115,6 +116,16 @@ class ToLens u s where
     -- type S p
     -- type A p
     toLens :: UPath u s -> Traversal' s u
+
+-- | Return a lens that converts between a universal type value and some @a@.
+-- Once you have generated your own Univ type create a specialized version:
+-- @
+--   ulens :: U Univ a => Iso' Univ a
+--   ulens = ulens' Proxy
+-- @
+-- Then you can compose paths by interspersing ulens between toLens calls.
+ulens' :: (U u a) => Proxy u -> Iso' u a
+ulens' Proxy = iso (fromJust . unU') u
 
 {-
 data (f :.: g) = f :.: g deriving (Eq, Generic, Read, Show)

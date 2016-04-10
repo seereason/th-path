@@ -20,15 +20,17 @@ module Language.Haskell.TH.Path.Decs
     ) where
 
 import Control.Exception as E (IOException, throw, try)
+import Control.Lens (Iso')
 import Control.Monad.Writer (MonadWriter, execWriterT, runWriterT)
 import Data.Data (Data, Typeable)
 import Data.Maybe (catMaybes)
 import Data.Monoid ((<>))
+import Data.Proxy (Proxy(Proxy))
 import Data.Set as Set (toList)
 import Language.Haskell.TH
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.Path.Common (HasTypeQ(asTypeQ), tells)
-import Language.Haskell.TH.Path.Core (U(u, unU'))
+import Language.Haskell.TH.Path.Common (HasTypeQ(asTypeQ), telld, tells)
+import Language.Haskell.TH.Path.Core (U(u, unU'), ulens')
 import Language.Haskell.TH.Path.Decs.Lens (lensDecs)
 import Language.Haskell.TH.Path.Decs.PathStart (peekDecs)
 import Language.Haskell.TH.Path.Decs.ULens (uLensDecs)
@@ -67,6 +69,8 @@ doUniv = do
                   return $ normalC ucon [strictType notStrict typ])
                (zip types ([1..] :: [Int]))
   tells [dataD (pure []) uname [] cons [''Eq, ''Show, ''Data, ''Typeable]]
+  telld [d| ulens :: U $(conT uname) a => Iso' $(conT uname) a
+            ulens = ulens' Proxy |]
   return $ conT uname
 
 allDecsToFile :: ([Dec] -> [Dec]) -> [TypeQ] -> Maybe FilePath -> Maybe FilePath -> FilePath -> [FilePath] -> Q [Dec]

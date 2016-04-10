@@ -24,7 +24,7 @@ import Appraisal.ReportInstances
 import Appraisal.ReportItem
 import Appraisal.ReportMap (ReportID(..), ReportMap(..), MRR)
 import Appraisal.Utils.CIString (CIString(..))
-import Control.Lens (iso, lens, _Just, _1, _2, _Left, _Right, Lens', toListOf, Traversal')
+import Control.Lens (Iso', iso, lens, _Just, _1, _2, _Left, _Right, Lens', toListOf, Traversal')
 import Data.Generics (Data, Typeable)
 import Data.Int (Int64)
 import Data.Map (toList)
@@ -40,6 +40,7 @@ import Language.Haskell.TH.Path.Order (lens_omat, Path_OMap(Path_At), toPairs)
 import Language.Haskell.TH.Path.View (View(viewLens))
 import Network.URI (URI(URI), URIAuth)
 
+ulens = ulens' Proxy
 data UPath_Author = UPath_Author_authorName UPath_Markup | UPath_Author_authorCredentials UPath_Markup | UPath_Author deriving (Eq, Ord, Read, Show, Typeable, Data)
 data UPath_Bool = UPath_Bool_View UPath_String | UPath_Bool deriving (Eq, Ord, Read, Show, Typeable, Data)
 data UPath_Branding = UPath_Branding_View UPath_Text | UPath_Branding deriving (Eq, Ord, Read, Show, Typeable, Data)
@@ -7309,3 +7310,4 @@ instance IdPath UPath_UserId
     where idPath = UPath_UserId
 instance IdPath UPath_UserIds
     where idPath = UPath_UserIds
+ulens :: forall a . U Univ a => Iso' Univ a
