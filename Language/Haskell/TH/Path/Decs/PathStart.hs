@@ -216,7 +216,7 @@ pathControl utype v _x wPathVar = do
                          fn ex (w, fs) r =
                              [| concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk))
                                                            (map ((\_ x' -> Node ((upeekCons (idPath) (Just (u (x' :: $(asTypeQ w))))) :: UPeek $utype $(asTypeQ w)) []) $(varE unv))
-                                                                (mapMaybe unU' (toListOf (toLens (f idPath)) $ex)))) $fs ++ $r |]
+                                                                (mapMaybe unU' (toListOf (toLens (f idPath) :: Traversal' $(asTypeQ v) $utype) $ex)))) $fs ++ $r |]
                      clause [varP unv, asP' x xpat] (normalB [|Node (upeekCons idPath Nothing) $(foldr (fn (varE x)) [| [] |] pairs)|]) [],
                 UPeekTreeClause $
                   do unv <- newName "_unv"
@@ -225,7 +225,7 @@ pathControl utype v _x wPathVar = do
                          fn ex (w, fs) r =
                              [| concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk))
                                                            (map (upeekTree $(varE unv))
-                                                                (mapMaybe unU' (toListOf (toLens (f idPath)) $ex) :: [$(asTypeQ w)]))) $fs ++ $r |]
+                                                                (mapMaybe unU' (toListOf (toLens (f idPath) :: Traversal' $(asTypeQ v) $utype) $ex) :: [$(asTypeQ w)]))) $fs ++ $r |]
                      clause [varP unv, asP' x xpat] (normalB [|Node (upeekCons idPath Nothing) $(foldr (fn (varE x)) [| [] |] pairs)|]) []
                ]
     , _doSyn =

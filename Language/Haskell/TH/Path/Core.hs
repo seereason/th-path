@@ -22,8 +22,8 @@ module Language.Haskell.TH.Path.Core
     , IdPath(idPath)
     , PathStart(UPeek, upeekCons, upeekPath, upeekValue, UPath, upaths, upeekRow, upeekTree)
     , upathRow
-    , ToLens(S, A, toLens)
-    , (:.:)(..)
+    , ToLens(toLens)
+    -- , (:.:)(..)
     , U(u, unU')
 
     -- * Hint classes
@@ -75,18 +75,14 @@ import Data.Maybe (catMaybes)
 import Data.Monoid
 import Data.Proxy
 import Data.SafeCopy (base, deriveSafeCopy)
-import Data.Set as Set (fromList, Set)
 import Data.Text as Text (Text, pack, unpack, unwords, words)
 import Data.Tree (Tree(..), Forest)
 import Data.UserId (UserId(..))
 import Debug.Trace (trace)
-import GHC.Generics (Generic)
 import Language.Haskell.TH
-import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Lift (Lift (lift))
-import Language.Haskell.TH.Syntax (liftString, qReify)
-import Language.Haskell.TH.TypeGraph.Prelude (pprint1)
+import Language.Haskell.TH.Syntax (liftString)
 import Prelude hiding (exp)
 import Safe (readMay)
 import Web.Routes.TH (derivePathInfo)
@@ -115,11 +111,12 @@ class IdPath p where
                 -- @toLens idPath == iso id id@.
 
 -- | Every path has start and end types and can be converted to a lens.
-class ToLens p where
-    type S p
-    type A p
-    toLens :: p -> Traversal' (S p) (A p)
+class ToLens u s where
+    -- type S p
+    -- type A p
+    toLens :: UPath u s -> Traversal' s u
 
+{-
 data (f :.: g) = f :.: g deriving (Eq, Generic, Read, Show)
 
 instance (ToLens f, ToLens g, A f ~ S g {-, B f ~ T g-}) => ToLens (f :.: g) where
@@ -130,6 +127,7 @@ instance (ToLens f, ToLens g, A f ~ S g {-, B f ~ T g-}) => ToLens (f :.: g) whe
   toLens (f :.: g) = toLens f . toLens g
   -- ^ Function to turn a path value of type @p@ into a lens to access
   -- (one of) the @A p@ values in an @S p@.
+-}
 
 -- | If there are paths that begin from type @s@, the 'peek' function
 -- returns all the paths starting from a particular value of type @s@,

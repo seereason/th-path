@@ -22,7 +22,7 @@ import Data.Default (Default(def))
 import Language.Haskell.TH
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Common (fieldLensNameOld, HasName(asName), HasType(asType), HasTypeQ(asTypeQ), makeUFieldCon, tells)
-import Language.Haskell.TH.Path.Core (mat, S, A, IdPath(idPath), ToLens(toLens), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..), U(u, unU'))
+import Language.Haskell.TH.Path.Core (mat, IdPath(idPath), ToLens(toLens), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..), U(u, unU'))
 import Language.Haskell.TH.Path.Decs.PathType (upathType)
 import Language.Haskell.TH.Path.Graph (TypeGraphM)
 import Language.Haskell.TH.Path.Order (lens_omat, Path_OMap(..))
@@ -33,13 +33,11 @@ import Language.Haskell.TH.TypeGraph.Vertex (field, TGVSimple)
 
 uLensDecs :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TypeQ -> TGVSimple -> m ()
 uLensDecs utype v = do
-  ptyp <- upathType v
+  -- ptyp <- upathType v
   tlc <- execWriterT (do tell [newName "p" >>= \p -> clause [varP p] (guardedB [normalGE [|$(varE p) == idPath|] [|lens u (\s a -> maybe s id (unU' a))|]]) []]
                          toLensClauses utype v)
-  tells [instanceD (pure []) [t|ToLens $(pure ptyp)|]
-           [ tySynInstD ''S (tySynEqn [pure ptyp] (asTypeQ v))
-           , tySynInstD ''A (tySynEqn [pure ptyp] utype)
-           , funD 'toLens tlc
+  tells [instanceD (pure []) [t|ToLens $utype $(asTypeQ v)|]
+           [ funD 'toLens tlc
            ] ]
 
 toLensClauses :: forall m. (TypeGraphM m, MonadWriter [ClauseQ] m) =>
