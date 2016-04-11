@@ -15,13 +15,13 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
 module Language.Haskell.TH.Path.Core
-    ( view'
-    , treeMap
+    ( treeMap
     , forestMap
+    , camelWords
+
       -- * Type classes and associated types
     , IdPath(idPath)
     , PathStart(UPeek, upeekCons, upeekPath, upeekValue, UPath, upaths, upeekRow, upeekTree)
-    , upathRow
     , ToLens(toLens)
     , ulens'
     -- , (:.:)(..)
@@ -33,7 +33,6 @@ module Language.Haskell.TH.Path.Core
     , SelfPath
     , Describe(describe')
     , describe
-    , fieldStrings
 
     -- * Basic Path Types
     , Path_Pair(..)
@@ -63,7 +62,6 @@ module Language.Haskell.TH.Path.Core
     , IsText(textLens')
     , stringLens
     , lens_UserIds_Text
-    , camelWords
     ) where
 
 import Control.Applicative.Error (maybeRead)
@@ -80,26 +78,29 @@ import Data.Text as Text (Text, pack, unpack, unwords, words)
 import Data.Tree (Tree(..), Forest)
 import Data.UserId (UserId(..))
 import Debug.Trace (trace)
-import Language.Haskell.TH
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.Lift (Lift (lift))
-import Language.Haskell.TH.Syntax (liftString)
 import Prelude hiding (exp)
 import Safe (readMay)
 import Web.Routes.TH (derivePathInfo)
-
-view' :: Getting (Endo [a]) s a -> s -> a
-view' lns x =
-    case toListOf lns x of
-      [y] -> y
-      [] -> error $ "view' empty failure"
-      _ -> error $ "view' multi failure"
 
 treeMap :: (a -> b) -> Tree a -> Tree b
 treeMap f (Node x ns) = Node (f x) (forestMap f ns)
 
 forestMap :: (a -> b) -> Forest a -> Forest b
 forestMap f = List.map (treeMap f)
+
+-- | Convert a camel case string (no whitespace) into a natural
+-- language looking phrase:
+--   camelWords "aCamelCaseFOObar123" -> "A Camel Case FOObar123"
+camelWords :: String -> String
+camelWords s =
+    case groupBy (\ a b -> isUpper a == isUpper b) (dropWhile (== '_') s) of -- "aCamelCaseFOObar123"
+      (x : xs) -> concat $ capitalize x : map (\ (c : cs) -> if isUpper c then ' ' : c : cs else c : cs) xs
+      [] -> ""
+
+capitalize :: String -> String
+capitalize [] = []
+capitalize (c:cs) = (toUpper c) : cs
 
 class U univ a where
     u :: a -> univ
@@ -176,9 +177,6 @@ class PathStart u s where
     -- ^ In this function only one layer of the tree is returned, no
     -- recursive peek calls are made.
 
-upathRow :: forall u s. PathStart u s => Proxy u -> s -> [UPath u s]
-upathRow proxy x = (map (upeekPath . rootLabel) . subForest . upeekRow proxy) x
-
 -- | Nodes along a path can be customized by declaring types to be
 -- instances of this class and the ones that follow.  If a type is an
 -- instance of 'SinkType', no paths that lead to the internal stucture
@@ -199,16 +197,10 @@ class SelfPath a
 -- The first argument indicates the field of the parent record that
 -- contains the @a@ value, if any.
 class Describe a where
-    describe' :: Maybe (String, String, Either Int String) -> a -> Maybe String
+    describe' :: Maybe String -> a -> Maybe String
 
 describe :: Describe a => a -> Maybe String
 describe = describe' Nothing
-
--- | Convert a 'Language.Haskell.TH.TypeGraph.Shape.Field' into the argument used by describe'.
-fieldStrings :: (Name, Name, Either Int Name) -> ExpQ
-fieldStrings (tname, cname, f) = [|($(liftString (nameBase tname)),
-                                    $(liftString (nameBase cname)),
-                                    $(either (\i -> [|Left $(lift i)|]) (\n -> [|Right $(liftString (nameBase n))|]) f))|]
 
 -- Primitive path types
 
@@ -377,16 +369,3 @@ lens_UserIds_Text = iso (encode') (decode')
       encode' uids =
           Text.unwords . List.map showId $ uids
           where showId = Text.pack . show . _unUserId
-
--- | Convert a camel case string (no whitespace) into a natural
--- language looking phrase:
---   camelWords3 "aCamelCaseFOObar123" -> "A Camel Case FOObar123"
-camelWords :: String -> String
-camelWords s =
-    case groupBy (\ a b -> isUpper a == isUpper b) (dropWhile (== '_') s) of -- "aCamelCaseFOObar123"
-      (x : xs) -> concat $ capitalize x : map (\ (c : cs) -> if isUpper c then ' ' : c : cs else c : cs) xs
-      [] -> ""
-
-capitalize :: String -> String
-capitalize [] = []
-capitalize (c:cs) = (toUpper c) : cs

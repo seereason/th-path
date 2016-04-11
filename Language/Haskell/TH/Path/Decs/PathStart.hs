@@ -20,7 +20,7 @@ import Control.Lens hiding (cons, Strict)
 import Control.Monad (when)
 import Control.Monad.Writer (execWriterT, MonadWriter, tell)
 import Data.Map as Map (toList)
-import Data.Maybe (mapMaybe)
+import Data.Maybe (fromMaybe, mapMaybe)
 import Data.Proxy
 import Data.Tree (Tree(Node))
 import Language.Haskell.TH
@@ -29,7 +29,7 @@ import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Lift (lift)
 import Language.Haskell.TH.Path.Common (HasConQ(asConQ), HasCon(asCon), HasName(asName), HasType(asType), HasTypeQ(asTypeQ),
                                         makeUFieldCon, makePathCon, makeUPathType, ModelType(ModelType))
-import Language.Haskell.TH.Path.Core (camelWords, fieldStrings, IdPath(idPath), PathStart(..), ToLens(toLens),
+import Language.Haskell.TH.Path.Core (camelWords, IdPath(idPath), PathStart(..), ToLens(toLens),
                                       Describe(describe'), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..), forestMap, U(u, unU'))
 import Language.Haskell.TH.Path.Decs.PathType (upathType)
 import Language.Haskell.TH.Path.Graph (TypeGraphM)
@@ -112,11 +112,7 @@ peekDecs utype v =
                (pure [newName "_f" >>= \f ->
                       funD 'describe'
                         [clause [varP f, wildP]
-                           (normalB [| case $(varE f) of
-                                         Nothing -> Just $(liftString (camelWords (nameBase (asName v))))
-                                         Just (_tname, _cname, Right fname) -> Just (camelWords fname)
-                                         Just (_tname, cname, Left fpos) -> Just (camelWords $ cname ++ "[" ++ show fpos ++ "]")
-                                     |]) []]]))
+                           (normalB [| Just (fromMaybe $(liftString (camelWords (nameBase (asName v)))) $(varE f)) |]) []]]))
 
 makeUPeekCon :: (HasName s) => ModelType s -> PeekCon
 makeUPeekCon (ModelType s) = PeekCon (mkName ("UPeek_" ++ nameBase (asName s)))
@@ -284,13 +280,19 @@ describeConc v wPathVar (PathConc w upat _ulift) =
              -- f contains the context in which v appears, while we can tell
              -- the context in which w appears from the path constructor.
              clause [varP f, asP p upat]
-                    (normalB ([| let -- The context in which the w value appears
-                                   wfld :: Maybe (String, String, Either Int String)
-                                   wfld = ($(maybe [|Nothing|] (\y -> [|Just $(fieldStrings y)|]) (view (_2 . field) w)))
-                                   -- The label for the next hop along the path
-                                   next = describe' wfld $(varE wPathVar)
+                    (normalB ([| maybe
                                    -- The label for the current node.  This will call the custom
                                    -- instance if there is one, otherwise one will have been generated.
-                                   top = describe' $(varE f) (Proxy :: Proxy $(asTypeQ v)) in
-                              maybe top Just next |]))
-                     []]
+                                   (describe' $(varE f) (Proxy :: Proxy $(asTypeQ v)))
+                                   Just
+                                   -- The label for the next hop along the path
+                                   (describe'
+                                      -- The context in which the w value appears
+                                      ($(maybe [|Nothing|] (\y -> [|Just $(fieldString y)|]) (view (_2 . field) w)))
+                                      $(varE wPathVar)) |]))
+                    []]
+
+-- | Convert a 'Language.Haskell.TH.TypeGraph.Shape.Field' into the argument used by describe'.
+fieldString :: (Name, Name, Either Int Name) -> ExpQ
+fieldString (_tname, cname, Left fpos) = liftString (camelWords (nameBase cname) ++ "[" ++ show fpos ++ "]")
+fieldString (_tname, _cname, Right fname) = liftString (camelWords (nameBase fname))

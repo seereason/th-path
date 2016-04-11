@@ -132,9 +132,8 @@ data ReportView
     deriving (Read, Show, Eq, Ord, Typeable, Data)
 
 instance Describe (Proxy Markup) where
-    describe' (Just (_, _, Right fname)) Proxy | fname == nameBase '_reportLetterOfTransmittal = Just "Letter of Transmittal"
-    describe' (Just (_, _, Right fname)) Proxy = Just (camelWords fname)
-    describe' _ _ = Nothing
+    describe' (Just fname) Proxy | fname == camelWords (nameBase '_reportLetterOfTransmittal) = Just "Letter of Transmittal"
+    describe' x _ = x
 
 -- | Primitive types whose names do not make good labels.
 instance Describe (Proxy JSONText) where describe' _ Proxy = Nothing

@@ -155,12 +155,12 @@ testUPaths =
           [usize] = toListOf (toLens imageSizePath) Report.report :: [Univ]
           actual = upaths (Proxy :: Proxy Univ) (:) [] (fromJust (unU' usize) :: ImageSize) in
       assertEqual' "testUPaths 4" expected actual
-    , let expected = map upeekPath
-                       [UPeek_ImageSize (UPath_ImageSize_dim UPath_Dimension) (Just (U6 TheHeight)),
-                        UPeek_ImageSize (UPath_ImageSize_size UPath_Double) (Just (U5 3.0)),
-                        UPeek_ImageSize (UPath_ImageSize_units UPath_Units) (Just (U9 Inches))]
+    , let expected = Node {rootLabel = UPeek_ImageSize UPath_ImageSize Nothing,
+                           subForest = [Node {rootLabel = UPeek_ImageSize (UPath_ImageSize_dim UPath_Dimension) (Just (U6 TheHeight)), subForest = []},
+                                        Node {rootLabel = UPeek_ImageSize (UPath_ImageSize_size UPath_Double) (Just (U5 3.0)), subForest = []},
+                                        Node {rootLabel = UPeek_ImageSize (UPath_ImageSize_units UPath_Units) (Just (U9 Inches)), subForest = []}]}
           [usize] = mapMaybe unU' (toListOf (toLens imageSizePath) Report.report :: [Univ]) :: [ImageSize]
-          actual = upathRow (Proxy :: Proxy Univ) usize in
+          actual = upeekRow (Proxy :: Proxy Univ) usize in
       assertEqual' "testUPaths 5" expected actual
     ]
     where imageSizePath =
@@ -204,7 +204,7 @@ main = do
          , assertEqual' "label 3" (Just "Letter of Transmittal") (describe (UPath_Report_View (UPath_ReportView__reportLetterOfTransmittal (UPath_Markup_markdownText UPath_Text))))
          , assertEqual' "label 4" (Just "Letter of Transmittal") (describe (UPath_ReportView__reportLetterOfTransmittal (UPath_Markup_markdownText UPath_Text)))
          , assertEqual' "Report letter of transmittal field"
-                                  (Just "Letter of Transmittal") (describe' (Just $(fieldStrings (''ReportView, 'ReportView, Right '_reportLetterOfTransmittal)))
+                                  (Just "Letter of Transmittal") (describe' (Just (nameBase '_reportLetterOfTransmittal))
                                                                             (UPath_ReportView__reportLetterOfTransmittal (UPath_Markup_markdownText (UPath_Text_View UPath_JSONText))))
          , assertEqual' "lens to turn Univ lens into regular lens"
                         (view (iso ((fromJust . unU') :: Univ -> Int) (u :: Int -> Univ)) (u (123 :: Int)))
