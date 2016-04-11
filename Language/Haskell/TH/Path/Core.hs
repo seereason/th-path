@@ -115,9 +115,13 @@ class IdPath p where
 
 -- | Every path has start and end types and can be converted to a lens.
 class ToLens u s where
-    -- type S p
-    -- type A p
+#if 1
     toLens :: UPath u s -> Traversal' s u
+#else
+    toTraversal :: UPath u s -> Traversal' s u -- If you don't know what you have use this
+    toLens :: UPath u s -> Lens' s u
+    toIso :: UPath u s -> Iso' s u
+#endif
 
 -- | Return a lens that converts between a universal type value and some @a@.
 -- Once you have generated your own Univ type create a specialized version:

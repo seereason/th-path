@@ -102,7 +102,7 @@ toLensControl v x =
                    -- with the field path constructor, and each field lens gets
                    -- composed with the lens produced for the field's type.
                    let hop = varE (fieldLensNameOld (asName v) fname)
-                       lns = {-if skey == gkey then hop else-} [|$hop . toLens $(varE x)|]
+                       lns = [|$hop . toLens $(varE x)|]
                    tell [clause [conP (asName pcname) [varP x]] (normalB lns) []]
             ({-True,-} Just (_tname, _cname, Left _fpos)) -> pure ()
             ({-True,-} Nothing) -> pure ()
@@ -117,11 +117,6 @@ toLensControl v x =
 -- 'Language.Haskell.TH.Clause' (a function with a typically incomplete
 -- pattern) to the toLens' method we are building to handle the new
 -- pattern.
-doClause :: forall m. (TypeGraphM m, MonadWriter [ClauseQ] m) =>
-            (PatQ -> PatQ) -> ExpQ -> m ()
+doClause :: forall m. (TypeGraphM m, MonadWriter [ClauseQ] m) => (PatQ -> PatQ) -> ExpQ -> m ()
 doClause pfunc lns = do
-  p <- runQ (newName "v")
-  -- ok <- goalReachableSimple gkey v
-  let pat = {-bool wildP-} (varP p) {-(v /= gkey)-}
-      lns' = {-bool lns-} [|$lns . toLens $(varE p)|] {-(v /= gkey)-}
-  tell [clause [pfunc pat] (normalB lns') []]
+  tell [newName "v" >>= \v -> clause [pfunc (varP v)] (normalB [|$lns . toLens $(varE v)|]) []]
