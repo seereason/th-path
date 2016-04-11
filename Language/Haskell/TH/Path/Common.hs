@@ -14,9 +14,7 @@
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeSynonymInstances #-}
 module Language.Haskell.TH.Path.Common
-    ( bestPathTypeName
-    , allPathTypeNames
-    , bestUPathTypeName
+    ( bestUPathTypeName
     , allUPathTypeNames
     , bestTypeName
     , clauses
@@ -30,11 +28,9 @@ module Language.Haskell.TH.Path.Common
     , PathCon(..)
     , ModelType(ModelType)
     , PathType
-    , makePathType
     , makeUPathType
     , makeHopCon
     , makePathCon
-    , makeFieldCon
     , makeUFieldCon
     , uncurry3
     , tells
@@ -61,14 +57,8 @@ import Language.Haskell.TH.TypeGraph.Vertex (bestType, bestTypeQ, etype, field, 
 
 -- | If the type is (ConT name) return name, otherwise return a type
 -- synonym name.
-bestPathTypeName :: HasName v => v -> PathType Name
-bestPathTypeName = makePathType . ModelType . asName
-
 bestUPathTypeName :: HasName v => v -> PathType Name
 bestUPathTypeName = makeUPathType . ModelType . asName
-
-allPathTypeNames :: TypeGraphVertex v => v -> Set (PathType Name)
-allPathTypeNames v = Set.map (makePathType . ModelType) (typeNames v)
 
 allUPathTypeNames :: TypeGraphVertex v => v -> Set (PathType Name)
 allUPathTypeNames v = Set.map (makeUPathType . ModelType) (typeNames v)
@@ -171,9 +161,6 @@ instance HasTypeQ TGV' where asTypeQ = pure . asType
 instance HasTypeQ (E Type) where asTypeQ = pure . asType
 instance HasTypeQ Type where asTypeQ = pure
 
-makePathType :: HasName a => ModelType a -> PathType Name
-makePathType (ModelType a) = PathType (mkName ("Path_" ++ nameBase (asName a)))
-
 makeUPathType :: HasName a => ModelType a -> PathType Name
 makeUPathType (ModelType a) = PathType (mkName ("UPath_" ++ nameBase (asName a)))
 
@@ -188,14 +175,6 @@ makeHopCon s a =
 
 makePathCon :: HasName a => PathType a -> String -> PathCon Name
 makePathCon (PathType p) a = PathCon $ mkName $ nameBase (asName p) ++ "_" ++ a
-
--- | Path type constructor for the field described by key in the parent type named tname.
-makeFieldCon :: TGV -> Maybe (PathCon Name)
-makeFieldCon key =
-    case asTGV key ^. field of
-      Nothing -> Nothing
-      Just (tname, _, Right fname) -> Just $ makePathCon (makePathType (ModelType tname)) (nameBase fname)
-      Just (tname, _, Left fpos) -> Just $ makePathCon (makePathType (ModelType tname)) (show fpos)
 
 -- | Path type constructor for the field described by key in the parent type named tname.
 makeUFieldCon :: TGV -> Maybe (PathCon Name)

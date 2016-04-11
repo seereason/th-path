@@ -35,10 +35,10 @@ import Language.Haskell.TH.Path.View (viewLens)
 import Language.Haskell.TH.Ppr as TH (Ppr)
 import Language.Haskell.TH.PprLib as TH (text)
 import System.Exit
-import Test.HUnit
+import Test.HUnit hiding (path)
 
 import ReportPaths
-import Tests.Data (peekReportView, peekAbbrevPairs, peekLabels)
+import Tests.Data (pathReportView, peekReportView, peekAbbrevPairs, pathLabels)
 import Tests.Report as Report (report, image)
 
 {-
@@ -92,16 +92,14 @@ testPeekReportView =
       actual = let [Just reportview] = map unU' (toListOf (toLens (UPath_Report_View idPath)) Report.report :: [Univ]) in
                upeekTree (Proxy :: Proxy Univ) reportview
 
-{-
 testLabels :: Test
 testLabels =
-    assertEqual' "peek labels" expected actual
+    assertEqual' "path labels" expected actual
     where
-      expected :: Forest (Maybe String)
-      expected = peekLabels
-      actual :: Forest (Maybe String)
-      actual = map (fmap describe) peekReportView
--}
+      expected :: Tree (Maybe String)
+      expected = pathLabels
+      actual :: Tree (Maybe String)
+      actual = pathReportView
 
 testPeekReport :: Test
 testPeekReport =
@@ -184,7 +182,7 @@ main = do
          [ testReportElems
          , testShowInstance
          , testPeekReportView
-         -- , testLabels
+         , testLabels
          , testPeekReport
          , testPeekOrder
          , testUPaths

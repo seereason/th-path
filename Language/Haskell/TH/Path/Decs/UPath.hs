@@ -37,17 +37,17 @@ import Language.Haskell.TH.TypeGraph.Shape (Field)
 import Language.Haskell.TH.TypeGraph.TypeGraph (tgv, tgvSimple')
 import Language.Haskell.TH.TypeGraph.Vertex (etype, TGVSimple, typeNames)
 
-upathTypeDecs :: (TypeGraphM m, MonadWriter [Dec] m) => TypeQ -> TGVSimple -> m ()
-upathTypeDecs utype v = do
-  let control = upathTypeDecControl utype v
+upathTypeDecs :: (TypeGraphM m, MonadWriter [Dec] m) => TGVSimple -> m ()
+upathTypeDecs v = do
+  let control = upathTypeDecControl v
       pname = bestUPathTypeName v
       psyns = Set.delete pname (allUPathTypeNames v)
   -- It would be nice if this code lived inside upathTypeDecControl somewhere.
   runQ (mapM (\psyn -> tySynD (asName psyn) [] (asTypeQ pname)) (toList psyns)) >>= tell
   doNode control v
 
-upathTypeDecControl :: (TypeGraphM m, MonadWriter [Dec] m) => TypeQ -> TGVSimple -> Control m [ConQ] (PatQ, [[ConQ]]) ()
-upathTypeDecControl utype v =
+upathTypeDecControl :: (TypeGraphM m, MonadWriter [Dec] m) => TGVSimple -> Control m [ConQ] (PatQ, [[ConQ]]) ()
+upathTypeDecControl v =
     let pname = bestUPathTypeName v in
     Control
     { _doSimple = do
@@ -83,9 +83,9 @@ upathTypeDecControl utype v =
         \xpat pcons -> pure (xpat, pcons)
     , _doAlts =
         \pairs ->
-            mapM_ (\pname ->
-                       do tells [dataD (cxt []) (asName pname) [] (concat (concatMap snd pairs) ++ [normalC (asName pname) []]) supers]
-                          telld [d|instance IdPath $(asTypeQ pname) where idPath = $(asConQ pname)|])
+            mapM_ (\pname' ->
+                       do tells [dataD (cxt []) (asName pname') [] (concat (concatMap snd pairs) ++ [normalC (asName pname') []]) supers]
+                          telld [d|instance IdPath $(asTypeQ pname') where idPath = $(asConQ pname')|])
                   (Set.map makeUPathType . Set.map ModelType . typeNames $ v)
     , _doSyn =
         \tname stype ->
