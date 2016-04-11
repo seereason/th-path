@@ -192,10 +192,8 @@ pathControl utype v _x wPathVar = do
                   do f <- newName "_f"
                      r0 <- newName "r0"
                      let upathss = map (\(PathConc _ _ fs) -> [|map (\pf -> pf idPath) $fs|]) concs
-                     let f' :: ExpQ -> ExpQ -> ExpQ
-                         f' upaths' r = [|foldr $(varE f) $r $upaths'|]
                      clause [wildP, varP f, varP r0, asP x xpat]
-                            (normalB (foldr f' (varE r0) upathss)) [],
+                            (normalB [|foldr $(varE f) $(varE r0) (concat $(listE upathss))|]) [],
                 UPeekRowClause $
                   do unv <- newName "_unv"
                      let pairs = map (\(PathConc w _ fs) -> (w, fs)) concs
@@ -220,48 +218,6 @@ pathControl utype v _x wPathVar = do
     , _doAlts = \_ -> pure ()
     , _doSyns = \() _ -> pure ()
     }
-
--- | Get the list of paths to subvalues of x *of type w only*.
--- This needs to be changed to get all subvalues in proper order.
--- This further means we need a version of paths that isn't tied
--- to the goal type, which means we need a new @Path u s@ type.
-{-
-peekList :: TypeQ -> Name -> Name -> TGVSimple -> TGV -> PatQ -> ExpQ -> ExpQ
-peekList utype x p v w ppat node =
-    [| let dopath pth = case pth of
-                          $(asP p ppat) ->
-                              map $node (toListOf (toLens $(varE p)) $(varE x) :: [$(asTypeQ w)])
-                          _ -> [] in
-       paths (Proxy :: Proxy $utype) $(varE x) (Proxy :: Proxy $(asTypeQ w)) (\pth r -> dopath pth ++ r) []
-                                              {-:: [$(asTypeQ (makePathType (ModelType (asName v)))) $(asTypeQ w)]-} |]
-
-peekList' :: TypeQ -> ExpQ -> Name -> TGVSimple -> TGV -> PatQ -> ExpQ -> ExpQ
-peekList' utype x p v w upat node =
-    [| let dopath pth = case pth of
-                          $(asP p upat) ->
-                              map ($node) (toListOf (toLens $(varE p)) $x :: [$utype])
-                          _ -> [] in
-       upaths (Proxy :: Proxy $utype) (\pth r -> dopath pth ++ r) [] $x
-                                              {-:: [$(asTypeQ (makeUPathType (ModelType (asName v)))) $(asTypeQ w)]-} |]
-
-liftPeekE :: TypeQ -> TGVSimple -> TGV -> ExpQ -> Set TGVSimple -> ExpQ
-liftPeekE utype v w pcon gs = do
-  pk <- newName "pk"
-  [| $(lamE [varP pk]
-            (caseE [| $(varE pk) :: UPeek $utype $(asTypeQ w) |]
-                   [match (conP (asName (makeUPeekCon (ModelType (asName w)))) [wildP, wildP])
-                          (normalB [|upeekCons (($pcon {-:: Path $utype $(asTypeQ w) $(asTypeQ g) ->
-                                                            Path $utype $(asTypeQ v) $(asTypeQ g)-})
-                                                (upeekPath $(varE pk)
-                                                    {-:: Path $utype $(asTypeQ w) $(asTypeQ g)-}))
-                                               (upeekValue $(varE pk))|])
-                          []]
-            )) {-:: Peek $utype $(asTypeQ v)-} |]
-
--- Insert a string into an expression by applying an id function
--- tag :: String -> ExpQ -> ExpQ
--- tag s e = [|bool (undefined $(lift s)) $e True|]
--}
 
 -- | Generate clauses of the 'Describe' instance for v.  Because the
 -- description is based entirely on the types, we can generate a
