@@ -200,7 +200,7 @@ pathControl utype v _x wPathVar = do
                          fn :: ExpQ -> (TGV, ExpQ) -> ExpQ -> ExpQ
                          fn ex (w, fs) r =
                              [| concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk))
-                                                           (map ((\_ x' -> Node ((upeekCons (idPath) (Just (u (x' :: $(asTypeQ w))))) :: UPeek $utype $(asTypeQ w)) []) $(varE unv))
+                                                           (map (\x' -> Node ((upeekCons (idPath) (Just (u x' :: $utype))) :: UPeek $utype $(asTypeQ w)) [])
                                                                 (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy $utype)) $ex :: [$(asTypeQ w)]))) $fs ++ $r |]
                      clause [varP unv, asP' x xpat] (normalB [|Node (upeekCons idPath Nothing) $(foldr (fn (varE x)) [| [] |] pairs)|]) [],
                 UPeekTreeClause $

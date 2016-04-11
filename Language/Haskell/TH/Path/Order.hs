@@ -44,7 +44,7 @@ module Language.Haskell.TH.Path.Order
     , Path_OMap(Path_OMap, Path_At)
     ) where
 
-import Control.Lens (Lens', Traversal', _Just, lens)
+import Control.Lens (Traversal', _Just, lens)
 import Data.Data (Data)
 import Data.List as List (elem, foldl, foldl', foldr, filter, partition)
 import qualified Data.ListLike as LL

@@ -146,22 +146,18 @@ instance (ToLens f, ToLens g, A f ~ S g {-, B f ~ T g-}) => ToLens (f :.: g) whe
   -- (one of) the @A p@ values in an @S p@.
 -}
 
--- | If there are paths that begin from type @s@, the 'peek' function
--- returns all the paths starting from a particular value of type @s@,
--- along with the value found at the end of that path.  The 'Peek'
--- type is constructed to be able to represent this result.
-class PathStart u s where
-    data UPeek u s
-    -- ^ 'UPath' version of 'Peek'.
-    upeekCons :: UPath u s -> Maybe u -> UPeek u s
-    -- ^ Construct a UPeek u s
-    upeekPath :: UPeek u s -> UPath u s
-    -- ^ Accessor for path field of a Peek type
-    upeekValue :: UPeek u s -> Maybe u
-    -- ^ Accessor for value field of a Peek type
-
+-- | The term Path used here means a path from a type which proceeds
+-- to smaller and smaller components of that type - e.g. from a record
+-- to a field of that record, then to an element of a list contained
+-- in that field, and so on.  The path proceeds from node to node,
+-- where each node is represented by the second type parameter of
+-- PathStart, @s@.  The @u@ type parameter is a wrapper type that has
+-- a constructor for every @s@ we are allowed to use as a path node.
+class U u s => PathStart u s where
     type UPath u s
-    -- ^ Like type Path, but uses the universal type instead of @a@.
+    -- ^ The type @UPath u s@ represents a the beginning of any path
+    -- starting at @s@.
+
     -- It would be nice to make this a data instead of a type synonym,
     -- but some UPath types are already defined - e.g. Path_Pair.
     -- This also means it is impossible to say something like
@@ -181,6 +177,16 @@ class PathStart u s where
     upeekRow :: Proxy u -> s -> Tree (UPeek u s)
     -- ^ In this function only one layer of the tree is returned, no
     -- recursive peek calls are made.
+
+    data UPeek u s
+    -- ^ 'UPath' version of 'Peek'.
+    upeekCons :: UPath u s -> Maybe u -> UPeek u s
+    -- ^ Construct a UPeek u s
+    upeekPath :: UPeek u s -> UPath u s
+    -- ^ Accessor for path field of a Peek type
+    upeekValue :: UPeek u s -> Maybe u
+    -- ^ Accessor for value field of a Peek type
+
 
 -- | Nodes along a path can be customized by declaring types to be
 -- instances of this class and the ones that follow.  If a type is an
