@@ -17,7 +17,7 @@ import Appraisal.ImageFile (ImageFile)
 import Appraisal.IntJS (IntJS, gjsonLens, JSONText)
 import Appraisal.Markup as M (Markup, lens_CIString_Text)
 import Appraisal.Permissions (Permissions, UserIds)
-import Appraisal.Report (Authors, AbbrevPairs, EpochMilli, MarkupPairs, Markups, ReportElems, ReportFlags, ReportValueTypeInfo, ReportValueApproachInfo, Branding, Report(Report), reportBrandingLens, MaybeReportIntendedUse, ReportStatus, ReportStandard)
+import Appraisal.Report (Authors, AbbrevPairs, EpochMilli, MarkupPairs, Markups, ReportElems, ReportFlags, ReportValueTypeInfo, ReportValueApproachInfo, Branding, Report(Report), reportBrandingLens, MaybeReportIntendedUse, ReportStatus, ReportStandard, ReportStatus(Draft))
 import Appraisal.ReportImage (ReportImage(Pic), MaybeImageFile)
 import Appraisal.ReportMap (ReportMap)
 import Appraisal.Utils.CIString (CIString)
@@ -30,7 +30,7 @@ import Data.Text as T (Text)
 import Data.UserId (UserId(..))
 import Data.Word (Word32)
 import Language.Haskell.TH
-import Language.Haskell.TH.Path.Core (camelWords, lens_mrs, lens_UserIds_Text, readOnlyLens, readShowLens, SinkType, Describe(describe'))
+import Language.Haskell.TH.Path.Core (camelWords, lens_mrs, lens_UserIds_Text, readOnlyLens, readShowIso, SinkType, Describe(describe'))
 import Language.Haskell.TH.Path.View (View(ViewType, viewLens))
 import Text.LaTeX (LaTeX)
 import Text.Pandoc (Pandoc, Meta)
@@ -181,12 +181,12 @@ instance SinkType URI
 instance SinkType UserId
 instance SinkType Word32
 
-instance View Bool where type ViewType Bool = String; viewLens = readShowLens
+instance View Bool where type ViewType Bool = String; viewLens = readShowIso False
 instance View Branding where type ViewType Branding = Text; viewLens = reportBrandingLens
 instance View Dimension where type ViewType Dimension = JSONText; viewLens = gjsonLens
-instance View Double where type ViewType Double = String; viewLens = readShowLens
+instance View Double where type ViewType Double = String; viewLens = readShowIso 0.0
 instance View MaybeImageFile where type ViewType MaybeImageFile = String; viewLens = lens_mrs
-instance View ReportStatus where type ViewType ReportStatus = String; viewLens = readShowLens
+instance View ReportStatus where type ViewType ReportStatus = String; viewLens = readShowIso Draft
 instance View String where type ViewType String = JSONText; viewLens = gjsonLens
 instance View Text where type ViewType Text = JSONText; viewLens = gjsonLens
 instance View Units where type ViewType Units = JSONText; viewLens = gjsonLens

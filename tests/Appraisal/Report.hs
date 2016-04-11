@@ -53,18 +53,19 @@ import Appraisal.Utils.Text (read)
 import qualified Data.UUID.Types as UUID (toString)
 import Data.UUID.Types (UUID)
 import Data.Char (isDigit, toLower)
+import Data.Default (Default(def))
 import Data.Function (on)
 import Data.Generics (Data, everywhere, mkT, Typeable)
 import Data.Int (Int64)
 import qualified Data.IxSet.Revision as R (Ident(..), Revision(..), RevisionInfo(..))
-import Control.Lens (Lens', lens)
+import Control.Lens (Iso', iso)
 import Data.List as List (groupBy, sortBy)
 import qualified Data.ListLike as LL
 import Data.Map as Map (lookup)
 import Data.Maybe (catMaybes)
 import Data.Text as T (Text, groupBy, pack, unpack, strip, uncons, empty)
 import Debug.Trace (trace)
-import Language.Haskell.TH.Path.Core (lens_mrs, readShowLens, SelfPath, SinkType)
+import Language.Haskell.TH.Path.Core (lens_mrs, readShowIso, SelfPath, SinkType)
 import Language.Haskell.TH.Path.Order as Order (toList, asList)
 import Language.Haskell.TH.Path.View (View(ViewType, viewLens))
 import Data.UUID.Orphans ()
@@ -154,9 +155,12 @@ data ReportIntendedUse
     | EstateDivision
     deriving (Read, Show, Eq, Ord, Bounded, Enum, Typeable, Data)
 
+instance Default ReportIntendedUse where
+    def = SalesAdvisory
+
 instance View ReportIntendedUse where
     type ViewType ReportIntendedUse = String
-    viewLens = readShowLens
+    viewLens = readShowIso SalesAdvisory
 
 data ReportValueApproachInfo
     = ReportValueApproachInfo
@@ -383,8 +387,8 @@ compareVersions' a b =
       cmp [] (_ : _) = LT
       cmp _ _ = EQ
 
-reportBrandingLens :: Lens' Branding Text
-reportBrandingLens = lens getter setter
+reportBrandingLens :: Iso' Branding Text
+reportBrandingLens = iso getter setter
   where getter NoLogo = pack ""
         getter (Logo (ImageFile {imageFile = File {fileSource = Just (TheURI sURI)}})) = pack $ sURI
         getter (Logo (ImageFile {imageFile = File {fileSource = Nothing, fileChksum = csum}}))
@@ -403,7 +407,7 @@ reportBrandingLens = lens getter setter
             | csum == "f92d08935f8ba2cee3427b24fb3c263f" =
                 pack $ "Goldfield Appraisals 3"
         getter (Logo x) = trace ("Unhandled Logo condition: " ++ show x) (pack $ "Unhandled Logo condition, see DSF")
-        setter _logo x =
+        setter x =
             case x of
               _ | unpack (T.strip x) == "Thompson & Martinez" ->
                     Logo (ImageFile { imageFile = File {fileSource = Nothing, fileChksum = "17e667c2bbe83e098510607571cffc00", fileMessages = []}

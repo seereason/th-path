@@ -127,6 +127,7 @@ test-suite th-path-tests
     binary,
     bytestring,
     containers,
+    data-default,
     Diff,
     directory,
     file-embed,

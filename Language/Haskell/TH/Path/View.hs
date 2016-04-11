@@ -12,7 +12,7 @@ module Language.Haskell.TH.Path.View
 #endif
     ) where
 
-import Control.Lens (Lens')
+import Control.Lens (Iso')
 import Control.Monad.State (execStateT, get, modify, put, StateT)
 import Control.Monad.States (MonadStates)
 import Data.Generics (everywhere, mkT)
@@ -41,7 +41,7 @@ import Language.Haskell.TH.TypeGraph.Prelude (unlifted)
 -- transformed back into an @a@ and stored in the database.
 class View a where
     type ViewType a
-    viewLens :: Lens' a (ViewType a)
+    viewLens :: Iso' a (ViewType a)
 
 #if !__GHCJS__
 -- | Determine whether there is a 'View' instance for a type and if so

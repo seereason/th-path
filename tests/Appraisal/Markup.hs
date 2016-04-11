@@ -40,7 +40,7 @@ import Appraisal.Utils.IsText (fromText)
 import Appraisal.Utils.Pandoc (pandocFromMarkdown)
 import Control.Monad.Identity (Identity, runIdentity)
 import Data.Generics (Data, Typeable)
-import Control.Lens (Lens', iso)
+import Control.Lens (Iso', iso)
 import Data.List as List (map, foldr)
 import Data.Maybe (fromMaybe)
 import Data.Monoid ((<>))
@@ -226,7 +226,7 @@ mapChars f (Markdown t) = Markdown (T.map f t)
 mapChars f (Html t) = Html (T.map f t)
 mapChars _ x = x
 
-lens_CIString_Text :: Lens' CIString Text
+lens_CIString_Text :: Iso' CIString Text
 lens_CIString_Text = iso (pack . unCIString) fromText
 
 -- | If a Markup value has constructor Markdown, convert it to Html.

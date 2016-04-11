@@ -21,7 +21,7 @@ import Control.Monad.Writer (execWriterT, MonadWriter, tell)
 import Data.Default (Default(def))
 import Language.Haskell.TH
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.Path.Common (fieldLensNameOld, HasName(asName), HasType(asType), HasTypeQ(asTypeQ), makeUFieldCon, tells)
+import Language.Haskell.TH.Path.Common (fieldLensNameOld, HasName(asName), HasTypeQ(asTypeQ), makeUFieldCon, tells)
 import Language.Haskell.TH.Path.Core (mat, IdPath(idPath), ToLens(toLens), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..), U(u, unU'))
 import Language.Haskell.TH.Path.Decs.PathType (upathType)
 import Language.Haskell.TH.Path.Graph (TypeGraphM)
@@ -54,9 +54,9 @@ toLensControl v x =
     { _doSimple = pure ()
     , _doSelf = pure ()
     , _doView =
-        \w -> do
+        \_w -> do
           ptyp <- upathType v
-          lns <- runQ [|viewLens :: Lens' $(return (asType v)) $(asTypeQ w)|]
+          lns <- runQ [|viewLens {-:: Lens' $(return (asType v)) $(asTypeQ w)-}|]
           -- Ok, we have a type v, and a lens that goes between v and
           -- w, and we need to create a toLens' function for v's path type.
           -- The tricky bit is to extract the path value for w from the path

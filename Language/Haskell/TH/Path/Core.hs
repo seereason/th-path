@@ -53,6 +53,7 @@ module Language.Haskell.TH.Path.Core
     -- * Basic lenses
     , readOnlyLens
     , readShowLens
+    , readShowIso
     , lens_trace
     -- , listLookupLens
     , lens_mrs
@@ -247,15 +248,23 @@ readShowLens = lens show (\r v ->
                              Nothing -> r
                              Just r' -> r')
 
+-- | A readShowLens that really is an Iso - if the read fails the
+-- default value is used.
+readShowIso :: (Show a, Read a) => a -> Iso' a String
+readShowIso def = iso show (\v ->
+                                case maybeRead v of
+                                  Nothing -> def
+                                  Just r' -> r')
+
 -- | A lens for 'Maybe' values whose getter turns Nothing into the
 -- empty string and whose setter returns Nothing whenever read fails.
-lens_mrs :: (Show a, Read a) => Lens' (Maybe a) String
-lens_mrs = lens getter setter
+lens_mrs :: (Show a, Read a) => Iso' (Maybe a) String
+lens_mrs = iso getter setter
   where getter Nothing = ""
         getter (Just x) = show x
-        setter _ x = maybeRead x
+        setter x = maybeRead x
 
-readOnlyLens :: Lens' a a
+readOnlyLens :: Iso' a a
 readOnlyLens = iso id (error "Lens.readOnlyLens: TROUBLE ignoring write to readOnlyLens")
 
 mat :: forall k a. (Show k, Ord k) => k -> Traversal' (M.Map k a) a
@@ -280,7 +289,7 @@ replace 0 (_ : xs) (Just x) = x : xs
 replace n (_ : xs) x | n > 0 = replace (pred n) xs x
 replace _ xs _ = xs
 
-lens_trace :: Show a => String -> Lens' a a
+lens_trace :: Show a => String -> Iso' a a
 lens_trace s =
     iso getter setter
     where
@@ -313,7 +322,7 @@ lens_mapSecond l = lens_mapPair id l
 -- elements in the C list cause an error (unless elens is an iso.)
 -- Extra elements in the B list are ignored.
 lens_list :: forall b c. b -> Lens' b c -> Lens' [b] [c]
-lens_list def elens =
+lens_list def' elens =
     lens getter setter
     where
       getter :: [b] -> [c]
@@ -321,16 +330,16 @@ lens_list def elens =
       setter :: [b] -> [c] -> [b]
       setter bs cs = List.map
                        (\ (c, b) -> set elens c b)
-                       (zip cs (bs ++ repeat def))
+                       (zip cs (bs ++ repeat def'))
 
-lens_Maybe_Monoid :: (Eq a, Monoid a) => Lens' (Maybe a) a
-lens_Maybe_Monoid = lens (maybe mempty id) (\_ v -> if v == mempty then Nothing else Just v)
+lens_Maybe_Monoid :: (Eq a, Monoid a) => Iso' (Maybe a) a
+lens_Maybe_Monoid = iso (maybe mempty id) (\v -> if v == mempty then Nothing else Just v)
 
-lens_Monoid_Maybe :: (Eq a, Monoid a) => Lens' a (Maybe a)
-lens_Monoid_Maybe = lens (\a -> if a == mempty then Nothing else Just a)
-                    (\_ v -> case v of
-                               Nothing -> mempty
-                               Just z -> z)
+lens_Monoid_Maybe :: (Eq a, Monoid a) => Iso' a (Maybe a)
+lens_Monoid_Maybe = iso (\a -> if a == mempty then Nothing else Just a)
+                        (\v -> case v of
+                                 Nothing -> mempty
+                                 Just z -> z)
 
 _lens_Maybe_Monoid_Tests :: [Bool]
 _lens_Maybe_Monoid_Tests = [ Just [i 1,2,3]  == (set lens_Maybe_Monoid [1,2,3] $ (Just [1,2]))
@@ -348,15 +357,15 @@ _lens_Monoid_Maybe_Tests = [ [i 1,2,3] == ((set lens_Monoid_Maybe (Just [1,2,3])
   where i :: Int -> Int
         i = id
 
-textLens :: Lens' Text Text
+textLens :: Iso' Text Text
 textLens = id
 
 class IsText a where
-    textLens' :: Lens' a Text
-    stringLens :: IsText a => Lens' a String
+    textLens' :: Iso' a Text
+    stringLens :: IsText a => Iso' a String
     stringLens = textLens' . iso unpack pack
 
-lens_UserIds_Text :: Lens' [UserId] Text
+lens_UserIds_Text :: Iso' [UserId] Text
 lens_UserIds_Text = iso (encode') (decode')
     where
       decode' :: Text -> [UserId]

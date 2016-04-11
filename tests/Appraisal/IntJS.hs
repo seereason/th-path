@@ -15,7 +15,7 @@ module Appraisal.IntJS
     , gjsonLens
     ) where
 
-import Control.Lens (iso, Lens')
+import Control.Lens (iso, Iso')
 import Data.Aeson (ToJSON(toJSON), FromJSON(parseJSON))
 import Data.Generics (Typeable)
 import Data.Int (Int32)
@@ -80,11 +80,11 @@ deriveOrderJS t = do
 
 newtype JSONText = JSONText {unJSONText :: String} deriving (Eq, Ord, Read, Show, Data, Typeable, Monoid)
 
-iso_JSONText :: Lens' JSONText String
+iso_JSONText :: Iso' JSONText String
 iso_JSONText = iso unJSONText JSONText
 
-gjsonIso :: Data a => Lens' a JSONText
+gjsonIso :: Data a => Iso' a JSONText
 gjsonIso = iso (JSONText . encodeJSON) (decodeJSON . unJSONText)
 
-gjsonLens :: Data a => Lens' a JSONText
+gjsonLens :: Data a => Iso' a JSONText
 gjsonLens = gjsonIso

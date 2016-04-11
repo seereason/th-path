@@ -1621,20 +1621,20 @@ instance PathStart Univ UUID
           upeekTree _ x = Node (upeekCons idPath (Just (u x))) []
 instance ToLens Univ String
     where toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
-          toLens (UPath_String_View v) = (viewLens :: Lens' String JSONText) . toLens v
+          toLens (UPath_String_View v) = viewLens . toLens v
 instance ToLens Univ Int64
     where toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
 instance ToLens Univ Bool
     where toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
-          toLens (UPath_Bool_View v) = (viewLens :: Lens' Bool String) . toLens v
+          toLens (UPath_Bool_View v) = viewLens . toLens v
 instance ToLens Univ Double
     where toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
-          toLens (UPath_Double_View v) = (viewLens :: Lens' Double String) . toLens v
+          toLens (UPath_Double_View v) = viewLens . toLens v
 instance ToLens Univ Int
     where toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
 instance ToLens Univ Dimension
     where toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
-          toLens (UPath_Dimension_View v) = (viewLens :: Lens' Dimension JSONText) . toLens v
+          toLens (UPath_Dimension_View v) = viewLens . toLens v
 instance ToLens Univ ImageCrop
     where toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
 instance ToLens Univ ImageSize
@@ -1644,7 +1644,7 @@ instance ToLens Univ ImageSize
           toLens (UPath_ImageSize_units _p) = lens_ImageSize_units . toLens _p
 instance ToLens Univ Units
     where toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
-          toLens (UPath_Units_View v) = (viewLens :: Lens' Units JSONText) . toLens v
+          toLens (UPath_Units_View v) = viewLens . toLens v
 instance ToLens Univ ImageFile
     where toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
 instance ToLens Univ Integer
@@ -1662,7 +1662,7 @@ instance ToLens Univ Permissions
           toLens (UPath_Permissions_readers _p) = lens_Permissions_readers . toLens _p
 instance ToLens Univ UserIds
     where toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
-          toLens (UPath_UserIds_View v) = (viewLens :: Lens' UserIds Text) . toLens v
+          toLens (UPath_UserIds_View v) = viewLens . toLens v
 instance ToLens Univ AbbrevPair
     where toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
           toLens (Path_First v) = _1 . toLens v
@@ -1679,7 +1679,7 @@ instance ToLens Univ Authors
           toLens (Path_At k v) = lens_omat k . toLens v
 instance ToLens Univ Branding
     where toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
-          toLens (UPath_Branding_View v) = (viewLens :: Lens' Branding Text) . toLens v
+          toLens (UPath_Branding_View v) = viewLens . toLens v
 instance ToLens Univ MarkupPair
     where toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
           toLens (Path_First v) = _1 . toLens v
@@ -1692,10 +1692,10 @@ instance ToLens Univ Markups
           toLens (Path_At k v) = lens_omat k . toLens v
 instance ToLens Univ MaybeReportIntendedUse
     where toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
-          toLens (UPath_MaybeReportIntendedUse_View v) = (viewLens :: Lens' MaybeReportIntendedUse String) . toLens v
+          toLens (UPath_MaybeReportIntendedUse_View v) = viewLens . toLens v
 instance ToLens Univ Report
     where toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
-          toLens (UPath_Report_View v) = (viewLens :: Lens' Report ReportView) . toLens v
+          toLens (UPath_Report_View v) = viewLens . toLens v
 instance ToLens Univ ReportElem
     where toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
           toLens (UPath_ReportElem_elemItem _p) = lens_ReportElem_elemItem . toLens _p
@@ -1708,13 +1708,13 @@ instance ToLens Univ ReportFlags
           toLens (UPath_ReportFlags_hideEmptyItemFields _p) = lens_ReportFlags_hideEmptyItemFields . toLens _p
 instance ToLens Univ ReportIntendedUse
     where toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
-          toLens (UPath_ReportIntendedUse_View v) = (viewLens :: Lens' ReportIntendedUse String) . toLens v
+          toLens (UPath_ReportIntendedUse_View v) = viewLens . toLens v
 instance ToLens Univ ReportStandard
     where toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
           toLens (UPath_ReportStandard_unReportStandard _p) = lens_ReportStandard_unReportStandard . toLens _p
 instance ToLens Univ ReportStatus
     where toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
-          toLens (UPath_ReportStatus_View v) = (viewLens :: Lens' ReportStatus String) . toLens v
+          toLens (UPath_ReportStatus_View v) = viewLens . toLens v
 instance ToLens Univ ReportValueApproachInfo
     where toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
           toLens (UPath_ReportValueApproachInfo_reportValueApproachName _p) = lens_ReportValueApproachInfo_reportValueApproachName . toLens _p
@@ -1733,16 +1733,16 @@ instance ToLens Univ MEUI
           toLens (Path_Just v) = _Just . toLens v
 instance ToLens Univ MaybeImageFile
     where toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
-          toLens (UPath_MaybeImageFile_View v) = (viewLens :: Lens' MaybeImageFile String) . toLens v
+          toLens (UPath_MaybeImageFile_View v) = viewLens . toLens v
 instance ToLens Univ ReportImage
     where toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
-          toLens (UPath_ReportImage_View v) = (viewLens :: Lens' ReportImage ReportImageView) . toLens v
+          toLens (UPath_ReportImage_View v) = viewLens . toLens v
 instance ToLens Univ ReportImages
     where toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
           toLens (Path_At k v) = lens_omat k . toLens v
 instance ToLens Univ ReadOnlyFilePath
     where toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
-          toLens (UPath_ReadOnlyFilePath_View v) = (viewLens :: Lens' ReadOnlyFilePath String) . toLens v
+          toLens (UPath_ReadOnlyFilePath_View v) = viewLens . toLens v
 instance ToLens Univ ReportImageView
     where toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
           toLens (UPath_ReportImageView__picSize _p) = lens_ReportImageView__picSize . toLens _p
@@ -1803,7 +1803,7 @@ instance ToLens Univ ReportView
           toLens (UPath_ReportView__reportStandardsVersion _p) = lens_ReportView__reportStandardsVersion . toLens _p
 instance ToLens Univ SaneSizeImageSize
     where toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
-          toLens (UPath_SaneSizeImageSize_View v) = (viewLens :: Lens' SaneSizeImageSize ImageSize) . toLens v
+          toLens (UPath_SaneSizeImageSize_View v) = viewLens . toLens v
 instance ToLens Univ Item
     where toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
           toLens (UPath_Item_itemName _p) = lens_Item_itemName . toLens _p
@@ -1820,12 +1820,12 @@ instance ToLens Univ ReportMap
           toLens (UPath_ReportMap_unReportMap _p) = lens_ReportMap_unReportMap . toLens _p
 instance ToLens Univ CIString
     where toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
-          toLens (UPath_CIString_View v) = (viewLens :: Lens' CIString Text) . toLens v
+          toLens (UPath_CIString_View v) = viewLens . toLens v
 instance ToLens Univ URI
     where toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
 instance ToLens Univ Text
     where toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
-          toLens (UPath_Text_View v) = (viewLens :: Lens' Text JSONText) . toLens v
+          toLens (UPath_Text_View v) = viewLens . toLens v
 instance ToLens Univ UserId
     where toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
 instance ToLens Univ UUID
