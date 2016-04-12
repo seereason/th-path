@@ -217,17 +217,17 @@ describe = describe' Nothing
 
 -- | A path type with constructors to extract either @fst@, @snd@, or
 -- the pair itself.
-data Path_Pair a b = Path_First a | Path_Second b | Path_Pair deriving (Eq, Ord, Read, Show, Typeable, Data)
-data Path_Either a b = Path_Left a | Path_Right b | Path_Either deriving (Eq, Ord, Read, Show, Typeable, Data)
+data Path_Pair fstpath sndpath = Path_First fstpath | Path_Second sndpath | Path_Pair deriving (Eq, Ord, Read, Show, Typeable, Data)
+data Path_Either leftpath rightpath = Path_Left leftpath | Path_Right rightpath | Path_Either deriving (Eq, Ord, Read, Show, Typeable, Data)
 data Path_Invalid = Path_Invalid deriving (Eq, Ord, Read, Show, Typeable, Data)
-data Path_Maybe a = Path_Just a | Path_Maybe deriving (Eq, Ord, Read, Show, Typeable, Data)
-data Path_Map k v = Path_Look k v | Path_Map  deriving (Eq, Ord, Read, Show, Typeable, Data)
+data Path_Maybe justpath = Path_Just justpath | Path_Maybe deriving (Eq, Ord, Read, Show, Typeable, Data)
+data Path_Map key valuepath = Path_Look key valuepath | Path_Map deriving (Eq, Ord, Read, Show, Typeable, Data)
 data Path_List a = Path_List deriving (Eq, Ord, Read, Show, Typeable, Data) -- No element lookup path - too dangerous, use OMap
 
-instance IdPath (Path_Pair a b) where idPath = Path_Pair
-instance IdPath (Path_Maybe a) where idPath = Path_Maybe
-instance IdPath (Path_Either a b) where idPath = Path_Either
-instance IdPath (Path_Map k v) where idPath = Path_Map
+instance IdPath (Path_Pair fstpath sndpath) where idPath = Path_Pair
+instance IdPath (Path_Maybe justpath) where idPath = Path_Maybe
+instance IdPath (Path_Either leftpath rightpath) where idPath = Path_Either
+instance IdPath (Path_Map key valuepath) where idPath = Path_Map
 instance IdPath (Path_List a) where idPath = Path_List
 
 #if !__GHCJS__
