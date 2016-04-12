@@ -74,7 +74,8 @@ partitionClauses xs =
 
 peekDecs :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TypeQ -> TGVSimple -> m ()
 peekDecs utype v =
-    do (clauses :: [WriterType]) <- execWriterT (peekClauses utype v)
+    do uptype <- upathType v
+       (clauses :: [WriterType]) <- execWriterT (peekClauses utype v)
        let (udcs, upcs, uprcs, uptcs) = partitionClauses clauses
        instanceD' (cxt []) [t|PathStart $utype $(asTypeQ v)|]
          (sequence
@@ -86,7 +87,7 @@ peekDecs utype v =
            pure (funD 'upeekCons [clause [] (normalB (conE (asName (makeUPeekCon (ModelType (asName v)))))) []]),
            pure (funD 'upeekPath [newName "p" >>= \p -> clause [conP (asName (makeUPeekCon (ModelType (asName v)))) [varP p, wildP]] (normalB (varE p)) []]),
            pure (funD 'upeekValue [newName "x" >>= \x -> clause [conP (asName (makeUPeekCon (ModelType (asName v)))) [wildP, varP x]] (normalB (varE x)) []]),
-           pure (tySynInstD ''UPath (tySynEqn [utype, asTypeQ v] (conT (mkName ("UPath_" ++ nameBase (asName v)))))),
+           pure (tySynInstD ''UPath (tySynEqn [utype, asTypeQ v] (pure uptype))),
            funD' 'upaths (case upcs of
                             [] -> pure [newName "r" >>= \r -> clause [wildP, wildP, varP r, wildP] (normalB (varE r)) []]
                             _ -> pure upcs),
@@ -96,7 +97,6 @@ peekDecs utype v =
            funD' 'upeekTree (case uptcs of
                                [] -> pure [newName "x" >>= \x -> clause [wildP, varP x] (normalB [| Node (upeekCons idPath (Just (u $(varE x)))) [] |]) []]
                                _ -> pure uptcs)])
-       uptype <- upathType v
        instanceD' (cxt []) [t|Describe $(pure uptype)|]
                   (pure [do f <- newName "f"
                             p <- newName "p"

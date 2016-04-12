@@ -21,7 +21,7 @@ module Language.Haskell.TH.Path.Decs.PathType
 import Language.Haskell.TH
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Common (asName, asType, asTypeQ, bestUPathTypeName, ModelType(ModelType), makeUPathType)
-import Language.Haskell.TH.Path.Core (Path_List, Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..))
+import Language.Haskell.TH.Path.Core (Path_List, Path_Map, Path_Pair, Path_Maybe, Path_Either)
 import Language.Haskell.TH.Path.Graph (TypeGraphM)
 import Language.Haskell.TH.Path.Order (Path_OMap(..))
 import Language.Haskell.TH.Path.Traverse (Control(..), doNode)

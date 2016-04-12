@@ -15,7 +15,6 @@
 {-# LANGUAGE TypeSynonymInstances #-}
 module Language.Haskell.TH.Path.Common
     ( bestUPathTypeName
-    , allUPathTypeNames
     , bestTypeName
     , clauses
     , HasTypeQ(asTypeQ)
@@ -41,7 +40,7 @@ import Control.Lens hiding (cons, Strict)
 import Control.Monad.Writer (MonadWriter, tell)
 import Data.Bool (bool)
 import Data.List as List (map)
-import Data.Set as Set (map, minView, Set)
+import Data.Set as Set (minView)
 import Language.Haskell.TH
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Instances ()
@@ -49,7 +48,7 @@ import Language.Haskell.TH.Syntax (lift, Quasi)
 import Language.Haskell.TH.TypeGraph.Expand (E, unE)
 import Language.Haskell.TH.TypeGraph.TypeGraph (HasTGV(asTGV))
 import Language.Haskell.TH.TypeGraph.Vertex (bestType, bestTypeQ, etype, field, syns,
-                                             TGV', TGVSimple', TGV, TGVSimple, TypeGraphVertex, typeNames, vsimple)
+                                             TGV', TGVSimple', TGV, TGVSimple, vsimple)
 
 -- Naming conventions
 
@@ -57,9 +56,6 @@ import Language.Haskell.TH.TypeGraph.Vertex (bestType, bestTypeQ, etype, field, 
 -- synonym name.
 bestUPathTypeName :: HasName v => v -> PathType Name
 bestUPathTypeName = makeUPathType . ModelType . asName
-
-allUPathTypeNames :: TypeGraphVertex v => v -> Set (PathType Name)
-allUPathTypeNames v = Set.map (makeUPathType . ModelType) (typeNames v)
 
 -- bestTypeName :: (TypeGraphVertex v, HasName v) => v -> ModelType Name
 bestTypeName :: HasName v => v -> ModelType Name

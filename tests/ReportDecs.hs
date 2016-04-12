@@ -56,7 +56,7 @@ data UPath_Int = UPath_Int deriving (Eq, Ord, Read, Show, Typeable, Data)
 data UPath_Int64 = UPath_Int64 deriving (Eq, Ord, Read, Show, Typeable, Data)
 data UPath_Integer = UPath_Integer deriving (Eq, Ord, Read, Show, Typeable, Data)
 data UPath_Item
-    = UPath_Item_itemName UPath_Text | UPath_Item_fields UPath_MIM | UPath_Item_images UPath_ReportImages | UPath_Item
+    = UPath_Item_itemName UPath_Text | UPath_Item_fields (Path_Map ItemFieldName UPath_Markup) | UPath_Item_images (Path_OMap ReportImageID UPath_ReportImage) | UPath_Item
     deriving (Eq, Ord, Read, Show, Typeable, Data)
 data UPath_JSONText = UPath_JSONText deriving (Eq, Ord, Read, Show, Typeable, Data)
 data UPath_Markup = UPath_Markup_markdownText UPath_Text | UPath_Markup_htmlText UPath_Text | UPath_Markup deriving (Eq, Ord, Read, Show, Typeable, Data)
@@ -83,7 +83,7 @@ data UPath_ReportImageView
     | UPath_ReportImageView
     deriving (Eq, Ord, Read, Show, Typeable, Data)
 data UPath_ReportIntendedUse = UPath_ReportIntendedUse_View UPath_String | UPath_ReportIntendedUse deriving (Eq, Ord, Read, Show, Typeable, Data)
-data UPath_ReportMap = UPath_ReportMap_unReportMap UPath_MRR | UPath_ReportMap deriving (Eq, Ord, Read, Show, Typeable, Data)
+data UPath_ReportMap = UPath_ReportMap_unReportMap (Path_Map ReportID UPath_Report) | UPath_ReportMap deriving (Eq, Ord, Read, Show, Typeable, Data)
 data UPath_ReportStandard = UPath_ReportStandard_unReportStandard UPath_Int | UPath_ReportStandard deriving (Eq, Ord, Read, Show, Typeable, Data)
 data UPath_ReportStatus = UPath_ReportStatus_View UPath_String | UPath_ReportStatus deriving (Eq, Ord, Read, Show, Typeable, Data)
 data UPath_ReportValueApproachInfo
@@ -104,13 +104,13 @@ data UPath_ReportView
     | UPath_ReportView__reportContractDate UPath_Markup
     | UPath_ReportView__reportInspectionDate UPath_Markup
     | UPath_ReportView__reportEffectiveDate UPath_Markup
-    | UPath_ReportView__reportAuthors UPath_Authors
+    | UPath_ReportView__reportAuthors (Path_OMap AuthorID UPath_Author)
     | UPath_ReportView__reportPreparer UPath_Markup
     | UPath_ReportView__reportPreparerEIN UPath_Markup
     | UPath_ReportView__reportPreparerAddress UPath_Markup
     | UPath_ReportView__reportPreparerEMail UPath_Markup
     | UPath_ReportView__reportPreparerWebsite UPath_Markup
-    | UPath_ReportView__reportAbbrevs UPath_AbbrevPairs
+    | UPath_ReportView__reportAbbrevs (Path_OMap AbbrevPairID (Path_Pair UPath_CIString UPath_Markup))
     | UPath_ReportView__reportTitle UPath_Markup
     | UPath_ReportView__reportHeader UPath_Markup
     | UPath_ReportView__reportFooter UPath_Markup
@@ -124,17 +124,17 @@ data UPath_ReportView
     | UPath_ReportView__reportItemsOwner UPath_Markup
     | UPath_ReportView__reportBriefItems UPath_Markup
     | UPath_ReportView__reportInspectionLocation UPath_Markup
-    | UPath_ReportView__reportBody UPath_ReportElems
-    | UPath_ReportView__reportGlossary UPath_MarkupPairs
-    | UPath_ReportView__reportSources UPath_MarkupPairs
+    | UPath_ReportView__reportBody (Path_OMap ReportElemID UPath_ReportElem)
+    | UPath_ReportView__reportGlossary (Path_OMap MarkupPairID (Path_Pair UPath_Markup UPath_Markup))
+    | UPath_ReportView__reportSources (Path_OMap MarkupPairID (Path_Pair UPath_Markup UPath_Markup))
     | UPath_ReportView__reportLetterOfTransmittal UPath_Markup
     | UPath_ReportView__reportScopeOfWork UPath_Markup
-    | UPath_ReportView__reportCertification UPath_Markups
-    | UPath_ReportView__reportLimitingConditions UPath_Markups
+    | UPath_ReportView__reportCertification (Path_OMap MarkupID UPath_Markup)
+    | UPath_ReportView__reportLimitingConditions (Path_OMap MarkupID UPath_Markup)
     | UPath_ReportView__reportPrivacyPolicy UPath_Markup
     | UPath_ReportView__reportPerms UPath_Permissions
     | UPath_ReportView__reportRevision UPath_Integer
-    | UPath_ReportView__reportCreated UPath_EpochMilli
+    | UPath_ReportView__reportCreated UPath_Int64
     | UPath_ReportView__reportBranding UPath_Branding
     | UPath_ReportView__reportStatus UPath_ReportStatus
     | UPath_ReportView__reportRedacted UPath_Bool
@@ -209,10 +209,7 @@ data Univ
 type UPath_AbbrevPair = Path_Pair UPath_CIString UPath_Markup
 type UPath_AbbrevPairs = Path_OMap AbbrevPairID (Path_Pair UPath_CIString UPath_Markup)
 type UPath_Authors = Path_OMap AuthorID UPath_Author
-type UPath_Checksum = UPath_String
 type UPath_EUI = Path_Either UPath_URI UPath_ImageFile
-type UPath_EpochMilli = UPath_Int64
-type UPath_FilePath = UPath_String
 type UPath_MEUI = Path_Maybe (Path_Either UPath_URI UPath_ImageFile)
 type UPath_MIM = Path_Map ItemFieldName UPath_Markup
 type UPath_MRR = Path_Map ReportID UPath_Report
@@ -221,7 +218,6 @@ type UPath_MarkupPairs = Path_OMap MarkupPairID (Path_Pair UPath_Markup UPath_Ma
 type UPath_Markups = Path_OMap MarkupID UPath_Markup
 type UPath_ReportElems = Path_OMap ReportElemID UPath_ReportElem
 type UPath_ReportImages = Path_OMap ReportImageID UPath_ReportImage
-type UPath_Size = UPath_Int
 class HasAuthor c
     where lens_author :: Lens' c Author
           lens_Author_authorCredentials :: forall . Lens' c Markup
@@ -905,7 +901,7 @@ instance PathStart Univ AbbrevPair
           upeekCons = UPeek_AbbrevPair
           upeekPath (UPeek_AbbrevPair p _) = p
           upeekValue (UPeek_AbbrevPair _ x) = x
-          type UPath Univ AbbrevPair = UPath_AbbrevPair
+          type UPath Univ AbbrevPair = Path_Pair UPath_CIString UPath_Markup
           upaths _ _f r0 (_xconc@_) = foldr _f r0 (concat [map (\pf -> pf idPath) [Path_First], map (\pf -> pf idPath) [Path_Second]])
           upeekRow _unv _xconc = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (\x' -> Node (upeekCons idPath (Just (u x' :: Univ)) :: UPeek Univ
                                                                                                                                                                                                                       CIString) []) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [CIString]))) [Path_First] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (\x' -> Node (upeekCons idPath (Just (u x' :: Univ)) :: UPeek Univ
@@ -916,7 +912,7 @@ instance PathStart Univ AbbrevPairs
           upeekCons = UPeek_AbbrevPairs
           upeekPath (UPeek_AbbrevPairs p _) = p
           upeekValue (UPeek_AbbrevPairs _ x) = x
-          type UPath Univ AbbrevPairs = UPath_AbbrevPairs
+          type UPath Univ AbbrevPairs = Path_OMap AbbrevPairID (Path_Pair UPath_CIString UPath_Markup)
           upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 (concat [map (\pf -> pf idPath) (map (\(k, _v) -> Path_At k) (toPairs _xyz))])
           upeekRow _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (\x' -> Node (upeekCons idPath (Just (u x' :: Univ)) :: UPeek Univ
                                                                                                                                                                                                                              AbbrevPair) []) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [AbbrevPair]))) (map (\(k,
@@ -939,7 +935,7 @@ instance PathStart Univ Authors
           upeekCons = UPeek_Authors
           upeekPath (UPeek_Authors p _) = p
           upeekValue (UPeek_Authors _ x) = x
-          type UPath Univ Authors = UPath_Authors
+          type UPath Univ Authors = Path_OMap AuthorID UPath_Author
           upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 (concat [map (\pf -> pf idPath) (map (\(k, _v) -> Path_At k) (toPairs _xyz))])
           upeekRow _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (\x' -> Node (upeekCons idPath (Just (u x' :: Univ)) :: UPeek Univ
                                                                                                                                                                                                                              Author) []) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [Author]))) (map (\(k,
@@ -961,7 +957,7 @@ instance PathStart Univ MarkupPair
           upeekCons = UPeek_MarkupPair
           upeekPath (UPeek_MarkupPair p _) = p
           upeekValue (UPeek_MarkupPair _ x) = x
-          type UPath Univ MarkupPair = UPath_MarkupPair
+          type UPath Univ MarkupPair = Path_Pair UPath_Markup UPath_Markup
           upaths _ _f r0 (_xconc@_) = foldr _f r0 (concat [map (\pf -> pf idPath) [Path_First], map (\pf -> pf idPath) [Path_Second]])
           upeekRow _unv _xconc = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (\x' -> Node (upeekCons idPath (Just (u x' :: Univ)) :: UPeek Univ
                                                                                                                                                                                                                       Markup) []) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [Markup]))) [Path_First] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (\x' -> Node (upeekCons idPath (Just (u x' :: Univ)) :: UPeek Univ
@@ -972,7 +968,7 @@ instance PathStart Univ MarkupPairs
           upeekCons = UPeek_MarkupPairs
           upeekPath (UPeek_MarkupPairs p _) = p
           upeekValue (UPeek_MarkupPairs _ x) = x
-          type UPath Univ MarkupPairs = UPath_MarkupPairs
+          type UPath Univ MarkupPairs = Path_OMap MarkupPairID (Path_Pair UPath_Markup UPath_Markup)
           upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 (concat [map (\pf -> pf idPath) (map (\(k, _v) -> Path_At k) (toPairs _xyz))])
           upeekRow _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (\x' -> Node (upeekCons idPath (Just (u x' :: Univ)) :: UPeek Univ
                                                                                                                                                                                                                              MarkupPair) []) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [MarkupPair]))) (map (\(k,
@@ -984,7 +980,7 @@ instance PathStart Univ Markups
           upeekCons = UPeek_Markups
           upeekPath (UPeek_Markups p _) = p
           upeekValue (UPeek_Markups _ x) = x
-          type UPath Univ Markups = UPath_Markups
+          type UPath Univ Markups = Path_OMap MarkupID UPath_Markup
           upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 (concat [map (\pf -> pf idPath) (map (\(k, _v) -> Path_At k) (toPairs _xyz))])
           upeekRow _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (\x' -> Node (upeekCons idPath (Just (u x' :: Univ)) :: UPeek Univ
                                                                                                                                                                                                                              Markup) []) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [Markup]))) (map (\(k,
@@ -1033,7 +1029,7 @@ instance PathStart Univ ReportElems
           upeekCons = UPeek_ReportElems
           upeekPath (UPeek_ReportElems p _) = p
           upeekValue (UPeek_ReportElems _ x) = x
-          type UPath Univ ReportElems = UPath_ReportElems
+          type UPath Univ ReportElems = Path_OMap ReportElemID UPath_ReportElem
           upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 (concat [map (\pf -> pf idPath) (map (\(k, _v) -> Path_At k) (toPairs _xyz))])
           upeekRow _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (\x' -> Node (upeekCons idPath (Just (u x' :: Univ)) :: UPeek Univ
                                                                                                                                                                                                                              ReportElem) []) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [ReportElem]))) (map (\(k,
@@ -1111,7 +1107,7 @@ instance PathStart Univ EUI
           upeekCons = UPeek_EUI
           upeekPath (UPeek_EUI p _) = p
           upeekValue (UPeek_EUI _ x) = x
-          type UPath Univ EUI = UPath_EUI
+          type UPath Univ EUI = Path_Either UPath_URI UPath_ImageFile
           upaths _ _f r0 (_xconc@(Left _)) = foldr _f r0 (concat [map (\pf -> pf idPath) [Path_Left]])
           upaths _ _f r0 (_xconc@(Right _)) = foldr _f r0 (concat [map (\pf -> pf idPath) [Path_Right]])
           upeekRow _unv (_xconc@(Left _)) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (\x' -> Node (upeekCons idPath (Just (u x' :: Univ)) :: UPeek Univ
@@ -1125,7 +1121,7 @@ instance PathStart Univ MEUI
           upeekCons = UPeek_MEUI
           upeekPath (UPeek_MEUI p _) = p
           upeekValue (UPeek_MEUI _ x) = x
-          type UPath Univ MEUI = UPath_MEUI
+          type UPath Univ MEUI = Path_Maybe (Path_Either UPath_URI UPath_ImageFile)
           upaths _ _f r0 (_xconc@_) = foldr _f r0 (concat [map (\pf -> pf idPath) [Path_Just]])
           upeekRow _unv _xconc = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (\x' -> Node (upeekCons idPath (Just (u x' :: Univ)) :: UPeek Univ
                                                                                                                                                                                                                       EUI) []) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [EUI]))) [Path_Just] ++ [])
@@ -1155,7 +1151,7 @@ instance PathStart Univ ReportImages
           upeekCons = UPeek_ReportImages
           upeekPath (UPeek_ReportImages p _) = p
           upeekValue (UPeek_ReportImages _ x) = x
-          type UPath Univ ReportImages = UPath_ReportImages
+          type UPath Univ ReportImages = Path_OMap ReportImageID UPath_ReportImage
           upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 (concat [map (\pf -> pf idPath) (map (\(k, _v) -> Path_At k) (toPairs _xyz))])
           upeekRow _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (\x' -> Node (upeekCons idPath (Just (u x' :: Univ)) :: UPeek Univ
                                                                                                                                                                                                                              ReportImage) []) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [ReportImage]))) (map (\(k,
@@ -1325,7 +1321,7 @@ instance PathStart Univ MIM
           upeekCons = UPeek_MIM
           upeekPath (UPeek_MIM p _) = p
           upeekValue (UPeek_MIM _ x) = x
-          type UPath Univ MIM = UPath_MIM
+          type UPath Univ MIM = Path_Map ItemFieldName UPath_Markup
           upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 (concat [map (\pf -> pf idPath) (map (\(k, _v) -> Path_Look k) (toList _xyz))])
           upeekRow _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (\x' -> Node (upeekCons idPath (Just (u x' :: Univ)) :: UPeek Univ
                                                                                                                                                                                                                              Markup) []) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [Markup]))) (map (\(k,
@@ -1337,7 +1333,7 @@ instance PathStart Univ MRR
           upeekCons = UPeek_MRR
           upeekPath (UPeek_MRR p _) = p
           upeekValue (UPeek_MRR _ x) = x
-          type UPath Univ MRR = UPath_MRR
+          type UPath Univ MRR = Path_Map ReportID UPath_Report
           upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 (concat [map (\pf -> pf idPath) (map (\(k, _v) -> Path_Look k) (toList _xyz))])
           upeekRow _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (\x' -> Node (upeekCons idPath (Just (u x' :: Univ)) :: UPeek Univ
                                                                                                                                                                                                                              Report) []) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [Report]))) (map (\(k,

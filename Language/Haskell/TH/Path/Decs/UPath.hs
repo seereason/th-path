@@ -19,13 +19,12 @@ module Language.Haskell.TH.Path.Decs.UPath
     ) where
 
 import Control.Lens (_2, view)
-import Control.Monad.Writer (MonadWriter, tell)
+import Control.Monad.Writer (MonadWriter)
 import Data.Data (Data, Typeable)
-import Data.Foldable as Foldable
-import Data.Set.Extra as Set (delete, map)
+import Data.Set.Extra as Set (map)
 import Language.Haskell.TH
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.Path.Common (allUPathTypeNames, asConQ, asName, asTypeQ, bestUPathTypeName, ModelType(ModelType),
+import Language.Haskell.TH.Path.Common (asConQ, asName, asTypeQ, bestUPathTypeName, ModelType(ModelType),
                                         makeUFieldCon, makePathCon, makeUPathType, PathCon, telld, tells)
 import Language.Haskell.TH.Path.Core (IdPath(idPath))
 import Language.Haskell.TH.Path.Decs.PathType (upathType)
@@ -37,13 +36,7 @@ import Language.Haskell.TH.TypeGraph.TypeGraph (tgv, tgvSimple')
 import Language.Haskell.TH.TypeGraph.Vertex (etype, TGVSimple, typeNames)
 
 upathTypeDecs :: (TypeGraphM m, MonadWriter [Dec] m) => TGVSimple -> m ()
-upathTypeDecs v = do
-  let control = upathTypeDecControl v
-      pname = bestUPathTypeName v
-      psyns = Set.delete pname (allUPathTypeNames v)
-  -- It would be nice if this code lived inside upathTypeDecControl somewhere.
-  runQ (mapM (\psyn -> tySynD (asName psyn) [] (asTypeQ pname)) (toList psyns)) >>= tell
-  doNode control v
+upathTypeDecs v = doNode (upathTypeDecControl v) v
 
 upathTypeDecControl :: (TypeGraphM m, MonadWriter [Dec] m) => TGVSimple -> Control m [ConQ] (PatQ, [[ConQ]]) ()
 upathTypeDecControl v =
@@ -103,12 +96,7 @@ fieldUPathType fld typ =
     do skey' <- tgvSimple' typ
        key' <- tgv (Just fld) skey'
        let Just pcname = makeUFieldCon key'
-       ptype <- case typ of
-                  ConT ftname -> runQ $ asTypeQ (makeUPathType (ModelType ftname))
-                         -- It would be nice to use pathTypeCall (varT a) key' here, but
-                         -- it can't infer the superclasses for (PathType Foo a) - Ord,
-                         -- Read, Data, etc.
-                  _ -> upathType skey'
+       ptype <- upathType skey'
        return (pcname, ptype)
 
 supers :: [Name]
