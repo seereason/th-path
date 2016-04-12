@@ -18,8 +18,6 @@ module Language.Haskell.TH.Path.Common
     , allUPathTypeNames
     , bestTypeName
     , clauses
-    , fieldLensNameOld
-    , fieldLensNamePair
     , HasTypeQ(asTypeQ)
     , HasType(asType)
     , HasName(asName)
@@ -66,14 +64,6 @@ allUPathTypeNames v = Set.map (makeUPathType . ModelType) (typeNames v)
 -- bestTypeName :: (TypeGraphVertex v, HasName v) => v -> ModelType Name
 bestTypeName :: HasName v => v -> ModelType Name
 bestTypeName = ModelType . asName
-
-fieldLensNameOld :: Name -> Name -> Name
-fieldLensNameOld tname fname = mkName ("lens_" ++ nameBase tname ++ "_" ++ nameBase fname)
-
--- | Version of fieldLensName suitable for use as argument to
--- findNames below.
-fieldLensNamePair :: Name -> Name -> Name -> (String, String)
-fieldLensNamePair tname _cname fname = (nameBase fname, nameBase (fieldLensNameOld tname fname))
 
 class ToPat x where
     toPat :: x -> PatQ

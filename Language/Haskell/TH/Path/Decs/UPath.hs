@@ -16,7 +16,6 @@
 {-# LANGUAGE TypeSynonymInstances #-}
 module Language.Haskell.TH.Path.Decs.UPath
     ( upathTypeDecs
-    , fieldUPathType
     ) where
 
 import Control.Lens (_2, view)
