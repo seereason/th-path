@@ -59,7 +59,6 @@ uncap "" = ""
 
 uLensDecs :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TypeQ -> TGVSimple -> m ()
 uLensDecs utype v = do
-  -- ptyp <- upathType v
   tlc <- execWriterT (do tell [newName "p" >>= \p -> clause [varP p] (guardedB [normalGE [|$(varE p) == idPath|] [|lens u (\s a -> maybe s id (unU' a))|]]) []]
                          toLensClauses v)
   tells [instanceD (pure []) [t|ToLens $utype $(asTypeQ v)|]

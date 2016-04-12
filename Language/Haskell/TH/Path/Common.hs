@@ -14,8 +14,7 @@
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeSynonymInstances #-}
 module Language.Haskell.TH.Path.Common
-    ( bestUPathTypeName
-    , bestTypeName
+    ( bestTypeName
     , clauses
     , HasTypeQ(asTypeQ)
     , HasType(asType)
@@ -51,11 +50,6 @@ import Language.Haskell.TH.TypeGraph.Vertex (bestType, bestTypeQ, etype, field, 
                                              TGV', TGVSimple', TGV, TGVSimple, vsimple)
 
 -- Naming conventions
-
--- | If the type is (ConT name) return name, otherwise return a type
--- synonym name.
-bestUPathTypeName :: HasName v => v -> PathType Name
-bestUPathTypeName = makeUPathType . ModelType . asName
 
 -- bestTypeName :: (TypeGraphVertex v, HasName v) => v -> ModelType Name
 bestTypeName :: HasName v => v -> ModelType Name
