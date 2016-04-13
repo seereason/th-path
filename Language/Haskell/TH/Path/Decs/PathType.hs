@@ -27,7 +27,7 @@ import Language.Haskell.TH
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Common (asConQ, HasName(asName), asType, asTypeQ, ModelType(ModelType),
                                         makeUFieldCon, makePathCon, makeUPathType, PathCon, PathType, telld, tells)
-import Language.Haskell.TH.Path.Core (IdPath(idPath), Path_List, Path_Map, Path_Pair, Path_Maybe, Path_Either)
+import Language.Haskell.TH.Path.Core (IsPath(..), Path_List, Path_Map, Path_Pair, Path_Maybe, Path_Either)
 import Language.Haskell.TH.Path.Graph (TypeGraphM)
 import Language.Haskell.TH.Path.Order (Path_OMap(..))
 import Language.Haskell.TH.Path.Traverse (Control(..), doNode)
@@ -84,11 +84,11 @@ upathTypeControl key =
     , _doSyns = \r0 _rs -> pure r0
     }
 
-upathTypeDecs :: (TypeGraphM m, MonadWriter [Dec] m) => TGVSimple -> m ()
-upathTypeDecs v = doNode (upathTypeDecControl v) v
+upathTypeDecs :: (TypeGraphM m, MonadWriter [Dec] m) => TypeQ -> TGVSimple -> m ()
+upathTypeDecs utype v = doNode (upathTypeDecControl utype v) v
 
-upathTypeDecControl :: (TypeGraphM m, MonadWriter [Dec] m) => TGVSimple -> Control m [ConQ] (PatQ, [[ConQ]]) ()
-upathTypeDecControl v =
+upathTypeDecControl :: (TypeGraphM m, MonadWriter [Dec] m) => TypeQ -> TGVSimple -> Control m [ConQ] (PatQ, [[ConQ]]) ()
+upathTypeDecControl utype v =
     let pname = bestUPathTypeName v in
     Control
     { _doSimple = do
@@ -96,7 +96,10 @@ upathTypeDecControl v =
         -- e.g. data UPath_Int = Path_Int deriving (Eq, Ord, Read, Show, Typeable, Data)
         -- trace ("doSimple " ++ show v ++ " -> " ++ pprint1 dec) (return ())
         tells [pure dec]
-        telld [d|instance IdPath $(asTypeQ pname) where idPath = $(asConQ pname)|]
+        telld [d|instance IsPath $(asTypeQ pname) where
+                    type UType $(asTypeQ pname) = $utype
+                    type SType $(asTypeQ pname) = $(asTypeQ v)
+                    idPath = $(asConQ pname)|]
     , _doSelf = pure ()
     , _doView =
         \skey -> do
@@ -105,7 +108,10 @@ upathTypeDecControl v =
                        [ normalC (asName (makePathCon pname "View")) [strictType notStrict (pure ptype)]
                        , normalC (asName pname) []
                        ] supers]
-          telld [d|instance IdPath $(asTypeQ pname) where idPath = $(asConQ pname)|]
+          telld [d|instance IsPath $(asTypeQ pname) where
+                      type UType $(asTypeQ pname) = $utype
+                      type SType $(asTypeQ pname) = $(asTypeQ v)
+                      idPath = $(asConQ pname)|]
 
     , _doOrder = \_ _ -> pure ()
     , _doMap = \_ _ -> pure ()
@@ -126,7 +132,10 @@ upathTypeDecControl v =
         \pairs ->
             mapM_ (\pname' ->
                        do tells [dataD (cxt []) (asName pname') [] (concat (concatMap snd pairs) ++ [normalC (asName pname') []]) supers]
-                          telld [d|instance IdPath $(asTypeQ pname') where idPath = $(asConQ pname')|])
+                          telld [d|instance IsPath $(asTypeQ pname') where
+                                      type UType $(asTypeQ pname') = $utype
+                                      type SType $(asTypeQ pname') = $(asTypeQ v)
+                                      idPath = $(asConQ pname')|])
                   (Set.map makeUPathType . Set.map ModelType . typeNames $ v)
     , _doSyn =
         \tname stype ->

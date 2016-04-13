@@ -6500,82 +6500,160 @@ instance Describe UPath_UserIds
     where describe' _f (_p@(UPath_UserIds_View _wp)) = maybe (describe' _f (Proxy :: Proxy UserIds)) Just (describe' Nothing _wp)
           describe' f p | p == idPath = describe' f (Proxy :: Proxy UserIds)
           describe' _ p = error ("Unexpected " ++ ("UserIds" ++ (" path: " ++ show p)))
-instance IdPath UPath_Author
-    where idPath = UPath_Author
-instance IdPath UPath_Bool
-    where idPath = UPath_Bool
-instance IdPath UPath_Branding
-    where idPath = UPath_Branding
-instance IdPath UPath_CIString
-    where idPath = UPath_CIString
-instance IdPath UPath_Dimension
-    where idPath = UPath_Dimension
-instance IdPath UPath_Double
-    where idPath = UPath_Double
-instance IdPath UPath_ImageCrop
-    where idPath = UPath_ImageCrop
-instance IdPath UPath_ImageFile
-    where idPath = UPath_ImageFile
-instance IdPath UPath_ImageSize
-    where idPath = UPath_ImageSize
-instance IdPath UPath_Int
-    where idPath = UPath_Int
-instance IdPath UPath_Int64
-    where idPath = UPath_Int64
-instance IdPath UPath_Integer
-    where idPath = UPath_Integer
-instance IdPath UPath_Item
-    where idPath = UPath_Item
-instance IdPath UPath_JSONText
-    where idPath = UPath_JSONText
-instance IdPath UPath_Markup
-    where idPath = UPath_Markup
-instance IdPath UPath_MaybeImageFile
-    where idPath = UPath_MaybeImageFile
-instance IdPath UPath_MaybeReportIntendedUse
-    where idPath = UPath_MaybeReportIntendedUse
-instance IdPath UPath_Permissions
-    where idPath = UPath_Permissions
-instance IdPath UPath_ReadOnlyFilePath
-    where idPath = UPath_ReadOnlyFilePath
-instance IdPath UPath_Report
-    where idPath = UPath_Report
-instance IdPath UPath_ReportElem
-    where idPath = UPath_ReportElem
-instance IdPath UPath_ReportFlags
-    where idPath = UPath_ReportFlags
-instance IdPath UPath_ReportImage
-    where idPath = UPath_ReportImage
-instance IdPath UPath_ReportImageView
-    where idPath = UPath_ReportImageView
-instance IdPath UPath_ReportIntendedUse
-    where idPath = UPath_ReportIntendedUse
-instance IdPath UPath_ReportMap
-    where idPath = UPath_ReportMap
-instance IdPath UPath_ReportStandard
-    where idPath = UPath_ReportStandard
-instance IdPath UPath_ReportStatus
-    where idPath = UPath_ReportStatus
-instance IdPath UPath_ReportValueApproachInfo
-    where idPath = UPath_ReportValueApproachInfo
-instance IdPath UPath_ReportValueTypeInfo
-    where idPath = UPath_ReportValueTypeInfo
-instance IdPath UPath_ReportView
-    where idPath = UPath_ReportView
-instance IdPath UPath_SaneSizeImageSize
-    where idPath = UPath_SaneSizeImageSize
-instance IdPath UPath_String
-    where idPath = UPath_String
-instance IdPath UPath_Text
-    where idPath = UPath_Text
-instance IdPath UPath_URI
-    where idPath = UPath_URI
-instance IdPath UPath_UUID
-    where idPath = UPath_UUID
-instance IdPath UPath_Units
-    where idPath = UPath_Units
-instance IdPath UPath_UserId
-    where idPath = UPath_UserId
-instance IdPath UPath_UserIds
-    where idPath = UPath_UserIds
+instance IsPath UPath_Author
+    where type UType UPath_Author = Univ
+          type SType UPath_Author = Author
+          idPath = UPath_Author
+instance IsPath UPath_Bool
+    where type UType UPath_Bool = Univ
+          type SType UPath_Bool = Bool
+          idPath = UPath_Bool
+instance IsPath UPath_Branding
+    where type UType UPath_Branding = Univ
+          type SType UPath_Branding = Branding
+          idPath = UPath_Branding
+instance IsPath UPath_CIString
+    where type UType UPath_CIString = Univ
+          type SType UPath_CIString = CIString
+          idPath = UPath_CIString
+instance IsPath UPath_Dimension
+    where type UType UPath_Dimension = Univ
+          type SType UPath_Dimension = Dimension
+          idPath = UPath_Dimension
+instance IsPath UPath_Double
+    where type UType UPath_Double = Univ
+          type SType UPath_Double = Double
+          idPath = UPath_Double
+instance IsPath UPath_ImageCrop
+    where type UType UPath_ImageCrop = Univ
+          type SType UPath_ImageCrop = ImageCrop
+          idPath = UPath_ImageCrop
+instance IsPath UPath_ImageFile
+    where type UType UPath_ImageFile = Univ
+          type SType UPath_ImageFile = ImageFile
+          idPath = UPath_ImageFile
+instance IsPath UPath_ImageSize
+    where type UType UPath_ImageSize = Univ
+          type SType UPath_ImageSize = ImageSize
+          idPath = UPath_ImageSize
+instance IsPath UPath_Int
+    where type UType UPath_Int = Univ
+          type SType UPath_Int = Int
+          idPath = UPath_Int
+instance IsPath UPath_Int64
+    where type UType UPath_Int64 = Univ
+          type SType UPath_Int64 = Int64
+          idPath = UPath_Int64
+instance IsPath UPath_Integer
+    where type UType UPath_Integer = Univ
+          type SType UPath_Integer = Integer
+          idPath = UPath_Integer
+instance IsPath UPath_Item
+    where type UType UPath_Item = Univ
+          type SType UPath_Item = Item
+          idPath = UPath_Item
+instance IsPath UPath_JSONText
+    where type UType UPath_JSONText = Univ
+          type SType UPath_JSONText = JSONText
+          idPath = UPath_JSONText
+instance IsPath UPath_Markup
+    where type UType UPath_Markup = Univ
+          type SType UPath_Markup = Markup
+          idPath = UPath_Markup
+instance IsPath UPath_MaybeImageFile
+    where type UType UPath_MaybeImageFile = Univ
+          type SType UPath_MaybeImageFile = MaybeImageFile
+          idPath = UPath_MaybeImageFile
+instance IsPath UPath_MaybeReportIntendedUse
+    where type UType UPath_MaybeReportIntendedUse = Univ
+          type SType UPath_MaybeReportIntendedUse = MaybeReportIntendedUse
+          idPath = UPath_MaybeReportIntendedUse
+instance IsPath UPath_Permissions
+    where type UType UPath_Permissions = Univ
+          type SType UPath_Permissions = Permissions
+          idPath = UPath_Permissions
+instance IsPath UPath_ReadOnlyFilePath
+    where type UType UPath_ReadOnlyFilePath = Univ
+          type SType UPath_ReadOnlyFilePath = ReadOnlyFilePath
+          idPath = UPath_ReadOnlyFilePath
+instance IsPath UPath_Report
+    where type UType UPath_Report = Univ
+          type SType UPath_Report = Report
+          idPath = UPath_Report
+instance IsPath UPath_ReportElem
+    where type UType UPath_ReportElem = Univ
+          type SType UPath_ReportElem = ReportElem
+          idPath = UPath_ReportElem
+instance IsPath UPath_ReportFlags
+    where type UType UPath_ReportFlags = Univ
+          type SType UPath_ReportFlags = ReportFlags
+          idPath = UPath_ReportFlags
+instance IsPath UPath_ReportImage
+    where type UType UPath_ReportImage = Univ
+          type SType UPath_ReportImage = ReportImage
+          idPath = UPath_ReportImage
+instance IsPath UPath_ReportImageView
+    where type UType UPath_ReportImageView = Univ
+          type SType UPath_ReportImageView = ReportImageView
+          idPath = UPath_ReportImageView
+instance IsPath UPath_ReportIntendedUse
+    where type UType UPath_ReportIntendedUse = Univ
+          type SType UPath_ReportIntendedUse = ReportIntendedUse
+          idPath = UPath_ReportIntendedUse
+instance IsPath UPath_ReportMap
+    where type UType UPath_ReportMap = Univ
+          type SType UPath_ReportMap = ReportMap
+          idPath = UPath_ReportMap
+instance IsPath UPath_ReportStandard
+    where type UType UPath_ReportStandard = Univ
+          type SType UPath_ReportStandard = ReportStandard
+          idPath = UPath_ReportStandard
+instance IsPath UPath_ReportStatus
+    where type UType UPath_ReportStatus = Univ
+          type SType UPath_ReportStatus = ReportStatus
+          idPath = UPath_ReportStatus
+instance IsPath UPath_ReportValueApproachInfo
+    where type UType UPath_ReportValueApproachInfo = Univ
+          type SType UPath_ReportValueApproachInfo = ReportValueApproachInfo
+          idPath = UPath_ReportValueApproachInfo
+instance IsPath UPath_ReportValueTypeInfo
+    where type UType UPath_ReportValueTypeInfo = Univ
+          type SType UPath_ReportValueTypeInfo = ReportValueTypeInfo
+          idPath = UPath_ReportValueTypeInfo
+instance IsPath UPath_ReportView
+    where type UType UPath_ReportView = Univ
+          type SType UPath_ReportView = ReportView
+          idPath = UPath_ReportView
+instance IsPath UPath_SaneSizeImageSize
+    where type UType UPath_SaneSizeImageSize = Univ
+          type SType UPath_SaneSizeImageSize = SaneSizeImageSize
+          idPath = UPath_SaneSizeImageSize
+instance IsPath UPath_String
+    where type UType UPath_String = Univ
+          type SType UPath_String = String
+          idPath = UPath_String
+instance IsPath UPath_Text
+    where type UType UPath_Text = Univ
+          type SType UPath_Text = Text
+          idPath = UPath_Text
+instance IsPath UPath_URI
+    where type UType UPath_URI = Univ
+          type SType UPath_URI = URI
+          idPath = UPath_URI
+instance IsPath UPath_UUID
+    where type UType UPath_UUID = Univ
+          type SType UPath_UUID = UUID
+          idPath = UPath_UUID
+instance IsPath UPath_Units
+    where type UType UPath_Units = Univ
+          type SType UPath_Units = Units
+          idPath = UPath_Units
+instance IsPath UPath_UserId
+    where type UType UPath_UserId = Univ
+          type SType UPath_UserId = UserId
+          idPath = UPath_UserId
+instance IsPath UPath_UserIds
+    where type UType UPath_UserIds = Univ
+          type SType UPath_UserIds = UserIds
+          idPath = UPath_UserIds
 ulens :: forall a . U Univ a => Iso' Univ a

@@ -20,7 +20,7 @@ module Language.Haskell.TH.Path.Core
     , camelWords
 
       -- * Type classes and associated types
-    , IdPath(idPath)
+    , IsPath(UType, SType, idPath)
     , PathStart(UPeek, upeekCons, upeekPath, upeekValue, UPath, upaths, upeekRow, upeekTree)
     , ToLens(toLens)
     , ulens'
@@ -70,7 +70,7 @@ import Control.Lens hiding (at) -- (set, Traversal', Lens', _Just, iso, lens, vi
 import Data.Char (isUpper, toUpper)
 import Data.Generics (Data, Typeable)
 import Data.List as List (groupBy, map)
-import qualified Data.Map as M (Map, insert, lookup)
+import Data.Map as Map (Map, insert, lookup)
 import Data.Maybe (catMaybes, fromJust)
 import Data.Monoid
 import Data.Proxy
@@ -109,7 +109,9 @@ class U univ a where
 
 -- | Every path type must have an identity value, such that 'toLens'
 -- 'idPath' is just 'id'.
-class IdPath p where
+class IsPath p where
+    type UType p
+    type SType p
     idPath :: p -- ^ The identity value for path type @p@.  Obeys the law
                 -- @toLens idPath == iso id id@.
 
@@ -153,7 +155,7 @@ instance (ToLens f, ToLens g, A f ~ S g {-, B f ~ T g-}) => ToLens (f :.: g) whe
 -- where each node is represented by the second type parameter of
 -- PathStart, @s@.  The @u@ type parameter is a wrapper type that has
 -- a constructor for every @s@ we are allowed to use as a path node.
-class U u s => PathStart u s where
+class (U u s, IsPath (UPath u s)) => PathStart u s where
     type UPath u s
     -- ^ The type @UPath u s@ represents a the beginning of any path
     -- starting at @s@.
@@ -224,11 +226,26 @@ data Path_Maybe justpath = Path_Just justpath | Path_Maybe deriving (Eq, Ord, Re
 data Path_Map key valuepath = Path_Look key valuepath | Path_Map deriving (Eq, Ord, Read, Show, Typeable, Data)
 data Path_List a = Path_List deriving (Eq, Ord, Read, Show, Typeable, Data) -- No element lookup path - too dangerous, use OMap
 
-instance IdPath (Path_Pair fstpath sndpath) where idPath = Path_Pair
-instance IdPath (Path_Maybe justpath) where idPath = Path_Maybe
-instance IdPath (Path_Either leftpath rightpath) where idPath = Path_Either
-instance IdPath (Path_Map key valuepath) where idPath = Path_Map
-instance IdPath (Path_List a) where idPath = Path_List
+instance (UType fstpath ~ UType sndpath) => IsPath (Path_Pair fstpath sndpath) where
+    type UType (Path_Pair fstpath sndpath) = UType fstpath
+    type SType (Path_Pair fstpath sndpath) = (SType fstpath, SType sndpath)
+    idPath = Path_Pair
+instance IsPath (Path_Maybe justpath) where
+    type UType (Path_Maybe justpath) = UType justpath
+    type SType (Path_Maybe justpath) = Maybe (SType justpath)
+    idPath = Path_Maybe
+instance (UType leftpath ~ UType rightpath) => IsPath (Path_Either leftpath rightpath) where
+    type UType (Path_Either leftpath rightpath) = UType leftpath
+    type SType (Path_Either leftpath rightpath) = Either (SType leftpath) (SType rightpath)
+    idPath = Path_Either
+instance IsPath (Path_Map key valuepath) where
+    type UType (Path_Map key valuepath) = UType valuepath
+    type SType (Path_Map key valuepath) = Map key (SType valuepath)
+    idPath = Path_Map
+instance IsPath (Path_List elttype) where
+    type UType (Path_List elttype) = UType elttype
+    type SType (Path_List elttype) = [SType elttype]
+    idPath = Path_List
 
 #if !__GHCJS__
 $(derivePathInfo ''Path_Pair)
@@ -277,8 +294,8 @@ lens_mrs = iso getter setter
 readOnlyLens :: Iso' a a
 readOnlyLens = iso id (error "Lens.readOnlyLens: TROUBLE ignoring write to readOnlyLens")
 
-mat :: forall k a. (Show k, Ord k) => k -> Traversal' (M.Map k a) a
-mat k = lens (M.lookup k) (\ mp ma -> maybe mp (\ a -> M.insert k a mp) ma) . _Just
+mat :: forall k a. (Show k, Ord k) => k -> Traversal' (Map k a) a
+mat k = lens (Map.lookup k) (\ mp ma -> maybe mp (\ a -> Map.insert k a mp) ma) . _Just
 
 -- A list lens
 at :: Integral i => i -> Traversal' [a] a

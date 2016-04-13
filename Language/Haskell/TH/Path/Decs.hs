@@ -106,7 +106,7 @@ doType utype t = tgvSimple t >>= maybe (error $ "doType: No node for " ++ pprint
 
 doNode :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TypeQ -> TGVSimple -> m ()
 doNode utype v = do
-  upathTypeDecs v  -- generate Path types and the IdPath instances
+  upathTypeDecs utype v  -- generate Path types and the IdPath instances
   lensDecs v      -- generate lenses using makeClassyFor
   peekDecs utype v      -- generate PathStart instances
   -- toLensDecs utype v    -- generate ToLens instances

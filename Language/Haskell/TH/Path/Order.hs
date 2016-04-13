@@ -54,7 +54,7 @@ import Data.SafeCopy (SafeCopy(..), base, contain, deriveSafeCopy, safeGet, safe
 import Data.Typeable (Typeable)
 import GHC.Generics (Generic)
 import Language.Haskell.TH
-import Language.Haskell.TH.Path.Core (IdPath(idPath))
+import Language.Haskell.TH.Path.Core (IsPath(..))
 -- import Language.Haskell.TH.Path.GHCJS (SafeCopy(..), base, contain, deriveSafeCopy, safeGet, safePut)
 import Language.Haskell.TH.Lift (deriveLiftMany)
 import Language.Haskell.TH.TypeGraph.Prelude ({-some Lift instances?-})
@@ -221,7 +221,10 @@ view' :: (Ord k, Enum k) => k -> Order k v -> v
 view' i m = maybe (error "Order.view'") fst (view i m)
 
 data Path_OMap k a = Path_OMap | Path_At k a deriving (Eq, Ord, Read, Show, Typeable, Data)
-instance IdPath (Path_OMap k a) where idPath = Path_OMap
+instance IsPath (Path_OMap k a) where
+    type UType (Path_OMap k a) = UType a
+    type SType (Path_OMap k a) = Order k (SType a)
+    idPath = Path_OMap
 
 #if !__GHCJS__
 -- | Given the name of a type such as AbbrevPair, generate declarations

@@ -29,7 +29,7 @@ import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Lift (lift)
 import Language.Haskell.TH.Path.Common (HasConQ(asConQ), HasCon(asCon), HasName(asName), HasType(asType), HasTypeQ(asTypeQ),
                                         makeUFieldCon, makePathCon, makeUPathType, ModelType(ModelType))
-import Language.Haskell.TH.Path.Core (camelWords, IdPath(idPath), PathStart(..), ToLens(toLens),
+import Language.Haskell.TH.Path.Core (camelWords, IsPath(idPath), PathStart(..), ToLens(toLens),
                                       Describe(describe'), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..), forestMap, U(u), ulens')
 import Language.Haskell.TH.Path.Decs.PathType (upathType)
 import Language.Haskell.TH.Path.Graph (TypeGraphM)
