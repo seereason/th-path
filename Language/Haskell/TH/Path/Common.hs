@@ -26,7 +26,6 @@ module Language.Haskell.TH.Path.Common
     , PathType
     , makeUPathType
     , makeHopCon
-    , makePathCon
     , makeUFieldCon
     , uncurry3
     , tells
@@ -153,9 +152,6 @@ makeHopCon s a =
                       Just (_, _, fname) -> either show nameBase fname
                       Nothing -> nameBase (asName a))))
 
-makePathCon :: HasName a => PathType a -> String -> PathCon Name
-makePathCon (PathType p) a = PathCon $ mkName $ nameBase (asName p) ++ "_" ++ a
-
 -- | Path type constructor for the field described by key in the parent type named tname.
 makeUFieldCon :: TGV -> Maybe (PathCon Name)
 makeUFieldCon key =
@@ -163,6 +159,9 @@ makeUFieldCon key =
       Nothing -> Nothing
       Just (tname, _, Right fname) -> Just $ makePathCon (makeUPathType (ModelType tname)) (nameBase fname)
       Just (tname, _, Left fpos) -> Just $ makePathCon (makeUPathType (ModelType tname)) (show fpos)
+
+makePathCon :: HasName a => PathType a -> String -> PathCon Name
+makePathCon (PathType p) a = PathCon $ mkName $ nameBase (asName p) ++ "_" ++ a
 
 uncurry3 :: (a -> b -> c -> d) -> (a, b, c) -> d
 uncurry3 f (a, b, c) = f a b c

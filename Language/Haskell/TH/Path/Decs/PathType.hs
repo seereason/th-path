@@ -22,12 +22,11 @@ module Language.Haskell.TH.Path.Decs.PathType
 import Control.Lens (_2, view)
 import Control.Monad.Writer (MonadWriter)
 import Data.Data (Data, Typeable)
-import Data.Proxy (Proxy)
 import Data.Set.Extra as Set (map)
 import Language.Haskell.TH
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Common (asConQ, HasName(asName), asType, asTypeQ, ModelType(ModelType),
-                                        makeUFieldCon, makePathCon, makeUPathType, PathCon, PathType, telld, tells)
+                                        makeUFieldCon, makeUPathType, PathCon, PathType, telld, tells)
 import Language.Haskell.TH.Path.Core (IsPath(..), Path_List, Path_Map, Path_Pair, Path_Maybe, Path_Either, Path_View, PathStart(UPath))
 import Language.Haskell.TH.Path.Graph (TypeGraphM)
 import Language.Haskell.TH.Path.Order (Path_OMap(..))
@@ -50,7 +49,7 @@ upathTypeControl v =
     , _doSimple = runQ (asTypeQ (bestUPathTypeName v))
     , _doView =
         \w -> do ptype <- upathType w
-                 runQ [t|Path_View (Proxy $(asTypeQ v)) $(asTypeQ ptype)|]
+                 runQ [t|Path_View $(asTypeQ v) $(asTypeQ ptype)|]
     , _doOrder =
         \ityp etyp ->
             do epath <- upathType etyp
@@ -104,7 +103,7 @@ upathTypeDecControl utype v =
                     type SType $(asTypeQ pname) = $(asTypeQ v)
                     idPath = $(asConQ pname)|]
     , _doSelf = pure ()
-    -- e.g. data UPath_Report = Path_View (Proxy ReportView) (UPath Univ ReportView)
+    -- e.g. data UPath_Report = Path_To (Proxy ReportView) (UPath Univ ReportView)
     , _doView = \w -> tells [runQ $ tySynD (asName pname) [] [t|Path_View $(asTypeQ v) (UPath $utype $(asTypeQ w))|]]
     , _doOrder = \_ _ -> pure ()
     , _doMap = \_ _ -> pure ()

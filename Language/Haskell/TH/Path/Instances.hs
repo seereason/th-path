@@ -1,6 +1,7 @@
 -- | Orphanage.
 
 {-# OPTIONS_GHC -fno-warn-orphans #-}
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
@@ -20,10 +21,13 @@ import Control.Monad.State (StateT)
 import Control.Monad.States (MonadStates(getPoly, putPoly))
 import Control.Monad.Trans as Monad (lift)
 import Control.Monad.Writer (WriterT)
+import Data.Proxy (Proxy)
+import Data.SafeCopy (base, deriveSafeCopy)
 import Data.Set.Extra as Set (Set)
 import Language.Haskell.TH.Context (ContextM, InstMap)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.TypeGraph.Expand (ExpandMap)
+import Web.Routes.TH (derivePathInfo)
 
 instance (Monad m, MonadStates InstMap m) => MonadStates InstMap (StateT (Set s) m) where
     getPoly = Monad.lift getPoly
@@ -41,3 +45,8 @@ instance ContextM m => ContextM (StateT (Set a) m)
 instance ContextM m => ContextM (ReaderT t m)
 
 instance (Monoid w, ContextM m) => ContextM (WriterT w m)
+
+#if !__GHCJS__
+$(derivePathInfo ''Proxy)
+$(deriveSafeCopy 0 'base ''Proxy)
+#endif

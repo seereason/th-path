@@ -27,7 +27,6 @@ import Language.Haskell.TH.Context (ContextM)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Common (HasName(asName), HasTypeQ(asTypeQ), makeUFieldCon, tells)
 import Language.Haskell.TH.Path.Core (mat, IsPath(idPath), ToLens(toLens), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..), Path_View(..), U(u, unU'))
-import Language.Haskell.TH.Path.Decs.PathType (upathType)
 import Language.Haskell.TH.Path.Graph (TypeGraphM)
 import Language.Haskell.TH.Path.Order (lens_omat, Path_OMap(..))
 import Language.Haskell.TH.Path.Traverse (Control(..), doNode)
@@ -80,7 +79,7 @@ toLensControl v x =
     { _doSimple = pure ()
     , _doSelf = pure ()
     , _doView =
-        \_w -> doClause (\p -> [p|Path_View Proxy $p|]) [|viewLens|]
+        \_w -> doClause (\p -> [p|Path_To Proxy $p|]) [|viewLens|]
     , _doOrder =
         \_i _w -> do
           k <- runQ (newName "k")

@@ -26,9 +26,8 @@ import Data.Tree (Tree(Node))
 import Language.Haskell.TH
 import Language.Haskell.TH.Context (reifyInstancesWithContext)
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.Lift (lift)
 import Language.Haskell.TH.Path.Common (HasConQ(asConQ), HasCon(asCon), HasName(asName), HasType(asType), HasTypeQ(asTypeQ),
-                                        makeUFieldCon, makePathCon, makeUPathType, ModelType(ModelType))
+                                        makeUFieldCon, makeUPathType, ModelType(ModelType))
 import Language.Haskell.TH.Path.Core (camelWords, forestMap, IsPath(idPath), PathStart(..), ToLens(toLens), Describe(describe'),
                                       Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..), Path_View(..), U(u), ulens')
 import Language.Haskell.TH.Path.Decs.PathType (upathType)
@@ -36,7 +35,6 @@ import Language.Haskell.TH.Path.Graph (TypeGraphM)
 import Language.Haskell.TH.Path.Order (Path_OMap(..), toPairs)
 import Language.Haskell.TH.Path.Traverse (asP', Control(..), doNode, finishConcs)
 import Language.Haskell.TH.Syntax (liftString)
-import Language.Haskell.TH.TypeGraph.Prelude (pprint1)
 import Language.Haskell.TH.TypeGraph.TypeGraph (tgv, tgvSimple')
 import Language.Haskell.TH.TypeGraph.Vertex (TGV, field, TGVSimple)
 
@@ -152,7 +150,7 @@ pathControl utype v _x wPathVar = do
         \typ ->
             do x <- runQ $ newName "_xyz"
                w <- tgv Nothing typ
-               let conc = PathConc w (conP 'Path_View [wildP, varP wPathVar]) [| [Path_View Proxy] |]
+               let conc = PathConc w (conP 'Path_To [wildP, varP wPathVar]) [| [Path_To Proxy] |]
                -- describeConc v wPathVar conc
                finishConcs control [(varP x, [conc])]
     , _doOrder =

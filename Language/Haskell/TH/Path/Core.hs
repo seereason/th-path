@@ -82,6 +82,7 @@ import Data.Tree (Tree(..), Forest)
 import Data.UserId (UserId(..))
 import Debug.Trace (trace)
 import Language.Haskell.TH.Instances ()
+import Language.Haskell.TH.Path.Instances ()
 import Prelude hiding (exp)
 import Safe (readMay)
 import Web.Routes.TH (derivePathInfo)
@@ -230,7 +231,7 @@ data Path_List a = Path_List deriving (Eq, Ord, Read, Show, Typeable, Data) -- N
 -- | A view from a type @s@ to @SType viewpath@.  The Proxy value
 -- indicates that we don't need to know anything about a particular
 -- @s@ to build or use a @View_Path@.
-data Path_View s viewpath = Path_View (Proxy s) viewpath | Path_Self deriving (Eq, Ord, Read, Show, Typeable, Data)
+data Path_View s viewpath = Path_To (Proxy s) viewpath | Path_Self deriving (Eq, Ord, Read, Show, Typeable, Data)
 
 instance (IsPath fstpath, IsPath sndpath, UType fstpath ~ UType sndpath) => IsPath (Path_Pair fstpath sndpath) where
     type UType (Path_Pair fstpath sndpath) = UType fstpath
@@ -252,9 +253,9 @@ instance (IsPath elttype) => IsPath (Path_List elttype) where
     type UType (Path_List elttype) = UType elttype
     type SType (Path_List elttype) = [SType elttype]
     idPath = Path_List
-instance (Data s, IsPath viewpath) => IsPath (Path_View (Proxy s) viewpath) where
-    type UType (Path_View (Proxy s) viewpath) = UType viewpath
-    type SType (Path_View (Proxy s) viewpath) = s
+instance (Data s, IsPath viewpath) => IsPath (Path_View s viewpath) where
+    type UType (Path_View s viewpath) = UType viewpath
+    type SType (Path_View s viewpath) = s
     idPath = Path_Self
 
 #if !__GHCJS__
@@ -264,7 +265,6 @@ $(derivePathInfo ''Path_Map)
 $(derivePathInfo ''Path_Either)
 $(derivePathInfo ''Path_Maybe)
 $(derivePathInfo ''Path_View)
-$(derivePathInfo ''Proxy)
 
 $(deriveSafeCopy 0 'base ''Path_Pair)
 $(deriveSafeCopy 0 'base ''Path_List)
@@ -272,7 +272,6 @@ $(deriveSafeCopy 0 'base ''Path_Map)
 $(deriveSafeCopy 0 'base ''Path_Either)
 $(deriveSafeCopy 0 'base ''Path_Maybe)
 $(deriveSafeCopy 0 'base ''Path_View)
-$(deriveSafeCopy 0 'base ''Proxy)
 #endif
 
 instance (IsPath (Path_Either a b), Describe a, Describe b, Describe (Proxy (SType (Path_Either a b)))) => Describe (Path_Either a b)
@@ -297,9 +296,9 @@ instance (IsPath (Path_Maybe a), Describe a, Describe (Proxy (SType (Path_Maybe 
           describe' f p | p == idPath = describe' f (Proxy :: Proxy (SType (Path_Maybe a)))
           describe' _ p = error ("Unexpected path: " ++ show p)
 
-instance (IsPath (Path_View (Proxy s) viewpath), Describe (Proxy s),
-          IsPath viewpath, Describe viewpath, Describe (Proxy (SType viewpath))) => Describe (Path_View (Proxy s) viewpath)
-    where describe' _f (_p@(Path_View Proxy _wp)) =
+instance (IsPath (Path_View s viewpath), Describe (Proxy s),
+          IsPath viewpath, Describe viewpath, Describe (Proxy (SType viewpath))) => Describe (Path_View s viewpath)
+    where describe' _f (_p@(Path_To Proxy _wp)) =
               maybe (describe' _f (Proxy :: Proxy (SType viewpath)))
                     Just
                     (describe' Nothing _wp)

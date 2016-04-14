@@ -49,8 +49,22 @@ instance Lift Text where
     lift = lift . unpack
 
 -- | Most of these should be moved back to live with their parent types.
-$(deriveLiftMany [''UserId, ''JSONText, ''Permissions, ''CIString, ''ImageFile, ''ImageCrop, ''ImageType, ''Markup, ''Pandoc, ''Meta, ''MetaValue, ''Inline, ''QuoteType, ''Text.Pandoc.MathType, ''Format, ''Citation, ''CitationMode, ''Block, ''ListNumberStyle, ''ListNumberDelim, ''Alignment])
-$(deriveLiftMany [''LaTeX, ''Units, ''Dimension, ''ImageSize, ''ReportImageID, ''ReportImage, ''Item, ''UUID, ''ReportValueTypeInfo, ''ReportValueApproachInfo, ''ReportStatus, ''ReportStandard, ''ReportIntendedUse, ''ReportFlags, ''ReportElemID, ''ReportElem, ''Report, ''MarkupPairID, ''MarkupID, ''Branding, ''AuthorID, ''Author, ''AbbrevPairID, ''TeXArg, ''SaneSize, ''ReportView, ''Measure, ''ReportImageView, ''ReadOnly, ''Text.LaTeX.Base.Syntax.MathType, ''UPath_Report, ''ItemFieldName, ''UPath_ReportView, ''Path_OMap, ''Path_Pair, ''UPath_UUID, ''UPath_Markup, ''UPath_Text, ''UPath_ReportValueApproachInfo, ''UPath_JSONText, ''UPath_ReportStatus, ''UPath_String, ''UPath_ReportStandard, ''UPath_Int, ''UPath_ReportFlags, ''UPath_Bool, ''UPath_ReportElem, ''UPath_Item, ''UPath_ReadOnlyFilePath, ''Path_Map, ''UPath_Permissions, ''UPath_UserIds, ''UPath_MaybeReportIntendedUse, ''UPath_ReportImage, ''UPath_ReportValueTypeInfo, ''UPath_ReportImageView, ''UPath_UserId, ''UPath_Integer, ''Path_Maybe, ''UPath_Int64, ''Path_Either, ''UPath_CIString, ''UPath_URI, ''UPath_Branding, ''UPath_SaneSizeImageSize, ''UPath_Author, ''UPath_ImageSize, ''UPath_MaybeImageFile, ''UPath_Units, ''UPath_ImageFile, ''UPath_Double, ''UPath_ImageCrop, ''UPath_Dimension])
+$(deriveLiftMany [''UserId, ''JSONText, ''Permissions, ''CIString, ''ImageFile, ''ImageCrop, ''ImageType, ''Markup, ''Pandoc, ''Meta,
+                  ''MetaValue, ''Inline, ''QuoteType, ''Text.Pandoc.MathType, ''Format, ''Citation, ''CitationMode,
+                  ''Block, ''ListNumberStyle, ''ListNumberDelim, ''Alignment])
+$(deriveLiftMany [''LaTeX, ''Units, ''Dimension, ''ImageSize, ''ReportImageID, ''ReportImage, ''Item, ''UUID, ''ReportValueTypeInfo,
+                  ''ReportValueApproachInfo, ''ReportStatus, ''ReportStandard, ''ReportIntendedUse, ''ReportFlags, ''ReportElemID,
+                  ''ReportElem, ''Report, ''MarkupPairID, ''MarkupID, ''Branding, ''AuthorID, ''Author, ''AbbrevPairID, ''TeXArg,
+                  ''SaneSize, ''ReportView, ''Measure, ''ReportImageView, ''ReadOnly, ''Text.LaTeX.Base.Syntax.MathType, ''ItemFieldName])
+{-
+$(deriveLiftMany [''UPath_Report, ''UPath_ReportView, ''Path_OMap, ''Path_Pair, ''UPath_UUID, ''UPath_Markup, ''UPath_Text, ''UPath_ReportValueApproachInfo,
+                  ''UPath_JSONText, ''UPath_ReportStatus, ''UPath_String, ''UPath_ReportStandard, ''UPath_Int, ''UPath_ReportFlags, ''UPath_Bool,
+                  ''UPath_ReportElem, ''UPath_Item, ''UPath_ReadOnlyFilePath, ''Path_Map, ''UPath_Permissions, ''UPath_UserIds, ''UPath_MaybeReportIntendedUse,
+                  ''UPath_ReportImage, ''UPath_ReportValueTypeInfo, ''UPath_ReportImageView, ''UPath_UserId, ''UPath_Integer, ''UPath_Int64, ''UPath_CIString,
+                  ''UPath_URI, ''UPath_Branding, ''UPath_SaneSizeImageSize, ''UPath_Author, ''UPath_ImageSize, ''UPath_MaybeImageFile, ''UPath_Units,
+                  ''UPath_ImageFile, ''UPath_Double, ''UPath_ImageCrop, ''UPath_Dimension])
+-}
+-- $(deriveLiftMany [''Path_Maybe, ''Path_Either])
 -- instance Lift a => Lift (Path_ReportElems a) where lift = undefined
 -- instance Lift a => Lift (Path_MarkupPairs a) where lift = undefined
 #endif
