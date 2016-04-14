@@ -143,51 +143,64 @@ pathControl utype v _x wPathVar = do
             do x <- runQ $ newName "_xyz"
                w <- tgv Nothing typ
                let vUPathConName = makePathCon (makeUPathType (ModelType (asName v))) "View"
-               finishConcs control [(varP x, [PathConc w (conP (asName vUPathConName) [varP wPathVar])
-                                                         [| [$(conE (asName vUPathConName))] |]])]
+               let conc = PathConc w (conP (asName vUPathConName) [varP wPathVar])
+                                     [| [$(conE (asName vUPathConName))] |]
+               describeConc v wPathVar conc
+               finishConcs control [(varP x, [conc])]
     , _doOrder =
         \_i typ ->
             do x <- runQ $ newName "_xyz"
                w <- tgv Nothing typ
                i <- runQ $ newName "_k"
-               finishConcs control [(varP x, [PathConc w (conP 'Path_At [varP i, varP wPathVar])
-                                                        [|map (\(k, _v) -> Path_At k) (toPairs $(varE x))|] ])]
+               let conc = PathConc w (conP 'Path_At [varP i, varP wPathVar])
+                                     [|map (\(k, _v) -> Path_At k) (toPairs $(varE x))|]
+               describeConc v wPathVar conc
+               finishConcs control [(varP x, [conc])]
     , _doMap =
         \_i typ ->
             do x <- runQ $ newName "_xyz"
                w <- tgv Nothing typ
                i <- runQ $ newName "_k"
-               finishConcs control [(varP x, [PathConc w (conP 'Path_Look [varP i, varP wPathVar])
-                                                       [|map (\(k, _v) -> Path_Look k) (Map.toList $(varE x))|]
-                                             ])]
+               let conc = PathConc w (conP 'Path_Look [varP i, varP wPathVar])
+                                     [|map (\(k, _v) -> Path_Look k) (Map.toList $(varE x))|]
+               describeConc v wPathVar conc
+               finishConcs control [(varP x, [conc])]
     , _doList =
         \_e -> pure ()
     , _doPair =
         \ftyp styp ->
             do f <- tgv Nothing ftyp
                s <- tgv Nothing styp
-               finishConcs control
-                       [(wildP, [PathConc f (conP 'Path_First [varP wPathVar]) [| [Path_First] |],
-                                 PathConc s (conP 'Path_Second [varP wPathVar]) [| [Path_Second] |] ])]
+               let fconc = PathConc f (conP 'Path_First [varP wPathVar]) [| [Path_First] |]
+                   sconc = PathConc s (conP 'Path_Second [varP wPathVar]) [| [Path_Second] |]
+               describeConc v wPathVar fconc
+               describeConc v wPathVar sconc
+               finishConcs control [(wildP, [fconc, sconc])]
     , _doMaybe =
         \typ ->
             do w <- tgv Nothing typ
-               finishConcs control [(wildP, [PathConc w (conP 'Path_Just [varP wPathVar]) [|[Path_Just]|] ])]
+               let conc = PathConc w (conP 'Path_Just [varP wPathVar]) [|[Path_Just]|]
+               describeConc v wPathVar conc
+               finishConcs control [(wildP, [conc])]
     , _doEither =
         \ltyp rtyp ->
             do l <- tgv Nothing ltyp
                r <- tgv Nothing rtyp
-               finishConcs control [(conP 'Left [wildP], [PathConc l (conP 'Path_Left [varP wPathVar]) [|[Path_Left]|]]),
-                                    (conP 'Right [wildP], [PathConc r (conP 'Path_Right [varP wPathVar]) [|[Path_Right]|] ])]
+               let lconc = PathConc l (conP 'Path_Left [varP wPathVar]) [|[Path_Left]|]
+                   rconc = PathConc r (conP 'Path_Right [varP wPathVar]) [|[Path_Right]|]
+               describeConc v wPathVar lconc
+               describeConc v wPathVar rconc
+               finishConcs control [(conP 'Left [wildP], [lconc]), (conP 'Right [wildP], [rconc])]
     , _doField =
         \fld typ ->
             do f <- tgvSimple' typ >>= tgv (Just fld)
                let fieldUPathConName = maybe (error $ "Not a field: " ++ show f) id (makeUFieldCon f)
-               pure (PathConc f (conP (asName fieldUPathConName) [varP wPathVar]) [|[$(asConQ fieldUPathConName)]|])
+               let conc = PathConc f (conP (asName fieldUPathConName) [varP wPathVar]) [|[$(asConQ fieldUPathConName)]|]
+               describeConc v wPathVar conc
+               pure conc
     , _doConcs =
         \xpat concs -> do
           x <- runQ $ newName "_xconc"
-          mapM_ (\conc -> describeConc v wPathVar conc) concs
           tell [UPathClause $
                   do f <- newName "_f"
                      r0 <- newName "r0"
