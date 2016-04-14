@@ -97,14 +97,7 @@ peekDecs utype v =
            funD' 'upeekTree (case uptcs of
                                [] -> pure [newName "x" >>= \x -> clause [wildP, varP x] (normalB [| Node (upeekCons idPath (Just (u $(varE x)))) [] |]) []]
                                _ -> pure uptcs)])
-       instanceD' (cxt []) [t|Describe $(pure uptype)|]
-                  (pure [do f <- newName "f"
-                            p <- newName "p"
-                            funD 'describe' (udcs ++
-                                             [clause [varP f, varP p] (guardedB [(normalGE [|$(varE p) == idPath|]
-                                                                                  [|describe' $(varE f) (Proxy :: Proxy $(asTypeQ v))|])]) [],
-                                              clause [wildP, varP p] (normalB [|error ("Unexpected " ++ $(lift (pprint1 (asType v))) ++ " path: " ++ show $(varE p))|]) []]
-                                            )])
+       when (not (null udcs)) (describeInst v udcs)
        proxyV <- runQ $ [t|Proxy $(asTypeQ v)|]
        hasCustomInstance <- (not . null) <$> reifyInstancesWithContext ''Describe [proxyV]
        when (not hasCustomInstance)
@@ -113,6 +106,18 @@ peekDecs utype v =
                       funD 'describe'
                         [clause [varP f, wildP]
                            (normalB [| Just (fromMaybe $(liftString (camelWords (nameBase (asName v)))) $(varE f)) |]) []]]))
+
+describeInst :: (MonadWriter [Dec] f, TypeGraphM f) => TGVSimple -> [ClauseQ] -> f ()
+describeInst v udcs =
+    upathType v >>= \uptype ->
+    instanceD' (cxt []) [t|Describe $(pure uptype)|]
+               (pure [do f <- newName "f"
+                         p <- newName "p"
+                         funD 'describe' (udcs ++
+                                          [ clause [varP f, varP p] (guardedB [(normalGE [|$(varE p) == idPath|]
+                                                                                [|describe' $(varE f) (Proxy :: Proxy $(asTypeQ v))|])]) []
+                                          -- , clause [wildP, varP p] (normalB [|error ("Unexpected " ++ $(lift (pprint1 (asType v))) ++ " path: " ++ show $(varE p))|]) []
+                                          ])])
 
 makeUPeekCon :: (HasName s) => ModelType s -> PeekCon
 makeUPeekCon (ModelType s) = PeekCon (mkName ("UPeek_" ++ nameBase (asName s)))
@@ -136,7 +141,12 @@ pathControl utype v _x wPathVar = do
   let control :: Control m PathConc () ()
       control = pathControl utype v _x wPathVar in
     Control
-    { _doSimple = pure ()
+    { _doSimple =
+          tell [UDescClause $
+                newName "f" >>= \f ->
+                clause [varP f, wildP]
+                       (normalB [| describe' $(varE f) (Proxy :: Proxy $(asTypeQ v)) |])
+                       []]
     , _doSelf = pure ()
     , _doView =
         \typ ->
@@ -154,7 +164,6 @@ pathControl utype v _x wPathVar = do
                i <- runQ $ newName "_k"
                let conc = PathConc w (conP 'Path_At [varP i, varP wPathVar])
                                      [|map (\(k, _v) -> Path_At k) (toPairs $(varE x))|]
-               describeConc v wPathVar conc
                finishConcs control [(varP x, [conc])]
     , _doMap =
         \_i typ ->
@@ -163,7 +172,6 @@ pathControl utype v _x wPathVar = do
                i <- runQ $ newName "_k"
                let conc = PathConc w (conP 'Path_Look [varP i, varP wPathVar])
                                      [|map (\(k, _v) -> Path_Look k) (Map.toList $(varE x))|]
-               describeConc v wPathVar conc
                finishConcs control [(varP x, [conc])]
     , _doList =
         \_e -> pure ()
@@ -173,14 +181,11 @@ pathControl utype v _x wPathVar = do
                s <- tgv Nothing styp
                let fconc = PathConc f (conP 'Path_First [varP wPathVar]) [| [Path_First] |]
                    sconc = PathConc s (conP 'Path_Second [varP wPathVar]) [| [Path_Second] |]
-               describeConc v wPathVar fconc
-               describeConc v wPathVar sconc
                finishConcs control [(wildP, [fconc, sconc])]
     , _doMaybe =
         \typ ->
             do w <- tgv Nothing typ
                let conc = PathConc w (conP 'Path_Just [varP wPathVar]) [|[Path_Just]|]
-               describeConc v wPathVar conc
                finishConcs control [(wildP, [conc])]
     , _doEither =
         \ltyp rtyp ->
@@ -188,8 +193,6 @@ pathControl utype v _x wPathVar = do
                r <- tgv Nothing rtyp
                let lconc = PathConc l (conP 'Path_Left [varP wPathVar]) [|[Path_Left]|]
                    rconc = PathConc r (conP 'Path_Right [varP wPathVar]) [|[Path_Right]|]
-               describeConc v wPathVar lconc
-               describeConc v wPathVar rconc
                finishConcs control [(conP 'Left [wildP], [lconc]), (conP 'Right [wildP], [rconc])]
     , _doField =
         \fld typ ->

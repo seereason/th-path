@@ -50,11 +50,12 @@ import Data.List as List (elem, foldl, foldl', foldr, filter, partition)
 import qualified Data.ListLike as LL
 import Data.Map as Map (Map, (!))
 import qualified Data.Map as Map
+import Data.Proxy (Proxy(Proxy))
 import Data.SafeCopy (SafeCopy(..), base, contain, deriveSafeCopy, safeGet, safePut)
 import Data.Typeable (Typeable)
 import GHC.Generics (Generic)
 import Language.Haskell.TH
-import Language.Haskell.TH.Path.Core (IsPath(..))
+import Language.Haskell.TH.Path.Core (IsPath(..), Describe(..))
 -- import Language.Haskell.TH.Path.GHCJS (SafeCopy(..), base, contain, deriveSafeCopy, safeGet, safePut)
 import Language.Haskell.TH.Lift (deriveLiftMany)
 import Language.Haskell.TH.TypeGraph.Prelude ({-some Lift instances?-})
@@ -225,6 +226,11 @@ instance (Data k, Typeable k, Eq k, Ord k, Read k, Show k, IsPath a) => IsPath (
     type UType (Path_OMap k a) = UType a
     type SType (Path_OMap k a) = Order k (SType a)
     idPath = Path_OMap
+
+instance (IsPath (Path_OMap k v), Describe v, Describe (Proxy (SType (Path_OMap k v)))) => Describe (Path_OMap k v)
+    where describe' _f (_p@(Path_At _k _wp)) = maybe (describe' _f (Proxy :: Proxy (SType (Path_OMap k v)))) Just (describe' Nothing _wp)
+          describe' f p | p == idPath = describe' f (Proxy :: Proxy (SType (Path_OMap k v)))
+          describe' _ p = error ("Unexpected path: " ++ show p)
 
 #if !__GHCJS__
 -- | Given the name of a type such as AbbrevPair, generate declarations

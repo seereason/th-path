@@ -14,6 +14,7 @@
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE UndecidableInstances #-}
 module Language.Haskell.TH.Path.Core
     ( treeMap
     , forestMap
@@ -260,6 +261,28 @@ $(deriveSafeCopy 0 'base ''Path_Map)
 $(deriveSafeCopy 0 'base ''Path_Either)
 $(deriveSafeCopy 0 'base ''Path_Maybe)
 #endif
+
+instance (IsPath (Path_Either a b), Describe a, Describe b, Describe (Proxy (SType (Path_Either a b)))) => Describe (Path_Either a b)
+    where describe' _f (_p@(Path_Left _wp)) = maybe (describe' _f (Proxy :: Proxy (SType (Path_Either a b)))) Just (describe' Nothing _wp)
+          describe' _f (_p@(Path_Right _wp)) = maybe (describe' _f (Proxy :: Proxy (SType (Path_Either a b)))) Just (describe' Nothing _wp)
+          describe' f p | p == idPath = describe' f (Proxy :: Proxy (SType (Path_Either a b)))
+          describe' _ p = error ("Unexpected " ++ (" path: " ++ show p))
+
+instance (IsPath (Path_Pair a b), Describe a, Describe b, Describe (Proxy (SType (Path_Pair a b)))) => Describe (Path_Pair a b)
+    where describe' _f (_p@(Path_First _wp)) = maybe (describe' _f (Proxy :: Proxy (SType (Path_Pair a b)))) Just (describe' Nothing _wp)
+          describe' _f (_p@(Path_Second _wp)) = maybe (describe' _f (Proxy :: Proxy (SType (Path_Pair a b)))) Just (describe' Nothing _wp)
+          describe' f p | p == idPath = describe' f (Proxy :: Proxy (SType (Path_Pair a b)))
+          describe' _ p = error ("Unexpected path: " ++ show p)
+
+instance (IsPath (Path_Map k v), Describe v, Describe (Proxy (SType (Path_Map k v)))) => Describe (Path_Map k v)
+    where describe' _f (Path_Look _ _wp) = maybe (describe' _f (Proxy :: Proxy (SType (Path_Map k v)))) Just (describe' Nothing _wp)
+          describe' f p | p == idPath = describe' f (Proxy :: Proxy (SType (Path_Map k v)))
+          describe' _ p = error ("Unexpected path: " ++ show p)
+
+instance (IsPath (Path_Maybe a), Describe a, Describe (Proxy (SType (Path_Maybe a)))) => Describe (Path_Maybe a)
+    where describe' _f (Path_Just _wp) = maybe (describe' _f (Proxy :: Proxy (SType (Path_Maybe a)))) Just (describe' Nothing _wp)
+          describe' f p | p == idPath = describe' f (Proxy :: Proxy (SType (Path_Maybe a)))
+          describe' _ p = error ("Unexpected path: " ++ show p)
 
 idLens :: Lens' a a
 idLens = id
