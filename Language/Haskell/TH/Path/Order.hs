@@ -221,7 +221,7 @@ view' :: (Ord k, Enum k) => k -> Order k v -> v
 view' i m = maybe (error "Order.view'") fst (view i m)
 
 data Path_OMap k a = Path_OMap | Path_At k a deriving (Eq, Ord, Read, Show, Typeable, Data)
-instance IsPath (Path_OMap k a) where
+instance (Data k, Typeable k, Eq k, Ord k, Read k, Show k, IsPath a) => IsPath (Path_OMap k a) where
     type UType (Path_OMap k a) = UType a
     type SType (Path_OMap k a) = Order k (SType a)
     idPath = Path_OMap

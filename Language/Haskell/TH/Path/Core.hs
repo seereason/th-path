@@ -109,7 +109,7 @@ class U univ a where
 
 -- | Every path type must have an identity value, such that 'toLens'
 -- 'idPath' is just 'id'.
-class IsPath p where
+class (Eq p, Ord p, Read p, Show p, Data p, Typeable p) => IsPath p where
     type UType p
     type SType p
     idPath :: p -- ^ The identity value for path type @p@.  Obeys the law
@@ -226,23 +226,23 @@ data Path_Maybe justpath = Path_Just justpath | Path_Maybe deriving (Eq, Ord, Re
 data Path_Map key valuepath = Path_Look key valuepath | Path_Map deriving (Eq, Ord, Read, Show, Typeable, Data)
 data Path_List a = Path_List deriving (Eq, Ord, Read, Show, Typeable, Data) -- No element lookup path - too dangerous, use OMap
 
-instance (UType fstpath ~ UType sndpath) => IsPath (Path_Pair fstpath sndpath) where
+instance (IsPath fstpath, IsPath sndpath, UType fstpath ~ UType sndpath) => IsPath (Path_Pair fstpath sndpath) where
     type UType (Path_Pair fstpath sndpath) = UType fstpath
     type SType (Path_Pair fstpath sndpath) = (SType fstpath, SType sndpath)
     idPath = Path_Pair
-instance IsPath (Path_Maybe justpath) where
+instance (IsPath justpath) => IsPath (Path_Maybe justpath) where
     type UType (Path_Maybe justpath) = UType justpath
     type SType (Path_Maybe justpath) = Maybe (SType justpath)
     idPath = Path_Maybe
-instance (UType leftpath ~ UType rightpath) => IsPath (Path_Either leftpath rightpath) where
+instance (IsPath leftpath, IsPath rightpath, UType leftpath ~ UType rightpath) => IsPath (Path_Either leftpath rightpath) where
     type UType (Path_Either leftpath rightpath) = UType leftpath
     type SType (Path_Either leftpath rightpath) = Either (SType leftpath) (SType rightpath)
     idPath = Path_Either
-instance IsPath (Path_Map key valuepath) where
+instance (Data key, Typeable key, Ord key, Read key, Show key, IsPath valuepath) => IsPath (Path_Map key valuepath) where
     type UType (Path_Map key valuepath) = UType valuepath
     type SType (Path_Map key valuepath) = Map key (SType valuepath)
     idPath = Path_Map
-instance IsPath (Path_List elttype) where
+instance (IsPath elttype) => IsPath (Path_List elttype) where
     type UType (Path_List elttype) = UType elttype
     type SType (Path_List elttype) = [SType elttype]
     idPath = Path_List
