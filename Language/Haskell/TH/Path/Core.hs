@@ -87,6 +87,10 @@ import Prelude hiding (exp)
 import Safe (readMay)
 import Web.Routes.TH (derivePathInfo)
 
+import Web.Routes
+import GHC.Base (ap)
+import Text.Parsec ((<|>))
+
 treeMap :: (a -> b) -> Tree a -> Tree b
 treeMap f (Node x ns) = Node (f x) (forestMap f ns)
 
@@ -264,7 +268,18 @@ $(derivePathInfo ''Path_List)
 $(derivePathInfo ''Path_Map)
 $(derivePathInfo ''Path_Either)
 $(derivePathInfo ''Path_Maybe)
+#if 0
 $(derivePathInfo ''Path_View)
+#else
+instance (PathInfo s, PathInfo viewpath) => PathInfo (Path_View s viewpath) where
+    toPathSegments inp_aEcU =
+        case inp_aEcU of
+          Path_To _ viewpath -> (++) [pack "path_-to"] (toPathSegments viewpath)
+          Path_Self -> [pack "path_-self"]
+    fromPathSegments =
+        (<|>) (ap ((segment (pack "path_-to")) >> (return (Path_To Proxy))) fromPathSegments)
+              ((segment (pack "path_-self")) >> (return Path_Self))
+#endif
 
 $(deriveSafeCopy 0 'base ''Path_Pair)
 $(deriveSafeCopy 0 'base ''Path_List)

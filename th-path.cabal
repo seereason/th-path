@@ -41,6 +41,7 @@ library
     ListLike,
     mtl,
     mtl-unleashed >= 0.5,
+    parsec,
     safe,
     safecopy,
     set-extra,
@@ -52,6 +53,7 @@ library
     th-lift,
     th-orphans,
     userid,
+    web-routes,
     web-routes-th
   ghc-options:      -Wall -O2
   exposed-modules:
