@@ -22,12 +22,13 @@ module Language.Haskell.TH.Path.Decs.PathType
 import Control.Lens (_2, view)
 import Control.Monad.Writer (MonadWriter)
 import Data.Data (Data, Typeable)
+import Data.Proxy (Proxy)
 import Data.Set.Extra as Set (map)
 import Language.Haskell.TH
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Common (asConQ, HasName(asName), asType, asTypeQ, ModelType(ModelType),
                                         makeUFieldCon, makePathCon, makeUPathType, PathCon, PathType, telld, tells)
-import Language.Haskell.TH.Path.Core (IsPath(..), Path_List, Path_Map, Path_Pair, Path_Maybe, Path_Either)
+import Language.Haskell.TH.Path.Core (IsPath(..), Path_List, Path_Map, Path_Pair, Path_Maybe, Path_Either, Path_View, PathStart(UPath))
 import Language.Haskell.TH.Path.Graph (TypeGraphM)
 import Language.Haskell.TH.Path.Order (Path_OMap(..))
 import Language.Haskell.TH.Path.Traverse (Control(..), doNode)
@@ -40,14 +41,16 @@ import Language.Haskell.TH.TypeGraph.Vertex (etype, TGVSimple, typeNames)
 upathType :: forall m. TypeGraphM m =>
              TGVSimple -- ^ The type to convert to a path type
           -> m Type
-upathType key = doNode (upathTypeControl key) key
+upathType v = doNode (upathTypeControl v) v
 
 upathTypeControl :: (TypeGraphM m) => TGVSimple -> Control m () () Type
-upathTypeControl key =
+upathTypeControl v =
     Control
-    { _doSelf = pure $ asType key
-    , _doSimple = runQ (asTypeQ (bestUPathTypeName key))
-    , _doView = \_ -> runQ (asTypeQ (bestUPathTypeName key))
+    { _doSelf = pure $ asType v
+    , _doSimple = runQ (asTypeQ (bestUPathTypeName v))
+    , _doView =
+        \w -> do ptype <- upathType w
+                 runQ [t|Path_View (Proxy $(asTypeQ v)) $(asTypeQ ptype)|]
     , _doOrder =
         \ityp etyp ->
             do epath <- upathType etyp
@@ -80,7 +83,7 @@ upathTypeControl key =
         \tname _typ ->
             runQ $ (asTypeQ (makeUPathType (ModelType tname)))
     , _doAlts =
-        \_ -> runQ $ (asTypeQ (makeUPathType (ModelType (asName key))))
+        \_ -> runQ $ (asTypeQ (makeUPathType (ModelType (asName v))))
     , _doSyns = \r0 _rs -> pure r0
     }
 
@@ -101,18 +104,8 @@ upathTypeDecControl utype v =
                     type SType $(asTypeQ pname) = $(asTypeQ v)
                     idPath = $(asConQ pname)|]
     , _doSelf = pure ()
-    , _doView =
-        \skey -> do
-          ptype <- upathType skey
-          tells [dataD (pure []) (asName pname) []
-                       [ normalC (asName (makePathCon pname "View")) [strictType notStrict (pure ptype)]
-                       , normalC (asName pname) []
-                       ] supers]
-          telld [d|instance IsPath $(asTypeQ pname) where
-                      type UType $(asTypeQ pname) = $utype
-                      type SType $(asTypeQ pname) = $(asTypeQ v)
-                      idPath = $(asConQ pname)|]
-
+    -- e.g. data UPath_Report = Path_View (Proxy ReportView) (UPath Univ ReportView)
+    , _doView = \w -> tells [runQ $ tySynD (asName pname) [] [t|Path_View $(asTypeQ v) (UPath $utype $(asTypeQ w))|]]
     , _doOrder = \_ _ -> pure ()
     , _doMap = \_ _ -> pure ()
     , _doList = \_ -> pure ()

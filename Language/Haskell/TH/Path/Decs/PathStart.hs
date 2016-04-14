@@ -29,8 +29,8 @@ import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Lift (lift)
 import Language.Haskell.TH.Path.Common (HasConQ(asConQ), HasCon(asCon), HasName(asName), HasType(asType), HasTypeQ(asTypeQ),
                                         makeUFieldCon, makePathCon, makeUPathType, ModelType(ModelType))
-import Language.Haskell.TH.Path.Core (camelWords, IsPath(idPath), PathStart(..), ToLens(toLens),
-                                      Describe(describe'), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..), forestMap, U(u), ulens')
+import Language.Haskell.TH.Path.Core (camelWords, forestMap, IsPath(idPath), PathStart(..), ToLens(toLens), Describe(describe'),
+                                      Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..), Path_View(..), U(u), ulens')
 import Language.Haskell.TH.Path.Decs.PathType (upathType)
 import Language.Haskell.TH.Path.Graph (TypeGraphM)
 import Language.Haskell.TH.Path.Order (Path_OMap(..), toPairs)
@@ -152,10 +152,8 @@ pathControl utype v _x wPathVar = do
         \typ ->
             do x <- runQ $ newName "_xyz"
                w <- tgv Nothing typ
-               let vUPathConName = makePathCon (makeUPathType (ModelType (asName v))) "View"
-               let conc = PathConc w (conP (asName vUPathConName) [varP wPathVar])
-                                     [| [$(conE (asName vUPathConName))] |]
-               describeConc v wPathVar conc
+               let conc = PathConc w (conP 'Path_View [wildP, varP wPathVar]) [| [Path_View Proxy] |]
+               -- describeConc v wPathVar conc
                finishConcs control [(varP x, [conc])]
     , _doOrder =
         \_i typ ->

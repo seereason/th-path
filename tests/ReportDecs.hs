@@ -42,50 +42,53 @@ import Network.URI (URI(URI), URIAuth)
 
 ulens = ulens' Proxy
 data UPath_Author = UPath_Author_authorName UPath_Markup | UPath_Author_authorCredentials UPath_Markup | UPath_Author deriving (Eq, Ord, Read, Show, Typeable, Data)
-data UPath_Bool = UPath_Bool_View UPath_String | UPath_Bool deriving (Eq, Ord, Read, Show, Typeable, Data)
-data UPath_Branding = UPath_Branding_View UPath_Text | UPath_Branding deriving (Eq, Ord, Read, Show, Typeable, Data)
-data UPath_CIString = UPath_CIString_View UPath_Text | UPath_CIString deriving (Eq, Ord, Read, Show, Typeable, Data)
-data UPath_Dimension = UPath_Dimension_View UPath_JSONText | UPath_Dimension deriving (Eq, Ord, Read, Show, Typeable, Data)
-data UPath_Double = UPath_Double_View UPath_String | UPath_Double deriving (Eq, Ord, Read, Show, Typeable, Data)
 data UPath_ImageCrop = UPath_ImageCrop deriving (Eq, Ord, Read, Show, Typeable, Data)
 data UPath_ImageFile = UPath_ImageFile deriving (Eq, Ord, Read, Show, Typeable, Data)
 data UPath_ImageSize
-    = UPath_ImageSize_dim UPath_Dimension | UPath_ImageSize_size UPath_Double | UPath_ImageSize_units UPath_Units | UPath_ImageSize
+    = UPath_ImageSize_dim (Path_View (Proxy Dimension) UPath_JSONText)
+    | UPath_ImageSize_size (Path_View (Proxy Double) (Path_View (Proxy String) UPath_JSONText))
+    | UPath_ImageSize_units (Path_View (Proxy Units) UPath_JSONText)
+    | UPath_ImageSize
     deriving (Eq, Ord, Read, Show, Typeable, Data)
 data UPath_Int = UPath_Int deriving (Eq, Ord, Read, Show, Typeable, Data)
 data UPath_Int64 = UPath_Int64 deriving (Eq, Ord, Read, Show, Typeable, Data)
 data UPath_Integer = UPath_Integer deriving (Eq, Ord, Read, Show, Typeable, Data)
 data UPath_Item
-    = UPath_Item_itemName UPath_Text | UPath_Item_fields (Path_Map ItemFieldName UPath_Markup) | UPath_Item_images (Path_OMap ReportImageID UPath_ReportImage) | UPath_Item
+    = UPath_Item_itemName (Path_View (Proxy Text) UPath_JSONText)
+    | UPath_Item_fields (Path_Map ItemFieldName UPath_Markup)
+    | UPath_Item_images (Path_OMap ReportImageID (Path_View (Proxy ReportImage) UPath_ReportImageView))
+    | UPath_Item
     deriving (Eq, Ord, Read, Show, Typeable, Data)
 data UPath_JSONText = UPath_JSONText deriving (Eq, Ord, Read, Show, Typeable, Data)
-data UPath_Markup = UPath_Markup_markdownText UPath_Text | UPath_Markup_htmlText UPath_Text | UPath_Markup deriving (Eq, Ord, Read, Show, Typeable, Data)
-data UPath_MaybeImageFile = UPath_MaybeImageFile_View UPath_String | UPath_MaybeImageFile deriving (Eq, Ord, Read, Show, Typeable, Data)
-data UPath_MaybeReportIntendedUse = UPath_MaybeReportIntendedUse_View UPath_String | UPath_MaybeReportIntendedUse deriving (Eq, Ord, Read, Show, Typeable, Data)
-data UPath_Permissions
-    = UPath_Permissions_owner UPath_UserId | UPath_Permissions_writers UPath_UserIds | UPath_Permissions_readers UPath_UserIds | UPath_Permissions
+data UPath_Markup
+    = UPath_Markup_markdownText (Path_View (Proxy Text) UPath_JSONText) | UPath_Markup_htmlText (Path_View (Proxy Text) UPath_JSONText) | UPath_Markup
     deriving (Eq, Ord, Read, Show, Typeable, Data)
-data UPath_ReadOnlyFilePath = UPath_ReadOnlyFilePath_View UPath_String | UPath_ReadOnlyFilePath deriving (Eq, Ord, Read, Show, Typeable, Data)
-data UPath_Report = UPath_Report_View UPath_ReportView | UPath_Report deriving (Eq, Ord, Read, Show, Typeable, Data)
+data UPath_Permissions
+    = UPath_Permissions_owner UPath_UserId
+    | UPath_Permissions_writers (Path_View (Proxy UserIds) (Path_View (Proxy Text) UPath_JSONText))
+    | UPath_Permissions_readers (Path_View (Proxy UserIds) (Path_View (Proxy Text) UPath_JSONText))
+    | UPath_Permissions
+    deriving (Eq, Ord, Read, Show, Typeable, Data)
 data UPath_ReportElem = UPath_ReportElem_elemItem UPath_Item | UPath_ReportElem_elemText UPath_Markup | UPath_ReportElem deriving (Eq, Ord, Read, Show, Typeable, Data)
-data UPath_ReportFlags = UPath_ReportFlags_hideEmptyItemFields UPath_Bool | UPath_ReportFlags deriving (Eq, Ord, Read, Show, Typeable, Data)
-data UPath_ReportImage = UPath_ReportImage_View UPath_ReportImageView | UPath_ReportImage deriving (Eq, Ord, Read, Show, Typeable, Data)
+data UPath_ReportFlags
+    = UPath_ReportFlags_hideEmptyItemFields (Path_View (Proxy Bool) (Path_View (Proxy String) UPath_JSONText)) | UPath_ReportFlags
+    deriving (Eq, Ord, Read, Show, Typeable, Data)
 data UPath_ReportImageView
-    = UPath_ReportImageView__picSize UPath_SaneSizeImageSize
+    = UPath_ReportImageView__picSize (Path_View (Proxy SaneSizeImageSize) UPath_ImageSize)
     | UPath_ReportImageView__picCrop UPath_ImageCrop
     | UPath_ReportImageView__picCaption UPath_Markup
     | UPath_ReportImageView__picOriginal (Path_Maybe (Path_Either UPath_URI UPath_ImageFile))
-    | UPath_ReportImageView__picEditedDeprecated UPath_MaybeImageFile
-    | UPath_ReportImageView__picThumbDeprecated UPath_MaybeImageFile
-    | UPath_ReportImageView__picPrinterDeprecated UPath_MaybeImageFile
-    | UPath_ReportImageView__picMustEnlarge UPath_Bool
-    | UPath_ReportImageView__picEnlargedDeprecated UPath_MaybeImageFile
+    | UPath_ReportImageView__picEditedDeprecated (Path_View (Proxy MaybeImageFile) (Path_View (Proxy String) UPath_JSONText))
+    | UPath_ReportImageView__picThumbDeprecated (Path_View (Proxy MaybeImageFile) (Path_View (Proxy String) UPath_JSONText))
+    | UPath_ReportImageView__picPrinterDeprecated (Path_View (Proxy MaybeImageFile) (Path_View (Proxy String) UPath_JSONText))
+    | UPath_ReportImageView__picMustEnlarge (Path_View (Proxy Bool) (Path_View (Proxy String) UPath_JSONText))
+    | UPath_ReportImageView__picEnlargedDeprecated (Path_View (Proxy MaybeImageFile) (Path_View (Proxy String) UPath_JSONText))
     | UPath_ReportImageView
     deriving (Eq, Ord, Read, Show, Typeable, Data)
-data UPath_ReportIntendedUse = UPath_ReportIntendedUse_View UPath_String | UPath_ReportIntendedUse deriving (Eq, Ord, Read, Show, Typeable, Data)
-data UPath_ReportMap = UPath_ReportMap_unReportMap (Path_Map ReportID UPath_Report) | UPath_ReportMap deriving (Eq, Ord, Read, Show, Typeable, Data)
+data UPath_ReportMap
+    = UPath_ReportMap_unReportMap (Path_Map ReportID (Path_View (Proxy Report) UPath_ReportView)) | UPath_ReportMap
+    deriving (Eq, Ord, Read, Show, Typeable, Data)
 data UPath_ReportStandard = UPath_ReportStandard_unReportStandard UPath_Int | UPath_ReportStandard deriving (Eq, Ord, Read, Show, Typeable, Data)
-data UPath_ReportStatus = UPath_ReportStatus_View UPath_String | UPath_ReportStatus deriving (Eq, Ord, Read, Show, Typeable, Data)
 data UPath_ReportValueApproachInfo
     = UPath_ReportValueApproachInfo_reportValueApproachName UPath_Markup
     | UPath_ReportValueApproachInfo_reportValueApproachDescription UPath_Markup
@@ -98,7 +101,7 @@ data UPath_ReportValueTypeInfo
     | UPath_ReportValueTypeInfo
     deriving (Eq, Ord, Read, Show, Typeable, Data)
 data UPath_ReportView
-    = UPath_ReportView__reportFolder UPath_ReadOnlyFilePath
+    = UPath_ReportView__reportFolder (Path_View (Proxy ReadOnlyFilePath) (Path_View (Proxy String) UPath_JSONText))
     | UPath_ReportView__reportName UPath_Markup
     | UPath_ReportView__reportDate UPath_Markup
     | UPath_ReportView__reportContractDate UPath_Markup
@@ -110,11 +113,11 @@ data UPath_ReportView
     | UPath_ReportView__reportPreparerAddress UPath_Markup
     | UPath_ReportView__reportPreparerEMail UPath_Markup
     | UPath_ReportView__reportPreparerWebsite UPath_Markup
-    | UPath_ReportView__reportAbbrevs (Path_OMap AbbrevPairID (Path_Pair UPath_CIString UPath_Markup))
+    | UPath_ReportView__reportAbbrevs (Path_OMap AbbrevPairID (Path_Pair (Path_View (Proxy CIString) (Path_View (Proxy Text) UPath_JSONText)) UPath_Markup))
     | UPath_ReportView__reportTitle UPath_Markup
     | UPath_ReportView__reportHeader UPath_Markup
     | UPath_ReportView__reportFooter UPath_Markup
-    | UPath_ReportView__reportIntendedUse UPath_MaybeReportIntendedUse
+    | UPath_ReportView__reportIntendedUse (Path_View (Proxy MaybeReportIntendedUse) (Path_View (Proxy String) UPath_JSONText))
     | UPath_ReportView__reportValueTypeInfo UPath_ReportValueTypeInfo
     | UPath_ReportView__reportValueApproachInfo UPath_ReportValueApproachInfo
     | UPath_ReportView__reportClientName UPath_Markup
@@ -135,24 +138,19 @@ data UPath_ReportView
     | UPath_ReportView__reportPerms UPath_Permissions
     | UPath_ReportView__reportRevision UPath_Integer
     | UPath_ReportView__reportCreated UPath_Int64
-    | UPath_ReportView__reportBranding UPath_Branding
-    | UPath_ReportView__reportStatus UPath_ReportStatus
-    | UPath_ReportView__reportRedacted UPath_Bool
+    | UPath_ReportView__reportBranding (Path_View (Proxy Branding) (Path_View (Proxy Text) UPath_JSONText))
+    | UPath_ReportView__reportStatus (Path_View (Proxy ReportStatus) (Path_View (Proxy String) UPath_JSONText))
+    | UPath_ReportView__reportRedacted (Path_View (Proxy Bool) (Path_View (Proxy String) UPath_JSONText))
     | UPath_ReportView__reportFlags UPath_ReportFlags
     | UPath_ReportView__reportUUID UPath_UUID
-    | UPath_ReportView__reportOrderByItemName UPath_Bool
-    | UPath_ReportView__reportDisplayItemName UPath_Bool
+    | UPath_ReportView__reportOrderByItemName (Path_View (Proxy Bool) (Path_View (Proxy String) UPath_JSONText))
+    | UPath_ReportView__reportDisplayItemName (Path_View (Proxy Bool) (Path_View (Proxy String) UPath_JSONText))
     | UPath_ReportView__reportStandardsVersion UPath_ReportStandard
     | UPath_ReportView
     deriving (Eq, Ord, Read, Show, Typeable, Data)
-data UPath_SaneSizeImageSize = UPath_SaneSizeImageSize_View UPath_ImageSize | UPath_SaneSizeImageSize deriving (Eq, Ord, Read, Show, Typeable, Data)
-data UPath_String = UPath_String_View UPath_JSONText | UPath_String deriving (Eq, Ord, Read, Show, Typeable, Data)
-data UPath_Text = UPath_Text_View UPath_JSONText | UPath_Text deriving (Eq, Ord, Read, Show, Typeable, Data)
 data UPath_URI = UPath_URI deriving (Eq, Ord, Read, Show, Typeable, Data)
 data UPath_UUID = UPath_UUID deriving (Eq, Ord, Read, Show, Typeable, Data)
-data UPath_Units = UPath_Units_View UPath_JSONText | UPath_Units deriving (Eq, Ord, Read, Show, Typeable, Data)
 data UPath_UserId = UPath_UserId deriving (Eq, Ord, Read, Show, Typeable, Data)
-data UPath_UserIds = UPath_UserIds_View UPath_Text | UPath_UserIds deriving (Eq, Ord, Read, Show, Typeable, Data)
 data Univ
     = U1 String
     | U2 Int64
@@ -206,18 +204,35 @@ data Univ
     | U50 UserId
     | U51 UUID
     deriving (Eq, Show, Data, Typeable)
-type UPath_AbbrevPair = Path_Pair UPath_CIString UPath_Markup
-type UPath_AbbrevPairs = Path_OMap AbbrevPairID (Path_Pair UPath_CIString UPath_Markup)
+type UPath_AbbrevPair = Path_Pair (Path_View (Proxy CIString) (Path_View (Proxy Text) UPath_JSONText)) UPath_Markup
+type UPath_AbbrevPairs = Path_OMap AbbrevPairID (Path_Pair (Path_View (Proxy CIString) (Path_View (Proxy Text) UPath_JSONText)) UPath_Markup)
 type UPath_Authors = Path_OMap AuthorID UPath_Author
+type UPath_Bool = Path_View Bool (UPath Univ String)
+type UPath_Branding = Path_View Branding (UPath Univ Text)
+type UPath_CIString = Path_View CIString (UPath Univ Text)
+type UPath_Dimension = Path_View Dimension (UPath Univ JSONText)
+type UPath_Double = Path_View Double (UPath Univ String)
 type UPath_EUI = Path_Either UPath_URI UPath_ImageFile
 type UPath_MEUI = Path_Maybe (Path_Either UPath_URI UPath_ImageFile)
 type UPath_MIM = Path_Map ItemFieldName UPath_Markup
-type UPath_MRR = Path_Map ReportID UPath_Report
+type UPath_MRR = Path_Map ReportID (Path_View (Proxy Report) UPath_ReportView)
 type UPath_MarkupPair = Path_Pair UPath_Markup UPath_Markup
 type UPath_MarkupPairs = Path_OMap MarkupPairID (Path_Pair UPath_Markup UPath_Markup)
 type UPath_Markups = Path_OMap MarkupID UPath_Markup
+type UPath_MaybeImageFile = Path_View MaybeImageFile (UPath Univ String)
+type UPath_MaybeReportIntendedUse = Path_View MaybeReportIntendedUse (UPath Univ String)
+type UPath_ReadOnlyFilePath = Path_View ReadOnlyFilePath (UPath Univ String)
+type UPath_Report = Path_View Report (UPath Univ ReportView)
 type UPath_ReportElems = Path_OMap ReportElemID UPath_ReportElem
-type UPath_ReportImages = Path_OMap ReportImageID UPath_ReportImage
+type UPath_ReportImage = Path_View ReportImage (UPath Univ ReportImageView)
+type UPath_ReportImages = Path_OMap ReportImageID (Path_View (Proxy ReportImage) UPath_ReportImageView)
+type UPath_ReportIntendedUse = Path_View ReportIntendedUse (UPath Univ String)
+type UPath_ReportStatus = Path_View ReportStatus (UPath Univ String)
+type UPath_SaneSizeImageSize = Path_View SaneSizeImageSize (UPath Univ ImageSize)
+type UPath_String = Path_View String (UPath Univ JSONText)
+type UPath_Text = Path_View Text (UPath Univ JSONText)
+type UPath_Units = Path_View Units (UPath Univ JSONText)
+type UPath_UserIds = Path_View UserIds (UPath Univ Text)
 class HasAuthor c
     where lens_author :: Lens' c Author
           lens_Author_authorCredentials :: forall . Lens' c Markup
@@ -736,11 +751,11 @@ instance PathStart Univ String
           upeekCons = UPeek_String
           upeekPath (UPeek_String p _) = p
           upeekValue (UPeek_String _ x) = x
-          type UPath Univ String = UPath_String
-          upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 (concat [map (\pf -> pf idPath) [UPath_String_View]])
+          type UPath Univ String = Path_View (Proxy String) UPath_JSONText
+          upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 (concat [map (\pf -> pf idPath) [Path_View Proxy]])
           upeekRow _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (\x' -> Node (upeekCons idPath (Just (u x' :: Univ)) :: UPeek Univ
-                                                                                                                                                                                                                             JSONText) []) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [JSONText]))) [UPath_String_View] ++ [])
-          upeekTree _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [JSONText]))) [UPath_String_View] ++ [])
+                                                                                                                                                                                                                             JSONText) []) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [JSONText]))) [Path_View Proxy] ++ [])
+          upeekTree _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [JSONText]))) [Path_View Proxy] ++ [])
 instance PathStart Univ Int64
     where data UPeek Univ Int64 = UPeek_Int64 (UPath Univ Int64) (Maybe Univ) deriving (Eq, Show)
           upeekCons = UPeek_Int64
@@ -755,21 +770,21 @@ instance PathStart Univ Bool
           upeekCons = UPeek_Bool
           upeekPath (UPeek_Bool p _) = p
           upeekValue (UPeek_Bool _ x) = x
-          type UPath Univ Bool = UPath_Bool
-          upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 (concat [map (\pf -> pf idPath) [UPath_Bool_View]])
+          type UPath Univ Bool = Path_View (Proxy Bool) (Path_View (Proxy String) UPath_JSONText)
+          upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 (concat [map (\pf -> pf idPath) [Path_View Proxy]])
           upeekRow _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (\x' -> Node (upeekCons idPath (Just (u x' :: Univ)) :: UPeek Univ
-                                                                                                                                                                                                                             String) []) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [String]))) [UPath_Bool_View] ++ [])
-          upeekTree _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [String]))) [UPath_Bool_View] ++ [])
+                                                                                                                                                                                                                             String) []) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [String]))) [Path_View Proxy] ++ [])
+          upeekTree _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [String]))) [Path_View Proxy] ++ [])
 instance PathStart Univ Double
     where data UPeek Univ Double = UPeek_Double (UPath Univ Double) (Maybe Univ) deriving (Eq, Show)
           upeekCons = UPeek_Double
           upeekPath (UPeek_Double p _) = p
           upeekValue (UPeek_Double _ x) = x
-          type UPath Univ Double = UPath_Double
-          upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 (concat [map (\pf -> pf idPath) [UPath_Double_View]])
+          type UPath Univ Double = Path_View (Proxy Double) (Path_View (Proxy String) UPath_JSONText)
+          upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 (concat [map (\pf -> pf idPath) [Path_View Proxy]])
           upeekRow _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (\x' -> Node (upeekCons idPath (Just (u x' :: Univ)) :: UPeek Univ
-                                                                                                                                                                                                                             String) []) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [String]))) [UPath_Double_View] ++ [])
-          upeekTree _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [String]))) [UPath_Double_View] ++ [])
+                                                                                                                                                                                                                             String) []) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [String]))) [Path_View Proxy] ++ [])
+          upeekTree _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [String]))) [Path_View Proxy] ++ [])
 instance PathStart Univ Int
     where data UPeek Univ Int = UPeek_Int (UPath Univ Int) (Maybe Univ) deriving (Eq, Show)
           upeekCons = UPeek_Int
@@ -784,11 +799,11 @@ instance PathStart Univ Dimension
           upeekCons = UPeek_Dimension
           upeekPath (UPeek_Dimension p _) = p
           upeekValue (UPeek_Dimension _ x) = x
-          type UPath Univ Dimension = UPath_Dimension
-          upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 (concat [map (\pf -> pf idPath) [UPath_Dimension_View]])
+          type UPath Univ Dimension = Path_View (Proxy Dimension) UPath_JSONText
+          upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 (concat [map (\pf -> pf idPath) [Path_View Proxy]])
           upeekRow _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (\x' -> Node (upeekCons idPath (Just (u x' :: Univ)) :: UPeek Univ
-                                                                                                                                                                                                                             JSONText) []) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [JSONText]))) [UPath_Dimension_View] ++ [])
-          upeekTree _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [JSONText]))) [UPath_Dimension_View] ++ [])
+                                                                                                                                                                                                                             JSONText) []) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [JSONText]))) [Path_View Proxy] ++ [])
+          upeekTree _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [JSONText]))) [Path_View Proxy] ++ [])
 instance PathStart Univ ImageCrop
     where data UPeek Univ ImageCrop = UPeek_ImageCrop (UPath Univ ImageCrop) (Maybe Univ) deriving (Eq, Show)
           upeekCons = UPeek_ImageCrop
@@ -817,11 +832,11 @@ instance PathStart Univ Units
           upeekCons = UPeek_Units
           upeekPath (UPeek_Units p _) = p
           upeekValue (UPeek_Units _ x) = x
-          type UPath Univ Units = UPath_Units
-          upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 (concat [map (\pf -> pf idPath) [UPath_Units_View]])
+          type UPath Univ Units = Path_View (Proxy Units) UPath_JSONText
+          upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 (concat [map (\pf -> pf idPath) [Path_View Proxy]])
           upeekRow _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (\x' -> Node (upeekCons idPath (Just (u x' :: Univ)) :: UPeek Univ
-                                                                                                                                                                                                                             JSONText) []) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [JSONText]))) [UPath_Units_View] ++ [])
-          upeekTree _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [JSONText]))) [UPath_Units_View] ++ [])
+                                                                                                                                                                                                                             JSONText) []) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [JSONText]))) [Path_View Proxy] ++ [])
+          upeekTree _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [JSONText]))) [Path_View Proxy] ++ [])
 instance PathStart Univ ImageFile
     where data UPeek Univ ImageFile = UPeek_ImageFile (UPath Univ ImageFile) (Maybe Univ) deriving (Eq, Show)
           upeekCons = UPeek_ImageFile
@@ -891,17 +906,17 @@ instance PathStart Univ UserIds
           upeekCons = UPeek_UserIds
           upeekPath (UPeek_UserIds p _) = p
           upeekValue (UPeek_UserIds _ x) = x
-          type UPath Univ UserIds = UPath_UserIds
-          upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 (concat [map (\pf -> pf idPath) [UPath_UserIds_View]])
+          type UPath Univ UserIds = Path_View (Proxy UserIds) (Path_View (Proxy Text) UPath_JSONText)
+          upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 (concat [map (\pf -> pf idPath) [Path_View Proxy]])
           upeekRow _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (\x' -> Node (upeekCons idPath (Just (u x' :: Univ)) :: UPeek Univ
-                                                                                                                                                                                                                             Text) []) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [Text]))) [UPath_UserIds_View] ++ [])
-          upeekTree _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [Text]))) [UPath_UserIds_View] ++ [])
+                                                                                                                                                                                                                             Text) []) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [Text]))) [Path_View Proxy] ++ [])
+          upeekTree _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [Text]))) [Path_View Proxy] ++ [])
 instance PathStart Univ AbbrevPair
     where data UPeek Univ AbbrevPair = UPeek_AbbrevPair (UPath Univ AbbrevPair) (Maybe Univ) deriving (Eq, Show)
           upeekCons = UPeek_AbbrevPair
           upeekPath (UPeek_AbbrevPair p _) = p
           upeekValue (UPeek_AbbrevPair _ x) = x
-          type UPath Univ AbbrevPair = Path_Pair UPath_CIString UPath_Markup
+          type UPath Univ AbbrevPair = Path_Pair (Path_View (Proxy CIString) (Path_View (Proxy Text) UPath_JSONText)) UPath_Markup
           upaths _ _f r0 (_xconc@_) = foldr _f r0 (concat [map (\pf -> pf idPath) [Path_First], map (\pf -> pf idPath) [Path_Second]])
           upeekRow _unv _xconc = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (\x' -> Node (upeekCons idPath (Just (u x' :: Univ)) :: UPeek Univ
                                                                                                                                                                                                                       CIString) []) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [CIString]))) [Path_First] ++ (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (\x' -> Node (upeekCons idPath (Just (u x' :: Univ)) :: UPeek Univ
@@ -912,7 +927,7 @@ instance PathStart Univ AbbrevPairs
           upeekCons = UPeek_AbbrevPairs
           upeekPath (UPeek_AbbrevPairs p _) = p
           upeekValue (UPeek_AbbrevPairs _ x) = x
-          type UPath Univ AbbrevPairs = Path_OMap AbbrevPairID (Path_Pair UPath_CIString UPath_Markup)
+          type UPath Univ AbbrevPairs = Path_OMap AbbrevPairID (Path_Pair (Path_View (Proxy CIString) (Path_View (Proxy Text) UPath_JSONText)) UPath_Markup)
           upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 (concat [map (\pf -> pf idPath) (map (\(k, _v) -> Path_At k) (toPairs _xyz))])
           upeekRow _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (\x' -> Node (upeekCons idPath (Just (u x' :: Univ)) :: UPeek Univ
                                                                                                                                                                                                                              AbbrevPair) []) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [AbbrevPair]))) (map (\(k,
@@ -947,11 +962,11 @@ instance PathStart Univ Branding
           upeekCons = UPeek_Branding
           upeekPath (UPeek_Branding p _) = p
           upeekValue (UPeek_Branding _ x) = x
-          type UPath Univ Branding = UPath_Branding
-          upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 (concat [map (\pf -> pf idPath) [UPath_Branding_View]])
+          type UPath Univ Branding = Path_View (Proxy Branding) (Path_View (Proxy Text) UPath_JSONText)
+          upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 (concat [map (\pf -> pf idPath) [Path_View Proxy]])
           upeekRow _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (\x' -> Node (upeekCons idPath (Just (u x' :: Univ)) :: UPeek Univ
-                                                                                                                                                                                                                             Text) []) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [Text]))) [UPath_Branding_View] ++ [])
-          upeekTree _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [Text]))) [UPath_Branding_View] ++ [])
+                                                                                                                                                                                                                             Text) []) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [Text]))) [Path_View Proxy] ++ [])
+          upeekTree _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [Text]))) [Path_View Proxy] ++ [])
 instance PathStart Univ MarkupPair
     where data UPeek Univ MarkupPair = UPeek_MarkupPair (UPath Univ MarkupPair) (Maybe Univ) deriving (Eq, Show)
           upeekCons = UPeek_MarkupPair
@@ -992,21 +1007,21 @@ instance PathStart Univ MaybeReportIntendedUse
           upeekCons = UPeek_MaybeReportIntendedUse
           upeekPath (UPeek_MaybeReportIntendedUse p _) = p
           upeekValue (UPeek_MaybeReportIntendedUse _ x) = x
-          type UPath Univ MaybeReportIntendedUse = UPath_MaybeReportIntendedUse
-          upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 (concat [map (\pf -> pf idPath) [UPath_MaybeReportIntendedUse_View]])
+          type UPath Univ MaybeReportIntendedUse = Path_View (Proxy MaybeReportIntendedUse) (Path_View (Proxy String) UPath_JSONText)
+          upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 (concat [map (\pf -> pf idPath) [Path_View Proxy]])
           upeekRow _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (\x' -> Node (upeekCons idPath (Just (u x' :: Univ)) :: UPeek Univ
-                                                                                                                                                                                                                             String) []) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [String]))) [UPath_MaybeReportIntendedUse_View] ++ [])
-          upeekTree _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [String]))) [UPath_MaybeReportIntendedUse_View] ++ [])
+                                                                                                                                                                                                                             String) []) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [String]))) [Path_View Proxy] ++ [])
+          upeekTree _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [String]))) [Path_View Proxy] ++ [])
 instance PathStart Univ Report
     where data UPeek Univ Report = UPeek_Report (UPath Univ Report) (Maybe Univ) deriving (Eq, Show)
           upeekCons = UPeek_Report
           upeekPath (UPeek_Report p _) = p
           upeekValue (UPeek_Report _ x) = x
-          type UPath Univ Report = UPath_Report
-          upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 (concat [map (\pf -> pf idPath) [UPath_Report_View]])
+          type UPath Univ Report = Path_View (Proxy Report) UPath_ReportView
+          upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 (concat [map (\pf -> pf idPath) [Path_View Proxy]])
           upeekRow _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (\x' -> Node (upeekCons idPath (Just (u x' :: Univ)) :: UPeek Univ
-                                                                                                                                                                                                                             ReportView) []) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [ReportView]))) [UPath_Report_View] ++ [])
-          upeekTree _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [ReportView]))) [UPath_Report_View] ++ [])
+                                                                                                                                                                                                                             ReportView) []) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [ReportView]))) [Path_View Proxy] ++ [])
+          upeekTree _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [ReportView]))) [Path_View Proxy] ++ [])
 instance PathStart Univ ReportElem
     where data UPeek Univ ReportElem = UPeek_ReportElem (UPath Univ ReportElem) (Maybe Univ) deriving (Eq, Show)
           upeekCons = UPeek_ReportElem
@@ -1051,11 +1066,11 @@ instance PathStart Univ ReportIntendedUse
           upeekCons = UPeek_ReportIntendedUse
           upeekPath (UPeek_ReportIntendedUse p _) = p
           upeekValue (UPeek_ReportIntendedUse _ x) = x
-          type UPath Univ ReportIntendedUse = UPath_ReportIntendedUse
-          upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 (concat [map (\pf -> pf idPath) [UPath_ReportIntendedUse_View]])
+          type UPath Univ ReportIntendedUse = Path_View (Proxy ReportIntendedUse) (Path_View (Proxy String) UPath_JSONText)
+          upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 (concat [map (\pf -> pf idPath) [Path_View Proxy]])
           upeekRow _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (\x' -> Node (upeekCons idPath (Just (u x' :: Univ)) :: UPeek Univ
-                                                                                                                                                                                                                             String) []) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [String]))) [UPath_ReportIntendedUse_View] ++ [])
-          upeekTree _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [String]))) [UPath_ReportIntendedUse_View] ++ [])
+                                                                                                                                                                                                                             String) []) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [String]))) [Path_View Proxy] ++ [])
+          upeekTree _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [String]))) [Path_View Proxy] ++ [])
 instance PathStart Univ ReportStandard
     where data UPeek Univ ReportStandard = UPeek_ReportStandard (UPath Univ ReportStandard) (Maybe Univ) deriving (Eq, Show)
           upeekCons = UPeek_ReportStandard
@@ -1071,11 +1086,11 @@ instance PathStart Univ ReportStatus
           upeekCons = UPeek_ReportStatus
           upeekPath (UPeek_ReportStatus p _) = p
           upeekValue (UPeek_ReportStatus _ x) = x
-          type UPath Univ ReportStatus = UPath_ReportStatus
-          upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 (concat [map (\pf -> pf idPath) [UPath_ReportStatus_View]])
+          type UPath Univ ReportStatus = Path_View (Proxy ReportStatus) (Path_View (Proxy String) UPath_JSONText)
+          upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 (concat [map (\pf -> pf idPath) [Path_View Proxy]])
           upeekRow _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (\x' -> Node (upeekCons idPath (Just (u x' :: Univ)) :: UPeek Univ
-                                                                                                                                                                                                                             String) []) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [String]))) [UPath_ReportStatus_View] ++ [])
-          upeekTree _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [String]))) [UPath_ReportStatus_View] ++ [])
+                                                                                                                                                                                                                             String) []) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [String]))) [Path_View Proxy] ++ [])
+          upeekTree _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [String]))) [Path_View Proxy] ++ [])
 instance PathStart Univ ReportValueApproachInfo
     where data UPeek Univ ReportValueApproachInfo = UPeek_ReportValueApproachInfo (UPath Univ ReportValueApproachInfo) (Maybe Univ) deriving (Eq, Show)
           upeekCons = UPeek_ReportValueApproachInfo
@@ -1131,27 +1146,27 @@ instance PathStart Univ MaybeImageFile
           upeekCons = UPeek_MaybeImageFile
           upeekPath (UPeek_MaybeImageFile p _) = p
           upeekValue (UPeek_MaybeImageFile _ x) = x
-          type UPath Univ MaybeImageFile = UPath_MaybeImageFile
-          upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 (concat [map (\pf -> pf idPath) [UPath_MaybeImageFile_View]])
+          type UPath Univ MaybeImageFile = Path_View (Proxy MaybeImageFile) (Path_View (Proxy String) UPath_JSONText)
+          upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 (concat [map (\pf -> pf idPath) [Path_View Proxy]])
           upeekRow _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (\x' -> Node (upeekCons idPath (Just (u x' :: Univ)) :: UPeek Univ
-                                                                                                                                                                                                                             String) []) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [String]))) [UPath_MaybeImageFile_View] ++ [])
-          upeekTree _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [String]))) [UPath_MaybeImageFile_View] ++ [])
+                                                                                                                                                                                                                             String) []) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [String]))) [Path_View Proxy] ++ [])
+          upeekTree _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [String]))) [Path_View Proxy] ++ [])
 instance PathStart Univ ReportImage
     where data UPeek Univ ReportImage = UPeek_ReportImage (UPath Univ ReportImage) (Maybe Univ) deriving (Eq, Show)
           upeekCons = UPeek_ReportImage
           upeekPath (UPeek_ReportImage p _) = p
           upeekValue (UPeek_ReportImage _ x) = x
-          type UPath Univ ReportImage = UPath_ReportImage
-          upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 (concat [map (\pf -> pf idPath) [UPath_ReportImage_View]])
+          type UPath Univ ReportImage = Path_View (Proxy ReportImage) UPath_ReportImageView
+          upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 (concat [map (\pf -> pf idPath) [Path_View Proxy]])
           upeekRow _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (\x' -> Node (upeekCons idPath (Just (u x' :: Univ)) :: UPeek Univ
-                                                                                                                                                                                                                             ReportImageView) []) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [ReportImageView]))) [UPath_ReportImage_View] ++ [])
-          upeekTree _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [ReportImageView]))) [UPath_ReportImage_View] ++ [])
+                                                                                                                                                                                                                             ReportImageView) []) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [ReportImageView]))) [Path_View Proxy] ++ [])
+          upeekTree _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [ReportImageView]))) [Path_View Proxy] ++ [])
 instance PathStart Univ ReportImages
     where data UPeek Univ ReportImages = UPeek_ReportImages (UPath Univ ReportImages) (Maybe Univ) deriving (Eq, Show)
           upeekCons = UPeek_ReportImages
           upeekPath (UPeek_ReportImages p _) = p
           upeekValue (UPeek_ReportImages _ x) = x
-          type UPath Univ ReportImages = Path_OMap ReportImageID UPath_ReportImage
+          type UPath Univ ReportImages = Path_OMap ReportImageID (Path_View (Proxy ReportImage) UPath_ReportImageView)
           upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 (concat [map (\pf -> pf idPath) (map (\(k, _v) -> Path_At k) (toPairs _xyz))])
           upeekRow _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (\x' -> Node (upeekCons idPath (Just (u x' :: Univ)) :: UPeek Univ
                                                                                                                                                                                                                              ReportImage) []) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [ReportImage]))) (map (\(k,
@@ -1163,11 +1178,11 @@ instance PathStart Univ ReadOnlyFilePath
           upeekCons = UPeek_ReadOnlyFilePath
           upeekPath (UPeek_ReadOnlyFilePath p _) = p
           upeekValue (UPeek_ReadOnlyFilePath _ x) = x
-          type UPath Univ ReadOnlyFilePath = UPath_ReadOnlyFilePath
-          upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 (concat [map (\pf -> pf idPath) [UPath_ReadOnlyFilePath_View]])
+          type UPath Univ ReadOnlyFilePath = Path_View (Proxy ReadOnlyFilePath) (Path_View (Proxy String) UPath_JSONText)
+          upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 (concat [map (\pf -> pf idPath) [Path_View Proxy]])
           upeekRow _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (\x' -> Node (upeekCons idPath (Just (u x' :: Univ)) :: UPeek Univ
-                                                                                                                                                                                                                             String) []) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [String]))) [UPath_ReadOnlyFilePath_View] ++ [])
-          upeekTree _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [String]))) [UPath_ReadOnlyFilePath_View] ++ [])
+                                                                                                                                                                                                                             String) []) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [String]))) [Path_View Proxy] ++ [])
+          upeekTree _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [String]))) [Path_View Proxy] ++ [])
 instance PathStart Univ ReportImageView
     where data UPeek Univ ReportImageView = UPeek_ReportImageView (UPath Univ ReportImageView) (Maybe Univ) deriving (Eq, Show)
           upeekCons = UPeek_ReportImageView
@@ -1297,11 +1312,11 @@ instance PathStart Univ SaneSizeImageSize
           upeekCons = UPeek_SaneSizeImageSize
           upeekPath (UPeek_SaneSizeImageSize p _) = p
           upeekValue (UPeek_SaneSizeImageSize _ x) = x
-          type UPath Univ SaneSizeImageSize = UPath_SaneSizeImageSize
-          upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 (concat [map (\pf -> pf idPath) [UPath_SaneSizeImageSize_View]])
+          type UPath Univ SaneSizeImageSize = Path_View (Proxy SaneSizeImageSize) UPath_ImageSize
+          upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 (concat [map (\pf -> pf idPath) [Path_View Proxy]])
           upeekRow _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (\x' -> Node (upeekCons idPath (Just (u x' :: Univ)) :: UPeek Univ
-                                                                                                                                                                                                                             ImageSize) []) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [ImageSize]))) [UPath_SaneSizeImageSize_View] ++ [])
-          upeekTree _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [ImageSize]))) [UPath_SaneSizeImageSize_View] ++ [])
+                                                                                                                                                                                                                             ImageSize) []) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [ImageSize]))) [Path_View Proxy] ++ [])
+          upeekTree _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [ImageSize]))) [Path_View Proxy] ++ [])
 instance PathStart Univ Item
     where data UPeek Univ Item = UPeek_Item (UPath Univ Item) (Maybe Univ) deriving (Eq, Show)
           upeekCons = UPeek_Item
@@ -1333,7 +1348,7 @@ instance PathStart Univ MRR
           upeekCons = UPeek_MRR
           upeekPath (UPeek_MRR p _) = p
           upeekValue (UPeek_MRR _ x) = x
-          type UPath Univ MRR = Path_Map ReportID UPath_Report
+          type UPath Univ MRR = Path_Map ReportID (Path_View (Proxy Report) UPath_ReportView)
           upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 (concat [map (\pf -> pf idPath) (map (\(k, _v) -> Path_Look k) (toList _xyz))])
           upeekRow _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (\x' -> Node (upeekCons idPath (Just (u x' :: Univ)) :: UPeek Univ
                                                                                                                                                                                                                              Report) []) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [Report]))) (map (\(k,
@@ -1355,11 +1370,11 @@ instance PathStart Univ CIString
           upeekCons = UPeek_CIString
           upeekPath (UPeek_CIString p _) = p
           upeekValue (UPeek_CIString _ x) = x
-          type UPath Univ CIString = UPath_CIString
-          upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 (concat [map (\pf -> pf idPath) [UPath_CIString_View]])
+          type UPath Univ CIString = Path_View (Proxy CIString) (Path_View (Proxy Text) UPath_JSONText)
+          upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 (concat [map (\pf -> pf idPath) [Path_View Proxy]])
           upeekRow _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (\x' -> Node (upeekCons idPath (Just (u x' :: Univ)) :: UPeek Univ
-                                                                                                                                                                                                                             Text) []) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [Text]))) [UPath_CIString_View] ++ [])
-          upeekTree _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [Text]))) [UPath_CIString_View] ++ [])
+                                                                                                                                                                                                                             Text) []) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [Text]))) [Path_View Proxy] ++ [])
+          upeekTree _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [Text]))) [Path_View Proxy] ++ [])
 instance PathStart Univ URI
     where data UPeek Univ URI = UPeek_URI (UPath Univ URI) (Maybe Univ) deriving (Eq, Show)
           upeekCons = UPeek_URI
@@ -1374,11 +1389,11 @@ instance PathStart Univ Text
           upeekCons = UPeek_Text
           upeekPath (UPeek_Text p _) = p
           upeekValue (UPeek_Text _ x) = x
-          type UPath Univ Text = UPath_Text
-          upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 (concat [map (\pf -> pf idPath) [UPath_Text_View]])
+          type UPath Univ Text = Path_View (Proxy Text) UPath_JSONText
+          upaths _ _f r0 (_xconc@_xyz) = foldr _f r0 (concat [map (\pf -> pf idPath) [Path_View Proxy]])
           upeekRow _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (\x' -> Node (upeekCons idPath (Just (u x' :: Univ)) :: UPeek Univ
-                                                                                                                                                                                                                             JSONText) []) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [JSONText]))) [UPath_Text_View] ++ [])
-          upeekTree _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [JSONText]))) [UPath_Text_View] ++ [])
+                                                                                                                                                                                                                             JSONText) []) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [JSONText]))) [Path_View Proxy] ++ [])
+          upeekTree _unv (_xconc@_xyz) = Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (\pk -> upeekCons (f (upeekPath pk)) (upeekValue pk)) (map (upeekTree _unv) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [JSONText]))) [Path_View Proxy] ++ [])
 instance PathStart Univ UserId
     where data UPeek Univ UserId = UPeek_UserId (UPath Univ UserId) (Maybe Univ) deriving (Eq, Show)
           upeekCons = UPeek_UserId
@@ -1399,20 +1414,20 @@ instance PathStart Univ UUID
           upeekTree _ x = Node (upeekCons idPath (Just (u x))) []
 instance ToLens Univ String
     where toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
-          toLens (UPath_String_View v) = viewLens . toLens v
+          toLens (Path_View (Proxy) v) = viewLens . toLens v
 instance ToLens Univ Int64
     where toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
 instance ToLens Univ Bool
     where toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
-          toLens (UPath_Bool_View v) = viewLens . toLens v
+          toLens (Path_View (Proxy) v) = viewLens . toLens v
 instance ToLens Univ Double
     where toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
-          toLens (UPath_Double_View v) = viewLens . toLens v
+          toLens (Path_View (Proxy) v) = viewLens . toLens v
 instance ToLens Univ Int
     where toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
 instance ToLens Univ Dimension
     where toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
-          toLens (UPath_Dimension_View v) = viewLens . toLens v
+          toLens (Path_View (Proxy) v) = viewLens . toLens v
 instance ToLens Univ ImageCrop
     where toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
 instance ToLens Univ ImageSize
@@ -1422,7 +1437,7 @@ instance ToLens Univ ImageSize
           toLens (UPath_ImageSize_units _p) = lens_ImageSize_units . toLens _p
 instance ToLens Univ Units
     where toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
-          toLens (UPath_Units_View v) = viewLens . toLens v
+          toLens (Path_View (Proxy) v) = viewLens . toLens v
 instance ToLens Univ ImageFile
     where toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
 instance ToLens Univ Integer
@@ -1440,7 +1455,7 @@ instance ToLens Univ Permissions
           toLens (UPath_Permissions_readers _p) = lens_Permissions_readers . toLens _p
 instance ToLens Univ UserIds
     where toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
-          toLens (UPath_UserIds_View v) = viewLens . toLens v
+          toLens (Path_View (Proxy) v) = viewLens . toLens v
 instance ToLens Univ AbbrevPair
     where toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
           toLens (Path_First v) = _1 . toLens v
@@ -1457,7 +1472,7 @@ instance ToLens Univ Authors
           toLens (Path_At k v) = lens_omat k . toLens v
 instance ToLens Univ Branding
     where toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
-          toLens (UPath_Branding_View v) = viewLens . toLens v
+          toLens (Path_View (Proxy) v) = viewLens . toLens v
 instance ToLens Univ MarkupPair
     where toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
           toLens (Path_First v) = _1 . toLens v
@@ -1470,10 +1485,10 @@ instance ToLens Univ Markups
           toLens (Path_At k v) = lens_omat k . toLens v
 instance ToLens Univ MaybeReportIntendedUse
     where toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
-          toLens (UPath_MaybeReportIntendedUse_View v) = viewLens . toLens v
+          toLens (Path_View (Proxy) v) = viewLens . toLens v
 instance ToLens Univ Report
     where toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
-          toLens (UPath_Report_View v) = viewLens . toLens v
+          toLens (Path_View (Proxy) v) = viewLens . toLens v
 instance ToLens Univ ReportElem
     where toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
           toLens (UPath_ReportElem_elemItem _p) = lens_ReportElem_elemItem . toLens _p
@@ -1486,13 +1501,13 @@ instance ToLens Univ ReportFlags
           toLens (UPath_ReportFlags_hideEmptyItemFields _p) = lens_ReportFlags_hideEmptyItemFields . toLens _p
 instance ToLens Univ ReportIntendedUse
     where toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
-          toLens (UPath_ReportIntendedUse_View v) = viewLens . toLens v
+          toLens (Path_View (Proxy) v) = viewLens . toLens v
 instance ToLens Univ ReportStandard
     where toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
           toLens (UPath_ReportStandard_unReportStandard _p) = lens_ReportStandard_unReportStandard . toLens _p
 instance ToLens Univ ReportStatus
     where toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
-          toLens (UPath_ReportStatus_View v) = viewLens . toLens v
+          toLens (Path_View (Proxy) v) = viewLens . toLens v
 instance ToLens Univ ReportValueApproachInfo
     where toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
           toLens (UPath_ReportValueApproachInfo_reportValueApproachName _p) = lens_ReportValueApproachInfo_reportValueApproachName . toLens _p
@@ -1511,16 +1526,16 @@ instance ToLens Univ MEUI
           toLens (Path_Just v) = _Just . toLens v
 instance ToLens Univ MaybeImageFile
     where toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
-          toLens (UPath_MaybeImageFile_View v) = viewLens . toLens v
+          toLens (Path_View (Proxy) v) = viewLens . toLens v
 instance ToLens Univ ReportImage
     where toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
-          toLens (UPath_ReportImage_View v) = viewLens . toLens v
+          toLens (Path_View (Proxy) v) = viewLens . toLens v
 instance ToLens Univ ReportImages
     where toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
           toLens (Path_At k v) = lens_omat k . toLens v
 instance ToLens Univ ReadOnlyFilePath
     where toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
-          toLens (UPath_ReadOnlyFilePath_View v) = viewLens . toLens v
+          toLens (Path_View (Proxy) v) = viewLens . toLens v
 instance ToLens Univ ReportImageView
     where toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
           toLens (UPath_ReportImageView__picSize _p) = lens_ReportImageView__picSize . toLens _p
@@ -1581,7 +1596,7 @@ instance ToLens Univ ReportView
           toLens (UPath_ReportView__reportStandardsVersion _p) = lens_ReportView__reportStandardsVersion . toLens _p
 instance ToLens Univ SaneSizeImageSize
     where toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
-          toLens (UPath_SaneSizeImageSize_View v) = viewLens . toLens v
+          toLens (Path_View (Proxy) v) = viewLens . toLens v
 instance ToLens Univ Item
     where toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
           toLens (UPath_Item_itemName _p) = lens_Item_itemName . toLens _p
@@ -1598,12 +1613,12 @@ instance ToLens Univ ReportMap
           toLens (UPath_ReportMap_unReportMap _p) = lens_ReportMap_unReportMap . toLens _p
 instance ToLens Univ CIString
     where toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
-          toLens (UPath_CIString_View v) = viewLens . toLens v
+          toLens (Path_View (Proxy) v) = viewLens . toLens v
 instance ToLens Univ URI
     where toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
 instance ToLens Univ Text
     where toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
-          toLens (UPath_Text_View v) = viewLens . toLens v
+          toLens (Path_View (Proxy) v) = viewLens . toLens v
 instance ToLens Univ UserId
     where toLens p | p == idPath = lens u (\s a -> maybe s id (unU' a))
 instance ToLens Univ UUID
@@ -6242,21 +6257,6 @@ instance Describe UPath_Author
     where describe' _f (_p@(UPath_Author_authorName _wp)) = maybe (describe' _f (Proxy :: Proxy Author)) Just (describe' (Just "Author Name") _wp)
           describe' _f (_p@(UPath_Author_authorCredentials _wp)) = maybe (describe' _f (Proxy :: Proxy Author)) Just (describe' (Just "Author Credentials") _wp)
           describe' f p | p == idPath = describe' f (Proxy :: Proxy Author)
-instance Describe UPath_Bool
-    where describe' _f (_p@(UPath_Bool_View _wp)) = maybe (describe' _f (Proxy :: Proxy Bool)) Just (describe' Nothing _wp)
-          describe' f p | p == idPath = describe' f (Proxy :: Proxy Bool)
-instance Describe UPath_Branding
-    where describe' _f (_p@(UPath_Branding_View _wp)) = maybe (describe' _f (Proxy :: Proxy Branding)) Just (describe' Nothing _wp)
-          describe' f p | p == idPath = describe' f (Proxy :: Proxy Branding)
-instance Describe UPath_CIString
-    where describe' _f (_p@(UPath_CIString_View _wp)) = maybe (describe' _f (Proxy :: Proxy CIString)) Just (describe' Nothing _wp)
-          describe' f p | p == idPath = describe' f (Proxy :: Proxy CIString)
-instance Describe UPath_Dimension
-    where describe' _f (_p@(UPath_Dimension_View _wp)) = maybe (describe' _f (Proxy :: Proxy Dimension)) Just (describe' Nothing _wp)
-          describe' f p | p == idPath = describe' f (Proxy :: Proxy Dimension)
-instance Describe UPath_Double
-    where describe' _f (_p@(UPath_Double_View _wp)) = maybe (describe' _f (Proxy :: Proxy Double)) Just (describe' Nothing _wp)
-          describe' f p | p == idPath = describe' f (Proxy :: Proxy Double)
 instance Describe UPath_ImageCrop
     where describe' f _ = describe' f (Proxy :: Proxy ImageCrop)
           describe' f p | p == idPath = describe' f (Proxy :: Proxy ImageCrop)
@@ -6289,23 +6289,11 @@ instance Describe UPath_Markup
     where describe' _f (_p@(UPath_Markup_markdownText _wp)) = maybe (describe' _f (Proxy :: Proxy Markup)) Just (describe' (Just "Markdown Text") _wp)
           describe' _f (_p@(UPath_Markup_htmlText _wp)) = maybe (describe' _f (Proxy :: Proxy Markup)) Just (describe' (Just "Html Text") _wp)
           describe' f p | p == idPath = describe' f (Proxy :: Proxy Markup)
-instance Describe UPath_MaybeImageFile
-    where describe' _f (_p@(UPath_MaybeImageFile_View _wp)) = maybe (describe' _f (Proxy :: Proxy MaybeImageFile)) Just (describe' Nothing _wp)
-          describe' f p | p == idPath = describe' f (Proxy :: Proxy MaybeImageFile)
-instance Describe UPath_MaybeReportIntendedUse
-    where describe' _f (_p@(UPath_MaybeReportIntendedUse_View _wp)) = maybe (describe' _f (Proxy :: Proxy MaybeReportIntendedUse)) Just (describe' Nothing _wp)
-          describe' f p | p == idPath = describe' f (Proxy :: Proxy MaybeReportIntendedUse)
 instance Describe UPath_Permissions
     where describe' _f (_p@(UPath_Permissions_owner _wp)) = maybe (describe' _f (Proxy :: Proxy Permissions)) Just (describe' (Just "Owner") _wp)
           describe' _f (_p@(UPath_Permissions_writers _wp)) = maybe (describe' _f (Proxy :: Proxy Permissions)) Just (describe' (Just "Writers") _wp)
           describe' _f (_p@(UPath_Permissions_readers _wp)) = maybe (describe' _f (Proxy :: Proxy Permissions)) Just (describe' (Just "Readers") _wp)
           describe' f p | p == idPath = describe' f (Proxy :: Proxy Permissions)
-instance Describe UPath_ReadOnlyFilePath
-    where describe' _f (_p@(UPath_ReadOnlyFilePath_View _wp)) = maybe (describe' _f (Proxy :: Proxy ReadOnlyFilePath)) Just (describe' Nothing _wp)
-          describe' f p | p == idPath = describe' f (Proxy :: Proxy ReadOnlyFilePath)
-instance Describe UPath_Report
-    where describe' _f (_p@(UPath_Report_View _wp)) = maybe (describe' _f (Proxy :: Proxy Report)) Just (describe' Nothing _wp)
-          describe' f p | p == idPath = describe' f (Proxy :: Proxy Report)
 instance Describe UPath_ReportElem
     where describe' _f (_p@(UPath_ReportElem_elemItem _wp)) = maybe (describe' _f (Proxy :: Proxy ReportElem)) Just (describe' (Just "Elem Item") _wp)
           describe' _f (_p@(UPath_ReportElem_elemText _wp)) = maybe (describe' _f (Proxy :: Proxy ReportElem)) Just (describe' (Just "Elem Text") _wp)
@@ -6313,9 +6301,6 @@ instance Describe UPath_ReportElem
 instance Describe UPath_ReportFlags
     where describe' _f (_p@(UPath_ReportFlags_hideEmptyItemFields _wp)) = maybe (describe' _f (Proxy :: Proxy ReportFlags)) Just (describe' (Just "Hide Empty Item Fields") _wp)
           describe' f p | p == idPath = describe' f (Proxy :: Proxy ReportFlags)
-instance Describe UPath_ReportImage
-    where describe' _f (_p@(UPath_ReportImage_View _wp)) = maybe (describe' _f (Proxy :: Proxy ReportImage)) Just (describe' Nothing _wp)
-          describe' f p | p == idPath = describe' f (Proxy :: Proxy ReportImage)
 instance Describe UPath_ReportImageView
     where describe' _f (_p@(UPath_ReportImageView__picSize _wp)) = maybe (describe' _f (Proxy :: Proxy ReportImageView)) Just (describe' (Just "Pic Size") _wp)
           describe' _f (_p@(UPath_ReportImageView__picCrop _wp)) = maybe (describe' _f (Proxy :: Proxy ReportImageView)) Just (describe' (Just "Pic Crop") _wp)
@@ -6327,18 +6312,12 @@ instance Describe UPath_ReportImageView
           describe' _f (_p@(UPath_ReportImageView__picMustEnlarge _wp)) = maybe (describe' _f (Proxy :: Proxy ReportImageView)) Just (describe' (Just "Pic Must Enlarge") _wp)
           describe' _f (_p@(UPath_ReportImageView__picEnlargedDeprecated _wp)) = maybe (describe' _f (Proxy :: Proxy ReportImageView)) Just (describe' (Just "Pic Enlarged Deprecated") _wp)
           describe' f p | p == idPath = describe' f (Proxy :: Proxy ReportImageView)
-instance Describe UPath_ReportIntendedUse
-    where describe' _f (_p@(UPath_ReportIntendedUse_View _wp)) = maybe (describe' _f (Proxy :: Proxy ReportIntendedUse)) Just (describe' Nothing _wp)
-          describe' f p | p == idPath = describe' f (Proxy :: Proxy ReportIntendedUse)
 instance Describe UPath_ReportMap
     where describe' _f (_p@(UPath_ReportMap_unReportMap _wp)) = maybe (describe' _f (Proxy :: Proxy ReportMap)) Just (describe' (Just "Un Report Map") _wp)
           describe' f p | p == idPath = describe' f (Proxy :: Proxy ReportMap)
 instance Describe UPath_ReportStandard
     where describe' _f (_p@(UPath_ReportStandard_unReportStandard _wp)) = maybe (describe' _f (Proxy :: Proxy ReportStandard)) Just (describe' (Just "Un Report Standard") _wp)
           describe' f p | p == idPath = describe' f (Proxy :: Proxy ReportStandard)
-instance Describe UPath_ReportStatus
-    where describe' _f (_p@(UPath_ReportStatus_View _wp)) = maybe (describe' _f (Proxy :: Proxy ReportStatus)) Just (describe' Nothing _wp)
-          describe' f p | p == idPath = describe' f (Proxy :: Proxy ReportStatus)
 instance Describe UPath_ReportValueApproachInfo
     where describe' _f (_p@(UPath_ReportValueApproachInfo_reportValueApproachName _wp)) = maybe (describe' _f (Proxy :: Proxy ReportValueApproachInfo)) Just (describe' (Just "Report Value Approach Name") _wp)
           describe' _f (_p@(UPath_ReportValueApproachInfo_reportValueApproachDescription _wp)) = maybe (describe' _f (Proxy :: Proxy ReportValueApproachInfo)) Just (describe' (Just "Report Value Approach Description") _wp)
@@ -6395,54 +6374,19 @@ instance Describe UPath_ReportView
           describe' _f (_p@(UPath_ReportView__reportDisplayItemName _wp)) = maybe (describe' _f (Proxy :: Proxy ReportView)) Just (describe' (Just "Report Display Item Name") _wp)
           describe' _f (_p@(UPath_ReportView__reportStandardsVersion _wp)) = maybe (describe' _f (Proxy :: Proxy ReportView)) Just (describe' (Just "Report Standards Version") _wp)
           describe' f p | p == idPath = describe' f (Proxy :: Proxy ReportView)
-instance Describe UPath_SaneSizeImageSize
-    where describe' _f (_p@(UPath_SaneSizeImageSize_View _wp)) = maybe (describe' _f (Proxy :: Proxy SaneSizeImageSize)) Just (describe' Nothing _wp)
-          describe' f p | p == idPath = describe' f (Proxy :: Proxy SaneSizeImageSize)
-instance Describe UPath_String
-    where describe' _f (_p@(UPath_String_View _wp)) = maybe (describe' _f (Proxy :: Proxy String)) Just (describe' Nothing _wp)
-          describe' f p | p == idPath = describe' f (Proxy :: Proxy String)
-instance Describe UPath_Text
-    where describe' _f (_p@(UPath_Text_View _wp)) = maybe (describe' _f (Proxy :: Proxy Text)) Just (describe' Nothing _wp)
-          describe' f p | p == idPath = describe' f (Proxy :: Proxy Text)
 instance Describe UPath_URI
     where describe' f _ = describe' f (Proxy :: Proxy URI)
           describe' f p | p == idPath = describe' f (Proxy :: Proxy URI)
 instance Describe UPath_UUID
     where describe' f _ = describe' f (Proxy :: Proxy UUID)
           describe' f p | p == idPath = describe' f (Proxy :: Proxy UUID)
-instance Describe UPath_Units
-    where describe' _f (_p@(UPath_Units_View _wp)) = maybe (describe' _f (Proxy :: Proxy Units)) Just (describe' Nothing _wp)
-          describe' f p | p == idPath = describe' f (Proxy :: Proxy Units)
 instance Describe UPath_UserId
     where describe' f _ = describe' f (Proxy :: Proxy UserId)
           describe' f p | p == idPath = describe' f (Proxy :: Proxy UserId)
-instance Describe UPath_UserIds
-    where describe' _f (_p@(UPath_UserIds_View _wp)) = maybe (describe' _f (Proxy :: Proxy UserIds)) Just (describe' Nothing _wp)
-          describe' f p | p == idPath = describe' f (Proxy :: Proxy UserIds)
 instance IsPath UPath_Author
     where type UType UPath_Author = Univ
           type SType UPath_Author = Author
           idPath = UPath_Author
-instance IsPath UPath_Bool
-    where type UType UPath_Bool = Univ
-          type SType UPath_Bool = Bool
-          idPath = UPath_Bool
-instance IsPath UPath_Branding
-    where type UType UPath_Branding = Univ
-          type SType UPath_Branding = Branding
-          idPath = UPath_Branding
-instance IsPath UPath_CIString
-    where type UType UPath_CIString = Univ
-          type SType UPath_CIString = CIString
-          idPath = UPath_CIString
-instance IsPath UPath_Dimension
-    where type UType UPath_Dimension = Univ
-          type SType UPath_Dimension = Dimension
-          idPath = UPath_Dimension
-instance IsPath UPath_Double
-    where type UType UPath_Double = Univ
-          type SType UPath_Double = Double
-          idPath = UPath_Double
 instance IsPath UPath_ImageCrop
     where type UType UPath_ImageCrop = Univ
           type SType UPath_ImageCrop = ImageCrop
@@ -6479,26 +6423,10 @@ instance IsPath UPath_Markup
     where type UType UPath_Markup = Univ
           type SType UPath_Markup = Markup
           idPath = UPath_Markup
-instance IsPath UPath_MaybeImageFile
-    where type UType UPath_MaybeImageFile = Univ
-          type SType UPath_MaybeImageFile = MaybeImageFile
-          idPath = UPath_MaybeImageFile
-instance IsPath UPath_MaybeReportIntendedUse
-    where type UType UPath_MaybeReportIntendedUse = Univ
-          type SType UPath_MaybeReportIntendedUse = MaybeReportIntendedUse
-          idPath = UPath_MaybeReportIntendedUse
 instance IsPath UPath_Permissions
     where type UType UPath_Permissions = Univ
           type SType UPath_Permissions = Permissions
           idPath = UPath_Permissions
-instance IsPath UPath_ReadOnlyFilePath
-    where type UType UPath_ReadOnlyFilePath = Univ
-          type SType UPath_ReadOnlyFilePath = ReadOnlyFilePath
-          idPath = UPath_ReadOnlyFilePath
-instance IsPath UPath_Report
-    where type UType UPath_Report = Univ
-          type SType UPath_Report = Report
-          idPath = UPath_Report
 instance IsPath UPath_ReportElem
     where type UType UPath_ReportElem = Univ
           type SType UPath_ReportElem = ReportElem
@@ -6507,18 +6435,10 @@ instance IsPath UPath_ReportFlags
     where type UType UPath_ReportFlags = Univ
           type SType UPath_ReportFlags = ReportFlags
           idPath = UPath_ReportFlags
-instance IsPath UPath_ReportImage
-    where type UType UPath_ReportImage = Univ
-          type SType UPath_ReportImage = ReportImage
-          idPath = UPath_ReportImage
 instance IsPath UPath_ReportImageView
     where type UType UPath_ReportImageView = Univ
           type SType UPath_ReportImageView = ReportImageView
           idPath = UPath_ReportImageView
-instance IsPath UPath_ReportIntendedUse
-    where type UType UPath_ReportIntendedUse = Univ
-          type SType UPath_ReportIntendedUse = ReportIntendedUse
-          idPath = UPath_ReportIntendedUse
 instance IsPath UPath_ReportMap
     where type UType UPath_ReportMap = Univ
           type SType UPath_ReportMap = ReportMap
@@ -6527,10 +6447,6 @@ instance IsPath UPath_ReportStandard
     where type UType UPath_ReportStandard = Univ
           type SType UPath_ReportStandard = ReportStandard
           idPath = UPath_ReportStandard
-instance IsPath UPath_ReportStatus
-    where type UType UPath_ReportStatus = Univ
-          type SType UPath_ReportStatus = ReportStatus
-          idPath = UPath_ReportStatus
 instance IsPath UPath_ReportValueApproachInfo
     where type UType UPath_ReportValueApproachInfo = Univ
           type SType UPath_ReportValueApproachInfo = ReportValueApproachInfo
@@ -6543,18 +6459,6 @@ instance IsPath UPath_ReportView
     where type UType UPath_ReportView = Univ
           type SType UPath_ReportView = ReportView
           idPath = UPath_ReportView
-instance IsPath UPath_SaneSizeImageSize
-    where type UType UPath_SaneSizeImageSize = Univ
-          type SType UPath_SaneSizeImageSize = SaneSizeImageSize
-          idPath = UPath_SaneSizeImageSize
-instance IsPath UPath_String
-    where type UType UPath_String = Univ
-          type SType UPath_String = String
-          idPath = UPath_String
-instance IsPath UPath_Text
-    where type UType UPath_Text = Univ
-          type SType UPath_Text = Text
-          idPath = UPath_Text
 instance IsPath UPath_URI
     where type UType UPath_URI = Univ
           type SType UPath_URI = URI
@@ -6563,16 +6467,8 @@ instance IsPath UPath_UUID
     where type UType UPath_UUID = Univ
           type SType UPath_UUID = UUID
           idPath = UPath_UUID
-instance IsPath UPath_Units
-    where type UType UPath_Units = Univ
-          type SType UPath_Units = Units
-          idPath = UPath_Units
 instance IsPath UPath_UserId
     where type UType UPath_UserId = Univ
           type SType UPath_UserId = UserId
           idPath = UPath_UserId
-instance IsPath UPath_UserIds
-    where type UType UPath_UserIds = Univ
-          type SType UPath_UserIds = UserIds
-          idPath = UPath_UserIds
 ulens :: forall a . U Univ a => Iso' Univ a

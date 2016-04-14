@@ -21,11 +21,12 @@ import Control.Lens hiding (cons, Strict)
 import Control.Monad.Writer (MonadWriter, execWriterT, tell)
 import Data.Char (toLower)
 import Data.Foldable as Foldable
+import Data.Proxy (Proxy(Proxy))
 import Language.Haskell.TH
 import Language.Haskell.TH.Context (ContextM)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Common (HasName(asName), HasTypeQ(asTypeQ), makeUFieldCon, tells)
-import Language.Haskell.TH.Path.Core (mat, IsPath(idPath), ToLens(toLens), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..), U(u, unU'))
+import Language.Haskell.TH.Path.Core (mat, IsPath(idPath), ToLens(toLens), Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..), Path_View(..), U(u, unU'))
 import Language.Haskell.TH.Path.Decs.PathType (upathType)
 import Language.Haskell.TH.Path.Graph (TypeGraphM)
 import Language.Haskell.TH.Path.Order (lens_omat, Path_OMap(..))
@@ -79,15 +80,7 @@ toLensControl v x =
     { _doSimple = pure ()
     , _doSelf = pure ()
     , _doView =
-        \_w -> do
-          ptyp <- upathType v
-          lns <- runQ [|viewLens {-:: Lens' $(return (asType v)) $(asTypeQ w)-}|]
-          -- Ok, we have a type v, and a lens that goes between v and
-          -- w, and we need to create a toLens' function for v's path type.
-          -- The tricky bit is to extract the path value for w from the path
-          -- value we have.
-          let ConT pname = ptyp
-          doClause (\p -> conP (mkName (nameBase pname ++ "_View")) [p]) (pure lns)
+        \_w -> doClause (\p -> [p|Path_View Proxy $p|]) [|viewLens|]
     , _doOrder =
         \_i _w -> do
           k <- runQ (newName "k")
