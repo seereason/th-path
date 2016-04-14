@@ -85,11 +85,10 @@ import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Instances ()
 import Prelude hiding (exp)
 import Safe (readMay)
-import Web.Routes.TH (derivePathInfo)
-
 import Web.Routes
+import Web.Routes.TH (derivePathInfo)
+import Text.Parsec.Prim ((<|>))
 import GHC.Base (ap)
-import Text.Parsec ((<|>))
 
 treeMap :: (a -> b) -> Tree a -> Tree b
 treeMap f (Node x ns) = Node (f x) (forestMap f ns)
@@ -271,14 +270,26 @@ $(derivePathInfo ''Path_Maybe)
 #if 0
 $(derivePathInfo ''Path_View)
 #else
-instance (PathInfo s, PathInfo viewpath) => PathInfo (Path_View s viewpath) where
-    toPathSegments inp_aEcU =
-        case inp_aEcU of
-          Path_To _ viewpath -> (++) [pack "path_-to"] (toPathSegments viewpath)
-          Path_Self -> [pack "path_-self"]
-    fromPathSegments =
-        (<|>) (ap ((segment (pack "path_-to")) >> (return (Path_To Proxy))) fromPathSegments)
-              ((segment (pack "path_-self")) >> (return Path_Self))
+instance ({-PathInfo s,-} PathInfo viewpath) => PathInfo (Path_View s viewpath) where
+      toPathSegments inp
+        = case inp of
+            Path_To arg_a15Lg arg_a15Lh
+              -> (++)
+                   [pack "path_-to"]
+                   ((++)
+                      (toPathSegments arg_a15Lg)
+                      (toPathSegments arg_a15Lh))
+            Path_Self -> [pack "path_-self"]
+      fromPathSegments
+        = (Text.Parsec.Prim.<|>)
+            (ap
+               (ap
+                  ((segment (pack "path_-to"))
+                   >> (return Path_To))
+                  fromPathSegments)
+               fromPathSegments)
+            ((segment (pack "path_-self"))
+             >> (return Path_Self))
 #endif
 
 $(deriveSafeCopy 0 'base ''Path_Pair)
