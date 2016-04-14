@@ -82,7 +82,9 @@ import Data.Tree (Tree(..), Forest)
 import Data.UserId (UserId(..))
 import Debug.Trace (trace)
 import Language.Haskell.TH.Instances ()
+#if !__GHCJS__
 import Language.Haskell.TH.Path.Instances ()
+#endif
 import Prelude hiding (exp)
 import Safe (readMay)
 import Web.Routes
