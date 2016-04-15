@@ -86,9 +86,6 @@ peekDecs utype v =
            pure (funD 'upeekPath [newName "p" >>= \p -> clause [conP (asName (makeUPeekCon (ModelType (asName v)))) [varP p, wildP]] (normalB (varE p)) []]),
            pure (funD 'upeekValue [newName "x" >>= \x -> clause [conP (asName (makeUPeekCon (ModelType (asName v)))) [wildP, varP x]] (normalB (varE x)) []]),
            pure (tySynInstD ''UPath (tySynEqn [utype, asTypeQ v] (pure uptype))),
-           funD' 'upaths (case upcs of
-                            [] -> pure [newName "r" >>= \r -> clause [wildP, wildP, varP r, wildP] (normalB (varE r)) []]
-                            _ -> pure upcs),
            funD' 'upeekRow (case uprcs of
                               [] -> pure [clause [wildP, wildP] (normalB [| Node (upeekCons idPath Nothing) [] |]) []]
                               _ -> pure uprcs),
@@ -200,13 +197,7 @@ pathControl utype v _x wPathVar = do
     , _doConcs =
         \xpat concs -> do
           x <- runQ $ newName "_xconc"
-          tell [UPathClause $
-                  do f <- newName "_f"
-                     r0 <- newName "r0"
-                     let upathss = map (\(PathConc _ _ fs) -> [|map (\pf -> pf idPath) $fs|]) concs
-                     clause [wildP, varP f, varP r0, asP x xpat]
-                            (normalB [|foldr $(varE f) $(varE r0) (concat $(listE upathss))|]) [],
-                UPeekRowClause $
+          tell [UPeekRowClause $
                   do unv <- newName "_unv"
                      let pairs = map (\(PathConc w _ fs) -> (w, fs)) concs
                          fn :: ExpQ -> (TGV, ExpQ) -> ExpQ -> ExpQ

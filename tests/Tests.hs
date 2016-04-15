@@ -125,43 +125,33 @@ testPeekOrder =
 testUPaths :: Test
 testUPaths =
     TestList
-    [ let expected :: [UPath Univ AbbrevPairs]
-          expected = [Path_At (AbbrevPairID {unAbbrevPairID = 0}) Path_Pair,
-                      Path_At (AbbrevPairID {unAbbrevPairID = 1}) Path_Pair,
-                      Path_At (AbbrevPairID {unAbbrevPairID = 2}) Path_Pair,
-                      Path_At (AbbrevPairID {unAbbrevPairID = 3}) Path_Pair,
-                      Path_At (AbbrevPairID {unAbbrevPairID = 4}) Path_Pair,
-                      Path_At (AbbrevPairID {unAbbrevPairID = 5}) Path_Pair,
-                      Path_At (AbbrevPairID {unAbbrevPairID = 6}) Path_Pair,
-                      Path_At (AbbrevPairID {unAbbrevPairID = 7}) Path_Pair,
-                      Path_At (AbbrevPairID {unAbbrevPairID = 8}) Path_Pair,
-                      Path_At (AbbrevPairID {unAbbrevPairID = 9}) Path_Pair,
-                      Path_At (AbbrevPairID {unAbbrevPairID = 10}) Path_Pair]
-          actual :: [UPath Univ AbbrevPairs]
-          actual = upaths (Proxy :: Proxy Univ) ((:)) [] (reportAbbrevs Report.report) in
+    [ let abbrevs = reportAbbrevs Report.report
+          expected :: Tree (UPeek Univ AbbrevPairs)
+          expected = Node (UPeek_AbbrevPairs Path_OMap Nothing)
+                          [Node {rootLabel = UPeek_AbbrevPairs (Path_At (AbbrevPairID {unAbbrevPairID = 0}) Path_Pair) (Just (U16 (CIString {unCIString = "LOTInspectedBy"},(rawMarkdown "Lydia Thompson")))), subForest = []},
+                           Node {rootLabel = UPeek_AbbrevPairs (Path_At (AbbrevPairID {unAbbrevPairID = 1}) Path_Pair) (Just (U16 (CIString {unCIString = "properties"},(rawMarkdown "properties")))), subForest = []},
+                           Node {rootLabel = UPeek_AbbrevPairs (Path_At (AbbrevPairID {unAbbrevPairID = 2}) Path_Pair) (Just (U16 (CIString {unCIString = "theseappraisers"},(rawMarkdown "this appraiser")))), subForest = []},
+                           Node {rootLabel = UPeek_AbbrevPairs (Path_At (AbbrevPairID {unAbbrevPairID = 3}) Path_Pair) (Just (U16 (CIString {unCIString = "USPAP"},(rawMarkdown "_Uniform Standards of Professional Appraisal Practice_, the 2012-2013 Edition (USPAP)")))), subForest = []},
+                           Node {rootLabel = UPeek_AbbrevPairs (Path_At (AbbrevPairID {unAbbrevPairID = 4}) Path_Pair) (Just (U16 (CIString {unCIString = "USPAPShort"},(rawMarkdown "_Uniform Standards of Professional Appraisal Practice_, the 2012-2013 Edition (USPAP)")))), subForest = []},
+                           Node {rootLabel = UPeek_AbbrevPairs (Path_At (AbbrevPairID {unAbbrevPairID = 5}) Path_Pair) (Just (U16 (CIString {unCIString = "certify"},(rawMarkdown "certify")))), subForest = []},
+                           Node {rootLabel = UPeek_AbbrevPairs (Path_At (AbbrevPairID {unAbbrevPairID = 6}) Path_Pair) (Just (U16 (CIString {unCIString = "agree"},(rawMarkdown "agree")))), subForest = []},
+                           Node {rootLabel = UPeek_AbbrevPairs (Path_At (AbbrevPairID {unAbbrevPairID = 7}) Path_Pair) (Just (U16 (CIString {unCIString = "we"},(rawMarkdown "we")))), subForest = []},
+                           Node {rootLabel = UPeek_AbbrevPairs (Path_At (AbbrevPairID {unAbbrevPairID = 8}) Path_Pair) (Just (U16 (CIString {unCIString = "appraisers"},(rawMarkdown "appraisers")))), subForest = []},
+                           Node {rootLabel = UPeek_AbbrevPairs (Path_At (AbbrevPairID {unAbbrevPairID = 9}) Path_Pair) (Just (U16 (CIString {unCIString = "Client"},(rawMarkdown "Joseph and Sandy Augustine")))), subForest = []},
+                           Node {rootLabel = UPeek_AbbrevPairs (Path_At (AbbrevPairID {unAbbrevPairID = 10}) Path_Pair) (Just (U16 (CIString {unCIString = ""},(rawMarkdown "")))), subForest = []}]
+          actual = upeekRow (Proxy :: Proxy Univ) abbrevs in
       assertEqual' "testUPaths 1" expected actual
-    , let expected :: [AbbrevPair]
-          expected = [(CIString "USPAP", rawMarkdown "_Uniform Standards of Professional Appraisal Practice_, the 2012-2013 Edition (USPAP)")]
-          abbrevs = reportAbbrevs Report.report
-          actual :: [AbbrevPair]
-          actual = mapMaybe unU' (toListOf (toLens (upaths (Proxy :: Proxy Univ) (:) [] abbrevs !! 3)) abbrevs :: [Univ]) in
-      assertEqual' "testUPaths 2" expected actual
     , let expected = ImageSize TheHeight 3.0 Inches
           [actual] = mapMaybe unU' (toListOf (toLens imageSizePath) Report.report :: [Univ]) in
       assertEqual' "testUPaths 3" expected actual
-    , let expected = [UPath_ImageSize_dim idPath,
-                      UPath_ImageSize_size idPath,
-                      UPath_ImageSize_units idPath]
-          [usize] = toListOf (toLens imageSizePath) Report.report :: [Univ]
-          actual = upaths (Proxy :: Proxy Univ) (:) [] (fromJust (unU' usize) :: ImageSize) in
+    , let [usize] = toListOf (toLens imageSizePath) Report.report :: [Univ]
+          expected :: Tree (UPeek Univ ImageSize)
+          expected = Node (upeekCons idPath Nothing)
+                          [Node {rootLabel = UPeek_ImageSize (UPath_ImageSize_dim Path_Self) (Just (U6 TheHeight)), subForest = []},
+                           Node {rootLabel = UPeek_ImageSize (UPath_ImageSize_size Path_Self) (Just (U5 3.0)), subForest = []},
+                           Node {rootLabel = UPeek_ImageSize (UPath_ImageSize_units Path_Self) (Just (U9 Inches)), subForest = []}]
+          actual = upeekRow (Proxy :: Proxy Univ) (fromJust (unU' usize) :: ImageSize) in
       assertEqual' "testUPaths 4" expected actual
-    , let expected = Node {rootLabel = UPeek_ImageSize UPath_ImageSize Nothing,
-                           subForest = [Node {rootLabel = UPeek_ImageSize (UPath_ImageSize_dim idPath) (Just (U6 TheHeight)), subForest = []},
-                                        Node {rootLabel = UPeek_ImageSize (UPath_ImageSize_size idPath) (Just (U5 3.0)), subForest = []},
-                                        Node {rootLabel = UPeek_ImageSize (UPath_ImageSize_units idPath) (Just (U9 Inches)), subForest = []}]}
-          [usize] = mapMaybe unU' (toListOf (toLens imageSizePath) Report.report :: [Univ]) :: [ImageSize]
-          actual = upeekRow (Proxy :: Proxy Univ) usize in
-      assertEqual' "testUPaths 5" expected actual
     ]
     where imageSizePath =
                  Path_To Proxy

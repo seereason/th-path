@@ -22,7 +22,7 @@ module Language.Haskell.TH.Path.Core
 
       -- * Type classes and associated types
     , IsPath(UType, SType, idPath)
-    , PathStart(UPeek, upeekCons, upeekPath, upeekValue, UPath, upaths, upeekRow, upeekTree)
+    , PathStart(UPeek, upeekCons, upeekPath, upeekValue, UPath, upeekRow, upeekTree)
     , liftPeek
     , ToLens(toLens)
     , ulens'
@@ -174,12 +174,6 @@ class (U u s, IsPath (UPath u s)) => PathStart u s where
     -- This also means it is impossible to say something like
     -- @instance Describe (UPath Univ Int64)@, we need to find the
     -- actual type.
-    upaths :: Proxy u -> (UPath u s -> r -> r) -> r -> s -> r
-    -- ^ UPath version of 'paths'
-    -- upathRow :: Proxy u -> s -> [UPath u s]
-    -- ^ Return the immediate subpaths of s.
-    -- upathTree :: Proxy u -> s -> Tree (UPath u s)
-    -- ^ Return a tree containing all subpaths of s
     upeekTree :: Proxy u -> s -> Tree (UPeek u s)
     -- ^ Given a value of type @s@, return a tree containing every
     -- 'Peek' that can be reached from it.  The order of the nodes in
