@@ -23,6 +23,7 @@ module Language.Haskell.TH.Path.Core
       -- * Type classes and associated types
     , IsPath(UType, SType, idPath)
     , PathStart(UPeek, upeekCons, upeekPath, upeekValue, UPath, upaths, upeekRow, upeekTree)
+    , liftPeek
     , ToLens(toLens)
     , ulens'
     -- , (:.:)(..)
@@ -197,6 +198,8 @@ class (U u s, IsPath (UPath u s)) => PathStart u s where
     upeekValue :: UPeek u s -> Maybe u
     -- ^ Accessor for value field of a Peek type
 
+liftPeek :: (PathStart u s, PathStart u t) => (UPath u s -> UPath u t) -> UPeek u s -> UPeek u t
+liftPeek f pk = upeekCons (f (upeekPath pk)) (upeekValue pk)
 
 -- | Nodes along a path can be customized by declaring types to be
 -- instances of this class and the ones that follow.  If a type is an
