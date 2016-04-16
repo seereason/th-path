@@ -44,7 +44,7 @@ import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Instances ()
 import Language.Haskell.TH.Syntax (lift, Quasi)
 import Language.Haskell.TH.TypeGraph.Expand (E, unE)
-import Language.Haskell.TH.TypeGraph.TypeGraph (HasTGV(asTGV))
+import Language.Haskell.TH.TypeGraph.Shape (Field)
 import Language.Haskell.TH.TypeGraph.Vertex (bestType, bestTypeQ, etype, field, syns,
                                              TGV', TGVSimple', TGV, TGVSimple, vsimple)
 
@@ -153,12 +153,11 @@ makeHopCon s a =
                       Nothing -> nameBase (asName a))))
 
 -- | Path type constructor for the field described by key in the parent type named tname.
-makeUFieldCon :: TGV -> Maybe (PathCon Name)
-makeUFieldCon key =
-    case asTGV key ^. field of
-      Nothing -> Nothing
-      Just (tname, _, Right fname) -> Just $ makePathCon (makeUPathType (ModelType tname)) (nameBase fname)
-      Just (tname, _, Left fpos) -> Just $ makePathCon (makeUPathType (ModelType tname)) (show fpos)
+makeUFieldCon :: Field -> PathCon Name
+makeUFieldCon fld =
+    case fld of
+      (tname, _, Right fname) -> makePathCon (makeUPathType (ModelType tname)) (nameBase fname)
+      (tname, _, Left fpos) -> makePathCon (makeUPathType (ModelType tname)) (show fpos)
 
 makePathCon :: HasName a => PathType a -> String -> PathCon Name
 makePathCon (PathType p) a = PathCon $ mkName $ nameBase (asName p) ++ "_" ++ a

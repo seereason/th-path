@@ -19,6 +19,7 @@ module Language.Haskell.TH.Path.Decs.PathStart (peekDecs, makeUPeekCon) where
 import Control.Lens hiding (cons, Strict)
 import Control.Monad (when)
 import Control.Monad.Writer (execWriterT, MonadWriter, tell)
+import Data.Data (Data, Typeable)
 import Data.Map as Map (toList)
 import Data.Maybe (fromMaybe)
 import Data.Proxy
@@ -27,14 +28,15 @@ import Language.Haskell.TH
 import Language.Haskell.TH.Context (reifyInstancesWithContext)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Common (HasConQ(asConQ), HasCon(asCon), HasName(asName), HasType(asType), HasTypeQ(asTypeQ),
-                                        makeUFieldCon, makeUPathType, ModelType(ModelType))
-import Language.Haskell.TH.Path.Core (camelWords, forestMap, IsPath(idPath), liftPeek, PathStart(..), ToLens(toLens), Describe(describe'),
+                                        makeUFieldCon, makeUPathType, ModelType(ModelType), telld, tells)
+import Language.Haskell.TH.Path.Core (camelWords, forestMap, IsPath(..), liftPeek, PathStart(..), ToLens(toLens), Describe(describe'),
                                       Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..), Path_View(..), U(u), ulens')
 import Language.Haskell.TH.Path.Decs.PathType (upathType)
 import Language.Haskell.TH.Path.Graph (TypeGraphM)
 import Language.Haskell.TH.Path.Order (Path_OMap(..), toPairs)
-import Language.Haskell.TH.Path.Traverse (asP', Control(..), doNode, finishConcs)
+import Language.Haskell.TH.Path.Traverse (asP', Control(..), doNode)
 import Language.Haskell.TH.Syntax (liftString)
+import Language.Haskell.TH.TypeGraph.Shape (Field)
 import Language.Haskell.TH.TypeGraph.TypeGraph (tgv, tgvSimple')
 import Language.Haskell.TH.TypeGraph.Vertex (TGV, field, TGVSimple)
 
@@ -57,16 +59,16 @@ data PathConc
 
 data WriterType
     = UDescClause ClauseQ
-    | UPathClause ClauseQ
+    | UPathCon ConQ
     | UPeekRowClause ClauseQ
     | UPeekTreeClause ClauseQ
 
-partitionClauses :: [WriterType] -> ([ClauseQ], [ClauseQ], [ClauseQ], [ClauseQ])
+partitionClauses :: [WriterType] -> ([ClauseQ], [ConQ], [ClauseQ], [ClauseQ])
 partitionClauses xs =
     foldr f ([], [], [], []) xs
         where
           f (UDescClause x)     (udcs, upcs, uprcs, uptcs) = (x : udcs,         upcs,     uprcs,     uptcs)
-          f (UPathClause x)     (udcs, upcs, uprcs, uptcs) = (    udcs,     x : upcs,     uprcs,     uptcs)
+          f (UPathCon x)         (udcs, upcs, uprcs, uptcs) = (    udcs,     x : upcs,     uprcs,     uptcs)
           f (UPeekRowClause x)  (udcs, upcs, uprcs, uptcs) = (    udcs,         upcs, x : uprcs,     uptcs)
           f (UPeekTreeClause x) (udcs, upcs, uprcs, uptcs) = (    udcs,         upcs,     uprcs, x : uptcs)
 
@@ -101,7 +103,13 @@ peekDecs utype v =
                       funD 'describe'
                         [clause [varP f, wildP]
                            (normalB [| Just (fromMaybe $(liftString (camelWords (nameBase (asName v)))) $(varE f)) |]) []]]))
-
+       when (not (null upcs))
+            (do let pname = makeUPathType (ModelType (asName v))
+                tells [dataD (cxt []) (asName pname) [] (upcs {-++ [normalC (asName pname) []]-}) supers]
+                telld [d|instance IsPath $(asTypeQ pname) where
+                            type UType $(asTypeQ pname) = $utype
+                            type SType $(asTypeQ pname) = $(asTypeQ v)
+                            idPath = $(asConQ pname)|])
 describeInst :: (MonadWriter [Dec] f, TypeGraphM f) => TGVSimple -> [ClauseQ] -> f ()
 describeInst v udcs =
     upathType v >>= \uptype ->
@@ -137,62 +145,86 @@ pathControl utype v _x wPathVar = do
       control = pathControl utype v _x wPathVar in
     Control
     { _doSimple =
+          let pname = makeUPathType (ModelType (asName v)) in
           tell [UDescClause $
                 newName "f" >>= \f ->
                 clause [varP f, wildP]
                        (normalB [| describe' $(varE f) (Proxy :: Proxy $(asTypeQ v)) |])
-                       []]
+                       [],
+                UPathCon (normalC (asName pname) [])]
     , _doSelf = pure ()
     , _doView =
         \typ ->
             do x <- runQ $ newName "_xyz"
                w <- tgv Nothing typ
-               let conc = PathConc w (conP 'Path_To [wildP, varP wPathVar]) [| [Path_To Proxy] |]
-               -- describeConc v wPathVar conc
-               finishConcs control [(varP x, [conc])]
+               _doConcs control (varP x) [PathConc w (conP 'Path_To [wildP, varP wPathVar]) [| [Path_To Proxy] |]]
     , _doOrder =
         \_i typ ->
             do x <- runQ $ newName "_xyz"
                w <- tgv Nothing typ
                i <- runQ $ newName "_k"
-               let conc = PathConc w (conP 'Path_At [varP i, varP wPathVar])
-                                     [|map (\(k, _v) -> Path_At k) (toPairs $(varE x))|]
-               finishConcs control [(varP x, [conc])]
+               _doConcs control (varP x) [PathConc w (conP 'Path_At [varP i, varP wPathVar])
+                                                   [|map (\(k, _v) -> Path_At k) (toPairs $(varE x))|]]
     , _doMap =
         \_i typ ->
             do x <- runQ $ newName "_xyz"
                w <- tgv Nothing typ
                i <- runQ $ newName "_k"
-               let conc = PathConc w (conP 'Path_Look [varP i, varP wPathVar])
-                                     [|map (\(k, _v) -> Path_Look k) (Map.toList $(varE x))|]
-               finishConcs control [(varP x, [conc])]
+               _doConcs control (varP x) [PathConc w (conP 'Path_Look [varP i, varP wPathVar])
+                                                   [|map (\(k, _v) -> Path_Look k) (Map.toList $(varE x))|]]
     , _doList =
         \_e -> pure ()
     , _doPair =
         \ftyp styp ->
             do f <- tgv Nothing ftyp
                s <- tgv Nothing styp
-               let fconc = PathConc f (conP 'Path_First [varP wPathVar]) [| [Path_First] |]
-                   sconc = PathConc s (conP 'Path_Second [varP wPathVar]) [| [Path_Second] |]
-               finishConcs control [(wildP, [fconc, sconc])]
+               _doConcs control wildP [PathConc f (conP 'Path_First [varP wPathVar]) [| [Path_First] |],
+                                       PathConc s (conP 'Path_Second [varP wPathVar]) [| [Path_Second] |]]
     , _doMaybe =
         \typ ->
             do w <- tgv Nothing typ
-               let conc = PathConc w (conP 'Path_Just [varP wPathVar]) [|[Path_Just]|]
-               finishConcs control [(wildP, [conc])]
+               _doConcs control wildP [PathConc w (conP 'Path_Just [varP wPathVar]) [|[Path_Just]|]]
     , _doEither =
         \ltyp rtyp ->
             do l <- tgv Nothing ltyp
                r <- tgv Nothing rtyp
-               let lconc = PathConc l (conP 'Path_Left [varP wPathVar]) [|[Path_Left]|]
-                   rconc = PathConc r (conP 'Path_Right [varP wPathVar]) [|[Path_Right]|]
-               finishConcs control [(conP 'Left [wildP], [lconc]), (conP 'Right [wildP], [rconc])]
+               _doConcs control (conP 'Left [wildP]) [PathConc l (conP 'Path_Left [varP wPathVar]) [|[Path_Left]|]]
+               _doConcs control (conP 'Right [wildP]) [PathConc r (conP 'Path_Right [varP wPathVar]) [|[Path_Right]|]]
     , _doField =
         \fld typ ->
-            do f <- tgvSimple' typ >>= tgv (Just fld)
-               let fieldUPathConName = maybe (error $ "Not a field: " ++ show f) id (makeUFieldCon f)
-               let conc = PathConc f (conP (asName fieldUPathConName) [varP wPathVar]) [|[$(asConQ fieldUPathConName)]|]
-               describeConc v wPathVar conc
+            do w <- tgvSimple' typ >>= tgv (Just fld)
+               let fieldUPathConName = makeUFieldCon fld
+               let upat = conP (asName fieldUPathConName) [varP wPathVar]
+                   conc = PathConc w upat [|[$(asConQ fieldUPathConName)]|]
+               p <- runQ $ newName "_p"
+               f <- runQ $ newName "_f"
+               -- Generate clauses of the 'Describe' instance for v.  Because the
+               -- description is based entirely on the types, we can generate a
+               -- string literal here.  Example:
+               --    v = TGV {tgvSimple = ReportView, field = _reportLetterOfTransmittal :: Markup}
+               --    w = Markup
+               --    ppat = Path_ReportView__reportLetterOfTransmittal _wp
+               tell [UDescClause $
+                     -- f contains the context in which v appears, while we can tell
+                     -- the context in which w appears from the path constructor.
+                     clause [varP f, asP p upat]
+                            (normalB ([| maybe
+                                           -- The label for the current node.  This will call the custom
+                                           -- instance if there is one, otherwise one will have been generated.
+                                           (describe' $(varE f) (Proxy :: Proxy $(asTypeQ v)))
+                                           Just
+                                           -- The label for the next hop along the path
+                                           (describe'
+                                              -- The context in which the w value appears
+                                              ($(maybe [|Nothing|] (\y -> [|Just $(fieldString y)|]) (view (_2 . field) w)))
+                                              $(varE wPathVar)) |]))
+                            []]
+               case fld of
+                 (_tname, _cname, Right _fname) ->
+                     do let pcname = fieldUPathName fld
+                        ptype <- fieldUPathType typ
+                        tell [UPathCon (normalC (asName pcname) [strictType notStrict (return ptype)])]
+                 (_tname, _cname, Left _fname) -> pure ()
                pure conc
     , _doConcs =
         \xpat concs -> do
@@ -218,40 +250,28 @@ pathControl utype v _x wPathVar = do
                ]
     , _doSyn =
         \_tname _typ -> pure ()
-    , _doAlts = \_ -> pure ()
+    , _doAlts = \_ -> let pname = makeUPathType (ModelType (asName v)) in
+                      tell [UPathCon (normalC (asName pname) [])]
     , _doSyns = \() _ -> pure ()
     }
-
--- | Generate clauses of the 'Describe' instance for v.  Because the
--- description is based entirely on the types, we can generate a
--- string literal here.  Example:
---    v = TGV {tgvSimple = ReportView, field = _reportLetterOfTransmittal :: Markup}
---    w = Markup
---    ppat = Path_ReportView__reportLetterOfTransmittal _wp
-describeConc :: forall m. (TypeGraphM m, MonadWriter [WriterType] m) =>
-                TGVSimple -> Name -> PathConc -> m ()
-describeConc v wPathVar (PathConc w upat _ulift) =
-    do p <- runQ $ newName "_p"
-       f <- runQ $ newName "_f"
-       -- Is there a custom describe instance for Proxy (asType v)?
-       -- if so it overrides the default label we build using camelWords.
-       tell [UDescClause $
-             -- f contains the context in which v appears, while we can tell
-             -- the context in which w appears from the path constructor.
-             clause [varP f, asP p upat]
-                    (normalB ([| maybe
-                                   -- The label for the current node.  This will call the custom
-                                   -- instance if there is one, otherwise one will have been generated.
-                                   (describe' $(varE f) (Proxy :: Proxy $(asTypeQ v)))
-                                   Just
-                                   -- The label for the next hop along the path
-                                   (describe'
-                                      -- The context in which the w value appears
-                                      ($(maybe [|Nothing|] (\y -> [|Just $(fieldString y)|]) (view (_2 . field) w)))
-                                      $(varE wPathVar)) |]))
-                    []]
 
 -- | Convert a 'Language.Haskell.TH.TypeGraph.Shape.Field' into the argument used by describe'.
 fieldString :: (Name, Name, Either Int Name) -> ExpQ
 fieldString (_tname, cname, Left fpos) = liftString (camelWords (nameBase cname) ++ "[" ++ show fpos ++ "]")
 fieldString (_tname, _cname, Right fname) = liftString (camelWords (nameBase fname))
+
+supers :: [Name]
+supers = [''Eq, ''Ord, ''Read, ''Show, ''Typeable, ''Data]
+
+-- | If the type is (ConT name) return name, otherwise return a type
+-- synonym name.
+{-
+bestUPathTypeName :: HasName v => v -> PathType Name
+bestUPathTypeName = makeUPathType . ModelType . asName
+-}
+
+fieldUPathName :: Field -> Name
+fieldUPathName fld = asName (makeUFieldCon fld)
+
+fieldUPathType :: TypeGraphM m => Type -> m Type
+fieldUPathType typ = tgvSimple' typ >>= upathType

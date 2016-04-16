@@ -114,7 +114,7 @@ toLensControl v x =
                    -- necessary declarations into the state.  Also, build an
                    -- expression for the lens that turns this field value into the
                    -- goal type.
-                   let Just pcname = makeUFieldCon fkey
+                   let pcname = makeUFieldCon fld
                    -- These are the field's clauses.  Each pattern gets wrapped
                    -- with the field path constructor, and each field lens gets
                    -- composed with the lens produced for the field's type.

@@ -204,35 +204,6 @@ data Univ
     | U50 UserId
     | U51 UUID
     deriving (Eq, Show, Data, Typeable)
-type UPath_AbbrevPair = Path_Pair (Path_View CIString (Path_View Text UPath_JSONText)) UPath_Markup
-type UPath_AbbrevPairs = Path_OMap AbbrevPairID (Path_Pair (Path_View CIString (Path_View Text UPath_JSONText)) UPath_Markup)
-type UPath_Authors = Path_OMap AuthorID UPath_Author
-type UPath_Bool = Path_View Bool (UPath Univ String)
-type UPath_Branding = Path_View Branding (UPath Univ Text)
-type UPath_CIString = Path_View CIString (UPath Univ Text)
-type UPath_Dimension = Path_View Dimension (UPath Univ JSONText)
-type UPath_Double = Path_View Double (UPath Univ String)
-type UPath_EUI = Path_Either UPath_URI UPath_ImageFile
-type UPath_MEUI = Path_Maybe (Path_Either UPath_URI UPath_ImageFile)
-type UPath_MIM = Path_Map ItemFieldName UPath_Markup
-type UPath_MRR = Path_Map ReportID (Path_View Report UPath_ReportView)
-type UPath_MarkupPair = Path_Pair UPath_Markup UPath_Markup
-type UPath_MarkupPairs = Path_OMap MarkupPairID (Path_Pair UPath_Markup UPath_Markup)
-type UPath_Markups = Path_OMap MarkupID UPath_Markup
-type UPath_MaybeImageFile = Path_View MaybeImageFile (UPath Univ String)
-type UPath_MaybeReportIntendedUse = Path_View MaybeReportIntendedUse (UPath Univ String)
-type UPath_ReadOnlyFilePath = Path_View ReadOnlyFilePath (UPath Univ String)
-type UPath_Report = Path_View Report (UPath Univ ReportView)
-type UPath_ReportElems = Path_OMap ReportElemID UPath_ReportElem
-type UPath_ReportImage = Path_View ReportImage (UPath Univ ReportImageView)
-type UPath_ReportImages = Path_OMap ReportImageID (Path_View ReportImage UPath_ReportImageView)
-type UPath_ReportIntendedUse = Path_View ReportIntendedUse (UPath Univ String)
-type UPath_ReportStatus = Path_View ReportStatus (UPath Univ String)
-type UPath_SaneSizeImageSize = Path_View SaneSizeImageSize (UPath Univ ImageSize)
-type UPath_String = Path_View String (UPath Univ JSONText)
-type UPath_Text = Path_View Text (UPath Univ JSONText)
-type UPath_Units = Path_View Units (UPath Univ JSONText)
-type UPath_UserIds = Path_View UserIds (UPath Univ Text)
 class HasAuthor c
     where lens_author :: Lens' c Author
           lens_Author_authorCredentials :: forall . Lens' c Markup
