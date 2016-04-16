@@ -13,8 +13,7 @@
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeSynonymInstances #-}
 module Language.Haskell.TH.Path.Decs.Lens
-    ( lensDecs
-    , uLensDecs
+    ( uLensDecs
     ) where
 
 import Control.Lens hiding (cons, Strict)
@@ -35,27 +34,6 @@ import Language.Haskell.TH.Syntax as TH (Quasi(qReify))
 import Language.Haskell.TH.TypeGraph.Lens (lensNamePairs)
 import Language.Haskell.TH.TypeGraph.TypeGraph (tgv, tgvSimple')
 import Language.Haskell.TH.TypeGraph.Vertex (field, TGVSimple, typeNames)
-
-lensDecs :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TGVSimple -> m ()
-lensDecs v = mapM makePathLens (toList (typeNames v)) >>= tell . concat
-
--- | Make lenses for a type with the names described by fieldLensNamePair, which is a little
--- different from the namer used in th-typegraph (for historical reasons I guess.)
-makePathLens :: ContextM m => Name -> m [Dec]
-makePathLens tname =
-    qReify tname >>= execWriterT . doInfo
-    where
-      doInfo (TyConI dec) = doDec dec
-      doInfo _ = return ()
-      doDec (NewtypeD {}) = lensNamePairs fieldLensNamePair tname >>= \pairs -> runQ (makeClassyFor className lensName pairs tname) >>= tell
-      doDec (DataD {}) =    lensNamePairs fieldLensNamePair tname >>= \pairs -> runQ (makeClassyFor className lensName pairs tname) >>= tell
-      doDec _ = return ()
-      className = "Has" ++ nameBase tname
-      lensName = "lens_" ++ uncap (nameBase tname)
-
-uncap :: String -> String
-uncap (n : ame) = toLower n : ame
-uncap "" = ""
 
 uLensDecs :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TypeQ -> TGVSimple -> m ()
 uLensDecs utype v = do
@@ -140,8 +118,3 @@ doClause pfunc lns = do
 
 fieldLensNameOld :: Name -> Name -> Name
 fieldLensNameOld tname fname = mkName ("lens_" ++ nameBase tname ++ "_" ++ nameBase fname)
-
--- | Version of fieldLensName suitable for use as argument to
--- findNames below.
-fieldLensNamePair :: Name -> Name -> Name -> (String, String)
-fieldLensNamePair tname _cname fname = (nameBase fname, nameBase (fieldLensNameOld tname fname))

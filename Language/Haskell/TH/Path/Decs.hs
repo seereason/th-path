@@ -20,25 +20,28 @@ module Language.Haskell.TH.Path.Decs
     ) where
 
 import Control.Exception as E (IOException, throw, try)
-import Control.Lens (Iso')
-import Control.Monad.Writer (MonadWriter, execWriterT, runWriterT)
+import Control.Lens (Iso', makeClassyFor)
+import Control.Monad.Writer (MonadWriter, execWriterT, runWriterT, tell)
+import Data.Char (toLower)
 import Data.Data (Data, Typeable)
 import Data.Maybe (catMaybes)
 import Data.Monoid ((<>))
 import Data.Proxy (Proxy(Proxy))
 import Data.Set as Set (toList)
 import Language.Haskell.TH
+import Language.Haskell.TH.Context (ContextM)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Common (HasTypeQ(asTypeQ), telld, tells)
 import Language.Haskell.TH.Path.Core (U(u, unU'), ulens')
-import Language.Haskell.TH.Path.Decs.Lens (lensDecs, uLensDecs)
+import Language.Haskell.TH.Path.Decs.Lens (uLensDecs)
 import Language.Haskell.TH.Path.Decs.PathStart (peekDecs)
 import Language.Haskell.TH.Path.Graph (runTypeGraphT, TypeGraphM)
 import Language.Haskell.TH.Path.Instances ()
-import Language.Haskell.TH.Syntax (addDependentFile)
+import Language.Haskell.TH.Syntax (addDependentFile, Quasi(qReify))
+import Language.Haskell.TH.TypeGraph.Lens (lensNamePairs)
 import Language.Haskell.TH.TypeGraph.Prelude (friendlyNames, pprint1, pprintW)
 import Language.Haskell.TH.TypeGraph.TypeGraph (allPathStarts, tgvSimple)
-import Language.Haskell.TH.TypeGraph.Vertex (TGVSimple)
+import Language.Haskell.TH.TypeGraph.Vertex (TGVSimple, typeNames)
 import System.Directory (removeFile)
 import System.IO.Error (isDoesNotExistError)
 
@@ -108,3 +111,33 @@ doNode utype v = do
   lensDecs v           -- generate lenses using makeClassyFor
   peekDecs utype v     -- generate IsPath and PathStart instances
   uLensDecs utype v    -- generate ToLens instances for UPath types
+
+-- | Make lenses for a type with the names described by fieldLensNamePair, which is a little
+-- different from the namer used in th-typegraph (for historical reasons I guess.)
+lensDecs :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TGVSimple -> m ()
+lensDecs v = mapM makePathLens (toList (typeNames v)) >>= tell . concat
+    where
+      makePathLens :: ContextM m => Name -> m [Dec]
+      makePathLens tname = qReify tname >>= execWriterT . doInfo
+      doInfo (TyConI dec) = doDec dec
+      doInfo _ = return ()
+      doDec (NewtypeD _ tname _ _ _) = do
+        pairs <- lensNamePairs fieldLensNamePair tname
+        tell =<< runQ (makeClassyFor (className tname) (lensName tname) pairs tname)
+      doDec (DataD _ tname _ _ _) = do
+        pairs <- lensNamePairs fieldLensNamePair tname
+        tell =<< runQ (makeClassyFor (className tname) (lensName tname) pairs tname)
+      doDec _ = return ()
+      className tname = "Has" ++ nameBase tname
+      lensName tname = "lens_" ++ uncap (nameBase tname)
+      uncap :: String -> String
+      uncap (n : ame) = toLower n : ame
+      uncap "" = ""
+
+-- | Version of fieldLensName suitable for use as argument to
+-- findNames below.
+fieldLensNamePair :: Name -> Name -> Name -> (String, String)
+fieldLensNamePair tname _cname fname = (nameBase fname, nameBase (fieldLensNameOld tname fname))
+
+fieldLensNameOld :: Name -> Name -> Name
+fieldLensNameOld tname fname = mkName ("lens_" ++ nameBase tname ++ "_" ++ nameBase fname)
