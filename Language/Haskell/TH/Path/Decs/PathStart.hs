@@ -94,7 +94,7 @@ peekDecs utype v =
            funD' 'upeekTree (case uptcs of
                                [] -> pure [newName "x" >>= \x -> clause [wildP, varP x] (normalB [| Node (upeekCons idPath (Just (u $(varE x)))) [] |]) []]
                                _ -> pure uptcs)])
-       when (not (null udcs)) (describeInst v udcs)
+       when (not (null udcs)) (instanceD' (cxt []) [t|Describe $(pure uptype)|] (pure [do funD 'describe' udcs]))
        proxyV <- runQ $ [t|Proxy $(asTypeQ v)|]
        hasCustomInstance <- (not . null) <$> reifyInstancesWithContext ''Describe [proxyV]
        when (not hasCustomInstance)
@@ -110,18 +110,6 @@ peekDecs utype v =
                             type UType $(asTypeQ pname) = $utype
                             type SType $(asTypeQ pname) = $(asTypeQ v)
                             idPath = $(asConQ pname)|])
-describeInst :: (MonadWriter [Dec] f, TypeGraphM f) => TGVSimple -> [ClauseQ] -> f ()
-describeInst v udcs =
-    upathType v >>= \uptype ->
-    instanceD' (cxt []) [t|Describe $(pure uptype)|]
-               (pure [do f <- newName "f"
-                         p <- newName "p"
-                         funD 'describe' (udcs ++
-                                          [ clause [varP f, varP p] (guardedB [(normalGE [|$(varE p) == idPath|]
-                                                                                [|describe' $(varE f) (Proxy :: Proxy $(asTypeQ v))|])]) []
-                                          -- , clause [wildP, varP p] (normalB [|error ("Unexpected " ++ $(lift (pprint1 (asType v))) ++ " path: " ++ show $(varE p))|]) []
-                                          ])])
-
 makeUPeekCon :: (HasName s) => ModelType s -> PeekCon
 makeUPeekCon (ModelType s) = PeekCon (mkName ("UPeek_" ++ nameBase (asName s)))
 
@@ -251,7 +239,12 @@ pathControl utype v _x wPathVar = do
     , _doSyn =
         \_tname _typ -> pure ()
     , _doAlts = \_ -> let pname = makeUPathType (ModelType (asName v)) in
-                      tell [UPathCon (normalC (asName pname) [])]
+                      tell [UPathCon (normalC (asName pname) []),
+                            UDescClause $ do f <- newName "f"
+                                             p <- newName "p"
+                                             clause [varP f, conP (asName pname) []]
+                                                    (normalB [|describe' $(varE f) (Proxy :: Proxy $(asTypeQ v))|])
+                                                    []]
     , _doSyns = \() _ -> pure ()
     }
 

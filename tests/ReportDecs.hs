@@ -6108,51 +6108,45 @@ instance Describe (Proxy UUID)
 instance Describe UPath_Author
     where describe' _f (_p@(UPath_Author_authorName _wp)) = maybe (describe' _f (Proxy :: Proxy Author)) Just (describe' (Just "Author Name") _wp)
           describe' _f (_p@(UPath_Author_authorCredentials _wp)) = maybe (describe' _f (Proxy :: Proxy Author)) Just (describe' (Just "Author Credentials") _wp)
-          describe' f p | p == idPath = describe' f (Proxy :: Proxy Author)
+          describe' f (UPath_Author) = describe' f (Proxy :: Proxy Author)
 instance Describe UPath_ImageCrop
     where describe' f _ = describe' f (Proxy :: Proxy ImageCrop)
-          describe' f p | p == idPath = describe' f (Proxy :: Proxy ImageCrop)
 instance Describe UPath_ImageFile
     where describe' f _ = describe' f (Proxy :: Proxy ImageFile)
-          describe' f p | p == idPath = describe' f (Proxy :: Proxy ImageFile)
 instance Describe UPath_ImageSize
     where describe' _f (_p@(UPath_ImageSize_dim _wp)) = maybe (describe' _f (Proxy :: Proxy ImageSize)) Just (describe' (Just "Dim") _wp)
           describe' _f (_p@(UPath_ImageSize_size _wp)) = maybe (describe' _f (Proxy :: Proxy ImageSize)) Just (describe' (Just "Size") _wp)
           describe' _f (_p@(UPath_ImageSize_units _wp)) = maybe (describe' _f (Proxy :: Proxy ImageSize)) Just (describe' (Just "Units") _wp)
-          describe' f p | p == idPath = describe' f (Proxy :: Proxy ImageSize)
+          describe' f (UPath_ImageSize) = describe' f (Proxy :: Proxy ImageSize)
 instance Describe UPath_Int
     where describe' f _ = describe' f (Proxy :: Proxy Int)
-          describe' f p | p == idPath = describe' f (Proxy :: Proxy Int)
 instance Describe UPath_Int64
     where describe' f _ = describe' f (Proxy :: Proxy Int64)
-          describe' f p | p == idPath = describe' f (Proxy :: Proxy Int64)
 instance Describe UPath_Integer
     where describe' f _ = describe' f (Proxy :: Proxy Integer)
-          describe' f p | p == idPath = describe' f (Proxy :: Proxy Integer)
 instance Describe UPath_Item
     where describe' _f (_p@(UPath_Item_itemName _wp)) = maybe (describe' _f (Proxy :: Proxy Item)) Just (describe' (Just "Item Name") _wp)
           describe' _f (_p@(UPath_Item_fields _wp)) = maybe (describe' _f (Proxy :: Proxy Item)) Just (describe' (Just "Fields") _wp)
           describe' _f (_p@(UPath_Item_images _wp)) = maybe (describe' _f (Proxy :: Proxy Item)) Just (describe' (Just "Images") _wp)
-          describe' f p | p == idPath = describe' f (Proxy :: Proxy Item)
+          describe' f (UPath_Item) = describe' f (Proxy :: Proxy Item)
 instance Describe UPath_JSONText
     where describe' f _ = describe' f (Proxy :: Proxy JSONText)
-          describe' f p | p == idPath = describe' f (Proxy :: Proxy JSONText)
 instance Describe UPath_Markup
     where describe' _f (_p@(UPath_Markup_markdownText _wp)) = maybe (describe' _f (Proxy :: Proxy Markup)) Just (describe' (Just "Markdown Text") _wp)
           describe' _f (_p@(UPath_Markup_htmlText _wp)) = maybe (describe' _f (Proxy :: Proxy Markup)) Just (describe' (Just "Html Text") _wp)
-          describe' f p | p == idPath = describe' f (Proxy :: Proxy Markup)
+          describe' f (UPath_Markup) = describe' f (Proxy :: Proxy Markup)
 instance Describe UPath_Permissions
     where describe' _f (_p@(UPath_Permissions_owner _wp)) = maybe (describe' _f (Proxy :: Proxy Permissions)) Just (describe' (Just "Owner") _wp)
           describe' _f (_p@(UPath_Permissions_writers _wp)) = maybe (describe' _f (Proxy :: Proxy Permissions)) Just (describe' (Just "Writers") _wp)
           describe' _f (_p@(UPath_Permissions_readers _wp)) = maybe (describe' _f (Proxy :: Proxy Permissions)) Just (describe' (Just "Readers") _wp)
-          describe' f p | p == idPath = describe' f (Proxy :: Proxy Permissions)
+          describe' f (UPath_Permissions) = describe' f (Proxy :: Proxy Permissions)
 instance Describe UPath_ReportElem
     where describe' _f (_p@(UPath_ReportElem_elemItem _wp)) = maybe (describe' _f (Proxy :: Proxy ReportElem)) Just (describe' (Just "Elem Item") _wp)
           describe' _f (_p@(UPath_ReportElem_elemText _wp)) = maybe (describe' _f (Proxy :: Proxy ReportElem)) Just (describe' (Just "Elem Text") _wp)
-          describe' f p | p == idPath = describe' f (Proxy :: Proxy ReportElem)
+          describe' f (UPath_ReportElem) = describe' f (Proxy :: Proxy ReportElem)
 instance Describe UPath_ReportFlags
     where describe' _f (_p@(UPath_ReportFlags_hideEmptyItemFields _wp)) = maybe (describe' _f (Proxy :: Proxy ReportFlags)) Just (describe' (Just "Hide Empty Item Fields") _wp)
-          describe' f p | p == idPath = describe' f (Proxy :: Proxy ReportFlags)
+          describe' f (UPath_ReportFlags) = describe' f (Proxy :: Proxy ReportFlags)
 instance Describe UPath_ReportImageView
     where describe' _f (_p@(UPath_ReportImageView__picSize _wp)) = maybe (describe' _f (Proxy :: Proxy ReportImageView)) Just (describe' (Just "Pic Size") _wp)
           describe' _f (_p@(UPath_ReportImageView__picCrop _wp)) = maybe (describe' _f (Proxy :: Proxy ReportImageView)) Just (describe' (Just "Pic Crop") _wp)
@@ -6163,22 +6157,22 @@ instance Describe UPath_ReportImageView
           describe' _f (_p@(UPath_ReportImageView__picPrinterDeprecated _wp)) = maybe (describe' _f (Proxy :: Proxy ReportImageView)) Just (describe' (Just "Pic Printer Deprecated") _wp)
           describe' _f (_p@(UPath_ReportImageView__picMustEnlarge _wp)) = maybe (describe' _f (Proxy :: Proxy ReportImageView)) Just (describe' (Just "Pic Must Enlarge") _wp)
           describe' _f (_p@(UPath_ReportImageView__picEnlargedDeprecated _wp)) = maybe (describe' _f (Proxy :: Proxy ReportImageView)) Just (describe' (Just "Pic Enlarged Deprecated") _wp)
-          describe' f p | p == idPath = describe' f (Proxy :: Proxy ReportImageView)
+          describe' f (UPath_ReportImageView) = describe' f (Proxy :: Proxy ReportImageView)
 instance Describe UPath_ReportMap
     where describe' _f (_p@(UPath_ReportMap_unReportMap _wp)) = maybe (describe' _f (Proxy :: Proxy ReportMap)) Just (describe' (Just "Un Report Map") _wp)
-          describe' f p | p == idPath = describe' f (Proxy :: Proxy ReportMap)
+          describe' f (UPath_ReportMap) = describe' f (Proxy :: Proxy ReportMap)
 instance Describe UPath_ReportStandard
     where describe' _f (_p@(UPath_ReportStandard_unReportStandard _wp)) = maybe (describe' _f (Proxy :: Proxy ReportStandard)) Just (describe' (Just "Un Report Standard") _wp)
-          describe' f p | p == idPath = describe' f (Proxy :: Proxy ReportStandard)
+          describe' f (UPath_ReportStandard) = describe' f (Proxy :: Proxy ReportStandard)
 instance Describe UPath_ReportValueApproachInfo
     where describe' _f (_p@(UPath_ReportValueApproachInfo_reportValueApproachName _wp)) = maybe (describe' _f (Proxy :: Proxy ReportValueApproachInfo)) Just (describe' (Just "Report Value Approach Name") _wp)
           describe' _f (_p@(UPath_ReportValueApproachInfo_reportValueApproachDescription _wp)) = maybe (describe' _f (Proxy :: Proxy ReportValueApproachInfo)) Just (describe' (Just "Report Value Approach Description") _wp)
-          describe' f p | p == idPath = describe' f (Proxy :: Proxy ReportValueApproachInfo)
+          describe' f (UPath_ReportValueApproachInfo) = describe' f (Proxy :: Proxy ReportValueApproachInfo)
 instance Describe UPath_ReportValueTypeInfo
     where describe' _f (_p@(UPath_ReportValueTypeInfo_reportValueTypeName _wp)) = maybe (describe' _f (Proxy :: Proxy ReportValueTypeInfo)) Just (describe' (Just "Report Value Type Name") _wp)
           describe' _f (_p@(UPath_ReportValueTypeInfo_reportValueTypeDescription _wp)) = maybe (describe' _f (Proxy :: Proxy ReportValueTypeInfo)) Just (describe' (Just "Report Value Type Description") _wp)
           describe' _f (_p@(UPath_ReportValueTypeInfo_reportValueTypeDefinition _wp)) = maybe (describe' _f (Proxy :: Proxy ReportValueTypeInfo)) Just (describe' (Just "Report Value Type Definition") _wp)
-          describe' f p | p == idPath = describe' f (Proxy :: Proxy ReportValueTypeInfo)
+          describe' f (UPath_ReportValueTypeInfo) = describe' f (Proxy :: Proxy ReportValueTypeInfo)
 instance Describe UPath_ReportView
     where describe' _f (_p@(UPath_ReportView__reportFolder _wp)) = maybe (describe' _f (Proxy :: Proxy ReportView)) Just (describe' (Just "Report Folder") _wp)
           describe' _f (_p@(UPath_ReportView__reportName _wp)) = maybe (describe' _f (Proxy :: Proxy ReportView)) Just (describe' (Just "Report Name") _wp)
@@ -6225,16 +6219,13 @@ instance Describe UPath_ReportView
           describe' _f (_p@(UPath_ReportView__reportOrderByItemName _wp)) = maybe (describe' _f (Proxy :: Proxy ReportView)) Just (describe' (Just "Report Order By Item Name") _wp)
           describe' _f (_p@(UPath_ReportView__reportDisplayItemName _wp)) = maybe (describe' _f (Proxy :: Proxy ReportView)) Just (describe' (Just "Report Display Item Name") _wp)
           describe' _f (_p@(UPath_ReportView__reportStandardsVersion _wp)) = maybe (describe' _f (Proxy :: Proxy ReportView)) Just (describe' (Just "Report Standards Version") _wp)
-          describe' f p | p == idPath = describe' f (Proxy :: Proxy ReportView)
+          describe' f (UPath_ReportView) = describe' f (Proxy :: Proxy ReportView)
 instance Describe UPath_URI
     where describe' f _ = describe' f (Proxy :: Proxy URI)
-          describe' f p | p == idPath = describe' f (Proxy :: Proxy URI)
 instance Describe UPath_UUID
     where describe' f _ = describe' f (Proxy :: Proxy UUID)
-          describe' f p | p == idPath = describe' f (Proxy :: Proxy UUID)
 instance Describe UPath_UserId
     where describe' f _ = describe' f (Proxy :: Proxy UserId)
-          describe' f p | p == idPath = describe' f (Proxy :: Proxy UserId)
 instance IsPath UPath_Author
     where type UType UPath_Author = Univ
           type SType UPath_Author = Author
