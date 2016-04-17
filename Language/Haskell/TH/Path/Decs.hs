@@ -15,8 +15,7 @@
 {-# LANGUAGE TypeSynonymInstances #-}
 module Language.Haskell.TH.Path.Decs
     ( derivePaths
-    , allDecs
-    , allDecsToFile
+    , writePaths
     ) where
 
 import Control.Exception as E (IOException, throw, try)
@@ -33,7 +32,6 @@ import Language.Haskell.TH.Context (ContextM)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Common (HasTypeQ(asTypeQ), telld, tells)
 import Language.Haskell.TH.Path.Core (U(u, unU'), ulens')
-import Language.Haskell.TH.Path.Decs.Lens (uLensDecs)
 import Language.Haskell.TH.Path.Decs.PathStart (peekDecs)
 import Language.Haskell.TH.Path.Graph (runTypeGraphT, TypeGraphM)
 import Language.Haskell.TH.Path.Instances ()
@@ -45,17 +43,16 @@ import Language.Haskell.TH.TypeGraph.Vertex (TGVSimple, typeNames)
 import System.Directory (removeFile)
 import System.IO.Error (isDoesNotExistError)
 
--- instance TypeGraphM m => TypeGraphM (StateT Int m)
+derivePaths :: [TypeQ] -> Q [Dec]
+derivePaths st = do
+  st' <- runQ $ sequence st
+  runTypeGraphT allDecs st'
 
-derivePaths :: TypeQ -> [TypeQ] -> TypeQ -> Q [Dec]
-derivePaths utype topTypes thisType =
-    runTypeGraphT (execWriterT . doType utype =<< runQ thisType) =<< sequence topTypes
-
-allDecs :: forall m. (TypeGraphM m) => ([Dec] -> [Dec]) -> m [Dec]
-allDecs order = do
+allDecs :: forall m. (TypeGraphM m) => m [Dec]
+allDecs = do
   (uname, udecs) <- runWriterT doUniv
   moreDecs <- execWriterT (allPathStarts >>= mapM_ (doNode uname))
-  return $ order (udecs <> moreDecs)
+  return $ (udecs <> moreDecs)
 
 doUniv :: (TypeGraphM m, MonadWriter [Dec] m) => m TypeQ
 doUniv = do
@@ -74,8 +71,8 @@ doUniv = do
             ulens = ulens' Proxy |]
   return $ conT uname
 
-allDecsToFile :: ([Dec] -> [Dec]) -> [TypeQ] -> Maybe FilePath -> Maybe FilePath -> FilePath -> [FilePath] -> Q [Dec]
-allDecsToFile order st hd tl dest deps = do
+writePaths :: Maybe FilePath -> Maybe FilePath -> FilePath -> [FilePath] -> [Dec] -> Q [Dec]
+writePaths hd tl dest deps decs = do
   runQ $ mapM_ addDependentFile $ catMaybes [hd, tl] ++ deps
   hdText <- runQ $ runIO $ maybe (pure mempty) readFile hd
   tlText <- runQ $ runIO $ maybe (pure mempty) readFile tl
@@ -83,8 +80,6 @@ allDecsToFile order st hd tl dest deps = do
                        either (\(e :: IOException) -> case isDoesNotExistError e of
                                                  True -> pure Nothing
                                                  False -> throw e) (pure . Just))
-  st' <- runQ $ sequence st
-  decs <- runTypeGraphT (allDecs order) st'
   let code = (unlines . map pprintW . {-sort .-} map friendlyNames) decs
       removeFileMaybe :: FilePath -> IO ()
       removeFileMaybe path =
@@ -103,14 +98,14 @@ allDecsToFile order st hd tl dest deps = do
       error $ "Generated " <> dest <> ".new does not match existing " <> dest
   pure decs
 
-doType :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TypeQ -> Type -> m ()
-doType utype t = tgvSimple t >>= maybe (error $ "doType: No node for " ++ pprint1 t) (doNode utype)
+-- doType :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TypeQ -> Type -> m ()
+-- doType utype t = tgvSimple t >>= maybe (error $ "doType: No node for " ++ pprint1 t) (doNode utype)
 
 doNode :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TypeQ -> TGVSimple -> m ()
 doNode utype v = do
   lensDecs v           -- generate lenses using makeClassyFor
   peekDecs utype v     -- generate IsPath and PathStart instances
-  uLensDecs utype v    -- generate ToLens instances for UPath types
+  -- uLensDecs utype v    -- generate ToLens instances for UPath types
 
 -- | Make lenses for a type with the names described by fieldLensNamePair, which is a little
 -- different from the namer used in th-typegraph (for historical reasons I guess.)
