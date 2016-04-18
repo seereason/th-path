@@ -71,7 +71,7 @@ library
   default-language: Haskell2010
   if flag (local-th-typegraph)
     Hs-Source-Dirs: ../th-typegraph, ../th-context, ../image-cache
-    Build-Depends: pretty
+    Build-Depends: pretty, acid-state, bytestring, process, binary, exceptions, process-extras, aeson, pureMD5, filemanip-extra, hslogger, Unixutils, HaTeX, utf8-string, regex-compat, transformers, unix, network-uri
     Exposed-Modules:
       -- th-context
       Data.Logic.ATP.TH
@@ -98,7 +98,7 @@ library
   else
     Build-Depends:
       th-context >= 0.23.1,
-      th-typegraph >= 0.33.1
+      th-typegraph >= 0.35
 
 -- test-suite th-path-tests
 --   type:             exitcode-stdio-1.0

@@ -29,14 +29,14 @@ import Language.Haskell.TH.Context (reifyInstancesWithContext)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Common (HasConQ(asConQ), HasCon(asCon), HasName(asName), HasType(asType), HasTypeQ(asTypeQ),
                                         makeUFieldCon, makeUPathType, ModelType(ModelType), PathType, telld, tells)
-import Language.Haskell.TH.Path.Core (camelWords, forestMap, IsPath(..), liftPeek, PathStart(..), ToLens(toLens), Describe(describe'), mat,
+import Language.Haskell.TH.Path.Core (camelWords, forestMap, IsPath(..), liftPeek, subPeek, PathStart(..), ToLens(toLens), Describe(describe'), mat,
                                       Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..), Path_List, Path_View(..), U(u, unU'), ulens')
 import Language.Haskell.TH.Path.Graph (TypeGraphM)
 import Language.Haskell.TH.Path.Order (lens_omat, Path_OMap(..), toPairs)
 import Language.Haskell.TH.Path.Traverse (asP', Control(..), doNode)
 import Language.Haskell.TH.Path.View (viewLens)
 import Language.Haskell.TH.Syntax (liftString)
-import Language.Haskell.TH.TypeGraph.Shape (Field)
+import Language.Haskell.TH.TypeGraph.Shape (constructorName, Field)
 import Language.Haskell.TH.TypeGraph.TypeGraph (tgv, tgvSimple')
 import Language.Haskell.TH.TypeGraph.Vertex (TGV, field, TGVSimple)
 
@@ -50,13 +50,12 @@ instance HasName PeekCon where asName = unPeekCon
 instance HasCon PeekCon where asCon = ConE . unPeekCon
 instance HasConQ PeekCon where asConQ = conE . unPeekCon
 
-data PathConc
-    = PathConc
-      { wtyp :: TGV
-      , xpat :: PatQ -> PatQ
-      , upat :: PatQ -> PatQ
+data Hop
+    = Hop
+      { upat :: PatQ -> PatQ
       , plift :: ExpQ
       , lns :: ExpQ
+      , wtyp :: TGV
       }
 
 data WriterType
@@ -119,10 +118,8 @@ peekDecs utype v =
                      [ funD 'toLens tlcs
                      ] ])
 
-pathControl :: forall m. (TypeGraphM m, MonadWriter [WriterType] m) => TypeQ -> TGVSimple -> Control m PathConc () ()
-pathControl utype v = do
-  let control :: Control m PathConc () ()
-      control = pathControl utype v in
+pathControl :: forall m. (TypeGraphM m, MonadWriter [WriterType] m) => TypeQ -> TGVSimple -> Control m Hop () ()
+pathControl utype v =
     Control
     { _doSimple =
           do let pname = makeUPathType (ModelType (asName v))
@@ -134,8 +131,8 @@ pathControl utype v = do
     , _doView =
         \typ ->
             do w <- tgv Nothing typ
-               let conc = PathConc w (const wildP) (\p -> conP 'Path_To [wildP, p]) [| [Path_To Proxy] |] [|viewLens|]
-               _doConcs control wildP [conc]
+               doHops utype wildP
+                      [Hop (\p -> conP 'Path_To [wildP, p]) [| [Path_To Proxy] |] [|viewLens|] w]
                tell [-- ToLensClause (clause [upat conc (varP p)] (normalB [|viewLens . toLens $(varE p)|]) []),
                      ToLensClause (clause [[p|Path_Self|]] (normalB [|lens u (\s a -> maybe s id (unU' a))|]) [])]
     , _doOrder =
@@ -143,10 +140,10 @@ pathControl utype v = do
             do x <- runQ $ newName "_xyz"
                w <- tgv Nothing typ
                i <- runQ $ newName "_k"
-               let conc = PathConc w (const wildP) (\p -> [p|Path_At $(varP i) $p|])
-                                     [|map (\($(varP i), _) -> Path_At $(varE i)) (toPairs $(varE x))|]
-                                     [|lens_omat $(varE i)|]
-               _doConcs control (varP x) [conc]
+               doHops utype (varP x)
+                      [Hop (\p -> [p|Path_At $(varP i) $p|])
+                           [|map (\($(varP i), _) -> Path_At $(varE i)) (toPairs $(varE x))|]
+                           [|lens_omat $(varE i)|] w]
                tell [-- ToLensClause (clause [upat conc (varP p)] (normalB [|$(lns conc) . toLens $(varE p)|]) []),
                      ToLensClause (clause [[p|Path_OMap|]] (normalB [|lens u (\s a -> maybe s id (unU' a))|]) [])]
 
@@ -155,10 +152,10 @@ pathControl utype v = do
             do x <- runQ $ newName "_xyz"
                w <- tgv Nothing typ
                i <- runQ $ newName "_k"
-               let conc = PathConc w (const wildP) (\p -> [p|Path_Look $(varP i) $p|])
-                                     [|map (\($(varP i), _) -> Path_Look $(varE i)) (Map.toList $(varE x))|]
-                                     [|mat $(varE i)|]
-               _doConcs control (varP x) [conc]
+               doHops utype (varP x)
+                      [Hop (\p -> [p|Path_Look $(varP i) $p|])
+                           [|map (\($(varP i), _) -> Path_Look $(varE i)) (Map.toList $(varE x))|]
+                           [|mat $(varE i)|] w]
                tell [-- ToLensClause (clause [upat conc (varP p)] (normalB [|$(lns conc) . toLens $(varE p)|]) []),
                      ToLensClause (clause [[p|Path_Map|]] (normalB [|lens u (\s a -> maybe s id (unU' a))|]) [])]
     , _doList =
@@ -167,38 +164,37 @@ pathControl utype v = do
         \ftyp styp ->
             do f <- tgv Nothing ftyp
                s <- tgv Nothing styp
-               let fconc = PathConc f (const wildP) (\p -> conP 'Path_First [p]) [| [Path_First] |] [|_1|]
-                   sconc = PathConc s (const wildP) (\p -> conP 'Path_Second [p]) [| [Path_Second] |] [|_2|]
-               _doConcs control wildP [fconc, sconc]
+               doHops utype wildP
+                      [Hop (\p -> conP 'Path_First [p]) [| [Path_First] |] [|_1|] f,
+                       Hop (\p -> conP 'Path_Second [p]) [| [Path_Second] |] [|_2|] s]
                tell [-- ToLensClause (clause [upat fconc (varP p)] (normalB [|$(lns fconc) . toLens $(varE p)|]) []),
                      -- ToLensClause (clause [upat sconc (varP p)] (normalB [|$(lns sconc) . toLens $(varE p)|]) []),
                      ToLensClause (clause [[p|Path_Pair|]] (normalB [|lens u (\s a -> maybe s id (unU' a))|]) [])]
     , _doMaybe =
         \typ ->
             do w <- tgv Nothing typ
-               let conc = PathConc w (const wildP) (\p -> conP 'Path_Just [p]) [|[Path_Just]|] [|_Just|]
-               _doConcs control wildP [conc]
+               doHops utype wildP
+                      [Hop (\p -> conP 'Path_Just [p]) [|[Path_Just]|] [|_Just|] w]
                tell [-- ToLensClause (clause [upat conc (varP p)] (normalB [|$(lns conc) . toLens $(varE p)|]) []),
                      ToLensClause (clause [[p|Path_Maybe|]] (normalB [|lens u (\s a -> maybe s id (unU' a))|]) [])]
     , _doEither =
         \ltyp rtyp ->
             do l <- tgv Nothing ltyp
                r <- tgv Nothing rtyp
-               let lconc = PathConc l (const wildP) (\p -> conP 'Path_Left [p]) [|[Path_Left]|] [|_Left|]
-                   rconc = PathConc r (const wildP) (\p -> conP 'Path_Right [p]) [|[Path_Right]|] [|_Right|]
-                   upati = const [p|Path_Either|]
-               _doConcs control (conP 'Left [wildP]) [lconc]
-               _doConcs control (conP 'Right [wildP]) [rconc]
+               let upati = const [p|Path_Either|]
+               doHops utype (conP 'Left [wildP])
+                      [Hop (\p -> conP 'Path_Left [p]) [|[Path_Left]|] [|_Left|] l]
+               doHops utype (conP 'Right [wildP])
+                      [Hop (\p -> conP 'Path_Right [p]) [|[Path_Right]|] [|_Right|] r]
                tell [-- ToLensClause (clause [upat lconc (varP p)] (normalB [|$(lns lconc) . toLens $(varE p)|]) []),
                      -- ToLensClause (clause [upat rconc (varP p)] (normalB [|$(lns rconc) . toLens $(varE p)|]) []),
                      ToLensClause (clause [upati wildP] (normalB [|lens u (\s a -> maybe s id (unU' a))|]) [])]
     , _doField =
-        \fld@(_tname, _cname, Right fname) typ ->
+        \fld@(_tname, con, Right fname) typ ->
             do w <- tgvSimple' typ >>= tgv (Just fld)
-               let conc = PathConc w (const wildP)
-                                   (\p -> conP (asName (makeUFieldCon fld)) [p])
-                                   [|[$(asConQ (makeUFieldCon fld))]|]
-                                   (varE (fieldLensNameOld (asName v) fname))
+               let conc = Hop (\p -> conP (asName (makeUFieldCon fld)) [p])
+                              [|[$(asConQ (makeUFieldCon fld))]|]
+                              (varE (fieldLensNameOld (asName v) fname)) w
                f <- runQ $ newName "_f"
                -- Generate clauses of the 'Describe' instance for v.  Because the
                -- description is based entirely on the types, we can generate a
@@ -206,55 +202,30 @@ pathControl utype v = do
                --    v = TGV {tgvSimple = ReportView, field = _reportLetterOfTransmittal :: Markup}
                --    w = Markup
                --    ppat = Path_ReportView__reportLetterOfTransmittal _wp
-               tell [UDescClause $
-                     newName "q" >>= \q ->
-                     -- f contains the context in which v appears, while we can tell
-                     -- the context in which w appears from the path constructor.
-                     clause [varP f, upat conc (varP q)]
-                            (normalB ([| maybe
-                                           -- The label for the current node.  This will call the custom
-                                           -- instance if there is one, otherwise one will have been generated.
-                                           (describe' $(varE f) (Proxy :: Proxy $(asTypeQ v)))
-                                           Just
-                                           -- The label for the next hop along the path
-                                           (describe'
-                                              -- The context in which the w value appears
-                                              ($(maybe [|Nothing|] (\y -> [|Just $(fieldString y)|]) (view (_2 . field) w)))
-                                              $(varE q)) |]))
-                            []]
+               tell [UDescClause $ do
+                       q <- newName "q"
+                       -- f contains the context in which v appears, while we can tell
+                       -- the context in which w appears from the path constructor.
+                       clause [varP f, upat conc (varP q)]
+                              (normalB ([| maybe
+                                             -- The label for the current node.  This will call the custom
+                                             -- instance if there is one, otherwise one will have been generated.
+                                             (describe' $(varE f) (Proxy :: Proxy $(asTypeQ v)))
+                                             Just
+                                             -- The label for the next hop along the path
+                                             (describe'
+                                                -- The context in which the w value appears
+                                                ($(maybe [|Nothing|] (\y -> [|Just $(fieldString y)|]) (view (_2 . field) w)))
+                                                $(varE q)) |]))
+                              []]
                case fld of
-                 (_tname, _cname, Right _fname) ->
+                 (_tname, _con, Right _fname) ->
                      do let pcname = fieldUPathName fld
                         ptype <- fieldUPathType typ
                         tell [UPathCon (normalC (asName pcname) [strictType notStrict (return ptype)])]
-                 (_tname, _cname, Left _fname) -> pure ()
-               x <- runQ $ newName "_p"
-               let lns = [|$(varE (fieldLensNameOld (asName v) fname)) . toLens $(varE x)|]
+                 (_tname, _con, Left _fname) -> pure ()
                pure conc
-    , _doConcs =
-        \xpat concs -> do
-          x <- runQ $ newName "_xconc"
-          tell [UPeekRowClause $
-                  do unv <- newName "_unv"
-                     let pairs = map (\(PathConc w _ _ fs _) -> (w, fs)) concs
-                         fn :: ExpQ -> (TGV, ExpQ) -> ExpQ -> ExpQ
-                         fn ex (w, fs) r =
-                             [| concatMap (\f -> forestMap (liftPeek f)
-                                                           (map (\x' -> Node ((upeekCons (idPath) (Just (u x' :: $utype))) :: UPeek $utype $(asTypeQ w)) [])
-                                                                (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy $utype)) $ex :: [$(asTypeQ w)]))) $fs ++ $r |]
-                     clause [varP unv, asP' x xpat] (normalB [|Node (upeekCons idPath Nothing) $(foldr (fn (varE x)) [| [] |] pairs)|]) [],
-                UPeekTreeClause $
-                  do unv <- newName "_unv"
-                     let pairs = map (\(PathConc w _ _ fs _) -> (w, fs)) concs
-                         fn :: ExpQ -> (TGV, ExpQ) -> ExpQ -> ExpQ
-                         fn ex (w, fs) r =
-                             [| concatMap (\f -> forestMap (liftPeek f)
-                                                           (map (upeekTree $(varE unv))
-                                                                (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy $utype)) $ex :: [$(asTypeQ w)]))) $fs ++ $r |]
-                     clause [varP unv, asP' x xpat] (normalB [|Node (upeekCons idPath Nothing) $(foldr (fn (varE x)) [| [] |] pairs)|]) []
-               ]
-          p <- runQ $ newName "_p"
-          tell (map (\conc -> ToLensClause (clause [upat conc (varP p)] (normalB [|$(lns conc) . toLens $(varE p)|]) [])) concs)
+    , _doConcs = doHops utype
     , _doSyn =
         \_tname _typ -> pure ()
     , _doAlts = \_ -> let pname = makeUPathType (ModelType (asName v)) in
@@ -266,6 +237,32 @@ pathControl utype v = do
                             ToLensClause (clause [wildP] (normalB [|lens u (\s a -> maybe s id (unU' a))|]) [])]
     , _doSyns = \() _ -> pure ()
     }
+
+-- | Do several different path hops from one value.
+doHops :: (TypeGraphM m, MonadWriter [WriterType] m) => TypeQ -> PatQ -> [Hop] -> m ()
+doHops utype xpat hops = do
+  x <- runQ $ newName "_xconc"
+  tell [UPeekRowClause $
+          do unv <- newName "_unv"
+             let pairs = map (\(Hop _ fs _ w) -> (w, fs)) hops
+                 fn :: ExpQ -> (TGV, ExpQ) -> ExpQ -> ExpQ
+                 fn ex (w, fs) r =
+                     [| concatMap (\f -> forestMap (liftPeek f)
+                                                   (map (\x' -> Node ((upeekCons (idPath) (Just (u x' :: $utype))) :: UPeek $utype $(asTypeQ w)) [])
+                                                        (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy $utype)) $ex :: [$(asTypeQ w)]))) $fs ++ $r |]
+             clause [varP unv, asP' x xpat] (normalB [|Node (upeekCons idPath Nothing) $(foldr (fn (varE x)) [| [] |] pairs)|]) [],
+        UPeekTreeClause $
+          do unv <- newName "_unv"
+             let pairs = map (\(Hop _ fs _ w) -> (w, fs)) hops
+                 fn :: ExpQ -> (TGV, ExpQ) -> ExpQ -> ExpQ
+                 fn ex (w, fs) r =
+                     [| concatMap (\f -> forestMap (liftPeek f)
+                                                   (map (upeekTree $(varE unv))
+                                                        (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy $utype)) $ex :: [$(asTypeQ w)]))) $fs ++ $r |]
+             clause [varP unv, asP' x xpat] (normalB [|Node (upeekCons idPath Nothing) $(foldr (fn (varE x)) [| [] |] pairs)|]) []
+       ]
+  tell (map (\conc -> ToLensClause (newName "_p" >>= \p -> clause [upat conc (varP p)] (normalB [|$(lns conc) . toLens $(varE p)|]) [])) hops)
+
 
 -- | Given a type, compute the corresponding path type.
 upathType :: forall m. TypeGraphM m =>
@@ -324,9 +321,9 @@ bestUPathTypeName :: HasName v => v -> PathType Name
 bestUPathTypeName = makeUPathType . ModelType . asName
 
 -- | Convert a 'Language.Haskell.TH.TypeGraph.Shape.Field' into the argument used by describe'.
-fieldString :: (Name, Name, Either Int Name) -> ExpQ
-fieldString (_tname, cname, Left fpos) = liftString (camelWords (nameBase cname) ++ "[" ++ show fpos ++ "]")
-fieldString (_tname, _cname, Right fname) = liftString (camelWords (nameBase fname))
+fieldString :: Field -> ExpQ
+fieldString (_tname, con, Left fpos) = liftString (camelWords (nameBase (constructorName con)) ++ "[" ++ show fpos ++ "]")
+fieldString (_tname, _con, Right fname) = liftString (camelWords (nameBase fname))
 
 supers :: [Name]
 supers = [''Eq, ''Ord, ''Read, ''Show, ''Typeable, ''Data]

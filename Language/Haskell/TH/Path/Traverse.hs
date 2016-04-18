@@ -21,7 +21,7 @@ module Language.Haskell.TH.Path.Traverse
     , Control(..)
     , doNode
     , substG
-    , finishConcs
+    -- , finishConcs
     ) where
 
 import Control.Lens (_2, view)
@@ -39,7 +39,7 @@ import Language.Haskell.TH.Path.View (viewInstanceType)
 import Language.Haskell.TH.Syntax
 import Language.Haskell.TH.TypeGraph.Expand (unE)
 import Language.Haskell.TH.TypeGraph.Prelude (pprint1)
-import Language.Haskell.TH.TypeGraph.Shape (Field)
+import Language.Haskell.TH.TypeGraph.Shape (constructorPat, Field)
 import Language.Haskell.TH.TypeGraph.TypeGraph (tgvSimple')
 import Language.Haskell.TH.TypeGraph.Vertex (etype, TGVSimple, typeNames)
 
@@ -122,35 +122,36 @@ doNode control v =
 
       doCon :: (Type -> Type) -> Name -> Con -> m alt
       doCon subst tname (ForallC _ _ con) = doCon subst tname con
-      doCon subst tname (RecC cname vsts) = do
-        flds <- mapM (doNamedField subst tname cname) (zip vsts [1..])
-        _doConcs control (recP cname []) flds
-      doCon _subst _tname (NormalC cname _sts) = do
+      doCon subst tname con@(RecC _cname vsts) = do
+        flds <- mapM (doNamedField subst tname con) vsts
+        _doConcs control (constructorPat con) flds
+      doCon _subst _tname con@(NormalC _cname _sts) = do
 #if 1
-        _doConcs control (recP cname []) []
+        _doConcs control (constructorPat con) []
 #else
         flds <- mapM (doAnonField bindings tname cname) (zip sts [1..])
-        doAlts [(recP cname [], flds)]
+        doAlts [(constructorPath con, flds)]
 #endif
-      doCon _bindings _tname (InfixC _lhs cname _rhs) = do
+      doCon _bindings _tname con@(InfixC _lhs _cname _rhs) = do
 #if 1
-        _doConcs control (infixP wildP cname wildP) []
+        _doConcs control (constructorPat con) []
 #else
         flds <- mapM (doAnonField bindings tname cname) (zip [lhs, rhs] [1..])
-        c <- doAlts [(infixP wildP cname wildP, flds)]
+        c <- doAlts [(constructorPat con, flds)]
         return [c]
 #endif
 
-      doNamedField :: (Type -> Type) -> Name -> Name -> ((Name, Strict, Type), Int) -> m conc
-      doNamedField subst tname cname ((fname, _, ftype), _fpos) =
-          _doField control (tname, cname, Right fname) (subst ftype)
-
-      doAnonField :: (Type -> Type) -> Name -> Name -> ((Strict, Type), Int) -> m conc
-      doAnonField subst tname cname ((_, ftype), fpos) =
-          _doField control (tname, cname, Left fpos) (subst ftype)
+      doNamedField :: (Type -> Type) -> Name -> Con -> VarStrictType -> m conc
+      doNamedField subst tname con (fname, _, ftype) =
+          _doField control (tname, con, Right fname) (subst ftype)
+#if 0
+      doAnonField :: (Type -> Type) -> Name -> Con -> ((Strict, Type), Int) -> m conc
+      doAnonField subst tname con ((_, ftype), fpos) =
+          _doField control (tname, con, Left fpos) (subst ftype)
 
       doAlts :: [(PatQ, [conc])] -> m r
       doAlts alts = mapM (uncurry (_doConcs control)) alts >>= _doAlts control
+#endif
 
 substG :: Data a => Map Name Type -> a -> a
 substG bindings typ = everywhere (mkT (subst1 bindings)) typ
@@ -168,5 +169,5 @@ asP' name patQ = do
     AsP name' _ | name == name' -> patQ
     _ -> asP name patQ
 
-finishConcs :: Monad m => Control m conc alt r -> [(PatQ, [conc])] -> m r
-finishConcs control concs = mapM (uncurry (_doConcs control)) concs >>= _doAlts control
+-- finishConcs :: Monad m => Control m conc alt r -> [(PatQ, [conc])] -> m r
+-- finishConcs control concs = mapM (uncurry (_doConcs control)) concs >>= _doAlts control

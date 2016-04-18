@@ -38,7 +38,7 @@ import Language.Haskell.TH.Path.Instances ()
 import Language.Haskell.TH.Syntax (addDependentFile, Quasi(qReify))
 import Language.Haskell.TH.TypeGraph.Lens (lensNamePairs)
 import Language.Haskell.TH.TypeGraph.Prelude (friendlyNames, pprint1, pprintW)
-import Language.Haskell.TH.TypeGraph.TypeGraph (allPathStarts, tgvSimple)
+import Language.Haskell.TH.TypeGraph.TypeGraph (allPathStarts)
 import Language.Haskell.TH.TypeGraph.Vertex (TGVSimple, typeNames)
 import System.Directory (removeFile)
 import System.IO.Error (isDoesNotExistError)
@@ -80,7 +80,7 @@ writePaths hd tl dest deps decs = do
                        either (\(e :: IOException) -> case isDoesNotExistError e of
                                                  True -> pure Nothing
                                                  False -> throw e) (pure . Just))
-  let code = (unlines . map pprintW . {-sort .-} map friendlyNames) decs
+  let code = (unlines . map (pprintW 250) . {-sort .-} map friendlyNames) decs
       removeFileMaybe :: FilePath -> IO ()
       removeFileMaybe path =
           try (removeFile path) >>=

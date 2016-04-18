@@ -24,6 +24,7 @@ module Language.Haskell.TH.Path.Core
     , IsPath(UType, SType, idPath)
     , PathStart(UPeek, upeekCons, upeekPath, upeekValue, UPath, upeekRow, upeekTree)
     , liftPeek
+    , subPeek
     , ToLens(toLens)
     , ulens'
     -- , (:.:)(..)
@@ -194,6 +195,9 @@ class (U u s, IsPath (UPath u s)) => PathStart u s where
 
 liftPeek :: (PathStart u s, PathStart u t) => (UPath u s -> UPath u t) -> UPeek u s -> UPeek u t
 liftPeek f pk = upeekCons (f (upeekPath pk)) (upeekValue pk)
+
+subPeek :: (PathStart u s, U u a) => [a] -> [Tree (UPeek u s)]
+subPeek xlist = map (\x' -> Node (upeekCons idPath (Just (u x'))) []) xlist
 
 -- | Nodes along a path can be customized by declaring types to be
 -- instances of this class and the ones that follow.  If a type is an

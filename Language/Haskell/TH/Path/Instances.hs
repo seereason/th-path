@@ -29,7 +29,6 @@ import Language.Haskell.TH.Context (ContextM, InstMap)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.TypeGraph.Expand (ExpandMap)
 import Web.Routes
-import Web.Routes.TH (derivePathInfo)
 
 instance (Monad m, MonadStates InstMap m) => MonadStates InstMap (StateT (Set s) m) where
     getPoly = Monad.lift getPoly
