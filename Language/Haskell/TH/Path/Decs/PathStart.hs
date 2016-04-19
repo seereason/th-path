@@ -248,8 +248,8 @@ doHops utype xpat hops = do
                  fn :: ExpQ -> (TGV, ExpQ) -> ExpQ -> ExpQ
                  fn ex (w, fs) r =
                      [| concatMap (\f -> forestMap (liftPeek f)
-                                                   (map (\x' -> Node ((upeekCons (idPath) (Just (u x' :: $utype))) :: UPeek $utype $(asTypeQ w)) [])
-                                                        (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy $utype)) $ex :: [$(asTypeQ w)]))) $fs ++ $r |]
+                                                   (map (\x' -> Node ((upeekCons (idPath) (Just (u x')))) [])
+                                                        (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy $utype)) $ex :: [$(asTypeQ w)]) :: [Tree (UPeek $utype $(asTypeQ w))])) $fs ++ $r |]
              clause [varP unv, asP' x xpat] (normalB [|Node (upeekCons idPath Nothing) $(foldr (fn (varE x)) [| [] |] pairs)|]) [],
         UPeekTreeClause $
           do unv <- newName "_unv"
@@ -258,11 +258,10 @@ doHops utype xpat hops = do
                  fn ex (w, fs) r =
                      [| concatMap (\f -> forestMap (liftPeek f)
                                                    (map (upeekTree $(varE unv))
-                                                        (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy $utype)) $ex :: [$(asTypeQ w)]))) $fs ++ $r |]
+                                                        (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy $utype)) $ex :: [$(asTypeQ w)]) :: [Tree (UPeek $utype $(asTypeQ w))])) $fs ++ $r |]
              clause [varP unv, asP' x xpat] (normalB [|Node (upeekCons idPath Nothing) $(foldr (fn (varE x)) [| [] |] pairs)|]) []
        ]
   tell (map (\conc -> ToLensClause (newName "_p" >>= \p -> clause [upat conc (varP p)] (normalB [|$(lns conc) . toLens $(varE p)|]) [])) hops)
-
 
 -- | Given a type, compute the corresponding path type.
 upathType :: forall m. TypeGraphM m =>

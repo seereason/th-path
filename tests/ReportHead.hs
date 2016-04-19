@@ -36,7 +36,7 @@ import Data.UserId (UserId(UserId))
 import Data.UUID (UUID)
 import Data.UUID.Orphans ()
 import Language.Haskell.TH.Path.Core
-import Language.Haskell.TH.Path.Order (lens_omat, Path_OMap(Path_At), toPairs)
+import Language.Haskell.TH.Path.Order (lens_omat, Path_OMap(Path_OMap, Path_At), toPairs)
 import Language.Haskell.TH.Path.View (View(viewLens))
 import Network.URI (URI(URI), URIAuth)
 
