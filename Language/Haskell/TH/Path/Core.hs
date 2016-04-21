@@ -175,7 +175,7 @@ class (U u s, IsPath (UPath u s)) => PathStart u s where
     -- This also means it is impossible to say something like
     -- @instance Describe (UPath Univ Int64)@, we need to find the
     -- actual type.
-    upeekTree :: Proxy u -> s -> Tree (UPeek u s)
+    upeekTree :: Proxy u -> Maybe Int -> s -> Tree (UPeek u s)
     -- ^ Given a value of type @s@, return a tree containing every
     -- 'Peek' that can be reached from it.  The order of the nodes in
     -- the forest reflects the order the elements were encountered

@@ -95,7 +95,8 @@ peekDecs utype v =
                               [] -> pure [clause [wildP, wildP] (normalB [| Node (upeekCons idPath Nothing) [] |]) []]
                               _ -> pure uprcs),
            funD' 'upeekTree (case uptcs of
-                               [] -> pure [newName "x" >>= \x -> clause [wildP, varP x] (normalB [| Node (upeekCons idPath (Just (u $(varE x)))) [] |]) []]
+                               [] -> pure [do x <- newName "x"
+                                              clause [wildP, wildP, varP x] (normalB [| Node (upeekCons idPath (Just (u $(varE x)))) [] |]) []]
                                _ -> pure uptcs)])
        when (not (null udcs)) (instanceD' (cxt []) [t|Describe $(pure uptype)|] (pure [do funD 'describe' udcs]))
        proxyV <- runQ $ [t|Proxy $(asTypeQ v)|]
@@ -253,13 +254,22 @@ doHops utype xpat hops = do
              clause [varP unv, asP' x xpat] (normalB [|Node (upeekCons idPath Nothing) $(foldr (fn (varE x)) [| [] |] pairs)|]) [],
         UPeekTreeClause $
           do unv <- newName "_unv"
+             d <- newName "d"
              let pairs = map (\(Hop _ fs _ w) -> (w, fs)) hops
                  fn :: ExpQ -> (TGV, ExpQ) -> ExpQ -> ExpQ
                  fn ex (w, fs) r =
                      [| concatMap (\f -> forestMap (mapPeek f)
-                                                   (map (upeekTree $(varE unv))
+                                                   (map (upeekTree $(varE unv) (fmap pred $(varE d)))
                                                         (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy $utype)) $ex :: [$(asTypeQ w)]) :: [Tree (UPeek $utype $(asTypeQ w))])) $fs ++ $r |]
-             clause [varP unv, asP' x xpat] (normalB [|Node (upeekCons idPath Nothing) $(foldr (fn (varE x)) [| [] |] pairs)|]) []
+             case pairs of
+               [] -> clause [varP unv, wildP, asP' x xpat]
+                            (normalB [|Node (upeekCons idPath (Just (u $(varE x)))) []|]) 
+                            []
+               _ ->  clause [varP unv, varP d, asP' x xpat]
+                            (normalB [|case $(varE d) of
+                                         Just 0 -> Node (upeekCons idPath (Just (u $(varE x)))) []
+                                         _ -> Node (upeekCons idPath Nothing) $(foldr (fn (varE x)) [| [] |] pairs)|])
+                            []
        ]
   tell (map (\conc -> ToLensClause (newName "_p" >>= \p -> clause [upat conc (varP p)] (normalB [|$(lns conc) . toLens $(varE p)|]) [])) hops)
 

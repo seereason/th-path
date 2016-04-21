@@ -78,7 +78,7 @@ testReportElems =
                   Path_To Proxy (UPath_ReportView__reportPreparerEIN UPath_Markup),
                   Path_To Proxy (UPath_ReportView__reportPreparerAddress UPath_Markup)]
       actual :: [UPath Univ Report]
-      actual = let Node _ [Node _ xs] = upeekTree (Proxy :: Proxy Univ) Report.report in
+      actual = let Node _ [Node _ xs] = upeekTree (Proxy :: Proxy Univ) Nothing Report.report in
                map (upeekPath . rootLabel) (take 10 xs)
 
 testShowInstance :: Test
@@ -97,7 +97,7 @@ testPeekReportView =
       expected = peekReportView
       actual :: Tree (UPeek Univ ReportView)
       actual = let [Just reportview] = map unU' (toListOf (toLens (Path_To Proxy idPath)) Report.report :: [Univ]) in
-               upeekTree (Proxy :: Proxy Univ) reportview
+               upeekTree (Proxy :: Proxy Univ) Nothing reportview
 
 testLabels :: Test
 testLabels =
@@ -127,7 +127,7 @@ testPeekOrder =
       expected :: Tree (UPeek Univ AbbrevPairs)
       expected = peekAbbrevPairs
       actual :: Tree (UPeek Univ AbbrevPairs)
-      actual = upeekTree (Proxy :: Proxy Univ) (reportAbbrevs Report.report)
+      actual = upeekTree (Proxy :: Proxy Univ) Nothing (reportAbbrevs Report.report)
 
 testUPaths :: Test
 testUPaths =
@@ -135,8 +135,41 @@ testUPaths =
     [ let abbrevs = reportAbbrevs Report.report
           expected :: Tree (UPeek Univ AbbrevPairs)
           expected = Node (UPeek_AbbrevPairs Path_OMap Nothing)
-                          [Node {rootLabel = UPeek_AbbrevPairs (Path_At (AbbrevPairID {unAbbrevPairID = 0}) Path_Pair) (Just (U16 (CIString {unCIString = "LOTInspectedBy"},(rawMarkdown "Lydia Thompson")))), subForest = []},Node {rootLabel = UPeek_AbbrevPairs (Path_At (AbbrevPairID {unAbbrevPairID = 1}) Path_Pair) (Just (U16 (CIString {unCIString = "properties"},(rawMarkdown "properties")))), subForest = []},Node {rootLabel = UPeek_AbbrevPairs (Path_At (AbbrevPairID {unAbbrevPairID = 2}) Path_Pair) (Just (U16 (CIString {unCIString = "theseappraisers"},(rawMarkdown "this appraiser")))), subForest = []},Node {rootLabel = UPeek_AbbrevPairs (Path_At (AbbrevPairID {unAbbrevPairID = 3}) Path_Pair) (Just (U16 (CIString {unCIString = "USPAP"},(rawMarkdown "_Uniform Standards of Professional Appraisal Practice_, the 2012-2013 Edition (USPAP)")))), subForest = []},Node {rootLabel = UPeek_AbbrevPairs (Path_At (AbbrevPairID {unAbbrevPairID = 4}) Path_Pair) (Just (U16 (CIString {unCIString = "USPAPShort"},(rawMarkdown "_Uniform Standards of Professional Appraisal Practice_, the 2012-2013 Edition (USPAP)")))), subForest = []},Node {rootLabel = UPeek_AbbrevPairs (Path_At (AbbrevPairID {unAbbrevPairID = 5}) Path_Pair) (Just (U16 (CIString {unCIString = "certify"},(rawMarkdown "certify")))), subForest = []},Node {rootLabel = UPeek_AbbrevPairs (Path_At (AbbrevPairID {unAbbrevPairID = 6}) Path_Pair) (Just (U16 (CIString {unCIString = "agree"},(rawMarkdown "agree")))), subForest = []},Node {rootLabel = UPeek_AbbrevPairs (Path_At (AbbrevPairID {unAbbrevPairID = 7}) Path_Pair) (Just (U16 (CIString {unCIString = "we"},(rawMarkdown "we")))), subForest = []},Node {rootLabel = UPeek_AbbrevPairs (Path_At (AbbrevPairID {unAbbrevPairID = 8}) Path_Pair) (Just (U16 (CIString {unCIString = "appraisers"},(rawMarkdown "appraisers")))), subForest = []},Node {rootLabel = UPeek_AbbrevPairs (Path_At (AbbrevPairID {unAbbrevPairID = 9}) Path_Pair) (Just (U16 (CIString {unCIString = "Client"},(rawMarkdown "Joseph and Sandy Augustine")))), subForest = []},Node {rootLabel = UPeek_AbbrevPairs (Path_At (AbbrevPairID {unAbbrevPairID = 10}) Path_Pair) (Just (U16 (CIString {unCIString = ""},(rawMarkdown "")))), subForest = []}]
-          actual = upeekRow (Proxy :: Proxy Univ) abbrevs in
+                          [Node {rootLabel = UPeek_AbbrevPairs (Path_At (AbbrevPairID {unAbbrevPairID = 0}) Path_Pair) Nothing,
+                                 subForest = [Node {rootLabel = UPeek_AbbrevPairs (Path_At (AbbrevPairID {unAbbrevPairID = 0}) (Path_First Path_Self)) (Just (U47 (CIString {unCIString = "LOTInspectedBy"}))), subForest = []},
+                                              Node {rootLabel = UPeek_AbbrevPairs (Path_At (AbbrevPairID {unAbbrevPairID = 0}) (Path_Second UPath_Markup)) (Just (U13 (rawMarkdown "Lydia Thompson"))), subForest = []}]},
+                           Node {rootLabel = UPeek_AbbrevPairs (Path_At (AbbrevPairID {unAbbrevPairID = 1}) Path_Pair) Nothing,
+                                 subForest = [Node {rootLabel = UPeek_AbbrevPairs (Path_At (AbbrevPairID {unAbbrevPairID = 1}) (Path_First Path_Self)) (Just (U47 (CIString {unCIString = "properties"}))), subForest = []},
+                                              Node {rootLabel = UPeek_AbbrevPairs (Path_At (AbbrevPairID {unAbbrevPairID = 1}) (Path_Second UPath_Markup)) (Just (U13 (rawMarkdown "properties"))), subForest = []}]},
+                           Node {rootLabel = UPeek_AbbrevPairs (Path_At (AbbrevPairID {unAbbrevPairID = 2}) Path_Pair) Nothing,
+                                 subForest = [Node {rootLabel = UPeek_AbbrevPairs (Path_At (AbbrevPairID {unAbbrevPairID = 2}) (Path_First Path_Self)) (Just (U47 (CIString {unCIString = "theseappraisers"}))), subForest = []},
+                                              Node {rootLabel = UPeek_AbbrevPairs (Path_At (AbbrevPairID {unAbbrevPairID = 2}) (Path_Second UPath_Markup)) (Just (U13 (rawMarkdown "this appraiser"))), subForest = []}]},
+                           Node {rootLabel = UPeek_AbbrevPairs (Path_At (AbbrevPairID {unAbbrevPairID = 3}) Path_Pair) Nothing,
+                                 subForest = [Node {rootLabel = UPeek_AbbrevPairs (Path_At (AbbrevPairID {unAbbrevPairID = 3}) (Path_First Path_Self)) (Just (U47 (CIString {unCIString = "USPAP"}))), subForest = []},
+                                              Node {rootLabel = UPeek_AbbrevPairs (Path_At (AbbrevPairID {unAbbrevPairID = 3}) (Path_Second UPath_Markup)) (Just (U13 (rawMarkdown "_Uniform Standards of Professional Appraisal Practice_, the 2012-2013 Edition (USPAP)"))), subForest = []}]},
+                           Node {rootLabel = UPeek_AbbrevPairs (Path_At (AbbrevPairID {unAbbrevPairID = 4}) Path_Pair) Nothing,
+                                 subForest = [Node {rootLabel = UPeek_AbbrevPairs (Path_At (AbbrevPairID {unAbbrevPairID = 4}) (Path_First Path_Self)) (Just (U47 (CIString {unCIString = "USPAPShort"}))), subForest = []},
+                                              Node {rootLabel = UPeek_AbbrevPairs (Path_At (AbbrevPairID {unAbbrevPairID = 4}) (Path_Second UPath_Markup)) (Just (U13 (rawMarkdown "_Uniform Standards of Professional Appraisal Practice_, the 2012-2013 Edition (USPAP)"))), subForest = []}]},
+                           Node {rootLabel = UPeek_AbbrevPairs (Path_At (AbbrevPairID {unAbbrevPairID = 5}) Path_Pair) Nothing,
+                                 subForest = [Node {rootLabel = UPeek_AbbrevPairs (Path_At (AbbrevPairID {unAbbrevPairID = 5}) (Path_First Path_Self)) (Just (U47 (CIString {unCIString = "certify"}))), subForest = []},
+                                              Node {rootLabel = UPeek_AbbrevPairs (Path_At (AbbrevPairID {unAbbrevPairID = 5}) (Path_Second UPath_Markup)) (Just (U13 (rawMarkdown "certify"))), subForest = []}]},
+                           Node {rootLabel = UPeek_AbbrevPairs (Path_At (AbbrevPairID {unAbbrevPairID = 6}) Path_Pair) Nothing,
+                                 subForest = [Node {rootLabel = UPeek_AbbrevPairs (Path_At (AbbrevPairID {unAbbrevPairID = 6}) (Path_First Path_Self)) (Just (U47 (CIString {unCIString = "agree"}))), subForest = []},
+                                              Node {rootLabel = UPeek_AbbrevPairs (Path_At (AbbrevPairID {unAbbrevPairID = 6}) (Path_Second UPath_Markup)) (Just (U13 (rawMarkdown "agree"))), subForest = []}]},
+                           Node {rootLabel = UPeek_AbbrevPairs (Path_At (AbbrevPairID {unAbbrevPairID = 7}) Path_Pair) Nothing,
+                                 subForest = [Node {rootLabel = UPeek_AbbrevPairs (Path_At (AbbrevPairID {unAbbrevPairID = 7}) (Path_First Path_Self)) (Just (U47 (CIString {unCIString = "we"}))), subForest = []},
+                                              Node {rootLabel = UPeek_AbbrevPairs (Path_At (AbbrevPairID {unAbbrevPairID = 7}) (Path_Second UPath_Markup)) (Just (U13 (rawMarkdown "we"))), subForest = []}]},
+                           Node {rootLabel = UPeek_AbbrevPairs (Path_At (AbbrevPairID {unAbbrevPairID = 8}) Path_Pair) Nothing,
+                                 subForest = [Node {rootLabel = UPeek_AbbrevPairs (Path_At (AbbrevPairID {unAbbrevPairID = 8}) (Path_First Path_Self)) (Just (U47 (CIString {unCIString = "appraisers"}))), subForest = []},
+                                              Node {rootLabel = UPeek_AbbrevPairs (Path_At (AbbrevPairID {unAbbrevPairID = 8}) (Path_Second UPath_Markup)) (Just (U13 (rawMarkdown "appraisers"))), subForest = []}]},
+                           Node {rootLabel = UPeek_AbbrevPairs (Path_At (AbbrevPairID {unAbbrevPairID = 9}) Path_Pair) Nothing,
+                                 subForest = [Node {rootLabel = UPeek_AbbrevPairs (Path_At (AbbrevPairID {unAbbrevPairID = 9}) (Path_First Path_Self)) (Just (U47 (CIString {unCIString = "Client"}))), subForest = []},
+                                              Node {rootLabel = UPeek_AbbrevPairs (Path_At (AbbrevPairID {unAbbrevPairID = 9}) (Path_Second UPath_Markup)) (Just (U13 (rawMarkdown "Joseph and Sandy Augustine"))), subForest = []}]},
+                           Node {rootLabel = UPeek_AbbrevPairs (Path_At (AbbrevPairID {unAbbrevPairID = 10}) Path_Pair) Nothing,
+                                 subForest = [Node {rootLabel = UPeek_AbbrevPairs (Path_At (AbbrevPairID {unAbbrevPairID = 10}) (Path_First Path_Self)) (Just (U47 (CIString {unCIString = ""}))), subForest = []},
+                                              Node {rootLabel = UPeek_AbbrevPairs (Path_At (AbbrevPairID {unAbbrevPairID = 10}) (Path_Second UPath_Markup)) (Just (U13 (rawMarkdown ""))), subForest = []}]}]
+          actual :: Tree (UPeek Univ AbbrevPairs)
+          actual = upeekTree (Proxy :: Proxy Univ) (Just 2) abbrevs in
       assertEqual' "testUPaths 1" expected actual
     , let expected :: Tree (UPeek Univ Report)
           expected = Node (upeekCons idPath Nothing)
