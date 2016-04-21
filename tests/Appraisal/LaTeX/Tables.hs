@@ -1,5 +1,5 @@
 {-# LANGUAGE CPP, DeriveDataTypeable, FlexibleInstances, GeneralizedNewtypeDeriving, MultiParamTypeClasses,
-             OverloadedStrings, ScopedTypeVariables, StandaloneDeriving, TemplateHaskell, TupleSections, TypeSynonymInstances #-}
+             OverloadedStrings, ScopedTypeVariables, StandaloneDeriving, TupleSections, TypeSynonymInstances #-}
 {-# OPTIONS_GHC -fno-warn-unused-do-bind -fno-warn-orphans #-}
 module Appraisal.LaTeX.Tables
     ( ColumnSpec(..)

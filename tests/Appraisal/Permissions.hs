@@ -1,4 +1,4 @@
-{-# LANGUAGE DeriveDataTypeable, GeneralizedNewtypeDeriving, TemplateHaskell, TypeFamilies #-}
+{-# LANGUAGE CPP, DeriveAnyClass, DeriveDataTypeable, DeriveGeneric, TypeFamilies #-}
 {-# OPTIONS_GHC -Wall #-}
 module Appraisal.Permissions
     ( Permissions(..)
@@ -7,10 +7,17 @@ module Appraisal.Permissions
     , UserIds
     ) where
 
+import Data.Aeson (FromJSON, ToJSON)
 import Data.Generics (Data, Typeable)
+import Data.SafeCopy (base, deriveSafeCopy)
 import Data.UserId (UserId(..))
+import GHC.Generics (Generic)
+import Language.Haskell.TH.Lift (deriveLiftMany)
 
-newtype UserId_0 = UserId_0 { _unUserId_0 :: Integer } deriving (Enum, Eq, Integral, Num, Ord, Read, Real, Show, Data, Typeable)
+newtype UserId_0 = UserId_0 { _unUserId_0 :: Integer } deriving (Eq, Ord, Read, Show, Data, Typeable)
+#if !__GHCJS__
+$(deriveSafeCopy 0 'base ''UserId_0)
+#endif
 
 type UserIds = [UserId]
 
@@ -21,7 +28,7 @@ data Permissions
     = Permissions { owner :: UserId
                   , writers :: UserIds   -- Sets would be preferable, but I think maybe they are causing problems
                   , readers :: UserIds }
-    deriving (Read, Show, Eq, Ord, Typeable, Data)
+    deriving (Read, Show, Eq, Ord, Typeable, Data, Generic, ToJSON, FromJSON)
 
 data PermissionStatus
     = NotLoggedIn
@@ -32,3 +39,8 @@ data PermissionStatus
 class Ownable a where
     getPermissions :: a -> Permissions
     putPermissions :: Permissions -> a -> a
+
+#if !__GHCJS__
+$(deriveSafeCopy 2 'base ''Permissions)
+$(deriveLiftMany [''Permissions, ''UserId])
+#endif

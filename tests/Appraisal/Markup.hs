@@ -1,5 +1,5 @@
-{-# LANGUAGE CPP, DeriveDataTypeable, FlexibleInstances, GeneralizedNewtypeDeriving, MultiParamTypeClasses,
-             OverloadedStrings, ScopedTypeVariables, TemplateHaskell, TypeFamilies, TypeSynonymInstances #-}
+{-# LANGUAGE CPP, DeriveAnyClass, DeriveDataTypeable, DeriveGeneric, FlexibleInstances, MultiParamTypeClasses,
+             OverloadedStrings, ScopedTypeVariables, StandaloneDeriving, TypeFamilies, TypeSynonymInstances #-}
 {-# OPTIONS -Wall -fno-warn-orphans -fno-warn-name-shadowing #-}
 module Appraisal.Markup
     (
@@ -36,21 +36,54 @@ module Appraisal.Markup
 
 import Appraisal.Utils.CIString
 import Appraisal.LaTeX ({- Ord, Data, Read -})
+--import Appraisal.Unicode as U (Unicode'(Unicode'))
 import Appraisal.Utils.IsText (fromText)
 import Appraisal.Utils.Pandoc (pandocFromMarkdown)
 import Control.Monad.Identity (Identity, runIdentity)
+import Data.Aeson (ToJSON, FromJSON)
 import Data.Generics (Data, Typeable)
 import Control.Lens (Iso', iso)
 import Data.List as List (map, foldr)
 import Data.Maybe (fromMaybe)
 import Data.Monoid ((<>))
+import Data.SafeCopy (base, deriveSafeCopy)
 import Data.Text as T (Text, isPrefixOf, drop, empty, uncons, null, singleton, map, foldr, pack)
 import qualified Data.Text as T (lines, strip)
+import GHC.Generics (Generic)
 import Language.Haskell.TH.Path.Core (HideType)
 import Prelude hiding (lines)
-import Text.LaTeX.Base.Syntax (LaTeX(TeXEmpty, TeXRaw), protectText)
+import Text.LaTeX.Base.Syntax (LaTeX(..), protectText, MathType(..), Measure(..), TeXArg(..))
 import Text.LaTeX.Base.Writer (LaTeXT, execLaTeXT)
 import qualified Text.Pandoc as P
+
+#if !__GHCJS__
+$(deriveSafeCopy 1 'base ''P.Alignment)
+$(deriveSafeCopy 1 'base ''P.Block)
+$(deriveSafeCopy 1 'base ''P.Citation)
+$(deriveSafeCopy 1 'base ''P.CitationMode)
+$(deriveSafeCopy 1 'base ''P.Format)
+$(deriveSafeCopy 1 'base ''P.Inline)
+$(deriveSafeCopy 1 'base ''P.ListNumberDelim)
+$(deriveSafeCopy 1 'base ''P.ListNumberStyle)
+$(deriveSafeCopy 1 'base ''P.MathType)
+$(deriveSafeCopy 1 'base ''P.Meta)
+$(deriveSafeCopy 1 'base ''P.MetaValue)
+$(deriveSafeCopy 1 'base ''P.Pandoc)
+$(deriveSafeCopy 1 'base ''P.QuoteType)
+#endif
+
+deriving instance Generic LaTeX
+deriving instance ToJSON LaTeX
+deriving instance FromJSON LaTeX
+deriving instance Generic Measure
+deriving instance ToJSON Measure
+deriving instance FromJSON Measure
+deriving instance Generic TeXArg
+deriving instance ToJSON TeXArg
+deriving instance FromJSON TeXArg
+deriving instance Generic MathType
+deriving instance ToJSON MathType
+deriving instance FromJSON MathType
 
 data Markup
     = Markdown {markdownText :: Text}
@@ -58,7 +91,7 @@ data Markup
     | LaTeX LaTeX
     | Pandoc P.Pandoc
     | Markup [Markup]
-    deriving (Eq, Ord, Data, Typeable, Read)
+    deriving (Eq, Ord, Data, Typeable, Read, Generic, ToJSON, FromJSON)
 
 -- Hiding these types will hide three fields of Markup we don't want
 -- to appear in the UI.
@@ -233,3 +266,7 @@ lens_CIString_Text = iso (pack . unCIString) fromText
 htmlify :: Markup -> Markup
 htmlify (Markdown s) = Html $ pack $ P.writeHtmlString P.def $ pandocFromMarkdown $ s
 htmlify x = x
+
+#if !__GHCJS__
+$(deriveSafeCopy 3 'base ''Markup)
+#endif

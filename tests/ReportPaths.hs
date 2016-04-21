@@ -48,9 +48,6 @@ $(do deps <- runQ (runIO (find always (extension ==? ".hs" &&? fileType ==? Regu
      runQ (runIO (writeFile "tests/ReportHs.hs" (unlines (map show decs))))
      writePaths (Just "tests/ReportHead.hs") Nothing "tests/ReportDecs.hs" deps decs)
 
-instance Lift Text where
-    lift = lift . unpack
-
 -- | Most (all?) of these should be moved back to live with their parent types.
 $(deriveLiftMany [''UserId, ''JSONText, ''Permissions, ''CIString, ''ImageFile, ''ImageCrop, ''ImageType, ''Markup, ''Pandoc, ''Meta,
                   ''MetaValue, ''Inline, ''QuoteType, ''Text.Pandoc.MathType, ''Format, ''Citation, ''CitationMode,

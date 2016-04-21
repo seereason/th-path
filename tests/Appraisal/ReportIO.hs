@@ -1,7 +1,6 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE Rank2Types #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TemplateHaskell #-}
 {-# OPTIONS -Wall -fno-warn-orphans #-}
 module Appraisal.ReportIO
     ( validateImages
@@ -193,14 +192,19 @@ reportOutput ver st report =
           runImageCacheIO (validateImages report') (images ver) st
 
       runLatex :: (MonadError IOException m, MonadIO m) => Report -> m Result
-      runLatex r =
-          liftIO (logM "reportOutput" DEBUG "runLatex") >>
-          runLatex' (dropTrailingPathSeparator dir) name r
-          where path = reportPath ver r ""
+      runLatex r = do
+        liftIO $ logM "reportOutput" DEBUG "runLatex"
+        liftIO $ removeFileMaybe auxPath
+        runLatex' (dropTrailingPathSeparator dir) name r
+          where auxPath = reportPath ver r ".aux"
+                path = reportPath ver r ""
                 (dir, name) = splitFileName path
 
+removeFileMaybe :: FilePath -> IO ()
+removeFileMaybe path = catchJust (guard . isDoesNotExistError) (removeFile path) return
+
 replaceFile :: FilePath -> T.Text -> IO ()
-replaceFile path text = catchJust (guard . isDoesNotExistError) (removeFile path) return >> T.writeFile path text
+replaceFile path text = removeFileMaybe path >> T.writeFile path text
 
 -- | For non-critical files, don't have a cow if things go wrong
 _tryToReplaceFile :: FilePath -> T.Text -> IO ()
@@ -211,7 +215,7 @@ data Result = Ok | Again | Fatal deriving Eq
 readFileBinary :: FilePath -> IO String
 readFileBinary path = U.readFile path >>= return . U.unpack
 
--- Run latex repeatedly until all the log tests pass.
+-- Run latex at least twice, and repeatedly up to five times until all the log tests pass.
 runLatex' :: (MonadError IOException m, MonadIO m) => FilePath -> String -> Report -> m Result
 runLatex' dir name _report =
     run Again >> run Again >>= run >>= run >>= run >>= finish

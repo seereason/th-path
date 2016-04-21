@@ -1,14 +1,13 @@
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeSynonymInstances #-}
-{-# OPTIONS_GHC -fno-warn-orphans #-}
 module Appraisal.IntJS
     ( IntJS
     , ToIntJS(intJS)
+#if !__GHCJS__
     , deriveOrderJS
-
+#endif
     , JSONText(..)
     , iso_JSONText
     , gjsonIso
@@ -20,13 +19,19 @@ import Data.Aeson (ToJSON(toJSON), FromJSON(parseJSON))
 import Data.Generics (Typeable)
 import Data.Int (Int32)
 import Data.Map as Map (fromList, Map, toList)
+import Data.SafeCopy (deriveSafeCopy, base)
+import Data.Text as Text (null, pack)
+import Data.Text.Read (decimal, signed)
 import Language.Haskell.TH
-import Language.Haskell.TH.Path.Order (deriveOrder, fromPairs, Order, toPairs)
+import Language.Haskell.TH.Path.Order (fromPairs, Order, toPairs)
+#if !__GHCJS__
+import Language.Haskell.TH.Path.Order (deriveOrder)
+#endif
 import Language.Javascript.JMacro (ToJExpr(toJExpr), JExpr(ValExpr), JVal(JInt))
 import Prelude hiding (init, succ)
 import Text.JSON.Generic (Data, decodeJSON, encodeJSON)
---import Web.Routes.PathInfo
---import Web.Routes.TH (derivePathInfo)
+import Web.Routes.PathInfo
+import Web.Routes.TH (derivePathInfo)
 
 -- | Javascript can't handle Int64, so until there is an Int53 in
 -- haskell this will have to do.
@@ -41,7 +46,6 @@ class ToIntJS k where
 instance ToIntJS IntJS where
     intJS = id
 
-{-
 instance PathInfo IntJS where
   toPathSegments i = [pack $ show i]
   fromPathSegments = pToken (const "IntJS") checkInt
@@ -51,7 +55,6 @@ instance PathInfo IntJS where
              (Right (n, r))
                  | Text.null r -> Just n
                  | otherwise -> Nothing
--}
 
 instance (ToJSON k, ToJSON v) => ToJSON (Map k v) where
     toJSON mp = toJSON (Map.toList mp)
@@ -65,23 +68,25 @@ instance (Ord k, Enum k, ToJSON k, ToJSON a) => ToJSON (Order k a) where
 instance (Ord k, Enum k, FromJSON k, FromJSON a) => FromJSON (Order k a) where
   parseJSON = fmap fromPairs . parseJSON
 
+#if !__GHCJS__
 deriveOrderJS :: Name -> Q [Dec]
 deriveOrderJS t = do
-  decs <- deriveOrder [t|IntJS|] t []
+  decs <- deriveOrder [t|IntJS|] t [''Generic, ''FromJSON, ''ToJSON]
   let idname = mkName (nameBase t ++ "ID")
       unname = mkName ("un" ++ nameBase t ++ "ID")
-  insts <- [d| instance ToIntJS $(conT idname) where
-                 intJS = $(varE unname)
-               instance ToJSON $(conT idname) where
-                   toJSON = toJSON . $(varE unname)
-               instance FromJSON $(conT idname) where
-                   parseJSON = fmap $(conE idname) . parseJSON |]
+  insts <- [d| instance ToIntJS $(conT idname) where intJS = $(varE unname) |]
   return $ decs ++ insts
+#endif
 
 newtype JSONText = JSONText {unJSONText :: String} deriving (Eq, Ord, Read, Show, Data, Typeable, Monoid)
 
 iso_JSONText :: Iso' JSONText String
 iso_JSONText = iso unJSONText JSONText
+
+#if !__GHCJS__
+$(derivePathInfo ''JSONText)
+$(deriveSafeCopy 1 'base ''JSONText)
+#endif
 
 gjsonIso :: Data a => Iso' a JSONText
 gjsonIso = iso (JSONText . encodeJSON) (decodeJSON . unJSONText)

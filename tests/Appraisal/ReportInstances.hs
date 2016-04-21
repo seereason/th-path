@@ -1,5 +1,3 @@
--- | View, SinkType, and Describe instances that modify the graph
--- generated for the Report types.
 {-# LANGUAGE CPP #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE FlexibleContexts #-}
@@ -8,33 +6,46 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeSynonymInstances #-}
-{-# OPTIONS -fno-warn-orphans #-}
+{-# OPTIONS_GHC -fno-warn-orphans #-}
 module Appraisal.ReportInstances where
 
-import Appraisal.File (File, URI)
+import Appraisal.File (URI, File)
 import Appraisal.Image (Dimension, ImageCrop, ImageSize, lens_saneSize, Units)
 import Appraisal.ImageFile (ImageFile)
 import Appraisal.IntJS (IntJS, gjsonLens, JSONText)
 import Appraisal.Markup as M (Markup, lens_CIString_Text)
 import Appraisal.Permissions (Permissions, UserIds)
-import Appraisal.Report (Authors, AbbrevPairs, EpochMilli, MarkupPairs, Markups, ReportElems, ReportFlags, ReportValueTypeInfo, ReportValueApproachInfo, Branding, Report(Report), reportBrandingLens, MaybeReportIntendedUse, ReportStatus, ReportStandard, ReportStatus(Draft))
+import Appraisal.Report (Authors, AbbrevPairs, EpochMilli, MarkupPairs, Markups, ReportElems, ReportFlags, ReportValueTypeInfo, ReportValueApproachInfo, Branding, Report(Report, reportLetterOfTransmittal), reportBrandingLens, MaybeReportIntendedUse, ReportStatus, ReportStandard, ReportStatus(Draft))
 import Appraisal.ReportImage (ReportImage(Pic), MaybeImageFile)
-import Appraisal.ReportMap (ReportMap)
+import Appraisal.ReportItem (ItemFieldName)
+import Appraisal.ReportMap (ReportID, ReportMap)
 import Appraisal.Utils.CIString (CIString)
 import Data.UUID.Types as UUID (UUID)
 import Control.Lens
 import Data.Generics (Data, Typeable)
 import Data.Int (Int64)
 import Data.Proxy (Proxy(Proxy))
+import Data.SafeCopy (base, deriveSafeCopy)
 import Data.Text as T (Text)
 import Data.UserId (UserId(..))
 import Data.Word (Word32)
 import Language.Haskell.TH
-import Language.Haskell.TH.Path.Core (camelWords, lens_mrs, lens_UserIds_Text, readOnlyLens, readShowIso, SinkType, Describe(describe'))
+import Language.Haskell.TH.Path.Core (camelWords, Describe(describe'), lens_mrs, lens_UserIds_Text,
+                                      readOnlyLens, readShowIso, SinkType)
 import Language.Haskell.TH.Path.View (View(ViewType, viewLens))
 import Text.LaTeX (LaTeX)
 import Text.Pandoc (Pandoc, Meta)
---import Web.Routes.TH (derivePathInfo)
+import Web.Routes.TH (derivePathInfo)
+
+instance Describe (Proxy JSONText) where describe' _ Proxy = Nothing
+instance Describe (Proxy String) where describe' _ Proxy = Nothing
+instance Describe (Proxy Text) where describe' _ Proxy = Nothing
+instance Describe (Proxy Bool) where describe' _ Proxy = Nothing
+instance Describe (Proxy Double) where describe' _ Proxy = Nothing
+
+instance Describe (Proxy Markup) where
+    describe' (Just f) Proxy | f == camelWords (nameBase 'reportLetterOfTransmittal) = Just "Letter of Transmittal"
+    describe' _ _ = Nothing
 
 newtype ReadOnly a = ReadOnly {unReadOnly :: a} deriving (Read, Show, Eq, Ord, Typeable, Data)
 
@@ -61,11 +72,7 @@ data ReportImageView
       , _picCrop :: ImageCrop
       , _picCaption :: Markup
       , _picOriginal :: Maybe (Either URI ImageFile) -- ^ Original image
-      , _picEditedDeprecated :: MaybeImageFile -- ^ Cropped version of image
-      , _picThumbDeprecated :: MaybeImageFile -- ^ Image sized for thumbnail
-      , _picPrinterDeprecated :: MaybeImageFile -- ^ Image sized for printing
       , _picMustEnlarge :: Bool        -- ^ Put an enlargement of this image in the appendix
-      , _picEnlargedDeprecated :: MaybeImageFile -- ^ Image at the maximum printable size
       }
     deriving (Eq, Ord, Show, Read, Data, Typeable)
 
@@ -73,8 +80,8 @@ instance View ReportImage where
     type ViewType ReportImage = ReportImageView
     viewLens = iso getter setter
         where
-          getter (Pic a1 a2 a3 a4 a5 a6 a7 a8 a9) = ReportImageView (SaneSize a1) a2 a3 a4 a5 a6 a7 a8 a9
-          setter (ReportImageView (SaneSize a1) a2 a3 a4 a5 a6 a7 a8 a9) = Pic a1 a2 a3 a4 a5 a6 a7 a8 a9
+          getter (Pic a1 a2 a3 a4 a5) = ReportImageView (SaneSize a1) a2 a3 a4 a5
+          setter (ReportImageView (SaneSize a1) a2 a3 a4 a5) = Pic a1 a2 a3 a4 a5
 
 type ReadOnlyFilePath = ReadOnly FilePath -- views require type names
 
@@ -131,17 +138,6 @@ data ReportView
              }
     deriving (Read, Show, Eq, Ord, Typeable, Data)
 
-instance Describe (Proxy Markup) where
-    describe' (Just fname) Proxy | fname == camelWords (nameBase '_reportLetterOfTransmittal) = Just "Letter of Transmittal"
-    describe' x _ = x
-
--- | Primitive types whose names do not make good labels.
-instance Describe (Proxy JSONText) where describe' _ Proxy = Nothing
-instance Describe (Proxy String) where describe' _ Proxy = Nothing
-instance Describe (Proxy Text) where describe' _ Proxy = Nothing
-instance Describe (Proxy Bool) where describe' _ Proxy = Nothing
-instance Describe (Proxy Double) where describe' _ Proxy = Nothing
-
 instance View Report where
     type ViewType Report = ReportView
     viewLens = iso getter setter
@@ -171,6 +167,7 @@ instance SinkType File
 instance SinkType ImageCrop
 instance SinkType ImageFile
 instance SinkType Int64
+instance SinkType Integer
 instance SinkType IntJS
 instance SinkType Int
 instance SinkType JSONText
@@ -179,6 +176,7 @@ instance SinkType Meta
 instance SinkType Pandoc
 instance SinkType URI
 instance SinkType UserId
+instance SinkType UUID
 instance SinkType Word32
 
 instance View Bool where type ViewType Bool = String; viewLens = readShowIso False
@@ -193,11 +191,14 @@ instance View Units where type ViewType Units = JSONText; viewLens = gjsonLens
 instance View UserIds where type ViewType UserIds = Text; viewLens = lens_UserIds_Text
 instance View CIString where type ViewType CIString = Text; viewLens = lens_CIString_Text
 
+#if !__GHCJS__
 startTypes :: Q [Type]
 startTypes = (: []) <$> [t|ReportMap|]
 
-{-
+$(deriveSafeCopy 1 'base ''SaneSize)
+$(deriveSafeCopy 1 'base ''ReadOnly)
+
 $(derivePathInfo ''Maybe)
 $(derivePathInfo ''ItemFieldName)
 $(derivePathInfo ''ReportID)
--}
+#endif

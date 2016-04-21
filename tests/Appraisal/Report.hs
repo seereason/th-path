@@ -1,7 +1,8 @@
-{-# LANGUAGE CPP, DeriveDataTypeable, FlexibleContexts, FlexibleInstances, GeneralizedNewtypeDeriving, MultiParamTypeClasses,
-             OverloadedStrings, RecordWildCards, StandaloneDeriving, TypeSynonymInstances, TemplateHaskell, TypeFamilies #-}
+{-# LANGUAGE CPP, DeriveAnyClass, DeriveDataTypeable, DeriveGeneric, FlexibleContexts, FlexibleInstances, MultiParamTypeClasses,
+             OverloadedStrings, RecordWildCards, StandaloneDeriving, TypeSynonymInstances, TypeFamilies #-}
 {-# OPTIONS -fcontext-stack=100 -fno-warn-orphans -fno-warn-missing-signatures -fno-warn-name-shadowing -fwarn-incomplete-patterns #-}
 {-# OPTIONS_GHC -Wall -fno-warn-orphans #-}
+
 module Appraisal.Report
     ( ReportFieldLabel(..)
     , Author(..)
@@ -40,45 +41,91 @@ module Appraisal.Report
 import Appraisal.Config (Paths(reports), reportsURIPath)
 import Appraisal.Currency (addCashValues, CashValue, Priceable(..))
 import Appraisal.File (File(File, fileSource, fileChksum, fileMessages), FileSource(TheURI))
+import Appraisal.Image (Dimension, ImageCrop, ImageSize, Units)
 import Appraisal.ImageFile (ImageFile(ImageFile, imageFile, imageFileType, imageFileWidth, imageFileHeight, imageFileMaxVal), ImageType(..))
+#if !__GHCJS__
 import Appraisal.IntJS (deriveOrderJS)
-import Appraisal.Markup as M (Markup, mapChars, rawMarkdown, markupText)
+#else
+import Appraisal.IntJS ()
+#endif
+import Appraisal.Markup as M (Markup(Html, Markdown), mapChars, rawMarkdown, markupText)
 import Appraisal.Permissions (Permissions)
+import Appraisal.ReportImage (ReportImage, ReportImageID)
 import Appraisal.ReportItem (Item(..))
 import qualified Appraisal.ReportItem as I (Item(fields), ItemFieldName(ItemDataSheetNumber))
+import qualified Appraisal.Utils.Builders as Builders (empty)
 import Appraisal.Utils.CIString (CIString)
 import Appraisal.Utils.Debug (trace'')
 import Appraisal.Utils.List (spanBy)
 import Appraisal.Utils.Text (read)
-import Control.Lens (Iso', iso)
 import Data.Aeson (decode, encode, FromJSON(..), ToJSON(..), Value(String), withText)
-import qualified Data.UUID.Types as UUID (toString)
-import Data.UUID.Types as UUID (fromString, UUID)
-import qualified Data.UUID.V4 as UUID (nextRandom)
 import Data.Char (isDigit, toLower)
-import Data.Default (Default(def))
 import Data.Function (on)
 import Data.Generics (Data, everywhere, mkT, Typeable)
 import Data.Int (Int64)
 import qualified Data.IxSet.Revision as R (Ident(..), Revision(..), RevisionInfo(..))
+import Control.Lens (Iso', iso)
 import Data.List as List (groupBy, sortBy)
 import qualified Data.ListLike as LL
 import Data.Map as Map (lookup)
 import Data.Maybe (catMaybes)
-import Data.Text as Text (Text, groupBy, pack, unpack, strip, uncons, empty)
+--import Data.Monoid ((<>))
+import Data.SafeCopy (base, deriveSafeCopy, extension, Migrate(MigrateFrom, migrate))
+import Data.Text as Text (empty, groupBy, pack, strip, Text, uncons, unpack)
+import qualified Data.UUID.Types as UUID (fromString, toString)
+import Data.UUID.Types (UUID)
+import qualified Data.UUID.V4 as UUID (nextRandom)
 import Debug.Trace (trace)
-import Language.Haskell.TH.Path.Core (lens_mrs, readShowIso, SelfPath, SinkType)
-import Language.Haskell.TH.Path.Order as Order (toList, asList)
+import GHC.Generics (Generic)
+import Language.Haskell.TH.Lift (deriveLiftMany)
+import Language.Haskell.TH.Path.Core (lens_mrs, readShowIso, SelfPath)
+import Language.Haskell.TH.Path.Order as Order (Order, toList, asList)
 import Language.Haskell.TH.Path.View (View(ViewType, viewLens))
 import Data.UUID.Orphans ()
 import Prelude hiding (read)
 import System.FilePath ((</>))
 import Text.PrettyPrint.HughesPJClass (Pretty(pPrint), text)
+import Web.Routes.TH (derivePathInfo)
 
--- We can't move this into the UUID library, so move it to where UUID
--- is used in this library.
-instance SinkType UUID
-instance SinkType Integer
+#if 0
+approachesToValueOldDefault :: Markup
+approachesToValueOldDefault =
+    -- rawMarkdown "# Approaches to Value #\n\n" <>
+    rawMarkdown
+          ("For this appraisal three valuation methods were considered " <>
+             "(from Soucy and Smith, eds, <em>The Appraisal of Personal Property – " <>
+             "Principles, Theories, and Practice Methods for the Professional " <>
+             "Appraiser</em>, 1994.). The three valuation methods are:\n\n") <>
+    rawMarkdown (" * <bf>Cost Approach to Value</bf> method estimates either the reproduction or " <>
+                          "replacement of a property, either new or depreciated.\n\n") <>
+    rawMarkdown (" * <bf>Income Approach to Value</bf> method estimates the present worth of " <>
+                 "anticipated future benefits of owning income producing " <>
+                 "properties or objects.\n\n") <>
+    rawMarkdown (" * <bf>Sales Comparison Approach to Value</bf> method estimates value by using " <>
+                 "one or more methods that compare the subject to other similar " <>
+                 "properties that have been sold in the relevant market with adjustments (up or down) made for all " <>
+                 "differences that affect value, such as differences in characteristics of value, in market level, " <>
+                 "and in time.\n\n")
+#endif
+
+{-
+approachesToValueNewDefault :: Markup
+approachesToValueNewDefault =
+    -- rawMarkdown "# Approaches to Value #\n\n" <>
+    rawMarkdown
+          ("For this appraisal three valuation methods were considered.  The three valuation methods are (as defined by The American Society of Appraisers Monograph #7: <em>Analyzing the Research</em>, 2010). The three valuation methods are:\n\n") <>
+    rawMarkdown (" * <bf>Cost Approach to Value</bf> method estimates either the reproduction or " <>
+                          "replacement of a property, either new or depreciated.\n\n") <>
+    rawMarkdown (" * <bf>Income Approach to Value</bf> method estimates the present worth of " <>
+                          "anticipated future benefits of owning income producing " <>
+                          "properties or objects.\n\n") <>
+    rawMarkdown (" * <bf>Market Comparison Approach to Value</bf> method estimates value by " <>
+                          "comparison with properties sold in the relevant market with " <>
+                          "adjustments for all differences that affect value, such as " <>
+                          "differences in characteristics of value, in market layer, and " <>
+                          "in time exposed to the market in order to arrive at the most " <>
+                          "apposite estimate of value.\n\n")
+-}
 
 data ReportFieldLabel
     = ReportName
@@ -108,21 +155,27 @@ data ReportFieldLabel
 
 data Author
     = Author { authorName :: Markup, authorCredentials :: Markup }
-    deriving (Read, Show, Eq, Ord, Typeable, Data)
+    deriving (Read, Show, Eq, Ord, Typeable, Data, Generic, FromJSON, ToJSON)
 
+#if !__GHCJS__
 $(deriveOrderJS ''Author)
+#else
+newtype AuthorID = AuthorID {unAuthorID :: Integer} deriving (Eq, Ord, Read, Show, Data, Typeable, Generic, FromJSON, ToJSON)
+instance Enum AuthorID where fromEnum = fromInteger . unAuthorID; toEnum = AuthorID . toInteger
+type Authors = Order AuthorID Author
+#endif
 
 data AuthorFieldLabel
     = AuthorName
     | AuthorCredentials
-    deriving (Read, Show, Eq, Ord, Typeable, Data)
+    deriving (Read, Show, Eq, Ord, Typeable, Data, Generic, FromJSON, ToJSON)
 
 data ReportValueTypeInfo
     = ReportValueTypeInfo
       { reportValueTypeName :: Markup
       , reportValueTypeDescription :: Markup
       , reportValueTypeDefinition :: Markup
-      } deriving (Read, Show, Eq, Ord, Typeable, Data)
+      } deriving (Read, Show, Eq, Ord, Typeable, Data, Generic, FromJSON, ToJSON)
 
 {-
 data ReportIntendedUse_1
@@ -145,20 +198,44 @@ data ReportIntendedUse_2
     | EstateDivision_2
     deriving (Read, Show, Eq, Ord, Bounded, Enum, Typeable, Data)
 
+data ReportIntendedUse_3
+    = SalesAdvisory_3
+    | EstatePlanning_3
+    | EstateTax_3
+    | InsuranceCoverage_3
+    | InsuranceClaim_3
+    | CharitableDonation_3
+    | EquitableDistribution_3
+    | MaritalDissolution_3
+    | EstateDivision_3
+    deriving (Read, Show, Eq, Ord, Bounded, Enum, Typeable, Data, Generic, FromJSON, ToJSON)
+
+#if !__GHCJS__
+instance Migrate ReportIntendedUse where
+    type MigrateFrom ReportIntendedUse = ReportIntendedUse_3
+    migrate SalesAdvisory_3 = SalesAdvisory
+    migrate EstatePlanning_3 = EstatePlanning
+    migrate EstateTax_3 = EstateTax
+    migrate InsuranceCoverage_3 = InsuranceCoverage
+    migrate InsuranceClaim_3 = InsuranceClaim
+    migrate CharitableDonation_3 = CharitableDonation
+    migrate EquitableDistribution_3 = EquitableDistribution
+    migrate MaritalDissolution_3 = MaritalDissolution
+    migrate EstateDivision_3 = EstateDivision
+#endif
+
 data ReportIntendedUse
     = SalesAdvisory
     | EstatePlanning
     | EstateTax
-    | Insurance
+    | InsuranceCoverage
     | InsuranceClaim
     | CharitableDonation
     | EquitableDistribution
     | MaritalDissolution
     | EstateDivision
-    deriving (Read, Show, Eq, Ord, Bounded, Enum, Typeable, Data)
-
-instance Default ReportIntendedUse where
-    def = SalesAdvisory
+    | EstateProbate
+    deriving (Read, Show, Eq, Ord, Bounded, Enum, Typeable, Data, Generic, FromJSON, ToJSON)
 
 instance View ReportIntendedUse where
     type ViewType ReportIntendedUse = String
@@ -168,13 +245,29 @@ data ReportValueApproachInfo
     = ReportValueApproachInfo
     { reportValueApproachName :: Markup
     , reportValueApproachDescription :: Markup
-    } deriving (Read, Show, Eq, Ord, Typeable, Data)
+    } deriving (Read, Show, Eq, Ord, Typeable, Data, Generic, FromJSON, ToJSON)
+
+#if !__GHCJS__
+data ReportElem_1
+    = ReportItem_1 {elemItem_1 :: Item}
+    | ReportParagraph_1 {elemText_1 :: Markup}
+    | ReportUndecided_1
+    deriving (Read, Show, Eq, Ord, Typeable, Data, Generic, FromJSON, ToJSON)
+
+instance Migrate ReportElem where
+    type MigrateFrom ReportElem = ReportElem_1
+    -- Change elemText fields marked Html to Markdown, they were changed accidentally
+    migrate (ReportItem_1 {elemItem_1 = x}) = ReportItem {elemItem = x}
+    migrate (ReportParagraph_1 {elemText_1 = Html x}) = ReportParagraph {elemText = Markdown x}
+    migrate (ReportParagraph_1 {elemText_1 = x}) = ReportParagraph {elemText = x}
+    migrate ReportUndecided_1 = ReportUndecided
+#endif
 
 data ReportElem
     = ReportItem {elemItem :: Item}
     | ReportParagraph {elemText :: Markup}
     | ReportUndecided
-    deriving (Read, Show, Eq, Ord, Typeable, Data)
+    deriving (Read, Show, Eq, Ord, Typeable, Data, Generic, FromJSON, ToJSON)
 
 deriving instance Show (R.Revision R.Ident)
 deriving instance Show (R.RevisionInfo R.Ident)
@@ -185,27 +278,45 @@ data ReportStatus
     | Final
     -- ^ The report has been downloaded, and perhaps uploaded to a
     -- different server.
-    deriving (Read, Show, Eq, Ord, Typeable, Data)
+    deriving (Read, Show, Eq, Ord, Typeable, Data, Generic, FromJSON, ToJSON)
 
 -- Does ReportStatus belong in ReportFlags?  Seems more like meta info.
 data ReportFlags = ReportFlags {
   hideEmptyItemFields :: Bool
-  } deriving (Read, Show, Eq, Ord, Typeable, Data)
+  } deriving (Read, Show, Eq, Ord, Typeable, Data, Generic, FromJSON, ToJSON)
 
 data Branding
     = NoLogo
     | Logo ImageFile
-    deriving (Read, Show, Eq, Ord, Typeable, Data)
+    deriving (Read, Show, Eq, Ord, Typeable, Data, Generic, FromJSON, ToJSON)
 
 type EpochMilli = Int64
 
 type MarkupPair = (Markup, Markup)
 type AbbrevPair = (CIString, Markup)
 
+#if !__GHCJS__
 $(deriveOrderJS ''ReportElem)
 $(deriveOrderJS ''MarkupPair)
 $(deriveOrderJS ''AbbrevPair)
 $(deriveOrderJS ''Markup)
+#else
+newtype ReportElemID = ReportElemID {unReportElemID :: Integer} deriving (Eq, Ord, Read, Show, Data, Typeable, Generic, FromJSON, ToJSON)
+instance Enum ReportElemID where fromEnum = fromInteger . unReportElemID; toEnum = ReportElemID . toInteger
+type ReportElems = Order ReportElemID ReportElem
+
+newtype MarkupPairID = MarkupPairID {unMarkupPairID :: Integer} deriving (Eq, Ord, Read, Show, Data, Typeable, Generic, FromJSON, ToJSON)
+instance Enum MarkupPairID where fromEnum = fromInteger . unMarkupPairID; toEnum = MarkupPairID . toInteger
+type MarkupPairs = Order MarkupPairID MarkupPair
+
+newtype AbbrevPairID = AbbrevPairID {unAbbrevPairID :: Integer} deriving (Eq, Ord, Read, Show, Data, Typeable, Generic, FromJSON, ToJSON)
+instance Enum AbbrevPairID where fromEnum = fromInteger . unAbbrevPairID; toEnum = AbbrevPairID . toInteger
+type AbbrevPairs = Order AbbrevPairID AbbrevPair
+
+newtype MarkupID = MarkupID {unMarkupID :: Integer} deriving (Eq, Ord, Read, Show, Data, Typeable, Generic, FromJSON, ToJSON)
+instance Enum MarkupID where fromEnum = fromInteger . unMarkupID; toEnum = MarkupID . toInteger
+type Markups = Order MarkupID Markup
+#endif
 
 type MaybeReportIntendedUse = Maybe ReportIntendedUse
 
@@ -222,7 +333,107 @@ instance View MaybeReportIntendedUse where
 --    2 - A number of UI changes are implemented for this next version,
 --        and new reports will be set to this value.  In particular, the Scope of Work
 --        section is no longer included.
-data ReportStandard = ReportStandard {unReportStandard :: Int} deriving (Read, Show, Eq, Ord, Typeable, Data)
+data ReportStandard = ReportStandard {unReportStandard :: Int} deriving (Read, Show, Eq, Ord, Typeable, Data, Generic, FromJSON, ToJSON)
+
+#if !__GHCJS__
+data Report_17
+    = Report_17
+             { reportFolder_17 :: FilePath
+             , reportName_17 :: Markup
+             , reportDate_17 :: Markup
+             , reportContractDate_17 :: Markup
+             , reportInspectionDate_17 :: Markup
+             , reportEffectiveDate_17 :: Markup
+             , reportAuthors_17 :: Authors
+             , reportPreparer_17 :: Markup
+             , reportPreparerEIN_17 :: Markup
+             , reportPreparerAddress_17 :: Markup
+             , reportPreparerEMail_17 :: Markup
+             , reportPreparerWebsite_17 :: Markup
+             , reportAbbrevs_17 :: AbbrevPairs
+             , reportTitle_17 :: Markup
+             , reportHeader_17 :: Markup
+             , reportFooter_17 :: Markup
+             , reportIntendedUse_17 :: MaybeReportIntendedUse
+             , reportValueTypeInfo_17 :: ReportValueTypeInfo
+             , reportValueApproachInfo_17 :: ReportValueApproachInfo
+             , reportClientName_17 :: Markup
+             , reportClientAddress_17 :: Markup
+             , reportClientGreeting_17 :: Markup
+             , reportItemsOwnerFull_17 :: Markup
+             , reportItemsOwner_17 :: Markup
+             , reportBriefItems_17 :: Markup
+             , reportInspectionLocation_17 :: Markup
+             , reportBody_17 :: ReportElems
+             , reportGlossary_17 :: MarkupPairs
+             , reportSources_17 :: MarkupPairs
+             , reportLetterOfTransmittal_17 :: Markup
+             , reportScopeOfWork_17 :: Markup
+             , reportCertification_17 :: Markups
+             , reportLimitingConditions_17 :: Markups
+             , reportPrivacyPolicy_17 :: Markup
+             , reportPerms_17 :: Permissions
+             , reportRevision_17 :: Integer
+             , reportCreated_17 :: EpochMilli
+             , reportBranding_17 :: Branding
+             , reportStatus_17 :: ReportStatus
+             , reportRedacted_17 :: Bool
+             , reportFlags_17 :: ReportFlags
+             , reportUUID_17 :: UUID
+             , reportOrderByItemName_17 :: Bool
+             , reportDisplayItemName_17 :: Bool
+             }
+    deriving (Read, Show, Eq, Ord, Typeable, Data)
+
+instance Migrate Report where
+    type MigrateFrom Report = Report_17
+    migrate r =
+        Report { reportStandardsVersion = ReportStandard 1
+               , reportFolder = reportFolder_17 r
+               , reportName = reportName_17 r
+               , reportDate = reportDate_17 r
+               , reportContractDate = reportContractDate_17 r
+               , reportInspectionDate = reportInspectionDate_17 r
+               , reportEffectiveDate = reportEffectiveDate_17 r
+               , reportAuthors = reportAuthors_17 r
+               , reportPreparer = reportPreparer_17 r
+               , reportPreparerEIN = reportPreparerEIN_17 r
+               , reportPreparerAddress = reportPreparerAddress_17 r
+               , reportPreparerEMail = reportPreparerEMail_17 r
+               , reportPreparerWebsite = reportPreparerWebsite_17 r
+               , reportAbbrevs = reportAbbrevs_17 r
+               , reportTitle = reportTitle_17 r
+               , reportHeader = reportHeader_17 r
+               , reportFooter = reportFooter_17 r
+               , reportIntendedUse = reportIntendedUse_17 r
+               , reportValueTypeInfo = reportValueTypeInfo_17 r
+               , reportValueApproachInfo = reportValueApproachInfo_17 r
+               , reportClientName = reportClientName_17 r
+               , reportClientAddress = reportClientAddress_17 r
+               , reportClientGreeting = reportClientGreeting_17 r
+               , reportItemsOwnerFull = reportItemsOwnerFull_17 r
+               , reportItemsOwner = reportItemsOwner_17 r
+               , reportBriefItems = reportBriefItems_17 r
+               , reportInspectionLocation = reportInspectionLocation_17 r
+               , reportBody = reportBody_17 r
+               , reportGlossary = reportGlossary_17 r
+               , reportSources = reportSources_17 r
+               , reportLetterOfTransmittal = reportLetterOfTransmittal_17 r
+               , reportScopeOfWork = reportScopeOfWork_17 r
+               , reportCertification = reportCertification_17 r
+               , reportLimitingConditions = reportLimitingConditions_17 r
+               , reportPrivacyPolicy = reportPrivacyPolicy_17 r
+               , reportPerms = reportPerms_17 r
+               , reportRevision = reportRevision_17 r
+               , reportCreated = reportCreated_17 r
+               , reportBranding = reportBranding_17 r
+               , reportStatus = reportStatus_17 r
+               , reportRedacted = reportRedacted_17 r
+               , reportFlags = reportFlags_17 r
+               , reportUUID = reportUUID_17 r
+               , reportOrderByItemName = reportOrderByItemName_17 r
+               , reportDisplayItemName = reportDisplayItemName_17 r }
+#endif
 
 data Report
     = Report { reportFolder :: FilePath
@@ -271,7 +482,7 @@ data Report
              , reportDisplayItemName :: Bool
              , reportStandardsVersion :: ReportStandard
              }
-    deriving (Read, Show, Eq, Ord, Typeable, Data)
+    deriving (Read, Show, Eq, Ord, Typeable, Data, Generic, FromJSON, ToJSON)
 
 reportURI :: Paths a => a -> Report -> String -> FilePath
 reportURI paths report ext =
@@ -295,20 +506,21 @@ data ReportElemTypeName
     = UndecidedElem
     | ItemElem
     | CommentaryElem
-    deriving (Read, Show, Eq)
+    deriving (Read, Show, Eq, Generic, FromJSON, ToJSON)
 
 reportIntendedUseMarkup :: Report -> Maybe Markup
 reportIntendedUseMarkup report =
     case reportIntendedUse report of
       Just SalesAdvisory -> Just (rawMarkdown "Sales Advisory")
-      Just EstatePlanning -> Just (rawMarkdown "Estate Tax Planning")
+      Just EstatePlanning -> Just (rawMarkdown "Estate Planning")
       Just EstateTax -> Just (rawMarkdown "Estate Tax")
-      Just Insurance -> Just (rawMarkdown "Insurance Coverage")
+      Just InsuranceCoverage -> Just (rawMarkdown "Insurance Coverage")
       Just InsuranceClaim -> Just (rawMarkdown "Insurance Claim")
       Just CharitableDonation -> Just (rawMarkdown "Charitable Donation for Income Tax")
       Just EquitableDistribution -> Just (rawMarkdown "Equitable Distribution")
       Just MaritalDissolution -> Just (rawMarkdown "Marital Dissolution")
       Just EstateDivision -> Just (rawMarkdown "Estate Division")
+      Just EstateProbate -> Just (rawMarkdown "Estate Probate")
       Nothing -> Nothing
 
 reportValueSum :: Report -> (CashValue, Int, Int)
@@ -365,7 +577,7 @@ data Tagged = Digits Text | Chars Text
 compareVersions :: Markup -> Markup -> Ordering
 compareVersions a b = compareVersions' (markupText a) (markupText b)
 
-compareVersions' :: Text -> Text -> Ordering
+compareVersions' :: Text.Text -> Text.Text -> Ordering
 compareVersions' a b =
     cmp a' b'
     where
@@ -469,3 +681,67 @@ instance FromJSON UUID where
 _testUUID :: IO (Maybe UUID)
 _testUUID = UUID.nextRandom >>= return . decode . encode
 
+_testR :: Report
+_testR = Builders.empty
+
+#if !__GHCJS__
+$(deriveSafeCopy 1 'base ''AuthorID)
+$(derivePathInfo ''AuthorID)
+
+$(deriveSafeCopy 1 'base ''Author)
+$(deriveSafeCopy 1 'base ''ReportValueTypeInfo)
+$(deriveSafeCopy 3 'base ''ReportIntendedUse_3)
+$(deriveSafeCopy 4 'extension ''ReportIntendedUse)
+$(deriveSafeCopy 1 'base ''ReportValueApproachInfo)
+$(deriveSafeCopy 1 'base ''ReportElem_1)
+$(deriveSafeCopy 2 'extension ''ReportElem)
+$(deriveSafeCopy 17 'base ''Report_17)
+$(deriveSafeCopy 18 'extension ''Report)
+$(deriveSafeCopy 1 'base ''ReportStandard)
+$(deriveSafeCopy 1 'base ''ReportStatus)
+$(deriveSafeCopy 0 'base ''ReportFlags)
+$(deriveSafeCopy 1 'base ''Branding)
+
+$(deriveSafeCopy 1 'base ''ReportElemID)
+$(deriveSafeCopy 1 'base ''MarkupPairID)
+$(deriveSafeCopy 1 'base ''AbbrevPairID)
+$(deriveSafeCopy 1 'base ''MarkupID)
+$(derivePathInfo ''ReportElemID)
+$(derivePathInfo ''MarkupPairID)
+$(derivePathInfo ''AbbrevPairID)
+$(derivePathInfo ''MarkupID)
+
+-- For debugging and building test suites
+$(deriveLiftMany [
+   ''Dimension,
+   ''ImageCrop,
+   ''ImageFile,
+   ''ImageSize,
+   ''ImageType,
+   ''Markup,
+   ''Item,
+   ''ReportImage,
+   ''ReportImageID,
+   ''Units
+  ])
+
+$(deriveLiftMany [
+   ''AbbrevPairID,
+   ''Author,
+   ''AuthorFieldLabel,
+   ''AuthorID,
+   ''Branding,
+   ''MarkupID,
+   ''MarkupPairID,
+   ''Report,
+   ''ReportElem,
+   ''ReportElemID,
+   ''ReportElemTypeName,
+   ''ReportFieldLabel,
+   ''ReportFlags,
+   ''ReportIntendedUse,
+   ''ReportStandard,
+   ''ReportStatus,
+   ''ReportValueApproachInfo,
+   ''ReportValueTypeInfo])
+#endif

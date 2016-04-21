@@ -1,5 +1,5 @@
 {-# LANGUAGE CPP, DeriveDataTypeable, FlexibleInstances, GeneralizedNewtypeDeriving, MultiParamTypeClasses,
-             OverloadedStrings, ScopedTypeVariables, StandaloneDeriving, TemplateHaskell, TupleSections, TypeSynonymInstances #-}
+             OverloadedStrings, ScopedTypeVariables, StandaloneDeriving, TupleSections, TypeSynonymInstances #-}
 {-# OPTIONS_GHC -fno-warn-unused-do-bind -fno-warn-orphans #-}
 module Appraisal.LaTeX
     ( texenv
@@ -43,7 +43,9 @@ module Appraisal.LaTeX
 import Appraisal.Utils.List (terminate)
 import Data.Generics (Data, Typeable)
 import qualified Data.List as L (intersperse)
-import qualified Data.Text as T (pack, Text)
+import Data.SafeCopy (base, deriveSafeCopy)
+import qualified Data.Text as T (pack, Text, unpack)
+import Language.Haskell.TH.Lift (deriveLiftMany, Lift(lift))
 import Prelude hiding (lines)
 import Text.LaTeX (raw, lnbk)
 import qualified Text.LaTeX as LaTeX (center, enumerate, footnote, item)
@@ -214,3 +216,21 @@ nbsp = raw "~"
 
 texty :: LaTeXC l => T.Text -> l
 texty = texy
+
+#if !__GHCJS__
+$(deriveSafeCopy 1 'base ''LaTeX)
+$(deriveSafeCopy 1 'base ''MathType)
+$(deriveSafeCopy 1 'base ''Measure)
+$(deriveSafeCopy 1 'base ''TeXArg)
+
+-- Assumes OverloadedStrings option is set.
+instance Lift T.Text where
+    lift = lift . T.unpack
+
+$(deriveLiftMany [
+   ''LaTeX,
+   ''MathType,
+   ''Measure,
+   ''TeXArg
+  ])
+#endif

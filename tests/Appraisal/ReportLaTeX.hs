@@ -28,11 +28,11 @@ import Data.Monoid ((<>))
 import Data.Ratio ((%))
 import Data.String (fromString)
 import Data.Text as T (pack, strip, Text, unpack)
-import Language.Haskell.TH.Path.Order as Order (toList)
+import Language.Haskell.TH.Path.Order as Order (toList, toPairs)
 import System.FilePath ((</>))
 import Text.LaTeX (execLaTeXM, LaTeXM, LaTeX, newpage, lnbk, large3)
 import Text.LaTeX.Base.Class (LaTeXC, comm1, commS, liftL)
-import Text.LaTeX.Base.Commands (article, ClassOption(FontSize), documentclass, footnotesize, large, raw, small, textbf, texttt, usepackage, vfill, vspace, comment)
+import Text.LaTeX.Base.Commands (article, ClassOption(FontSize), documentclass, footnotesize, large, raw, small, textbf, texttt, usepackage, vfill, vspace, comment, underline)
 import Text.LaTeX.Base.Render as LaTeX (Render(render), rendertex)
 import Text.LaTeX.Base.Syntax (LaTeX(TeXComm), Measure(CustomMeasure, In, Pt, Cm), TeXArg(FixArg, OptArg))
 import Text.LaTeX.Base.Texy (texy)
@@ -403,7 +403,9 @@ reportToLaTeX ver lfm picPrinter picEnlarged appraisal =
       certification report =
           do newpage
              heading 1 (cooked "Certification")
-             lfm (rawMarkdown "The [appraisers] [certify] and [agree] that:")
+             lfm (rawMarkdown (case length (toPairs (reportAuthors report)) of
+                                 n | n > 1 -> "We certify and agree that to the best of our knowledge and belief:"
+                                 _ -> "I certify and agree that to the best of my knowledge and belief:"))
              bulletList (map lfm (Order.toList (reportCertification report)))
              commS "authorsignature"
 
@@ -512,13 +514,13 @@ reportToLaTeX ver lfm picPrinter picEnlarged appraisal =
              lift $ do wideTable
                          [T.pack "l", T.pack "@{\\extracolsep{0pt}}", T.pack "r"]
                          -- \hline \\ [-10pt]
-                         [ [ (bold . lfm . M.mapChars toUpper . reportName $ appraisal)
-                           , (bold . lfm . M.mapChars toUpper . reportValueTypeName . reportValueTypeInfo $ appraisal) ]
-                         , [ (textbf $ (cooked "ITEM #" >>
+                         [ [ (bold . underline . lfm . reportName $ appraisal)
+                           , (bold . underline . lfm . reportValueTypeName . reportValueTypeInfo $ appraisal) ]
+                         , [ (textbf $ underline $ (cooked "ITEM #" >>
                                         (if reportDisplayItemName appraisal
                                          then maybe (cooked "???") lfm (Map.lookup ItemDataSheetNumber (fields item))
                                          else cooked (pack (show n)))))
-                           , (textbf . lfm . cashValueDigitsLaTeX . cashValue $ item) ] ]
+                           , (textbf . underline . lfm . cashValueDigitsLaTeX . cashValue $ item) ] ]
                        -- \hline
                        reportImages textWidthInInches (Order.toList (images item))
                        reportItem item

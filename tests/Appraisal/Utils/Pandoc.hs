@@ -5,8 +5,10 @@ module Appraisal.Utils.Pandoc
     ( pandocFromMarkdown
     ) where
 
+import Appraisal.Orphans ()
 import Data.Set as Set (difference, fromList)
 import qualified Data.Text as T
+import Language.Haskell.TH.Lift (deriveLiftMany)
 import Text.Pandoc
 
 pandocFromMarkdown :: T.Text -> Pandoc
@@ -24,3 +26,21 @@ pandocFromMarkdown t = either (error $ "Invalid markdown? " ++ T.unpack t) id . 
                 readerParseRaw = True,
                 readerExtensions = Set.difference (readerExtensions def)
                                                   (Set.fromList [Ext_backtick_code_blocks, Ext_tex_math_dollars]) }
+
+#if !__GHCJS__
+$(deriveLiftMany [
+   ''Alignment,
+   ''Block,
+   ''Citation,
+   ''CitationMode,
+   ''Format,
+   ''Inline,
+   ''ListNumberDelim,
+   ''ListNumberStyle,
+   ''Meta,
+   ''MetaValue,
+   ''Pandoc,
+   ''QuoteType,
+   ''MathType
+  ])
+#endif

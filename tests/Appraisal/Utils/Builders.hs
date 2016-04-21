@@ -1,4 +1,4 @@
-{-# LANGUAGE PackageImports, ScopedTypeVariables  #-}
+{-# LANGUAGE CPP, PackageImports, ScopedTypeVariables  #-}
 {-# LANGUAGE FlexibleContexts     #-}
 module Appraisal.Utils.Builders where
 
@@ -12,24 +12,25 @@ import Data.Data
 import Data.Generics.Aliases (extB)
 import qualified Data.Text as T (Text, empty)
 import qualified Data.UUID as UUID
+import Language.Haskell.TH.Lift (deriveLiftMany)
 
 -- | Construct the empty value for a datatype. For algebraic datatypes, the
 -- leftmost constructor is chosen.
 empty :: forall a. Data a => a
-empty = general 
-      `extB` char 
+empty = general
+      `extB` char
       `extB` int
       `extB` int64
       `extB` int32
       `extB` integer
-      `extB` float 
+      `extB` float
       `extB` double
       `extB` text
       `extB` uuid where
   -- Generic case
   general :: Data a => a
   general = fromConstrB empty (indexConstr (dataTypeOf general) 1)
-  
+
   -- Base cases
   char    = '\NUL'
   int     = 0      :: Int
@@ -63,7 +64,7 @@ constrs = general
     unList = trace "Builders.unlist undefined" undefined
 
   -- Base cases
-  char    = "\NUL"
+  char    = '\NUL'
   int     = [0   :: Int]
   int64   = [0   :: Int64]
   int32   = [0   :: Int32]
@@ -72,3 +73,9 @@ constrs = general
   double  = [0.0 :: Double]
   text    = [T.empty :: T.Text]
   uuid    = [UUID.nil]
+
+#if !__GHCJS__
+$(deriveLiftMany [
+   ''UUID.UUID
+  ])
+#endif

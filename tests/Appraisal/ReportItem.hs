@@ -1,9 +1,7 @@
-{-# LANGUAGE DeriveAnyClass #-}
-{-# LANGUAGE DeriveDataTypeable #-}
-{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE CPP #-}
+{-# LANGUAGE DeriveAnyClass, DeriveDataTypeable, DeriveGeneric #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeSynonymInstances #-}
 {-# LANGUAGE TypeFamilies #-}
 module Appraisal.ReportItem
@@ -23,10 +21,14 @@ import Appraisal.ReportImage(ReportImages)
 import Data.Aeson (FromJSON, ToJSON)
 import Data.Generics (Data, Typeable)
 import Data.Map as Map (Map, fromList, lookup)
+import Data.SafeCopy (deriveSafeCopy, base)
 import qualified Data.Text as T
 import GHC.Generics (Generic)
+import Language.Haskell.TH.Lift (deriveLiftMany)
 import Language.Haskell.TH.Path.Core (SelfPath)
 import Language.Haskell.TH.Path.Order as Order (empty)
+
+type MIM = Map ItemFieldName Markup
 
 data ItemFieldName
     = ItemLocation
@@ -51,17 +53,19 @@ data ItemFieldName
     | ItemExhibitionsAndPublications
     | ItemAdditionalNotes
     | ItemCashValue
-    deriving (Show, Read, Eq, Ord, Data, Typeable, Generic, FromJSON, ToJSON)
+    deriving (Show, Read, Eq, Ord, Data, Typeable, Generic, ToJSON, FromJSON)
+
+#if !__GHCJS__
+$(deriveSafeCopy 2 'base ''ItemFieldName)
+#endif
 
 instance SelfPath ItemFieldName
-
-type MIM = Map ItemFieldName Markup
 
 data Item
     = Item { itemName :: T.Text
            , fields :: MIM
            , images :: ReportImages -- Use a typedef here so that paths like Path_Report ReportImages are generated
-           } deriving (Show, Read, Eq, Ord, Data, Typeable)
+           } deriving (Show, Read, Eq, Ord, Data, Typeable, Generic, ToJSON, FromJSON)
 
 --fieldLabel :: ItemFieldName -> T.Text
 --fieldLabel name = T.pack $ maybe "Unknown" itemFieldLabel (lookup name itemFieldMap)
@@ -145,3 +149,8 @@ modifyItemFieldValue  f name item = setItemFieldValue' name (f (getItemFieldValu
 
 instance Priceable Item where
     cashValue item = parseCashValue $ T.unpack $ markupText $ getItemFieldValue ItemCashValue item
+
+#if !__GHCJS__
+$(deriveSafeCopy 7 'base ''Item)
+$(deriveLiftMany [''ItemFieldName])
+#endif

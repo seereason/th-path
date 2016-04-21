@@ -1,4 +1,4 @@
-{-# LANGUAGE CPP, TemplateHaskell #-}
+{-# LANGUAGE CPP #-}
 module Appraisal.Utils.Debug
     ( Ident(..)
     , ident
@@ -6,7 +6,9 @@ module Appraisal.Utils.Debug
     , trace''
     , withIndent
     , indented
+#if !__GHCJS__
     , locMsg
+#endif
     ) where
 
 import Control.Exception (throw)
@@ -15,9 +17,9 @@ import Data.List (intercalate)
 import Data.Maybe (fromMaybe, isJust, catMaybes)
 import Debug.Trace (trace)
 import Network.URI (URI)
-import Language.Haskell.TH (ExpQ, Exp, Loc(..), location, Q)
+import Language.Haskell.TH
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.Syntax (lift)
+import Language.Haskell.TH.Lift (lift)
 import System.Environment (getEnv, setEnv)
 import System.IO.Error (catchIOError, isDoesNotExistError)
 import System.IO.Unsafe (unsafePerformIO)
@@ -80,11 +82,12 @@ modifyEnv d v f = getEnvWithDefault d v >>= setEnv v . f
 getEnvWithDefault :: String -> String -> IO String
 getEnvWithDefault d v = getEnv v `catchIOError` (\ e -> if isDoesNotExistError e then return d else throw e)
 
-__LOC__ :: Q Exp
-__LOC__ = lift =<< location
-
+#if !__GHCJS__
 locMsg :: String -> ExpQ
 locMsg msg = [|locationToString $__LOC__ ++ ' ' : msg|]
+
+__LOC__ :: Q Exp
+__LOC__ = lift =<< location
 
 -- turn the TH Loc loaction information into a human readable string
 -- leaving out the loc_end parameter
@@ -94,3 +97,4 @@ locationToString loc = (loc_package loc) ++ ':' : (loc_module loc) ++
   where
     line = show . fst . loc_start
     char = show . snd . loc_start
+#endif
