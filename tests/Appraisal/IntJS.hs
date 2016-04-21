@@ -1,6 +1,7 @@
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveDataTypeable #-}
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE TypeSynonymInstances #-}
 module Appraisal.IntJS
     ( IntJS
@@ -22,6 +23,7 @@ import Data.Map as Map (fromList, Map, toList)
 import Data.SafeCopy (deriveSafeCopy, base)
 import Data.Text as Text (null, pack)
 import Data.Text.Read (decimal, signed)
+import GHC.Generics (Generic)
 import Language.Haskell.TH
 import Language.Haskell.TH.Path.Order (fromPairs, Order, toPairs)
 #if !__GHCJS__
@@ -78,7 +80,7 @@ deriveOrderJS t = do
   return $ decs ++ insts
 #endif
 
-newtype JSONText = JSONText {unJSONText :: String} deriving (Eq, Ord, Read, Show, Data, Typeable, Monoid)
+newtype JSONText = JSONText {unJSONText :: String} deriving (Eq, Ord, Read, Show, Data, Typeable, Monoid, Generic, FromJSON, ToJSON)
 
 iso_JSONText :: Iso' JSONText String
 iso_JSONText = iso unJSONText JSONText

@@ -7,6 +7,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
 #if 0
@@ -49,11 +50,6 @@ $(do deps <- runQ (runIO (find always (extension ==? ".hs" &&? fileType ==? Regu
      writePaths (Just "tests/ReportHead.hs") Nothing "tests/ReportDecs.hs" deps decs)
 
 -- | Most (all?) of these should be moved back to live with their parent types.
-$(deriveLiftMany [''UserId, ''JSONText, ''Permissions, ''CIString, ''ImageFile, ''ImageCrop, ''ImageType, ''Markup, ''Pandoc, ''Meta,
-                  ''MetaValue, ''Inline, ''QuoteType, ''Text.Pandoc.MathType, ''Format, ''Citation, ''CitationMode,
-                  ''Block, ''ListNumberStyle, ''ListNumberDelim, ''Alignment])
-$(deriveLiftMany [''LaTeX, ''Units, ''Dimension, ''ImageSize, ''ReportImageID, ''ReportImage, ''Item, ''UUID, ''ReportValueTypeInfo,
-                  ''ReportValueApproachInfo, ''ReportStatus, ''ReportStandard, ''ReportIntendedUse, ''ReportFlags, ''ReportElemID,
-                  ''ReportElem, ''Report, ''MarkupPairID, ''MarkupID, ''Branding, ''AuthorID, ''Author, ''AbbrevPairID, ''TeXArg,
-                  ''SaneSize, ''ReportView, ''Measure, ''ReportImageView, ''ReadOnly, ''Text.LaTeX.Base.Syntax.MathType, ''ItemFieldName])
+$(deriveLiftMany [''JSONText])
+$(deriveLiftMany [''SaneSize, ''ReportView, ''ReportImageView, ''ReadOnly])
 #endif

@@ -1,7 +1,9 @@
 -- | Return the declarations that implement the IsPath instances, the
 -- toLens methods, the Path types, and the universal path type.
 
+{-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE FunctionalDependencies #-}
@@ -24,12 +26,12 @@ import Control.Monad.Writer (MonadWriter, execWriterT, runWriterT, tell)
 import Data.Aeson (FromJSON, ToJSON)
 import Data.Char (toLower)
 import Data.Data (Data, Typeable)
-import Data.Generics (Generic)
 import Data.List (sort)
 import Data.Maybe (catMaybes)
 import Data.Monoid ((<>))
 import Data.Proxy (Proxy(Proxy))
 import Data.Set as Set (toList)
+import GHC.Generics (Generic)
 import Language.Haskell.TH
 import Language.Haskell.TH.Context (ContextM)
 import Language.Haskell.TH.Instances ()

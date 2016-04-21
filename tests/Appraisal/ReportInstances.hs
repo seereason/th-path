@@ -1,5 +1,7 @@
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
@@ -20,6 +22,7 @@ import Appraisal.ReportImage (ReportImage(Pic), MaybeImageFile)
 import Appraisal.ReportItem (ItemFieldName)
 import Appraisal.ReportMap (ReportID, ReportMap)
 import Appraisal.Utils.CIString (CIString)
+import Data.Aeson (FromJSON, ToJSON)
 import Data.UUID.Types as UUID (UUID)
 import Control.Lens
 import Data.Generics (Data, Typeable)
@@ -29,6 +32,7 @@ import Data.SafeCopy (base, deriveSafeCopy)
 import Data.Text as T (Text)
 import Data.UserId (UserId(..))
 import Data.Word (Word32)
+import GHC.Generics (Generic)
 import Language.Haskell.TH
 import Language.Haskell.TH.Path.Core (camelWords, Describe(describe'), lens_mrs, lens_UserIds_Text,
                                       readOnlyLens, readShowIso, SinkType)
@@ -47,13 +51,13 @@ instance Describe (Proxy Markup) where
     describe' (Just f) Proxy | f == camelWords (nameBase 'reportLetterOfTransmittal) = Just "Letter of Transmittal"
     describe' _ _ = Nothing
 
-newtype ReadOnly a = ReadOnly {unReadOnly :: a} deriving (Read, Show, Eq, Ord, Typeable, Data)
+newtype ReadOnly a = ReadOnly {unReadOnly :: a} deriving (Read, Show, Eq, Ord, Typeable, Data, Generic, FromJSON, ToJSON)
 
 instance View (ReadOnly a) where
     type ViewType (ReadOnly a) = a
     viewLens = iso unReadOnly ReadOnly . readOnlyLens
 
-newtype SaneSize a = SaneSize {unSaneSize :: a} deriving (Read, Show, Eq, Ord, Typeable, Data)
+newtype SaneSize a = SaneSize {unSaneSize :: a} deriving (Read, Show, Eq, Ord, Typeable, Data, Generic, FromJSON, ToJSON)
 
 instance View (SaneSize ImageSize) where
     type ViewType (SaneSize ImageSize) = ImageSize
@@ -74,7 +78,7 @@ data ReportImageView
       , _picOriginal :: Maybe (Either URI ImageFile) -- ^ Original image
       , _picMustEnlarge :: Bool        -- ^ Put an enlargement of this image in the appendix
       }
-    deriving (Eq, Ord, Show, Read, Data, Typeable)
+    deriving (Eq, Ord, Show, Read, Data, Typeable, Generic, FromJSON, ToJSON)
 
 instance View ReportImage where
     type ViewType ReportImage = ReportImageView
@@ -136,7 +140,7 @@ data ReportView
              , _reportDisplayItemName :: Bool
              , _reportStandardsVersion :: ReportStandard
              }
-    deriving (Read, Show, Eq, Ord, Typeable, Data)
+    deriving (Read, Show, Eq, Ord, Typeable, Data, Generic, FromJSON, ToJSON)
 
 instance View Report where
     type ViewType Report = ReportView

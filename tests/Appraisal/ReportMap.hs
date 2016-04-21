@@ -19,7 +19,6 @@ module Appraisal.ReportMap
 
 import Appraisal.Report (Report(reportUUID))
 import Data.Aeson (FromJSON, ToJSON)
-import Data.Aeson.TH (defaultOptions, deriveJSON)
 import Data.Data (Data, Typeable)
 import qualified Data.Map as M (fromList, lookup, Map, size)
 import Data.SafeCopy (base, deriveSafeCopy)
