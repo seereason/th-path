@@ -29,7 +29,7 @@ import Language.Haskell.TH.Context (reifyInstancesWithContext)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Common (HasConQ(asConQ), HasCon(asCon), HasName(asName), HasType(asType), HasTypeQ(asTypeQ),
                                         makeUFieldCon, makeUPathType, ModelType(ModelType), PathType, telld, tells)
-import Language.Haskell.TH.Path.Core (camelWords, forestMap, IsPath(..), liftPeek, subPeek, PathStart(..), ToLens(toLens), Describe(describe'), mat,
+import Language.Haskell.TH.Path.Core (camelWords, forestMap, IsPath(..), mapPeek, subPeek, PathStart(..), ToLens(toLens), Describe(describe'), mat,
                                       Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..), Path_List, Path_View(..), U(u, unU'), ulens')
 import Language.Haskell.TH.Path.Graph (TypeGraphM)
 import Language.Haskell.TH.Path.Order (lens_omat, Path_OMap(..), toPairs)
@@ -247,7 +247,7 @@ doHops utype xpat hops = do
              let pairs = map (\(Hop _ fs _ w) -> (w, fs)) hops
                  fn :: ExpQ -> (TGV, ExpQ) -> ExpQ -> ExpQ
                  fn ex (w, fs) r =
-                     [| concatMap (\f -> forestMap (liftPeek f)
+                     [| concatMap (\f -> forestMap (mapPeek f)
                                                    (map (\x' -> Node ((upeekCons (idPath) (Just (u x')))) [])
                                                         (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy $utype)) $ex :: [$(asTypeQ w)]) :: [Tree (UPeek $utype $(asTypeQ w))])) $fs ++ $r |]
              clause [varP unv, asP' x xpat] (normalB [|Node (upeekCons idPath Nothing) $(foldr (fn (varE x)) [| [] |] pairs)|]) [],
@@ -256,7 +256,7 @@ doHops utype xpat hops = do
              let pairs = map (\(Hop _ fs _ w) -> (w, fs)) hops
                  fn :: ExpQ -> (TGV, ExpQ) -> ExpQ -> ExpQ
                  fn ex (w, fs) r =
-                     [| concatMap (\f -> forestMap (liftPeek f)
+                     [| concatMap (\f -> forestMap (mapPeek f)
                                                    (map (upeekTree $(varE unv))
                                                         (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy $utype)) $ex :: [$(asTypeQ w)]) :: [Tree (UPeek $utype $(asTypeQ w))])) $fs ++ $r |]
              clause [varP unv, asP' x xpat] (normalB [|Node (upeekCons idPath Nothing) $(foldr (fn (varE x)) [| [] |] pairs)|]) []
