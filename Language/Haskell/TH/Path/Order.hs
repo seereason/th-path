@@ -3,6 +3,7 @@
 -- reordered without invalidating any @k@ values that might be in use.
 
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleContexts #-}
@@ -45,6 +46,7 @@ module Language.Haskell.TH.Path.Order
     ) where
 
 import Control.Lens (Traversal', _Just, lens)
+import Data.Aeson (FromJSON, ToJSON)
 import Data.Data (Data)
 import Data.List as List (elem, foldl, foldl', foldr, filter, partition)
 import qualified Data.ListLike as LL
@@ -221,7 +223,7 @@ lens_omat k = lens getter setter . _Just
 view' :: (Ord k, Enum k) => k -> Order k v -> v
 view' i m = maybe (error "Order.view'") fst (view i m)
 
-data Path_OMap k a = Path_OMap | Path_At k a deriving (Eq, Ord, Read, Show, Typeable, Data)
+data Path_OMap k a = Path_OMap | Path_At k a deriving (Eq, Ord, Read, Show, Typeable, Data, Generic, FromJSON, ToJSON)
 instance (Data k, Typeable k, Eq k, Ord k, Read k, Show k, IsPath a) => IsPath (Path_OMap k a) where
     type UType (Path_OMap k a) = UType a
     type SType (Path_OMap k a) = Order k (SType a)

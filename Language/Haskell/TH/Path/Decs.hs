@@ -21,8 +21,10 @@ module Language.Haskell.TH.Path.Decs
 import Control.Exception as E (IOException, throw, try)
 import Control.Lens (Iso', makeClassyFor)
 import Control.Monad.Writer (MonadWriter, execWriterT, runWriterT, tell)
+import Data.Aeson (FromJSON, ToJSON)
 import Data.Char (toLower)
 import Data.Data (Data, Typeable)
+import Data.Generics (Generic)
 import Data.List (sort)
 import Data.Maybe (catMaybes)
 import Data.Monoid ((<>))
@@ -68,7 +70,7 @@ doUniv = do
                                                                                    clause [wildP] (normalB [|Nothing|]) []]]]
                   return $ normalC ucon [strictType notStrict typ])
                (zip types ([1..] :: [Int]))
-  tells [dataD (pure []) uname [] cons [''Eq, ''Show, ''Data, ''Typeable]]
+  tells [dataD (pure []) uname [] cons [''Eq, ''Ord, ''Show, ''Data, ''Typeable, ''Generic, ''FromJSON, ''ToJSON]]
   telld [d| ulens :: U $(conT uname) a => Iso' $(conT uname) a
             ulens = ulens' Proxy |]
   return $ conT uname

@@ -1,4 +1,4 @@
-{-# LANGUAGE CPP, DeriveDataTypeable, FlexibleInstances, MultiParamTypeClasses,
+{-# LANGUAGE CPP, DeriveAnyClass, DeriveDataTypeable, DeriveGeneric, FlexibleInstances, MultiParamTypeClasses,
              ScopedTypeVariables, StandaloneDeriving, TemplateHaskell, TypeFamilies #-}
 {-# OPTIONS -Wall -fwarn-incomplete-patterns -fno-warn-orphans #-}
 -- |Manage the images used by the report generator - original, edited, thumbnail, and printable.
@@ -17,12 +17,14 @@ import Appraisal.ImageFile (ImageFile(..))
 import Appraisal.IntJS (deriveOrderJS)
 import Appraisal.LaTeX.Margins (textHeightInInches, textWidthInInches)
 import Appraisal.Markup (Markup)
+import Data.Aeson (ToJSON, FromJSON)
 import Data.Generics (Data, Typeable)
 import Data.Ratio ((%))
 import Extra.URI ({- instances only -})
 import GHC.Float (fromRat)
+import GHC.Generics (Generic)
 import Language.Haskell.TH.Path.Core (SelfPath)
-import Network.URI (URI(..))
+import Network.URI (URI(..), URIAuth(..))
 import Text.PrettyPrint.HughesPJClass (Pretty(pPrint), text)
 --import Web.Routes.TH (derivePathInfo)
 
@@ -45,6 +47,12 @@ data ReportImage
       , picEnlargedDeprecated :: MaybeImageFile -- ^ Image at the maximum printable size
       }
     deriving (Eq, Ord, Show, Read, Data, Typeable)
+
+deriving instance FromJSON URI
+deriving instance ToJSON URI
+deriving instance Generic URIAuth
+deriving instance FromJSON URIAuth
+deriving instance ToJSON URIAuth
 
 $(deriveOrderJS ''ReportImage)
 

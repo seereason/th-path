@@ -1,6 +1,8 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
@@ -30,6 +32,7 @@ import Data.List (sort)
 import Data.UserId (UserId)
 import Data.UUID (UUID)
 import Data.Text (unpack)
+import GHC.Generics (Generic)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Lift (Lift(lift), deriveLiftMany)
 import Language.Haskell.TH.Path.Decs (derivePaths, writePaths)

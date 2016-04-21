@@ -1,4 +1,6 @@
+{-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE PackageImports #-}
 {-# LANGUAGE ScopedTypeVariables #-}
@@ -16,15 +18,17 @@ module Appraisal.ReportMap
     ) where
 
 import Appraisal.Report (Report(reportUUID))
-import Data.UUID.Types.Internal (UUID(..))
 import Control.Lens (makeLensesFor)
+import Data.Aeson (FromJSON, ToJSON)
 import Data.Data (Data, Typeable)
 import qualified Data.Map as M (fromList, lookup, Map, size)
+import Data.UUID.Types.Internal (UUID(..))
+import GHC.Generics (Generic)
 import Language.Haskell.TH.Path.Core (SelfPath)
 
 type MRR = M.Map ReportID Report
 
-newtype ReportID = ReportID { unReportID :: UUID } deriving (Eq, Ord, Read, Show, Typeable, Data)
+newtype ReportID = ReportID { unReportID :: UUID } deriving (Eq, Ord, Read, Show, Typeable, Data, Generic, FromJSON, ToJSON)
 newtype ReportMap = ReportMap { unReportMap :: MRR } deriving (Eq, Ord, Read, Show, Typeable, Data)
 
 instance SelfPath ReportID

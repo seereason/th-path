@@ -1,4 +1,6 @@
+{-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE TemplateHaskell #-}
@@ -18,9 +20,11 @@ module Appraisal.ReportItem
 import Appraisal.Currency(Priceable(..), parseCashValue)
 import Appraisal.Markup (Markup, markupText)
 import Appraisal.ReportImage(ReportImages)
+import Data.Aeson (FromJSON, ToJSON)
 import Data.Generics (Data, Typeable)
 import Data.Map as Map (Map, fromList, lookup)
 import qualified Data.Text as T
+import GHC.Generics (Generic)
 import Language.Haskell.TH.Path.Core (SelfPath)
 import Language.Haskell.TH.Path.Order as Order (empty)
 
@@ -47,7 +51,7 @@ data ItemFieldName
     | ItemExhibitionsAndPublications
     | ItemAdditionalNotes
     | ItemCashValue
-    deriving (Show, Read, Eq, Ord, Data, Typeable)
+    deriving (Show, Read, Eq, Ord, Data, Typeable, Generic, FromJSON, ToJSON)
 
 instance SelfPath ItemFieldName
 

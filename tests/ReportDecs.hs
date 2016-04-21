@@ -1,6 +1,8 @@
 -- | Use template haskell functions to generate the path types for appraisalscribe.
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
@@ -25,6 +27,7 @@ import Appraisal.ReportItem
 import Appraisal.ReportMap (ReportID(..), ReportMap(..), MRR)
 import Appraisal.Utils.CIString (CIString(..))
 import Control.Lens (Iso', iso, lens, _Just, _1, _2, _Left, _Right, Lens', toListOf, Traversal')
+import Data.Aeson (FromJSON, ToJSON)
 import Data.Generics (Data, Typeable)
 import Data.Int (Int64)
 import Data.Map (toList)
@@ -35,44 +38,49 @@ import Data.Tree (Tree(Node))
 import Data.UserId (UserId(UserId))
 import Data.UUID (UUID)
 import Data.UUID.Orphans ()
+import GHC.Generics (Generic)
 import Language.Haskell.TH.Path.Core
 import Language.Haskell.TH.Path.Order (lens_omat, Path_OMap(Path_OMap, Path_At), toPairs)
 import Language.Haskell.TH.Path.View (View(viewLens))
 import Network.URI (URI(URI), URIAuth)
 
 ulens = ulens' Proxy
-data UPath_Author = UPath_Author_authorName UPath_Markup | UPath_Author_authorCredentials UPath_Markup | UPath_Author deriving (Eq, Ord, Read, Show, Typeable, Data)
-data UPath_ImageCrop = UPath_ImageCrop deriving (Eq, Ord, Read, Show, Typeable, Data)
-data UPath_ImageFile = UPath_ImageFile deriving (Eq, Ord, Read, Show, Typeable, Data)
+data UPath_Author
+    = UPath_Author_authorName UPath_Markup | UPath_Author_authorCredentials UPath_Markup | UPath_Author
+    deriving (Eq, Ord, Read, Show, Typeable, Data, Generic, FromJSON, ToJSON)
+data UPath_ImageCrop = UPath_ImageCrop deriving (Eq, Ord, Read, Show, Typeable, Data, Generic, FromJSON, ToJSON)
+data UPath_ImageFile = UPath_ImageFile deriving (Eq, Ord, Read, Show, Typeable, Data, Generic, FromJSON, ToJSON)
 data UPath_ImageSize
     = UPath_ImageSize_dim (Path_View Dimension UPath_JSONText)
     | UPath_ImageSize_size (Path_View Double (Path_View String UPath_JSONText))
     | UPath_ImageSize_units (Path_View Units UPath_JSONText)
     | UPath_ImageSize
-    deriving (Eq, Ord, Read, Show, Typeable, Data)
-data UPath_Int = UPath_Int deriving (Eq, Ord, Read, Show, Typeable, Data)
-data UPath_Int64 = UPath_Int64 deriving (Eq, Ord, Read, Show, Typeable, Data)
-data UPath_Integer = UPath_Integer deriving (Eq, Ord, Read, Show, Typeable, Data)
+    deriving (Eq, Ord, Read, Show, Typeable, Data, Generic, FromJSON, ToJSON)
+data UPath_Int = UPath_Int deriving (Eq, Ord, Read, Show, Typeable, Data, Generic, FromJSON, ToJSON)
+data UPath_Int64 = UPath_Int64 deriving (Eq, Ord, Read, Show, Typeable, Data, Generic, FromJSON, ToJSON)
+data UPath_Integer = UPath_Integer deriving (Eq, Ord, Read, Show, Typeable, Data, Generic, FromJSON, ToJSON)
 data UPath_Item
     = UPath_Item_itemName (Path_View Text UPath_JSONText)
     | UPath_Item_fields (Path_Map ItemFieldName UPath_Markup)
     | UPath_Item_images (Path_OMap ReportImageID (Path_View ReportImage UPath_ReportImageView))
     | UPath_Item
-    deriving (Eq, Ord, Read, Show, Typeable, Data)
-data UPath_JSONText = UPath_JSONText deriving (Eq, Ord, Read, Show, Typeable, Data)
+    deriving (Eq, Ord, Read, Show, Typeable, Data, Generic, FromJSON, ToJSON)
+data UPath_JSONText = UPath_JSONText deriving (Eq, Ord, Read, Show, Typeable, Data, Generic, FromJSON, ToJSON)
 data UPath_Markup
     = UPath_Markup_markdownText (Path_View Text UPath_JSONText) | UPath_Markup_htmlText (Path_View Text UPath_JSONText) | UPath_Markup
-    deriving (Eq, Ord, Read, Show, Typeable, Data)
+    deriving (Eq, Ord, Read, Show, Typeable, Data, Generic, FromJSON, ToJSON)
 data UPath_Permissions
     = UPath_Permissions_owner UPath_UserId
     | UPath_Permissions_writers (Path_View UserIds (Path_View Text UPath_JSONText))
     | UPath_Permissions_readers (Path_View UserIds (Path_View Text UPath_JSONText))
     | UPath_Permissions
-    deriving (Eq, Ord, Read, Show, Typeable, Data)
-data UPath_ReportElem = UPath_ReportElem_elemItem UPath_Item | UPath_ReportElem_elemText UPath_Markup | UPath_ReportElem deriving (Eq, Ord, Read, Show, Typeable, Data)
+    deriving (Eq, Ord, Read, Show, Typeable, Data, Generic, FromJSON, ToJSON)
+data UPath_ReportElem
+    = UPath_ReportElem_elemItem UPath_Item | UPath_ReportElem_elemText UPath_Markup | UPath_ReportElem
+    deriving (Eq, Ord, Read, Show, Typeable, Data, Generic, FromJSON, ToJSON)
 data UPath_ReportFlags
     = UPath_ReportFlags_hideEmptyItemFields (Path_View Bool (Path_View String UPath_JSONText)) | UPath_ReportFlags
-    deriving (Eq, Ord, Read, Show, Typeable, Data)
+    deriving (Eq, Ord, Read, Show, Typeable, Data, Generic, FromJSON, ToJSON)
 data UPath_ReportImageView
     = UPath_ReportImageView__picSize (Path_View SaneSizeImageSize UPath_ImageSize)
     | UPath_ReportImageView__picCrop UPath_ImageCrop
@@ -84,22 +92,24 @@ data UPath_ReportImageView
     | UPath_ReportImageView__picMustEnlarge (Path_View Bool (Path_View String UPath_JSONText))
     | UPath_ReportImageView__picEnlargedDeprecated (Path_View MaybeImageFile (Path_View String UPath_JSONText))
     | UPath_ReportImageView
-    deriving (Eq, Ord, Read, Show, Typeable, Data)
+    deriving (Eq, Ord, Read, Show, Typeable, Data, Generic, FromJSON, ToJSON)
 data UPath_ReportMap
     = UPath_ReportMap_unReportMap (Path_Map ReportID (Path_View Report UPath_ReportView)) | UPath_ReportMap
-    deriving (Eq, Ord, Read, Show, Typeable, Data)
-data UPath_ReportStandard = UPath_ReportStandard_unReportStandard UPath_Int | UPath_ReportStandard deriving (Eq, Ord, Read, Show, Typeable, Data)
+    deriving (Eq, Ord, Read, Show, Typeable, Data, Generic, FromJSON, ToJSON)
+data UPath_ReportStandard
+    = UPath_ReportStandard_unReportStandard UPath_Int | UPath_ReportStandard
+    deriving (Eq, Ord, Read, Show, Typeable, Data, Generic, FromJSON, ToJSON)
 data UPath_ReportValueApproachInfo
     = UPath_ReportValueApproachInfo_reportValueApproachName UPath_Markup
     | UPath_ReportValueApproachInfo_reportValueApproachDescription UPath_Markup
     | UPath_ReportValueApproachInfo
-    deriving (Eq, Ord, Read, Show, Typeable, Data)
+    deriving (Eq, Ord, Read, Show, Typeable, Data, Generic, FromJSON, ToJSON)
 data UPath_ReportValueTypeInfo
     = UPath_ReportValueTypeInfo_reportValueTypeName UPath_Markup
     | UPath_ReportValueTypeInfo_reportValueTypeDescription UPath_Markup
     | UPath_ReportValueTypeInfo_reportValueTypeDefinition UPath_Markup
     | UPath_ReportValueTypeInfo
-    deriving (Eq, Ord, Read, Show, Typeable, Data)
+    deriving (Eq, Ord, Read, Show, Typeable, Data, Generic, FromJSON, ToJSON)
 data UPath_ReportView
     = UPath_ReportView__reportFolder (Path_View ReadOnlyFilePath (Path_View String UPath_JSONText))
     | UPath_ReportView__reportName UPath_Markup
@@ -147,10 +157,10 @@ data UPath_ReportView
     | UPath_ReportView__reportDisplayItemName (Path_View Bool (Path_View String UPath_JSONText))
     | UPath_ReportView__reportStandardsVersion UPath_ReportStandard
     | UPath_ReportView
-    deriving (Eq, Ord, Read, Show, Typeable, Data)
-data UPath_URI = UPath_URI deriving (Eq, Ord, Read, Show, Typeable, Data)
-data UPath_UUID = UPath_UUID deriving (Eq, Ord, Read, Show, Typeable, Data)
-data UPath_UserId = UPath_UserId deriving (Eq, Ord, Read, Show, Typeable, Data)
+    deriving (Eq, Ord, Read, Show, Typeable, Data, Generic, FromJSON, ToJSON)
+data UPath_URI = UPath_URI deriving (Eq, Ord, Read, Show, Typeable, Data, Generic, FromJSON, ToJSON)
+data UPath_UUID = UPath_UUID deriving (Eq, Ord, Read, Show, Typeable, Data, Generic, FromJSON, ToJSON)
+data UPath_UserId = UPath_UserId deriving (Eq, Ord, Read, Show, Typeable, Data, Generic, FromJSON, ToJSON)
 data Univ
     = U1 String
     | U2 Int64
@@ -203,7 +213,7 @@ data Univ
     | U49 Text
     | U50 UserId
     | U51 UUID
-    deriving (Eq, Show, Data, Typeable)
+    deriving (Eq, Ord, Show, Data, Typeable, Generic, FromJSON, ToJSON)
 class HasAuthor c
     where lens_author :: Lens' c Author
           lens_Author_authorCredentials :: forall . Lens' c Markup
@@ -718,7 +728,7 @@ class HasUserId c
           lens_UserId__unUserId = (.) lens_userId lens_UserId__unUserId
           {-# INLINE lens_UserId__unUserId #-}
 instance PathStart Univ String
-    where data UPeek Univ String = UPeek_String (UPath Univ String) (Maybe Univ) deriving (Eq, Show)
+    where data UPeek Univ String = UPeek_String (UPath Univ String) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
           upeekCons = UPeek_String
           upeekPath (UPeek_String p _) = p
           upeekValue (UPeek_String _ x) = x
@@ -730,7 +740,7 @@ instance PathStart Univ String
                                         _ -> Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (mapPeek f) (map (upeekTree _unv (fmap pred d)) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [JSONText]) :: [Tree (UPeek Univ
                                                                                                                                                                                                                                                             JSONText)])) [Path_To Proxy] ++ [])
 instance PathStart Univ Int64
-    where data UPeek Univ Int64 = UPeek_Int64 (UPath Univ Int64) (Maybe Univ) deriving (Eq, Show)
+    where data UPeek Univ Int64 = UPeek_Int64 (UPath Univ Int64) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
           upeekCons = UPeek_Int64
           upeekPath (UPeek_Int64 p _) = p
           upeekValue (UPeek_Int64 _ x) = x
@@ -738,7 +748,7 @@ instance PathStart Univ Int64
           upeekRow _ _ = Node (upeekCons idPath Nothing) []
           upeekTree _ _ x = Node (upeekCons idPath (Just (u x))) []
 instance PathStart Univ Bool
-    where data UPeek Univ Bool = UPeek_Bool (UPath Univ Bool) (Maybe Univ) deriving (Eq, Show)
+    where data UPeek Univ Bool = UPeek_Bool (UPath Univ Bool) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
           upeekCons = UPeek_Bool
           upeekPath (UPeek_Bool p _) = p
           upeekValue (UPeek_Bool _ x) = x
@@ -750,7 +760,7 @@ instance PathStart Univ Bool
                                         _ -> Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (mapPeek f) (map (upeekTree _unv (fmap pred d)) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [String]) :: [Tree (UPeek Univ
                                                                                                                                                                                                                                                           String)])) [Path_To Proxy] ++ [])
 instance PathStart Univ Double
-    where data UPeek Univ Double = UPeek_Double (UPath Univ Double) (Maybe Univ) deriving (Eq, Show)
+    where data UPeek Univ Double = UPeek_Double (UPath Univ Double) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
           upeekCons = UPeek_Double
           upeekPath (UPeek_Double p _) = p
           upeekValue (UPeek_Double _ x) = x
@@ -762,7 +772,7 @@ instance PathStart Univ Double
                                         _ -> Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (mapPeek f) (map (upeekTree _unv (fmap pred d)) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [String]) :: [Tree (UPeek Univ
                                                                                                                                                                                                                                                           String)])) [Path_To Proxy] ++ [])
 instance PathStart Univ Int
-    where data UPeek Univ Int = UPeek_Int (UPath Univ Int) (Maybe Univ) deriving (Eq, Show)
+    where data UPeek Univ Int = UPeek_Int (UPath Univ Int) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
           upeekCons = UPeek_Int
           upeekPath (UPeek_Int p _) = p
           upeekValue (UPeek_Int _ x) = x
@@ -770,7 +780,7 @@ instance PathStart Univ Int
           upeekRow _ _ = Node (upeekCons idPath Nothing) []
           upeekTree _ _ x = Node (upeekCons idPath (Just (u x))) []
 instance PathStart Univ Dimension
-    where data UPeek Univ Dimension = UPeek_Dimension (UPath Univ Dimension) (Maybe Univ) deriving (Eq, Show)
+    where data UPeek Univ Dimension = UPeek_Dimension (UPath Univ Dimension) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
           upeekCons = UPeek_Dimension
           upeekPath (UPeek_Dimension p _) = p
           upeekValue (UPeek_Dimension _ x) = x
@@ -782,7 +792,7 @@ instance PathStart Univ Dimension
                                         _ -> Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (mapPeek f) (map (upeekTree _unv (fmap pred d)) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [JSONText]) :: [Tree (UPeek Univ
                                                                                                                                                                                                                                                             JSONText)])) [Path_To Proxy] ++ [])
 instance PathStart Univ ImageCrop
-    where data UPeek Univ ImageCrop = UPeek_ImageCrop (UPath Univ ImageCrop) (Maybe Univ) deriving (Eq, Show)
+    where data UPeek Univ ImageCrop = UPeek_ImageCrop (UPath Univ ImageCrop) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
           upeekCons = UPeek_ImageCrop
           upeekPath (UPeek_ImageCrop p _) = p
           upeekValue (UPeek_ImageCrop _ x) = x
@@ -790,7 +800,7 @@ instance PathStart Univ ImageCrop
           upeekRow _ _ = Node (upeekCons idPath Nothing) []
           upeekTree _ _ x = Node (upeekCons idPath (Just (u x))) []
 instance PathStart Univ ImageSize
-    where data UPeek Univ ImageSize = UPeek_ImageSize (UPath Univ ImageSize) (Maybe Univ) deriving (Eq, Show)
+    where data UPeek Univ ImageSize = UPeek_ImageSize (UPath Univ ImageSize) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
           upeekCons = UPeek_ImageSize
           upeekPath (UPeek_ImageSize p _) = p
           upeekValue (UPeek_ImageSize _ x) = x
@@ -806,7 +816,7 @@ instance PathStart Univ ImageSize
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   Double)])) [UPath_ImageSize_size] ++ (concatMap (\f -> forestMap (mapPeek f) (map (upeekTree _unv (fmap pred d)) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [Units]) :: [Tree (UPeek Univ
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    Units)])) [UPath_ImageSize_units] ++ [])))
 instance PathStart Univ Units
-    where data UPeek Univ Units = UPeek_Units (UPath Univ Units) (Maybe Univ) deriving (Eq, Show)
+    where data UPeek Univ Units = UPeek_Units (UPath Univ Units) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
           upeekCons = UPeek_Units
           upeekPath (UPeek_Units p _) = p
           upeekValue (UPeek_Units _ x) = x
@@ -818,7 +828,7 @@ instance PathStart Univ Units
                                         _ -> Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (mapPeek f) (map (upeekTree _unv (fmap pred d)) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [JSONText]) :: [Tree (UPeek Univ
                                                                                                                                                                                                                                                             JSONText)])) [Path_To Proxy] ++ [])
 instance PathStart Univ ImageFile
-    where data UPeek Univ ImageFile = UPeek_ImageFile (UPath Univ ImageFile) (Maybe Univ) deriving (Eq, Show)
+    where data UPeek Univ ImageFile = UPeek_ImageFile (UPath Univ ImageFile) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
           upeekCons = UPeek_ImageFile
           upeekPath (UPeek_ImageFile p _) = p
           upeekValue (UPeek_ImageFile _ x) = x
@@ -826,7 +836,7 @@ instance PathStart Univ ImageFile
           upeekRow _ _ = Node (upeekCons idPath Nothing) []
           upeekTree _ _ x = Node (upeekCons idPath (Just (u x))) []
 instance PathStart Univ Integer
-    where data UPeek Univ Integer = UPeek_Integer (UPath Univ Integer) (Maybe Univ) deriving (Eq, Show)
+    where data UPeek Univ Integer = UPeek_Integer (UPath Univ Integer) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
           upeekCons = UPeek_Integer
           upeekPath (UPeek_Integer p _) = p
           upeekValue (UPeek_Integer _ x) = x
@@ -834,7 +844,7 @@ instance PathStart Univ Integer
           upeekRow _ _ = Node (upeekCons idPath Nothing) []
           upeekTree _ _ x = Node (upeekCons idPath (Just (u x))) []
 instance PathStart Univ JSONText
-    where data UPeek Univ JSONText = UPeek_JSONText (UPath Univ JSONText) (Maybe Univ) deriving (Eq, Show)
+    where data UPeek Univ JSONText = UPeek_JSONText (UPath Univ JSONText) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
           upeekCons = UPeek_JSONText
           upeekPath (UPeek_JSONText p _) = p
           upeekValue (UPeek_JSONText _ x) = x
@@ -842,7 +852,7 @@ instance PathStart Univ JSONText
           upeekRow _ _ = Node (upeekCons idPath Nothing) []
           upeekTree _ _ x = Node (upeekCons idPath (Just (u x))) []
 instance PathStart Univ Markup
-    where data UPeek Univ Markup = UPeek_Markup (UPath Univ Markup) (Maybe Univ) deriving (Eq, Show)
+    where data UPeek Univ Markup = UPeek_Markup (UPath Univ Markup) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
           upeekCons = UPeek_Markup
           upeekPath (UPeek_Markup p _) = p
           upeekValue (UPeek_Markup _ x) = x
@@ -866,7 +876,7 @@ instance PathStart Univ Markup
           upeekTree _unv _ (_xconc@(Pandoc {})) = Node (upeekCons idPath (Just (u _xconc))) []
           upeekTree _unv _ (_xconc@(Markup {})) = Node (upeekCons idPath (Just (u _xconc))) []
 instance PathStart Univ Permissions
-    where data UPeek Univ Permissions = UPeek_Permissions (UPath Univ Permissions) (Maybe Univ) deriving (Eq, Show)
+    where data UPeek Univ Permissions = UPeek_Permissions (UPath Univ Permissions) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
           upeekCons = UPeek_Permissions
           upeekPath (UPeek_Permissions p _) = p
           upeekValue (UPeek_Permissions _ x) = x
@@ -882,7 +892,7 @@ instance PathStart Univ Permissions
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    UserIds)])) [UPath_Permissions_writers] ++ (concatMap (\f -> forestMap (mapPeek f) (map (upeekTree _unv (fmap pred d)) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [UserIds]) :: [Tree (UPeek Univ
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             UserIds)])) [UPath_Permissions_readers] ++ [])))
 instance PathStart Univ UserIds
-    where data UPeek Univ UserIds = UPeek_UserIds (UPath Univ UserIds) (Maybe Univ) deriving (Eq, Show)
+    where data UPeek Univ UserIds = UPeek_UserIds (UPath Univ UserIds) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
           upeekCons = UPeek_UserIds
           upeekPath (UPeek_UserIds p _) = p
           upeekValue (UPeek_UserIds _ x) = x
@@ -894,7 +904,7 @@ instance PathStart Univ UserIds
                                         _ -> Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (mapPeek f) (map (upeekTree _unv (fmap pred d)) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [Text]) :: [Tree (UPeek Univ
                                                                                                                                                                                                                                                         Text)])) [Path_To Proxy] ++ [])
 instance PathStart Univ AbbrevPair
-    where data UPeek Univ AbbrevPair = UPeek_AbbrevPair (UPath Univ AbbrevPair) (Maybe Univ) deriving (Eq, Show)
+    where data UPeek Univ AbbrevPair = UPeek_AbbrevPair (UPath Univ AbbrevPair) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
           upeekCons = UPeek_AbbrevPair
           upeekPath (UPeek_AbbrevPair p _) = p
           upeekValue (UPeek_AbbrevPair _ x) = x
@@ -908,7 +918,7 @@ instance PathStart Univ AbbrevPair
                                                                                                                                                                                                                                                             CIString)])) [Path_First] ++ (concatMap (\f -> forestMap (mapPeek f) (map (upeekTree _unv (fmap pred d)) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [Markup]) :: [Tree (UPeek Univ
                                                                                                                                                                                                                                                                                                                                                                                                                                                                       Markup)])) [Path_Second] ++ []))
 instance PathStart Univ AbbrevPairs
-    where data UPeek Univ AbbrevPairs = UPeek_AbbrevPairs (UPath Univ AbbrevPairs) (Maybe Univ) deriving (Eq, Show)
+    where data UPeek Univ AbbrevPairs = UPeek_AbbrevPairs (UPath Univ AbbrevPairs) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
           upeekCons = UPeek_AbbrevPairs
           upeekPath (UPeek_AbbrevPairs p _) = p
           upeekValue (UPeek_AbbrevPairs _ x) = x
@@ -922,7 +932,7 @@ instance PathStart Univ AbbrevPairs
                                                                                                                                                                                                                                                                      AbbrevPair)])) (map (\(_k,
                                                                                                                                                                                                                                                                                             _) -> Path_At _k) (toPairs _xyz)) ++ [])
 instance PathStart Univ Author
-    where data UPeek Univ Author = UPeek_Author (UPath Univ Author) (Maybe Univ) deriving (Eq, Show)
+    where data UPeek Univ Author = UPeek_Author (UPath Univ Author) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
           upeekCons = UPeek_Author
           upeekPath (UPeek_Author p _) = p
           upeekValue (UPeek_Author _ x) = x
@@ -936,7 +946,7 @@ instance PathStart Univ Author
                                                                                                                                                                                                                                                                         Markup)])) [UPath_Author_authorName] ++ (concatMap (\f -> forestMap (mapPeek f) (map (upeekTree _unv (fmap pred d)) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [Markup]) :: [Tree (UPeek Univ
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              Markup)])) [UPath_Author_authorCredentials] ++ []))
 instance PathStart Univ Authors
-    where data UPeek Univ Authors = UPeek_Authors (UPath Univ Authors) (Maybe Univ) deriving (Eq, Show)
+    where data UPeek Univ Authors = UPeek_Authors (UPath Univ Authors) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
           upeekCons = UPeek_Authors
           upeekPath (UPeek_Authors p _) = p
           upeekValue (UPeek_Authors _ x) = x
@@ -950,7 +960,7 @@ instance PathStart Univ Authors
                                                                                                                                                                                                                                                                  Author)])) (map (\(_k,
                                                                                                                                                                                                                                                                                     _) -> Path_At _k) (toPairs _xyz)) ++ [])
 instance PathStart Univ Branding
-    where data UPeek Univ Branding = UPeek_Branding (UPath Univ Branding) (Maybe Univ) deriving (Eq, Show)
+    where data UPeek Univ Branding = UPeek_Branding (UPath Univ Branding) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
           upeekCons = UPeek_Branding
           upeekPath (UPeek_Branding p _) = p
           upeekValue (UPeek_Branding _ x) = x
@@ -962,7 +972,7 @@ instance PathStart Univ Branding
                                         _ -> Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (mapPeek f) (map (upeekTree _unv (fmap pred d)) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [Text]) :: [Tree (UPeek Univ
                                                                                                                                                                                                                                                         Text)])) [Path_To Proxy] ++ [])
 instance PathStart Univ MarkupPair
-    where data UPeek Univ MarkupPair = UPeek_MarkupPair (UPath Univ MarkupPair) (Maybe Univ) deriving (Eq, Show)
+    where data UPeek Univ MarkupPair = UPeek_MarkupPair (UPath Univ MarkupPair) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
           upeekCons = UPeek_MarkupPair
           upeekPath (UPeek_MarkupPair p _) = p
           upeekValue (UPeek_MarkupPair _ x) = x
@@ -976,7 +986,7 @@ instance PathStart Univ MarkupPair
                                                                                                                                                                                                                                                           Markup)])) [Path_First] ++ (concatMap (\f -> forestMap (mapPeek f) (map (upeekTree _unv (fmap pred d)) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [Markup]) :: [Tree (UPeek Univ
                                                                                                                                                                                                                                                                                                                                                                                                                                                                   Markup)])) [Path_Second] ++ []))
 instance PathStart Univ MarkupPairs
-    where data UPeek Univ MarkupPairs = UPeek_MarkupPairs (UPath Univ MarkupPairs) (Maybe Univ) deriving (Eq, Show)
+    where data UPeek Univ MarkupPairs = UPeek_MarkupPairs (UPath Univ MarkupPairs) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
           upeekCons = UPeek_MarkupPairs
           upeekPath (UPeek_MarkupPairs p _) = p
           upeekValue (UPeek_MarkupPairs _ x) = x
@@ -990,7 +1000,7 @@ instance PathStart Univ MarkupPairs
                                                                                                                                                                                                                                                                      MarkupPair)])) (map (\(_k,
                                                                                                                                                                                                                                                                                             _) -> Path_At _k) (toPairs _xyz)) ++ [])
 instance PathStart Univ Markups
-    where data UPeek Univ Markups = UPeek_Markups (UPath Univ Markups) (Maybe Univ) deriving (Eq, Show)
+    where data UPeek Univ Markups = UPeek_Markups (UPath Univ Markups) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
           upeekCons = UPeek_Markups
           upeekPath (UPeek_Markups p _) = p
           upeekValue (UPeek_Markups _ x) = x
@@ -1004,7 +1014,9 @@ instance PathStart Univ Markups
                                                                                                                                                                                                                                                                  Markup)])) (map (\(_k,
                                                                                                                                                                                                                                                                                     _) -> Path_At _k) (toPairs _xyz)) ++ [])
 instance PathStart Univ MaybeReportIntendedUse
-    where data UPeek Univ MaybeReportIntendedUse = UPeek_MaybeReportIntendedUse (UPath Univ MaybeReportIntendedUse) (Maybe Univ) deriving (Eq, Show)
+    where data UPeek Univ MaybeReportIntendedUse
+              = UPeek_MaybeReportIntendedUse (UPath Univ MaybeReportIntendedUse) (Maybe Univ)
+              deriving (Eq, Show, Generic, FromJSON, ToJSON)
           upeekCons = UPeek_MaybeReportIntendedUse
           upeekPath (UPeek_MaybeReportIntendedUse p _) = p
           upeekValue (UPeek_MaybeReportIntendedUse _ x) = x
@@ -1016,7 +1028,7 @@ instance PathStart Univ MaybeReportIntendedUse
                                         _ -> Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (mapPeek f) (map (upeekTree _unv (fmap pred d)) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [String]) :: [Tree (UPeek Univ
                                                                                                                                                                                                                                                           String)])) [Path_To Proxy] ++ [])
 instance PathStart Univ Report
-    where data UPeek Univ Report = UPeek_Report (UPath Univ Report) (Maybe Univ) deriving (Eq, Show)
+    where data UPeek Univ Report = UPeek_Report (UPath Univ Report) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
           upeekCons = UPeek_Report
           upeekPath (UPeek_Report p _) = p
           upeekValue (UPeek_Report _ x) = x
@@ -1028,7 +1040,7 @@ instance PathStart Univ Report
                                         _ -> Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (mapPeek f) (map (upeekTree _unv (fmap pred d)) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [ReportView]) :: [Tree (UPeek Univ
                                                                                                                                                                                                                                                               ReportView)])) [Path_To Proxy] ++ [])
 instance PathStart Univ ReportElem
-    where data UPeek Univ ReportElem = UPeek_ReportElem (UPath Univ ReportElem) (Maybe Univ) deriving (Eq, Show)
+    where data UPeek Univ ReportElem = UPeek_ReportElem (UPath Univ ReportElem) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
           upeekCons = UPeek_ReportElem
           upeekPath (UPeek_ReportElem p _) = p
           upeekValue (UPeek_ReportElem _ x) = x
@@ -1048,7 +1060,7 @@ instance PathStart Univ ReportElem
                                                                                                                                                                                                                                                                                  Markup)])) [UPath_ReportElem_elemText] ++ [])
           upeekTree _unv _ (_xconc@(ReportUndecided {})) = Node (upeekCons idPath (Just (u _xconc))) []
 instance PathStart Univ ReportElems
-    where data UPeek Univ ReportElems = UPeek_ReportElems (UPath Univ ReportElems) (Maybe Univ) deriving (Eq, Show)
+    where data UPeek Univ ReportElems = UPeek_ReportElems (UPath Univ ReportElems) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
           upeekCons = UPeek_ReportElems
           upeekPath (UPeek_ReportElems p _) = p
           upeekValue (UPeek_ReportElems _ x) = x
@@ -1062,7 +1074,7 @@ instance PathStart Univ ReportElems
                                                                                                                                                                                                                                                                      ReportElem)])) (map (\(_k,
                                                                                                                                                                                                                                                                                             _) -> Path_At _k) (toPairs _xyz)) ++ [])
 instance PathStart Univ ReportFlags
-    where data UPeek Univ ReportFlags = UPeek_ReportFlags (UPath Univ ReportFlags) (Maybe Univ) deriving (Eq, Show)
+    where data UPeek Univ ReportFlags = UPeek_ReportFlags (UPath Univ ReportFlags) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
           upeekCons = UPeek_ReportFlags
           upeekPath (UPeek_ReportFlags p _) = p
           upeekValue (UPeek_ReportFlags _ x) = x
@@ -1074,7 +1086,7 @@ instance PathStart Univ ReportFlags
                                                            _ -> Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (mapPeek f) (map (upeekTree _unv (fmap pred d)) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [Bool]) :: [Tree (UPeek Univ
                                                                                                                                                                                                                                                                            Bool)])) [UPath_ReportFlags_hideEmptyItemFields] ++ [])
 instance PathStart Univ ReportIntendedUse
-    where data UPeek Univ ReportIntendedUse = UPeek_ReportIntendedUse (UPath Univ ReportIntendedUse) (Maybe Univ) deriving (Eq, Show)
+    where data UPeek Univ ReportIntendedUse = UPeek_ReportIntendedUse (UPath Univ ReportIntendedUse) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
           upeekCons = UPeek_ReportIntendedUse
           upeekPath (UPeek_ReportIntendedUse p _) = p
           upeekValue (UPeek_ReportIntendedUse _ x) = x
@@ -1086,7 +1098,7 @@ instance PathStart Univ ReportIntendedUse
                                         _ -> Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (mapPeek f) (map (upeekTree _unv (fmap pred d)) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [String]) :: [Tree (UPeek Univ
                                                                                                                                                                                                                                                           String)])) [Path_To Proxy] ++ [])
 instance PathStart Univ ReportStandard
-    where data UPeek Univ ReportStandard = UPeek_ReportStandard (UPath Univ ReportStandard) (Maybe Univ) deriving (Eq, Show)
+    where data UPeek Univ ReportStandard = UPeek_ReportStandard (UPath Univ ReportStandard) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
           upeekCons = UPeek_ReportStandard
           upeekPath (UPeek_ReportStandard p _) = p
           upeekValue (UPeek_ReportStandard _ x) = x
@@ -1098,7 +1110,7 @@ instance PathStart Univ ReportStandard
                                                               _ -> Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (mapPeek f) (map (upeekTree _unv (fmap pred d)) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [Int]) :: [Tree (UPeek Univ
                                                                                                                                                                                                                                                                              Int)])) [UPath_ReportStandard_unReportStandard] ++ [])
 instance PathStart Univ ReportStatus
-    where data UPeek Univ ReportStatus = UPeek_ReportStatus (UPath Univ ReportStatus) (Maybe Univ) deriving (Eq, Show)
+    where data UPeek Univ ReportStatus = UPeek_ReportStatus (UPath Univ ReportStatus) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
           upeekCons = UPeek_ReportStatus
           upeekPath (UPeek_ReportStatus p _) = p
           upeekValue (UPeek_ReportStatus _ x) = x
@@ -1110,7 +1122,9 @@ instance PathStart Univ ReportStatus
                                         _ -> Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (mapPeek f) (map (upeekTree _unv (fmap pred d)) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [String]) :: [Tree (UPeek Univ
                                                                                                                                                                                                                                                           String)])) [Path_To Proxy] ++ [])
 instance PathStart Univ ReportValueApproachInfo
-    where data UPeek Univ ReportValueApproachInfo = UPeek_ReportValueApproachInfo (UPath Univ ReportValueApproachInfo) (Maybe Univ) deriving (Eq, Show)
+    where data UPeek Univ ReportValueApproachInfo
+              = UPeek_ReportValueApproachInfo (UPath Univ ReportValueApproachInfo) (Maybe Univ)
+              deriving (Eq, Show, Generic, FromJSON, ToJSON)
           upeekCons = UPeek_ReportValueApproachInfo
           upeekPath (UPeek_ReportValueApproachInfo p _) = p
           upeekValue (UPeek_ReportValueApproachInfo _ x) = x
@@ -1124,7 +1138,7 @@ instance PathStart Univ ReportValueApproachInfo
                                                                                                                                                                                                                                                                                          Markup)])) [UPath_ReportValueApproachInfo_reportValueApproachName] ++ (concatMap (\f -> forestMap (mapPeek f) (map (upeekTree _unv (fmap pred d)) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [Markup]) :: [Tree (UPeek Univ
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             Markup)])) [UPath_ReportValueApproachInfo_reportValueApproachDescription] ++ []))
 instance PathStart Univ ReportValueTypeInfo
-    where data UPeek Univ ReportValueTypeInfo = UPeek_ReportValueTypeInfo (UPath Univ ReportValueTypeInfo) (Maybe Univ) deriving (Eq, Show)
+    where data UPeek Univ ReportValueTypeInfo = UPeek_ReportValueTypeInfo (UPath Univ ReportValueTypeInfo) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
           upeekCons = UPeek_ReportValueTypeInfo
           upeekPath (UPeek_ReportValueTypeInfo p _) = p
           upeekValue (UPeek_ReportValueTypeInfo _ x) = x
@@ -1140,7 +1154,7 @@ instance PathStart Univ ReportValueTypeInfo
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 Markup)])) [UPath_ReportValueTypeInfo_reportValueTypeDescription] ++ (concatMap (\f -> forestMap (mapPeek f) (map (upeekTree _unv (fmap pred d)) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [Markup]) :: [Tree (UPeek Univ
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   Markup)])) [UPath_ReportValueTypeInfo_reportValueTypeDefinition] ++ [])))
 instance PathStart Univ EUI
-    where data UPeek Univ EUI = UPeek_EUI (UPath Univ EUI) (Maybe Univ) deriving (Eq, Show)
+    where data UPeek Univ EUI = UPeek_EUI (UPath Univ EUI) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
           upeekCons = UPeek_EUI
           upeekPath (UPeek_EUI p _) = p
           upeekValue (UPeek_EUI _ x) = x
@@ -1158,7 +1172,7 @@ instance PathStart Univ EUI
                                                     _ -> Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (mapPeek f) (map (upeekTree _unv (fmap pred d)) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [ImageFile]) :: [Tree (UPeek Univ
                                                                                                                                                                                                                                                                          ImageFile)])) [Path_Right] ++ [])
 instance PathStart Univ MEUI
-    where data UPeek Univ MEUI = UPeek_MEUI (UPath Univ MEUI) (Maybe Univ) deriving (Eq, Show)
+    where data UPeek Univ MEUI = UPeek_MEUI (UPath Univ MEUI) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
           upeekCons = UPeek_MEUI
           upeekPath (UPeek_MEUI p _) = p
           upeekValue (UPeek_MEUI _ x) = x
@@ -1170,7 +1184,7 @@ instance PathStart Univ MEUI
                                         _ -> Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (mapPeek f) (map (upeekTree _unv (fmap pred d)) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [EUI]) :: [Tree (UPeek Univ
                                                                                                                                                                                                                                                        EUI)])) [Path_Just] ++ [])
 instance PathStart Univ MaybeImageFile
-    where data UPeek Univ MaybeImageFile = UPeek_MaybeImageFile (UPath Univ MaybeImageFile) (Maybe Univ) deriving (Eq, Show)
+    where data UPeek Univ MaybeImageFile = UPeek_MaybeImageFile (UPath Univ MaybeImageFile) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
           upeekCons = UPeek_MaybeImageFile
           upeekPath (UPeek_MaybeImageFile p _) = p
           upeekValue (UPeek_MaybeImageFile _ x) = x
@@ -1182,7 +1196,7 @@ instance PathStart Univ MaybeImageFile
                                         _ -> Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (mapPeek f) (map (upeekTree _unv (fmap pred d)) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [String]) :: [Tree (UPeek Univ
                                                                                                                                                                                                                                                           String)])) [Path_To Proxy] ++ [])
 instance PathStart Univ ReportImage
-    where data UPeek Univ ReportImage = UPeek_ReportImage (UPath Univ ReportImage) (Maybe Univ) deriving (Eq, Show)
+    where data UPeek Univ ReportImage = UPeek_ReportImage (UPath Univ ReportImage) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
           upeekCons = UPeek_ReportImage
           upeekPath (UPeek_ReportImage p _) = p
           upeekValue (UPeek_ReportImage _ x) = x
@@ -1194,7 +1208,7 @@ instance PathStart Univ ReportImage
                                         _ -> Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (mapPeek f) (map (upeekTree _unv (fmap pred d)) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [ReportImageView]) :: [Tree (UPeek Univ
                                                                                                                                                                                                                                                                    ReportImageView)])) [Path_To Proxy] ++ [])
 instance PathStart Univ ReportImages
-    where data UPeek Univ ReportImages = UPeek_ReportImages (UPath Univ ReportImages) (Maybe Univ) deriving (Eq, Show)
+    where data UPeek Univ ReportImages = UPeek_ReportImages (UPath Univ ReportImages) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
           upeekCons = UPeek_ReportImages
           upeekPath (UPeek_ReportImages p _) = p
           upeekValue (UPeek_ReportImages _ x) = x
@@ -1208,7 +1222,7 @@ instance PathStart Univ ReportImages
                                                                                                                                                                                                                                                                       ReportImage)])) (map (\(_k,
                                                                                                                                                                                                                                                                                               _) -> Path_At _k) (toPairs _xyz)) ++ [])
 instance PathStart Univ ReadOnlyFilePath
-    where data UPeek Univ ReadOnlyFilePath = UPeek_ReadOnlyFilePath (UPath Univ ReadOnlyFilePath) (Maybe Univ) deriving (Eq, Show)
+    where data UPeek Univ ReadOnlyFilePath = UPeek_ReadOnlyFilePath (UPath Univ ReadOnlyFilePath) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
           upeekCons = UPeek_ReadOnlyFilePath
           upeekPath (UPeek_ReadOnlyFilePath p _) = p
           upeekValue (UPeek_ReadOnlyFilePath _ x) = x
@@ -1220,7 +1234,7 @@ instance PathStart Univ ReadOnlyFilePath
                                         _ -> Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (mapPeek f) (map (upeekTree _unv (fmap pred d)) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [String]) :: [Tree (UPeek Univ
                                                                                                                                                                                                                                                           String)])) [Path_To Proxy] ++ [])
 instance PathStart Univ ReportImageView
-    where data UPeek Univ ReportImageView = UPeek_ReportImageView (UPath Univ ReportImageView) (Maybe Univ) deriving (Eq, Show)
+    where data UPeek Univ ReportImageView = UPeek_ReportImageView (UPath Univ ReportImageView) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
           upeekCons = UPeek_ReportImageView
           upeekPath (UPeek_ReportImageView p _) = p
           upeekValue (UPeek_ReportImageView _ x) = x
@@ -1248,7 +1262,7 @@ instance PathStart Univ ReportImageView
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       Bool)])) [UPath_ReportImageView__picMustEnlarge] ++ (concatMap (\f -> forestMap (mapPeek f) (map (upeekTree _unv (fmap pred d)) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [MaybeImageFile]) :: [Tree (UPeek Univ
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                MaybeImageFile)])) [UPath_ReportImageView__picEnlargedDeprecated] ++ [])))))))))
 instance PathStart Univ ReportView
-    where data UPeek Univ ReportView = UPeek_ReportView (UPath Univ ReportView) (Maybe Univ) deriving (Eq, Show)
+    where data UPeek Univ ReportView = UPeek_ReportView (UPath Univ ReportView) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
           upeekCons = UPeek_ReportView
           upeekPath (UPeek_ReportView p _) = p
           upeekValue (UPeek_ReportView _ x) = x
@@ -1348,7 +1362,7 @@ instance PathStart Univ ReportView
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      Bool)])) [UPath_ReportView__reportDisplayItemName] ++ (concatMap (\f -> forestMap (mapPeek f) (map (upeekTree _unv (fmap pred d)) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [ReportStandard]) :: [Tree (UPeek Univ
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 ReportStandard)])) [UPath_ReportView__reportStandardsVersion] ++ [])))))))))))))))))))))))))))))))))))))))))))))
 instance PathStart Univ SaneSizeImageSize
-    where data UPeek Univ SaneSizeImageSize = UPeek_SaneSizeImageSize (UPath Univ SaneSizeImageSize) (Maybe Univ) deriving (Eq, Show)
+    where data UPeek Univ SaneSizeImageSize = UPeek_SaneSizeImageSize (UPath Univ SaneSizeImageSize) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
           upeekCons = UPeek_SaneSizeImageSize
           upeekPath (UPeek_SaneSizeImageSize p _) = p
           upeekValue (UPeek_SaneSizeImageSize _ x) = x
@@ -1360,7 +1374,7 @@ instance PathStart Univ SaneSizeImageSize
                                         _ -> Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (mapPeek f) (map (upeekTree _unv (fmap pred d)) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [ImageSize]) :: [Tree (UPeek Univ
                                                                                                                                                                                                                                                              ImageSize)])) [Path_To Proxy] ++ [])
 instance PathStart Univ Item
-    where data UPeek Univ Item = UPeek_Item (UPath Univ Item) (Maybe Univ) deriving (Eq, Show)
+    where data UPeek Univ Item = UPeek_Item (UPath Univ Item) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
           upeekCons = UPeek_Item
           upeekPath (UPeek_Item p _) = p
           upeekValue (UPeek_Item _ x) = x
@@ -1376,7 +1390,7 @@ instance PathStart Univ Item
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 MIM)])) [UPath_Item_fields] ++ (concatMap (\f -> forestMap (mapPeek f) (map (upeekTree _unv (fmap pred d)) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [ReportImages]) :: [Tree (UPeek Univ
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   ReportImages)])) [UPath_Item_images] ++ [])))
 instance PathStart Univ MIM
-    where data UPeek Univ MIM = UPeek_MIM (UPath Univ MIM) (Maybe Univ) deriving (Eq, Show)
+    where data UPeek Univ MIM = UPeek_MIM (UPath Univ MIM) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
           upeekCons = UPeek_MIM
           upeekPath (UPeek_MIM p _) = p
           upeekValue (UPeek_MIM _ x) = x
@@ -1390,7 +1404,7 @@ instance PathStart Univ MIM
                                                                                                                                                                                                                                                                  Markup)])) (map (\(_k,
                                                                                                                                                                                                                                                                                     _) -> Path_Look _k) (toList _xyz)) ++ [])
 instance PathStart Univ MRR
-    where data UPeek Univ MRR = UPeek_MRR (UPath Univ MRR) (Maybe Univ) deriving (Eq, Show)
+    where data UPeek Univ MRR = UPeek_MRR (UPath Univ MRR) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
           upeekCons = UPeek_MRR
           upeekPath (UPeek_MRR p _) = p
           upeekValue (UPeek_MRR _ x) = x
@@ -1404,7 +1418,7 @@ instance PathStart Univ MRR
                                                                                                                                                                                                                                                                  Report)])) (map (\(_k,
                                                                                                                                                                                                                                                                                     _) -> Path_Look _k) (toList _xyz)) ++ [])
 instance PathStart Univ ReportMap
-    where data UPeek Univ ReportMap = UPeek_ReportMap (UPath Univ ReportMap) (Maybe Univ) deriving (Eq, Show)
+    where data UPeek Univ ReportMap = UPeek_ReportMap (UPath Univ ReportMap) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
           upeekCons = UPeek_ReportMap
           upeekPath (UPeek_ReportMap p _) = p
           upeekValue (UPeek_ReportMap _ x) = x
@@ -1416,7 +1430,7 @@ instance PathStart Univ ReportMap
                                                          _ -> Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (mapPeek f) (map (upeekTree _unv (fmap pred d)) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [MRR]) :: [Tree (UPeek Univ
                                                                                                                                                                                                                                                                         MRR)])) [UPath_ReportMap_unReportMap] ++ [])
 instance PathStart Univ CIString
-    where data UPeek Univ CIString = UPeek_CIString (UPath Univ CIString) (Maybe Univ) deriving (Eq, Show)
+    where data UPeek Univ CIString = UPeek_CIString (UPath Univ CIString) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
           upeekCons = UPeek_CIString
           upeekPath (UPeek_CIString p _) = p
           upeekValue (UPeek_CIString _ x) = x
@@ -1428,7 +1442,7 @@ instance PathStart Univ CIString
                                         _ -> Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (mapPeek f) (map (upeekTree _unv (fmap pred d)) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [Text]) :: [Tree (UPeek Univ
                                                                                                                                                                                                                                                         Text)])) [Path_To Proxy] ++ [])
 instance PathStart Univ URI
-    where data UPeek Univ URI = UPeek_URI (UPath Univ URI) (Maybe Univ) deriving (Eq, Show)
+    where data UPeek Univ URI = UPeek_URI (UPath Univ URI) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
           upeekCons = UPeek_URI
           upeekPath (UPeek_URI p _) = p
           upeekValue (UPeek_URI _ x) = x
@@ -1436,7 +1450,7 @@ instance PathStart Univ URI
           upeekRow _ _ = Node (upeekCons idPath Nothing) []
           upeekTree _ _ x = Node (upeekCons idPath (Just (u x))) []
 instance PathStart Univ Text
-    where data UPeek Univ Text = UPeek_Text (UPath Univ Text) (Maybe Univ) deriving (Eq, Show)
+    where data UPeek Univ Text = UPeek_Text (UPath Univ Text) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
           upeekCons = UPeek_Text
           upeekPath (UPeek_Text p _) = p
           upeekValue (UPeek_Text _ x) = x
@@ -1448,7 +1462,7 @@ instance PathStart Univ Text
                                         _ -> Node (upeekCons idPath Nothing) (concatMap (\f -> forestMap (mapPeek f) (map (upeekTree _unv (fmap pred d)) (toListOf (toLens (f idPath) . ulens' (Proxy :: Proxy Univ)) _xconc :: [JSONText]) :: [Tree (UPeek Univ
                                                                                                                                                                                                                                                             JSONText)])) [Path_To Proxy] ++ [])
 instance PathStart Univ UserId
-    where data UPeek Univ UserId = UPeek_UserId (UPath Univ UserId) (Maybe Univ) deriving (Eq, Show)
+    where data UPeek Univ UserId = UPeek_UserId (UPath Univ UserId) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
           upeekCons = UPeek_UserId
           upeekPath (UPeek_UserId p _) = p
           upeekValue (UPeek_UserId _ x) = x
@@ -1456,7 +1470,7 @@ instance PathStart Univ UserId
           upeekRow _ _ = Node (upeekCons idPath Nothing) []
           upeekTree _ _ x = Node (upeekCons idPath (Just (u x))) []
 instance PathStart Univ UUID
-    where data UPeek Univ UUID = UPeek_UUID (UPath Univ UUID) (Maybe Univ) deriving (Eq, Show)
+    where data UPeek Univ UUID = UPeek_UUID (UPath Univ UUID) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
           upeekCons = UPeek_UUID
           upeekPath (UPeek_UUID p _) = p
           upeekValue (UPeek_UUID _ x) = x

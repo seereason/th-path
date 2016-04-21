@@ -19,11 +19,13 @@ module Language.Haskell.TH.Path.Decs.PathStart (peekDecs) where
 import Control.Lens hiding (cons, Strict)
 import Control.Monad (when)
 import Control.Monad.Writer (execWriterT, MonadWriter, tell)
+import Data.Aeson (FromJSON, ToJSON)
 import Data.Data (Data, Typeable)
 import Data.Map as Map (toList)
 import Data.Maybe (fromMaybe)
 import Data.Proxy
 import Data.Tree (Tree(Node))
+import GHC.Generics (Generic)
 import Language.Haskell.TH
 import Language.Haskell.TH.Context (reifyInstancesWithContext)
 import Language.Haskell.TH.Instances ()
@@ -86,7 +88,7 @@ peekDecs utype v =
                            [normalC (asName (makeUPeekCon (ModelType (asName v))))
                                     [strictType notStrict [t|UPath $utype $(asTypeQ v)|],
                                      strictType notStrict [t|Maybe $utype|]]]
-                           [''Eq, ''Show]),
+                           [''Eq, ''Show, ''Generic, ''FromJSON, ''ToJSON]),
            pure (funD 'upeekCons [clause [] (normalB (conE (asName (makeUPeekCon (ModelType (asName v)))))) []]),
            pure (funD 'upeekPath [newName "p" >>= \p -> clause [conP (asName (makeUPeekCon (ModelType (asName v)))) [varP p, wildP]] (normalB (varE p)) []]),
            pure (funD 'upeekValue [newName "x" >>= \x -> clause [conP (asName (makeUPeekCon (ModelType (asName v)))) [wildP, varP x]] (normalB (varE x)) []]),
@@ -335,7 +337,7 @@ fieldString (_tname, con, Left fpos) = liftString (camelWords (nameBase (constru
 fieldString (_tname, _con, Right fname) = liftString (camelWords (nameBase fname))
 
 supers :: [Name]
-supers = [''Eq, ''Ord, ''Read, ''Show, ''Typeable, ''Data]
+supers = [''Eq, ''Ord, ''Read, ''Show, ''Typeable, ''Data, ''Generic, ''FromJSON, ''ToJSON]
 
 fieldUPathName :: Field -> Name
 fieldUPathName fld = asName (makeUFieldCon fld)

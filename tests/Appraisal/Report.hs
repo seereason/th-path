@@ -50,20 +50,22 @@ import Appraisal.Utils.CIString (CIString)
 import Appraisal.Utils.Debug (trace'')
 import Appraisal.Utils.List (spanBy)
 import Appraisal.Utils.Text (read)
+import Control.Lens (Iso', iso)
+import Data.Aeson (decode, encode, FromJSON(..), ToJSON(..), Value(String), withText)
 import qualified Data.UUID.Types as UUID (toString)
-import Data.UUID.Types (UUID)
+import Data.UUID.Types as UUID (fromString, UUID)
+import qualified Data.UUID.V4 as UUID (nextRandom)
 import Data.Char (isDigit, toLower)
 import Data.Default (Default(def))
 import Data.Function (on)
 import Data.Generics (Data, everywhere, mkT, Typeable)
 import Data.Int (Int64)
 import qualified Data.IxSet.Revision as R (Ident(..), Revision(..), RevisionInfo(..))
-import Control.Lens (Iso', iso)
 import Data.List as List (groupBy, sortBy)
 import qualified Data.ListLike as LL
 import Data.Map as Map (lookup)
 import Data.Maybe (catMaybes)
-import Data.Text as T (Text, groupBy, pack, unpack, strip, uncons, empty)
+import Data.Text as Text (Text, groupBy, pack, unpack, strip, uncons, empty)
 import Debug.Trace (trace)
 import Language.Haskell.TH.Path.Core (lens_mrs, readShowIso, SelfPath, SinkType)
 import Language.Haskell.TH.Path.Order as Order (toList, asList)
@@ -326,7 +328,7 @@ normalizeReport report =
     report' { reportAbbrevs = uniq . LL.sortBy (compare `on` fst) $ (reportAbbrevs report')
             , reportBody = sortElems (reportBody report')
             , reportGlossary = LL.sortBy (compare `on` (M.mapChars toLower . fst)) (reportGlossary report') }
-    where report' = everywhere (mkT T.strip) report
+    where report' = everywhere (mkT Text.strip) report
           uniq = asList f
           f :: Eq a => [(k, (a, b))] -> [(k, (a, b))]
           f = map head . List.groupBy ((==) `on` (fst . snd))
@@ -363,23 +365,23 @@ data Tagged = Digits Text | Chars Text
 compareVersions :: Markup -> Markup -> Ordering
 compareVersions a b = compareVersions' (markupText a) (markupText b)
 
-compareVersions' :: T.Text -> T.Text -> Ordering
+compareVersions' :: Text -> Text -> Ordering
 compareVersions' a b =
     cmp a' b'
     where
       a' :: [Tagged]
-      a' = map (tag . T.strip) (T.groupBy (\ x y -> isDigit x == isDigit y) a)
+      a' = map (tag . Text.strip) (Text.groupBy (\ x y -> isDigit x == isDigit y) a)
       b' :: [Tagged]
-      b' = map (tag . T.strip) (T.groupBy (\ x y -> isDigit x == isDigit y) b)
+      b' = map (tag . Text.strip) (Text.groupBy (\ x y -> isDigit x == isDigit y) b)
       -- Tag the groups
       tag :: Text -> Tagged
       tag t =
-          case T.uncons t of
-            Nothing -> Chars T.empty -- Should not happen
+          case Text.uncons t of
+            Nothing -> Chars Text.empty -- Should not happen
             Just (c, _) | isDigit c -> Digits t
             Just _ -> Chars t
       -- Compare tagged groups
-      cmp (Digits x : xs) (Digits y : ys) = case compare (read (T.unpack x) :: Int) (read (T.unpack y) :: Int) of EQ -> cmp xs ys; other -> other
+      cmp (Digits x : xs) (Digits y : ys) = case compare (read (Text.unpack x) :: Int) (read (Text.unpack y) :: Int) of EQ -> cmp xs ys; other -> other
       cmp (Chars x : xs) (Chars y : ys) = case compare x y of EQ -> cmp xs ys; other -> other
       cmp (Digits _ : _) (Chars _ : _) = GT
       cmp (Chars _ : _) (Digits _ : _) = LT
@@ -409,25 +411,25 @@ reportBrandingLens = iso getter setter
         getter (Logo x) = trace ("Unhandled Logo condition: " ++ show x) (pack $ "Unhandled Logo condition, see DSF")
         setter x =
             case x of
-              _ | unpack (T.strip x) == "Thompson & Martinez" ->
+              _ | unpack (Text.strip x) == "Thompson & Martinez" ->
                     Logo (ImageFile { imageFile = File {fileSource = Nothing, fileChksum = "17e667c2bbe83e098510607571cffc00", fileMessages = []}
                                     , imageFileType = JPEG, imageFileWidth = 348, imageFileHeight = 140, imageFileMaxVal = 255 })
-              _ | unpack (T.strip x) == "Thompson & Martinez New" ->
+              _ | unpack (Text.strip x) == "Thompson & Martinez New" ->
                     Logo (ImageFile { imageFile = File {fileSource = Nothing, fileChksum = "62e7310af0008fa68de56ab9d1b60e8f", fileMessages = []}
                                     , imageFileType = JPEG, imageFileWidth = 324, imageFileHeight = 400, imageFileMaxVal = 255 })
-              _ | unpack (T.strip x) == "Thompson & Martinez Wide" ->
+              _ | unpack (Text.strip x) == "Thompson & Martinez Wide" ->
                     Logo (ImageFile { imageFile = File {fileSource = Nothing, fileChksum = "c3bd1388b41fa5d956e4308ce518a8bd", fileMessages = []}
                                     , imageFileType = PNG, imageFileWidth = 595, imageFileHeight = 114, imageFileMaxVal = 255 })
-              _ | unpack (T.strip x) == "Goldfield Appraisals" ->
+              _ | unpack (Text.strip x) == "Goldfield Appraisals" ->
                     Logo (ImageFile { imageFile = File {fileSource = Nothing, fileChksum = "cb913fc45e16135fc540a114c25c8a28", fileMessages = []}
                                     , imageFileType = JPEG, imageFileWidth = 229, imageFileHeight = 90, imageFileMaxVal = 255 })
-              _ | unpack (T.strip x) == "Thompson Martinez Goldfield" ->
+              _ | unpack (Text.strip x) == "Thompson Martinez Goldfield" ->
                     Logo (ImageFile { imageFile = File {fileSource = Nothing, fileChksum = "6ad232e854c6ff80fd2ec11b2d3af21d", fileMessages = []}
                                     , imageFileType = JPEG, imageFileWidth = 704, imageFileHeight = 140, imageFileMaxVal = 255 })
-              _ | unpack (T.strip x) == "Goldfield Appraisals 2" ->
+              _ | unpack (Text.strip x) == "Goldfield Appraisals 2" ->
                     Logo (ImageFile { imageFile = File {fileSource = Nothing, fileChksum = "4ffb5f95b3baf7790a413e768f1fb2b2", fileMessages = []}
                                     , imageFileType = JPEG, imageFileWidth = 2250, imageFileHeight = 225, imageFileMaxVal = 255 })
-              _ | unpack (T.strip x) == "Goldfield Appraisals 3" ->
+              _ | unpack (Text.strip x) == "Goldfield Appraisals 3" ->
                     Logo (ImageFile { imageFile = File {fileSource = Nothing, fileChksum = "f92d08935f8ba2cee3427b24fb3c263f", fileMessages = []}
                                     , imageFileType = JPEG, imageFileWidth = 1280, imageFileHeight = 113, imageFileMaxVal = 255 })
               _ -> case reads (unpack x) of
@@ -454,3 +456,16 @@ instance SelfPath AuthorID
 instance SelfPath MarkupID
 instance SelfPath MarkupPairID
 instance SelfPath ReportElemID
+
+instance ToJSON UUID where
+  toJSON = String . Text.pack . UUID.toString
+
+instance FromJSON UUID where
+  parseJSON = withText "UUID" $ \t ->
+         case UUID.fromString (Text.unpack t) of
+              Just u -> pure u
+              _      -> fail "could not parse UUID"
+
+_testUUID :: IO (Maybe UUID)
+_testUUID = UUID.nextRandom >>= return . decode . encode
+

@@ -1,4 +1,5 @@
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE FlexibleContexts #-}
@@ -71,6 +72,7 @@ module Language.Haskell.TH.Path.Core
 
 import Control.Applicative.Error (maybeRead)
 import Control.Lens hiding (at) -- (set, Traversal', Lens', _Just, iso, lens, view, view)
+import Data.Aeson (FromJSON, ToJSON)
 import Data.Char (isUpper, toUpper)
 import Data.Generics (Data, Typeable)
 import Data.List as List (groupBy, map)
@@ -93,6 +95,9 @@ import Web.Routes
 import Web.Routes.TH (derivePathInfo)
 import Text.Parsec.Prim ((<|>))
 import GHC.Base (ap)
+
+deriving instance FromJSON (Proxy a)
+deriving instance ToJSON (Proxy a)
 
 treeMap :: (a -> b) -> Tree a -> Tree b
 treeMap f (Node x ns) = Node (f x) (forestMap f ns)
@@ -228,16 +233,16 @@ describe = describe' Nothing
 
 -- | A path type with constructors to extract either @fst@, @snd@, or
 -- the pair itself.
-data Path_Pair fstpath sndpath = Path_First fstpath | Path_Second sndpath | Path_Pair deriving (Eq, Ord, Read, Show, Typeable, Data)
-data Path_Either leftpath rightpath = Path_Left leftpath | Path_Right rightpath | Path_Either deriving (Eq, Ord, Read, Show, Typeable, Data)
-data Path_Invalid = Path_Invalid deriving (Eq, Ord, Read, Show, Typeable, Data)
-data Path_Maybe justpath = Path_Just justpath | Path_Maybe deriving (Eq, Ord, Read, Show, Typeable, Data)
-data Path_Map key valuepath = Path_Look key valuepath | Path_Map deriving (Eq, Ord, Read, Show, Typeable, Data)
-data Path_List a = Path_List deriving (Eq, Ord, Read, Show, Typeable, Data) -- No element lookup path - too dangerous, use OMap
+data Path_Pair fstpath sndpath = Path_First fstpath | Path_Second sndpath | Path_Pair deriving (Eq, Ord, Read, Show, Typeable, Data, Generic, FromJSON, ToJSON)
+data Path_Either leftpath rightpath = Path_Left leftpath | Path_Right rightpath | Path_Either deriving (Eq, Ord, Read, Show, Typeable, Data, Generic, FromJSON, ToJSON)
+data Path_Invalid = Path_Invalid deriving (Eq, Ord, Read, Show, Typeable, Data, Generic, FromJSON, ToJSON)
+data Path_Maybe justpath = Path_Just justpath | Path_Maybe deriving (Eq, Ord, Read, Show, Typeable, Data, Generic, FromJSON, ToJSON)
+data Path_Map key valuepath = Path_Look key valuepath | Path_Map deriving (Eq, Ord, Read, Show, Typeable, Data, Generic, FromJSON, ToJSON)
+data Path_List a = Path_List deriving (Eq, Ord, Read, Show, Typeable, Data, Generic, FromJSON, ToJSON) -- No element lookup path - too dangerous, use OMap
 -- | A view from a type @s@ to @SType viewpath@.  The Proxy value
 -- indicates that we don't need to know anything about a particular
 -- @s@ to build or use a @View_Path@.
-data Path_View s viewpath = Path_To (Proxy s) viewpath | Path_Self deriving (Eq, Ord, Read, Show, Typeable, Data)
+data Path_View s viewpath = Path_To (Proxy s) viewpath | Path_Self deriving (Eq, Ord, Read, Show, Typeable, Data, Generic, FromJSON, ToJSON)
 
 instance (IsPath fstpath, IsPath sndpath, UType fstpath ~ UType sndpath) => IsPath (Path_Pair fstpath sndpath) where
     type UType (Path_Pair fstpath sndpath) = UType fstpath

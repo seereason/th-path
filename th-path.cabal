@@ -28,6 +28,7 @@ library
   if !impl(ghcjs)
     Default-Extensions: TemplateHaskell
   build-depends:
+    aeson,
     applicative-extras,
     atp-haskell,
     base >= 4.8 && < 5,
