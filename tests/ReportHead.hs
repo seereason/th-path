@@ -26,7 +26,7 @@ import Appraisal.ReportInstances
 import Appraisal.ReportItem
 import Appraisal.ReportMap (ReportID(..), ReportMap(..), MRR)
 import Appraisal.Utils.CIString (CIString(..))
-import Control.Lens (Iso', iso, lens, _Just, _1, _2, _Left, _Right, Lens', toListOf, Traversal')
+import Control.Lens (Iso', iso, lens, _Just, _1, _2, _Left, _Right, Lens', Traversal')
 import Data.Aeson (FromJSON, ToJSON)
 import Data.Generics (Data, Typeable)
 import Data.Int (Int64)

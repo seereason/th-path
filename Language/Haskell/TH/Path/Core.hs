@@ -24,8 +24,8 @@ module Language.Haskell.TH.Path.Core
       -- * Type classes and associated types
     , IsPath(UType, SType, idPath)
     , PathStart(UPeek, upeekCons, upeekPath, upeekValue, UPath, upeekRow, upeekTree)
-    , mapPeek
-    , subPeek
+    , makeRow
+    , makeTrees
     , ToLens(toLens)
     , ulens'
     -- , (:.:)(..)
@@ -164,7 +164,10 @@ instance (ToLens f, ToLens g, A f ~ S g {-, B f ~ T g-}) => ToLens (f :.: g) whe
 -- where each node is represented by the second type parameter of
 -- PathStart, @s@.  The @u@ type parameter is a wrapper type that has
 -- a constructor for every @s@ we are allowed to use as a path node.
-class (U u s, IsPath (UPath u s), ToLens u s) => PathStart u s where
+class (U u s, IsPath (UPath u s), ToLens u s,
+       -- These seem obvious, but they help
+       u ~ UType (UPath u s),
+       s ~ SType (UPath u s)) => PathStart u s where
     type UPath u s
     -- ^ The type @UPath u s@ represents a the beginning of any path
     -- starting at @s@.
@@ -192,11 +195,31 @@ class (U u s, IsPath (UPath u s), ToLens u s) => PathStart u s where
     upeekValue :: UPeek u s -> Maybe u
     -- ^ Accessor for value field of a Peek type
 
+-- | Given a function that lifts a path by one hop (e.g. a constructor
+-- such as Path_Left), return the peek(s?) resulting from traversing that hop.
+makeRow :: forall s u p q a. (u ~ UType p, a ~ SType p, UPath u a ~ p, PathStart u a, u ~ UType q, s ~ SType q, UPath u s ~ q, PathStart u s) =>
+             s -> (p -> q) -> [Tree (UPeek u s)]
+makeRow x f = forestMap (mapPeek f) (map makePeek (hopValues f x))
+
+-- | Given a function that lifts a path by one hop (e.g. a constructor
+-- such as Path_Left), return the peek(s?) resulting from traversing that hop.
+makeTrees :: forall s u p q a. (u ~ UType p, a ~ SType p, UPath u a ~ p, PathStart u a, u ~ UType q, s ~ SType q, UPath u s ~ q, PathStart u s) =>
+             s -> (p -> q) -> [Tree (UPeek u s)]
+makeTrees x f = forestMap (mapPeek f) (map (upeekTree Proxy Nothing) (hopValues f x))
+
 mapPeek :: (PathStart u s, PathStart u t) => (UPath u s -> UPath u t) -> UPeek u s -> UPeek u t
 mapPeek f pk = upeekCons (f (upeekPath pk)) (upeekValue pk)
 
-subPeek :: (PathStart u s, U u a) => [a] -> [Tree (UPeek u s)]
-subPeek xlist = map (\x' -> Node (upeekCons idPath (Just (u x'))) []) xlist
+makePeek :: forall u s. PathStart u s => s -> Tree (UPeek u s)
+makePeek x = Node (upeekCons idPath (Just (u x))) []
+
+
+-- | Given a hop function f, return a list values of type a which are one hop away from s.
+hopValues :: forall s u p q a.
+        (u ~ UType p, a ~ SType p, UPath u a ~ p, PathStart u a,
+         u ~ UType q, s ~ SType q, UPath u s ~ q, PathStart u s) =>
+        (p -> q) -> s -> [a]
+hopValues f = toListOf (toLens (f idPath :: q) . ulens' (Proxy :: Proxy u))
 
 -- | Nodes along a path can be customized by declaring types to be
 -- instances of this class and the ones that follow.  If a type is an
