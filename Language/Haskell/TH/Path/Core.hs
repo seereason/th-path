@@ -164,7 +164,7 @@ instance (ToLens f, ToLens g, A f ~ S g {-, B f ~ T g-}) => ToLens (f :.: g) whe
 -- where each node is represented by the second type parameter of
 -- PathStart, @s@.  The @u@ type parameter is a wrapper type that has
 -- a constructor for every @s@ we are allowed to use as a path node.
-class (U u s, IsPath (UPath u s)) => PathStart u s where
+class (U u s, IsPath (UPath u s), ToLens u s) => PathStart u s where
     type UPath u s
     -- ^ The type @UPath u s@ represents a the beginning of any path
     -- starting at @s@.
