@@ -120,6 +120,15 @@ testPeekReport =
                    [Just x] = map unU' (toListOf (toLens path) Report.report :: [Univ]) :: [Maybe ReportElem] in
                x
 
+testPeekCol :: Test
+testPeekCol =
+    assertEqual' "test upeekCol" expected actual
+    where
+      expected :: Tree (UPeek Univ Report)
+      expected = Node {rootLabel = UPeek_Report Path_Self Nothing, subForest = [Node {rootLabel = UPeek_Report (Path_To Proxy UPath_ReportView) Nothing, subForest = [Node {rootLabel = UPeek_Report (Path_To Proxy (UPath_ReportView__reportUUID UPath_UUID)) (Just (U51 (fromJust (fromString "de89101a-e87f-4677-8ded-47b8963493c4")))), subForest = []}]}]}
+      actual :: Tree (UPeek Univ Report)
+      actual = upeekCol Proxy (Path_To Proxy (UPath_ReportView__reportUUID idPath)) Report.report
+
 testPeekOrder :: Test
 testPeekOrder =
     assertEqual' "peekNodes order" expected actual
@@ -275,6 +284,7 @@ main = do
          , testPeekReportView
          , testLabels
          , testPeekReport
+         , testPeekCol
          , testPeekOrder
          , testUPaths
          , assertEqual' "toLens3" (mapMaybe unU' (toListOf (toLens (UPath_ImageSize_dim (idPath))) (picSize image) :: [Univ])) [dim (picSize image) :: Dimension]

@@ -23,9 +23,11 @@ module Language.Haskell.TH.Path.Core
 
       -- * Type classes and associated types
     , IsPath(UType, SType, idPath)
-    , PathStart(UPeek, upeekCons, upeekPath, upeekValue, UPath, upeekRow, upeekTree)
+    , PathStart(UPeek, upeekCons, upeekPath, upeekValue, UPath, upeekRow, upeekTree, upeekCol)
     , makeRow
     , makeTrees
+    , makeCol
+    , makePeek
     , ToLens(toLens)
     , ulens'
     -- , (:.:)(..)
@@ -185,6 +187,17 @@ class (U u s, IsPath (UPath u s), ToLens u s,
     upeekRow :: Proxy u -> s -> Tree (UPeek u s)
     -- ^ In this function only one layer of the tree is returned, no
     -- recursive peek calls are made.
+    upeekCol :: Proxy u -> UPath u s -> s -> Tree (UPeek u s)
+    -- ^ In this function only the nodes along the given path appear
+    -- in the result.  That is to say, the result is a degenerate tree
+    -- with a single node at each level.
+    -- @@
+    --   upeekCol Proxy (UPath_ReportView__reportUUID idPath) report ->
+    --      Node (UPeek_Report idPath Nothing)
+    --           [Node (UPeek_Report (Path_To Proxy idPath) Nothing)
+    --                 [Node (UPeek_Report (Path_To Proxy (UPath_ReportView__reportUUID idPath)) (Just uuid))
+    --                       []]]
+    -- @@
 
     data UPeek u s
     -- ^ 'UPath' version of 'Peek'.
@@ -203,16 +216,22 @@ makeRow x f = forestMap (mapPeek f) (map makePeek (hopValues f x))
 
 -- | Given a function that lifts a path by one hop (e.g. a constructor
 -- such as Path_Left), return the peek(s?) resulting from traversing that hop.
-makeTrees :: forall s u p q a. (u ~ UType p, a ~ SType p, UPath u a ~ p, PathStart u a, u ~ UType q, s ~ SType q, UPath u s ~ q, PathStart u s) =>
-             s -> (p -> q) -> [Tree (UPeek u s)]
+makeTrees :: forall s u p q a. (u ~ UType p, s ~ SType p, UPath u s ~ p, PathStart u s,
+                                u ~ UType q, a ~ SType q, UPath u a ~ q, PathStart u a) =>
+             s -> (q -> p) -> [Tree (UPeek u s)]
 makeTrees x f = forestMap (mapPeek f) (map (upeekTree Proxy Nothing) (hopValues f x))
+
+-- | Helper function for implementing upeekCol
+makeCol :: forall s u p q a. (u ~ UType p, s ~ SType p, UPath u s ~ p, PathStart u s,
+                              u ~ UType q, a ~ SType q, UPath u a ~ q, PathStart u a) =>
+           s -> (q -> p) -> (p -> q) -> p -> [Tree (UPeek u s)]
+makeCol x f g p = forestMap (mapPeek f) (map (upeekCol Proxy (g p)) (hopValues f x))
 
 mapPeek :: (PathStart u s, PathStart u t) => (UPath u s -> UPath u t) -> UPeek u s -> UPeek u t
 mapPeek f pk = upeekCons (f (upeekPath pk)) (upeekValue pk)
 
 makePeek :: forall u s. PathStart u s => s -> Tree (UPeek u s)
 makePeek x = Node (upeekCons idPath (Just (u x))) []
-
 
 -- | Given a hop function f, return a list values of type a which are one hop away from s.
 hopValues :: forall s u p q a.
