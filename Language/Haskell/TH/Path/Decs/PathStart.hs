@@ -31,7 +31,7 @@ import Language.Haskell.TH.Context (reifyInstancesWithContext)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Common (HasConQ(asConQ), HasCon(asCon), HasName(asName), HasType(asType), HasTypeQ(asTypeQ),
                                         makeUFieldCon, makeUPathType, ModelType(ModelType), PathType, telld, tells)
-import Language.Haskell.TH.Path.Core (camelWords, IsPath(..), makeRow, makeTrees, makeCol, makePeek,
+import Language.Haskell.TH.Path.Core (camelWords, IsPath(..), makeRow, makeTrees, makeCol,
                                       PathStart(..), ToLens(toLens), Describe(describe'), mat,
                                       Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..), Path_List, Path_View(..), U(u, unU'))
 import Language.Haskell.TH.Path.Graph (TypeGraphM)
@@ -56,9 +56,9 @@ instance HasConQ PeekCon where asConQ = conE . unPeekCon
 data Hop
     = Hop
       { upat :: PatQ -> PatQ
-      , xpaths :: ExpQ
+      , xpaths :: ExpQ -- Turn s into [Path_At i a]
       , pnext :: ExpQ  -- Turn Path_At i q into q
-      , pprev :: ExpQ  -- Turn Path_At i q into Path_At i
+      , pprev :: ExpQ  -- Turn q into Path_At i q
       , lns :: ExpQ
       , wtyp :: TGV
       }
@@ -145,7 +145,12 @@ pathControl v =
         \typ ->
             do w <- tgv Nothing typ
                doHops wildP
-                      [Hop (\p -> conP 'Path_To [wildP, p]) [| [Path_To Proxy] |] [|\(Path_To Proxy q) -> q|] [|Path_To Proxy|] [|viewLens|] w]
+                      [Hop (\p -> conP 'Path_To [wildP, p])
+                           [| [Path_To Proxy] |]
+                           [|\(Path_To Proxy q) -> q|]
+                           [|Path_To Proxy|]
+                           [|viewLens|]
+                           w]
                tell [-- ToLensClause (clause [upat conc (varP p)] (normalB [|viewLens . toLens $(varE p)|]) []),
                      ToLensClause (clause [[p|Path_Self|]] (normalB [|lens u (\s a -> maybe s id (unU' a))|]) [])]
     , _doOrder =
@@ -288,8 +293,8 @@ doHops xpat hops = do
                    clause [wildP, asP p (upat (varP q)), asP' x xpat]
                               (normalB [|Node (upeekCons idPath Nothing)
                                               (makeCol $(varE x)
-                                                       $pprev -- Turn q into Path_At i q
-                                                       $pnext -- Turn Path_At i q into Path_At i
+                                                       $pprev
+                                                       $pnext
                                                        $(varE p)
                                               )|])
                               []) hops ++
