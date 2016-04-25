@@ -47,9 +47,14 @@ instance Describe (Proxy Text) where describe' _ Proxy = Nothing
 instance Describe (Proxy Bool) where describe' _ Proxy = Nothing
 instance Describe (Proxy Double) where describe' _ Proxy = Nothing
 
+-- If this Markup is the reportLetterOfTransmittal field of ReportView, override it
 instance Describe (Proxy Markup) where
-    describe' (Just f) Proxy | f == camelWords (nameBase 'reportLetterOfTransmittal) = Just "Letter of Transmittal"
-    describe' _ _ = Nothing
+    -- Detect the label camelWords computes from the field name
+    -- ("Report Letter Of Transmittal") and substitute "Letter of
+    -- Transmittal"
+    describe' (Just s) Proxy | s == camelWords (nameBase 'reportLetterOfTransmittal) = Just "Letter of Transmittal"
+    -- Otherwise use the default label.
+    describe' f _ = f
 
 newtype ReadOnly a = ReadOnly {unReadOnly :: a} deriving (Read, Show, Eq, Ord, Typeable, Data, Generic, FromJSON, ToJSON)
 
