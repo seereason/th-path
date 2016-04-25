@@ -89,8 +89,8 @@ import Debug.Trace (trace)
 import Language.Haskell.TH.Instances ()
 #if !__GHCJS__
 import Language.Haskell.TH.Path.Instances ()
-import Language.Haskell.TH.Path.View (View(ViewType), viewLens)
 #endif
+import Language.Haskell.TH.Path.View (View(ViewType), viewLens)
 import Prelude hiding (exp)
 import Safe (readMay)
 import Web.Routes
