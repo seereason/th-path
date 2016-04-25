@@ -68,24 +68,24 @@ data WriterType
     | UPeekRowClause ClauseQ
     | UPeekTreeClause ClauseQ
     | UPeekColClause ClauseQ
-    | ToLensClause ClauseQ
+    | ToLensMatch MatchQ
 
-partitionClauses :: [WriterType] -> ([ClauseQ], [ConQ], [ClauseQ], [ClauseQ], [ClauseQ], [ClauseQ])
+partitionClauses :: [WriterType] -> ([ClauseQ], [ConQ], [ClauseQ], [ClauseQ], [ClauseQ], [MatchQ])
 partitionClauses xs =
     foldr f ([], [], [], [], [], []) xs
         where
-          f (UDescClause x)     (udcs, upcs, uprcs, uptcs, upccs, tlcs) = (x : udcs,     upcs,     uprcs,     uptcs,     upccs,     tlcs)
-          f (UPathCon x)        (udcs, upcs, uprcs, uptcs, upccs, tlcs) = (    udcs, x : upcs,     uprcs,     uptcs,     upccs,     tlcs)
-          f (UPeekRowClause x)  (udcs, upcs, uprcs, uptcs, upccs, tlcs) = (    udcs,     upcs, x : uprcs,     uptcs,     upccs,     tlcs)
-          f (UPeekTreeClause x) (udcs, upcs, uprcs, uptcs, upccs, tlcs) = (    udcs,     upcs,     uprcs, x : uptcs,     upccs,     tlcs)
-          f (UPeekColClause x)  (udcs, upcs, uprcs, uptcs, upccs, tlcs) = (    udcs,     upcs,     uprcs,     uptcs, x : upccs,     tlcs)
-          f (ToLensClause x)    (udcs, upcs, uprcs, uptcs, upccs, tlcs) = (    udcs,     upcs,     uprcs,     uptcs,     upccs, x : tlcs)
+          f (UDescClause x)     (udcs, upcs, uprcs, uptcs, upccs, tlms) = (x : udcs,     upcs,     uprcs,     uptcs,     upccs,     tlms)
+          f (UPathCon x)        (udcs, upcs, uprcs, uptcs, upccs, tlms) = (    udcs, x : upcs,     uprcs,     uptcs,     upccs,     tlms)
+          f (UPeekRowClause x)  (udcs, upcs, uprcs, uptcs, upccs, tlms) = (    udcs,     upcs, x : uprcs,     uptcs,     upccs,     tlms)
+          f (UPeekTreeClause x) (udcs, upcs, uprcs, uptcs, upccs, tlms) = (    udcs,     upcs,     uprcs, x : uptcs,     upccs,     tlms)
+          f (UPeekColClause x)  (udcs, upcs, uprcs, uptcs, upccs, tlms) = (    udcs,     upcs,     uprcs,     uptcs, x : upccs,     tlms)
+          f (ToLensMatch x)    (udcs, upcs, uprcs, uptcs, upccs, tlms) = (    udcs,     upcs,     uprcs,     uptcs,     upccs, x : tlms)
 
 peekDecs :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TypeQ -> TGVSimple -> m ()
 peekDecs utype v =
     do uptype <- upathType v
        (clauses :: [WriterType]) <- execWriterT (doNode (pathControl v) v)
-       let (udcs, upcs, uprcs, uptcs, upccs, tlcs) = partitionClauses clauses
+       let (udcs, upcs, uprcs, uptcs, upccs, tlms) = partitionClauses clauses
        instanceD' (cxt []) [t|PathStart $utype $(asTypeQ v)|]
          (sequence
           [pure (dataInstD (cxt []) ''UPeek [utype, asTypeQ v]
@@ -97,7 +97,6 @@ peekDecs utype v =
            pure (funD 'upeekPath [newName "p" >>= \p -> clause [conP (asName (makeUPeekCon (ModelType (asName v)))) [varP p, wildP]] (normalB (varE p)) []]),
            pure (funD 'upeekValue [newName "x" >>= \x -> clause [conP (asName (makeUPeekCon (ModelType (asName v)))) [wildP, varP x]] (normalB (varE x)) []]),
            pure (tySynInstD ''UPath (tySynEqn [utype, asTypeQ v] (pure uptype))),
-           pure (funD 'toLens tlcs),
            funD' 'upeekRow (case uprcs of
                               [] -> pure [clause [wildP, wildP] (normalB [| Node (upeekCons idPath Nothing) [] |]) []]
                               _ -> pure uprcs),
@@ -125,7 +124,8 @@ peekDecs utype v =
                 telld [d|instance IsPath $(asTypeQ pname) where
                             type UType $(asTypeQ pname) = $utype
                             type SType $(asTypeQ pname) = $(asTypeQ v)
-                            idPath = $(asConQ pname)|])
+                            idPath = $(asConQ pname)
+                            toLens p = $(caseE [|p|] tlms)|])
 
 pathControl :: forall m. (TypeGraphM m, MonadWriter [WriterType] m) => TGVSimple -> Control m Hop () ()
 pathControl v =
@@ -134,7 +134,7 @@ pathControl v =
           do let pname = makeUPathType (ModelType (asName v))
              f <- runQ $ newName "f"
              tell [UDescClause $ clause [varP f, wildP] (normalB [| describe' $(varE f) (Proxy :: Proxy $(asTypeQ v)) |]) [],
-                   ToLensClause (clause [wildP] (normalB [|lens u (\s a -> maybe s id (unU' a))|]) []),
+                   ToLensMatch (match wildP (normalB [|lens u (\s a -> maybe s id (unU' a))|]) []),
                    UPathCon (normalC (asName pname) [])]
     , _doSelf = pure ()
     , _doView =
@@ -145,7 +145,7 @@ pathControl v =
                            , pnext = [|\(Path_To Proxy q) -> q|]
                            , pprev = [|Path_To Proxy|]
                            , lns = [|viewLens|]}]
-               tell [ToLensClause (clause [wildP] (normalB [|lens u (\s a -> maybe s id (unU' a))|]) [])]
+               tell [ToLensMatch (match wildP (normalB [|lens u (\s a -> maybe s id (unU' a))|]) [])]
     , _doOrder =
         \_i typ ->
             do x <- runQ $ newName "_xyz"
@@ -156,7 +156,7 @@ pathControl v =
                            , pnext = [|\(Path_At _ p) -> p|]
                            , pprev = [|Path_At $(varE i)|]
                            , lns = [|lens_omat $(varE i)|]}]
-               tell [ToLensClause (clause [wildP] (normalB [|lens u (\s a -> maybe s id (unU' a))|]) [])]
+               tell [ToLensMatch (match wildP (normalB [|lens u (\s a -> maybe s id (unU' a))|]) [])]
 
     , _doMap =
         \_i typ ->
@@ -168,7 +168,7 @@ pathControl v =
                            , pnext = [|\(Path_Look _ p) -> p|]
                            , pprev = [|Path_Look $(varE i)|]
                            , lns = [|mat $(varE i)|]}]
-               tell [ToLensClause (clause [wildP] (normalB [|lens u (\s a -> maybe s id (unU' a))|]) [])]
+               tell [ToLensMatch (match wildP (normalB [|lens u (\s a -> maybe s id (unU' a))|]) [])]
     , _doList =
         \_e -> pure ()
     , _doPair =
@@ -184,7 +184,7 @@ pathControl v =
                             , pnext = [|\(Path_Second p) -> p|]
                             , pprev = [|Path_Second|]
                             , lns = [|_2|] } ]
-               tell [ToLensClause (clause [wildP] (normalB [|lens u (\s' a -> maybe s' id (unU' a))|]) [])]
+               tell [ToLensMatch (match wildP (normalB [|lens u (\s' a -> maybe s' id (unU' a))|]) [])]
     , _doMaybe =
         \typ ->
             do doHops wildP
@@ -193,7 +193,7 @@ pathControl v =
                            , pnext = [|\(Path_Just p) -> p|]
                            , pprev = [|\q -> Path_Just q|]
                            , lns = [|_Just|] }]
-               tell [ToLensClause (clause [wildP] (normalB [|lens u (\s a -> maybe s id (unU' a))|]) [])]
+               tell [ToLensMatch (match wildP (normalB [|lens u (\s a -> maybe s id (unU' a))|]) [])]
     , _doEither =
         \ltyp rtyp ->
             do doHops (conP 'Left [wildP])
@@ -208,7 +208,7 @@ pathControl v =
                            , pnext = [|\(Path_Right p) -> p|]
                            , pprev = [|Path_Right|]
                            , lns = [|_Right|] }]
-               tell [ToLensClause (clause [wildP] (normalB [|lens u (\s a -> maybe s id (unU' a))|]) [])]
+               tell [ToLensMatch (match wildP (normalB [|lens u (\s a -> maybe s id (unU' a))|]) [])]
     , _doField =
         \fld@(_tname, _con, Right fname) typ ->
             do w <- tgvSimple' typ >>= tgv (Just fld)
@@ -257,7 +257,7 @@ pathControl v =
                                              clause [varP f, conP (asName pname) []]
                                                     (normalB [|describe' $(varE f) (Proxy :: Proxy $(asTypeQ v))|])
                                                     [],
-                            ToLensClause (clause [wildP] (normalB [|lens u (\s a -> maybe s id (unU' a))|]) [])]
+                            ToLensMatch (match wildP (normalB [|lens u (\s a -> maybe s id (unU' a))|]) [])]
     , _doSyns = \() _ -> pure ()
     }
 
@@ -301,9 +301,9 @@ doHops xpat hops = do
            clause [wildP, varP p, asP' x xpat]
                   (normalB [|Node (upeekCons idPath (Just (u $(varE x)))) []|])
                   []])
-  tell (map (\hop -> ToLensClause $ do
+  tell (map (\hop -> ToLensMatch $ do
                        p <- newName "_p"
-                       clause [(upat hop) (varP p)] (normalB [|$(lns hop) . toLens $(varE p)|]) []) hops)
+                       match ((upat hop) (varP p)) (normalB [|$(lns hop) . toLens $(varE p)|]) []) hops)
 
 -- | Given a type, compute the corresponding path type.
 upathType :: forall m. TypeGraphM m =>

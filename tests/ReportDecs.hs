@@ -26,7 +26,7 @@ import Appraisal.ReportInstances
 import Appraisal.ReportItem
 import Appraisal.ReportMap (ReportID(..), ReportMap(..), MRR)
 import Appraisal.Utils.CIString (CIString(..))
-import Control.Lens (Iso', iso, lens, _Just, _1, _2, _Left, _Right, Lens', Traversal')
+import Control.Lens (Iso', iso, lens, Lens', Traversal')
 import Data.Aeson (FromJSON, ToJSON)
 import Data.Generics (Data, Typeable)
 import Data.Int (Int64)
@@ -40,7 +40,7 @@ import Data.UUID (UUID)
 import Data.UUID.Orphans ()
 import GHC.Generics (Generic)
 import Language.Haskell.TH.Path.Core
-import Language.Haskell.TH.Path.Order (lens_omat, Path_OMap(Path_OMap, Path_At), toPairs)
+import Language.Haskell.TH.Path.Order (Path_OMap(Path_At), toPairs)
 import Language.Haskell.TH.Path.View (View(viewLens))
 import Network.URI (URI(URI), URIAuth)
 
@@ -705,8 +705,6 @@ instance PathStart Univ String
           upeekPath (UPeek_String p _) = p
           upeekValue (UPeek_String _ x) = x
           type UPath Univ String = Path_View String UPath_JSONText
-          toLens (Path_To _ _p) = viewLens . toLens _p
-          toLens _ = lens u (\s a -> maybe s id (unU' a))
           upeekRow _ x = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) [Path_To Proxy]])
           upeekTree _ d x = case d of
                                 Just 0 -> Node (upeekCons idPath (Just (u x))) []
@@ -719,7 +717,6 @@ instance PathStart Univ Int64
           upeekPath (UPeek_Int64 p _) = p
           upeekValue (UPeek_Int64 _ x) = x
           type UPath Univ Int64 = UPath_Int64
-          toLens _ = lens u (\s a -> maybe s id (unU' a))
           upeekRow _ _ = Node (upeekCons idPath Nothing) []
           upeekTree _ _ x = Node (upeekCons idPath (Just (u x))) []
           upeekCol _ _ x = Node (upeekCons idPath (Just (u x))) []
@@ -729,8 +726,6 @@ instance PathStart Univ Bool
           upeekPath (UPeek_Bool p _) = p
           upeekValue (UPeek_Bool _ x) = x
           type UPath Univ Bool = Path_View Bool (Path_View String UPath_JSONText)
-          toLens (Path_To _ _p) = viewLens . toLens _p
-          toLens _ = lens u (\s a -> maybe s id (unU' a))
           upeekRow _ x = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) [Path_To Proxy]])
           upeekTree _ d x = case d of
                                 Just 0 -> Node (upeekCons idPath (Just (u x))) []
@@ -743,8 +738,6 @@ instance PathStart Univ Double
           upeekPath (UPeek_Double p _) = p
           upeekValue (UPeek_Double _ x) = x
           type UPath Univ Double = Path_View Double (Path_View String UPath_JSONText)
-          toLens (Path_To _ _p) = viewLens . toLens _p
-          toLens _ = lens u (\s a -> maybe s id (unU' a))
           upeekRow _ x = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) [Path_To Proxy]])
           upeekTree _ d x = case d of
                                 Just 0 -> Node (upeekCons idPath (Just (u x))) []
@@ -757,7 +750,6 @@ instance PathStart Univ Int
           upeekPath (UPeek_Int p _) = p
           upeekValue (UPeek_Int _ x) = x
           type UPath Univ Int = UPath_Int
-          toLens _ = lens u (\s a -> maybe s id (unU' a))
           upeekRow _ _ = Node (upeekCons idPath Nothing) []
           upeekTree _ _ x = Node (upeekCons idPath (Just (u x))) []
           upeekCol _ _ x = Node (upeekCons idPath (Just (u x))) []
@@ -767,8 +759,6 @@ instance PathStart Univ Dimension
           upeekPath (UPeek_Dimension p _) = p
           upeekValue (UPeek_Dimension _ x) = x
           type UPath Univ Dimension = Path_View Dimension UPath_JSONText
-          toLens (Path_To _ _p) = viewLens . toLens _p
-          toLens _ = lens u (\s a -> maybe s id (unU' a))
           upeekRow _ x = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) [Path_To Proxy]])
           upeekTree _ d x = case d of
                                 Just 0 -> Node (upeekCons idPath (Just (u x))) []
@@ -781,7 +771,6 @@ instance PathStart Univ ImageCrop
           upeekPath (UPeek_ImageCrop p _) = p
           upeekValue (UPeek_ImageCrop _ x) = x
           type UPath Univ ImageCrop = UPath_ImageCrop
-          toLens _ = lens u (\s a -> maybe s id (unU' a))
           upeekRow _ _ = Node (upeekCons idPath Nothing) []
           upeekTree _ _ x = Node (upeekCons idPath (Just (u x))) []
           upeekCol _ _ x = Node (upeekCons idPath (Just (u x))) []
@@ -791,10 +780,6 @@ instance PathStart Univ ImageSize
           upeekPath (UPeek_ImageSize p _) = p
           upeekValue (UPeek_ImageSize _ x) = x
           type UPath Univ ImageSize = UPath_ImageSize
-          toLens (UPath_ImageSize_dim _p) = lens_ImageSize_dim . toLens _p
-          toLens (UPath_ImageSize_size _p) = lens_ImageSize_size . toLens _p
-          toLens (UPath_ImageSize_units _p) = lens_ImageSize_units . toLens _p
-          toLens _ = lens u (\s a -> maybe s id (unU' a))
           upeekRow _ (x@(ImageSize {})) = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) [UPath_ImageSize_dim],
                                                                                    concatMap (makeRow x) [UPath_ImageSize_size],
                                                                                    concatMap (makeRow x) [UPath_ImageSize_units]])
@@ -813,8 +798,6 @@ instance PathStart Univ Units
           upeekPath (UPeek_Units p _) = p
           upeekValue (UPeek_Units _ x) = x
           type UPath Univ Units = Path_View Units UPath_JSONText
-          toLens (Path_To _ _p) = viewLens . toLens _p
-          toLens _ = lens u (\s a -> maybe s id (unU' a))
           upeekRow _ x = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) [Path_To Proxy]])
           upeekTree _ d x = case d of
                                 Just 0 -> Node (upeekCons idPath (Just (u x))) []
@@ -827,7 +810,6 @@ instance PathStart Univ ImageFile
           upeekPath (UPeek_ImageFile p _) = p
           upeekValue (UPeek_ImageFile _ x) = x
           type UPath Univ ImageFile = UPath_ImageFile
-          toLens _ = lens u (\s a -> maybe s id (unU' a))
           upeekRow _ _ = Node (upeekCons idPath Nothing) []
           upeekTree _ _ x = Node (upeekCons idPath (Just (u x))) []
           upeekCol _ _ x = Node (upeekCons idPath (Just (u x))) []
@@ -837,7 +819,6 @@ instance PathStart Univ Integer
           upeekPath (UPeek_Integer p _) = p
           upeekValue (UPeek_Integer _ x) = x
           type UPath Univ Integer = UPath_Integer
-          toLens _ = lens u (\s a -> maybe s id (unU' a))
           upeekRow _ _ = Node (upeekCons idPath Nothing) []
           upeekTree _ _ x = Node (upeekCons idPath (Just (u x))) []
           upeekCol _ _ x = Node (upeekCons idPath (Just (u x))) []
@@ -847,7 +828,6 @@ instance PathStart Univ JSONText
           upeekPath (UPeek_JSONText p _) = p
           upeekValue (UPeek_JSONText _ x) = x
           type UPath Univ JSONText = UPath_JSONText
-          toLens _ = lens u (\s a -> maybe s id (unU' a))
           upeekRow _ _ = Node (upeekCons idPath Nothing) []
           upeekTree _ _ x = Node (upeekCons idPath (Just (u x))) []
           upeekCol _ _ x = Node (upeekCons idPath (Just (u x))) []
@@ -857,9 +837,6 @@ instance PathStart Univ Markup
           upeekPath (UPeek_Markup p _) = p
           upeekValue (UPeek_Markup _ x) = x
           type UPath Univ Markup = UPath_Markup
-          toLens (UPath_Markup_markdownText _p) = lens_Markup_markdownText . toLens _p
-          toLens (UPath_Markup_htmlText _p) = lens_Markup_htmlText . toLens _p
-          toLens _ = lens u (\s a -> maybe s id (unU' a))
           upeekRow _ (x@(Markdown {})) = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) [UPath_Markup_markdownText]])
           upeekRow _ (x@(Html {})) = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) [UPath_Markup_htmlText]])
           upeekRow _ (x@(LaTeX {})) = Node (upeekCons idPath Nothing) (concat [])
@@ -887,10 +864,6 @@ instance PathStart Univ Permissions
           upeekPath (UPeek_Permissions p _) = p
           upeekValue (UPeek_Permissions _ x) = x
           type UPath Univ Permissions = UPath_Permissions
-          toLens (UPath_Permissions_owner _p) = lens_Permissions_owner . toLens _p
-          toLens (UPath_Permissions_writers _p) = lens_Permissions_writers . toLens _p
-          toLens (UPath_Permissions_readers _p) = lens_Permissions_readers . toLens _p
-          toLens _ = lens u (\s a -> maybe s id (unU' a))
           upeekRow _ (x@(Permissions {})) = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) [UPath_Permissions_owner],
                                                                                      concatMap (makeRow x) [UPath_Permissions_writers],
                                                                                      concatMap (makeRow x) [UPath_Permissions_readers]])
@@ -909,8 +882,6 @@ instance PathStart Univ UserIds
           upeekPath (UPeek_UserIds p _) = p
           upeekValue (UPeek_UserIds _ x) = x
           type UPath Univ UserIds = Path_View UserIds (Path_View Text UPath_JSONText)
-          toLens (Path_To _ _p) = viewLens . toLens _p
-          toLens _ = lens u (\s a -> maybe s id (unU' a))
           upeekRow _ x = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) [Path_To Proxy]])
           upeekTree _ d x = case d of
                                 Just 0 -> Node (upeekCons idPath (Just (u x))) []
@@ -923,9 +894,6 @@ instance PathStart Univ AbbrevPair
           upeekPath (UPeek_AbbrevPair p _) = p
           upeekValue (UPeek_AbbrevPair _ x) = x
           type UPath Univ AbbrevPair = Path_Pair (Path_View CIString (Path_View Text UPath_JSONText)) UPath_Markup
-          toLens (Path_First _p) = _1 . toLens _p
-          toLens (Path_Second _p) = _2 . toLens _p
-          toLens _ = lens u (\s' a -> maybe s' id (unU' a))
           upeekRow _ x = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) [Path_First], concatMap (makeRow x) [Path_Second]])
           upeekTree _ d x = case d of
                                 Just 0 -> Node (upeekCons idPath (Just (u x))) []
@@ -939,8 +907,6 @@ instance PathStart Univ AbbrevPairs
           upeekPath (UPeek_AbbrevPairs p _) = p
           upeekValue (UPeek_AbbrevPairs _ x) = x
           type UPath Univ AbbrevPairs = Path_OMap AbbrevPairID (Path_Pair (Path_View CIString (Path_View Text UPath_JSONText)) UPath_Markup)
-          toLens (Path_At _k _p) = lens_omat _k . toLens _p
-          toLens _ = lens u (\s a -> maybe s id (unU' a))
           upeekRow _ (x@_xyz) = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) (map (\(_k, _) -> Path_At _k) (toPairs _xyz))])
           upeekTree _ d (x@_xyz) = case d of
                                        Just 0 -> Node (upeekCons idPath (Just (u x))) []
@@ -953,9 +919,6 @@ instance PathStart Univ Author
           upeekPath (UPeek_Author p _) = p
           upeekValue (UPeek_Author _ x) = x
           type UPath Univ Author = UPath_Author
-          toLens (UPath_Author_authorName _p) = lens_Author_authorName . toLens _p
-          toLens (UPath_Author_authorCredentials _p) = lens_Author_authorCredentials . toLens _p
-          toLens _ = lens u (\s a -> maybe s id (unU' a))
           upeekRow _ (x@(Author {})) = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) [UPath_Author_authorName],
                                                                                 concatMap (makeRow x) [UPath_Author_authorCredentials]])
           upeekTree _ d (x@(Author {})) = case d of
@@ -970,8 +933,6 @@ instance PathStart Univ Authors
           upeekPath (UPeek_Authors p _) = p
           upeekValue (UPeek_Authors _ x) = x
           type UPath Univ Authors = Path_OMap AuthorID UPath_Author
-          toLens (Path_At _k _p) = lens_omat _k . toLens _p
-          toLens _ = lens u (\s a -> maybe s id (unU' a))
           upeekRow _ (x@_xyz) = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) (map (\(_k, _) -> Path_At _k) (toPairs _xyz))])
           upeekTree _ d (x@_xyz) = case d of
                                        Just 0 -> Node (upeekCons idPath (Just (u x))) []
@@ -984,8 +945,6 @@ instance PathStart Univ Branding
           upeekPath (UPeek_Branding p _) = p
           upeekValue (UPeek_Branding _ x) = x
           type UPath Univ Branding = Path_View Branding (Path_View Text UPath_JSONText)
-          toLens (Path_To _ _p) = viewLens . toLens _p
-          toLens _ = lens u (\s a -> maybe s id (unU' a))
           upeekRow _ x = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) [Path_To Proxy]])
           upeekTree _ d x = case d of
                                 Just 0 -> Node (upeekCons idPath (Just (u x))) []
@@ -998,9 +957,6 @@ instance PathStart Univ MarkupPair
           upeekPath (UPeek_MarkupPair p _) = p
           upeekValue (UPeek_MarkupPair _ x) = x
           type UPath Univ MarkupPair = Path_Pair UPath_Markup UPath_Markup
-          toLens (Path_First _p) = _1 . toLens _p
-          toLens (Path_Second _p) = _2 . toLens _p
-          toLens _ = lens u (\s' a -> maybe s' id (unU' a))
           upeekRow _ x = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) [Path_First], concatMap (makeRow x) [Path_Second]])
           upeekTree _ d x = case d of
                                 Just 0 -> Node (upeekCons idPath (Just (u x))) []
@@ -1014,8 +970,6 @@ instance PathStart Univ MarkupPairs
           upeekPath (UPeek_MarkupPairs p _) = p
           upeekValue (UPeek_MarkupPairs _ x) = x
           type UPath Univ MarkupPairs = Path_OMap MarkupPairID (Path_Pair UPath_Markup UPath_Markup)
-          toLens (Path_At _k _p) = lens_omat _k . toLens _p
-          toLens _ = lens u (\s a -> maybe s id (unU' a))
           upeekRow _ (x@_xyz) = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) (map (\(_k, _) -> Path_At _k) (toPairs _xyz))])
           upeekTree _ d (x@_xyz) = case d of
                                        Just 0 -> Node (upeekCons idPath (Just (u x))) []
@@ -1028,8 +982,6 @@ instance PathStart Univ Markups
           upeekPath (UPeek_Markups p _) = p
           upeekValue (UPeek_Markups _ x) = x
           type UPath Univ Markups = Path_OMap MarkupID UPath_Markup
-          toLens (Path_At _k _p) = lens_omat _k . toLens _p
-          toLens _ = lens u (\s a -> maybe s id (unU' a))
           upeekRow _ (x@_xyz) = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) (map (\(_k, _) -> Path_At _k) (toPairs _xyz))])
           upeekTree _ d (x@_xyz) = case d of
                                        Just 0 -> Node (upeekCons idPath (Just (u x))) []
@@ -1044,8 +996,6 @@ instance PathStart Univ MaybeReportIntendedUse
           upeekPath (UPeek_MaybeReportIntendedUse p _) = p
           upeekValue (UPeek_MaybeReportIntendedUse _ x) = x
           type UPath Univ MaybeReportIntendedUse = Path_View MaybeReportIntendedUse (Path_View String UPath_JSONText)
-          toLens (Path_To _ _p) = viewLens . toLens _p
-          toLens _ = lens u (\s a -> maybe s id (unU' a))
           upeekRow _ x = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) [Path_To Proxy]])
           upeekTree _ d x = case d of
                                 Just 0 -> Node (upeekCons idPath (Just (u x))) []
@@ -1058,8 +1008,6 @@ instance PathStart Univ Report
           upeekPath (UPeek_Report p _) = p
           upeekValue (UPeek_Report _ x) = x
           type UPath Univ Report = Path_View Report UPath_ReportView
-          toLens (Path_To _ _p) = viewLens . toLens _p
-          toLens _ = lens u (\s a -> maybe s id (unU' a))
           upeekRow _ x = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) [Path_To Proxy]])
           upeekTree _ d x = case d of
                                 Just 0 -> Node (upeekCons idPath (Just (u x))) []
@@ -1072,9 +1020,6 @@ instance PathStart Univ ReportElem
           upeekPath (UPeek_ReportElem p _) = p
           upeekValue (UPeek_ReportElem _ x) = x
           type UPath Univ ReportElem = UPath_ReportElem
-          toLens (UPath_ReportElem_elemItem _p) = lens_ReportElem_elemItem . toLens _p
-          toLens (UPath_ReportElem_elemText _p) = lens_ReportElem_elemText . toLens _p
-          toLens _ = lens u (\s a -> maybe s id (unU' a))
           upeekRow _ (x@(ReportItem {})) = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) [UPath_ReportElem_elemItem]])
           upeekRow _ (x@(ReportParagraph {})) = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) [UPath_ReportElem_elemText]])
           upeekRow _ (x@(ReportUndecided {})) = Node (upeekCons idPath Nothing) (concat [])
@@ -1096,8 +1041,6 @@ instance PathStart Univ ReportElems
           upeekPath (UPeek_ReportElems p _) = p
           upeekValue (UPeek_ReportElems _ x) = x
           type UPath Univ ReportElems = Path_OMap ReportElemID UPath_ReportElem
-          toLens (Path_At _k _p) = lens_omat _k . toLens _p
-          toLens _ = lens u (\s a -> maybe s id (unU' a))
           upeekRow _ (x@_xyz) = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) (map (\(_k, _) -> Path_At _k) (toPairs _xyz))])
           upeekTree _ d (x@_xyz) = case d of
                                        Just 0 -> Node (upeekCons idPath (Just (u x))) []
@@ -1110,8 +1053,6 @@ instance PathStart Univ ReportFlags
           upeekPath (UPeek_ReportFlags p _) = p
           upeekValue (UPeek_ReportFlags _ x) = x
           type UPath Univ ReportFlags = UPath_ReportFlags
-          toLens (UPath_ReportFlags_hideEmptyItemFields _p) = lens_ReportFlags_hideEmptyItemFields . toLens _p
-          toLens _ = lens u (\s a -> maybe s id (unU' a))
           upeekRow _ (x@(ReportFlags {})) = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) [UPath_ReportFlags_hideEmptyItemFields]])
           upeekTree _ d (x@(ReportFlags {})) = case d of
                                                    Just 0 -> Node (upeekCons idPath (Just (u x))) []
@@ -1124,8 +1065,6 @@ instance PathStart Univ ReportIntendedUse
           upeekPath (UPeek_ReportIntendedUse p _) = p
           upeekValue (UPeek_ReportIntendedUse _ x) = x
           type UPath Univ ReportIntendedUse = Path_View ReportIntendedUse (Path_View String UPath_JSONText)
-          toLens (Path_To _ _p) = viewLens . toLens _p
-          toLens _ = lens u (\s a -> maybe s id (unU' a))
           upeekRow _ x = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) [Path_To Proxy]])
           upeekTree _ d x = case d of
                                 Just 0 -> Node (upeekCons idPath (Just (u x))) []
@@ -1138,8 +1077,6 @@ instance PathStart Univ ReportStandard
           upeekPath (UPeek_ReportStandard p _) = p
           upeekValue (UPeek_ReportStandard _ x) = x
           type UPath Univ ReportStandard = UPath_ReportStandard
-          toLens (UPath_ReportStandard_unReportStandard _p) = lens_ReportStandard_unReportStandard . toLens _p
-          toLens _ = lens u (\s a -> maybe s id (unU' a))
           upeekRow _ (x@(ReportStandard {})) = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) [UPath_ReportStandard_unReportStandard]])
           upeekTree _ d (x@(ReportStandard {})) = case d of
                                                       Just 0 -> Node (upeekCons idPath (Just (u x))) []
@@ -1152,8 +1089,6 @@ instance PathStart Univ ReportStatus
           upeekPath (UPeek_ReportStatus p _) = p
           upeekValue (UPeek_ReportStatus _ x) = x
           type UPath Univ ReportStatus = Path_View ReportStatus (Path_View String UPath_JSONText)
-          toLens (Path_To _ _p) = viewLens . toLens _p
-          toLens _ = lens u (\s a -> maybe s id (unU' a))
           upeekRow _ x = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) [Path_To Proxy]])
           upeekTree _ d x = case d of
                                 Just 0 -> Node (upeekCons idPath (Just (u x))) []
@@ -1168,9 +1103,6 @@ instance PathStart Univ ReportValueApproachInfo
           upeekPath (UPeek_ReportValueApproachInfo p _) = p
           upeekValue (UPeek_ReportValueApproachInfo _ x) = x
           type UPath Univ ReportValueApproachInfo = UPath_ReportValueApproachInfo
-          toLens (UPath_ReportValueApproachInfo_reportValueApproachName _p) = lens_ReportValueApproachInfo_reportValueApproachName . toLens _p
-          toLens (UPath_ReportValueApproachInfo_reportValueApproachDescription _p) = lens_ReportValueApproachInfo_reportValueApproachDescription . toLens _p
-          toLens _ = lens u (\s a -> maybe s id (unU' a))
           upeekRow _ (x@(ReportValueApproachInfo {})) = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) [UPath_ReportValueApproachInfo_reportValueApproachName],
                                                                                                  concatMap (makeRow x) [UPath_ReportValueApproachInfo_reportValueApproachDescription]])
           upeekTree _ d (x@(ReportValueApproachInfo {})) = case d of
@@ -1186,10 +1118,6 @@ instance PathStart Univ ReportValueTypeInfo
           upeekPath (UPeek_ReportValueTypeInfo p _) = p
           upeekValue (UPeek_ReportValueTypeInfo _ x) = x
           type UPath Univ ReportValueTypeInfo = UPath_ReportValueTypeInfo
-          toLens (UPath_ReportValueTypeInfo_reportValueTypeName _p) = lens_ReportValueTypeInfo_reportValueTypeName . toLens _p
-          toLens (UPath_ReportValueTypeInfo_reportValueTypeDescription _p) = lens_ReportValueTypeInfo_reportValueTypeDescription . toLens _p
-          toLens (UPath_ReportValueTypeInfo_reportValueTypeDefinition _p) = lens_ReportValueTypeInfo_reportValueTypeDefinition . toLens _p
-          toLens _ = lens u (\s a -> maybe s id (unU' a))
           upeekRow _ (x@(ReportValueTypeInfo {})) = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) [UPath_ReportValueTypeInfo_reportValueTypeName],
                                                                                              concatMap (makeRow x) [UPath_ReportValueTypeInfo_reportValueTypeDescription],
                                                                                              concatMap (makeRow x) [UPath_ReportValueTypeInfo_reportValueTypeDefinition]])
@@ -1208,9 +1136,6 @@ instance PathStart Univ EUI
           upeekPath (UPeek_EUI p _) = p
           upeekValue (UPeek_EUI _ x) = x
           type UPath Univ EUI = Path_Either UPath_URI UPath_ImageFile
-          toLens (Path_Left _p) = _Left . toLens _p
-          toLens (Path_Right _p) = _Right . toLens _p
-          toLens _ = lens u (\s a -> maybe s id (unU' a))
           upeekRow _ (x@(Left _)) = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) [Path_Left]])
           upeekRow _ (x@(Right _)) = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) [Path_Right]])
           upeekTree _ d (x@(Left _)) = case d of
@@ -1229,8 +1154,6 @@ instance PathStart Univ MEUI
           upeekPath (UPeek_MEUI p _) = p
           upeekValue (UPeek_MEUI _ x) = x
           type UPath Univ MEUI = Path_Maybe (Path_Either UPath_URI UPath_ImageFile)
-          toLens (Path_Just _p) = _Just . toLens _p
-          toLens _ = lens u (\s a -> maybe s id (unU' a))
           upeekRow _ x = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) [Path_Just]])
           upeekTree _ d x = case d of
                                 Just 0 -> Node (upeekCons idPath (Just (u x))) []
@@ -1243,8 +1166,6 @@ instance PathStart Univ MaybeImageFile
           upeekPath (UPeek_MaybeImageFile p _) = p
           upeekValue (UPeek_MaybeImageFile _ x) = x
           type UPath Univ MaybeImageFile = Path_View MaybeImageFile (Path_View String UPath_JSONText)
-          toLens (Path_To _ _p) = viewLens . toLens _p
-          toLens _ = lens u (\s a -> maybe s id (unU' a))
           upeekRow _ x = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) [Path_To Proxy]])
           upeekTree _ d x = case d of
                                 Just 0 -> Node (upeekCons idPath (Just (u x))) []
@@ -1257,8 +1178,6 @@ instance PathStart Univ ReportImage
           upeekPath (UPeek_ReportImage p _) = p
           upeekValue (UPeek_ReportImage _ x) = x
           type UPath Univ ReportImage = Path_View ReportImage UPath_ReportImageView
-          toLens (Path_To _ _p) = viewLens . toLens _p
-          toLens _ = lens u (\s a -> maybe s id (unU' a))
           upeekRow _ x = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) [Path_To Proxy]])
           upeekTree _ d x = case d of
                                 Just 0 -> Node (upeekCons idPath (Just (u x))) []
@@ -1271,8 +1190,6 @@ instance PathStart Univ ReportImages
           upeekPath (UPeek_ReportImages p _) = p
           upeekValue (UPeek_ReportImages _ x) = x
           type UPath Univ ReportImages = Path_OMap ReportImageID (Path_View ReportImage UPath_ReportImageView)
-          toLens (Path_At _k _p) = lens_omat _k . toLens _p
-          toLens _ = lens u (\s a -> maybe s id (unU' a))
           upeekRow _ (x@_xyz) = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) (map (\(_k, _) -> Path_At _k) (toPairs _xyz))])
           upeekTree _ d (x@_xyz) = case d of
                                        Just 0 -> Node (upeekCons idPath (Just (u x))) []
@@ -1285,8 +1202,6 @@ instance PathStart Univ ReadOnlyFilePath
           upeekPath (UPeek_ReadOnlyFilePath p _) = p
           upeekValue (UPeek_ReadOnlyFilePath _ x) = x
           type UPath Univ ReadOnlyFilePath = Path_View ReadOnlyFilePath (Path_View String UPath_JSONText)
-          toLens (Path_To _ _p) = viewLens . toLens _p
-          toLens _ = lens u (\s a -> maybe s id (unU' a))
           upeekRow _ x = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) [Path_To Proxy]])
           upeekTree _ d x = case d of
                                 Just 0 -> Node (upeekCons idPath (Just (u x))) []
@@ -1299,12 +1214,6 @@ instance PathStart Univ ReportImageView
           upeekPath (UPeek_ReportImageView p _) = p
           upeekValue (UPeek_ReportImageView _ x) = x
           type UPath Univ ReportImageView = UPath_ReportImageView
-          toLens (UPath_ReportImageView__picSize _p) = lens_ReportImageView__picSize . toLens _p
-          toLens (UPath_ReportImageView__picCrop _p) = lens_ReportImageView__picCrop . toLens _p
-          toLens (UPath_ReportImageView__picCaption _p) = lens_ReportImageView__picCaption . toLens _p
-          toLens (UPath_ReportImageView__picOriginal _p) = lens_ReportImageView__picOriginal . toLens _p
-          toLens (UPath_ReportImageView__picMustEnlarge _p) = lens_ReportImageView__picMustEnlarge . toLens _p
-          toLens _ = lens u (\s a -> maybe s id (unU' a))
           upeekRow _ (x@(ReportImageView {})) = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) [UPath_ReportImageView__picSize],
                                                                                          concatMap (makeRow x) [UPath_ReportImageView__picCrop],
                                                                                          concatMap (makeRow x) [UPath_ReportImageView__picCaption],
@@ -1329,52 +1238,6 @@ instance PathStart Univ ReportView
           upeekPath (UPeek_ReportView p _) = p
           upeekValue (UPeek_ReportView _ x) = x
           type UPath Univ ReportView = UPath_ReportView
-          toLens (UPath_ReportView__reportFolder _p) = lens_ReportView__reportFolder . toLens _p
-          toLens (UPath_ReportView__reportName _p) = lens_ReportView__reportName . toLens _p
-          toLens (UPath_ReportView__reportDate _p) = lens_ReportView__reportDate . toLens _p
-          toLens (UPath_ReportView__reportContractDate _p) = lens_ReportView__reportContractDate . toLens _p
-          toLens (UPath_ReportView__reportInspectionDate _p) = lens_ReportView__reportInspectionDate . toLens _p
-          toLens (UPath_ReportView__reportEffectiveDate _p) = lens_ReportView__reportEffectiveDate . toLens _p
-          toLens (UPath_ReportView__reportAuthors _p) = lens_ReportView__reportAuthors . toLens _p
-          toLens (UPath_ReportView__reportPreparer _p) = lens_ReportView__reportPreparer . toLens _p
-          toLens (UPath_ReportView__reportPreparerEIN _p) = lens_ReportView__reportPreparerEIN . toLens _p
-          toLens (UPath_ReportView__reportPreparerAddress _p) = lens_ReportView__reportPreparerAddress . toLens _p
-          toLens (UPath_ReportView__reportPreparerEMail _p) = lens_ReportView__reportPreparerEMail . toLens _p
-          toLens (UPath_ReportView__reportPreparerWebsite _p) = lens_ReportView__reportPreparerWebsite . toLens _p
-          toLens (UPath_ReportView__reportAbbrevs _p) = lens_ReportView__reportAbbrevs . toLens _p
-          toLens (UPath_ReportView__reportTitle _p) = lens_ReportView__reportTitle . toLens _p
-          toLens (UPath_ReportView__reportHeader _p) = lens_ReportView__reportHeader . toLens _p
-          toLens (UPath_ReportView__reportFooter _p) = lens_ReportView__reportFooter . toLens _p
-          toLens (UPath_ReportView__reportIntendedUse _p) = lens_ReportView__reportIntendedUse . toLens _p
-          toLens (UPath_ReportView__reportValueTypeInfo _p) = lens_ReportView__reportValueTypeInfo . toLens _p
-          toLens (UPath_ReportView__reportValueApproachInfo _p) = lens_ReportView__reportValueApproachInfo . toLens _p
-          toLens (UPath_ReportView__reportClientName _p) = lens_ReportView__reportClientName . toLens _p
-          toLens (UPath_ReportView__reportClientAddress _p) = lens_ReportView__reportClientAddress . toLens _p
-          toLens (UPath_ReportView__reportClientGreeting _p) = lens_ReportView__reportClientGreeting . toLens _p
-          toLens (UPath_ReportView__reportItemsOwnerFull _p) = lens_ReportView__reportItemsOwnerFull . toLens _p
-          toLens (UPath_ReportView__reportItemsOwner _p) = lens_ReportView__reportItemsOwner . toLens _p
-          toLens (UPath_ReportView__reportBriefItems _p) = lens_ReportView__reportBriefItems . toLens _p
-          toLens (UPath_ReportView__reportInspectionLocation _p) = lens_ReportView__reportInspectionLocation . toLens _p
-          toLens (UPath_ReportView__reportBody _p) = lens_ReportView__reportBody . toLens _p
-          toLens (UPath_ReportView__reportGlossary _p) = lens_ReportView__reportGlossary . toLens _p
-          toLens (UPath_ReportView__reportSources _p) = lens_ReportView__reportSources . toLens _p
-          toLens (UPath_ReportView__reportLetterOfTransmittal _p) = lens_ReportView__reportLetterOfTransmittal . toLens _p
-          toLens (UPath_ReportView__reportScopeOfWork _p) = lens_ReportView__reportScopeOfWork . toLens _p
-          toLens (UPath_ReportView__reportCertification _p) = lens_ReportView__reportCertification . toLens _p
-          toLens (UPath_ReportView__reportLimitingConditions _p) = lens_ReportView__reportLimitingConditions . toLens _p
-          toLens (UPath_ReportView__reportPrivacyPolicy _p) = lens_ReportView__reportPrivacyPolicy . toLens _p
-          toLens (UPath_ReportView__reportPerms _p) = lens_ReportView__reportPerms . toLens _p
-          toLens (UPath_ReportView__reportRevision _p) = lens_ReportView__reportRevision . toLens _p
-          toLens (UPath_ReportView__reportCreated _p) = lens_ReportView__reportCreated . toLens _p
-          toLens (UPath_ReportView__reportBranding _p) = lens_ReportView__reportBranding . toLens _p
-          toLens (UPath_ReportView__reportStatus _p) = lens_ReportView__reportStatus . toLens _p
-          toLens (UPath_ReportView__reportRedacted _p) = lens_ReportView__reportRedacted . toLens _p
-          toLens (UPath_ReportView__reportFlags _p) = lens_ReportView__reportFlags . toLens _p
-          toLens (UPath_ReportView__reportUUID _p) = lens_ReportView__reportUUID . toLens _p
-          toLens (UPath_ReportView__reportOrderByItemName _p) = lens_ReportView__reportOrderByItemName . toLens _p
-          toLens (UPath_ReportView__reportDisplayItemName _p) = lens_ReportView__reportDisplayItemName . toLens _p
-          toLens (UPath_ReportView__reportStandardsVersion _p) = lens_ReportView__reportStandardsVersion . toLens _p
-          toLens _ = lens u (\s a -> maybe s id (unU' a))
           upeekRow _ (x@(ReportView {})) = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) [UPath_ReportView__reportFolder],
                                                                                     concatMap (makeRow x) [UPath_ReportView__reportName],
                                                                                     concatMap (makeRow x) [UPath_ReportView__reportDate],
@@ -1519,8 +1382,6 @@ instance PathStart Univ SaneSizeImageSize
           upeekPath (UPeek_SaneSizeImageSize p _) = p
           upeekValue (UPeek_SaneSizeImageSize _ x) = x
           type UPath Univ SaneSizeImageSize = Path_View SaneSizeImageSize UPath_ImageSize
-          toLens (Path_To _ _p) = viewLens . toLens _p
-          toLens _ = lens u (\s a -> maybe s id (unU' a))
           upeekRow _ x = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) [Path_To Proxy]])
           upeekTree _ d x = case d of
                                 Just 0 -> Node (upeekCons idPath (Just (u x))) []
@@ -1533,10 +1394,6 @@ instance PathStart Univ Item
           upeekPath (UPeek_Item p _) = p
           upeekValue (UPeek_Item _ x) = x
           type UPath Univ Item = UPath_Item
-          toLens (UPath_Item_itemName _p) = lens_Item_itemName . toLens _p
-          toLens (UPath_Item_fields _p) = lens_Item_fields . toLens _p
-          toLens (UPath_Item_images _p) = lens_Item_images . toLens _p
-          toLens _ = lens u (\s a -> maybe s id (unU' a))
           upeekRow _ (x@(Item {})) = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) [UPath_Item_itemName],
                                                                               concatMap (makeRow x) [UPath_Item_fields],
                                                                               concatMap (makeRow x) [UPath_Item_images]])
@@ -1555,8 +1412,6 @@ instance PathStart Univ MIM
           upeekPath (UPeek_MIM p _) = p
           upeekValue (UPeek_MIM _ x) = x
           type UPath Univ MIM = Path_Map ItemFieldName UPath_Markup
-          toLens (Path_Look _k _p) = mat _k . toLens _p
-          toLens _ = lens u (\s a -> maybe s id (unU' a))
           upeekRow _ (x@_xyz) = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) (map (\(_k, _) -> Path_Look _k) (toList _xyz))])
           upeekTree _ d (x@_xyz) = case d of
                                        Just 0 -> Node (upeekCons idPath (Just (u x))) []
@@ -1569,8 +1424,6 @@ instance PathStart Univ MRR
           upeekPath (UPeek_MRR p _) = p
           upeekValue (UPeek_MRR _ x) = x
           type UPath Univ MRR = Path_Map ReportID (Path_View Report UPath_ReportView)
-          toLens (Path_Look _k _p) = mat _k . toLens _p
-          toLens _ = lens u (\s a -> maybe s id (unU' a))
           upeekRow _ (x@_xyz) = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) (map (\(_k, _) -> Path_Look _k) (toList _xyz))])
           upeekTree _ d (x@_xyz) = case d of
                                        Just 0 -> Node (upeekCons idPath (Just (u x))) []
@@ -1583,8 +1436,6 @@ instance PathStart Univ ReportMap
           upeekPath (UPeek_ReportMap p _) = p
           upeekValue (UPeek_ReportMap _ x) = x
           type UPath Univ ReportMap = UPath_ReportMap
-          toLens (UPath_ReportMap_unReportMap _p) = lens_ReportMap_unReportMap . toLens _p
-          toLens _ = lens u (\s a -> maybe s id (unU' a))
           upeekRow _ (x@(ReportMap {})) = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) [UPath_ReportMap_unReportMap]])
           upeekTree _ d (x@(ReportMap {})) = case d of
                                                  Just 0 -> Node (upeekCons idPath (Just (u x))) []
@@ -1597,8 +1448,6 @@ instance PathStart Univ CIString
           upeekPath (UPeek_CIString p _) = p
           upeekValue (UPeek_CIString _ x) = x
           type UPath Univ CIString = Path_View CIString (Path_View Text UPath_JSONText)
-          toLens (Path_To _ _p) = viewLens . toLens _p
-          toLens _ = lens u (\s a -> maybe s id (unU' a))
           upeekRow _ x = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) [Path_To Proxy]])
           upeekTree _ d x = case d of
                                 Just 0 -> Node (upeekCons idPath (Just (u x))) []
@@ -1611,7 +1460,6 @@ instance PathStart Univ URI
           upeekPath (UPeek_URI p _) = p
           upeekValue (UPeek_URI _ x) = x
           type UPath Univ URI = UPath_URI
-          toLens _ = lens u (\s a -> maybe s id (unU' a))
           upeekRow _ _ = Node (upeekCons idPath Nothing) []
           upeekTree _ _ x = Node (upeekCons idPath (Just (u x))) []
           upeekCol _ _ x = Node (upeekCons idPath (Just (u x))) []
@@ -1621,8 +1469,6 @@ instance PathStart Univ Text
           upeekPath (UPeek_Text p _) = p
           upeekValue (UPeek_Text _ x) = x
           type UPath Univ Text = Path_View Text UPath_JSONText
-          toLens (Path_To _ _p) = viewLens . toLens _p
-          toLens _ = lens u (\s a -> maybe s id (unU' a))
           upeekRow _ x = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) [Path_To Proxy]])
           upeekTree _ d x = case d of
                                 Just 0 -> Node (upeekCons idPath (Just (u x))) []
@@ -1635,7 +1481,6 @@ instance PathStart Univ UserId
           upeekPath (UPeek_UserId p _) = p
           upeekValue (UPeek_UserId _ x) = x
           type UPath Univ UserId = UPath_UserId
-          toLens _ = lens u (\s a -> maybe s id (unU' a))
           upeekRow _ _ = Node (upeekCons idPath Nothing) []
           upeekTree _ _ x = Node (upeekCons idPath (Just (u x))) []
           upeekCol _ _ x = Node (upeekCons idPath (Just (u x))) []
@@ -1645,7 +1490,6 @@ instance PathStart Univ UUID
           upeekPath (UPeek_UUID p _) = p
           upeekValue (UPeek_UUID _ x) = x
           type UPath Univ UUID = UPath_UUID
-          toLens _ = lens u (\s a -> maybe s id (unU' a))
           upeekRow _ _ = Node (upeekCons idPath Nothing) []
           upeekTree _ _ x = Node (upeekCons idPath (Just (u x))) []
           upeekCol _ _ x = Node (upeekCons idPath (Just (u x))) []
@@ -6384,88 +6228,205 @@ instance IsPath UPath_Author
     where type UType UPath_Author = Univ
           type SType UPath_Author = Author
           idPath = UPath_Author
+          toLens p = case p of
+                         UPath_Author_authorName _p -> lens_Author_authorName . toLens _p
+                         UPath_Author_authorCredentials _p -> lens_Author_authorCredentials . toLens _p
+                         _ -> lens u (\s a -> maybe s id (unU' a))
 instance IsPath UPath_ImageCrop
     where type UType UPath_ImageCrop = Univ
           type SType UPath_ImageCrop = ImageCrop
           idPath = UPath_ImageCrop
+          toLens p = case p of
+                         _ -> lens u (\s a -> maybe s id (unU' a))
 instance IsPath UPath_ImageFile
     where type UType UPath_ImageFile = Univ
           type SType UPath_ImageFile = ImageFile
           idPath = UPath_ImageFile
+          toLens p = case p of
+                         _ -> lens u (\s a -> maybe s id (unU' a))
 instance IsPath UPath_ImageSize
     where type UType UPath_ImageSize = Univ
           type SType UPath_ImageSize = ImageSize
           idPath = UPath_ImageSize
+          toLens p = case p of
+                         UPath_ImageSize_dim _p -> lens_ImageSize_dim . toLens _p
+                         UPath_ImageSize_size _p -> lens_ImageSize_size . toLens _p
+                         UPath_ImageSize_units _p -> lens_ImageSize_units . toLens _p
+                         _ -> lens u (\s a -> maybe s id (unU' a))
 instance IsPath UPath_Int
     where type UType UPath_Int = Univ
           type SType UPath_Int = Int
           idPath = UPath_Int
+          toLens p = case p of
+                         _ -> lens u (\s a -> maybe s id (unU' a))
 instance IsPath UPath_Int64
     where type UType UPath_Int64 = Univ
           type SType UPath_Int64 = Int64
           idPath = UPath_Int64
+          toLens p = case p of
+                         _ -> lens u (\s a -> maybe s id (unU' a))
 instance IsPath UPath_Integer
     where type UType UPath_Integer = Univ
           type SType UPath_Integer = Integer
           idPath = UPath_Integer
+          toLens p = case p of
+                         _ -> lens u (\s a -> maybe s id (unU' a))
 instance IsPath UPath_Item
     where type UType UPath_Item = Univ
           type SType UPath_Item = Item
           idPath = UPath_Item
+          toLens p = case p of
+                         UPath_Item_itemName _p -> lens_Item_itemName . toLens _p
+                         UPath_Item_fields _p -> lens_Item_fields . toLens _p
+                         UPath_Item_images _p -> lens_Item_images . toLens _p
+                         _ -> lens u (\s a -> maybe s id (unU' a))
 instance IsPath UPath_JSONText
     where type UType UPath_JSONText = Univ
           type SType UPath_JSONText = JSONText
           idPath = UPath_JSONText
+          toLens p = case p of
+                         _ -> lens u (\s a -> maybe s id (unU' a))
 instance IsPath UPath_Markup
     where type UType UPath_Markup = Univ
           type SType UPath_Markup = Markup
           idPath = UPath_Markup
+          toLens p = case p of
+                         UPath_Markup_markdownText _p -> lens_Markup_markdownText . toLens _p
+                         UPath_Markup_htmlText _p -> lens_Markup_htmlText . toLens _p
+                         _ -> lens u (\s a -> maybe s id (unU' a))
 instance IsPath UPath_Permissions
     where type UType UPath_Permissions = Univ
           type SType UPath_Permissions = Permissions
           idPath = UPath_Permissions
+          toLens p = case p of
+                         UPath_Permissions_owner _p -> lens_Permissions_owner . toLens _p
+                         UPath_Permissions_writers _p -> lens_Permissions_writers . toLens _p
+                         UPath_Permissions_readers _p -> lens_Permissions_readers . toLens _p
+                         _ -> lens u (\s a -> maybe s id (unU' a))
 instance IsPath UPath_ReportElem
     where type UType UPath_ReportElem = Univ
           type SType UPath_ReportElem = ReportElem
           idPath = UPath_ReportElem
+          toLens p = case p of
+                         UPath_ReportElem_elemItem _p -> lens_ReportElem_elemItem . toLens _p
+                         UPath_ReportElem_elemText _p -> lens_ReportElem_elemText . toLens _p
+                         _ -> lens u (\s a -> maybe s id (unU' a))
 instance IsPath UPath_ReportFlags
     where type UType UPath_ReportFlags = Univ
           type SType UPath_ReportFlags = ReportFlags
           idPath = UPath_ReportFlags
+          toLens p = case p of
+                         UPath_ReportFlags_hideEmptyItemFields _p -> lens_ReportFlags_hideEmptyItemFields . toLens _p
+                         _ -> lens u (\s a -> maybe s id (unU' a))
 instance IsPath UPath_ReportImageView
     where type UType UPath_ReportImageView = Univ
           type SType UPath_ReportImageView = ReportImageView
           idPath = UPath_ReportImageView
+          toLens p = case p of
+                         UPath_ReportImageView__picSize _p -> lens_ReportImageView__picSize . toLens _p
+                         UPath_ReportImageView__picCrop _p -> lens_ReportImageView__picCrop . toLens _p
+                         UPath_ReportImageView__picCaption _p -> lens_ReportImageView__picCaption . toLens _p
+                         UPath_ReportImageView__picOriginal _p -> lens_ReportImageView__picOriginal . toLens _p
+                         UPath_ReportImageView__picMustEnlarge _p -> lens_ReportImageView__picMustEnlarge . toLens _p
+                         _ -> lens u (\s a -> maybe s id (unU' a))
 instance IsPath UPath_ReportMap
     where type UType UPath_ReportMap = Univ
           type SType UPath_ReportMap = ReportMap
           idPath = UPath_ReportMap
+          toLens p = case p of
+                         UPath_ReportMap_unReportMap _p -> lens_ReportMap_unReportMap . toLens _p
+                         _ -> lens u (\s a -> maybe s id (unU' a))
 instance IsPath UPath_ReportStandard
     where type UType UPath_ReportStandard = Univ
           type SType UPath_ReportStandard = ReportStandard
           idPath = UPath_ReportStandard
+          toLens p = case p of
+                         UPath_ReportStandard_unReportStandard _p -> lens_ReportStandard_unReportStandard . toLens _p
+                         _ -> lens u (\s a -> maybe s id (unU' a))
 instance IsPath UPath_ReportValueApproachInfo
     where type UType UPath_ReportValueApproachInfo = Univ
           type SType UPath_ReportValueApproachInfo = ReportValueApproachInfo
           idPath = UPath_ReportValueApproachInfo
+          toLens p = case p of
+                         UPath_ReportValueApproachInfo_reportValueApproachName _p -> lens_ReportValueApproachInfo_reportValueApproachName . toLens _p
+                         UPath_ReportValueApproachInfo_reportValueApproachDescription _p -> lens_ReportValueApproachInfo_reportValueApproachDescription . toLens _p
+                         _ -> lens u (\s a -> maybe s id (unU' a))
 instance IsPath UPath_ReportValueTypeInfo
     where type UType UPath_ReportValueTypeInfo = Univ
           type SType UPath_ReportValueTypeInfo = ReportValueTypeInfo
           idPath = UPath_ReportValueTypeInfo
+          toLens p = case p of
+                         UPath_ReportValueTypeInfo_reportValueTypeName _p -> lens_ReportValueTypeInfo_reportValueTypeName . toLens _p
+                         UPath_ReportValueTypeInfo_reportValueTypeDescription _p -> lens_ReportValueTypeInfo_reportValueTypeDescription . toLens _p
+                         UPath_ReportValueTypeInfo_reportValueTypeDefinition _p -> lens_ReportValueTypeInfo_reportValueTypeDefinition . toLens _p
+                         _ -> lens u (\s a -> maybe s id (unU' a))
 instance IsPath UPath_ReportView
     where type UType UPath_ReportView = Univ
           type SType UPath_ReportView = ReportView
           idPath = UPath_ReportView
+          toLens p = case p of
+                         UPath_ReportView__reportFolder _p -> lens_ReportView__reportFolder . toLens _p
+                         UPath_ReportView__reportName _p -> lens_ReportView__reportName . toLens _p
+                         UPath_ReportView__reportDate _p -> lens_ReportView__reportDate . toLens _p
+                         UPath_ReportView__reportContractDate _p -> lens_ReportView__reportContractDate . toLens _p
+                         UPath_ReportView__reportInspectionDate _p -> lens_ReportView__reportInspectionDate . toLens _p
+                         UPath_ReportView__reportEffectiveDate _p -> lens_ReportView__reportEffectiveDate . toLens _p
+                         UPath_ReportView__reportAuthors _p -> lens_ReportView__reportAuthors . toLens _p
+                         UPath_ReportView__reportPreparer _p -> lens_ReportView__reportPreparer . toLens _p
+                         UPath_ReportView__reportPreparerEIN _p -> lens_ReportView__reportPreparerEIN . toLens _p
+                         UPath_ReportView__reportPreparerAddress _p -> lens_ReportView__reportPreparerAddress . toLens _p
+                         UPath_ReportView__reportPreparerEMail _p -> lens_ReportView__reportPreparerEMail . toLens _p
+                         UPath_ReportView__reportPreparerWebsite _p -> lens_ReportView__reportPreparerWebsite . toLens _p
+                         UPath_ReportView__reportAbbrevs _p -> lens_ReportView__reportAbbrevs . toLens _p
+                         UPath_ReportView__reportTitle _p -> lens_ReportView__reportTitle . toLens _p
+                         UPath_ReportView__reportHeader _p -> lens_ReportView__reportHeader . toLens _p
+                         UPath_ReportView__reportFooter _p -> lens_ReportView__reportFooter . toLens _p
+                         UPath_ReportView__reportIntendedUse _p -> lens_ReportView__reportIntendedUse . toLens _p
+                         UPath_ReportView__reportValueTypeInfo _p -> lens_ReportView__reportValueTypeInfo . toLens _p
+                         UPath_ReportView__reportValueApproachInfo _p -> lens_ReportView__reportValueApproachInfo . toLens _p
+                         UPath_ReportView__reportClientName _p -> lens_ReportView__reportClientName . toLens _p
+                         UPath_ReportView__reportClientAddress _p -> lens_ReportView__reportClientAddress . toLens _p
+                         UPath_ReportView__reportClientGreeting _p -> lens_ReportView__reportClientGreeting . toLens _p
+                         UPath_ReportView__reportItemsOwnerFull _p -> lens_ReportView__reportItemsOwnerFull . toLens _p
+                         UPath_ReportView__reportItemsOwner _p -> lens_ReportView__reportItemsOwner . toLens _p
+                         UPath_ReportView__reportBriefItems _p -> lens_ReportView__reportBriefItems . toLens _p
+                         UPath_ReportView__reportInspectionLocation _p -> lens_ReportView__reportInspectionLocation . toLens _p
+                         UPath_ReportView__reportBody _p -> lens_ReportView__reportBody . toLens _p
+                         UPath_ReportView__reportGlossary _p -> lens_ReportView__reportGlossary . toLens _p
+                         UPath_ReportView__reportSources _p -> lens_ReportView__reportSources . toLens _p
+                         UPath_ReportView__reportLetterOfTransmittal _p -> lens_ReportView__reportLetterOfTransmittal . toLens _p
+                         UPath_ReportView__reportScopeOfWork _p -> lens_ReportView__reportScopeOfWork . toLens _p
+                         UPath_ReportView__reportCertification _p -> lens_ReportView__reportCertification . toLens _p
+                         UPath_ReportView__reportLimitingConditions _p -> lens_ReportView__reportLimitingConditions . toLens _p
+                         UPath_ReportView__reportPrivacyPolicy _p -> lens_ReportView__reportPrivacyPolicy . toLens _p
+                         UPath_ReportView__reportPerms _p -> lens_ReportView__reportPerms . toLens _p
+                         UPath_ReportView__reportRevision _p -> lens_ReportView__reportRevision . toLens _p
+                         UPath_ReportView__reportCreated _p -> lens_ReportView__reportCreated . toLens _p
+                         UPath_ReportView__reportBranding _p -> lens_ReportView__reportBranding . toLens _p
+                         UPath_ReportView__reportStatus _p -> lens_ReportView__reportStatus . toLens _p
+                         UPath_ReportView__reportRedacted _p -> lens_ReportView__reportRedacted . toLens _p
+                         UPath_ReportView__reportFlags _p -> lens_ReportView__reportFlags . toLens _p
+                         UPath_ReportView__reportUUID _p -> lens_ReportView__reportUUID . toLens _p
+                         UPath_ReportView__reportOrderByItemName _p -> lens_ReportView__reportOrderByItemName . toLens _p
+                         UPath_ReportView__reportDisplayItemName _p -> lens_ReportView__reportDisplayItemName . toLens _p
+                         UPath_ReportView__reportStandardsVersion _p -> lens_ReportView__reportStandardsVersion . toLens _p
+                         _ -> lens u (\s a -> maybe s id (unU' a))
 instance IsPath UPath_URI
     where type UType UPath_URI = Univ
           type SType UPath_URI = URI
           idPath = UPath_URI
+          toLens p = case p of
+                         _ -> lens u (\s a -> maybe s id (unU' a))
 instance IsPath UPath_UUID
     where type UType UPath_UUID = Univ
           type SType UPath_UUID = UUID
           idPath = UPath_UUID
+          toLens p = case p of
+                         _ -> lens u (\s a -> maybe s id (unU' a))
 instance IsPath UPath_UserId
     where type UType UPath_UserId = Univ
           type SType UPath_UserId = UserId
           idPath = UPath_UserId
+          toLens p = case p of
+                         _ -> lens u (\s a -> maybe s id (unU' a))
 ulens :: forall a . U Univ a => Iso' Univ a

@@ -97,7 +97,7 @@ testPeekReportView =
       expected :: Tree (UPeek Univ ReportView)
       expected = peekReportView
       actual :: Tree (UPeek Univ ReportView)
-      actual = let [Just reportview] = map unU' (toListOf (toLens (Path_To Proxy idPath)) Report.report :: [Univ]) in
+      actual = let [Just reportview] = map unU' (toListOf (toLens (Path_To Proxy idPath :: UPath Univ Report)) Report.report :: [Univ]) in
                upeekTree (Proxy :: Proxy Univ) Nothing reportview
 
 testLabels :: Test
@@ -289,7 +289,7 @@ main = do
          , testUPaths
          , assertEqual' "toLens3" (mapMaybe unU' (toListOf (toLens (UPath_ImageSize_dim (idPath))) (picSize image) :: [Univ])) [dim (picSize image) :: Dimension]
          , assertEqual' "toLens4" (mapMaybe unU' (toListOf (toLens (UPath_ImageSize_units (idPath))) (picSize image) :: [Univ])) [units (picSize image)]
-         , assertEqual' "toLens5" (mapMaybe unU' (toListOf (toLens (Path_To Proxy (idPath))) image :: [Univ])) [view viewLens image]
+         , assertEqual' "toLens5" (mapMaybe unU' (toListOf (toLens (Path_To Proxy (idPath) :: UPath Univ ReportImage)) image :: [Univ])) [view viewLens image]
          , assertEqual' "toLens6" (mapMaybe unU' (toListOf (toLens (UPath_ReportImageView__picCrop (idPath))) (view viewLens image) :: [Univ])) [picCrop image]
 {-
          , assertEqual' "toLens7" (toListOf (toLens ((UPath_ReportImage_View (idPath :: UPath_ReportImageView {-ReportImageView-})) :.:

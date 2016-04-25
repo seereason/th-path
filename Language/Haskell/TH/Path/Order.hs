@@ -57,7 +57,7 @@ import Data.SafeCopy (SafeCopy(..), base, contain, deriveSafeCopy, safeGet, safe
 import Data.Typeable (Typeable)
 import GHC.Generics (Generic)
 import Language.Haskell.TH
-import Language.Haskell.TH.Path.Core (IsPath(..), Describe(..))
+import Language.Haskell.TH.Path.Core (IsPath(..), Describe(..), U(u, unU'))
 -- import Language.Haskell.TH.Path.GHCJS (SafeCopy(..), base, contain, deriveSafeCopy, safeGet, safePut)
 import Language.Haskell.TH.Lift (deriveLiftMany)
 import Language.Haskell.TH.TypeGraph.Prelude ({-some Lift instances?-})
@@ -224,10 +224,15 @@ view' :: (Ord k, Enum k) => k -> Order k v -> v
 view' i m = maybe (error "Order.view'") fst (view i m)
 
 data Path_OMap k a = Path_OMap | Path_At k a deriving (Eq, Ord, Read, Show, Typeable, Data, Generic, FromJSON, ToJSON)
-instance (Data k, Typeable k, Eq k, Ord k, Read k, Show k, IsPath a) => IsPath (Path_OMap k a) where
-    type UType (Path_OMap k a) = UType a
-    type SType (Path_OMap k a) = Order k (SType a)
+instance (Data k, Typeable k, Eq k, Ord k, Read k, Show k, Enum k,
+          IsPath valuepath,
+          U (UType valuepath) (Order k (SType valuepath))
+         ) => IsPath (Path_OMap k valuepath) where
+    type UType (Path_OMap k valuepath) = UType valuepath
+    type SType (Path_OMap k valuepath) = Order k (SType valuepath)
     idPath = Path_OMap
+    toLens (Path_At k p) = lens_omat k . toLens p
+    toLens _ = lens u (\s a -> maybe s id (unU' a))
 
 instance (IsPath (Path_OMap k v), Describe v, Describe (Proxy (SType (Path_OMap k v)))) => Describe (Path_OMap k v)
     where describe' _f (_p@(Path_At _k _wp)) = maybe (describe' _f (Proxy :: Proxy (SType (Path_OMap k v)))) Just (describe' Nothing _wp)

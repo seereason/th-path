@@ -39,9 +39,9 @@ import Language.Haskell.TH.TypeGraph.Prelude (unlifted)
 -- obtained from a database so that it is more suitable to the user
 -- interface that uses that value.  Then the @ViewType a@ value is
 -- transformed back into an @a@ and stored in the database.
-class View a where
-    type ViewType a
-    viewLens :: Iso' a (ViewType a)
+class View s where
+    type ViewType s
+    viewLens :: Iso' s (ViewType s)
 
 #if !__GHCJS__
 -- | Determine whether there is a 'View' instance for a type and if so

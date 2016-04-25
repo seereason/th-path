@@ -22,8 +22,8 @@ module Language.Haskell.TH.Path.Core
     , camelWords
 
       -- * Type classes and associated types
-    , IsPath(UType, SType, idPath)
-    , PathStart(UPeek, upeekCons, upeekPath, upeekValue, UPath, toLens, upeekRow, upeekTree, upeekCol)
+    , IsPath(UType, SType, idPath, toLens)
+    , PathStart(UPeek, upeekCons, upeekPath, upeekValue, UPath, upeekRow, upeekTree, upeekCol)
     , makeRow
     , makeTrees
     , makeCol
@@ -89,6 +89,7 @@ import Debug.Trace (trace)
 import Language.Haskell.TH.Instances ()
 #if !__GHCJS__
 import Language.Haskell.TH.Path.Instances ()
+import Language.Haskell.TH.Path.View (View(ViewType), viewLens)
 #endif
 import Prelude hiding (exp)
 import Safe (readMay)
@@ -130,6 +131,7 @@ class (Eq p, Ord p, Read p, Show p, Data p, Typeable p) => IsPath p where
     type SType p
     idPath :: p -- ^ The identity value for path type @p@.  Obeys the law
                 -- @toLens idPath == iso id id@.
+    toLens :: p -> Traversal' (SType p) (UType p)
 
 -- | Return a lens that converts between a universal type value and some @a@.
 -- Once you have generated your own Univ type create a specialized version:
@@ -165,13 +167,22 @@ class (U u s, u ~ UType (UPath u s), s ~ SType (UPath u s), IsPath (UPath u s)) 
     type UPath u s
     -- ^ The type @UPath u s@ represents a the beginning of any path
     -- starting at @s@.
-    toLens :: UPath u s -> Traversal' s u
 
-    -- It would be nice to make this a data instead of a type synonym,
+    -- It would be nice to make UPath a data instead of a type synonym,
     -- but some UPath types are already defined - e.g. Path_Pair.
     -- This also means it is impossible to say something like
     -- @instance Describe (UPath Univ Int64)@, we need to find the
     -- actual type.
+
+    data UPeek u s
+    -- ^ A data type containing a path and (optionally) the value
+    -- found at the end of that path.
+    upeekPath :: UPeek u s -> UPath u s
+    -- ^ Accessor for path field of a Peek type
+    upeekValue :: UPeek u s -> Maybe u
+    -- ^ Accessor for value field of a Peek type
+    upeekCons :: UPath u s -> Maybe u -> UPeek u s
+    -- ^ Construct a UPeek u s
     upeekTree :: Proxy u -> Maybe Int -> s -> Tree (UPeek u s)
     -- ^ Given a value of type @s@, return a tree containing every
     -- 'Peek' that can be reached from it.  The order of the nodes in
@@ -191,15 +202,6 @@ class (U u s, u ~ UType (UPath u s), s ~ SType (UPath u s), IsPath (UPath u s)) 
     --                 [Node (UPeek_Report (Path_To Proxy (UPath_ReportView__reportUUID idPath)) (Just uuid))
     --                       []]]
     -- @@
-
-    data UPeek u s
-    -- ^ 'UPath' version of 'Peek'.
-    upeekCons :: UPath u s -> Maybe u -> UPeek u s
-    -- ^ Construct a UPeek u s
-    upeekPath :: UPeek u s -> UPath u s
-    -- ^ Accessor for path field of a Peek type
-    upeekValue :: UPeek u s -> Maybe u
-    -- ^ Accessor for value field of a Peek type
 
 -- | Given a function that lifts a path by one hop (e.g. a constructor
 -- such as Path_Left), return the peek(s?) resulting from traversing that hop.
@@ -273,69 +275,58 @@ data Path_List a = Path_List deriving (Eq, Ord, Read, Show, Typeable, Data, Gene
 -- @s@ to build or use a @View_Path@.
 data Path_View s viewpath = Path_To (Proxy s) viewpath | Path_Self deriving (Eq, Ord, Read, Show, Typeable, Data, Generic, FromJSON, ToJSON)
 
-instance (IsPath fstpath, IsPath sndpath, UType fstpath ~ UType sndpath) => IsPath (Path_Pair fstpath sndpath) where
+instance (IsPath fstpath, IsPath sndpath,
+          U (UType fstpath) (SType fstpath, SType sndpath),
+          UType fstpath ~ UType sndpath
+         ) => IsPath (Path_Pair fstpath sndpath) where
     type UType (Path_Pair fstpath sndpath) = UType fstpath
     type SType (Path_Pair fstpath sndpath) = (SType fstpath, SType sndpath)
     idPath = Path_Pair
-instance (IsPath justpath) => IsPath (Path_Maybe justpath) where
+    toLens (Path_First p) = _1 . toLens p
+    toLens (Path_Second p) = _2 . toLens p
+    toLens _ = lens u (\s a -> maybe s id (unU' a))
+instance (IsPath justpath,
+          U (UType justpath) (Maybe (SType justpath))
+         ) => IsPath (Path_Maybe justpath) where
     type UType (Path_Maybe justpath) = UType justpath
     type SType (Path_Maybe justpath) = Maybe (SType justpath)
     idPath = Path_Maybe
-instance (IsPath leftpath, IsPath rightpath, UType leftpath ~ UType rightpath) => IsPath (Path_Either leftpath rightpath) where
+    toLens (Path_Just p) = _Just . toLens p
+    toLens _ = lens u (\s a -> maybe s id (unU' a))
+instance (IsPath leftpath, IsPath rightpath,
+          U (UType leftpath) (Either (SType leftpath) (SType rightpath)),
+          UType leftpath ~ UType rightpath
+         ) => IsPath (Path_Either leftpath rightpath) where
     type UType (Path_Either leftpath rightpath) = UType leftpath
     type SType (Path_Either leftpath rightpath) = Either (SType leftpath) (SType rightpath)
     idPath = Path_Either
-instance (Data key, Typeable key, Ord key, Read key, Show key, IsPath valuepath) => IsPath (Path_Map key valuepath) where
+    toLens (Path_Left p) = _Left . toLens p
+    toLens (Path_Right p) = _Right . toLens p
+    toLens _ = lens u (\s a -> maybe s id (unU' a))
+instance (Data key, Typeable key, Ord key, Read key, Show key,
+          IsPath valuepath,
+          U (UType valuepath) (Map key (SType valuepath))
+         ) => IsPath (Path_Map key valuepath) where
     type UType (Path_Map key valuepath) = UType valuepath
     type SType (Path_Map key valuepath) = Map key (SType valuepath)
     idPath = Path_Map
-instance (IsPath elttype) => IsPath (Path_List elttype) where
+    toLens (Path_Look k p) = mat k . toLens p
+    toLens _ = lens u (\s a -> maybe s id (unU' a))
+instance (IsPath elttype, U (UType elttype) [SType elttype]) => IsPath (Path_List elttype) where
     type UType (Path_List elttype) = UType elttype
     type SType (Path_List elttype) = [SType elttype]
     idPath = Path_List
-instance (Data s, IsPath viewpath) => IsPath (Path_View s viewpath) where
+    toLens _ = lens u (\s a -> maybe s id (unU' a))
+instance (Data s, View s, IsPath viewpath,
+          ViewType s ~ SType viewpath,
+          U (UType viewpath) s,
+          U (UType viewpath) (ViewType s)
+         ) => IsPath (Path_View s viewpath) where
     type UType (Path_View s viewpath) = UType viewpath
     type SType (Path_View s viewpath) = s
     idPath = Path_Self
-
-#if !__GHCJS__
-$(derivePathInfo ''Path_Pair)
-$(derivePathInfo ''Path_List)
-$(derivePathInfo ''Path_Map)
-$(derivePathInfo ''Path_Either)
-$(derivePathInfo ''Path_Maybe)
-#if 0
-$(derivePathInfo ''Path_View)
-#else
-instance ({-PathInfo s,-} PathInfo viewpath) => PathInfo (Path_View s viewpath) where
-      toPathSegments inp
-        = case inp of
-            Path_To arg_a15Lg arg_a15Lh
-              -> (++)
-                   [pack "path_-to"]
-                   ((++)
-                      (toPathSegments arg_a15Lg)
-                      (toPathSegments arg_a15Lh))
-            Path_Self -> [pack "path_-self"]
-      fromPathSegments
-        = (Text.Parsec.Prim.<|>)
-            (ap
-               (ap
-                  ((segment (pack "path_-to"))
-                   >> (return Path_To))
-                  fromPathSegments)
-               fromPathSegments)
-            ((segment (pack "path_-self"))
-             >> (return Path_Self))
-#endif
-
-$(deriveSafeCopy 0 'base ''Path_Pair)
-$(deriveSafeCopy 0 'base ''Path_List)
-$(deriveSafeCopy 0 'base ''Path_Map)
-$(deriveSafeCopy 0 'base ''Path_Either)
-$(deriveSafeCopy 0 'base ''Path_Maybe)
-$(deriveSafeCopy 0 'base ''Path_View)
-#endif
+    toLens (Path_To _ p) = viewLens . toLens p
+    toLens _ = lens u (\s a -> maybe s id (unU' a))
 
 instance (IsPath (Path_Either a b), Describe a, Describe b, Describe (Proxy (SType (Path_Either a b)))) => Describe (Path_Either a b)
     where describe' _f (_p@(Path_Left _wp)) = maybe (describe' _f (Proxy :: Proxy (SType (Path_Either a b)))) Just (describe' Nothing _wp)
@@ -511,3 +502,42 @@ lens_UserIds_Text = iso (encode') (decode')
       encode' uids =
           Text.unwords . List.map showId $ uids
           where showId = Text.pack . show . _unUserId
+
+#if !__GHCJS__
+$(derivePathInfo ''Path_Pair)
+$(derivePathInfo ''Path_List)
+$(derivePathInfo ''Path_Map)
+$(derivePathInfo ''Path_Either)
+$(derivePathInfo ''Path_Maybe)
+#if 0
+$(derivePathInfo ''Path_View)
+#else
+instance ({-PathInfo s,-} PathInfo viewpath) => PathInfo (Path_View s viewpath) where
+      toPathSegments inp
+        = case inp of
+            Path_To arg_a15Lg arg_a15Lh
+              -> (++)
+                   [pack "path_-to"]
+                   ((++)
+                      (toPathSegments arg_a15Lg)
+                      (toPathSegments arg_a15Lh))
+            Path_Self -> [pack "path_-self"]
+      fromPathSegments
+        = (Text.Parsec.Prim.<|>)
+            (ap
+               (ap
+                  ((segment (pack "path_-to"))
+                   >> (return Path_To))
+                  fromPathSegments)
+               fromPathSegments)
+            ((segment (pack "path_-self"))
+             >> (return Path_Self))
+#endif
+
+$(deriveSafeCopy 0 'base ''Path_Pair)
+$(deriveSafeCopy 0 'base ''Path_List)
+$(deriveSafeCopy 0 'base ''Path_Map)
+$(deriveSafeCopy 0 'base ''Path_Either)
+$(deriveSafeCopy 0 'base ''Path_Maybe)
+$(deriveSafeCopy 0 'base ''Path_View)
+#endif
