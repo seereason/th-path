@@ -77,7 +77,7 @@ import Data.Aeson (FromJSON, ToJSON)
 import Data.Char (isUpper, toUpper)
 import Data.Generics (Data, Typeable)
 import Data.List as List (groupBy, map)
-import Data.Map as Map (Map, insert, lookup, toList)
+import Data.Map as Map (Map, insert, lookup)
 import Data.Maybe (catMaybes, fromJust)
 import Data.Monoid
 import Data.Proxy
@@ -358,20 +358,6 @@ instance (IsPath (Path_View s viewpath), Describe (Proxy s),
                     Just
                     (describe' Nothing _wp)
           describe' f Path_Self = describe' f (Proxy :: Proxy s)
-
-instance (p ~ UPath u (Map k a), IsPath p, s ~ Map k a, u ~ UType p, s ~ SType p, U u s,
-          q ~ UPath u a, IsPath q, u ~ UType q, PathStart u a
-         ) => PathStart u (Map k a) where
-    type UPath u (Map k a) = Path_Map k (UPath u a)
-    data UPeek u (Map k a) = UPeek_Map (UPath u (Map k a)) (Maybe u) -- deriving (Eq, Show, Generic, FromJSON, ToJSON)
-    upeekCons = UPeek_Map
-    upeekPath (UPeek_Map p _) = p
-    upeekValue (UPeek_Map _ v) = v
-    upeekRow _ x = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) (map (\(_k, _) -> (Path_Look _k)) (toList x))])
-    upeekTree _ (Just 0) x = Node (upeekCons idPath (Just (u x))) []
-    upeekTree _ d x = Node (upeekCons idPath Nothing) (concat [concatMap (makeTrees x) (map (\(_k, _) -> Path_Look _k) (toList x))])
-    upeekCol _ _p@(Path_Look _k _) x = Node (upeekCons idPath Nothing) (makeCol x (Path_Look _k) (\(Path_Look _ p) -> p) _p)
-    upeekCol _ p x = Node (upeekCons idPath (Just (u x))) []
 
 idLens :: Lens' a a
 idLens = id
