@@ -32,7 +32,7 @@ import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Common (HasConQ(asConQ), HasCon(asCon), HasName(asName), HasType(asType), HasTypeQ(asTypeQ),
                                         makeUFieldCon, makeUPathType, ModelType(ModelType), PathType, telld, tells)
 import Language.Haskell.TH.Path.Core (camelWords, IsPath(..), makeRow, makeTrees, makeCol,
-                                      PathStart(..), ToLens(toLens), Describe(describe'), mat,
+                                      PathStart(..), Describe(describe'), mat,
                                       Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..), Path_List, Path_View(..), U(u, unU'))
 import Language.Haskell.TH.Path.Graph (TypeGraphM)
 import Language.Haskell.TH.Path.Order (lens_omat, Path_OMap(..), toPairs)
@@ -97,6 +97,7 @@ peekDecs utype v =
            pure (funD 'upeekPath [newName "p" >>= \p -> clause [conP (asName (makeUPeekCon (ModelType (asName v)))) [varP p, wildP]] (normalB (varE p)) []]),
            pure (funD 'upeekValue [newName "x" >>= \x -> clause [conP (asName (makeUPeekCon (ModelType (asName v)))) [wildP, varP x]] (normalB (varE x)) []]),
            pure (tySynInstD ''UPath (tySynEqn [utype, asTypeQ v] (pure uptype))),
+           pure (funD 'toLens tlcs),
            funD' 'upeekRow (case uprcs of
                               [] -> pure [clause [wildP, wildP] (normalB [| Node (upeekCons idPath Nothing) [] |]) []]
                               _ -> pure uprcs),
@@ -125,10 +126,6 @@ peekDecs utype v =
                             type UType $(asTypeQ pname) = $utype
                             type SType $(asTypeQ pname) = $(asTypeQ v)
                             idPath = $(asConQ pname)|])
-       when (not (null tlcs))
-            (tells [ instanceD (pure []) [t|ToLens $utype $(asTypeQ v)|]
-                     [ funD 'toLens tlcs
-                     ] ])
 
 pathControl :: forall m. (TypeGraphM m, MonadWriter [WriterType] m) => TGVSimple -> Control m Hop () ()
 pathControl v =

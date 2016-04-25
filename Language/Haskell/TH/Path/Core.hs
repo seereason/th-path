@@ -23,12 +23,11 @@ module Language.Haskell.TH.Path.Core
 
       -- * Type classes and associated types
     , IsPath(UType, SType, idPath)
-    , PathStart(UPeek, upeekCons, upeekPath, upeekValue, UPath, upeekRow, upeekTree, upeekCol)
+    , PathStart(UPeek, upeekCons, upeekPath, upeekValue, UPath, toLens, upeekRow, upeekTree, upeekCol)
     , makeRow
     , makeTrees
     , makeCol
     , makePeek
-    , ToLens(toLens)
     , ulens'
     -- , (:.:)(..)
     , U(u, unU')
@@ -132,10 +131,6 @@ class (Eq p, Ord p, Read p, Show p, Data p, Typeable p) => IsPath p where
     idPath :: p -- ^ The identity value for path type @p@.  Obeys the law
                 -- @toLens idPath == iso id id@.
 
--- | Every path has start and end types and can be converted to a lens.
-class ToLens u s where
-    toLens :: UPath u s -> Traversal' s u
-
 -- | Return a lens that converts between a universal type value and some @a@.
 -- Once you have generated your own Univ type create a specialized version:
 -- @
@@ -166,13 +161,11 @@ instance (ToLens f, ToLens g, A f ~ S g {-, B f ~ T g-}) => ToLens (f :.: g) whe
 -- where each node is represented by the second type parameter of
 -- PathStart, @s@.  The @u@ type parameter is a wrapper type that has
 -- a constructor for every @s@ we are allowed to use as a path node.
-class (U u s, IsPath (UPath u s), ToLens u s,
-       -- These seem obvious, but they help
-       u ~ UType (UPath u s),
-       s ~ SType (UPath u s)) => PathStart u s where
+class (U u s, u ~ UType (UPath u s), s ~ SType (UPath u s), IsPath (UPath u s)) => PathStart u s where
     type UPath u s
     -- ^ The type @UPath u s@ represents a the beginning of any path
     -- starting at @s@.
+    toLens :: UPath u s -> Traversal' s u
 
     -- It would be nice to make this a data instead of a type synonym,
     -- but some UPath types are already defined - e.g. Path_Pair.
