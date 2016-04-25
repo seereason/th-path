@@ -205,8 +205,9 @@ class (U u s, u ~ UType (UPath u s), s ~ SType (UPath u s), IsPath (UPath u s)) 
 
 -- | Given a function that lifts a path by one hop (e.g. a constructor
 -- such as Path_Left), return the peek(s?) resulting from traversing that hop.
-makeRow :: forall s u p q a. (u ~ UType p, a ~ SType p, UPath u a ~ p, PathStart u a, u ~ UType q, s ~ SType q, UPath u s ~ q, PathStart u s) =>
-             s -> (p -> q) -> [Tree (UPeek u s)]
+makeRow :: forall s u p q a. (u ~ UType p, s ~ SType p, UPath u s ~ p, PathStart u s,
+                              u ~ UType q, a ~ SType q, UPath u a ~ q, PathStart u a) =>
+             s -> (q -> p) -> [Tree (UPeek u s)]
 makeRow x f = forestMap (mapPeek f) (map makePeek (hopValues f x))
 
 -- | Given a function that lifts a path by one hop (e.g. a constructor
@@ -222,7 +223,7 @@ makeCol :: forall s u p q a. (u ~ UType p, s ~ SType p, UPath u s ~ p, PathStart
            s -> (q -> p) -> (p -> q) -> p -> [Tree (UPeek u s)]
 makeCol x f g p = forestMap (mapPeek f) (map (upeekCol Proxy (g p)) (hopValues f x))
 
-mapPeek :: (PathStart u s, PathStart u t) => (UPath u s -> UPath u t) -> UPeek u s -> UPeek u t
+mapPeek :: (PathStart u a, PathStart u s) => (UPath u a -> UPath u s) -> UPeek u a -> UPeek u s
 mapPeek f pk = upeekCons (f (upeekPath pk)) (upeekValue pk)
 
 makePeek :: forall u s. PathStart u s => s -> Tree (UPeek u s)
@@ -230,10 +231,10 @@ makePeek x = Node (upeekCons idPath (Just (u x))) []
 
 -- | Given a hop function f, return a list values of type a which are one hop away from s.
 hopValues :: forall s u p q a.
-        (u ~ UType p, a ~ SType p, UPath u a ~ p, PathStart u a,
-         u ~ UType q, s ~ SType q, UPath u s ~ q, PathStart u s) =>
-        (p -> q) -> s -> [a]
-hopValues f = toListOf (toLens (f idPath :: q) . ulens' (Proxy :: Proxy u))
+        (u ~ UType q, a ~ SType q, UPath u a ~ q, PathStart u a,
+         u ~ UType p, s ~ SType p, UPath u s ~ p, PathStart u s) =>
+        (q -> p) -> s -> [a]
+hopValues f = toListOf (toLens (f idPath :: p) . ulens' (Proxy :: Proxy u))
 
 -- | Nodes along a path can be customized by declaring types to be
 -- instances of this class and the ones that follow.  If a type is an
