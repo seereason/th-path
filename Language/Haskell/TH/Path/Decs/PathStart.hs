@@ -41,7 +41,7 @@ import Language.Haskell.TH.Path.View (viewLens)
 import Language.Haskell.TH.Syntax (liftString)
 import Language.Haskell.TH.TypeGraph.Shape (constructorName, Field)
 import Language.Haskell.TH.TypeGraph.TypeGraph (tgv, tgvSimple')
-import Language.Haskell.TH.TypeGraph.Vertex (TGV, field, TGVSimple)
+import Language.Haskell.TH.TypeGraph.Vertex (field, TGVSimple)
 
 newtype PeekType = PeekType {unPeekType :: Name} deriving (Eq, Ord, Show) -- e.g. Peek_AbbrevPairs
 newtype PeekCon = PeekCon {unPeekCon :: Name} deriving (Eq, Ord, Show) -- e.g. Peek_AbbrevPairs_Markup
@@ -55,12 +55,11 @@ instance HasConQ PeekCon where asConQ = conE . unPeekCon
 
 data Hop
     = Hop
-      { upat :: PatQ -> PatQ
+      { upat :: PatQ -> PatQ -- Turn p into Path_At i p
       , xpaths :: ExpQ -- Turn s into [Path_At i a]
       , pnext :: ExpQ  -- Turn Path_At i q into q
       , pprev :: ExpQ  -- Turn q into Path_At i q
-      , lns :: ExpQ
-      , wtyp :: TGV
+      , lns :: ExpQ    -- turn UPath s a into Traversal' s u
       }
 
 data WriterType
@@ -143,100 +142,76 @@ pathControl v =
     , _doSelf = pure ()
     , _doView =
         \typ ->
-            do w <- tgv Nothing typ
-               doHops wildP
+            do doHops wildP
                       [Hop { upat = (\p -> conP 'Path_To [wildP, p])
                            , xpaths = [| [Path_To Proxy] |]
                            , pnext = [|\(Path_To Proxy q) -> q|]
                            , pprev = [|Path_To Proxy|]
-                           , lns = [|viewLens|]
-                           , wtyp = w}]
-               tell [-- ToLensClause (clause [upat conc (varP p)] (normalB [|viewLens . toLens $(varE p)|]) []),
-                     ToLensClause (clause [[p|Path_Self|]] (normalB [|lens u (\s a -> maybe s id (unU' a))|]) [])]
+                           , lns = [|viewLens|]}]
+               tell [ToLensClause (clause [wildP] (normalB [|lens u (\s a -> maybe s id (unU' a))|]) [])]
     , _doOrder =
         \_i typ ->
             do x <- runQ $ newName "_xyz"
-               w <- tgv Nothing typ
                i <- runQ $ newName "_k"
                doHops (varP x)
                       [Hop { upat = (\p -> [p|Path_At $(varP i) $p|])
                            , xpaths = [|map (\($(varP i), _) -> Path_At $(varE i)) (toPairs $(varE x))|] -- a list of functions corresponding to elements of the Order
                            , pnext = [|\(Path_At _ p) -> p|]
                            , pprev = [|Path_At $(varE i)|]
-                           , lns = [|lens_omat $(varE i)|]
-                           , wtyp = w}]
-               tell [-- ToLensClause (clause [upat conc (varP p)] (normalB [|$(lns conc) . toLens $(varE p)|]) []),
-                     ToLensClause (clause [[p|Path_OMap|]] (normalB [|lens u (\s a -> maybe s id (unU' a))|]) [])]
+                           , lns = [|lens_omat $(varE i)|]}]
+               tell [ToLensClause (clause [wildP] (normalB [|lens u (\s a -> maybe s id (unU' a))|]) [])]
 
     , _doMap =
         \_i typ ->
             do x <- runQ $ newName "_xyz"
-               w <- tgv Nothing typ
                i <- runQ $ newName "_k"
                doHops (varP x)
                       [Hop { upat = (\p -> [p|Path_Look $(varP i) $p|])
                            , xpaths = [|map (\($(varP i), _) -> Path_Look $(varE i)) (Map.toList $(varE x))|]
                            , pnext = [|\(Path_Look _ p) -> p|]
                            , pprev = [|Path_Look $(varE i)|]
-                           , lns = [|mat $(varE i)|]
-                           , wtyp = w}]
-               tell [-- ToLensClause (clause [upat conc (varP p)] (normalB [|$(lns conc) . toLens $(varE p)|]) []),
-                     ToLensClause (clause [[p|Path_Map|]] (normalB [|lens u (\s a -> maybe s id (unU' a))|]) [])]
+                           , lns = [|mat $(varE i)|]}]
+               tell [ToLensClause (clause [wildP] (normalB [|lens u (\s a -> maybe s id (unU' a))|]) [])]
     , _doList =
         \_e -> pure ()
     , _doPair =
         \ftyp styp ->
-            do f <- tgv Nothing ftyp
-               s <- tgv Nothing styp
-               doHops wildP
+            do doHops wildP
                       [ Hop { upat =  (\p -> conP 'Path_First [p])
                             , xpaths =  [| [Path_First] |]
                             , pnext =  [|\(Path_First p) -> p|]
                             , pprev =  [|Path_First|]
-                            , lns =  [|_1|]
-                            , wtyp = f }
+                            , lns =  [|_1|] }
                       , Hop { upat = (\p -> conP 'Path_Second [p])
                             , xpaths = [| [Path_Second] |]
                             , pnext = [|\(Path_Second p) -> p|]
                             , pprev = [|Path_Second|]
-                            , lns = [|_2|]
-                            , wtyp = s } ]
-               tell [-- ToLensClause (clause [upat fconc (varP p)] (normalB [|$(lns fconc) . toLens $(varE p)|]) []),
-                     -- ToLensClause (clause [upat sconc (varP p)] (normalB [|$(lns sconc) . toLens $(varE p)|]) []),
-                     ToLensClause (clause [[p|Path_Pair|]] (normalB [|lens u (\s' a -> maybe s' id (unU' a))|]) [])]
+                            , lns = [|_2|] } ]
+               tell [ToLensClause (clause [wildP] (normalB [|lens u (\s' a -> maybe s' id (unU' a))|]) [])]
     , _doMaybe =
         \typ ->
-            do w <- tgv Nothing typ
-               doHops wildP
+            do doHops wildP
                       [Hop { upat = (\p -> conP 'Path_Just [p])
                            , xpaths = [|[Path_Just]|]
                            , pnext = [|\(Path_Just p) -> p|]
                            , pprev = [|\q -> Path_Just q|]
-                           , lns = [|_Just|]
-                           , wtyp = w }]
-               tell [-- ToLensClause (clause [upat conc (varP p)] (normalB [|$(lns conc) . toLens $(varE p)|]) []),
-                     ToLensClause (clause [[p|Path_Maybe|]] (normalB [|lens u (\s a -> maybe s id (unU' a))|]) [])]
+                           , lns = [|_Just|] }]
+               tell [ToLensClause (clause [wildP] (normalB [|lens u (\s a -> maybe s id (unU' a))|]) [])]
     , _doEither =
         \ltyp rtyp ->
-            do l <- tgv Nothing ltyp
-               r <- tgv Nothing rtyp
-               doHops (conP 'Left [wildP])
+            do doHops (conP 'Left [wildP])
                       [Hop { upat = (\p -> conP 'Path_Left [p])
                            , xpaths = [|[Path_Left]|]
                            , pnext = [|\(Path_Left p) -> p|]
                            , pprev = [|Path_Left|]
-                           , lns = [|_Left|]
-                           , wtyp = l }]
+                           , lns = [|_Left|] }]
                doHops (conP 'Right [wildP])
                       [Hop { upat = (\p -> conP 'Path_Right [p])
                            , xpaths = [|[Path_Right]|]
                            , pnext = [|\(Path_Right p) -> p|]
                            , pprev = [|Path_Right|]
-                           , lns = [|_Right|]
-                           , wtyp = r }]
-               tell [-- ToLensClause (clause [upat lconc (varP p)] (normalB [|$(lns lconc) . toLens $(varE p)|]) []),
-                     -- ToLensClause (clause [upat rconc (varP p)] (normalB [|$(lns rconc) . toLens $(varE p)|]) []),
-                     ToLensClause (clause [[p|Path_Either|]] (normalB [|lens u (\s a -> maybe s id (unU' a))|]) [])]
+                           , lns = [|_Right|] }]
+               tell [ToLensClause (clause [wildP] (normalB [|lens u (\s a -> maybe s id (unU' a))|]) [])]
     , _doField =
         \fld@(_tname, _con, Right fname) typ ->
             do w <- tgvSimple' typ >>= tgv (Just fld)
@@ -245,8 +220,7 @@ pathControl v =
                              , xpaths = [|[$(asConQ (makeUFieldCon fld))]|]
                              , pnext = (lamE [conP (asName (makeUFieldCon fld)) [varP p]] (varE p))
                              , pprev = (conE (asName (makeUFieldCon fld)))
-                             , lns = varE (fieldLensNameOld (asName v) fname)
-                             , wtyp = w }
+                             , lns = varE (fieldLensNameOld (asName v) fname) }
                f <- runQ $ newName "_f"
                -- Generate clauses of the 'Describe' instance for v.  Because the
                -- description is based entirely on the types, we can generate a
