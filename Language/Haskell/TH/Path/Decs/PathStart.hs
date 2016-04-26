@@ -88,7 +88,7 @@ peekDecs utype v =
        let hasPathStartInstance = case show (asType v) of
                                     -- "ConT Appraisal.Report.AbbrevPair" -> True
                                     -- "ConT Appraisal.Report.MarkupPair" -> True
-                                    -- "ConT Appraisal.ReportImage.EUI" -> True
+                                    "ConT Appraisal.ReportImage.EUI" -> True
                                     "ConT Appraisal.ReportItem.MIM" -> True
                                     "ConT Appraisal.ReportMap.MRR" -> True
                                     -- "ConT Appraisal.Report.MaybeReportIntendedUse" -> True

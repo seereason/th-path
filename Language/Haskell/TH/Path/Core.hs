@@ -361,7 +361,7 @@ instance (IsPath (Path_View s viewpath), Describe (Proxy s),
                     Just
                     (describe' Nothing _wp)
           describe' f Path_Self = describe' f (Proxy :: Proxy s)
-{-
+
 instance (p ~ UPath u (Either a b), IsPath p, s ~ (Either a b), u ~ UType p, s ~ SType p, U u s,
           q ~ UPath u a, IsPath q, u ~ UType q, PathStart u a,
           r ~ UPath u b, IsPath r, u ~ UType r, PathStart u b
@@ -383,7 +383,7 @@ instance (p ~ UPath u (Either a b), IsPath p, s ~ (Either a b), u ~ UType p, s ~
     upeekCol _ _p (x@(Left _)) = Node (upeekCons idPath (Just (u x))) []
     upeekCol _ (_p@(Path_Right _q)) (x@(Right _)) = Node (upeekCons idPath Nothing) (makeCol x Path_Right (\(Path_Right p) -> p) _p)
     upeekCol _ _p (x@(Right _)) = Node (upeekCons idPath (Just (u x))) []
-
+{-
 instance (p ~ UPath u (Maybe a), IsPath p, s ~ Maybe a, u ~ UType p, s ~ SType p, U u s,
           q ~ UPath u a, IsPath q, u ~ UType q, PathStart u a
          ) => PathStart u (Maybe a) where
