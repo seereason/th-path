@@ -364,7 +364,7 @@ instance (IsPath (Path_View s viewpath), Describe (Proxy s),
 
 instance (p ~ UPath u (Either a b), IsPath p, s ~ (Either a b), u ~ UType p, s ~ SType p, U u s,
           q ~ UPath u a, IsPath q, u ~ UType q, PathStart u a,
-          r ~ UPath u b, IsPath r, u ~ UType r, PathStart u b
+          r ~ UPath u b, IsPath r, u ~ UType r, PathStart u b, U u (Either a b)
          ) => PathStart u (Either a b) where
     type UPath u (Either a b) = Path_Either (UPath u a) (UPath u b)
     data UPeek u (Either a b) = UPeek_Either (UPath u (Either a b)) (Maybe u) -- deriving (Eq, Show, Generic, FromJSON, ToJSON)
@@ -385,7 +385,7 @@ instance (p ~ UPath u (Either a b), IsPath p, s ~ (Either a b), u ~ UType p, s ~
     upeekCol _ _p (x@(Right _)) = Node (upeekCons idPath (Just (u x))) []
 
 instance (p ~ UPath u (Maybe a), IsPath p, s ~ Maybe a, u ~ UType p, s ~ SType p, U u s,
-          q ~ UPath u a, IsPath q, u ~ UType q, PathStart u a
+          q ~ UPath u a, IsPath q, u ~ UType q, PathStart u a, U u (Maybe a)
          ) => PathStart u (Maybe a) where
     type UPath u (Maybe a) = Path_Maybe (UPath u a)
     data UPeek u (Maybe a) = UPeek_Maybe (UPath u (Maybe a)) (Maybe u) -- deriving (Eq, Show, Generic, FromJSON, ToJSON)
@@ -401,7 +401,7 @@ instance (p ~ UPath u (Maybe a), IsPath p, s ~ Maybe a, u ~ UType p, s ~ SType p
 
 instance (p ~ UPath u (a, b), IsPath p, s ~ (a, b), u ~ UType p, s ~ SType p, U u s,
           q ~ UPath u a, IsPath q, u ~ UType q, PathStart u a,
-          r ~ UPath u b, IsPath r, u ~ UType r, PathStart u b
+          r ~ UPath u b, IsPath r, u ~ UType r, PathStart u b, U u (a, b)
          ) => PathStart u (a, b) where
     type UPath u (a, b) = Path_Pair (UPath u a) (UPath u b)
     data UPeek u (a, b) = UPeek_Pair (UPath u (a, b)) (Maybe u) -- deriving (Eq, Show, Generic, FromJSON, ToJSON)
@@ -417,7 +417,7 @@ instance (p ~ UPath u (a, b), IsPath p, s ~ (a, b), u ~ UType p, s ~ SType p, U 
     upeekCol _ _p x = Node (upeekCons idPath (Just (u x))) []
 
 instance (p ~ UPath u (Map k a), IsPath p, s ~ Map k a, u ~ UType p, s ~ SType p, U u s,
-          q ~ UPath u a, IsPath q, u ~ UType q, PathStart u a
+          q ~ UPath u a, IsPath q, u ~ UType q, PathStart u a, U u (Map k a)
          ) => PathStart u (Map k a) where
     type UPath u (Map k a) = Path_Map k (UPath u a)
     data UPeek u (Map k a) = UPeek_Map (UPath u (Map k a)) (Maybe u) -- deriving (Eq, Show, Generic, FromJSON, ToJSON)
