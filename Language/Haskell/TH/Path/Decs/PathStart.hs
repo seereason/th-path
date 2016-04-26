@@ -92,8 +92,8 @@ peekDecs utype v =
                                     "ConT Appraisal.ReportItem.MIM" -> True
                                     "ConT Appraisal.ReportMap.MRR" -> True
                                     -- "ConT Appraisal.Report.MaybeReportIntendedUse" -> True
-                                    -- "ConT Appraisal.ReportImage.MEUI" -> True
-                                    -- "ConT Appraisal.ReportImage.MaybeImageFile" -> True
+                                    "ConT Appraisal.ReportImage.MEUI" -> True
+                                    "ConT Appraisal.ReportImage.MaybeImageFile" -> True
                                     -- "AppT (ConT GHC.Base.Maybe) (ConT Appraisal.Report.ReportIntendedUse)" -> True
                                     _ -> trace ("type: " ++ show (asType v)) False
        when (not hasPathStartInstance)
