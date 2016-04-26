@@ -91,10 +91,15 @@ peekDecs utype v =
                                     "ConT Appraisal.ReportImage.EUI" -> True
                                     "ConT Appraisal.ReportItem.MIM" -> True
                                     "ConT Appraisal.ReportMap.MRR" -> True
-                                    -- "ConT Appraisal.Report.MaybeReportIntendedUse" -> True
                                     "ConT Appraisal.ReportImage.MEUI" -> True
                                     "ConT Appraisal.ReportImage.MaybeImageFile" -> True
-                                    -- "AppT (ConT GHC.Base.Maybe) (ConT Appraisal.Report.ReportIntendedUse)" -> True
+                                    "ConT Appraisal.ReportImage.ReportImages" -> True
+                                    "ConT Appraisal.Report.ReportElems" -> True
+                                    "ConT Appraisal.Report.Markups" -> True
+                                    "ConT Appraisal.Report.MarkupPairs" -> True
+                                    "ConT Appraisal.Report.Authors" -> True
+                                    "ConT Appraisal.Report.AbbrevPairs" -> True
+                                    "ConT Appraisal.ReportImage.ReportImages" -> True
                                     _ -> trace ("type: " ++ show (asType v)) False
        when (not hasPathStartInstance)
             (instanceD' (cxt []) [t|PathStart $utype $(asTypeQ v)|]

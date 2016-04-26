@@ -54,10 +54,11 @@ import Data.Map as Map (Map, (!))
 import qualified Data.Map as Map
 import Data.Proxy (Proxy(Proxy))
 import Data.SafeCopy (SafeCopy(..), base, contain, deriveSafeCopy, safeGet, safePut)
+import Data.Tree (Tree(Node))
 import Data.Typeable (Typeable)
 import GHC.Generics (Generic)
 import Language.Haskell.TH
-import Language.Haskell.TH.Path.Core (IsPath(..), Describe(..), U(u, unU'))
+import Language.Haskell.TH.Path.Core (IsPath(..), Describe(..), makeCol, makeRow, makeTrees, PathStart(..), U(u, unU'))
 -- import Language.Haskell.TH.Path.GHCJS (SafeCopy(..), base, contain, deriveSafeCopy, safeGet, safePut)
 import Language.Haskell.TH.Lift (deriveLiftMany)
 import Language.Haskell.TH.TypeGraph.Prelude ({-some Lift instances?-})
@@ -238,6 +239,21 @@ instance (IsPath (Path_OMap k v), Describe v, Describe (Proxy (SType (Path_OMap 
     where describe' _f (_p@(Path_At _k _wp)) = maybe (describe' _f (Proxy :: Proxy (SType (Path_OMap k v)))) Just (describe' Nothing _wp)
           describe' f p | p == idPath = describe' f (Proxy :: Proxy (SType (Path_OMap k v)))
           describe' _ p = error ("Unexpected path: " ++ show p)
+
+instance (u ~ UType (UPath u a), a ~ SType (UPath u a),
+          U u (Order k a),
+          Data k, Ord k, Enum k, Read k, Show k, PathStart u a
+         ) => PathStart u (Order k a) where
+    type UPath u (Order k a) = Path_OMap k (UPath u a)
+    data UPeek u (Order k a) = UPeek_OMap (UPath u (Order k a)) (Maybe u)
+    upeekCons = UPeek_OMap
+    upeekPath (UPeek_OMap p _) = p
+    upeekValue (UPeek_OMap _ x) = x
+    upeekRow _ (x@_xyz) = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) (map (\(_k, _) -> Path_At _k) (toPairs _xyz))])
+    upeekTree _ (Just 0) (x@_xyz) = Node (upeekCons idPath (Just (u x))) []
+    upeekTree _ (Just 0) (x@_xyz) = Node (upeekCons idPath Nothing) (concat [concatMap (makeTrees x) (map (\(_k, _) -> Path_At _k) (toPairs _xyz))])
+    upeekCol _ (_p@(Path_At _k _q)) (x@_xyz) = Node (upeekCons idPath Nothing) (makeCol x (Path_At _k) (\(Path_At _ p) -> p) _p)
+    upeekCol _ _p (x@_xyz) = Node (upeekCons idPath (Just (u x))) []
 
 #if !__GHCJS__
 -- | Given the name of a type such as AbbrevPair, generate declarations
