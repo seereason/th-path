@@ -16,6 +16,7 @@
 {-# LANGUAGE TypeSynonymInstances #-}
 module Language.Haskell.TH.Path.Decs.PathStart (peekDecs) where
 
+import Debug.Trace
 import Control.Lens hiding (cons, Strict)
 import Control.Monad (when)
 import Control.Monad.Writer (execWriterT, MonadWriter, tell)
@@ -84,29 +85,41 @@ peekDecs utype v =
     do uptype <- upathType v
        (clauses :: [WriterType]) <- execWriterT (doNode (pathControl v) v)
        let (udcs, upcs, uprcs, uptcs, upccs, tlms) = partitionClauses clauses
-       instanceD' (cxt []) [t|PathStart $utype $(asTypeQ v)|]
-         (sequence
-          [pure (dataInstD (cxt []) ''UPeek [utype, asTypeQ v]
-                           [normalC (asName (makeUPeekCon (ModelType (asName v))))
-                                    [strictType notStrict [t|UPath $utype $(asTypeQ v)|],
-                                     strictType notStrict [t|Maybe $utype|]]]
-                           [''Eq, ''Show, ''Generic, ''FromJSON, ''ToJSON]),
-           pure (funD 'upeekCons [clause [] (normalB (conE (asName (makeUPeekCon (ModelType (asName v)))))) []]),
-           pure (funD 'upeekPath [newName "p" >>= \p -> clause [conP (asName (makeUPeekCon (ModelType (asName v)))) [varP p, wildP]] (normalB (varE p)) []]),
-           pure (funD 'upeekValue [newName "x" >>= \x -> clause [conP (asName (makeUPeekCon (ModelType (asName v)))) [wildP, varP x]] (normalB (varE x)) []]),
-           pure (tySynInstD ''UPath (tySynEqn [utype, asTypeQ v] (pure uptype))),
-           funD' 'upeekRow (case uprcs of
-                              [] -> pure [clause [wildP, wildP] (normalB [| Node (upeekCons idPath Nothing) [] |]) []]
-                              _ -> pure uprcs),
-           funD' 'upeekTree (case uptcs of
-                               [] -> pure [do x <- newName "x"
-                                              clause [wildP, wildP, varP x] (normalB [| Node (upeekCons idPath (Just (u $(varE x)))) [] |]) []]
-                               _ -> pure uptcs),
-           funD' 'upeekCol (case upccs of
-                              [] -> pure [do x <- newName "x"
-                                             clause [wildP, wildP, varP x] (normalB [|Node (upeekCons idPath (Just (u $(varE x)))) []|]) []]
-                              _ -> pure upccs)
-          ])
+       let hasPathStartInstance = case show (asType v) of
+                                    -- "ConT Appraisal.Report.AbbrevPair" -> True
+                                    -- "ConT Appraisal.Report.MarkupPair" -> True
+                                    -- "ConT Appraisal.ReportImage.EUI" -> True
+                                    "ConT Appraisal.ReportItem.MIM" -> True
+                                    "ConT Appraisal.ReportMap.MRR" -> True
+                                    -- "ConT Appraisal.Report.MaybeReportIntendedUse" -> True
+                                    -- "ConT Appraisal.ReportImage.MEUI" -> True
+                                    -- "ConT Appraisal.ReportImage.MaybeImageFile" -> True
+                                    -- "AppT (ConT GHC.Base.Maybe) (ConT Appraisal.Report.ReportIntendedUse)" -> True
+                                    _ -> trace ("type: " ++ show (asType v)) False
+       when (not hasPathStartInstance)
+            (instanceD' (cxt []) [t|PathStart $utype $(asTypeQ v)|]
+               (sequence
+                [pure (dataInstD (cxt []) ''UPeek [utype, asTypeQ v]
+                                 [normalC (asName (makeUPeekCon (ModelType (asName v))))
+                                          [strictType notStrict [t|UPath $utype $(asTypeQ v)|],
+                                           strictType notStrict [t|Maybe $utype|]]]
+                                 [''Eq, ''Show, ''Generic, ''FromJSON, ''ToJSON]),
+                 pure (funD 'upeekCons [clause [] (normalB (conE (asName (makeUPeekCon (ModelType (asName v)))))) []]),
+                 pure (funD 'upeekPath [newName "p" >>= \p -> clause [conP (asName (makeUPeekCon (ModelType (asName v)))) [varP p, wildP]] (normalB (varE p)) []]),
+                 pure (funD 'upeekValue [newName "x" >>= \x -> clause [conP (asName (makeUPeekCon (ModelType (asName v)))) [wildP, varP x]] (normalB (varE x)) []]),
+                 pure (tySynInstD ''UPath (tySynEqn [utype, asTypeQ v] (pure uptype))),
+                 funD' 'upeekRow (case uprcs of
+                                    [] -> pure [clause [wildP, wildP] (normalB [| Node (upeekCons idPath Nothing) [] |]) []]
+                                    _ -> pure uprcs),
+                 funD' 'upeekTree (case uptcs of
+                                     [] -> pure [do x <- newName "x"
+                                                    clause [wildP, wildP, varP x] (normalB [| Node (upeekCons idPath (Just (u $(varE x)))) [] |]) []]
+                                     _ -> pure uptcs),
+                 funD' 'upeekCol (case upccs of
+                                    [] -> pure [do x <- newName "x"
+                                                   clause [wildP, wildP, varP x] (normalB [|Node (upeekCons idPath (Just (u $(varE x)))) []|]) []]
+                                    _ -> pure upccs)
+                ]))
        when (not (null udcs)) (instanceD' (cxt []) [t|Describe $(pure uptype)|] (pure [do funD 'describe' udcs]))
        proxyV <- runQ $ [t|Proxy $(asTypeQ v)|]
        hasCustomInstance <- (not . null) <$> reifyInstancesWithContext ''Describe [proxyV]

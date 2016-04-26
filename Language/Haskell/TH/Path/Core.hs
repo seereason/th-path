@@ -79,7 +79,7 @@ import Data.Aeson (FromJSON, ToJSON)
 import Data.Char (isUpper, toUpper)
 import Data.Generics (Data, Typeable)
 import Data.List as List (groupBy, map)
-import Data.Map as Map (Map, insert, lookup)
+import Data.Map as Map (Map, insert, lookup, toList)
 import Data.Maybe (catMaybes, fromJust)
 import Data.Monoid
 import Data.Proxy
@@ -361,6 +361,75 @@ instance (IsPath (Path_View s viewpath), Describe (Proxy s),
                     Just
                     (describe' Nothing _wp)
           describe' f Path_Self = describe' f (Proxy :: Proxy s)
+{-
+instance (p ~ UPath u (Either a b), IsPath p, s ~ (Either a b), u ~ UType p, s ~ SType p, U u s,
+          q ~ UPath u a, IsPath q, u ~ UType q, PathStart u a,
+          r ~ UPath u b, IsPath r, u ~ UType r, PathStart u b
+         ) => PathStart u (Either a b) where
+    type UPath u (Either a b) = Path_Either (UPath u a) (UPath u b)
+    data UPeek u (Either a b) = UPeek_Either (UPath u (Either a b)) (Maybe u) -- deriving (Eq, Show, Generic, FromJSON, ToJSON)
+    upeekCons = UPeek_Either
+    upeekPath (UPeek_Either p _) = p
+    upeekValue (UPeek_Either _ x) = x
+    upeekRow _ (x@(Left _)) = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) [Path_Left]])
+    upeekRow _ (x@(Right _)) = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) [Path_Right]])
+    upeekTree _ d (x@(Left _)) = case d of
+                                     Just 0 -> Node (upeekCons idPath (Just (u x))) []
+                                     _ -> Node (upeekCons idPath Nothing) (concat [concatMap (makeTrees x) [Path_Left]])
+    upeekTree _ d (x@(Right _)) = case d of
+                                      Just 0 -> Node (upeekCons idPath (Just (u x))) []
+                                      _ -> Node (upeekCons idPath Nothing) (concat [concatMap (makeTrees x) [Path_Right]])
+    upeekCol _ (_p@(Path_Left _q)) (x@(Left _)) = Node (upeekCons idPath Nothing) (makeCol x Path_Left (\(Path_Left p) -> p) _p)
+    upeekCol _ _p (x@(Left _)) = Node (upeekCons idPath (Just (u x))) []
+    upeekCol _ (_p@(Path_Right _q)) (x@(Right _)) = Node (upeekCons idPath Nothing) (makeCol x Path_Right (\(Path_Right p) -> p) _p)
+    upeekCol _ _p (x@(Right _)) = Node (upeekCons idPath (Just (u x))) []
+
+instance (p ~ UPath u (Maybe a), IsPath p, s ~ Maybe a, u ~ UType p, s ~ SType p, U u s,
+          q ~ UPath u a, IsPath q, u ~ UType q, PathStart u a
+         ) => PathStart u (Maybe a) where
+    type UPath u (Maybe a) = Path_Maybe (UPath u a)
+    data UPeek u (Maybe a) = UPeek_Maybe (UPath u (Maybe a)) (Maybe u) -- deriving (Eq, Show, Generic, FromJSON, ToJSON)
+    upeekCons = UPeek_Maybe
+    upeekPath (UPeek_Maybe p _) = p
+    upeekValue (UPeek_Maybe _ x) = x
+    upeekRow _ x = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) [Path_Just]])
+    upeekTree _ d x = case d of
+                        Just 0 -> Node (upeekCons idPath (Just (u x))) []
+                        _ -> Node (upeekCons idPath Nothing) (concat [concatMap (makeTrees x) [Path_Just]])
+    upeekCol _ (_p@(Path_Just _q)) x = Node (upeekCons idPath Nothing) (makeCol x (\q -> Path_Just q) (\(Path_Just p) -> p) _p)
+    upeekCol _ _p x = Node (upeekCons idPath (Just (u x))) []
+
+instance (p ~ UPath u (a, b), IsPath p, s ~ (a, b), u ~ UType p, s ~ SType p, U u s,
+          q ~ UPath u a, IsPath q, u ~ UType q, PathStart u a,
+          r ~ UPath u b, IsPath r, u ~ UType r, PathStart u b
+         ) => PathStart u (a, b) where
+    type UPath u (a, b) = Path_Pair (UPath u a) (UPath u b)
+    data UPeek u (a, b) = UPeek_Pair (UPath u (a, b)) (Maybe u) -- deriving (Eq, Show, Generic, FromJSON, ToJSON)
+    upeekCons = UPeek_Pair
+    upeekPath (UPeek_Pair p _) = p
+    upeekValue (UPeek_Pair _ v) = v
+    upeekRow _ x = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) [Path_First], concatMap (makeRow x) [Path_Second]])
+    upeekTree _ d x = case d of
+                          Just 0 -> Node (upeekCons idPath (Just (u x))) []
+                          _ -> Node (upeekCons idPath Nothing) (concat [concatMap (makeTrees x) [Path_First], concatMap (makeTrees x) [Path_Second]])
+    upeekCol _ (_p@(Path_First _q)) x = Node (upeekCons idPath Nothing) (makeCol x Path_First (\(Path_First p) -> p) _p)
+    upeekCol _ (_p@(Path_Second _q)) x = Node (upeekCons idPath Nothing) (makeCol x Path_Second (\(Path_Second p) -> p) _p)
+    upeekCol _ _p x = Node (upeekCons idPath (Just (u x))) []
+-}
+
+instance (p ~ UPath u (Map k a), IsPath p, s ~ Map k a, u ~ UType p, s ~ SType p, U u s,
+          q ~ UPath u a, IsPath q, u ~ UType q, PathStart u a
+         ) => PathStart u (Map k a) where
+    type UPath u (Map k a) = Path_Map k (UPath u a)
+    data UPeek u (Map k a) = UPeek_Map (UPath u (Map k a)) (Maybe u) -- deriving (Eq, Show, Generic, FromJSON, ToJSON)
+    upeekCons = UPeek_Map
+    upeekPath (UPeek_Map p _) = p
+    upeekValue (UPeek_Map _ v) = v
+    upeekRow _ x = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) (map (\(_k, _) -> (Path_Look _k)) (toList x))])
+    upeekTree _ (Just 0) x = Node (upeekCons idPath (Just (u x))) []
+    upeekTree _ d x = Node (upeekCons idPath Nothing) (concat [concatMap (makeTrees x) (map (\(_k, _) -> Path_Look _k) (toList x))])
+    upeekCol _ _p@(Path_Look _k _) x = Node (upeekCons idPath Nothing) (makeCol x (Path_Look _k) (\(Path_Look _ p) -> p) _p)
+    upeekCol _ p x = Node (upeekCons idPath (Just (u x))) []
 
 idLens :: Lens' a a
 idLens = id
