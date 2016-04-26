@@ -17,6 +17,7 @@ import Data.Maybe (fromMaybe)
 import Data.Monoid ((<>))
 import Data.String (fromString)
 import Data.Text as T (pack)
+import Language.Haskell.TH.Path.Core (Maybe'(Just'))
 import Language.Haskell.TH.Path.Order (toList)
 import Text.LaTeX as LTX (pageref, raw)
 import Text.LaTeX.Base.Class (commS)
@@ -77,15 +78,15 @@ abbrevsCommon r =
      (fromString "ValueTypeLongDescription", reportValueTypeDefinition (reportValueTypeInfo r))
      {- (fromString "ValueApproachExplanation", reportValueApproachDescription (reportValueApproachInfo r)) -} ] ++
      (case reportIntendedUse r of
-        Just InsuranceCoverage -> [(fromText "IntendedUseShortDescription", protectMarkdown "obtaining Insurance Coverage")]
+        Just' InsuranceCoverage -> [(fromText "IntendedUseShortDescription", protectMarkdown "obtaining Insurance Coverage")]
         _ -> []) ++
      (case reportIntendedUse r of
-        Just InsuranceCoverage -> [(fromText "ReportUsers", rawMarkdown "<bf>" <> reportItemsOwner r <> rawMarkdown " and the Insurance Company</bf>")]
+        Just' InsuranceCoverage -> [(fromText "ReportUsers", rawMarkdown "<bf>" <> reportItemsOwner r <> rawMarkdown " and the Insurance Company</bf>")]
         _ -> []) ++
      (case reportIntendedUse r of
-        Just InsuranceClaim -> [(fromText "IntendedUseShortDescription", protectMarkdown "making an Insurance Claim")]
+        Just' InsuranceClaim -> [(fromText "IntendedUseShortDescription", protectMarkdown "making an Insurance Claim")]
         _ -> []) ++
      (case reportIntendedUse r of
-        Just InsuranceClaim -> [(fromText "ReportUsers", rawMarkdown "<bf>" <> reportItemsOwner r <> rawMarkdown " and the Insurance Company</bf>")]
+        Just' InsuranceClaim -> [(fromText "ReportUsers", rawMarkdown "<bf>" <> reportItemsOwner r <> rawMarkdown " and the Insurance Company</bf>")]
         _ -> []) ++
     (toList (reportAbbrevs r))

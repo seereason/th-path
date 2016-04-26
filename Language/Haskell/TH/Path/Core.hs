@@ -63,6 +63,8 @@ module Language.Haskell.TH.Path.Core
     , lens_trace
     -- , listLookupLens
     , lens_mrs
+    , Maybe'(Just', Nothing')
+    , lens_mrs'
     , idLens
     , dummyLens
     , textLens
@@ -87,6 +89,7 @@ import Data.Tree (Tree(..), Forest)
 import Data.UserId (UserId(..))
 import Debug.Trace (trace)
 import Language.Haskell.TH.Instances ()
+import Language.Haskell.TH.Lift (deriveLiftMany)
 #if !__GHCJS__
 import Language.Haskell.TH.Path.Instances ()
 #endif
@@ -389,6 +392,15 @@ lens_mrs = iso getter setter
         getter (Just x) = show x
         setter x = maybeRead x
 
+-- | Alternative version of Maybe for which we can create alternative instances.
+data Maybe' a = Just' a | Nothing' deriving (Read, Show, Eq, Ord, Typeable, Data, Generic, ToJSON, FromJSON)
+
+lens_mrs' :: (Show a, Read a) => Iso' (Maybe' a) String
+lens_mrs' = iso getter setter
+  where getter Nothing' = ""
+        getter (Just' x) = show x
+        setter x = maybe Nothing' Just' (maybeRead x)
+
 readOnlyLens :: Iso' a a
 readOnlyLens = iso id (error "Lens.readOnlyLens: TROUBLE ignoring write to readOnlyLens")
 
@@ -541,4 +553,6 @@ $(deriveSafeCopy 0 'base ''Path_Map)
 $(deriveSafeCopy 0 'base ''Path_Either)
 $(deriveSafeCopy 0 'base ''Path_Maybe)
 $(deriveSafeCopy 0 'base ''Path_View)
+$(deriveSafeCopy 1 'base ''Maybe')
+$(deriveLiftMany [''Maybe'])
 #endif

@@ -78,7 +78,7 @@ import qualified Data.UUID.V4 as UUID (nextRandom)
 import Debug.Trace (trace)
 import GHC.Generics (Generic)
 import Language.Haskell.TH.Lift (deriveLiftMany)
-import Language.Haskell.TH.Path.Core (lens_mrs, readShowIso, SelfPath)
+import Language.Haskell.TH.Path.Core (lens_mrs', Maybe'(Just', Nothing'), readShowIso, SelfPath)
 import Language.Haskell.TH.Path.Order as Order (Order, toList, asList)
 import Language.Haskell.TH.Path.View (View(ViewType, viewLens))
 import Data.UUID.Orphans ()
@@ -318,11 +318,11 @@ instance Enum MarkupID where fromEnum = fromInteger . unMarkupID; toEnum = Marku
 type Markups = Order MarkupID Markup
 #endif
 
-type MaybeReportIntendedUse = Maybe ReportIntendedUse
+type MaybeReportIntendedUse = Maybe' ReportIntendedUse
 
 instance View MaybeReportIntendedUse where
     type ViewType MaybeReportIntendedUse = String
-    viewLens = lens_mrs
+    viewLens = lens_mrs'
 
 -- | The ReportStandard type indicates what UI features should be used
 -- for a particular report.  I would have made this an enumerated type,
@@ -354,7 +354,7 @@ data Report_17
              , reportTitle_17 :: Markup
              , reportHeader_17 :: Markup
              , reportFooter_17 :: Markup
-             , reportIntendedUse_17 :: MaybeReportIntendedUse
+             , reportIntendedUse_17 :: Maybe ReportIntendedUse
              , reportValueTypeInfo_17 :: ReportValueTypeInfo
              , reportValueApproachInfo_17 :: ReportValueApproachInfo
              , reportClientName_17 :: Markup
@@ -385,55 +385,156 @@ data Report_17
              }
     deriving (Read, Show, Eq, Ord, Typeable, Data)
 
-instance Migrate Report where
-    type MigrateFrom Report = Report_17
+instance Migrate Report_18 where
+    type MigrateFrom Report_18 = Report_17
     migrate r =
-        Report { reportStandardsVersion = ReportStandard 1
-               , reportFolder = reportFolder_17 r
-               , reportName = reportName_17 r
-               , reportDate = reportDate_17 r
-               , reportContractDate = reportContractDate_17 r
-               , reportInspectionDate = reportInspectionDate_17 r
-               , reportEffectiveDate = reportEffectiveDate_17 r
-               , reportAuthors = reportAuthors_17 r
-               , reportPreparer = reportPreparer_17 r
-               , reportPreparerEIN = reportPreparerEIN_17 r
-               , reportPreparerAddress = reportPreparerAddress_17 r
-               , reportPreparerEMail = reportPreparerEMail_17 r
-               , reportPreparerWebsite = reportPreparerWebsite_17 r
-               , reportAbbrevs = reportAbbrevs_17 r
-               , reportTitle = reportTitle_17 r
-               , reportHeader = reportHeader_17 r
-               , reportFooter = reportFooter_17 r
-               , reportIntendedUse = reportIntendedUse_17 r
-               , reportValueTypeInfo = reportValueTypeInfo_17 r
-               , reportValueApproachInfo = reportValueApproachInfo_17 r
-               , reportClientName = reportClientName_17 r
-               , reportClientAddress = reportClientAddress_17 r
-               , reportClientGreeting = reportClientGreeting_17 r
-               , reportItemsOwnerFull = reportItemsOwnerFull_17 r
-               , reportItemsOwner = reportItemsOwner_17 r
-               , reportBriefItems = reportBriefItems_17 r
-               , reportInspectionLocation = reportInspectionLocation_17 r
-               , reportBody = reportBody_17 r
-               , reportGlossary = reportGlossary_17 r
-               , reportSources = reportSources_17 r
-               , reportLetterOfTransmittal = reportLetterOfTransmittal_17 r
-               , reportScopeOfWork = reportScopeOfWork_17 r
-               , reportCertification = reportCertification_17 r
-               , reportLimitingConditions = reportLimitingConditions_17 r
-               , reportPrivacyPolicy = reportPrivacyPolicy_17 r
-               , reportPerms = reportPerms_17 r
-               , reportRevision = reportRevision_17 r
-               , reportCreated = reportCreated_17 r
-               , reportBranding = reportBranding_17 r
-               , reportStatus = reportStatus_17 r
-               , reportRedacted = reportRedacted_17 r
-               , reportFlags = reportFlags_17 r
-               , reportUUID = reportUUID_17 r
-               , reportOrderByItemName = reportOrderByItemName_17 r
-               , reportDisplayItemName = reportDisplayItemName_17 r }
+        Report_18
+               { reportStandardsVersion_18 = ReportStandard 1
+               , reportFolder_18 = reportFolder_17 r
+               , reportName_18 = reportName_17 r
+               , reportDate_18 = reportDate_17 r
+               , reportContractDate_18 = reportContractDate_17 r
+               , reportInspectionDate_18 = reportInspectionDate_17 r
+               , reportEffectiveDate_18 = reportEffectiveDate_17 r
+               , reportAuthors_18 = reportAuthors_17 r
+               , reportPreparer_18 = reportPreparer_17 r
+               , reportPreparerEIN_18 = reportPreparerEIN_17 r
+               , reportPreparerAddress_18 = reportPreparerAddress_17 r
+               , reportPreparerEMail_18 = reportPreparerEMail_17 r
+               , reportPreparerWebsite_18 = reportPreparerWebsite_17 r
+               , reportAbbrevs_18 = reportAbbrevs_17 r
+               , reportTitle_18 = reportTitle_17 r
+               , reportHeader_18 = reportHeader_17 r
+               , reportFooter_18 = reportFooter_17 r
+               , reportIntendedUse_18 = reportIntendedUse_17 r
+               , reportValueTypeInfo_18 = reportValueTypeInfo_17 r
+               , reportValueApproachInfo_18 = reportValueApproachInfo_17 r
+               , reportClientName_18 = reportClientName_17 r
+               , reportClientAddress_18 = reportClientAddress_17 r
+               , reportClientGreeting_18 = reportClientGreeting_17 r
+               , reportItemsOwnerFull_18 = reportItemsOwnerFull_17 r
+               , reportItemsOwner_18 = reportItemsOwner_17 r
+               , reportBriefItems_18 = reportBriefItems_17 r
+               , reportInspectionLocation_18 = reportInspectionLocation_17 r
+               , reportBody_18 = reportBody_17 r
+               , reportGlossary_18 = reportGlossary_17 r
+               , reportSources_18 = reportSources_17 r
+               , reportLetterOfTransmittal_18 = reportLetterOfTransmittal_17 r
+               , reportScopeOfWork_18 = reportScopeOfWork_17 r
+               , reportCertification_18 = reportCertification_17 r
+               , reportLimitingConditions_18 = reportLimitingConditions_17 r
+               , reportPrivacyPolicy_18 = reportPrivacyPolicy_17 r
+               , reportPerms_18 = reportPerms_17 r
+               , reportRevision_18 = reportRevision_17 r
+               , reportCreated_18 = reportCreated_17 r
+               , reportBranding_18 = reportBranding_17 r
+               , reportStatus_18 = reportStatus_17 r
+               , reportRedacted_18 = reportRedacted_17 r
+               , reportFlags_18 = reportFlags_17 r
+               , reportUUID_18 = reportUUID_17 r
+               , reportOrderByItemName_18 = reportOrderByItemName_17 r
+               , reportDisplayItemName_18 = reportDisplayItemName_17 r }
 #endif
+
+data Report_18
+    = Report_18
+             { reportFolder_18 :: FilePath
+             , reportName_18 :: Markup
+             , reportDate_18 :: Markup
+             , reportContractDate_18 :: Markup
+             , reportInspectionDate_18 :: Markup
+             , reportEffectiveDate_18 :: Markup
+             , reportAuthors_18 :: Authors
+             , reportPreparer_18 :: Markup
+             , reportPreparerEIN_18 :: Markup
+             , reportPreparerAddress_18 :: Markup
+             , reportPreparerEMail_18 :: Markup
+             , reportPreparerWebsite_18 :: Markup
+             , reportAbbrevs_18 :: AbbrevPairs
+             , reportTitle_18 :: Markup
+             , reportHeader_18 :: Markup
+             , reportFooter_18 :: Markup
+             , reportIntendedUse_18 :: Maybe ReportIntendedUse
+             , reportValueTypeInfo_18 :: ReportValueTypeInfo
+             , reportValueApproachInfo_18 :: ReportValueApproachInfo
+             , reportClientName_18 :: Markup
+             , reportClientAddress_18 :: Markup
+             , reportClientGreeting_18 :: Markup
+             , reportItemsOwnerFull_18 :: Markup
+             , reportItemsOwner_18 :: Markup
+             , reportBriefItems_18 :: Markup
+             , reportInspectionLocation_18 :: Markup
+             , reportBody_18 :: ReportElems
+             , reportGlossary_18 :: MarkupPairs
+             , reportSources_18 :: MarkupPairs
+             , reportLetterOfTransmittal_18 :: Markup
+             , reportScopeOfWork_18 :: Markup
+             , reportCertification_18 :: Markups
+             , reportLimitingConditions_18 :: Markups
+             , reportPrivacyPolicy_18 :: Markup
+             , reportPerms_18 :: Permissions
+             , reportRevision_18 :: Integer
+             , reportCreated_18 :: EpochMilli
+             , reportBranding_18 :: Branding
+             , reportStatus_18 :: ReportStatus
+             , reportRedacted_18 :: Bool
+             , reportFlags_18 :: ReportFlags
+             , reportUUID_18 :: UUID
+             , reportOrderByItemName_18 :: Bool
+             , reportDisplayItemName_18 :: Bool
+             , reportStandardsVersion_18 :: ReportStandard
+             }
+    deriving (Read, Show, Eq, Ord, Typeable, Data, Generic, FromJSON, ToJSON)
+
+instance Migrate Report where
+    type MigrateFrom Report = Report_18
+    migrate r =
+        Report { reportFolder = reportFolder_18 r
+               , reportName = reportName_18 r
+               , reportDate = reportDate_18 r
+               , reportContractDate = reportContractDate_18 r
+               , reportInspectionDate = reportInspectionDate_18 r
+               , reportEffectiveDate = reportEffectiveDate_18 r
+               , reportAuthors = reportAuthors_18 r
+               , reportPreparer = reportPreparer_18 r
+               , reportPreparerEIN = reportPreparerEIN_18 r
+               , reportPreparerAddress = reportPreparerAddress_18 r
+               , reportPreparerEMail = reportPreparerEMail_18 r
+               , reportPreparerWebsite = reportPreparerWebsite_18 r
+               , reportAbbrevs = reportAbbrevs_18 r
+               , reportTitle = reportTitle_18 r
+               , reportHeader = reportHeader_18 r
+               , reportFooter = reportFooter_18 r
+               , reportIntendedUse = maybe Nothing' Just' (reportIntendedUse_18 r)
+               , reportValueTypeInfo = reportValueTypeInfo_18 r
+               , reportValueApproachInfo = reportValueApproachInfo_18 r
+               , reportClientName = reportClientName_18 r
+               , reportClientAddress = reportClientAddress_18 r
+               , reportClientGreeting = reportClientGreeting_18 r
+               , reportItemsOwnerFull = reportItemsOwnerFull_18 r
+               , reportItemsOwner = reportItemsOwner_18 r
+               , reportBriefItems = reportBriefItems_18 r
+               , reportInspectionLocation = reportInspectionLocation_18 r
+               , reportBody = reportBody_18 r
+               , reportGlossary = reportGlossary_18 r
+               , reportSources = reportSources_18 r
+               , reportLetterOfTransmittal = reportLetterOfTransmittal_18 r
+               , reportScopeOfWork = reportScopeOfWork_18 r
+               , reportCertification = reportCertification_18 r
+               , reportLimitingConditions = reportLimitingConditions_18 r
+               , reportPrivacyPolicy = reportPrivacyPolicy_18 r
+               , reportPerms = reportPerms_18 r
+               , reportRevision = reportRevision_18 r
+               , reportCreated = reportCreated_18 r
+               , reportBranding = reportBranding_18 r
+               , reportStatus = reportStatus_18 r
+               , reportRedacted = reportRedacted_18 r
+               , reportFlags = reportFlags_18 r
+               , reportUUID = reportUUID_18 r
+               , reportOrderByItemName = reportOrderByItemName_18 r
+               , reportDisplayItemName = reportDisplayItemName_18 r
+               , reportStandardsVersion = reportStandardsVersion_18 r
+               }
 
 data Report
     = Report { reportFolder :: FilePath
@@ -511,17 +612,17 @@ data ReportElemTypeName
 reportIntendedUseMarkup :: Report -> Maybe Markup
 reportIntendedUseMarkup report =
     case reportIntendedUse report of
-      Just SalesAdvisory -> Just (rawMarkdown "Sales Advisory")
-      Just EstatePlanning -> Just (rawMarkdown "Estate Planning")
-      Just EstateTax -> Just (rawMarkdown "Estate Tax")
-      Just InsuranceCoverage -> Just (rawMarkdown "Insurance Coverage")
-      Just InsuranceClaim -> Just (rawMarkdown "Insurance Claim")
-      Just CharitableDonation -> Just (rawMarkdown "Charitable Donation for Income Tax")
-      Just EquitableDistribution -> Just (rawMarkdown "Equitable Distribution")
-      Just MaritalDissolution -> Just (rawMarkdown "Marital Dissolution")
-      Just EstateDivision -> Just (rawMarkdown "Estate Division")
-      Just EstateProbate -> Just (rawMarkdown "Estate Probate")
-      Nothing -> Nothing
+      Just' SalesAdvisory -> Just (rawMarkdown "Sales Advisory")
+      Just' EstatePlanning -> Just (rawMarkdown "Estate Planning")
+      Just' EstateTax -> Just (rawMarkdown "Estate Tax")
+      Just' InsuranceCoverage -> Just (rawMarkdown "Insurance Coverage")
+      Just' InsuranceClaim -> Just (rawMarkdown "Insurance Claim")
+      Just' CharitableDonation -> Just (rawMarkdown "Charitable Donation for Income Tax")
+      Just' EquitableDistribution -> Just (rawMarkdown "Equitable Distribution")
+      Just' MaritalDissolution -> Just (rawMarkdown "Marital Dissolution")
+      Just' EstateDivision -> Just (rawMarkdown "Estate Division")
+      Just' EstateProbate -> Just (rawMarkdown "Estate Probate")
+      Nothing' -> Nothing
 
 reportValueSum :: Report -> (CashValue, Int, Int)
 reportValueSum report =
@@ -696,7 +797,8 @@ $(deriveSafeCopy 1 'base ''ReportValueApproachInfo)
 $(deriveSafeCopy 1 'base ''ReportElem_1)
 $(deriveSafeCopy 2 'extension ''ReportElem)
 $(deriveSafeCopy 17 'base ''Report_17)
-$(deriveSafeCopy 18 'extension ''Report)
+$(deriveSafeCopy 18 'extension ''Report_18)
+$(deriveSafeCopy 19 'extension ''Report)
 $(deriveSafeCopy 1 'base ''ReportStandard)
 $(deriveSafeCopy 1 'base ''ReportStatus)
 $(deriveSafeCopy 0 'base ''ReportFlags)
