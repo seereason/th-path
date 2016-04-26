@@ -398,6 +398,7 @@ instance (p ~ UPath u (Maybe a), IsPath p, s ~ Maybe a, u ~ UType p, s ~ SType p
                         _ -> Node (upeekCons idPath Nothing) (concat [concatMap (makeTrees x) [Path_Just]])
     upeekCol _ (_p@(Path_Just _q)) x = Node (upeekCons idPath Nothing) (makeCol x (\q -> Path_Just q) (\(Path_Just p) -> p) _p)
     upeekCol _ _p x = Node (upeekCons idPath (Just (u x))) []
+-}
 
 instance (p ~ UPath u (a, b), IsPath p, s ~ (a, b), u ~ UType p, s ~ SType p, U u s,
           q ~ UPath u a, IsPath q, u ~ UType q, PathStart u a,
@@ -415,7 +416,6 @@ instance (p ~ UPath u (a, b), IsPath p, s ~ (a, b), u ~ UType p, s ~ SType p, U 
     upeekCol _ (_p@(Path_First _q)) x = Node (upeekCons idPath Nothing) (makeCol x Path_First (\(Path_First p) -> p) _p)
     upeekCol _ (_p@(Path_Second _q)) x = Node (upeekCons idPath Nothing) (makeCol x Path_Second (\(Path_Second p) -> p) _p)
     upeekCol _ _p x = Node (upeekCons idPath (Just (u x))) []
--}
 
 instance (p ~ UPath u (Map k a), IsPath p, s ~ Map k a, u ~ UType p, s ~ SType p, U u s,
           q ~ UPath u a, IsPath q, u ~ UType q, PathStart u a

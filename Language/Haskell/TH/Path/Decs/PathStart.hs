@@ -86,8 +86,8 @@ peekDecs utype v =
        (clauses :: [WriterType]) <- execWriterT (doNode (pathControl v) v)
        let (udcs, upcs, uprcs, uptcs, upccs, tlms) = partitionClauses clauses
        let hasPathStartInstance = case show (asType v) of
-                                    -- "ConT Appraisal.Report.AbbrevPair" -> True
-                                    -- "ConT Appraisal.Report.MarkupPair" -> True
+                                    "ConT Appraisal.Report.AbbrevPair" -> True
+                                    "ConT Appraisal.Report.MarkupPair" -> True
                                     "ConT Appraisal.ReportImage.EUI" -> True
                                     "ConT Appraisal.ReportItem.MIM" -> True
                                     "ConT Appraisal.ReportMap.MRR" -> True
