@@ -209,6 +209,7 @@ deriving instance (Eq u, Eq (UPath u s)) => Eq (Peek u s)
 deriving instance (Ord u, Ord (UPath u s)) => Ord (Peek u s)
 deriving instance (Data u, Data (UPath u s), Data s, Typeable s) => Data (Peek u s)
 deriving instance (Typeable u, Typeable (UPath u s)) => Typeable (Peek u s)
+deriving instance Generic (Peek u s)
 
 -- | Given a function that lifts a path by one hop (e.g. a constructor
 -- such as Path_Left), return the peek(s?) resulting from traversing that hop.
