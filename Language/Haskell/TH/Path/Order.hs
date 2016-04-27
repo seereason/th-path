@@ -58,7 +58,7 @@ import Data.Tree (Tree(Node))
 import Data.Typeable (Typeable)
 import GHC.Generics (Generic)
 import Language.Haskell.TH
-import Language.Haskell.TH.Path.Core (IsPath(..), Describe(..), makeCol, makeRow, makeTrees, PathStart(..), U(u, unU'))
+import Language.Haskell.TH.Path.Core (Describe(..), IsPath(..), makeCol, makeRow, makeTrees, PathStart(..), Peek(..), U(u, unU'))
 -- import Language.Haskell.TH.Path.GHCJS (SafeCopy(..), base, contain, deriveSafeCopy, safeGet, safePut)
 import Language.Haskell.TH.Lift (deriveLiftMany)
 import Language.Haskell.TH.TypeGraph.Prelude ({-some Lift instances?-})
@@ -241,19 +241,15 @@ instance (IsPath (Path_OMap k v), Describe v, Describe (Proxy (SType (Path_OMap 
           describe' _ p = error ("Unexpected path: " ++ show p)
 
 instance (u ~ UType (UPath u a), a ~ SType (UPath u a),
-          U u (Order k a),
-          Data k, Ord k, Enum k, Read k, Show k, PathStart u a
+          U u (Order k a), PathStart u a,
+          Data k, Ord k, Enum k, Read k, Show k, FromJSON k, ToJSON k
          ) => PathStart u (Order k a) where
     type UPath u (Order k a) = Path_OMap k (UPath u a)
-    data UPeek u (Order k a) = UPeek_OMap (UPath u (Order k a)) (Maybe u)
-    upeekCons = UPeek_OMap
-    upeekPath (UPeek_OMap p _) = p
-    upeekValue (UPeek_OMap _ x) = x
-    upeekRow _ (x@_xyz) = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) (map (\(_k, _) -> Path_At _k) (toPairs _xyz))])
-    upeekTree _ (Just 0) (x@_xyz) = Node (upeekCons idPath (Just (u x))) []
-    upeekTree _ d (x@_xyz) = Node (upeekCons idPath Nothing) (concat [concatMap (makeTrees d x) (map (\(_k, _) -> Path_At _k) (toPairs _xyz))])
-    upeekCol _ (_p@(Path_At _k _q)) (x@_xyz) = Node (upeekCons idPath Nothing) (makeCol x (Path_At _k) (\(Path_At _ p) -> p) _p)
-    upeekCol _ _p (x@_xyz) = Node (upeekCons idPath (Just (u x))) []
+    upeekRow _ (x@_xyz) = Node (Peek idPath Nothing) (concat [concatMap (makeRow x) (map (\(_k, _) -> Path_At _k) (toPairs _xyz))])
+    upeekTree _ (Just 0) (x@_xyz) = Node (Peek idPath (Just (u x))) []
+    upeekTree _ d (x@_xyz) = Node (Peek idPath Nothing) (concat [concatMap (makeTrees d x) (map (\(_k, _) -> Path_At _k) (toPairs _xyz))])
+    upeekCol _ (_p@(Path_At _k _q)) (x@_xyz) = Node (Peek idPath Nothing) (makeCol x (Path_At _k) (\(Path_At _ p) -> p) _p)
+    upeekCol _ _p (x@_xyz) = Node (Peek idPath (Just (u x))) []
 
 #if !__GHCJS__
 -- | Given the name of a type such as AbbrevPair, generate declarations

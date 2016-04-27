@@ -22,7 +22,6 @@ import Control.Monad (when)
 import Control.Monad.Writer (execWriterT, MonadWriter, tell)
 import Data.Aeson (FromJSON, ToJSON)
 import Data.Data (Data, Typeable)
-import Data.Map as Map (toList)
 import Data.Maybe (fromMaybe)
 import Data.Proxy
 import Data.Tree (Tree(Node))
@@ -32,11 +31,11 @@ import Language.Haskell.TH.Context (reifyInstancesWithContext)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Common (HasConQ(asConQ), HasCon(asCon), HasName(asName), HasType(asType), HasTypeQ(asTypeQ),
                                         makeUFieldCon, makeUPathType, ModelType(ModelType), PathType, telld, tells)
-import Language.Haskell.TH.Path.Core (camelWords, IsPath(..), makeRow, makeTrees, makeCol,
-                                      PathStart(..), Describe(describe'),
+import Language.Haskell.TH.Path.Core (camelWords, Describe(describe'), IsPath(..), makeRow, makeTrees, makeCol,
+                                      PathStart(..), Peek(..),
                                       Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..), Path_List, Path_View(..), U(u, unU'))
 import Language.Haskell.TH.Path.Graph (TypeGraphM)
-import Language.Haskell.TH.Path.Order (Path_OMap(..), toPairs)
+import Language.Haskell.TH.Path.Order (Path_OMap(..))
 import Language.Haskell.TH.Path.Traverse (asP', Control(..), doNode)
 import Language.Haskell.TH.Syntax (liftString)
 import Language.Haskell.TH.TypeGraph.Shape (constructorName, Field)
@@ -86,43 +85,42 @@ peekDecs utype v =
        (clauses :: [WriterType]) <- execWriterT (doNode (pathControl v) v)
        let (udcs, upcs, uprcs, uptcs, upccs, tlms) = partitionClauses clauses
        let hasPathStartInstance = case show (asType v) of
+                                    "ConT Appraisal.Report.AbbrevPairs" -> True
                                     "ConT Appraisal.Report.AbbrevPair" -> True
-                                    "ConT Appraisal.Report.MarkupPair" -> True
+                                    "ConT Appraisal.Report.Authors" -> True
                                     "ConT Appraisal.ReportImage.EUI" -> True
+                                    "ConT Appraisal.ReportImage.MaybeImageFile" -> True
+                                    "ConT Appraisal.ReportImage.MEUI" -> True
+                                    "ConT Appraisal.ReportImage.ReportImages" -> True
                                     "ConT Appraisal.ReportItem.MIM" -> True
                                     "ConT Appraisal.ReportMap.MRR" -> True
-                                    "ConT Appraisal.ReportImage.MEUI" -> True
-                                    "ConT Appraisal.ReportImage.MaybeImageFile" -> True
-                                    "ConT Appraisal.ReportImage.ReportImages" -> True
-                                    "ConT Appraisal.Report.ReportElems" -> True
-                                    "ConT Appraisal.Report.Markups" -> True
                                     "ConT Appraisal.Report.MarkupPairs" -> True
-                                    "ConT Appraisal.Report.Authors" -> True
-                                    "ConT Appraisal.Report.AbbrevPairs" -> True
-                                    "ConT Appraisal.ReportImage.ReportImages" -> True
+                                    "ConT Appraisal.Report.MarkupPair" -> True
+                                    "ConT Appraisal.Report.Markups" -> True
+                                    "ConT Appraisal.Report.ReportElems" -> True
                                     _ -> trace ("type: " ++ show (asType v)) False
        when (not hasPathStartInstance)
             (instanceD' (cxt []) [t|PathStart $utype $(asTypeQ v)|]
                (sequence
-                [pure (dataInstD (cxt []) ''UPeek [utype, asTypeQ v]
+                [{-pure (dataInstD (cxt []) ''UPeek [utype, asTypeQ v]
                                  [normalC (asName (makeUPeekCon (ModelType (asName v))))
                                           [strictType notStrict [t|UPath $utype $(asTypeQ v)|],
                                            strictType notStrict [t|Maybe $utype|]]]
-                                 [''Eq, ''Show, ''Generic, ''FromJSON, ''ToJSON]),
+                                 [''Eq, ''Ord, ''Read, ''Show, ''Generic, ''FromJSON, ''ToJSON]),
                  pure (funD 'upeekCons [clause [] (normalB (conE (asName (makeUPeekCon (ModelType (asName v)))))) []]),
                  pure (funD 'upeekPath [newName "p" >>= \p -> clause [conP (asName (makeUPeekCon (ModelType (asName v)))) [varP p, wildP]] (normalB (varE p)) []]),
-                 pure (funD 'upeekValue [newName "x" >>= \x -> clause [conP (asName (makeUPeekCon (ModelType (asName v)))) [wildP, varP x]] (normalB (varE x)) []]),
+                 pure (funD 'upeekValue [newName "x" >>= \x -> clause [conP (asName (makeUPeekCon (ModelType (asName v)))) [wildP, varP x]] (normalB (varE x)) []]),-}
                  pure (tySynInstD ''UPath (tySynEqn [utype, asTypeQ v] (pure uptype))),
                  funD' 'upeekRow (case uprcs of
-                                    [] -> pure [clause [wildP, wildP] (normalB [| Node (upeekCons idPath Nothing) [] |]) []]
+                                    [] -> pure [clause [wildP, wildP] (normalB [| Node (Peek idPath Nothing) [] |]) []]
                                     _ -> pure uprcs),
                  funD' 'upeekTree (case uptcs of
                                      [] -> pure [do x <- newName "x"
-                                                    clause [wildP, wildP, varP x] (normalB [| Node (upeekCons idPath (Just (u $(varE x)))) [] |]) []]
+                                                    clause [wildP, wildP, varP x] (normalB [| Node (Peek idPath (Just (u $(varE x)))) [] |]) []]
                                      _ -> pure uptcs),
                  funD' 'upeekCol (case upccs of
                                     [] -> pure [do x <- newName "x"
-                                                   clause [wildP, wildP, varP x] (normalB [|Node (upeekCons idPath (Just (u $(varE x)))) []|]) []]
+                                                   clause [wildP, wildP, varP x] (normalB [|Node (Peek idPath (Just (u $(varE x)))) []|]) []]
                                     _ -> pure upccs)
                 ]))
        when (not (null udcs)) (instanceD' (cxt []) [t|Describe $(pure uptype)|] (pure [do funD 'describe' udcs]))
@@ -225,7 +223,7 @@ doHops xpat hops = do
   x <- runQ $ newName "x"
   tell [UPeekRowClause $
           do clause [wildP, asP' x xpat]
-                    (normalB [|Node (upeekCons idPath Nothing)
+                    (normalB [|Node (Peek idPath Nothing)
                                     (concat $(listE (map (\hop -> [|concatMap (makeRow $(varE x)) $(xpaths hop)|]) hops)))|])
                     [],
         UPeekTreeClause $
@@ -233,13 +231,13 @@ doHops xpat hops = do
              case null hops of
                -- There are no hops from here, so no subnodes.
                True -> clause [wildP, wildP, asP' x xpat]
-                              (normalB [|Node (upeekCons idPath (Just (u $(varE x)))) []|])
+                              (normalB [|Node (Peek idPath (Just (u $(varE x)))) []|])
                               []
                False ->  clause [wildP, varP d, asP' x xpat]
                                 (normalB [|case $(varE d) of
                                              -- We reached the desired depth
-                                             Just 0 -> Node (upeekCons idPath (Just (u $(varE x)))) []
-                                             _ -> Node (upeekCons idPath Nothing)
+                                             Just 0 -> Node (Peek idPath (Just (u $(varE x)))) []
+                                             _ -> Node (Peek idPath Nothing)
                                                        (concat $(listE (map (\hop -> [|concatMap (makeTrees $(varE d) $(varE x)) $(xpaths hop)|]) hops)))|])
                                 []]
   tell (map (\hop ->
@@ -247,7 +245,7 @@ doHops xpat hops = do
                    p <- newName "_p"
                    q <- newName "_q"
                    clause [wildP, asP p ((upat hop) (varP q)), asP' x xpat]
-                              (normalB [|Node (upeekCons idPath Nothing)
+                              (normalB [|Node (Peek idPath Nothing)
                                               (makeCol $(varE x)
                                                        $(pprev hop)
                                                        $(pnext hop)
@@ -257,7 +255,7 @@ doHops xpat hops = do
         [UPeekColClause $ do
            p <- newName "_p"
            clause [wildP, varP p, asP' x xpat]
-                  (normalB [|Node (upeekCons idPath (Just (u $(varE x)))) []|])
+                  (normalB [|Node (Peek idPath (Just (u $(varE x)))) []|])
                   []])
 
 -- | Given a type, compute the corresponding path type.

@@ -72,7 +72,7 @@ doUniv = do
                                                                                  clause [wildP] (normalB [|Nothing|]) []]]]) pairs
   tells [dataD (pure []) uname []
                (map (\(typ, ucon) -> normalC ucon [strictType notStrict typ]) pairs)
-               [''Eq, ''Ord, ''Show, ''Data, ''Typeable, ''Generic, ''FromJSON, ''ToJSON],
+               [''Eq, ''Ord, ''Read, ''Show, ''Data, ''Typeable, ''Generic, ''FromJSON, ''ToJSON],
          funD (mkName "uMatch") (map (\(_, ucon) -> clause [conP ucon [wildP], conP ucon [wildP]] (normalB [|True|]) []) pairs ++
                                  [clause [wildP, wildP] (normalB [|False|]) []])]
   telld [d| ulens :: U $(conT uname) a => Iso' $(conT uname) a
