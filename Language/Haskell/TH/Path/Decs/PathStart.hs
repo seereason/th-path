@@ -146,13 +146,19 @@ peekDecs utype v =
 pathControl :: forall m. (TypeGraphM m, MonadWriter [WriterType] m) => TGVSimple -> Control m Hop () ()
 pathControl v =
     Control
-    { _doSimple =
+    { _doSelf = pure ()
+    , _doOrder = \_i _typ -> pure ()
+    , _doMap = \_i _typ -> pure ()
+    , _doList = \_e -> pure ()
+    , _doPair = \_ftyp _styp -> pure ()
+    , _doMaybe = \_typ -> pure ()
+    , _doEither = \_ltyp _rtyp -> pure ()
+    , _doSimple =
           do let pname = makeUPathType (ModelType (asName v))
              f <- runQ $ newName "f"
              tell [UDescClause $ clause [varP f, wildP] (normalB [| describe' $(varE f) (Proxy :: Proxy $(asTypeQ v)) |]) [],
                    ToLensMatch (match wildP (normalB [|lens u (\s a -> maybe s id (unU' a))|]) []),
                    UPathCon (normalC (asName pname) [])]
-    , _doSelf = pure ()
     , _doView =
         \_typ ->
             do doHops wildP
@@ -160,57 +166,6 @@ pathControl v =
                            , xpaths = [| [Path_To Proxy] |]
                            , pnext = [|\(Path_To Proxy q) -> q|]
                            , pprev = [|Path_To Proxy|]}]
-    , _doOrder =
-        \_i _typ ->
-            do x <- runQ $ newName "_xyz"
-               i <- runQ $ newName "_k"
-               doHops (varP x)
-                      [Hop { upat = (\p -> [p|Path_At $(varP i) $p|])
-                           , xpaths = [|map (\($(varP i), _) -> Path_At $(varE i)) (toPairs $(varE x))|] -- a list of functions corresponding to elements of the Order
-                           , pnext = [|\(Path_At _ p) -> p|]
-                           , pprev = [|Path_At $(varE i)|]}]
-
-    , _doMap =
-        \_i _typ ->
-            do x <- runQ $ newName "_xyz"
-               i <- runQ $ newName "_k"
-               doHops (varP x)
-                      [Hop { upat = (\p -> [p|Path_Look $(varP i) $p|])
-                           , xpaths = [|map (\($(varP i), _) -> Path_Look $(varE i)) (Map.toList $(varE x))|]
-                           , pnext = [|\(Path_Look _ p) -> p|]
-                           , pprev = [|Path_Look $(varE i)|]}]
-    , _doList =
-        \_e -> pure ()
-    , _doPair =
-        \_ftyp _styp ->
-            do doHops wildP
-                      [ Hop { upat =  (\p -> conP 'Path_First [p])
-                            , xpaths =  [| [Path_First] |]
-                            , pnext =  [|\(Path_First p) -> p|]
-                            , pprev =  [|Path_First|]}
-                      , Hop { upat = (\p -> conP 'Path_Second [p])
-                            , xpaths = [| [Path_Second] |]
-                            , pnext = [|\(Path_Second p) -> p|]
-                            , pprev = [|Path_Second|]} ]
-    , _doMaybe =
-        \_typ ->
-            do doHops wildP
-                      [Hop { upat = (\p -> conP 'Path_Just [p])
-                           , xpaths = [|[Path_Just]|]
-                           , pnext = [|\(Path_Just p) -> p|]
-                           , pprev = [|\q -> Path_Just q|]}]
-    , _doEither =
-        \_ltyp _rtyp ->
-            do doHops (conP 'Left [wildP])
-                      [Hop { upat = (\p -> conP 'Path_Left [p])
-                           , xpaths = [|[Path_Left]|]
-                           , pnext = [|\(Path_Left p) -> p|]
-                           , pprev = [|Path_Left|] }]
-               doHops (conP 'Right [wildP])
-                      [Hop { upat = (\p -> conP 'Path_Right [p])
-                           , xpaths = [|[Path_Right]|]
-                           , pnext = [|\(Path_Right p) -> p|]
-                           , pprev = [|Path_Right|] }]
     , _doField =
         \fld@(_tname, _con, Right fname) typ ->
             do w <- tgvSimple' typ >>= tgv (Just fld)
