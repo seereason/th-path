@@ -64,15 +64,17 @@ doUniv = do
   uname <- runQ $ newName "Univ"
   -- Sort these so the U constructors don't change any more than necessary.
   types <- (map pure . sort . map asType . Set.toList) <$> allPathStarts
-  cons <- mapM (\(typ, n) -> do
-                  ucon <- runQ $ newName ("U" ++ show n)
-                  tells [newName "a" >>= \a ->
-                         instanceD (cxt []) [t|U $(conT uname) $typ|] [funD 'u [clause [] (normalB (conE ucon)) []],
-                                                                       funD 'unU' [clause [conP ucon [varP a]] (normalB [|Just $(varE a)|]) [],
-                                                                                   clause [wildP] (normalB [|Nothing|]) []]]]
-                  return $ normalC ucon [strictType notStrict typ])
-               (zip types ([1..] :: [Int]))
-  tells [dataD (pure []) uname [] cons [''Eq, ''Ord, ''Show, ''Data, ''Typeable, ''Generic, ''FromJSON, ''ToJSON]]
+  pairs <- runQ $ mapM (\(typ, n) -> (,) <$> pure typ <*> newName ("U" ++ show n)) (zip types ([1..] :: [Int]))
+  mapM_ (\(typ, ucon) ->
+             tells [do a <- newName "a"
+                       instanceD (cxt []) [t|U $(conT uname) $typ|] [funD 'u [clause [] (normalB (conE ucon)) []],
+                                                                     funD 'unU' [clause [conP ucon [varP a]] (normalB [|Just $(varE a)|]) [],
+                                                                                 clause [wildP] (normalB [|Nothing|]) []]]]) pairs
+  tells [dataD (pure []) uname []
+               (map (\(typ, ucon) -> normalC ucon [strictType notStrict typ]) pairs)
+               [''Eq, ''Ord, ''Show, ''Data, ''Typeable, ''Generic, ''FromJSON, ''ToJSON],
+         funD (mkName "uMatch") (map (\(_, ucon) -> clause [conP ucon [wildP], conP ucon [wildP]] (normalB [|True|]) []) pairs ++
+                                 [clause [wildP, wildP] (normalB [|False|]) []])]
   telld [d| ulens :: U $(conT uname) a => Iso' $(conT uname) a
             ulens = ulens' Proxy |]
   return $ conT uname
