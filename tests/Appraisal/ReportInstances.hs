@@ -49,7 +49,7 @@ instance Describe (Proxy Double) where describe' _ Proxy = Nothing
 
 instance Describe (Proxy Markup) where
     describe' (Just f) Proxy | f == camelWords (nameBase 'reportLetterOfTransmittal) = Just "Letter of Transmittal"
-    describe' _ _ = Nothing
+    describe' x _ = x
 
 newtype ReadOnly a = ReadOnly {unReadOnly :: a} deriving (Read, Show, Eq, Ord, Typeable, Data, Generic, FromJSON, ToJSON)
 
