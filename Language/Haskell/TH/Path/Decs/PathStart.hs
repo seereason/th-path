@@ -240,7 +240,7 @@ doHops xpat hops = do
                                              -- We reached the desired depth
                                              Just 0 -> Node (upeekCons idPath (Just (u $(varE x)))) []
                                              _ -> Node (upeekCons idPath Nothing)
-                                                       (concat $(listE (map (\hop -> [|concatMap (makeTrees $(varE x)) $(xpaths hop)|]) hops)))|])
+                                                       (concat $(listE (map (\hop -> [|concatMap (makeTrees $(varE d) $(varE x)) $(xpaths hop)|]) hops)))|])
                                 []]
   tell (map (\hop ->
                  UPeekColClause $ do

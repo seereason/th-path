@@ -217,8 +217,8 @@ makeRow x f = forestMap (mapPeek f) (map makePeek (hopValues f x))
 -- such as Path_Left), return the peek(s?) resulting from traversing that hop.
 makeTrees :: forall s u p q a. (u ~ UType p, s ~ SType p, UPath u s ~ p, PathStart u s,
                                 u ~ UType q, a ~ SType q, UPath u a ~ q, PathStart u a) =>
-             s -> (q -> p) -> [Tree (UPeek u s)]
-makeTrees x f = forestMap (mapPeek f) (map (upeekTree Proxy Nothing) (hopValues f x))
+             Maybe Int -> s -> (q -> p) -> [Tree (UPeek u s)]
+makeTrees d x f = forestMap (mapPeek f) (map (upeekTree Proxy (fmap pred d)) (hopValues f x))
 
 -- | Helper function for implementing upeekCol
 makeCol :: forall s u p q a. (u ~ UType p, s ~ SType p, UPath u s ~ p, PathStart u s,
@@ -375,10 +375,10 @@ instance (p ~ UPath u (Either a b), IsPath p, s ~ (Either a b), u ~ UType p, s ~
     upeekRow _ (x@(Right _)) = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) [Path_Right]])
     upeekTree _ d (x@(Left _)) = case d of
                                      Just 0 -> Node (upeekCons idPath (Just (u x))) []
-                                     _ -> Node (upeekCons idPath Nothing) (concat [concatMap (makeTrees x) [Path_Left]])
+                                     _ -> Node (upeekCons idPath Nothing) (concat [concatMap (makeTrees d x) [Path_Left]])
     upeekTree _ d (x@(Right _)) = case d of
                                       Just 0 -> Node (upeekCons idPath (Just (u x))) []
-                                      _ -> Node (upeekCons idPath Nothing) (concat [concatMap (makeTrees x) [Path_Right]])
+                                      _ -> Node (upeekCons idPath Nothing) (concat [concatMap (makeTrees d x) [Path_Right]])
     upeekCol _ (_p@(Path_Left _q)) (x@(Left _)) = Node (upeekCons idPath Nothing) (makeCol x Path_Left (\(Path_Left p) -> p) _p)
     upeekCol _ _p (x@(Left _)) = Node (upeekCons idPath (Just (u x))) []
     upeekCol _ (_p@(Path_Right _q)) (x@(Right _)) = Node (upeekCons idPath Nothing) (makeCol x Path_Right (\(Path_Right p) -> p) _p)
@@ -395,7 +395,7 @@ instance (p ~ UPath u (Maybe a), IsPath p, s ~ Maybe a, u ~ UType p, s ~ SType p
     upeekRow _ x = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) [Path_Just]])
     upeekTree _ d x = case d of
                         Just 0 -> Node (upeekCons idPath (Just (u x))) []
-                        _ -> Node (upeekCons idPath Nothing) (concat [concatMap (makeTrees x) [Path_Just]])
+                        _ -> Node (upeekCons idPath Nothing) (concat [concatMap (makeTrees d x) [Path_Just]])
     upeekCol _ (_p@(Path_Just _q)) x = Node (upeekCons idPath Nothing) (makeCol x (\q -> Path_Just q) (\(Path_Just p) -> p) _p)
     upeekCol _ _p x = Node (upeekCons idPath (Just (u x))) []
 
@@ -411,7 +411,7 @@ instance (p ~ UPath u (a, b), IsPath p, s ~ (a, b), u ~ UType p, s ~ SType p, U 
     upeekRow _ x = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) [Path_First], concatMap (makeRow x) [Path_Second]])
     upeekTree _ d x = case d of
                           Just 0 -> Node (upeekCons idPath (Just (u x))) []
-                          _ -> Node (upeekCons idPath Nothing) (concat [concatMap (makeTrees x) [Path_First], concatMap (makeTrees x) [Path_Second]])
+                          _ -> Node (upeekCons idPath Nothing) (concat [concatMap (makeTrees d x) [Path_First], concatMap (makeTrees d x) [Path_Second]])
     upeekCol _ (_p@(Path_First _q)) x = Node (upeekCons idPath Nothing) (makeCol x Path_First (\(Path_First p) -> p) _p)
     upeekCol _ (_p@(Path_Second _q)) x = Node (upeekCons idPath Nothing) (makeCol x Path_Second (\(Path_Second p) -> p) _p)
     upeekCol _ _p x = Node (upeekCons idPath (Just (u x))) []
@@ -426,7 +426,7 @@ instance (p ~ UPath u (Map k a), IsPath p, s ~ Map k a, u ~ UType p, s ~ SType p
     upeekValue (UPeek_Map _ v) = v
     upeekRow _ x = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) (map (\(_k, _) -> (Path_Look _k)) (toList x))])
     upeekTree _ (Just 0) x = Node (upeekCons idPath (Just (u x))) []
-    upeekTree _ d x = Node (upeekCons idPath Nothing) (concat [concatMap (makeTrees x) (map (\(_k, _) -> Path_Look _k) (toList x))])
+    upeekTree _ d x = Node (upeekCons idPath Nothing) (concat [concatMap (makeTrees d x) (map (\(_k, _) -> Path_Look _k) (toList x))])
     upeekCol _ _p@(Path_Look _k _) x = Node (upeekCons idPath Nothing) (makeCol x (Path_Look _k) (\(Path_Look _ p) -> p) _p)
     upeekCol _ p x = Node (upeekCons idPath (Just (u x))) []
 

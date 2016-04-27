@@ -251,7 +251,7 @@ instance (u ~ UType (UPath u a), a ~ SType (UPath u a),
     upeekValue (UPeek_OMap _ x) = x
     upeekRow _ (x@_xyz) = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) (map (\(_k, _) -> Path_At _k) (toPairs _xyz))])
     upeekTree _ (Just 0) (x@_xyz) = Node (upeekCons idPath (Just (u x))) []
-    upeekTree _ (Just 0) (x@_xyz) = Node (upeekCons idPath Nothing) (concat [concatMap (makeTrees x) (map (\(_k, _) -> Path_At _k) (toPairs _xyz))])
+    upeekTree _ d (x@_xyz) = Node (upeekCons idPath Nothing) (concat [concatMap (makeTrees d x) (map (\(_k, _) -> Path_At _k) (toPairs _xyz))])
     upeekCol _ (_p@(Path_At _k _q)) (x@_xyz) = Node (upeekCons idPath Nothing) (makeCol x (Path_At _k) (\(Path_At _ p) -> p) _p)
     upeekCol _ _p (x@_xyz) = Node (upeekCons idPath (Just (u x))) []
 
