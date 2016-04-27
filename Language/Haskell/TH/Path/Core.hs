@@ -174,13 +174,6 @@ class (U u s, u ~ UType (UPath u s), s ~ SType (UPath u s), IsPath (UPath u s),
     type UPath u s
     -- ^ The type @UPath u s@ represents a the beginning of any path
     -- starting at @s@.
-
-    -- It would be nice to make UPath a data instead of a type synonym,
-    -- but some UPath types are already defined - e.g. Path_Pair.
-    -- This also means it is impossible to say something like
-    -- @instance Describe (UPath Univ Int64)@, we need to find the
-    -- actual type.
-
     upeekTree :: Proxy u -> Maybe Int -> s -> Tree (Peek u s)
     -- ^ Given a value of type @s@, return a tree containing every
     -- 'Peek' that can be reached from it.  The order of the nodes in

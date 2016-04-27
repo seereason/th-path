@@ -26,7 +26,8 @@ import Control.Monad.Writer (MonadWriter, execWriterT, runWriterT, tell)
 import Data.Aeson (FromJSON, ToJSON)
 import Data.Char (toLower)
 import Data.Data (Data, Typeable)
-import Data.List (sort)
+import Data.Function (on)
+import Data.List (sortBy)
 import Data.Maybe (catMaybes)
 import Data.Monoid ((<>))
 import Data.Proxy (Proxy(Proxy))
@@ -35,14 +36,14 @@ import GHC.Generics (Generic)
 import Language.Haskell.TH
 import Language.Haskell.TH.Context (ContextM)
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.Path.Common (HasType(asType), telld, tells)
+import Language.Haskell.TH.Path.Common (HasType(asType), HasTypeQ(asTypeQ), telld, tells)
 import Language.Haskell.TH.Path.Core (U(u, unU'), ulens')
 import Language.Haskell.TH.Path.Decs.PathStart (peekDecs)
 import Language.Haskell.TH.Path.Graph (runTypeGraphT, TypeGraphM)
 import Language.Haskell.TH.Path.Instances ()
 import Language.Haskell.TH.Syntax (addDependentFile, Quasi(qReify))
 import Language.Haskell.TH.TypeGraph.Lens (lensNamePairs)
-import Language.Haskell.TH.TypeGraph.Prelude (friendlyNames, pprintW)
+import Language.Haskell.TH.TypeGraph.Prelude (friendlyNames, pprint1, pprintW)
 import Language.Haskell.TH.TypeGraph.TypeGraph (allPathStarts)
 import Language.Haskell.TH.TypeGraph.Vertex (TGVSimple, typeNames)
 import System.Directory (removeFile)
@@ -63,7 +64,7 @@ doUniv :: (TypeGraphM m, MonadWriter [Dec] m) => m TypeQ
 doUniv = do
   uname <- runQ $ newName "Univ"
   -- Sort these so the U constructors don't change any more than necessary.
-  types <- (map pure . sort . map asType . Set.toList) <$> allPathStarts
+  types <- (map asTypeQ . sortBy (compare `on` (pprint1 . asType)) . Set.toList) <$> allPathStarts
   pairs <- runQ $ mapM (\(typ, n) -> (,) <$> pure typ <*> newName ("U" ++ show n)) (zip types ([1..] :: [Int]))
   mapM_ (\(typ, ucon) ->
              tells [do a <- newName "a"
