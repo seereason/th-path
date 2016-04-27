@@ -888,31 +888,6 @@ instance PathStart Univ UserIds
                                 _ -> Node (upeekCons idPath Nothing) (concat [concatMap (makeTrees x) [Path_To Proxy]])
           upeekCol _ (_p@(Path_To _ _q)) x = Node (upeekCons idPath Nothing) (makeCol x (Path_To Proxy) (\(Path_To (Proxy) q) -> q) _p)
           upeekCol _ _p x = Node (upeekCons idPath (Just (u x))) []
-instance PathStart Univ AbbrevPair
-    where data UPeek Univ AbbrevPair = UPeek_AbbrevPair (UPath Univ AbbrevPair) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
-          upeekCons = UPeek_AbbrevPair
-          upeekPath (UPeek_AbbrevPair p _) = p
-          upeekValue (UPeek_AbbrevPair _ x) = x
-          type UPath Univ AbbrevPair = Path_Pair (Path_View CIString (Path_View Text UPath_JSONText)) UPath_Markup
-          upeekRow _ x = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) [Path_First], concatMap (makeRow x) [Path_Second]])
-          upeekTree _ d x = case d of
-                                Just 0 -> Node (upeekCons idPath (Just (u x))) []
-                                _ -> Node (upeekCons idPath Nothing) (concat [concatMap (makeTrees x) [Path_First], concatMap (makeTrees x) [Path_Second]])
-          upeekCol _ (_p@(Path_First _q)) x = Node (upeekCons idPath Nothing) (makeCol x Path_First (\(Path_First p) -> p) _p)
-          upeekCol _ (_p@(Path_Second _q)) x = Node (upeekCons idPath Nothing) (makeCol x Path_Second (\(Path_Second p) -> p) _p)
-          upeekCol _ _p x = Node (upeekCons idPath (Just (u x))) []
-instance PathStart Univ AbbrevPairs
-    where data UPeek Univ AbbrevPairs = UPeek_AbbrevPairs (UPath Univ AbbrevPairs) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
-          upeekCons = UPeek_AbbrevPairs
-          upeekPath (UPeek_AbbrevPairs p _) = p
-          upeekValue (UPeek_AbbrevPairs _ x) = x
-          type UPath Univ AbbrevPairs = Path_OMap AbbrevPairID (Path_Pair (Path_View CIString (Path_View Text UPath_JSONText)) UPath_Markup)
-          upeekRow _ (x@_xyz) = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) (map (\(_k, _) -> Path_At _k) (toPairs _xyz))])
-          upeekTree _ d (x@_xyz) = case d of
-                                       Just 0 -> Node (upeekCons idPath (Just (u x))) []
-                                       _ -> Node (upeekCons idPath Nothing) (concat [concatMap (makeTrees x) (map (\(_k, _) -> Path_At _k) (toPairs _xyz))])
-          upeekCol _ (_p@(Path_At _k _q)) (x@_xyz) = Node (upeekCons idPath Nothing) (makeCol x (Path_At _k) (\(Path_At _ p) -> p) _p)
-          upeekCol _ _p (x@_xyz) = Node (upeekCons idPath (Just (u x))) []
 instance PathStart Univ Author
     where data UPeek Univ Author = UPeek_Author (UPath Univ Author) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
           upeekCons = UPeek_Author
@@ -927,18 +902,6 @@ instance PathStart Univ Author
           upeekCol _ (_p@(UPath_Author_authorName _q)) (x@(Author {})) = Node (upeekCons idPath Nothing) (makeCol x UPath_Author_authorName (\(UPath_Author_authorName p) -> p) _p)
           upeekCol _ (_p@(UPath_Author_authorCredentials _q)) (x@(Author {})) = Node (upeekCons idPath Nothing) (makeCol x UPath_Author_authorCredentials (\(UPath_Author_authorCredentials p) -> p) _p)
           upeekCol _ _p (x@(Author {})) = Node (upeekCons idPath (Just (u x))) []
-instance PathStart Univ Authors
-    where data UPeek Univ Authors = UPeek_Authors (UPath Univ Authors) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
-          upeekCons = UPeek_Authors
-          upeekPath (UPeek_Authors p _) = p
-          upeekValue (UPeek_Authors _ x) = x
-          type UPath Univ Authors = Path_OMap AuthorID UPath_Author
-          upeekRow _ (x@_xyz) = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) (map (\(_k, _) -> Path_At _k) (toPairs _xyz))])
-          upeekTree _ d (x@_xyz) = case d of
-                                       Just 0 -> Node (upeekCons idPath (Just (u x))) []
-                                       _ -> Node (upeekCons idPath Nothing) (concat [concatMap (makeTrees x) (map (\(_k, _) -> Path_At _k) (toPairs _xyz))])
-          upeekCol _ (_p@(Path_At _k _q)) (x@_xyz) = Node (upeekCons idPath Nothing) (makeCol x (Path_At _k) (\(Path_At _ p) -> p) _p)
-          upeekCol _ _p (x@_xyz) = Node (upeekCons idPath (Just (u x))) []
 instance PathStart Univ Branding
     where data UPeek Univ Branding = UPeek_Branding (UPath Univ Branding) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
           upeekCons = UPeek_Branding
@@ -951,43 +914,6 @@ instance PathStart Univ Branding
                                 _ -> Node (upeekCons idPath Nothing) (concat [concatMap (makeTrees x) [Path_To Proxy]])
           upeekCol _ (_p@(Path_To _ _q)) x = Node (upeekCons idPath Nothing) (makeCol x (Path_To Proxy) (\(Path_To (Proxy) q) -> q) _p)
           upeekCol _ _p x = Node (upeekCons idPath (Just (u x))) []
-instance PathStart Univ MarkupPair
-    where data UPeek Univ MarkupPair = UPeek_MarkupPair (UPath Univ MarkupPair) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
-          upeekCons = UPeek_MarkupPair
-          upeekPath (UPeek_MarkupPair p _) = p
-          upeekValue (UPeek_MarkupPair _ x) = x
-          type UPath Univ MarkupPair = Path_Pair UPath_Markup UPath_Markup
-          upeekRow _ x = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) [Path_First], concatMap (makeRow x) [Path_Second]])
-          upeekTree _ d x = case d of
-                                Just 0 -> Node (upeekCons idPath (Just (u x))) []
-                                _ -> Node (upeekCons idPath Nothing) (concat [concatMap (makeTrees x) [Path_First], concatMap (makeTrees x) [Path_Second]])
-          upeekCol _ (_p@(Path_First _q)) x = Node (upeekCons idPath Nothing) (makeCol x Path_First (\(Path_First p) -> p) _p)
-          upeekCol _ (_p@(Path_Second _q)) x = Node (upeekCons idPath Nothing) (makeCol x Path_Second (\(Path_Second p) -> p) _p)
-          upeekCol _ _p x = Node (upeekCons idPath (Just (u x))) []
-instance PathStart Univ MarkupPairs
-    where data UPeek Univ MarkupPairs = UPeek_MarkupPairs (UPath Univ MarkupPairs) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
-          upeekCons = UPeek_MarkupPairs
-          upeekPath (UPeek_MarkupPairs p _) = p
-          upeekValue (UPeek_MarkupPairs _ x) = x
-          type UPath Univ MarkupPairs = Path_OMap MarkupPairID (Path_Pair UPath_Markup UPath_Markup)
-          upeekRow _ (x@_xyz) = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) (map (\(_k, _) -> Path_At _k) (toPairs _xyz))])
-          upeekTree _ d (x@_xyz) = case d of
-                                       Just 0 -> Node (upeekCons idPath (Just (u x))) []
-                                       _ -> Node (upeekCons idPath Nothing) (concat [concatMap (makeTrees x) (map (\(_k, _) -> Path_At _k) (toPairs _xyz))])
-          upeekCol _ (_p@(Path_At _k _q)) (x@_xyz) = Node (upeekCons idPath Nothing) (makeCol x (Path_At _k) (\(Path_At _ p) -> p) _p)
-          upeekCol _ _p (x@_xyz) = Node (upeekCons idPath (Just (u x))) []
-instance PathStart Univ Markups
-    where data UPeek Univ Markups = UPeek_Markups (UPath Univ Markups) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
-          upeekCons = UPeek_Markups
-          upeekPath (UPeek_Markups p _) = p
-          upeekValue (UPeek_Markups _ x) = x
-          type UPath Univ Markups = Path_OMap MarkupID UPath_Markup
-          upeekRow _ (x@_xyz) = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) (map (\(_k, _) -> Path_At _k) (toPairs _xyz))])
-          upeekTree _ d (x@_xyz) = case d of
-                                       Just 0 -> Node (upeekCons idPath (Just (u x))) []
-                                       _ -> Node (upeekCons idPath Nothing) (concat [concatMap (makeTrees x) (map (\(_k, _) -> Path_At _k) (toPairs _xyz))])
-          upeekCol _ (_p@(Path_At _k _q)) (x@_xyz) = Node (upeekCons idPath Nothing) (makeCol x (Path_At _k) (\(Path_At _ p) -> p) _p)
-          upeekCol _ _p (x@_xyz) = Node (upeekCons idPath (Just (u x))) []
 instance PathStart Univ MaybeReportIntendedUse
     where data UPeek Univ MaybeReportIntendedUse
               = UPeek_MaybeReportIntendedUse (UPath Univ MaybeReportIntendedUse) (Maybe Univ)
@@ -1035,18 +961,6 @@ instance PathStart Univ ReportElem
           upeekCol _ (_p@(UPath_ReportElem_elemText _q)) (x@(ReportParagraph {})) = Node (upeekCons idPath Nothing) (makeCol x UPath_ReportElem_elemText (\(UPath_ReportElem_elemText p) -> p) _p)
           upeekCol _ _p (x@(ReportParagraph {})) = Node (upeekCons idPath (Just (u x))) []
           upeekCol _ _p (x@(ReportUndecided {})) = Node (upeekCons idPath (Just (u x))) []
-instance PathStart Univ ReportElems
-    where data UPeek Univ ReportElems = UPeek_ReportElems (UPath Univ ReportElems) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
-          upeekCons = UPeek_ReportElems
-          upeekPath (UPeek_ReportElems p _) = p
-          upeekValue (UPeek_ReportElems _ x) = x
-          type UPath Univ ReportElems = Path_OMap ReportElemID UPath_ReportElem
-          upeekRow _ (x@_xyz) = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) (map (\(_k, _) -> Path_At _k) (toPairs _xyz))])
-          upeekTree _ d (x@_xyz) = case d of
-                                       Just 0 -> Node (upeekCons idPath (Just (u x))) []
-                                       _ -> Node (upeekCons idPath Nothing) (concat [concatMap (makeTrees x) (map (\(_k, _) -> Path_At _k) (toPairs _xyz))])
-          upeekCol _ (_p@(Path_At _k _q)) (x@_xyz) = Node (upeekCons idPath Nothing) (makeCol x (Path_At _k) (\(Path_At _ p) -> p) _p)
-          upeekCol _ _p (x@_xyz) = Node (upeekCons idPath (Just (u x))) []
 instance PathStart Univ ReportFlags
     where data UPeek Univ ReportFlags = UPeek_ReportFlags (UPath Univ ReportFlags) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
           upeekCons = UPeek_ReportFlags
@@ -1130,48 +1044,6 @@ instance PathStart Univ ReportValueTypeInfo
           upeekCol _ (_p@(UPath_ReportValueTypeInfo_reportValueTypeDescription _q)) (x@(ReportValueTypeInfo {})) = Node (upeekCons idPath Nothing) (makeCol x UPath_ReportValueTypeInfo_reportValueTypeDescription (\(UPath_ReportValueTypeInfo_reportValueTypeDescription p) -> p) _p)
           upeekCol _ (_p@(UPath_ReportValueTypeInfo_reportValueTypeDefinition _q)) (x@(ReportValueTypeInfo {})) = Node (upeekCons idPath Nothing) (makeCol x UPath_ReportValueTypeInfo_reportValueTypeDefinition (\(UPath_ReportValueTypeInfo_reportValueTypeDefinition p) -> p) _p)
           upeekCol _ _p (x@(ReportValueTypeInfo {})) = Node (upeekCons idPath (Just (u x))) []
-instance PathStart Univ EUI
-    where data UPeek Univ EUI = UPeek_EUI (UPath Univ EUI) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
-          upeekCons = UPeek_EUI
-          upeekPath (UPeek_EUI p _) = p
-          upeekValue (UPeek_EUI _ x) = x
-          type UPath Univ EUI = Path_Either UPath_URI UPath_ImageFile
-          upeekRow _ (x@(Left _)) = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) [Path_Left]])
-          upeekRow _ (x@(Right _)) = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) [Path_Right]])
-          upeekTree _ d (x@(Left _)) = case d of
-                                           Just 0 -> Node (upeekCons idPath (Just (u x))) []
-                                           _ -> Node (upeekCons idPath Nothing) (concat [concatMap (makeTrees x) [Path_Left]])
-          upeekTree _ d (x@(Right _)) = case d of
-                                            Just 0 -> Node (upeekCons idPath (Just (u x))) []
-                                            _ -> Node (upeekCons idPath Nothing) (concat [concatMap (makeTrees x) [Path_Right]])
-          upeekCol _ (_p@(Path_Left _q)) (x@(Left _)) = Node (upeekCons idPath Nothing) (makeCol x Path_Left (\(Path_Left p) -> p) _p)
-          upeekCol _ _p (x@(Left _)) = Node (upeekCons idPath (Just (u x))) []
-          upeekCol _ (_p@(Path_Right _q)) (x@(Right _)) = Node (upeekCons idPath Nothing) (makeCol x Path_Right (\(Path_Right p) -> p) _p)
-          upeekCol _ _p (x@(Right _)) = Node (upeekCons idPath (Just (u x))) []
-instance PathStart Univ MEUI
-    where data UPeek Univ MEUI = UPeek_MEUI (UPath Univ MEUI) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
-          upeekCons = UPeek_MEUI
-          upeekPath (UPeek_MEUI p _) = p
-          upeekValue (UPeek_MEUI _ x) = x
-          type UPath Univ MEUI = Path_Maybe (Path_Either UPath_URI UPath_ImageFile)
-          upeekRow _ x = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) [Path_Just]])
-          upeekTree _ d x = case d of
-                                Just 0 -> Node (upeekCons idPath (Just (u x))) []
-                                _ -> Node (upeekCons idPath Nothing) (concat [concatMap (makeTrees x) [Path_Just]])
-          upeekCol _ (_p@(Path_Just _q)) x = Node (upeekCons idPath Nothing) (makeCol x (\q -> Path_Just q) (\(Path_Just p) -> p) _p)
-          upeekCol _ _p x = Node (upeekCons idPath (Just (u x))) []
-instance PathStart Univ MaybeImageFile
-    where data UPeek Univ MaybeImageFile = UPeek_MaybeImageFile (UPath Univ MaybeImageFile) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
-          upeekCons = UPeek_MaybeImageFile
-          upeekPath (UPeek_MaybeImageFile p _) = p
-          upeekValue (UPeek_MaybeImageFile _ x) = x
-          type UPath Univ MaybeImageFile = Path_View MaybeImageFile (Path_View String UPath_JSONText)
-          upeekRow _ x = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) [Path_To Proxy]])
-          upeekTree _ d x = case d of
-                                Just 0 -> Node (upeekCons idPath (Just (u x))) []
-                                _ -> Node (upeekCons idPath Nothing) (concat [concatMap (makeTrees x) [Path_To Proxy]])
-          upeekCol _ (_p@(Path_To _ _q)) x = Node (upeekCons idPath Nothing) (makeCol x (Path_To Proxy) (\(Path_To (Proxy) q) -> q) _p)
-          upeekCol _ _p x = Node (upeekCons idPath (Just (u x))) []
 instance PathStart Univ ReportImage
     where data UPeek Univ ReportImage = UPeek_ReportImage (UPath Univ ReportImage) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
           upeekCons = UPeek_ReportImage
@@ -1184,18 +1056,6 @@ instance PathStart Univ ReportImage
                                 _ -> Node (upeekCons idPath Nothing) (concat [concatMap (makeTrees x) [Path_To Proxy]])
           upeekCol _ (_p@(Path_To _ _q)) x = Node (upeekCons idPath Nothing) (makeCol x (Path_To Proxy) (\(Path_To (Proxy) q) -> q) _p)
           upeekCol _ _p x = Node (upeekCons idPath (Just (u x))) []
-instance PathStart Univ ReportImages
-    where data UPeek Univ ReportImages = UPeek_ReportImages (UPath Univ ReportImages) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
-          upeekCons = UPeek_ReportImages
-          upeekPath (UPeek_ReportImages p _) = p
-          upeekValue (UPeek_ReportImages _ x) = x
-          type UPath Univ ReportImages = Path_OMap ReportImageID (Path_View ReportImage UPath_ReportImageView)
-          upeekRow _ (x@_xyz) = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) (map (\(_k, _) -> Path_At _k) (toPairs _xyz))])
-          upeekTree _ d (x@_xyz) = case d of
-                                       Just 0 -> Node (upeekCons idPath (Just (u x))) []
-                                       _ -> Node (upeekCons idPath Nothing) (concat [concatMap (makeTrees x) (map (\(_k, _) -> Path_At _k) (toPairs _xyz))])
-          upeekCol _ (_p@(Path_At _k _q)) (x@_xyz) = Node (upeekCons idPath Nothing) (makeCol x (Path_At _k) (\(Path_At _ p) -> p) _p)
-          upeekCol _ _p (x@_xyz) = Node (upeekCons idPath (Just (u x))) []
 instance PathStart Univ ReadOnlyFilePath
     where data UPeek Univ ReadOnlyFilePath = UPeek_ReadOnlyFilePath (UPath Univ ReadOnlyFilePath) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
           upeekCons = UPeek_ReadOnlyFilePath
@@ -1406,30 +1266,6 @@ instance PathStart Univ Item
           upeekCol _ (_p@(UPath_Item_fields _q)) (x@(Item {})) = Node (upeekCons idPath Nothing) (makeCol x UPath_Item_fields (\(UPath_Item_fields p) -> p) _p)
           upeekCol _ (_p@(UPath_Item_images _q)) (x@(Item {})) = Node (upeekCons idPath Nothing) (makeCol x UPath_Item_images (\(UPath_Item_images p) -> p) _p)
           upeekCol _ _p (x@(Item {})) = Node (upeekCons idPath (Just (u x))) []
-instance PathStart Univ MIM
-    where data UPeek Univ MIM = UPeek_MIM (UPath Univ MIM) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
-          upeekCons = UPeek_MIM
-          upeekPath (UPeek_MIM p _) = p
-          upeekValue (UPeek_MIM _ x) = x
-          type UPath Univ MIM = Path_Map ItemFieldName UPath_Markup
-          upeekRow _ (x@_xyz) = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) (map (\(_k, _) -> Path_Look _k) (toList _xyz))])
-          upeekTree _ d (x@_xyz) = case d of
-                                       Just 0 -> Node (upeekCons idPath (Just (u x))) []
-                                       _ -> Node (upeekCons idPath Nothing) (concat [concatMap (makeTrees x) (map (\(_k, _) -> Path_Look _k) (toList _xyz))])
-          upeekCol _ (_p@(Path_Look _k _q)) (x@_xyz) = Node (upeekCons idPath Nothing) (makeCol x (Path_Look _k) (\(Path_Look _ p) -> p) _p)
-          upeekCol _ _p (x@_xyz) = Node (upeekCons idPath (Just (u x))) []
-instance PathStart Univ MRR
-    where data UPeek Univ MRR = UPeek_MRR (UPath Univ MRR) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
-          upeekCons = UPeek_MRR
-          upeekPath (UPeek_MRR p _) = p
-          upeekValue (UPeek_MRR _ x) = x
-          type UPath Univ MRR = Path_Map ReportID (Path_View Report UPath_ReportView)
-          upeekRow _ (x@_xyz) = Node (upeekCons idPath Nothing) (concat [concatMap (makeRow x) (map (\(_k, _) -> Path_Look _k) (toList _xyz))])
-          upeekTree _ d (x@_xyz) = case d of
-                                       Just 0 -> Node (upeekCons idPath (Just (u x))) []
-                                       _ -> Node (upeekCons idPath Nothing) (concat [concatMap (makeTrees x) (map (\(_k, _) -> Path_Look _k) (toList _xyz))])
-          upeekCol _ (_p@(Path_Look _k _q)) (x@_xyz) = Node (upeekCons idPath Nothing) (makeCol x (Path_Look _k) (\(Path_Look _ p) -> p) _p)
-          upeekCol _ _p (x@_xyz) = Node (upeekCons idPath (Just (u x))) []
 instance PathStart Univ ReportMap
     where data UPeek Univ ReportMap = UPeek_ReportMap (UPath Univ ReportMap) (Maybe Univ) deriving (Eq, Show, Generic, FromJSON, ToJSON)
           upeekCons = UPeek_ReportMap
