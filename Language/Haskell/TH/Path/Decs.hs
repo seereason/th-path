@@ -34,13 +34,15 @@ import Data.Proxy (Proxy(Proxy))
 import Data.Set as Set (toList)
 import GHC.Generics (Generic)
 import Language.Haskell.TH
-import Language.Haskell.TH.Context (ContextM)
+import Language.Haskell.TH.Context (ContextM, reifyInstancesWithContext)
 import Language.Haskell.TH.Instances ()
+import Language.Haskell.TH.Lift (lift)
 import Language.Haskell.TH.Path.Common (HasType(asType), HasTypeQ(asTypeQ), telld, tells)
-import Language.Haskell.TH.Path.Core (U(u, unU'), ulens')
+import Language.Haskell.TH.Path.Core (U(u, unU'), ulens', SinkType)
 import Language.Haskell.TH.Path.Decs.PathStart (peekDecs)
 import Language.Haskell.TH.Path.Graph (runTypeGraphT, TypeGraphM)
 import Language.Haskell.TH.Path.Instances ()
+import Language.Haskell.TH.Path.View (View)
 import Language.Haskell.TH.Syntax (addDependentFile, Quasi(qReify))
 import Language.Haskell.TH.TypeGraph.Lens (lensNamePairs)
 import Language.Haskell.TH.TypeGraph.Prelude (friendlyNames, pprint1, pprintW)
@@ -63,19 +65,35 @@ allDecs = do
 doUniv :: (TypeGraphM m, MonadWriter [Dec] m) => m TypeQ
 doUniv = do
   uname <- runQ $ newName "Univ"
+  x <- runQ $ newName "x"
   -- Sort these so the U constructors don't change any more than necessary.
   types <- (map asTypeQ . sortBy (compare `on` (pprint1 . asType)) . Set.toList) <$> allPathStarts
-  pairs <- runQ $ mapM (\(typ, n) -> (,) <$> pure typ <*> newName ("U" ++ show n)) (zip types ([1..] :: [Int]))
-  mapM_ (\(typ, ucon) ->
+  info <- mapM (\(typeq, n) -> do
+                  typ <- runQ typeq
+                  simple <- (not . null) <$> reifyInstancesWithContext ''SinkType [typ]
+                  hasview <- (not . null) <$> reifyInstancesWithContext ''View [typ]
+                  (,,,) <$> pure typ
+                        <*> runQ (newName ("U" ++ show n))
+                        <*> pure simple
+                        <*> pure hasview
+               ) (zip types ([1..] :: [Int]))
+  mapM_ (\(typ, ucon, _, _) ->
              tells [do a <- newName "a"
-                       instanceD (cxt []) [t|U $(conT uname) $typ|] [funD 'u [clause [] (normalB (conE ucon)) []],
-                                                                     funD 'unU' [clause [conP ucon [varP a]] (normalB [|Just $(varE a)|]) [],
-                                                                                 clause [wildP] (normalB [|Nothing|]) []]]]) pairs
+                       instanceD (cxt []) [t|U $(conT uname) $(pure typ)|]
+                                 [funD 'u [clause [] (normalB (conE ucon)) []],
+                                  funD 'unU' [clause [conP ucon [varP a]] (normalB [|Just $(varE a)|]) [],
+                                              clause [wildP] (normalB [|Nothing|]) []]
+                                 ]]) info
   tells [dataD (pure []) uname []
-               (map (\(typ, ucon) -> normalC ucon [strictType notStrict typ]) pairs)
-               [''Eq, ''Ord, ''Read, ''Show, ''Data, ''Typeable, ''Generic, ''FromJSON, ''ToJSON],
-         funD (mkName "uMatch") (map (\(_, ucon) -> clause [conP ucon [wildP], conP ucon [wildP]] (normalB [|True|]) []) pairs ++
-                                 [clause [wildP, wildP] (normalB [|False|]) []])]
+               (map (\(typ, ucon, _, _) -> normalC ucon [strictType notStrict (pure typ)]) info)
+               [''Eq, ''Ord, ''Read, ''Data, ''Typeable, ''Generic, ''FromJSON, ''ToJSON],
+         funD (mkName "uMatch") (map (\(_, ucon, _, _) -> clause [conP ucon [wildP], conP ucon [wildP]] (normalB [|True|]) []) info ++
+                                 [clause [wildP, wildP] (normalB [|False|]) []]),
+         funD (mkName "uSimple") (map (\(_, ucon, simple, _) -> clause [conP ucon [wildP]] (normalB (lift simple)) []) info),
+         funD (mkName "uView") (map (\(_, ucon, _, hasview) -> clause [conP ucon [wildP]] (normalB (lift hasview)) []) info),
+         instanceD (cxt []) [t|Show $(conT uname)|]
+                   [funD 'show (map (\(typ, ucon, _, _) -> clause [conP ucon [varP x]] (normalB [|"(u (" ++ show $(varE x) ++ $(lift (" :: " ++ pprint1 typ ++ ") :: " ++ nameBase uname ++ ")"))|]) []) info)]
+        ]
   telld [d| ulens :: U $(conT uname) a => Iso' $(conT uname) a
             ulens = ulens' Proxy |]
   return $ conT uname
