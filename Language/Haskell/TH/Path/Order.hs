@@ -155,6 +155,11 @@ instance (Ord k, Enum k, Read a) => Read (Order k a) where
     readsPrec _ s = let l = (read s :: [a]) in [(fromList l, "")]
 
 instance (Ord k, Enum k, Monoid (Order k a)) => LL.ListLike (Order k a) a where
+    uncons m =
+        case order m of
+          [] -> Nothing
+          (hd : tl) -> Just (elems m ! hd, m {order = tl, elems = Map.delete hd (elems m), next = next m})
+    null = null . order
     singleton x = fst $ insert x empty
     head m = case order m of
                (hd : _) -> elems m ! hd
