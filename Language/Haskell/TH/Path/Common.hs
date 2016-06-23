@@ -99,9 +99,6 @@ instance HasName a => HasName (PathType a) where asName = asName . unPathType
 instance HasName a => HasType (PathType a) where asType = ConT . asName . unPathType
 instance HasName a => HasTypeQ (PathType a) where asTypeQ = conT . asName . unPathType
 instance HasName a => HasCon (PathType a) where asCon = ConE . asName . unPathType
-                               -- ^ There is always a self path constructor that has
-                               -- the same name as the type.  But there are others
-                               -- too, so this is not really safe.
 instance HasName a => HasConQ (PathType a) where asConQ = conE . asName . unPathType
 instance HasName a => HasName (PathCon a) where asName = asName . unPathCon
 instance HasName a => HasCon (PathCon a) where asCon = ConE . asName . unPathCon
