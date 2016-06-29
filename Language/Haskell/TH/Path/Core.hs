@@ -102,8 +102,10 @@ import Web.Routes.TH (derivePathInfo)
 import Text.Parsec.Prim ((<|>))
 import GHC.Base (ap)
 
+#if !MIN_VERSION_aeson(0,11,0)
 deriving instance FromJSON (Proxy a)
 deriving instance ToJSON (Proxy a)
+#endif
 
 treeMap :: (a -> b) -> Tree a -> Tree b
 treeMap f (Node x ns) = Node (f x) (forestMap f ns)
