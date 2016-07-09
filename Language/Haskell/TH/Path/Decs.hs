@@ -97,10 +97,6 @@ doUniv = do
                    [funD 'show (map (\(typ, ucon, _, _) ->
                                          clause
                                            [conP ucon [varP x]]
-{-
-                                           (normalB [|"(u (" ++ show $(varE x)
-                                                             ++ $(lift (" :: " ++ pprint1 typ ++ ") :: " ++ nameBase uname ++ ")"))|])
--}
                                            -- Work around the broken Show instance in UUID
                                            (normalB [|"(u (" ++ $(if typ == ConT ''UUID
                                                                   then [|showUUID $(varE x)|] {-[|"fromJust $ Data.UUID.fromString " ++ show (show $(varE x))|]-}
