@@ -5899,7 +5899,7 @@ instance Show Univ
           show (U45 x) = "(u (" ++ (show x ++ " :: String) :: Univ)")
           show (U46 x) = "(u (" ++ (show x ++ " :: Text) :: Univ)")
           show (U47 x) = "(u (" ++ (show x ++ " :: URI) :: Univ)")
-          show (U48 x) = "(u (" ++ (show x ++ " :: UUID) :: Univ)")
+          show (U48 x) = "(u (" ++ (showUUID x ++ " :: UUID) :: Univ)")
           show (U49 x) = "(u (" ++ (show x ++ " :: Units) :: Univ)")
           show (U50 x) = "(u (" ++ (show x ++ " :: UserId) :: Univ)")
           show (U51 x) = "(u (" ++ (show x ++ " :: UserIds) :: Univ)")

@@ -12,7 +12,6 @@ import Data.Data
 import Data.Generics.Aliases (extB)
 import qualified Data.Text as T (Text, empty)
 import qualified Data.UUID as UUID
-import Language.Haskell.TH.Lift (deriveLiftMany)
 
 -- | Construct the empty value for a datatype. For algebraic datatypes, the
 -- leftmost constructor is chosen.
@@ -73,9 +72,3 @@ constrs = general
   double  = [0.0 :: Double]
   text    = [T.empty :: T.Text]
   uuid    = [UUID.nil]
-
-#if !__GHCJS__
-$(deriveLiftMany [
-   ''UUID.UUID
-  ])
-#endif

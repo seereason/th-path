@@ -32,6 +32,8 @@ import Data.Maybe (catMaybes)
 import Data.Monoid ((<>))
 import Data.Proxy (Proxy(Proxy))
 import Data.Set as Set (toList)
+import Data.UUID.Types (UUID)
+import Data.UUID.Orphans (showUUID)
 import GHC.Generics (Generic)
 import Language.Haskell.TH
 import Language.Haskell.TH.Context (ContextM, reifyInstancesWithContext)
@@ -92,7 +94,20 @@ doUniv = do
          funD (mkName "uSimple") (map (\(_, ucon, simple, _) -> clause [conP ucon [wildP]] (normalB (lift simple)) []) info),
          funD (mkName "uView") (map (\(_, ucon, _, hasview) -> clause [conP ucon [wildP]] (normalB (lift hasview)) []) info),
          instanceD (cxt []) [t|Show $(conT uname)|]
-                   [funD 'show (map (\(typ, ucon, _, _) -> clause [conP ucon [varP x]] (normalB [|"(u (" ++ show $(varE x) ++ $(lift (" :: " ++ pprint1 typ ++ ") :: " ++ nameBase uname ++ ")"))|]) []) info)]
+                   [funD 'show (map (\(typ, ucon, _, _) ->
+                                         clause
+                                           [conP ucon [varP x]]
+{-
+                                           (normalB [|"(u (" ++ show $(varE x)
+                                                             ++ $(lift (" :: " ++ pprint1 typ ++ ") :: " ++ nameBase uname ++ ")"))|])
+-}
+                                           -- Work around the broken Show instance in UUID
+                                           (normalB [|"(u (" ++ $(if typ == ConT ''UUID
+                                                                  then [|showUUID $(varE x)|] {-[|"fromJust $ Data.UUID.fromString " ++ show (show $(varE x))|]-}
+                                                                  else [|show $(varE x)|])
+                                                             ++ $(lift (" :: " ++ pprint1 typ ++ ") :: " ++ nameBase uname ++ ")"))|])
+
+                                           []) info)]
         ]
   telld [d| ulens :: U $(conT uname) a => Iso' $(conT uname) a
             ulens = ulens' Proxy |]

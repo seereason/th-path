@@ -44,8 +44,9 @@ import Appraisal.Utils.List (terminate)
 import Data.Generics (Data, Typeable)
 import qualified Data.List as L (intersperse)
 import Data.SafeCopy (base, deriveSafeCopy)
-import qualified Data.Text as T (pack, Text, unpack)
-import Language.Haskell.TH.Lift (deriveLiftMany, Lift(lift))
+import qualified Data.Text as T (pack, Text)
+import Instances.TH.Lift ()
+import Language.Haskell.TH.Lift (deriveLiftMany)
 import Prelude hiding (lines)
 import Text.LaTeX (raw, lnbk)
 import qualified Text.LaTeX as LaTeX (center, enumerate, footnote, item)
@@ -222,10 +223,6 @@ $(deriveSafeCopy 1 'base ''LaTeX)
 $(deriveSafeCopy 1 'base ''MathType)
 $(deriveSafeCopy 1 'base ''Measure)
 $(deriveSafeCopy 1 'base ''TeXArg)
-
--- Assumes OverloadedStrings option is set.
-instance Lift T.Text where
-    lift = lift . T.unpack
 
 $(deriveLiftMany [
    ''LaTeX,

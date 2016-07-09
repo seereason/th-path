@@ -54,6 +54,8 @@ library
     th-lift,
     th-orphans,
     userid,
+    uuid-types,
+    uuid-orphans >= 1.4,
     web-routes,
     web-routes-th
   ghc-options:      -Wall -O2
@@ -159,6 +161,7 @@ test-suite th-path-tests
     th-desugar,
     th-kinds-fork,
     th-lift,
+    th-lift-instances,
     th-path,
     th-orphans,
     transformers,
@@ -166,7 +169,7 @@ test-suite th-path-tests
     userid,
     utf8-string,
     uuid,
-    uuid-orphans,
+    uuid-orphans >= 1.4,
     uuid-types,
     web-routes,
     web-routes-th
