@@ -76,7 +76,8 @@ module Language.Haskell.TH.Path.Core
 
 import Control.Applicative.Error (maybeRead)
 import Control.Lens hiding (at) -- (set, Traversal', Lens', _Just, iso, lens, view, view)
-import Data.Aeson (FromJSON, ToJSON)
+import Data.Aeson
+import Data.Aeson.Types (typeMismatch)
 import Data.Char (isUpper, toUpper)
 import Data.Generics (Data, extQ, mkQ, Typeable)
 import Data.List as List (groupBy, map)
@@ -103,8 +104,15 @@ import Text.Parsec.Prim ((<|>))
 import GHC.Base (ap)
 
 #if !MIN_VERSION_aeson(0,11,0)
-deriving instance FromJSON (Proxy a)
-deriving instance ToJSON (Proxy a)
+-- Backport the JSON instances from aeson-0.11.
+instance ToJSON (Proxy a) where
+   toJSON _ = Null
+   {-# INLINE toJSON #-}
+
+instance FromJSON (Proxy a) where
+    {-# INLINE parseJSON #-}
+    parseJSON Null = pure Proxy
+    parseJSON v    = typeMismatch "Proxy" v
 #endif
 
 treeMap :: (a -> b) -> Tree a -> Tree b
