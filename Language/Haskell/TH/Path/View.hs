@@ -103,7 +103,7 @@ expandBindings _ x = x
 
 -- | Retrieve every View instance known to the Q monad and return the
 -- union of all of their a and b types.
-viewTypes :: (DsMonad m, MonadStates InstMap m) => m (Set Type)
+viewTypes :: DsMonad m => m (Set Type)
 viewTypes = do
   FamilyI _ tySynInsts <- runQ $ reify ''ViewType
   return $ Set.fromList $ concatMap (\ (TySynInstD _vt (TySynEqn [a] b)) -> [a, b]) tySynInsts
