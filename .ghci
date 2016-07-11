@@ -1,6 +1,7 @@
 :set -itests
 :set -XTemplateHaskell
 :set -XTypeFamilies
+:set -DMIN_VERSION_aeson(a,b,c)=1
 :m +Language.Haskell.TH
 :m +Language.Haskell.TH.Syntax
 -- :load tests/Editor.hs tests/Report.hs

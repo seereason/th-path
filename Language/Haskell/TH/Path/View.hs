@@ -9,6 +9,7 @@ module Language.Haskell.TH.Path.View
 #if !__GHCJS__
     , viewInstanceType
     , viewTypes
+    , viewInstanceType'
 #endif
     ) where
 
@@ -106,4 +107,24 @@ viewTypes :: (DsMonad m, MonadStates InstMap m) => m (Set Type)
 viewTypes = do
   FamilyI _ tySynInsts <- runQ $ reify ''ViewType
   return $ Set.fromList $ concatMap (\ (TySynInstD _vt (TySynEqn [a] b)) -> [a, b]) tySynInsts
+
+-- | Attempt to implement viewInstanceType without the ExpandMap.
+viewInstanceType' :: DsMonad m => Type -> m (Maybe Type)
+viewInstanceType' typ =
+    do prim <- unlifted typ
+       arity <- typeArity typ
+       case arity == 0 && not prim of
+         True -> do
+           vInsts <- runQ $ reifyInstances ''ViewType [typ]
+           case vInsts of
+             [TySynInstD _ (TySynEqn [type1] type2)] ->
+                 do u <- fakeunify (E typ) (E type1)
+                    -- Unify the original type with type1, and apply
+                    -- the resulting bindings to type2.
+                    case u of
+                      Nothing -> return Nothing
+                      Just bindings -> return $ Just (everywhere (mkT (expandBindings bindings)) type2)
+             [] -> return Nothing
+             _ -> error $ "Unexpected view instance(s): " ++ show vInsts
+         _ -> return Nothing
 #endif
