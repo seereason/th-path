@@ -47,8 +47,8 @@ class View s where
 #if !__GHCJS__
 -- | Determine whether there is a 'View' instance for a type and if so
 -- return @ViewType a@.
-viewInstanceType :: (DsMonad m, MonadStates ExpandMap m) => Type -> m (Maybe Type)
-viewInstanceType typ =
+viewInstanceType' :: (DsMonad m, MonadStates ExpandMap m) => Type -> m (Maybe Type)
+viewInstanceType' typ =
     do prim <- unlifted typ
        arity <- typeArity typ
        case arity == 0 && not prim of
@@ -109,8 +109,8 @@ viewTypes = do
   return $ Set.fromList $ concatMap (\ (TySynInstD _vt (TySynEqn [a] b)) -> [a, b]) tySynInsts
 
 -- | Attempt to implement viewInstanceType without the ExpandMap.
-viewInstanceType' :: DsMonad m => Type -> m (Maybe Type)
-viewInstanceType' typ =
+viewInstanceType :: DsMonad m => Type -> m (Maybe Type)
+viewInstanceType typ =
     do prim <- unlifted typ
        arity <- typeArity typ
        case arity == 0 && not prim of
