@@ -27,6 +27,8 @@ module Language.Haskell.TH.Path.Common
     , makeUPathType
     , makeHopCon
     , makeUFieldCon
+    , makeUNamedFieldCon
+    , makeUPositionalFieldCon
     , uncurry3
     , tells
     , telld
@@ -153,8 +155,14 @@ makeHopCon s a =
 makeUFieldCon :: Field -> PathCon Name
 makeUFieldCon fld =
     case fld of
-      (tname, _, Right fname) -> makePathCon (makeUPathType (ModelType tname)) (nameBase fname)
-      (tname, _, Left fpos) -> makePathCon (makeUPathType (ModelType tname)) (show fpos)
+      (tname, _, Right fname) -> makeUNamedFieldCon tname fname
+      (tname, _, Left fpos) -> makeUPositionalFieldCon tname fpos
+
+makeUNamedFieldCon :: Name -> Name -> PathCon Name
+makeUNamedFieldCon tname fname = makePathCon (makeUPathType (ModelType tname)) (nameBase fname)
+
+makeUPositionalFieldCon :: Name -> Int -> PathCon Name
+makeUPositionalFieldCon tname fpos = makePathCon (makeUPathType (ModelType tname)) (show fpos)
 
 makePathCon :: HasName a => PathType a -> String -> PathCon Name
 makePathCon (PathType p) a = PathCon $ mkName $ nameBase (asName p) ++ "_" ++ a
