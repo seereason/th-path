@@ -37,7 +37,7 @@ import Data.Text (Text)
 import Data.Tree (Tree(Node))
 import Data.UserId (UserId(UserId))
 import Data.UUID (UUID)
-import Data.UUID.Orphans ()
+import Data.UUID.Orphans (showUUID)
 import GHC.Generics (Generic)
 import Language.Haskell.TH.Path.Core
 import Language.Haskell.TH.Path.Order (Path_OMap(Path_At), toPairs)

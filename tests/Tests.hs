@@ -46,7 +46,9 @@ import System.Exit
 import Test.HUnit hiding (path)
 
 import ReportPaths
+import Tests.Core (core)
 import Tests.Data (pathReportView, peekReportView, peekAbbrevPairs, pathLabels)
+import Tests.MakePath (testMakePath)
 import Tests.Report as Report (report, image)
 
 {-
@@ -247,6 +249,8 @@ main = do
          , testPeekCol
          , testPeekOrder
          , testUPaths
+         , testMakePath
+         , Tests.Core.core
          , assertEqual' "toLens3" (mapMaybe unU' (toListOf (toLens (UPath_ImageSize_dim (idPath))) (picSize image) :: [Univ])) [dim (picSize image) :: Dimension]
          , assertEqual' "toLens4" (mapMaybe unU' (toListOf (toLens (UPath_ImageSize_units (idPath))) (picSize image) :: [Univ])) [units (picSize image)]
          , assertEqual' "toLens5" (mapMaybe unU' (toListOf (toLens (Path_To Proxy (idPath) :: UPath Univ ReportImage)) image :: [Univ])) [view viewLens image]

@@ -117,6 +117,12 @@ test-suite th-path-tests
   type:             exitcode-stdio-1.0
   hs-source-dirs:   tests
   main-is:          Tests.hs
+  other-modules:
+    Tests.Core
+    Tests.Data
+    Tests.Instances
+    Tests.MakePath
+    Tests.Report
   ghc-options:      -Wall -O2
   if !impl(ghcjs)
     Default-Extensions: TemplateHaskell
@@ -173,8 +179,6 @@ test-suite th-path-tests
     uuid-types,
     web-routes,
     web-routes-th
-  other-modules:
-    Tests.Data
   default-language: Haskell2010
   if flag(local-th-typegraph)
     build-depends: process-extras, pureMD5, Unixutils, exceptions, process, hslogger, atp-haskell, data-default, web-routes-th, safecopy

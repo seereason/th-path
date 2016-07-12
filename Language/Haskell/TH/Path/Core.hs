@@ -29,6 +29,7 @@ module Language.Haskell.TH.Path.Core
     , makeTrees
     , makeCol
     , makePeek
+    , makePath
     , ulens'
     -- , (:.:)(..)
     , U(u, unU')
@@ -81,7 +82,7 @@ import Data.Aeson.Types (typeMismatch)
 import Data.Char (isUpper, toUpper)
 import Data.Generics (Data, extQ, mkQ, Typeable)
 import Data.List as List (groupBy, map)
-import Data.Map as Map (Map, insert, lookup, toList)
+import Data.Map as Map (Map, insert, lookup, toList, (!))
 import Data.Maybe (catMaybes, fromJust)
 import Data.Monoid
 import Data.Proxy
@@ -90,14 +91,19 @@ import Data.Text as Text (Text, pack, unpack, unwords, words)
 import Data.Tree (Tree(..), Forest)
 import Data.UserId (UserId(..))
 import Debug.Trace (trace)
+import Language.Haskell.TH -- (Q, ExpQ, Exp(AppE, VarE, TupE, LitE, InfixE))
+import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.Lift (deriveLiftMany)
+import Language.Haskell.TH.Lift as TH (deriveLiftMany, lift)
+import Language.Haskell.TH.Path.Common (makeUNamedFieldCon, PathCon(unPathCon))
 #if !__GHCJS__
 import Language.Haskell.TH.Path.Instances ()
 #endif
-import Language.Haskell.TH.Path.View (View(ViewType), viewLens)
+import Language.Haskell.TH.Path.View (View(ViewType), viewLens, viewInstanceType)
+import Language.Haskell.TH.Syntax (qReify, VarStrictType)
 import Prelude hiding (exp)
 import Safe (readMay)
+import Language.Haskell.TH.Ppr (pprint)
 import Web.Routes
 import Web.Routes.TH (derivePathInfo)
 import Text.Parsec.Prim ((<|>))
@@ -177,13 +183,20 @@ instance (ToLens f, ToLens g, A f ~ S g {-, B f ~ T g-}) => ToLens (f :.: g) whe
 -- where each node is represented by the second type parameter of
 -- PathStart, @s@.  The @u@ type parameter is a wrapper type that has
 -- a constructor for every @s@ we are allowed to use as a path node.
-class (U u s, u ~ UType (UPath u s), s ~ SType (UPath u s), IsPath (UPath u s),
-       Eq (UPath u s), Ord (UPath u s), Read (UPath u s), Show (UPath u s),
-       Data (UPath u s), FromJSON (UPath u s), ToJSON (UPath u s)
+class (U u s,
+       u ~ UType (UPath u s),
+       s ~ SType (UPath u s),
+       IsPath (UPath u s),
+       Eq (UPath u s),
+       Ord (UPath u s),
+       Read (UPath u s),
+       Show (UPath u s),
+       Data (UPath u s),
+       FromJSON (UPath u s),
+       ToJSON (UPath u s)
       ) => PathStart u s where
     type UPath u s
-    -- ^ The type @UPath u s@ represents a the beginning of any path
-    -- starting at @s@.
+    -- ^ A value of type @UPath u s@ represents some path starting at @s@.
     upeekTree :: Proxy u -> Maybe Int -> s -> Tree (Peek u s)
     -- ^ Given a value of type @s@, return a tree containing every
     -- 'Peek' that can be reached from it.  The order of the nodes in
@@ -430,7 +443,7 @@ instance (p ~ UPath u (Map k a), IsPath p, s ~ Map k a, u ~ UType p, s ~ SType p
     upeekCol _ _p@(Path_Look _k _) x = Node (Peek idPath Nothing) (makeCol x (Path_Look _k) (\(Path_Look _ p) -> p) _p)
     upeekCol _ p x = Node (Peek idPath (Just (u x))) []
 
--- | A wrapper use to access the View functionality
+-- | A wrapper used to access the View functionality
 data ViewOf s a = ViewOf (Proxy a) s deriving Data
 
 instance (p ~ UPath u s, u ~ UType (UPath u a), u ~ UType (UPath u s), U u (ViewOf s a),
@@ -443,6 +456,75 @@ instance (p ~ UPath u s, u ~ UType (UPath u a), u ~ UType (UPath u s), U u (View
     upeekTree _ d x = Node (Peek idPath Nothing) (concat [concatMap (makeTrees d x) [Path_To Proxy]])
     upeekCol _ (_p@(Path_To _ _q)) x = Node (Peek idPath Nothing) (makeCol x (Path_To Proxy) (\(Path_To (Proxy) q) -> q) _p)
     upeekCol _ _p x = Node (Peek idPath (Just (u x))) []
+
+-- | Given a starting type @s@ and an expression of type @s -> a@,
+-- return a path builderfunction, i.e. an expression of type @s ->
+-- UPath u s@.  When this path is converted to a lens, that lens
+-- should look at the exact @a@ that the original expression did.  The
+-- expression is built from a limited set of elements - fst and snd
+-- for pairs, applications of field accessors, Just to get from a
+-- Maybe into the contained value, and so on.
+makePath :: forall m. DsMonad m => Type -> Exp -> m Exp
+makePath stype exp =
+    viewInstanceType stype >>= doView
+    where
+      -- First see if stype is an instance of View. If so find atype
+      -- and wrap Path_To around our path expression.  This is
+      -- automatic, exp isn't used and doesn't change.
+      doView :: Maybe Type -> m Exp
+      doView Nothing = doType stype exp
+      doView (Just atype) = runQ [|Path_To (Proxy :: Proxy $(pure stype)) (makePath atype exp)|]
+
+      -- Now look for known types like Either a b.  The expression
+      -- needs to specify whether (for example) the path follows the
+      -- Left or the Right, so exp provides the same information here
+      -- as stype.
+      doType :: Type -> Exp -> m Exp
+      doType (AppT (AppT (ConT either) ltype) rtype) (AppE (ConE lr) x)
+          | either == ''Either && lr == 'Left =
+              makePath ltype x >>= \p -> runQ [|Path_Left $(pure p)|]
+          | either == ''Either && lr == 'Right =
+              makePath ltype x >>= \p -> runQ [|Path_Right $(pure p)|]
+      doType (AppT (ConT maybe) typ) (AppE (ConE just) x)
+          | maybe == ''Maybe && just == 'Just =
+              makePath typ x >>= \p -> runQ [|Path_Just $(pure p)|]
+      -- There is no path that starts from the Nothing constructor.
+      -- doType (ConE nothing) | nothing == 'Nothing = runQ [|idPath|]
+      doType (AppT (AppT (TupleT 2) ftype) stype) (AppE (VarE fn) pair)
+          | fn == 'fst = makePath ftype pair >>= \p -> runQ [|Path_First $(pure p)|]
+          | fn == 'snd = makePath stype pair >>= \p -> runQ [|Path_Second $(pure p)|]
+      doType (AppT (AppT (ConT m) ktype) atype) (InfixE (Just mp) (VarE op) (Just key))
+          | m == ''Map && op == '(!) =
+              makePath atype mp >>= \p -> runQ [|Path_Look $(pure key) $(pure p)|]
+      -- If the expression is id it translates to idPath.
+      doType stype (VarE x) | x == 'id = runQ [|idPath|]
+      -- Applications of functions are assumed to be field accesses.
+      -- We need to look for the declaration in stype.
+      doType stype (AppE (VarE fname) exp') = doField stype fname exp' -- reify fname >>= TH.lift
+      doType stype x = error $ "makePath - unexpected makePath expression: " ++ pprint x ++ "\n  " ++ show x
+
+      -- If we have a named type reify it to get its declaration.
+      doField :: Type -> Name -> Exp -> m Exp
+      doField (ConT tname) fname exp = qReify tname >>= doInfo fname exp
+      doField stype fname exp = error $ "makePath - unexpected type for field accessor " ++ show fname ++ ": " ++ show stype
+
+      doInfo fname exp (TyConI dec) = doDec fname exp dec
+      doInfo fname exp (FamilyI dec _insts) = doDec fname exp dec
+      doInfo fname exp info = error $ "makePath - unexpected Info: " ++ show info
+
+      doDec :: Name -> Exp -> Dec -> m Exp
+      doDec fname exp (TySynD tname _binds stype') = doType stype' (AppE (VarE fname) exp)
+      doDec fname exp (NewtypeD cx tname binds con supers) = doDec fname exp (DataD cx tname binds [con] supers)
+      -- Find the Con and field corresponding to fname to get the field
+      -- type.  Then construct the path expression.
+      doDec fname exp (DataD _ tname _ cons _) =
+          case filter (\x -> view _1 x == fname) (concatMap vsts cons) of
+            [(_, _, ftype)] -> makePath ftype exp >>= \p -> pure $ AppE (VarE (unPathCon (makeUNamedFieldCon tname fname))) p
+            _ -> error $ "makePath - could not find field " ++ show fname ++ " in " ++ show tname
+
+      vsts :: Con -> [VarStrictType]
+      vsts (RecC cname xs) = xs
+      vsts _ = []
 
 idLens :: Lens' a a
 idLens = id
