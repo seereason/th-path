@@ -48,7 +48,7 @@ import Test.HUnit hiding (path)
 import ReportPaths
 import Tests.Core (core)
 import Tests.Data (pathReportView, peekReportView, peekAbbrevPairs, pathLabels)
-import Tests.MakePath (testMakePath)
+-- import Tests.MakePath (testMakePath)
 import Tests.Report as Report (report, image)
 
 {-
@@ -249,12 +249,12 @@ main = do
          , TestLabel "testPeekCol" testPeekCol
          , TestLabel "testPeekOrder" testPeekOrder
          , TestLabel "testUPaths" testUPaths
-         , TestLabel "testMakePath" testMakePath
+         -- , TestLabel "testMakePath" testMakePath
          , TestLabel "core" Tests.Core.core
-         , assertEqual' "toLens3" (mapMaybe unU' (toListOf (toLens (UPath_ImageSize_dim (idPath))) (picSize image) :: [Univ])) [dim (picSize image) :: Dimension]
-         , assertEqual' "toLens4" (mapMaybe unU' (toListOf (toLens (UPath_ImageSize_units (idPath))) (picSize image) :: [Univ])) [units (picSize image)]
+         , assertEqual' "toLens3" (mapMaybe unU' (toListOf (toLens $(makePath [t|Univ|] [t|ImageSize|] [|\x -> dim x|])) (picSize image) :: [Univ])) [dim (picSize image) :: Dimension]
+         , assertEqual' "toLens4" (mapMaybe unU' (toListOf (toLens $(makePath [t|Univ|] [t|ImageSize|] [|\x -> units x|])) (picSize image) :: [Univ])) [units (picSize image)]
          , assertEqual' "toLens5" (mapMaybe unU' (toListOf (toLens (Path_To Proxy (idPath) :: UPath Univ ReportImage)) image :: [Univ])) [view viewLens image]
-         , assertEqual' "toLens6" (mapMaybe unU' (toListOf (toLens (UPath_ReportImageView__picCrop (idPath))) (view viewLens image) :: [Univ])) [picCrop image]
+         , assertEqual' "toLens6" (mapMaybe unU' (toListOf (toLens $(makePath [t|Univ|] [t|ReportImageView|] [|\x -> Appraisal.ReportInstances._picCrop x|])) (view viewLens image) :: [Univ])) [picCrop image]
 {-
          , assertEqual' "toLens7" (toListOf (toLens ((UPath_ReportImage_View (idPath :: UPath_ReportImageView {-ReportImageView-})) :.:
                                                      (UPath_ReportImageView__picCrop (idPath :: UPath_ImageCrop {-ImageCrop-})))) image) [picCrop image :: ImageCrop]

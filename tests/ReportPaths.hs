@@ -47,7 +47,8 @@ import Text.Pandoc (Pandoc, Meta, MetaValue, QuoteType, Inline, Format, MathType
 $(do deps <- runQ (runIO (find always (extension ==? ".hs" &&? fileType ==? RegularFile) "Language/Haskell/TH/Path"))
      decs <- sort <$> derivePaths [ [t|ReportMap|] ]
      runQ (runIO (writeFile "tests/ReportHs.hs" (unlines (map show decs))))
-     writePaths (Just "tests/ReportHead.hs") Nothing "tests/ReportDecs.hs" deps decs)
+     hd <- runIO $ readFile "tests/ReportHead.hs"
+     writePaths hd Nothing "tests/ReportDecs.hs" deps decs)
 
 -- | Most (all?) of these should be moved back to live with their parent types.
 $(deriveLiftMany [''JSONText])

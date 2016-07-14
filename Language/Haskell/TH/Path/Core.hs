@@ -632,12 +632,12 @@ aOfS utypeq expq stypeq = do
                case t of
                  AppT (AppT (ConT mp) k) a | mp == ''Map -> pure a
                  _ -> error "aOfS Map"
-      doExp (LamE [x@(VarP _)] (AppE (VarE fname) exp')) typ =
-        do VarI _ (AppT (AppT ArrowT rtype@(ConT tname)) ftype) _ _ <- qReify fname
+      doExp exp@(LamE [x@(VarP _)] (AppE (VarE fname) exp')) typ =
+        do info@(VarI _ (AppT (AppT ArrowT rtype@(ConT tname)) ftype) _ _) <- qReify fname
            fld <- lift $ fromJust <$> lookupValueName (nameBase (unPathCon (makeUNamedFieldCon tname fname)))
            modify' (\e -> [|$(conE fld) $e|])
            t <- doView (LamE [x] exp') typ -- Should return a @ConT tname@
-           if t == rtype then pure ftype else error "aOfS field"
+           if t == rtype then pure ftype else error ("aOfS field - exp=(" ++ pprint1 exp ++ ") typ=(" ++ pprint1 typ ++ ") " ++ show fname ++ "=(" ++ pprint1 info ++ ") t=(" ++ pprint1 t ++ ")")
            -- if t == rtype then pure t else
       doExp exp typ = error $ "aOfS - exp=" ++ pprint1 exp ++ ", typ=" ++ pprint1 typ
 
