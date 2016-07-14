@@ -392,6 +392,10 @@ instance (IsPath (Path_View s viewpath), Describe (Proxy s),
                     (describe' Nothing _wp)
           describe' f Path_Self = describe' f (Proxy :: Proxy s)
 
+instance (IsPath (Path_List a), Describe a, Describe (Proxy (SType (Path_List a)))) => Describe (Path_List a)
+    where describe' f p | p == idPath = describe' f (Proxy :: Proxy (SType (Path_List a)))
+          describe' _ p = error ("Unexpected path: " ++ show p)
+
 instance (p ~ UPath u (Either a b), IsPath p, s ~ (Either a b), u ~ UType p, s ~ SType p, U u s,
           q ~ UPath u a, IsPath q, u ~ UType q, PathStart u a,
           r ~ UPath u b, IsPath r, u ~ UType r, PathStart u b, U u (Either a b)

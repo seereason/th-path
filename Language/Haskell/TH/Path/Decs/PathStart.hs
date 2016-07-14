@@ -38,7 +38,7 @@ import Language.Haskell.TH.Path.Core (camelWords, Describe(describe'), IsPath(..
 import Language.Haskell.TH.Path.Graph (TypeGraphM)
 import Language.Haskell.TH.Path.Order (Path_OMap(..))
 import Language.Haskell.TH.Path.Traverse (asP', Control(..), doNode)
-import Language.Haskell.TH.Syntax (liftString)
+import Language.Haskell.TH.Syntax (liftString, qReify)
 import Language.Haskell.TH.TypeGraph.Shape (constructorName, Field)
 import Language.Haskell.TH.TypeGraph.TypeGraph (tgv, tgvSimple')
 import Language.Haskell.TH.TypeGraph.Vertex (field, TGVSimple)
@@ -85,25 +85,8 @@ peekDecs utype v =
     do uptype <- upathType v
        (clauses :: [WriterType]) <- execWriterT (doNode (pathControl v) v)
        let (udcs, upcs, uprcs, uptcs, upccs, tlms) = partitionClauses clauses
-       let hasPathStartInstance =
-               case asType v of
-                 ConT f | nameBase f == "AbbrevPairs" -> True
-                 ConT f | nameBase f == "AbbrevPair" -> True
-                 ConT f | nameBase f == "Authors" -> True
-                 ConT f | nameBase f == "EUI" -> True
-                 ConT f | nameBase f == "MaybeImageFile" -> True
-                 ConT f | nameBase f == "MEUI" -> True
-                 ConT f | nameBase f == "ReportImages" -> True
-                 ConT f | nameBase f == "MIM" -> True
-                 ConT f | nameBase f == "MRR" -> True
-                 ConT f | nameBase f == "MarkupPairs" -> True
-                 ConT f | nameBase f == "MarkupPair" -> True
-                 ConT f | nameBase f == "Markups" -> True
-                 ConT f | nameBase f == "ReportElems" -> True
-                 AppT (AppT (ConT name) a) b | name == ''Map -> True
-                 AppT (AppT (TupleT 2) a) b -> True
-                 _ -> trace ("type: " ++ show (asType v)) False
-       when (not hasPathStartInstance)
+       hasInst <- doType (asType v)
+       when (not hasInst)
             (instanceD' (cxt []) [t|PathStart $utype $(asTypeQ v)|]
                (sequence
                 [{-pure (dataInstD (cxt []) ''UPeek [utype, asTypeQ v]
@@ -144,6 +127,29 @@ peekDecs utype v =
                             type SType $(asTypeQ pname) = $(asTypeQ v)
                             idPath = $(asConQ pname)
                             toLens p = $(caseE [|p|] tlms)|])
+    where
+      doType (ConT f) | nameBase f == "AbbrevPairs" = pure True
+      doType (ConT f) | nameBase f == "AbbrevPair" = pure True
+      doType (ConT f) | nameBase f == "Authors" = pure True
+      doType (ConT f) | nameBase f == "EUI" = pure True
+      doType (ConT f) | nameBase f == "MaybeImageFile" = pure True
+      doType (ConT f) | nameBase f == "MEUI" = pure True
+      doType (ConT f) | nameBase f == "ReportImages" = pure True
+      doType (ConT f) | nameBase f == "MIM" = pure True
+      doType (ConT f) | nameBase f == "MRR" = pure True
+      doType (ConT f) | nameBase f == "MarkupPairs" = pure True
+      doType (ConT f) | nameBase f == "MarkupPair" = pure True
+      doType (ConT f) | nameBase f == "Markups" = pure True
+      doType (ConT f) | nameBase f == "ReportElems" = pure True
+      doType typ@(ConT name) = qReify name >>= doInfo typ
+      doType (AppT (AppT (ConT name) a) b) | name == ''Map = pure True
+      doType (AppT (AppT (TupleT 2) a) b ) = pure True
+      doType typ = trace ("type: " ++ show typ) (pure False)
+      doInfo typ (TyConI dec) = doDec typ dec
+      doInfo typ (FamilyI dec _) = doDec typ dec
+      doInfo typ _ = trace ("type: " ++ show typ) (pure False)
+      doDec typ (TySynD _ _ typ') = doType typ'
+      doDec typ _ = trace ("type: " ++ show typ) (pure False)
 
 pathControl :: forall m. (TypeGraphM m, MonadWriter [WriterType] m) => TGVSimple -> Control m Hop () ()
 pathControl v =
