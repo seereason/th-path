@@ -78,9 +78,11 @@ module Language.Haskell.TH.Path.Core
 import Control.Applicative.Error (maybeRead)
 import Control.Lens hiding (at) -- (set, Traversal', Lens', _Just, iso, lens, view, view)
 import Data.Aeson
+#if !MIN_VERSION_aeson(0,11,0)
 import Data.Aeson.Types (typeMismatch)
+#endif
 import Data.Char (isUpper, toUpper)
-import Data.Generics (Data, extQ, mkQ, Typeable)
+import Data.Generics (Data, Typeable)
 import Data.List as List (groupBy, map)
 import Data.Map as Map (Map, insert, lookup, toList, (!))
 import Data.Maybe (catMaybes, fromJust)
@@ -94,7 +96,7 @@ import Debug.Trace (trace)
 import Language.Haskell.TH -- (Q, ExpQ, Exp(AppE, VarE, TupE, LitE, InfixE))
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.Lift as TH (deriveLiftMany, lift)
+import Language.Haskell.TH.Lift as TH (deriveLiftMany)
 import Language.Haskell.TH.Path.Common (makeUNamedFieldCon, PathCon(unPathCon))
 #if !__GHCJS__
 import Language.Haskell.TH.Path.Instances ()
@@ -103,7 +105,7 @@ import Language.Haskell.TH.Path.View (View(ViewType), viewLens, viewInstanceType
 import Language.Haskell.TH.Syntax (qReify, VarStrictType)
 import Prelude hiding (exp)
 import Safe (readMay)
-import Language.Haskell.TH.Ppr (pprint)
+-- import Language.Haskell.TH.Ppr (pprint)
 import Web.Routes
 import Web.Routes.TH (derivePathInfo)
 import Text.Parsec.Prim ((<|>))
@@ -441,7 +443,7 @@ instance (p ~ UPath u (Map k a), IsPath p, s ~ Map k a, u ~ UType p, s ~ SType p
     upeekTree _ (Just 0) x = Node (Peek idPath (Just (u x))) []
     upeekTree _ d x = Node (Peek idPath Nothing) (concat [concatMap (makeTrees d x) (map (\(_k, _) -> Path_Look _k) (toList x))])
     upeekCol _ _p@(Path_Look _k _) x = Node (Peek idPath Nothing) (makeCol x (Path_Look _k) (\(Path_Look _ p) -> p) _p)
-    upeekCol _ p x = Node (Peek idPath (Just (u x))) []
+    upeekCol _ _p x = Node (Peek idPath (Just (u x))) []
 
 -- | A wrapper used to access the View functionality
 data ViewOf s a = ViewOf (Proxy a) s deriving Data
@@ -464,44 +466,45 @@ instance (p ~ UPath u s, u ~ UType (UPath u a), u ~ UType (UPath u s), U u (View
 -- expression is built from a limited set of elements - fst and snd
 -- for pairs, applications of field accessors, Just to get from a
 -- Maybe into the contained value, and so on.
-makePath :: forall m. DsMonad m => Type -> Exp -> m Exp
-makePath stype exp =
-    viewInstanceType stype >>= doView
+makePath :: forall m. DsMonad m => TypeQ -> TypeQ -> ExpQ -> m Exp
+makePath utypeq stypeq expq = do
+  stype <- runQ stypeq
+  viewInstanceType stype >>= doView stype
     where
       -- First see if stype is an instance of View. If so find atype
       -- and wrap Path_To around our path expression.  This is
       -- automatic, exp isn't used and doesn't change.
-      doView :: Maybe Type -> m Exp
-      doView Nothing = doType stype exp
-      doView (Just atype) = runQ [|Path_To (Proxy :: Proxy $(pure stype)) (makePath atype exp)|]
+      doView :: Type -> Maybe Type -> m Exp
+      doView stype Nothing = runQ expq >>= doType stype
+      doView stype (Just atype) = makePath utypeq (pure atype) expq >>= \p -> runQ [|Path_To (Proxy :: Proxy $(pure stype)) $(pure p)|]
 
       -- Now look for known types like Either a b.  The expression
       -- needs to specify whether (for example) the path follows the
       -- Left or the Right, so exp provides the same information here
       -- as stype.
       doType :: Type -> Exp -> m Exp
-      doType (AppT (AppT (ConT either) ltype) rtype) (AppE (ConE lr) x)
-          | either == ''Either && lr == 'Left =
-              makePath ltype x >>= \p -> runQ [|Path_Left $(pure p)|]
-          | either == ''Either && lr == 'Right =
-              makePath ltype x >>= \p -> runQ [|Path_Right $(pure p)|]
+      doType (AppT (AppT (ConT e) ltype) rtype) (AppE (ConE lr) x)
+          | e == ''Either && lr == 'Left =
+              makePath utypeq (pure ltype) (pure x) >>= \p -> runQ [|Path_Left $(pure p)|]
+          | e == ''Either && lr == 'Right =
+              makePath utypeq (pure ltype) (pure x) >>= \p -> runQ [|Path_Right $(pure p)|]
       doType (AppT (ConT maybe) typ) (AppE (ConE just) x)
           | maybe == ''Maybe && just == 'Just =
-              makePath typ x >>= \p -> runQ [|Path_Just $(pure p)|]
+              makePath utypeq (pure typ) (pure x) >>= \p -> runQ [|Path_Just $(pure p)|]
       -- There is no path that starts from the Nothing constructor.
       -- doType (ConE nothing) | nothing == 'Nothing = runQ [|idPath|]
       doType (AppT (AppT (TupleT 2) ftype) stype) (AppE (VarE fn) pair)
-          | fn == 'fst = makePath ftype pair >>= \p -> runQ [|Path_First $(pure p)|]
-          | fn == 'snd = makePath stype pair >>= \p -> runQ [|Path_Second $(pure p)|]
+          | fn == 'fst = makePath utypeq (pure ftype) (pure pair) >>= \p -> runQ [|Path_First $(pure p)|]
+          | fn == 'snd = makePath utypeq (pure stype) (pure pair) >>= \p -> runQ [|Path_Second $(pure p)|]
       doType (AppT (AppT (ConT m) ktype) atype) (InfixE (Just mp) (VarE op) (Just key))
           | m == ''Map && op == '(!) =
-              makePath atype mp >>= \p -> runQ [|Path_Look $(pure key) $(pure p)|]
+              makePath utypeq (pure atype) (pure mp) >>= \p -> runQ [|Path_Look $(pure key) $(pure p)|]
       -- If the expression is id it translates to idPath.
-      doType stype (VarE x) | x == 'id = runQ [|idPath|]
+      doType stype (VarE x) | x == 'id = runQ [|idPath :: UPath $utypeq $stypeq|]
       -- Applications of functions are assumed to be field accesses.
       -- We need to look for the declaration in stype.
       doType stype (AppE (VarE fname) exp') = doField stype fname exp' -- reify fname >>= TH.lift
-      doType stype x = error $ "makePath - unexpected makePath expression: " ++ pprint x ++ "\n  " ++ show x
+      doType stype x = error $ "makePath - unexpected makePath utypeq expression: " ++ pprint x ++ "\n  " ++ show x
 
       -- If we have a named type reify it to get its declaration.
       doField :: Type -> Name -> Exp -> m Exp
@@ -519,12 +522,74 @@ makePath stype exp =
       -- type.  Then construct the path expression.
       doDec fname exp (DataD _ tname _ cons _) =
           case filter (\x -> view _1 x == fname) (concatMap vsts cons) of
-            [(_, _, ftype)] -> makePath ftype exp >>= \p -> pure $ AppE (VarE (unPathCon (makeUNamedFieldCon tname fname))) p
+            [(_, _, ftype)] -> makePath utypeq (pure ftype) (pure exp) >>= \p -> pure $ AppE (VarE (unPathCon (makeUNamedFieldCon tname fname))) p
             _ -> error $ "makePath - could not find field " ++ show fname ++ " in " ++ show tname
 
       vsts :: Con -> [VarStrictType]
       vsts (RecC cname xs) = xs
       vsts _ = []
+
+{-
+-- | Turn the expression into a function that builds a path type
+expToPath :: Exp -> (ExpQ -> ExpQ)
+expToPath (AppE (ConE c) x) | c == 'Left = \p -> runQ [|Path_Left $p|]
+expToPath (AppE (ConE c) x) | c == 'Right = \p -> runQ [|Path_Right $p|]
+expToPath (AppE (ConE c) x) | c == 'Just = \p -> runQ [|Path_Just $p|]
+expToPath (AppE (VarE f) p) | f == 'fst = \p -> runQ [|Path_First $p|]
+expToPath (AppE (VarE f) p) | f == 'snd = \p -> runQ [|Path_Second $p|]
+expToPath (InfixE (Just mp) (VarE op) (Just key)) | op == '(!) = \p -> runQ [|Path_Look $(pure key) $p|]
+expToPath (VarE x) | x == 'id = \_ -> runQ [|idPath :: UPath $utypeq $stypeq|]
+expToPath (AppE (VarE fname) exp') = fieldToPath fname exp'
+    where
+      fieldToPath :: Name -> Exp -> (ExpQ -> ExpQ)
+      fieldToPath fname exp = qReify tname >>= infoToPath fname exp
+      fieldToPath fname exp = error $ "makePath - unexpected type for field accessor " ++ show fname ++ ": " ++ show stype
+
+      infoToPath :: Name -> Exp -> Info -> (ExpQ -> ExpQ)
+      infoToPath fname exp (TyConI dec) = decToPath fname exp dec
+      infoToPath fname exp (FamilyI dec _insts) = decToPath fname exp dec
+      infoToPath fname exp info = error $ "makePath - unexpected Info: " ++ show info
+
+      decToPath :: Name -> Exp -> Dec -> (ExpQ -> ExpQ)
+      decToPath fname exp (TySynD tname _binds stype') = expToPath (AppE (VarE fname) exp)
+      decToPath fname exp (NewtypeD cx tname binds con supers) = decToPath fname exp (DataD cx tname binds [con] supers)
+      -- Find the Con and field corresponding to fname to get the field
+      -- type.  Then construct the path expression.
+      decToPath fname exp (DataD _ tname _ cons _) =
+          case filter (\x -> view _1 x == fname) (concatMap vsts cons) of
+            [(_, _, ftype)] -> makePath utypeq (pure ftype) (pure exp) >>= \p -> pure $ AppE (VarE (unPathCon (makeUNamedFieldCon tname fname))) p
+            _ -> error $ "makePath - could not find field " ++ show fname ++ " in " ++ show tname
+
+-- | Turn the expression into a function that maps the s type to the a type
+expToType :: Exp -> Type -> TypeQ
+expToType (AppT (AppT (ConT 'Either) l) _) (AppE (ConE c) x) | c == 'Left = pure l
+expToType (AppT (AppT (ConT 'Either) _) r) (AppE (ConE c) x) | c == 'Right = pure r
+expToType (AppT (ConT 'Maybe) a) (AppE (ConE c) x) | c == 'Just = pure a
+expToType (AppT (AppT (TupleT 2) f) _) (AppE (VarE fn) p) | fn == 'fst = pure f
+expToType (AppT (AppT (TupleT 2) _) s) (AppE (VarE fn) p) | fn == 'snd = pure s
+expToType (AppT (AppT (ConT 'Map) k) a) (InfixE (Just mp) (VarE op) (Just key)) | op == '(!) = pure a
+expToType a (VarE x) | x == 'id = pure a
+expToType (AppE (VarE fname) exp') = fieldToType fname exp'
+    where
+      fieldToType :: Name -> Exp -> TypeQ
+      fieldToType fname exp = qReify tname >>= infoToType fname exp
+      fieldToType fname exp = error $ "makePath - unexpected type for field accessor " ++ show fname ++ ": " ++ show stype
+
+      infoToType :: Name -> Exp -> Info -> TypeQ
+      infoToType fname exp (TyConI dec) = decToType fname exp dec
+      infoToType fname exp (FamilyI dec _insts) = decToType fname exp dec
+      infoToType fname exp info = error $ "makePath - unexpected Info: " ++ show info
+
+      decToType :: Name -> Exp -> Dec -> TypeQ
+      decToType fname exp (TySynD tname _binds stype') = doType stype' (AppE (VarE fname) exp)
+      decToType fname exp (NewtypeD cx tname binds con supers) = decToType fname exp (DataD cx tname binds [con] supers)
+      -- Find the Con and field corresponding to fname to get the field
+      -- type.  Then construct the path expression.
+      decToType fname exp (DataD _ tname _ cons _) =
+          case filter (\x -> view _1 x == fname) (concatMap vsts cons) of
+            [(_, _, ftype)] -> makePath utypeq (pure ftype) (pure exp) >>= \p -> pure $ AppE (VarE (unPathCon (makeUNamedFieldCon tname fname))) p
+            _ -> error $ "makePath - could not find field " ++ show fname ++ " in " ++ show tname
+-}
 
 idLens :: Lens' a a
 idLens = id

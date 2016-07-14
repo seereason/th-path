@@ -241,16 +241,16 @@ testUPaths =
 main :: IO ()
 main = do
   r <- runTestTT $ TestList $
-         [ testReportElems
-         , testShowInstance
-         , testPeekReportView
-         , testLabels
-         , testPeekReport
-         , testPeekCol
-         , testPeekOrder
-         , testUPaths
-         , testMakePath
-         , Tests.Core.core
+         [ TestLabel "testReportElems" testReportElems
+         , TestLabel "testShowInstance" testShowInstance
+         , TestLabel "testPeekReportView" testPeekReportView
+         , TestLabel "testLabels" testLabels
+         , TestLabel "testPeekReport" testPeekReport
+         , TestLabel "testPeekCol" testPeekCol
+         , TestLabel "testPeekOrder" testPeekOrder
+         , TestLabel "testUPaths" testUPaths
+         , TestLabel "testMakePath" testMakePath
+         , TestLabel "core" Tests.Core.core
          , assertEqual' "toLens3" (mapMaybe unU' (toListOf (toLens (UPath_ImageSize_dim (idPath))) (picSize image) :: [Univ])) [dim (picSize image) :: Dimension]
          , assertEqual' "toLens4" (mapMaybe unU' (toListOf (toLens (UPath_ImageSize_units (idPath))) (picSize image) :: [Univ])) [units (picSize image)]
          , assertEqual' "toLens5" (mapMaybe unU' (toListOf (toLens (Path_To Proxy (idPath) :: UPath Univ ReportImage)) image :: [Univ])) [view viewLens image]

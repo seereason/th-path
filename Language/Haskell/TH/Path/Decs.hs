@@ -109,10 +109,10 @@ doUniv = do
             ulens = ulens' Proxy |]
   return $ conT uname
 
-writePaths :: Maybe FilePath -> Maybe FilePath -> FilePath -> [FilePath] -> [Dec] -> Q [Dec]
-writePaths hd tl dest deps decs = do
-  runQ $ mapM_ addDependentFile $ catMaybes [hd, tl] ++ deps
-  hdText <- runQ $ runIO $ maybe (pure mempty) readFile hd
+writePaths :: String -> Maybe FilePath -> FilePath -> [FilePath] -> [Dec] -> Q [Dec]
+writePaths hdText tl dest deps decs = do
+  runQ $ mapM_ addDependentFile $ catMaybes [tl] ++ deps
+  -- hdText <- runQ $ runIO $ maybe (pure mempty) readFile hd
   tlText <- runQ $ runIO $ maybe (pure mempty) readFile tl
   old <- runQ $ runIO (try (readFile dest) >>=
                        either (\(e :: IOException) -> case isDoesNotExistError e of

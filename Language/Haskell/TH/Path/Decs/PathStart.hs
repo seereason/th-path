@@ -22,6 +22,7 @@ import Control.Monad (when)
 import Control.Monad.Writer (execWriterT, MonadWriter, tell)
 import Data.Aeson (FromJSON, ToJSON)
 import Data.Data (Data, Typeable)
+import Data.Map (Map)
 import Data.Maybe (fromMaybe)
 import Data.Proxy
 import Data.Tree (Tree(Node))
@@ -84,21 +85,24 @@ peekDecs utype v =
     do uptype <- upathType v
        (clauses :: [WriterType]) <- execWriterT (doNode (pathControl v) v)
        let (udcs, upcs, uprcs, uptcs, upccs, tlms) = partitionClauses clauses
-       let hasPathStartInstance = case show (asType v) of
-                                    "ConT Appraisal.Report.AbbrevPairs" -> True
-                                    "ConT Appraisal.Report.AbbrevPair" -> True
-                                    "ConT Appraisal.Report.Authors" -> True
-                                    "ConT Appraisal.ReportImage.EUI" -> True
-                                    "ConT Appraisal.ReportImage.MaybeImageFile" -> True
-                                    "ConT Appraisal.ReportImage.MEUI" -> True
-                                    "ConT Appraisal.ReportImage.ReportImages" -> True
-                                    "ConT Appraisal.ReportItem.MIM" -> True
-                                    "ConT Appraisal.ReportMap.MRR" -> True
-                                    "ConT Appraisal.Report.MarkupPairs" -> True
-                                    "ConT Appraisal.Report.MarkupPair" -> True
-                                    "ConT Appraisal.Report.Markups" -> True
-                                    "ConT Appraisal.Report.ReportElems" -> True
-                                    _ -> trace ("type: " ++ show (asType v)) False
+       let hasPathStartInstance =
+               case asType v of
+                 ConT f | nameBase f == "AbbrevPairs" -> True
+                 ConT f | nameBase f == "AbbrevPair" -> True
+                 ConT f | nameBase f == "Authors" -> True
+                 ConT f | nameBase f == "EUI" -> True
+                 ConT f | nameBase f == "MaybeImageFile" -> True
+                 ConT f | nameBase f == "MEUI" -> True
+                 ConT f | nameBase f == "ReportImages" -> True
+                 ConT f | nameBase f == "MIM" -> True
+                 ConT f | nameBase f == "MRR" -> True
+                 ConT f | nameBase f == "MarkupPairs" -> True
+                 ConT f | nameBase f == "MarkupPair" -> True
+                 ConT f | nameBase f == "Markups" -> True
+                 ConT f | nameBase f == "ReportElems" -> True
+                 AppT (AppT (ConT name) a) b | name == ''Map -> True
+                 AppT (AppT (TupleT 2) a) b -> True
+                 _ -> trace ("type: " ++ show (asType v)) False
        when (not hasPathStartInstance)
             (instanceD' (cxt []) [t|PathStart $utype $(asTypeQ v)|]
                (sequence
