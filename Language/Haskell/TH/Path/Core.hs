@@ -30,6 +30,7 @@ module Language.Haskell.TH.Path.Core
     , makeCol
     , makePeek
     , makePath
+    , aOfS
     , ulens'
     -- , (:.:)(..)
     , U(u, unU')
@@ -77,6 +78,9 @@ module Language.Haskell.TH.Path.Core
 
 import Control.Applicative.Error (maybeRead)
 import Control.Lens hiding (at) -- (set, Traversal', Lens', _Just, iso, lens, view, view)
+import Control.Monad (when)
+import Control.Monad.State (get, put, StateT, runStateT)
+import Control.Monad.Trans (lift)
 import Data.Aeson
 #if !MIN_VERSION_aeson(0,11,0)
 import Data.Aeson.Types (typeMismatch)
@@ -103,6 +107,7 @@ import Language.Haskell.TH.Path.Instances ()
 #endif
 import Language.Haskell.TH.Path.View (View(ViewType), viewLens, viewInstanceType)
 import Language.Haskell.TH.Syntax (qReify, VarStrictType)
+import Language.Haskell.TH.TypeGraph.Prelude (pprint1)
 import Prelude hiding (exp)
 import Safe (readMay)
 -- import Language.Haskell.TH.Ppr (pprint)
@@ -472,6 +477,9 @@ instance (p ~ UPath u s, u ~ UType (UPath u a), u ~ UType (UPath u s), U u (View
 -- Maybe into the contained value, and so on.
 makePath :: forall m. DsMonad m => TypeQ -> TypeQ -> ExpQ -> m Exp
 makePath utypeq stypeq expq = do
+#if 1
+    runQ (snd <$> aOfS utypeq expq stypeq)
+#else
   stype <- runQ stypeq
   viewInstanceType stype >>= doView stype
     where
@@ -532,68 +540,112 @@ makePath utypeq stypeq expq = do
       vsts :: Con -> [VarStrictType]
       vsts (RecC cname xs) = xs
       vsts _ = []
+#endif
 
-{-
--- | Turn the expression into a function that builds a path type
-expToPath :: Exp -> (ExpQ -> ExpQ)
-expToPath (AppE (ConE c) x) | c == 'Left = \p -> runQ [|Path_Left $p|]
-expToPath (AppE (ConE c) x) | c == 'Right = \p -> runQ [|Path_Right $p|]
-expToPath (AppE (ConE c) x) | c == 'Just = \p -> runQ [|Path_Just $p|]
-expToPath (AppE (VarE f) p) | f == 'fst = \p -> runQ [|Path_First $p|]
-expToPath (AppE (VarE f) p) | f == 'snd = \p -> runQ [|Path_Second $p|]
-expToPath (InfixE (Just mp) (VarE op) (Just key)) | op == '(!) = \p -> runQ [|Path_Look $(pure key) $p|]
-expToPath (VarE x) | x == 'id = \_ -> runQ [|idPath :: UPath $utypeq $stypeq|]
-expToPath (AppE (VarE fname) exp') = fieldToPath fname exp'
+-- | Given an expression of type @s -> a@ (in a very specific format)
+-- and a type @s@ type, return the type @a@.
+--
+-- We extract @a@ from the type with guidance from the expression.
+-- Specifically, the innermost layer of the expression tells us how to
+-- strip the outermost layer of the type and get closer to @a@.
+--
+-- So we must first traverse to the bottom of the expression.  When we
+-- reach @id@ we return the initial @s@ type.  Then as we exit each
+-- layer of the expression we strip a layer of the result type.
+aOfS :: TypeQ -> ExpQ -> TypeQ -> Q (Type, Exp)
+aOfS utypeq expq stypeq = do
+  exp <- expq
+  stype <- stypeq
+  -- trace ("aOfS (" ++ pprint1 exp ++ ") (" ++ pprint1 stype ++ ")\n  exp=" ++ show exp ++ "\n  typ=" ++ show stype) (pure ())
+  [|idPath|] >>= runStateT (doType exp stype)
     where
-      fieldToPath :: Name -> Exp -> (ExpQ -> ExpQ)
-      fieldToPath fname exp = qReify tname >>= infoToPath fname exp
-      fieldToPath fname exp = error $ "makePath - unexpected type for field accessor " ++ show fname ++ ": " ++ show stype
+      doType :: Exp -> Type -> StateT Exp Q Type
+      doType exp typ@(ConT tname) = trace ("doType1 (" ++ pprint1 exp ++ ") (" ++ pprint1 typ ++ ")") (pure ()) >> qReify tname >>= doInfo exp tname >>= lift . expandType
+      doType exp@(LamE [VarP x] _) typ = trace ("doType2 (" ++ pprint1 exp ++ ") (" ++ pprint1 typ ++ ")") (pure ()) >> doExp exp typ >>= lift . expandType
+      doType exp typ = error $ "Expecting a lambda expression, saw " ++ pprint1 exp
 
-      infoToPath :: Name -> Exp -> Info -> (ExpQ -> ExpQ)
-      infoToPath fname exp (TyConI dec) = decToPath fname exp dec
-      infoToPath fname exp (FamilyI dec _insts) = decToPath fname exp dec
-      infoToPath fname exp info = error $ "makePath - unexpected Info: " ++ show info
+      doInfo :: Exp -> Name -> Info -> StateT Exp Q Type
+      doInfo exp tname (TyConI dec) = trace ("doInfo1 (" ++ pprint1 exp ++ ") (" ++ show tname ++ ") (" ++ pprint1 dec ++ ")") (pure ()) >> doDec exp tname dec
+      doInfo exp tname (FamilyI dec _) = trace ("doInfo2 (" ++ pprint1 exp ++ ") (" ++ show tname ++ ") (" ++ pprint1 dec ++ ")") (pure ()) >> doDec exp tname dec
+      doInfo _ _ info = error $ "Unexpected info: " ++ pprint1 info ++ "\n  " ++ show info
 
-      decToPath :: Name -> Exp -> Dec -> (ExpQ -> ExpQ)
-      decToPath fname exp (TySynD tname _binds stype') = expToPath (AppE (VarE fname) exp)
-      decToPath fname exp (NewtypeD cx tname binds con supers) = decToPath fname exp (DataD cx tname binds [con] supers)
-      -- Find the Con and field corresponding to fname to get the field
-      -- type.  Then construct the path expression.
-      decToPath fname exp (DataD _ tname _ cons _) =
-          case filter (\x -> view _1 x == fname) (concatMap vsts cons) of
-            [(_, _, ftype)] -> makePath utypeq (pure ftype) (pure exp) >>= \p -> pure $ AppE (VarE (unPathCon (makeUNamedFieldCon tname fname))) p
-            _ -> error $ "makePath - could not find field " ++ show fname ++ " in " ++ show tname
+      doDec :: Exp -> Name -> Dec -> StateT Exp Q Type
+      doDec exp _ (TySynD _ binds typ) = doType exp typ
+      doDec exp tname _ = doExp exp (ConT tname)
 
--- | Turn the expression into a function that maps the s type to the a type
-expToType :: Exp -> Type -> TypeQ
-expToType (AppT (AppT (ConT 'Either) l) _) (AppE (ConE c) x) | c == 'Left = pure l
-expToType (AppT (AppT (ConT 'Either) _) r) (AppE (ConE c) x) | c == 'Right = pure r
-expToType (AppT (ConT 'Maybe) a) (AppE (ConE c) x) | c == 'Just = pure a
-expToType (AppT (AppT (TupleT 2) f) _) (AppE (VarE fn) p) | fn == 'fst = pure f
-expToType (AppT (AppT (TupleT 2) _) s) (AppE (VarE fn) p) | fn == 'snd = pure s
-expToType (AppT (AppT (ConT 'Map) k) a) (InfixE (Just mp) (VarE op) (Just key)) | op == '(!) = pure a
-expToType a (VarE x) | x == 'id = pure a
-expToType (AppE (VarE fname) exp') = fieldToType fname exp'
-    where
-      fieldToType :: Name -> Exp -> TypeQ
-      fieldToType fname exp = qReify tname >>= infoToType fname exp
-      fieldToType fname exp = error $ "makePath - unexpected type for field accessor " ++ show fname ++ ": " ++ show stype
+      -- Given a lambda expression and the type of its argument,
+      -- return the type of its result.  Save the resulting path
+      -- expression in the state.  Example:
+      --   exp: \x -> fst x
+      --   typ: (Int, Char)
+      doExp :: Exp -> Type -> StateT Exp Q Type
+      -- If the expression is (\x -> x) then return typ.
+      doExp (LamE [(VarP x)] (VarE name)) typ | name == x = pure typ
+      doExp (LamE [x@(VarP _)] (AppE (VarE fn) exp')) typ
+        | fn == 'fst =
+            do modify' (\e -> [|Path_First $e|])
+               -- Strip off the outer layer of the lambda expression
+               -- and compute the result type.  Then return the
+               -- application of that outer layer
+               t <- doType (LamE [x] exp') typ -- doType (LamE [x] (VarE x)) (Int, Char) -> Int
+               -- t needs to be a pair, return the type of fst
+               case t of
+                 AppT (AppT (TupleT 2) a) _ -> pure a
+                 _ -> error "aOfS fst"
+        | fn == 'snd =
+            do modify' (\e -> [|Path_Second $e|])
+               t <- doType (LamE [x] exp') typ
+               case t of
+                 AppT (AppT (TupleT 2) _) b -> pure b
+                 _ -> error $ "aOfS snd - t=" ++ show t
+      doExp (LamE [x@(VarP _)] (AppE (AppE (VarE fn) (VarE lns)) exp')) typ
+        | fn == 'view && lns == '_Left =
+            do modify' (\e -> [|Path_Left $e|])
+               t <- doType (LamE [x] exp') typ
+               case t of
+                 AppT (AppT (ConT either) l) _ | either == ''Either -> pure l
+                 _ -> error "aOfS Left"
+        | fn == 'view && lns == '_Right =
+            do modify' (\e -> [|Path_Right $e|])
+               t <- doType (LamE [x] exp') typ
+               case t of
+                 AppT (AppT (ConT either) _) r | either == ''Either -> pure r
+                 _ -> error "aOfS Right"
+      doExp (LamE [x@(VarP _)] (AppE (ConE c) exp')) typ
+        | c == 'Just =
+            do modify' (\e -> [|Path_Just $e|])
+               t <- doType (LamE [x] exp') typ
+               case t of
+                 AppT (ConT maybe) a | maybe == ''Maybe -> pure a
+                 _ -> error "aOfS Just"
+      doExp (LamE [x@(VarP _)] (InfixE (Just exp') (VarE op) (Just key))) typ
+        | op == '(!) =
+            do modify' (\e -> [|Path_Look $(pure key) $e|])
+               t <- doType (LamE [x] exp') typ
+               case t of
+                 AppT (AppT (ConT mp) k) a | mp == ''Map -> pure a
+                 _ -> error "aOfS Map"
+      doExp (LamE [x@(VarP _)] (AppE (VarE fname) exp')) typ =
+        do VarI _ (AppT (AppT ArrowT rtype@(ConT tname)) ftype) _ _ <- qReify fname
+           fld <- lift $ fromJust <$> lookupValueName (nameBase (unPathCon (makeUNamedFieldCon tname fname)))
+           modify' (\e -> [|$(conE fld) $e|])
+           t <- doType (LamE [x] exp') typ -- Should return a @ConT tname@
+           if t == rtype then pure ftype else error "aOfS field"
+           -- if t == rtype then pure t else 
+      doExp exp typ = error $ "aOfS - exp=" ++ pprint1 exp ++ ", typ=" ++ pprint1 typ
 
-      infoToType :: Name -> Exp -> Info -> TypeQ
-      infoToType fname exp (TyConI dec) = decToType fname exp dec
-      infoToType fname exp (FamilyI dec _insts) = decToType fname exp dec
-      infoToType fname exp info = error $ "makePath - unexpected Info: " ++ show info
+      expandType :: Type -> TypeQ
+      expandType (ConT tname) = qReify tname >>= expandInfo tname
+      expandType typ = pure typ
+      expandInfo tname (TyConI dec) = expandDec tname dec
+      expandInfo tname (FamilyI dec _) = expandDec tname dec
+      expandInfo tname info = error $ "Unexpected info"
+      expandDec _ (TySynD _ binds typ) = expandType typ
+      expandDec tname _ = conT tname
 
-      decToType :: Name -> Exp -> Dec -> TypeQ
-      decToType fname exp (TySynD tname _binds stype') = doType stype' (AppE (VarE fname) exp)
-      decToType fname exp (NewtypeD cx tname binds con supers) = decToType fname exp (DataD cx tname binds [con] supers)
-      -- Find the Con and field corresponding to fname to get the field
-      -- type.  Then construct the path expression.
-      decToType fname exp (DataD _ tname _ cons _) =
-          case filter (\x -> view _1 x == fname) (concatMap vsts cons) of
-            [(_, _, ftype)] -> makePath utypeq (pure ftype) (pure exp) >>= \p -> pure $ AppE (VarE (unPathCon (makeUNamedFieldCon tname fname))) p
-            _ -> error $ "makePath - could not find field " ++ show fname ++ " in " ++ show tname
--}
+      -- Customized modify for our state monad.
+      modify' :: (ExpQ -> ExpQ) -> StateT Exp Q ()
+      modify' f = get >>= \e -> lift (f (pure e)) >>= put
 
 idLens :: Lens' a a
 idLens = id

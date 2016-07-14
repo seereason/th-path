@@ -9,7 +9,6 @@ import Language.Haskell.TH
 import Language.Haskell.TH.Lift as TH (lift)
 import Language.Haskell.TH.Path.Core
 import Language.Haskell.TH.Path.Graph
-import Language.Haskell.TH.Path.TH (aOfS)
 import Language.Haskell.TH.Path.View
 import Language.Haskell.TH.Syntax (qReify, Loc(..), CharPos)
 import Language.Haskell.TH.TypeGraph.Prelude (pprint1)
@@ -27,8 +26,8 @@ testMakePath = TestList [ TestLabel "fieldTest" fieldTest
                         , TestLabel "aOfS1" aOfS1
                         , TestLabel "aOfS2" aOfS2
                         , TestLabel "aOfS3" aOfS3
+                        , TestLabel "pOfS1" pOfS1
 {-
-                        , pOfS1
                         , fstTest2
                         , sndTest
                         , justTest
@@ -55,35 +54,34 @@ viewTest = TestCase $ let expected = $([t|Integer|] >>= TH.lift) :: Type
 fstTest1 :: Test
 fstTest1 =
     TestCase $ let expected = "Path_First (idPath :: UPath Univ Double)"
-                   actual = $(makePath [t|Univ|] [t|(Double, Char)|] [|fst id|] >>= TH.lift . pprint1) in
+                   actual = $(makePath [t|Univ|] [t|(Double, Char)|] [|\x -> fst x|] >>= TH.lift . pprint1) in
                assertEqual "fstTest" expected actual
 
 aOfS1 :: Test
-aOfS1 = TestCase $ do let actual = $(aOfS [|\x -> snd (x ! 5)|] [t|Map Int (Int, Char)|] >>= TH.lift)
-                      expected <- runQ $ (,) <$> [t|Char|] <*> [|Path_Second (Path_Look 5 idPath)|]
+aOfS1 = TestCase $ do let actual = $(aOfS [t|Univ|] [|\x -> snd (x ! 5)|] [t|Map Int (Int, Char)|] >>= TH.lift)
+                      expected <- runQ $ (,) <$> [t|Char|] <*> [|Path_Look 5 (Path_Second idPath)|]
                       assertEqual "aOfS1" expected actual
 
 aOfS2 :: Test
-aOfS2 = TestCase $ do let actual = $(aOfS [|\x -> snd (loc_end x)|] [t|Loc|] >>= TH.lift)
-                      expected <- runQ $ (,) <$> [t|Int|] <*> [|Path_Second (UPath_Loc_loc_end idPath)|]
+aOfS2 = TestCase $ do let actual = $(aOfS [t|Univ|] [|\x -> snd (loc_end x)|] [t|Loc|] >>= TH.lift)
+                      expected <- runQ $ (,) <$> [t|Int|] <*> [|UPath_Loc_loc_end (Path_Second idPath)|]
                       assertEqual "aOfS2" expected actual
 
 aOfS3 :: Test
-aOfS3 = TestCase $ do let actual = $(aOfS [|\x -> snd (loc_end (view _Left x))|] [t|Either Loc Double|] >>= TH.lift)
-                      expected <- runQ $ (,) <$> [t|Int|] <*> [|Path_Second (UPath_Loc_loc_end (Path_Left idPath))|]
+aOfS3 = TestCase $ do let actual = $(aOfS [t|Univ|] [|\x -> snd (loc_end (view _Left x))|] [t|Either Loc Double|] >>= TH.lift)
+                      expected <- runQ $ (,) <$> [t|Int|] <*> [|Path_Left (UPath_Loc_loc_end (Path_Second idPath))|]
                       assertEqual "aOfS3" expected actual
-{-
-pOfS1 :: Test
-pOfS1 = TestCase $
-        runQ [t|Map Int (Int, Char)|] >>=
-        runTypeGraphT (do let actual :: Path_Map Integer (Path_Pair UPath_Int UPath_Char)
-                              actual = $(do let exp = [|\x -> snd (x ! 5)|]
-                                                stype = [t|Map Int (Int, Char)|]
-                                            pOfS [t|Univ|] exp stype)
-                              expected :: Path_Map Integer (Path_Pair UPath_Int UPath_Char)
-                              expected = Path_Look 5 (Path_Second (idPath :: UPath_Char))
-                          liftIO (assertEqual "pOfS1" expected actual)) . (: [])
 
+pOfS1 :: Test
+pOfS1 = TestCase $ do let expected :: Path_Map Integer (Path_Pair UPath_Int UPath_Int)
+                          expected = Path_Look 5 (Path_Second (idPath :: UPath_Int))
+                          actual :: Path_Map Integer (Path_Pair UPath_Int UPath_Int)
+                          actual = $(let exp = [|\x -> snd (x ! 5)|]
+                                         stype = [t|Map Int (Int, Char)|] in
+                                     snd <$> aOfS [t|Univ|] exp stype)
+                      assertEqual "pOfS1" expected actual
+
+{-
 fstTest2 :: Test
 fstTest2 =
     TestCase $ let expected = ""
