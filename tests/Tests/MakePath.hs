@@ -23,10 +23,10 @@ testMakePath :: Test
 testMakePath = TestList [ TestLabel "fieldTest" fieldTest
                         , TestLabel "viewTest" viewTest
                         , TestLabel "fstTest1" fstTest1
-                        , TestLabel "aOfS1" aOfS1
-                        , TestLabel "aOfS2" aOfS2
-                        , TestLabel "aOfS3" aOfS3
-                        , TestLabel "pOfS1" pOfS1
+                        , TestLabel "aOfS1 - pair and map access" aOfS1
+                        , TestLabel "aOfS2 - field access" aOfS2
+                        , TestLabel "aOfS3 - three levels" aOfS3
+                        , TestLabel "aOfS4 - a simple view" aOfS4
 {-
                         , fstTest2
                         , sndTest
@@ -72,14 +72,11 @@ aOfS3 = TestCase $ do let actual = $(aOfS [t|Univ|] [|\x -> snd (loc_end (view _
                       expected <- runQ $ (,) <$> [t|Int|] <*> [|Path_Left (UPath_Loc_loc_end (Path_Second idPath))|]
                       assertEqual "aOfS3" expected actual
 
-pOfS1 :: Test
-pOfS1 = TestCase $ do let expected :: Path_Map Integer (Path_Pair UPath_Int UPath_Int)
-                          expected = Path_Look 5 (Path_Second (idPath :: UPath_Int))
-                          actual :: Path_Map Integer (Path_Pair UPath_Int UPath_Int)
-                          actual = $(let exp = [|\x -> snd (x ! 5)|]
-                                         stype = [t|Map Int (Int, Char)|] in
-                                     snd <$> aOfS [t|Univ|] exp stype)
-                      assertEqual "pOfS1" expected actual
+aOfS4 :: Test
+aOfS4 = TestCase $ do let actual = $(aOfS [t|Univ|] [|\x -> loc_filename x|] [t|Loc|] >>= TH.lift)
+                      expected <- runQ $ (,) <$> [t| [Char] |] <*> [|UPath_Loc_loc_filename idPath|]
+                      -- expected <- runQ $ (,) <$> [t|Char|] <*> [|UPath_Loc_loc_filename idPath|]
+                      assertEqual "aOfS1" expected actual
 
 {-
 fstTest2 :: Test

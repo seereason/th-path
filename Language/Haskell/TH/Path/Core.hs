@@ -557,8 +557,15 @@ aOfS utypeq expq stypeq = do
   exp <- expq
   stype <- stypeq
   -- trace ("aOfS (" ++ pprint1 exp ++ ") (" ++ pprint1 stype ++ ")\n  exp=" ++ show exp ++ "\n  typ=" ++ show stype) (pure ())
-  [|idPath|] >>= runStateT (doType exp stype)
+  [|idPath|] >>= runStateT (doView exp stype)
     where
+      doView :: Exp -> Type -> StateT Exp Q Type
+      doView exp stype =
+          viewInstanceType stype >>=
+          maybe (doType exp stype)
+                (\atype -> modify' (\e -> [|Path_To Proxy $e|]) >> doView exp atype)
+      -- doView stype (Just atype) = makePath utypeq (pure atype) expq >>= \p -> runQ [|Path_To (Proxy :: Proxy $(pure stype)) $(pure p)|]
+
       doType :: Exp -> Type -> StateT Exp Q Type
       doType exp typ@(ConT tname) = trace ("doType1 (" ++ pprint1 exp ++ ") (" ++ pprint1 typ ++ ")") (pure ()) >> qReify tname >>= doInfo exp tname >>= lift . expandType
       doType exp@(LamE [VarP x] _) typ = trace ("doType2 (" ++ pprint1 exp ++ ") (" ++ pprint1 typ ++ ")") (pure ()) >> doExp exp typ >>= lift . expandType
@@ -570,7 +577,7 @@ aOfS utypeq expq stypeq = do
       doInfo _ _ info = error $ "Unexpected info: " ++ pprint1 info ++ "\n  " ++ show info
 
       doDec :: Exp -> Name -> Dec -> StateT Exp Q Type
-      doDec exp _ (TySynD _ binds typ) = doType exp typ
+      doDec exp _ (TySynD _ binds typ) = doView exp typ
       doDec exp tname _ = doExp exp (ConT tname)
 
       -- Given a lambda expression and the type of its argument,
@@ -587,41 +594,41 @@ aOfS utypeq expq stypeq = do
                -- Strip off the outer layer of the lambda expression
                -- and compute the result type.  Then return the
                -- application of that outer layer
-               t <- doType (LamE [x] exp') typ -- doType (LamE [x] (VarE x)) (Int, Char) -> Int
+               t <- doView (LamE [x] exp') typ -- doView (LamE [x] (VarE x)) (Int, Char) -> Int
                -- t needs to be a pair, return the type of fst
                case t of
                  AppT (AppT (TupleT 2) a) _ -> pure a
                  _ -> error "aOfS fst"
         | fn == 'snd =
             do modify' (\e -> [|Path_Second $e|])
-               t <- doType (LamE [x] exp') typ
+               t <- doView (LamE [x] exp') typ
                case t of
                  AppT (AppT (TupleT 2) _) b -> pure b
                  _ -> error $ "aOfS snd - t=" ++ show t
       doExp (LamE [x@(VarP _)] (AppE (AppE (VarE fn) (VarE lns)) exp')) typ
         | fn == 'view && lns == '_Left =
             do modify' (\e -> [|Path_Left $e|])
-               t <- doType (LamE [x] exp') typ
+               t <- doView (LamE [x] exp') typ
                case t of
                  AppT (AppT (ConT either) l) _ | either == ''Either -> pure l
                  _ -> error "aOfS Left"
         | fn == 'view && lns == '_Right =
             do modify' (\e -> [|Path_Right $e|])
-               t <- doType (LamE [x] exp') typ
+               t <- doView (LamE [x] exp') typ
                case t of
                  AppT (AppT (ConT either) _) r | either == ''Either -> pure r
                  _ -> error "aOfS Right"
       doExp (LamE [x@(VarP _)] (AppE (ConE c) exp')) typ
         | c == 'Just =
             do modify' (\e -> [|Path_Just $e|])
-               t <- doType (LamE [x] exp') typ
+               t <- doView (LamE [x] exp') typ
                case t of
                  AppT (ConT maybe) a | maybe == ''Maybe -> pure a
                  _ -> error "aOfS Just"
       doExp (LamE [x@(VarP _)] (InfixE (Just exp') (VarE op) (Just key))) typ
         | op == '(!) =
             do modify' (\e -> [|Path_Look $(pure key) $e|])
-               t <- doType (LamE [x] exp') typ
+               t <- doView (LamE [x] exp') typ
                case t of
                  AppT (AppT (ConT mp) k) a | mp == ''Map -> pure a
                  _ -> error "aOfS Map"
@@ -629,9 +636,9 @@ aOfS utypeq expq stypeq = do
         do VarI _ (AppT (AppT ArrowT rtype@(ConT tname)) ftype) _ _ <- qReify fname
            fld <- lift $ fromJust <$> lookupValueName (nameBase (unPathCon (makeUNamedFieldCon tname fname)))
            modify' (\e -> [|$(conE fld) $e|])
-           t <- doType (LamE [x] exp') typ -- Should return a @ConT tname@
+           t <- doView (LamE [x] exp') typ -- Should return a @ConT tname@
            if t == rtype then pure ftype else error "aOfS field"
-           -- if t == rtype then pure t else 
+           -- if t == rtype then pure t else
       doExp exp typ = error $ "aOfS - exp=" ++ pprint1 exp ++ ", typ=" ++ pprint1 typ
 
       expandType :: Type -> TypeQ
