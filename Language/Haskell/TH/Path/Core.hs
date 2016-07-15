@@ -480,71 +480,7 @@ instance (p ~ UPath u s, u ~ UType (UPath u a), u ~ UType (UPath u s), U u (View
 -- for pairs, applications of field accessors, Just to get from a
 -- Maybe into the contained value, and so on.
 makePath :: forall m. DsMonad m => TypeQ -> TypeQ -> ExpQ -> m Exp
-makePath utypeq stypeq expq = do
-#if 1
-    runQ (snd <$> aOfS utypeq expq stypeq)
-#else
-  stype <- runQ stypeq
-  viewInstanceType stype >>= doView stype
-    where
-      -- First see if stype is an instance of View. If so find atype
-      -- and wrap Path_To around our path expression.  This is
-      -- automatic, exp isn't used and doesn't change.
-      doView :: Type -> Maybe Type -> m Exp
-      doView stype Nothing = runQ expq >>= doType stype
-      doView stype (Just atype) = makePath utypeq (pure atype) expq >>= \p -> runQ [|Path_To (Proxy :: Proxy $(pure stype)) $(pure p)|]
-
-      -- Now look for known types like Either a b.  The expression
-      -- needs to specify whether (for example) the path follows the
-      -- Left or the Right, so exp provides the same information here
-      -- as stype.
-      doType :: Type -> Exp -> m Exp
-      doType (AppT (AppT (ConT e) ltype) rtype) (AppE (ConE lr) x)
-          | e == ''Either && lr == 'Left =
-              makePath utypeq (pure ltype) (pure x) >>= \p -> runQ [|Path_Left $(pure p)|]
-          | e == ''Either && lr == 'Right =
-              makePath utypeq (pure ltype) (pure x) >>= \p -> runQ [|Path_Right $(pure p)|]
-      doType (AppT (ConT maybe) typ) (AppE (ConE just) x)
-          | maybe == ''Maybe && just == 'Just =
-              makePath utypeq (pure typ) (pure x) >>= \p -> runQ [|Path_Just $(pure p)|]
-      -- There is no path that starts from the Nothing constructor.
-      -- doType (ConE nothing) | nothing == 'Nothing = runQ [|idPath|]
-      doType (AppT (AppT (TupleT 2) ftype) stype) (AppE (VarE fn) pair)
-          | fn == 'fst = makePath utypeq (pure ftype) (pure pair) >>= \p -> runQ [|Path_First $(pure p)|]
-          | fn == 'snd = makePath utypeq (pure stype) (pure pair) >>= \p -> runQ [|Path_Second $(pure p)|]
-      doType (AppT (AppT (ConT m) ktype) atype) (InfixE (Just mp) (VarE op) (Just key))
-          | m == ''Map && op == '(!) =
-              makePath utypeq (pure atype) (pure mp) >>= \p -> runQ [|Path_Look $(pure key) $(pure p)|]
-      -- If the expression is id it translates to idPath.
-      doType stype (VarE x) | x == 'id = runQ [|idPath :: UPath $utypeq $stypeq|]
-      -- Applications of functions are assumed to be field accesses.
-      -- We need to look for the declaration in stype.
-      doType stype (AppE (VarE fname) exp') = doField stype fname exp' -- reify fname >>= TH.lift
-      doType stype x = error $ "makePath - unexpected makePath utypeq expression: " ++ pprint x ++ "\n  " ++ show x
-
-      -- If we have a named type reify it to get its declaration.
-      doField :: Type -> Name -> Exp -> m Exp
-      doField (ConT tname) fname exp = qReify tname >>= doInfo fname exp
-      doField stype fname exp = error $ "makePath - unexpected type for field accessor " ++ show fname ++ ": " ++ show stype
-
-      doInfo fname exp (TyConI dec) = doDec fname exp dec
-      doInfo fname exp (FamilyI dec _insts) = doDec fname exp dec
-      doInfo fname exp info = error $ "makePath - unexpected Info: " ++ show info
-
-      doDec :: Name -> Exp -> Dec -> m Exp
-      doDec fname exp (TySynD tname _binds stype') = doType stype' (AppE (VarE fname) exp)
-      doDec fname exp (NewtypeD cx tname binds con supers) = doDec fname exp (DataD cx tname binds [con] supers)
-      -- Find the Con and field corresponding to fname to get the field
-      -- type.  Then construct the path expression.
-      doDec fname exp (DataD _ tname _ cons _) =
-          case filter (\x -> view _1 x == fname) (concatMap vsts cons) of
-            [(_, _, ftype)] -> makePath utypeq (pure ftype) (pure exp) >>= \p -> pure $ AppE (VarE (unPathCon (makeUNamedFieldCon tname fname))) p
-            _ -> error $ "makePath - could not find field " ++ show fname ++ " in " ++ show tname
-
-      vsts :: Con -> [VarStrictType]
-      vsts (RecC cname xs) = xs
-      vsts _ = []
-#endif
+makePath utypeq stypeq expq = runQ (snd <$> aOfS utypeq expq stypeq)
 
 -- | Given an expression of type @s -> a@ (in a very specific format)
 -- and a type @s@ type, return the type @a@.
@@ -561,8 +497,13 @@ aOfS utypeq expq stypeq = do
   exp <- expq
   stype <- stypeq
   -- trace ("aOfS (" ++ pprint1 exp ++ ") (" ++ pprint1 stype ++ ")\n  exp=" ++ show exp ++ "\n  typ=" ++ show stype) (pure ())
-  [|idPath|] >>= runStateT (doView exp stype)
+  [|idPath|] >>= runStateT (doView exp stype) >>= return . debug exp stype
     where
+      debug :: Exp -> Type -> (Type, Exp) -> (Type, Exp)
+      debug exp stype (rtype, rexp) =
+          trace ("makePath (" ++ pprint1 exp ++ ") (" ++ pprint1 stype ++ ") -> (" ++ pprint1 rexp ++ " :: " ++ pprint1 rtype ++ ")")
+                (rtype, rexp)
+
       doView :: Exp -> Type -> StateT Exp Q Type
       doView exp stype =
           viewInstanceType stype >>=
@@ -571,13 +512,13 @@ aOfS utypeq expq stypeq = do
       -- doView stype (Just atype) = makePath utypeq (pure atype) expq >>= \p -> runQ [|Path_To (Proxy :: Proxy $(pure stype)) $(pure p)|]
 
       doType :: Exp -> Type -> StateT Exp Q Type
-      doType exp typ@(ConT tname) = trace ("doType1 (" ++ pprint1 exp ++ ") (" ++ pprint1 typ ++ ")") (pure ()) >> qReify tname >>= doInfo exp tname >>= lift . expandType
-      doType exp@(LamE [VarP x] _) typ = trace ("doType2 (" ++ pprint1 exp ++ ") (" ++ pprint1 typ ++ ")") (pure ()) >> doExp exp typ >>= lift . expandType
+      doType exp typ@(ConT tname) = {-trace ("doType1 (" ++ pprint1 exp ++ ") (" ++ pprint1 typ ++ ")") (pure ()) >>-} qReify tname >>= doInfo exp tname >>= lift . expandType
+      doType exp@(LamE [VarP x] _) typ = {-trace ("doType2 (" ++ pprint1 exp ++ ") (" ++ pprint1 typ ++ ")") (pure ()) >>-} doExp exp typ >>= lift . expandType
       doType exp typ = error $ "Expecting a lambda expression, saw " ++ pprint1 exp
 
       doInfo :: Exp -> Name -> Info -> StateT Exp Q Type
-      doInfo exp tname (TyConI dec) = trace ("doInfo1 (" ++ pprint1 exp ++ ") (" ++ show tname ++ ") (" ++ pprint1 dec ++ ")") (pure ()) >> doDec exp tname dec
-      doInfo exp tname (FamilyI dec _) = trace ("doInfo2 (" ++ pprint1 exp ++ ") (" ++ show tname ++ ") (" ++ pprint1 dec ++ ")") (pure ()) >> doDec exp tname dec
+      doInfo exp tname (TyConI dec) = {-trace ("doInfo1 (" ++ pprint1 exp ++ ") (" ++ show tname ++ ") (" ++ pprint1 dec ++ ")") (pure ()) >>-} doDec exp tname dec
+      doInfo exp tname (FamilyI dec _) = {-trace ("doInfo2 (" ++ pprint1 exp ++ ") (" ++ show tname ++ ") (" ++ pprint1 dec ++ ")") (pure ()) >>-} doDec exp tname dec
       doInfo _ _ info = error $ "Unexpected info: " ++ pprint1 info ++ "\n  " ++ show info
 
       doDec :: Exp -> Name -> Dec -> StateT Exp Q Type
