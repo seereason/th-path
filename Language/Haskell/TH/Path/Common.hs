@@ -33,7 +33,7 @@ module Language.Haskell.TH.Path.Common
     , tells
     , telld
     -- , mconcatQ
-    , tagExp
+    -- , tagExp
     ) where
 
 import Control.Lens hiding (cons, Strict)
@@ -181,8 +181,8 @@ mconcatQ :: [ExpQ] -> ExpQ
 mconcatQ [] = [| mempty |]
 mconcatQ [x] = x
 mconcatQ xs = [|mconcat $(listE xs)|]
--}
 
 -- | Insert a string into an expression by applying an id function
 tagExp :: String -> ExpQ -> ExpQ
 tagExp s e = [|bool (undefined $(lift s)) $e True|]
+-}
