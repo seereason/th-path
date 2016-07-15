@@ -508,7 +508,7 @@ aOfS utypeq expq stypeq = do
       doView exp stype =
           viewInstanceType stype >>=
           maybe (doType exp stype)
-                (\atype -> modify' (\e -> [|Path_To Proxy $e|]) >> doView exp atype)
+                (\atype -> doView exp atype >>= \t -> modify' (\e -> [|Path_To Proxy $e|]) >> return t)
       -- doView stype (Just atype) = makePath utypeq (pure atype) expq >>= \p -> runQ [|Path_To (Proxy :: Proxy $(pure stype)) $(pure p)|]
 
       doType :: Exp -> Type -> StateT Exp Q Type
@@ -597,7 +597,7 @@ aOfS utypeq expq stypeq = do
 
       -- Customized modify for our state monad.
       modify' :: (ExpQ -> ExpQ) -> StateT Exp Q ()
-      modify' f = get >>= \e -> lift (f (pure e)) >>= put
+      modify' f = get >>= \e -> lift (f (pure e)) >>= put {- . (\x -> trace ("new path: " ++ pprint1 x) x) -}
 #endif
 
 idLens :: Lens' a a

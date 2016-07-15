@@ -68,7 +68,7 @@ assertEqual' label expected actual = TestLabel label $ TestCase $ assertEqual la
 
 testReportElems :: Test
 testReportElems =
-    assertEqual' "reportelems" expected actual
+    assertEqual' "reportelems 1" expected actual
     where
       expected = [Path_To Proxy (UPath_ReportView__reportFolder Path_Self),
                   Path_To Proxy (UPath_ReportView__reportName UPath_Markup),
@@ -83,6 +83,32 @@ testReportElems =
       actual :: [UPath Univ Report]
       actual = let Node _ [Node _ xs] = upeekTree (Proxy :: Proxy Univ) Nothing Report.report in
                map (upeekPath . rootLabel) (take 10 xs)
+
+testMakePath :: Test
+testMakePath =
+    assertEqual' "reportelems 2" expected actual
+    where
+      expected = [Path_To Proxy (UPath_ReportView__reportFolder Path_Self),
+                  Path_To Proxy (UPath_ReportView__reportName UPath_Markup),
+                  Path_To Proxy (UPath_ReportView__reportDate UPath_Markup),
+                  Path_To Proxy (UPath_ReportView__reportContractDate UPath_Markup),
+                  Path_To Proxy (UPath_ReportView__reportInspectionDate UPath_Markup),
+                  Path_To Proxy (UPath_ReportView__reportEffectiveDate UPath_Markup),
+                  Path_To Proxy (UPath_ReportView__reportAuthors Path_OMap),
+                  Path_To Proxy (UPath_ReportView__reportPreparer UPath_Markup),
+                  Path_To Proxy (UPath_ReportView__reportPreparerEIN UPath_Markup),
+                  Path_To Proxy (UPath_ReportView__reportPreparerAddress UPath_Markup)]
+      actual :: [UPath Univ Report]
+      actual = [$(makePath [t|Univ|] [t|Report|] [|\x -> _reportFolder x|]),
+                $(makePath [t|Univ|] [t|Report|] [|\x -> _reportName x|]),
+                $(makePath [t|Univ|] [t|Report|] [|\x -> _reportDate x|]),
+                $(makePath [t|Univ|] [t|Report|] [|\x -> _reportContractDate x|]),
+                $(makePath [t|Univ|] [t|Report|] [|\x -> _reportInspectionDate x|]),
+                $(makePath [t|Univ|] [t|Report|] [|\x -> _reportEffectiveDate x|]),
+                $(makePath [t|Univ|] [t|Report|] [|\x -> _reportAuthors x|]),
+                $(makePath [t|Univ|] [t|Report|] [|\x -> _reportPreparer x|]),
+                $(makePath [t|Univ|] [t|Report|] [|\x -> _reportPreparerEIN x|]),
+                $(makePath [t|Univ|] [t|Report|] [|\x -> _reportPreparerAddress x|])]
 
 testShowInstance :: Test
 testShowInstance =
@@ -242,6 +268,7 @@ main :: IO ()
 main = do
   r <- runTestTT $ TestList $
          [ TestLabel "testReportElems" testReportElems
+         , TestLabel "testMakePath" testMakePath
          , TestLabel "testShowInstance" testShowInstance
          , TestLabel "testPeekReportView" testPeekReportView
          , TestLabel "testLabels" testLabels
@@ -249,7 +276,6 @@ main = do
          , TestLabel "testPeekCol" testPeekCol
          , TestLabel "testPeekOrder" testPeekOrder
          , TestLabel "testUPaths" testUPaths
-         -- , TestLabel "testMakePath" testMakePath
          , TestLabel "core" Tests.Core.core
          , assertEqual' "toLens3" (mapMaybe unU' (toListOf (toLens $(makePath [t|Univ|] [t|ImageSize|] [|\x -> dim x|])) (picSize image) :: [Univ])) [dim (picSize image) :: Dimension]
          , assertEqual' "toLens4" (mapMaybe unU' (toListOf (toLens $(makePath [t|Univ|] [t|ImageSize|] [|\x -> units x|])) (picSize image) :: [Univ])) [units (picSize image)]
