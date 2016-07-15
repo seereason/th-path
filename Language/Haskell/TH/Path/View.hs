@@ -3,14 +3,12 @@
 {-# LANGUAGE FunctionalDependencies #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeFamilies #-}
 module Language.Haskell.TH.Path.View
     ( View(viewLens, ViewType)
-#if !__GHCJS__
     , viewInstanceType
     , viewTypes
-    , viewInstanceType'
-#endif
     ) where
 
 import Control.Lens (Iso')
@@ -43,30 +41,6 @@ import Language.Haskell.TH.TypeGraph.Prelude (unlifted)
 class View s where
     type ViewType s
     viewLens :: Iso' s (ViewType s)
-
-#if !__GHCJS__
--- | Determine whether there is a 'View' instance for a type and if so
--- return @ViewType a@.
-viewInstanceType' :: (DsMonad m, MonadStates ExpandMap m) => Type -> m (Maybe Type)
-viewInstanceType' typ =
-    do prim <- unlifted typ
-       arity <- typeArity typ
-       case arity == 0 && not prim of
-         True -> do
-           vInsts <- runQ $ reifyInstances ''ViewType [typ]
-           case vInsts of
-             [TySynInstD _ (TySynEqn [type1] type2)] ->
-                 do (E type1') <- expandType type1
-                    (E type2') <- expandType type2
-                    u <- fakeunify (E typ) (E type1')
-                    -- Unify the original type with type1, and apply
-                    -- the resulting bindings to type2.
-                    case u of
-                      Nothing -> return Nothing
-                      Just bindings -> return $ Just (everywhere (mkT (expandBindings bindings)) type2')
-             [] -> return Nothing
-             _ -> error $ "Unexpected view instance(s): " ++ show vInsts
-         _ -> return Nothing
 
 -- This is a dangerously weak imitation of unification.  We
 -- ought to implement unify for Type in atp-haskell and use that.
@@ -127,4 +101,3 @@ viewInstanceType typ =
              [] -> return Nothing
              _ -> error $ "Unexpected view instance(s): " ++ show vInsts
          _ -> return Nothing
-#endif

@@ -29,10 +29,8 @@ module Language.Haskell.TH.Path.Core
     , makeTrees
     , makeCol
     , makePeek
-#if !__GHCJS__
     , makePath
     , aOfS
-#endif
     , ulens'
     -- , (:.:)(..)
     , U(u, unU')
@@ -105,10 +103,8 @@ import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Lift as TH (deriveLiftMany)
 import Language.Haskell.TH.Path.Common (makeUNamedFieldCon, PathCon(unPathCon))
 import Language.Haskell.TH.Path.View (View(ViewType), viewLens)
-#if !__GHCJS__
 import Language.Haskell.TH.Path.Instances ()
 import Language.Haskell.TH.Path.View (viewInstanceType)
-#endif
 import Language.Haskell.TH.Syntax (qReify, VarStrictType)
 import Language.Haskell.TH.TypeGraph.Prelude (pprint1)
 import Prelude hiding (exp)
@@ -471,7 +467,6 @@ instance (p ~ UPath u s, u ~ UType (UPath u a), u ~ UType (UPath u s), U u (View
     upeekCol _ (_p@(Path_To _ _q)) x = Node (Peek idPath Nothing) (makeCol x (Path_To Proxy) (\(Path_To (Proxy) q) -> q) _p)
     upeekCol _ _p x = Node (Peek idPath (Just (u x))) []
 
-#if !__GHCJS__
 -- | Given a starting type @s@ and an expression of type @s -> a@,
 -- return a path builderfunction, i.e. an expression of type @s ->
 -- UPath u s@.  When this path is converted to a lens, that lens
@@ -598,7 +593,6 @@ aOfS utypeq expq stypeq = do
       -- Customized modify for our state monad.
       modify' :: (ExpQ -> ExpQ) -> StateT Exp Q ()
       modify' f = get >>= \e -> lift (f (pure e)) >>= put {- . (\x -> trace ("new path: " ++ pprint1 x) x) -}
-#endif
 
 idLens :: Lens' a a
 idLens = id
