@@ -18,6 +18,7 @@
 module Language.Haskell.TH.Path.Decs
     ( derivePaths
     , writePaths
+    , testAndWritePaths
     ) where
 
 import Control.Exception as E (IOException, throw, try)
@@ -28,7 +29,6 @@ import Data.Char (toLower)
 import Data.Data (Data, Typeable)
 import Data.Function (on)
 import Data.List (sortBy)
-import Data.Maybe (catMaybes)
 import Data.Monoid ((<>))
 import Data.Proxy (Proxy(Proxy))
 import Data.Set as Set (toList)
@@ -50,7 +50,7 @@ import Language.Haskell.TH.TypeGraph.Lens (lensNamePairs)
 import Language.Haskell.TH.TypeGraph.Prelude (friendlyNames, pprint1, pprintW)
 import Language.Haskell.TH.TypeGraph.TypeGraph (allPathStarts)
 import Language.Haskell.TH.TypeGraph.Vertex (TGVSimple, typeNames)
-import System.Directory (removeFile)
+import System.Directory (removeFile, renameFile)
 import System.IO.Error (isDoesNotExistError)
 
 derivePaths :: [TypeQ] -> Q [Dec]
@@ -109,32 +109,59 @@ doUniv = do
             ulens = ulens' Proxy |]
   return $ conT uname
 
-writePaths :: String -> Maybe FilePath -> FilePath -> [FilePath] -> [Dec] -> Q [Dec]
-writePaths hdText tl dest deps decs = do
-  runQ $ mapM_ addDependentFile $ catMaybes [tl] ++ deps
-  -- hdText <- runQ $ runIO $ maybe (pure mempty) readFile hd
-  tlText <- runQ $ runIO $ maybe (pure mempty) readFile tl
-  old <- runQ $ runIO (try (readFile dest) >>=
-                       either (\(e :: IOException) -> case isDoesNotExistError e of
-                                                 True -> pure Nothing
-                                                 False -> throw e) (pure . Just))
+writePaths :: String -> String -> FilePath -> [FilePath] -> [Dec] -> Q [Dec]
+writePaths hdText tlText dest deps decs = do
+  new <- paths hdText tlText deps decs
+  runIO $ removeFileMaybe (dest <> "~")
+  runIO $ renameFileMaybe dest (dest <> "~")
+  runIO $ removeFileMaybe dest
+  runIO $ writeFile dest new
+  return decs
+
+-- | Write the new paths file if it doesn't exist.  If it does, make
+-- sure the new text matches the old using testPaths.
+testAndWritePaths :: String -> String -> FilePath -> [FilePath] -> [Dec] -> Q [Dec]
+testAndWritePaths hdText tlText dest deps decs = do
+  new <- paths hdText tlText deps decs
+  runIO $ testPaths new dest
+  return decs
+
+paths :: String -> String -> [FilePath] -> [Dec] -> Q String
+paths hdText tlText deps decs = do
+  runQ $ mapM_ addDependentFile deps
   let code = (unlines . map (pprintW 250) . {-sort .-} map friendlyNames) decs
-      removeFileMaybe :: FilePath -> IO ()
-      removeFileMaybe path =
-          try (removeFile path) >>=
-          either (\(e :: IOException) -> case isDoesNotExistError e of
-                                           True -> pure ()
-                                           False -> throw e) pure
-      new = hdText <> code <> tlText
-  case maybe True (== new) old of
-    True -> runQ $ runIO $ do
-      removeFileMaybe dest
-      removeFileMaybe $ dest <> ".new"
-      writeFile dest new
-    False -> runQ $ runIO $ do
-      writeFile (dest <> ".new") new
-      error $ "Generated " <> dest <> ".new does not match existing " <> dest
-  pure decs
+  return $ hdText <> code <> tlText
+
+-- | See if the new Paths code matches the old, if not write it to a
+-- file with the suffix ".new" and throw an error so the new code can
+-- be inspected and checked in.
+testPaths :: String -> FilePath -> IO ()
+testPaths new dest = do
+  old <- try (readFile dest) >>=
+         either (\(e :: IOException) -> case isDoesNotExistError e of
+                                          True -> pure Nothing
+                                          False -> throw e) (pure . Just)
+  removeFileMaybe $ dest <> ".new"
+  case old of
+    Nothing -> writeFile dest new -- No old version
+    Just x | x /= new -> -- Old version differs
+               do writeFile (dest <> ".new") new
+                  error $ "Generated " <> dest <> ".new does not match existing " <> dest
+    _ -> pure () -- Old version matches
+
+removeFileMaybe :: FilePath -> IO ()
+removeFileMaybe path =
+    try (removeFile path) >>=
+    either (\(e :: IOException) -> case isDoesNotExistError e of
+                                     True -> pure ()
+                                     False -> throw e) pure
+
+renameFileMaybe :: FilePath -> FilePath -> IO ()
+renameFileMaybe oldpath newpath =
+    try (renameFile oldpath newpath) >>=
+    either (\(e :: IOException) -> case isDoesNotExistError e of
+                                     True -> pure ()
+                                     False -> throw e) pure
 
 -- doType :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TypeQ -> Type -> m ()
 -- doType utype t = tgvSimple t >>= maybe (error $ "doType: No node for " ++ pprint1 t) (doNode utype)

@@ -48,7 +48,7 @@ $(do deps <- runQ (runIO (find always (extension ==? ".hs" &&? fileType ==? Regu
      decs <- sort <$> derivePaths [ [t|ReportMap|] ]
      runQ (runIO (writeFile "tests/ReportHs.hs" (unlines (map show decs))))
      hd <- runIO $ readFile "tests/ReportHead.hs"
-     writePaths hd Nothing "tests/ReportDecs.hs" deps decs)
+     writePaths hd mempty "tests/ReportDecs.hs" deps decs)
 
 -- | Most (all?) of these should be moved back to live with their parent types.
 $(deriveLiftMany [''JSONText])
