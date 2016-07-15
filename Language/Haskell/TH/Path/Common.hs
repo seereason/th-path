@@ -32,7 +32,7 @@ module Language.Haskell.TH.Path.Common
     , uncurry3
     , tells
     , telld
-    , mconcatQ
+    -- , mconcatQ
     , tagExp
     ) where
 
@@ -176,10 +176,12 @@ telld ds = runQ ds >>= tell
 tells :: (Quasi m, MonadWriter [a] m) => [Q a] -> m ()
 tells ds = telld (sequence ds)
 
+{-
 mconcatQ :: [ExpQ] -> ExpQ
 mconcatQ [] = [| mempty |]
 mconcatQ [x] = x
 mconcatQ xs = [|mconcat $(listE xs)|]
+-}
 
 -- | Insert a string into an expression by applying an id function
 tagExp :: String -> ExpQ -> ExpQ
