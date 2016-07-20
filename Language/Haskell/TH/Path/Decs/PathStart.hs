@@ -24,6 +24,7 @@ import Data.Aeson (FromJSON, ToJSON)
 import Data.Data (Data, Typeable)
 import Data.Map (Map)
 import Data.Maybe (fromMaybe)
+import Data.Order (Path_OMap(..))
 import Data.Proxy
 import Data.Tree (Tree(Node))
 import GHC.Generics (Generic)
@@ -36,7 +37,6 @@ import Language.Haskell.TH.Path.Core (camelWords, Describe(describe'), IsPath(..
                                       PathStart(..), Peek(..),
                                       Path_Map(..), Path_Pair(..), Path_Maybe(..), Path_Either(..), Path_List, Path_View(..), U(u, unU'))
 import Language.Haskell.TH.Path.Graph (TypeGraphM)
-import Language.Haskell.TH.Path.Order (Path_OMap(..))
 import Language.Haskell.TH.Path.Traverse (asP', Control(..), doNode)
 import Language.Haskell.TH.Syntax (liftString, qReify)
 import Language.Haskell.TH.TypeGraph.Shape (constructorName, Field)
@@ -142,13 +142,13 @@ peekDecs utype v =
       doType (ConT f) | nameBase f == "Markups" = pure True
       doType (ConT f) | nameBase f == "ReportElems" = pure True
       doType typ@(ConT name) = qReify name >>= doInfo typ
-      doType (AppT (AppT (ConT name) a) b) | name == ''Map = pure True
-      doType (AppT (AppT (TupleT 2) a) b ) = pure True
+      doType (AppT (AppT (ConT name) _a) _b) | name == ''Map = pure True
+      doType (AppT (AppT (TupleT 2) _a) _b ) = pure True
       doType typ = trace ("type: " ++ show typ) (pure False)
       doInfo typ (TyConI dec) = doDec typ dec
       doInfo typ (FamilyI dec _) = doDec typ dec
       doInfo typ _ = trace ("type: " ++ show typ) (pure False)
-      doDec typ (TySynD _ _ typ') = doType typ'
+      doDec _typ (TySynD _ _ typ') = doType typ'
       doDec typ _ = trace ("type: " ++ show typ) (pure False)
 
 pathControl :: forall m. (TypeGraphM m, MonadWriter [WriterType] m) => TGVSimple -> Control m Hop () ()
@@ -177,10 +177,10 @@ pathControl v =
     , _doField =
         \fld@(_tname, _con, Right fname) typ ->
             do w <- tgvSimple' typ >>= tgv (Just fld)
-               p <- runQ $ newName "p"
+
                let hop = Hop { upat = conP (asName (makeUFieldCon fld)) . (: [])
                              , xpaths = [|[$(asConQ (makeUFieldCon fld))]|]
-                             , pnext = (lamE [conP (asName (makeUFieldCon fld)) [varP p]] (varE p))
+                             , pnext = (runQ (newName "p") >>= \p -> lamE [conP (asName (makeUFieldCon fld)) [varP p]] (varE p))
                              , pprev = (conE (asName (makeUFieldCon fld))) }
                f <- runQ $ newName "_f"
                -- Generate clauses of the 'Describe' instance for v.  Because the

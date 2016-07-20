@@ -28,13 +28,13 @@ import Control.Lens (_2, view)
 import Data.Generics (Data, everywhere, mkT)
 import Data.Map as Map (fromList, lookup, Map)
 import Data.Maybe (isJust)
+import Data.Order (Order)
 import Data.Set.Extra as Set (delete, map, toList)
 import Language.Haskell.TH
 import Language.Haskell.TH.Context (reifyInstancesWithContext)
 import Language.Haskell.TH.Path.Common
 import Language.Haskell.TH.Path.Core
 import Language.Haskell.TH.Path.Graph (TypeGraphM)
-import Language.Haskell.TH.Path.Order (Order)
 import Language.Haskell.TH.Path.View (viewInstanceType)
 import Language.Haskell.TH.Syntax
 import Language.Haskell.TH.TypeGraph.Expand (unE)

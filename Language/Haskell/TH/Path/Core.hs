@@ -78,10 +78,9 @@ module Language.Haskell.TH.Path.Core
 
 import Control.Applicative.Error (maybeRead)
 import Control.Lens hiding (at) -- (set, Traversal', Lens', _Just, iso, lens, view, view)
-import Control.Monad (when)
 import Control.Monad.State (get, put, StateT, runStateT)
 import Control.Monad.Trans (lift)
-import Data.Aeson
+import Data.Aeson hiding (decode')
 #if !MIN_VERSION_aeson(0,11,0)
 import Data.Aeson.Types (typeMismatch)
 #endif
@@ -91,6 +90,7 @@ import Data.List as List (groupBy, map)
 import Data.Map as Map (Map, insert, lookup, toList, (!))
 import Data.Maybe (catMaybes, fromJust)
 import Data.Monoid
+import Data.Order hiding (view)
 import Data.Proxy
 import Data.SafeCopy (base, deriveSafeCopy)
 import Data.Text as Text (Text, pack, unpack, unwords, words)
@@ -105,7 +105,7 @@ import Language.Haskell.TH.Path.Common (makeUNamedFieldCon, PathCon(unPathCon))
 import Language.Haskell.TH.Path.View (View(ViewType), viewLens)
 import Language.Haskell.TH.Path.Instances ()
 import Language.Haskell.TH.Path.View (viewInstanceType)
-import Language.Haskell.TH.Syntax (qReify, VarStrictType)
+import Language.Haskell.TH.Syntax (qReify)
 import Language.Haskell.TH.TypeGraph.Prelude (pprint1)
 import Prelude hiding (exp)
 import Safe (readMay)
@@ -350,6 +350,15 @@ instance (Data key, Typeable key, Ord key, Read key, Show key,
     idPath = Path_Map
     toLens (Path_Look k p) = mat k . toLens p
     toLens _ = lens u (\s a -> maybe s id (unU' a))
+instance (Data k, Typeable k, Eq k, Ord k, Read k, Show k, Enum k,
+          IsPath valuepath,
+          U (UType valuepath) (Order k (SType valuepath))
+         ) => IsPath (Path_OMap k valuepath) where
+    type UType (Path_OMap k valuepath) = UType valuepath
+    type SType (Path_OMap k valuepath) = Order k (SType valuepath)
+    idPath = Path_OMap
+    toLens (Path_At k p) = lens_omat k . toLens p
+    toLens _ = lens u (\s a -> maybe s id (unU' a))
 instance (IsPath elttype, U (UType elttype) [SType elttype]) => IsPath (Path_List elttype) where
     type UType (Path_List elttype) = UType elttype
     type SType (Path_List elttype) = [SType elttype]
@@ -381,6 +390,11 @@ instance (IsPath (Path_Pair a b), Describe a, Describe b, Describe (Proxy (SType
 instance (IsPath (Path_Map k v), Describe v, Describe (Proxy (SType (Path_Map k v)))) => Describe (Path_Map k v)
     where describe' _f (Path_Look _ _wp) = maybe (describe' _f (Proxy :: Proxy (SType (Path_Map k v)))) Just (describe' Nothing _wp)
           describe' f p | p == idPath = describe' f (Proxy :: Proxy (SType (Path_Map k v)))
+          describe' _ p = error ("Unexpected path: " ++ show p)
+
+instance (IsPath (Path_OMap k v), Describe v, Describe (Proxy (SType (Path_OMap k v)))) => Describe (Path_OMap k v)
+    where describe' _f (_p@(Path_At _k _wp)) = maybe (describe' _f (Proxy :: Proxy (SType (Path_OMap k v)))) Just (describe' Nothing _wp)
+          describe' f p | p == idPath = describe' f (Proxy :: Proxy (SType (Path_OMap k v)))
           describe' _ p = error ("Unexpected path: " ++ show p)
 
 instance (IsPath (Path_Maybe a), Describe a, Describe (Proxy (SType (Path_Maybe a)))) => Describe (Path_Maybe a)
@@ -447,11 +461,22 @@ instance (p ~ UPath u (Map k a), IsPath p, s ~ Map k a, u ~ UType p, s ~ SType p
           FromJSON k, ToJSON k
          ) => PathStart u (Map k a) where
     type UPath u (Map k a) = Path_Map k (UPath u a)
-    upeekRow _ x = Node (Peek idPath Nothing) (concat [concatMap (makeRow x) (map (\(_k, _) -> (Path_Look _k)) (toList x))])
+    upeekRow _ x = Node (Peek idPath Nothing) (concat [concatMap (makeRow x) (map (\(_k, _) -> (Path_Look _k)) (Map.toList x))])
     upeekTree _ (Just 0) x = Node (Peek idPath (Just (u x))) []
-    upeekTree _ d x = Node (Peek idPath Nothing) (concat [concatMap (makeTrees d x) (map (\(_k, _) -> Path_Look _k) (toList x))])
+    upeekTree _ d x = Node (Peek idPath Nothing) (concat [concatMap (makeTrees d x) (map (\(_k, _) -> Path_Look _k) (Map.toList x))])
     upeekCol _ _p@(Path_Look _k _) x = Node (Peek idPath Nothing) (makeCol x (Path_Look _k) (\(Path_Look _ p) -> p) _p)
     upeekCol _ _p x = Node (Peek idPath (Just (u x))) []
+
+instance (u ~ UType (UPath u a), a ~ SType (UPath u a),
+          U u (Order k a), PathStart u a,
+          Data k, Ord k, Enum k, Read k, Show k, FromJSON k, ToJSON k
+         ) => PathStart u (Order k a) where
+    type UPath u (Order k a) = Path_OMap k (UPath u a)
+    upeekRow _ (x@_xyz) = Node (Peek idPath Nothing) (concat [concatMap (makeRow x) (map (\(_k, _) -> Path_At _k) (toPairs _xyz))])
+    upeekTree _ (Just 0) (x@_xyz) = Node (Peek idPath (Just (u x))) []
+    upeekTree _ d (x@_xyz) = Node (Peek idPath Nothing) (concat [concatMap (makeTrees d x) (map (\(_k, _) -> Path_At _k) (toPairs _xyz))])
+    upeekCol _ (_p@(Path_At _k _q)) (x@_xyz) = Node (Peek idPath Nothing) (makeCol x (Path_At _k) (\(Path_At _ p) -> p) _p)
+    upeekCol _ _p (x@_xyz) = Node (Peek idPath (Just (u x))) []
 
 -- | A wrapper used to access the View functionality
 data ViewOf s a = ViewOf (Proxy a) s deriving Data
@@ -488,7 +513,7 @@ makePath utypeq stypeq expq = runQ (snd <$> aOfS utypeq expq stypeq)
 -- reach @id@ we return the initial @s@ type.  Then as we exit each
 -- layer of the expression we strip a layer of the result type.
 aOfS :: TypeQ -> ExpQ -> TypeQ -> Q (Type, Exp)
-aOfS utypeq expq stypeq = do
+aOfS _utypeq expq stypeq = do
   exp <- expq
   stype <- stypeq
   -- trace ("aOfS (" ++ pprint1 exp ++ ") (" ++ pprint1 stype ++ ")\n  exp=" ++ show exp ++ "\n  typ=" ++ show stype) (pure ())
@@ -507,9 +532,9 @@ aOfS utypeq expq stypeq = do
       -- doView stype (Just atype) = makePath utypeq (pure atype) expq >>= \p -> runQ [|Path_To (Proxy :: Proxy $(pure stype)) $(pure p)|]
 
       doType :: Exp -> Type -> StateT Exp Q Type
-      doType exp typ@(ConT tname) = {-trace ("doType1 (" ++ pprint1 exp ++ ") (" ++ pprint1 typ ++ ")") (pure ()) >>-} qReify tname >>= doInfo exp tname >>= lift . expandType
-      doType exp@(LamE [VarP x] _) typ = {-trace ("doType2 (" ++ pprint1 exp ++ ") (" ++ pprint1 typ ++ ")") (pure ()) >>-} doExp exp typ >>= lift . expandType
-      doType exp typ = error $ "Expecting a lambda expression, saw " ++ pprint1 exp
+      doType exp (ConT tname) = {-trace ("doType1 (" ++ pprint1 exp ++ ") (" ++ pprint1 typ ++ ")") (pure ()) >>-} qReify tname >>= doInfo exp tname >>= lift . expandType
+      doType exp@(LamE [VarP _x] _) typ = {-trace ("doType2 (" ++ pprint1 exp ++ ") (" ++ pprint1 typ ++ ")") (pure ()) >>-} doExp exp typ >>= lift . expandType
+      doType exp _typ = error $ "Expecting a lambda expression, saw " ++ pprint1 exp
 
       doInfo :: Exp -> Name -> Info -> StateT Exp Q Type
       doInfo exp tname (TyConI dec) = {-trace ("doInfo1 (" ++ pprint1 exp ++ ") (" ++ show tname ++ ") (" ++ pprint1 dec ++ ")") (pure ()) >>-} doDec exp tname dec
@@ -517,7 +542,7 @@ aOfS utypeq expq stypeq = do
       doInfo _ _ info = error $ "Unexpected info: " ++ pprint1 info ++ "\n  " ++ show info
 
       doDec :: Exp -> Name -> Dec -> StateT Exp Q Type
-      doDec exp _ (TySynD _ binds typ) = doView exp typ
+      doDec exp _ (TySynD _ _binds typ) = doView exp typ
       doDec exp tname _ = doExp exp (ConT tname)
 
       -- Given a lambda expression and the type of its argument,
@@ -550,27 +575,27 @@ aOfS utypeq expq stypeq = do
             do modify' (\e -> [|Path_Left $e|])
                t <- doView (LamE [x] exp') typ
                case t of
-                 AppT (AppT (ConT either) l) _ | either == ''Either -> pure l
+                 AppT (AppT (ConT c) l) _ | c == ''Either -> pure l
                  _ -> error "aOfS Left"
         | fn == 'view && lns == '_Right =
             do modify' (\e -> [|Path_Right $e|])
                t <- doView (LamE [x] exp') typ
                case t of
-                 AppT (AppT (ConT either) _) r | either == ''Either -> pure r
+                 AppT (AppT (ConT c) _) r | c == ''Either -> pure r
                  _ -> error "aOfS Right"
       doExp (LamE [x@(VarP _)] (AppE (ConE c) exp')) typ
         | c == 'Just =
             do modify' (\e -> [|Path_Just $e|])
                t <- doView (LamE [x] exp') typ
                case t of
-                 AppT (ConT maybe) a | maybe == ''Maybe -> pure a
+                 AppT (ConT name) a | name == ''Maybe -> pure a
                  _ -> error "aOfS Just"
-      doExp (LamE [x@(VarP _)] (InfixE (Just exp') (VarE op) (Just key))) typ
-        | op == '(!) =
+      doExp (LamE [x@(VarP _)] (InfixE (Just exp') (VarE fn) (Just key))) typ
+        | fn == '(!) =
             do modify' (\e -> [|Path_Look $(pure key) $e|])
                t <- doView (LamE [x] exp') typ
                case t of
-                 AppT (AppT (ConT mp) k) a | mp == ''Map -> pure a
+                 AppT (AppT (ConT mp) _k) a | mp == ''Map -> pure a
                  _ -> error "aOfS Map"
       doExp exp@(LamE [x@(VarP _)] (AppE (VarE fname) exp')) typ =
         do info@(VarI _ (AppT (AppT ArrowT rtype@(ConT tname)) ftype) _ _) <- qReify fname
@@ -586,8 +611,8 @@ aOfS utypeq expq stypeq = do
       expandType typ = pure typ
       expandInfo tname (TyConI dec) = expandDec tname dec
       expandInfo tname (FamilyI dec _) = expandDec tname dec
-      expandInfo tname info = error $ "Unexpected info"
-      expandDec _ (TySynD _ binds typ) = expandType typ
+      expandInfo _tname _info = error $ "Unexpected info"
+      expandDec _ (TySynD _ _binds typ) = expandType typ
       expandDec tname _ = conT tname
 
       -- Customized modify for our state monad.

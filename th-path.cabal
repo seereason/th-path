@@ -1,5 +1,5 @@
 name:               th-path
-version:            0.34
+version:            0.35
 cabal-version:      >= 1.10
 build-type:         Simple
 license:            BSD3
@@ -46,6 +46,7 @@ library
     safe,
     safecopy,
     set-extra,
+    sr-order,
     syb,
     template-haskell >= 2.10,
     text,
