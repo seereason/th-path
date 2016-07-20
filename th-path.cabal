@@ -1,5 +1,5 @@
 name:               th-path
-version:            0.35
+version:            0.36
 cabal-version:      >= 1.10
 build-type:         Simple
 license:            BSD3
@@ -64,7 +64,6 @@ library
     Language.Haskell.TH.Path.Common
     Language.Haskell.TH.Path.Core
     Language.Haskell.TH.Path.Instances
-    Language.Haskell.TH.Path.Order
     Language.Haskell.TH.Path.View
   if !impl(ghcjs)
     exposed-modules:
@@ -161,6 +160,7 @@ test-suite th-path-tests
     safecopy,
     set-extra,
     sr-extra,
+    sr-order,
     sr-revision,
     syb,
     template-haskell,

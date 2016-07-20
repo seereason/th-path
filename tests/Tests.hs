@@ -22,6 +22,7 @@ import Appraisal.Image
 import Appraisal.ImageFile
 import Appraisal.IntJS
 import Appraisal.Markup
+import Appraisal.Maybe
 import Appraisal.Permissions
 import Appraisal.Report
 import Appraisal.ReportImage
@@ -32,13 +33,13 @@ import Control.Lens (iso, toListOf, view)
 -- import Data.ByteString.UTF8 (toString)
 import Data.Map.Strict (fromList)
 import Data.Maybe (fromJust, mapMaybe)
+import Data.Order (fromPairs, Path_OMap(..))
 import Data.Proxy (Proxy(Proxy))
 import Data.Tree
 import Data.UserId
 import Data.UUID (fromString, UUID)
 import Language.Haskell.TH
 import Language.Haskell.TH.Path.Core
-import Language.Haskell.TH.Path.Order (fromPairs, Path_OMap(..))
 import Language.Haskell.TH.Path.View (viewLens)
 import Language.Haskell.TH.Ppr as TH (Ppr)
 import Language.Haskell.TH.PprLib as TH (text)

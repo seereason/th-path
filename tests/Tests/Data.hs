@@ -29,6 +29,7 @@ import Appraisal.ReportItem
 import Appraisal.Utils.CIString (CIString)
 import Data.Int (Int64)
 import Data.Maybe ( fromJust )
+import Data.Order (Order, Path_OMap(Path_At, Path_OMap))
 import Data.Proxy (Proxy(Proxy))
 import Data.Tree (Tree(Node, rootLabel, subForest))
 import Data.UserId ( UserId(UserId, _unUserId) )
@@ -41,8 +42,6 @@ import Language.Haskell.TH.Path.Core
       Path_Pair(Path_First, Path_Pair, Path_Second),
       Path_View(..), U(u))
 import Language.Haskell.TH.Path.Graph ()
-import Language.Haskell.TH.Path.Order
-    ( Order, Path_OMap(Path_At, Path_OMap) )
 import Language.Haskell.TH.Path.View ()
 import Language.Haskell.TH.Ppr as TH ()
 import Language.Haskell.TH.PprLib as TH ()

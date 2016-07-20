@@ -20,15 +20,14 @@ import Data.Aeson (ToJSON(toJSON), FromJSON(parseJSON))
 import Data.Generics (Typeable)
 import Data.Int (Int32)
 import Data.Map as Map (fromList, Map, toList)
+import Data.Order (fromPairs, Order, toPairs)
+#if !__GHCJS__
+import Data.Order (deriveOrder)
+#endif
 import Data.SafeCopy (deriveSafeCopy, base)
 import Data.Text as Text (null, pack)
 import Data.Text.Read (decimal, signed)
-import GHC.Generics (Generic)
 import Language.Haskell.TH
-import Language.Haskell.TH.Path.Order (fromPairs, Order, toPairs)
-#if !__GHCJS__
-import Language.Haskell.TH.Path.Order (deriveOrder)
-#endif
 import Language.Javascript.JMacro (ToJExpr(toJExpr), JExpr(ValExpr), JVal(JInt))
 import Prelude hiding (init, succ)
 import Text.JSON.Generic (Data, decodeJSON, encodeJSON)

@@ -19,6 +19,7 @@ import Appraisal.Image
 import Appraisal.ImageFile
 import Appraisal.IntJS
 import Appraisal.Markup (Markup(..))
+import Appraisal.Maybe
 import Appraisal.Permissions
 import Appraisal.Report
 import Appraisal.ReportImage

@@ -2,13 +2,13 @@
 module Tests.Report (report, image) where
 
 import Appraisal.Markup (rawMarkdown, rawHtml)
+import Appraisal.Maybe (Maybe'(..))
 import Appraisal.Permissions (Permissions(Permissions, owner, writers, readers))
 import Appraisal.Report -- (Report(..), AbbrevPairID(..), AuthorID(..), Author(..), ReportElemID(..), ReportElem(..))
 import Appraisal.ReportImage
 import Appraisal.ReportItem
 import Appraisal.Utils.CIString
-import Language.Haskell.TH.Path.Core (Maybe'(..))
-import Language.Haskell.TH.Path.Order (fromPairs)
+import Data.Order (fromPairs)
 
 import Data.UserId
 import Data.Maybe (fromJust)

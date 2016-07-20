@@ -13,7 +13,6 @@ module Language.Haskell.TH.Path.View
 
 import Control.Lens (Iso')
 import Control.Monad.State (execStateT, get, modify, put, StateT)
-import Control.Monad.States (MonadStates)
 import Data.Generics (everywhere, mkT)
 -- import Data.Logic.ATP.FOL (subst)
 -- import Data.Logic.ATP.Quantified (IsQuantified(..))
@@ -24,11 +23,10 @@ import Data.Maybe (fromMaybe)
 import Data.Set as Set (fromList, Set)
 import Debug.Trace (trace)
 import Language.Haskell.TH hiding (prim)
-import Language.Haskell.TH.Context (InstMap)
 import Language.Haskell.TH.Desugar as DS (DsMonad)
 import Language.Haskell.TH.Syntax (qReify)
 import Language.Haskell.TH.TypeGraph.Arity (typeArity)
-import Language.Haskell.TH.TypeGraph.Expand (E(E), ExpandMap, expandType)
+import Language.Haskell.TH.TypeGraph.Expand (E(E))
 import Language.Haskell.TH.TypeGraph.Prelude (unlifted)
 
 -- | If there is an instance of View for a type @a@, then when @a@

@@ -21,12 +21,12 @@ import Appraisal.ReportImage(ReportImages)
 import Data.Aeson (FromJSON, ToJSON)
 import Data.Generics (Data, Typeable)
 import Data.Map as Map (Map, fromList, lookup)
+import Data.Order as Order (empty)
 import Data.SafeCopy (deriveSafeCopy, base)
 import qualified Data.Text as T
 import GHC.Generics (Generic)
 import Language.Haskell.TH.Lift (deriveLiftMany)
 import Language.Haskell.TH.Path.Core (SelfPath)
-import Language.Haskell.TH.Path.Order as Order (empty)
 
 type MIM = Map ItemFieldName Markup
 

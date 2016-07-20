@@ -38,13 +38,12 @@ module Language.Haskell.TH.Path.Common
 
 import Control.Lens hiding (cons, Strict)
 import Control.Monad.Writer (MonadWriter, tell)
-import Data.Bool (bool)
 import Data.List as List (map)
 import Data.Set as Set (minView)
 import Language.Haskell.TH
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Instances ()
-import Language.Haskell.TH.Syntax (lift, Quasi)
+import Language.Haskell.TH.Syntax (Quasi)
 import Language.Haskell.TH.TypeGraph.Expand (E, unE)
 import Language.Haskell.TH.TypeGraph.Shape (Field)
 import Language.Haskell.TH.TypeGraph.Vertex (bestType, bestTypeQ, etype, field, syns,
