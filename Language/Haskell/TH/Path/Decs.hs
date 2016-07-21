@@ -201,7 +201,3 @@ fieldLensNamePair tname _cname fname = (nameBase fname, nameBase (fieldLensNameO
 
 fieldLensNameOld :: Name -> Name -> Name
 fieldLensNameOld tname fname = mkName ("lens_" ++ nameBase tname ++ "_" ++ nameBase fname)
-
--- Copied from Language.Haskell.TH.Syntax, causes strings to be
--- rendered "abc" rather than ['a', 'b', 'c']
-{-# RULES "TH:liftString" lift = \s -> return (LitE (StringL s)) #-}

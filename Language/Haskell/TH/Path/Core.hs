@@ -17,9 +17,7 @@
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE UndecidableInstances #-}
 module Language.Haskell.TH.Path.Core
-    ( treeMap
-    , forestMap
-    , camelWords
+    ( camelWords
 
       -- * Type classes and associated types
     , IsPath(UType, SType, idPath, toLens)
@@ -123,12 +121,6 @@ instance FromJSON (Proxy a) where
     parseJSON Null = pure Proxy
     parseJSON v    = typeMismatch "Proxy" v
 #endif
-
-treeMap :: (a -> b) -> Tree a -> Tree b
-treeMap f (Node x ns) = Node (f x) (forestMap f ns)
-
-forestMap :: (a -> b) -> Forest a -> Forest b
-forestMap f = List.map (treeMap f)
 
 -- | Convert a camel case string (no whitespace) into a natural
 -- language looking phrase:
