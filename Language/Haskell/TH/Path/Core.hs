@@ -77,9 +77,6 @@ import Control.Lens hiding (at) -- (set, Traversal', Lens', _Just, iso, lens, vi
 import Control.Monad.State (get, put, StateT, runStateT)
 import Control.Monad.Trans (lift)
 import Data.Aeson hiding (decode')
-#if !MIN_VERSION_aeson(0,11,0)
-import Data.Aeson.Types (typeMismatch)
-#endif
 import Data.Char (isUpper, toUpper)
 import Data.Generics (Data, Typeable)
 import Data.List as List (groupBy, map)
@@ -109,18 +106,6 @@ import Web.Routes
 import Web.Routes.TH (derivePathInfo)
 import Text.Parsec.Prim ((<|>))
 import GHC.Base (ap)
-
-#if !MIN_VERSION_aeson(0,11,0)
--- Backport the JSON instances from aeson-0.11.
-instance ToJSON (Proxy a) where
-   toJSON _ = Null
-   {-# INLINE toJSON #-}
-
-instance FromJSON (Proxy a) where
-    {-# INLINE parseJSON #-}
-    parseJSON Null = pure Proxy
-    parseJSON v    = typeMismatch "Proxy" v
-#endif
 
 -- | Convert a camel case string (no whitespace) into a natural
 -- language looking phrase:

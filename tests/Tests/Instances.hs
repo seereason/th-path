@@ -2,7 +2,7 @@
 module Tests.Instances where
 
 import Control.Lens
-import Data.Text.Lazy
+-- import Data.Text.Lazy
 import Language.Haskell.TH.Path.View
 
 instance View Int where

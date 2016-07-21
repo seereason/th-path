@@ -30,13 +30,17 @@ module Language.Haskell.TH.Path.Expand
     ) where
 
 import Control.Lens (makeLenses)
-import Control.Monad.States (MonadStates(getPoly), modifyPoly)
+import Control.Monad.State (StateT)
+import Control.Monad.States (MonadStates(getPoly, putPoly), modifyPoly)
+import Control.Monad.Trans as Monad (lift)
 import Data.Data (Data)
 import Data.Map as Map (Map, lookup, insert)
+import Data.Set (Set)
 import Language.Haskell.Exts.Syntax ()
 import Language.Haskell.TH
 import Language.Haskell.TH.Desugar as DS (DsMonad, dsType, expand, typeToTH)
 import Language.Haskell.TH.Instances ()
+import Language.Haskell.TH.Lift as TH (lift)
 import Language.Haskell.TH.Syntax -- (Lift(lift))
 import Prelude hiding (pred)
 
@@ -47,12 +51,16 @@ instance Ppr a => Ppr (E a) where
     ppr (E x) = ppr x
 
 instance Lift (E Type) where
-    lift etype = [|E $(lift (_unE etype))|]
+    lift etype = [|E $(TH.lift (_unE etype))|]
 
 $(makeLenses ''E)
 
 -- | The state type used to memoize expansions.
 type ExpandMap = Map Type (E Type)
+
+instance (Monad m, MonadStates ExpandMap m) => MonadStates ExpandMap (StateT (Set s) m) where
+    getPoly = Monad.lift getPoly
+    putPoly = Monad.lift . putPoly
 
 -- | Apply the th-desugar expand function to a 'Type' and mark it as expanded.
 expandType :: (DsMonad m, MonadStates ExpandMap m)  => Type -> m (E Type)

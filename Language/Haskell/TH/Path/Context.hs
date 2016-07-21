@@ -27,22 +27,25 @@ module Language.Haskell.TH.Path.Context
 
 import Control.Lens (view)
 import Control.Monad (filterM)
-import Control.Monad.State (execStateT)
-import Control.Monad.States (MonadStates, getPoly, modifyPoly)
-import Control.Monad.Writer (MonadWriter, tell)
+import Control.Monad.Reader (ReaderT)
+import Control.Monad.State (StateT)
+import Control.Monad.States (MonadStates(getPoly, putPoly), modifyPoly)
+import Control.Monad.Trans as Monad (lift)
+import Control.Monad.Writer (MonadWriter, tell, WriterT)
 import Data.Generics (everywhere, mkT)
-import Data.List (intercalate)
 import Language.Haskell.TH.Path.ATP (expandBindings {-instance Unify [Type]-})
-import Data.Logic.ATP.Unif (Unify(unify'), unify)
+import Data.Logic.ATP.Unif (unify)
 import Data.Map as Map (elems, insert, lookup, Map)
 import Data.Maybe (mapMaybe)
-import Debug.Trace (trace)
+import Data.Set (Set)
 import Language.Haskell.TH
 import Language.Haskell.TH.Desugar as DS (DsMonad)
 import Language.Haskell.TH.PprLib (cat, ptext)
 import Language.Haskell.TH.Syntax hiding (lift)
 import Language.Haskell.TH.Path.Expand (ExpandMap, expandType, E, unE)
+#ifdef DEBUG
 import Language.Haskell.TH.Path.Prelude (pprint1)
+#endif
 import Language.Haskell.TH.Instances ({- Ord instances from th-orphans -})
 
 -- FIXME: Should actually be Map (E Pred) (Maybe (DecStatus
@@ -50,10 +53,22 @@ import Language.Haskell.TH.Instances ({- Ord instances from th-orphans -})
 -- compile error.
 type InstMap = Map (E Pred) [DecStatus InstanceDec]
 
+instance (Monad m, MonadStates InstMap m) => MonadStates InstMap (StateT (Set s) m) where
+    getPoly = Monad.lift getPoly
+    putPoly = Monad.lift . putPoly
+
 -- | Combine the DsMonad (desugaring), which includes the Q monad, and
 -- state to record declared instances, type expansions, and a string
 -- for debugging messages.
 class (DsMonad m, MonadStates InstMap m, MonadStates ExpandMap m, MonadStates String m) => ContextM m
+
+instance ContextM m => ContextM (StateT (Set a) m)
+instance ContextM m => ContextM (ReaderT t m)
+instance (Monoid w, ContextM m) => ContextM (WriterT w m)
+
+instance (Monad m, MonadStates String m) => MonadStates String (StateT (Set s) m) where
+    getPoly = Monad.lift getPoly
+    putPoly = Monad.lift . putPoly
 
 -- | Did we get this instance from the Q monad or does it still need to be spliced?
 data DecStatus a
@@ -84,7 +99,7 @@ reifyInstancesWithContext className typeParameters = do
     Just x -> return $ map instanceDec x
     Nothing -> do
       modifyPoly ("  " ++)
-      pre <- getPoly :: m String
+      -- pre <- getPoly :: m String
       -- Add an entry with a bogus value to limit recursion on
       -- the predicate we are currently testing
       modifyPoly (Map.insert p [] :: InstMap -> InstMap)

@@ -341,8 +341,8 @@ fieldUPathType typ = tgvSimple' typ >>= upathType
 fieldLensNameOld :: Name -> Name -> Name
 fieldLensNameOld tname fname = mkName ("lens_" ++ nameBase tname ++ "_" ++ nameBase fname)
 
-makeUPeekCon :: (HasName s) => ModelType s -> PeekCon
-makeUPeekCon (ModelType s) = PeekCon (mkName ("UPeek_" ++ nameBase (asName s)))
+-- makeUPeekCon :: (HasName s) => ModelType s -> PeekCon
+-- makeUPeekCon (ModelType s) = PeekCon (mkName ("UPeek_" ++ nameBase (asName s)))
 
 instanceD' :: (TypeGraphM m, MonadWriter [Dec] m) => CxtQ -> TypeQ -> m [DecQ] -> m ()
 instanceD' cxt' typ decs =

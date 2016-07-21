@@ -25,16 +25,12 @@ import Control.Lens hiding (cons)
 import Control.Monad (foldM)
 import Data.Generics (Data, everywhere, mkT)
 import Data.Graph as Graph
-import Data.Map as Map (Map, fromList, toList)
 import Data.Maybe (fromJust, fromMaybe)
-import Data.Set as Set (fromList, Set, toList)
 import Language.Haskell.TH
-import Language.Haskell.TH.PprLib (Doc, ptext, to_HPJ_Doc)
-import Language.Haskell.TH.Syntax (Lift(lift), Name(Name), NameFlavour(NameS), Quasi(qReify), StrictType, VarStrictType)
+import Language.Haskell.TH.Path.Instances ()
+import Language.Haskell.TH.PprLib (to_HPJ_Doc)
+import Language.Haskell.TH.Syntax (Name(Name), NameFlavour(NameS), Quasi(qReify), StrictType, VarStrictType)
 import qualified Text.PrettyPrint as HPJ
-
-instance Ppr () where
-    ppr () = ptext "()"
 
 -- | Pretty print a 'Ppr' value on a single line with each block of
 -- white space (newlines, tabs, etc.) converted to a single space, and

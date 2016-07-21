@@ -1,51 +1,34 @@
--- | Orphanage.
+-- | Instances that don't depend on anything else in this package.
 
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 {-# LANGUAGE CPP #-}
-{-# LANGUAGE DeriveDataTypeable #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE FunctionalDependencies #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE MultiWayIf #-}
-{-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE RecordWildCards #-}
-{-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE StandaloneDeriving #-}
-{-# LANGUAGE TupleSections #-}
-{-# LANGUAGE TypeSynonymInstances #-}
 module Language.Haskell.TH.Path.Instances () where
 
-import Control.Monad.Reader (ReaderT)
-import Control.Monad.State (StateT)
-import Control.Monad.States (MonadStates(getPoly, putPoly))
-import Control.Monad.Trans as Monad (lift)
-import Control.Monad.Writer (WriterT)
 import Data.Proxy (Proxy(Proxy))
 import Data.SafeCopy (base, deriveSafeCopy)
-import Data.Set.Extra as Set (Set)
 import Data.Text (pack)
-import Language.Haskell.TH.Path.Context (ContextM, InstMap)
+import Language.Haskell.TH.Ppr (Ppr(ppr))
+import Language.Haskell.TH.PprLib (ptext)
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.Path.Expand (ExpandMap)
 import Web.Routes
 
-instance (Monad m, MonadStates InstMap m) => MonadStates InstMap (StateT (Set s) m) where
-    getPoly = Monad.lift getPoly
-    putPoly = Monad.lift . putPoly
+#if !MIN_VERSION_aeson(0,11,0)
+import Data.Aeson hiding (decode')
+import Data.Aeson.Types (typeMismatch)
 
-instance (Monad m, MonadStates ExpandMap m) => MonadStates ExpandMap (StateT (Set s) m) where
-    getPoly = Monad.lift getPoly
-    putPoly = Monad.lift . putPoly
+-- Backport the JSON instances from aeson-0.11.
+instance ToJSON (Proxy a) where
+   toJSON _ = Null
+   {-# INLINE toJSON #-}
 
-instance (Monad m, MonadStates String m) => MonadStates String (StateT (Set s) m) where
-    getPoly = Monad.lift getPoly
-    putPoly = Monad.lift . putPoly
+instance FromJSON (Proxy a) where
+    {-# INLINE parseJSON #-}
+    parseJSON Null = pure Proxy
+    parseJSON v    = typeMismatch "Proxy" v
+#endif
 
-instance ContextM m => ContextM (StateT (Set a) m)
-instance ContextM m => ContextM (ReaderT t m)
-
-instance (Monoid w, ContextM m) => ContextM (WriterT w m)
+instance Ppr () where
+    ppr () = ptext "()"
 
 #if !__GHCJS__
 -- $(derivePathInfo ''Proxy)
