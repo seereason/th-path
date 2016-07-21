@@ -36,10 +36,8 @@ import Data.UserId (UserId(..))
 import Data.Word (Word32)
 import GHC.Generics (Generic)
 import Language.Haskell.TH
-import Language.Haskell.TH.Path.Core (camelWords, Describe(describe'), HideType, lens_mrs, lens_UserIds_Text,
-                                      readOnlyLens, readShowIso, SelfPath, SinkType)
-import Language.Haskell.TH.Path.View (View(ViewType, viewLens))
-import Language.Haskell.TH.TypeGraph.Prelude ()
+import Language.Haskell.TH.Path (camelWords, Describe(describe'), HideType, lens_mrs, lens_UserIds_Text,
+                                 readOnlyLens, readShowIso, SelfPath, SinkType, View(ViewType, viewLens))
 import Text.LaTeX (LaTeX)
 import Text.Pandoc as P (Pandoc, Meta)
 import Web.Routes.TH (derivePathInfo)

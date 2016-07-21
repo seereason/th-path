@@ -18,12 +18,8 @@ description:
   'View' mechanism which transforms the appearance of a value
   using any @Iso@ lens.
 
-flag local-th-typegraph
-  Description: Build with local source files of th-typegraph and th-context
-  Default: False
-  Manual: True
-
 library
+  default-language: Haskell2010
   hs-source-dirs: .
   if !impl(ghcjs)
     Default-Extensions: TemplateHaskell
@@ -43,6 +39,7 @@ library
     mtl,
     mtl-unleashed >= 0.5,
     parsec,
+    pretty,
     safe,
     safecopy,
     set-extra,
@@ -72,37 +69,20 @@ library
       Language.Haskell.TH.Path.Graph
       Language.Haskell.TH.Path.Peek
       Language.Haskell.TH.Path.Traverse
-  default-language: Haskell2010
-  if flag (local-th-typegraph)
-    Hs-Source-Dirs: ../th-typegraph, ../th-context, ../image-cache
-    Build-Depends: pretty, acid-state, bytestring, process, binary, exceptions, process-extras, aeson, pureMD5, filemanip-extra, hslogger, Unixutils, HaTeX, utf8-string, regex-compat, transformers, unix, network-uri
-    Exposed-Modules:
-      -- th-context
-      Data.Logic.ATP.TH
-      Language.Haskell.TH.Context
-      -- th-typegraph
-      Language.Haskell.TH.TypeGraph.Arity
-      Language.Haskell.TH.TypeGraph.Edges
-      Language.Haskell.TH.TypeGraph.Expand
-      Language.Haskell.TH.TypeGraph.Free
-      Language.Haskell.TH.TypeGraph.Lens
-      Language.Haskell.TH.TypeGraph.Prelude
-      Language.Haskell.TH.TypeGraph.Shape
-      Language.Haskell.TH.TypeGraph.Stack
-      Language.Haskell.TH.TypeGraph.TypeGraph
-      Language.Haskell.TH.TypeGraph.TypeInfo
-      Language.Haskell.TH.TypeGraph.Vertex
-      Appraisal.Cache
-      Appraisal.Exif
-      Appraisal.File
-      Appraisal.Image
-      Appraisal.ImageCache
-      Appraisal.ImageFile
-      Appraisal.Utils.ErrorWithIO
-  else
-    Build-Depends:
-      th-context >= 0.23.1,
-      th-typegraph >= 0.35
+  other-modules:
+    Language.Haskell.TH.Path.Arity
+    Language.Haskell.TH.Path.ATP
+    Language.Haskell.TH.Path.Context
+    Language.Haskell.TH.Path.Edges
+    Language.Haskell.TH.Path.Expand
+    Language.Haskell.TH.Path.Free
+    Language.Haskell.TH.Path.Lens
+    Language.Haskell.TH.Path.Prelude
+    Language.Haskell.TH.Path.Shape
+    Language.Haskell.TH.Path.Stack
+    Language.Haskell.TH.Path.TypeGraph
+    Language.Haskell.TH.Path.TypeInfo
+    Language.Haskell.TH.Path.Vertex
 
 -- test-suite th-path-tests
 --   type:             exitcode-stdio-1.0
@@ -147,6 +127,7 @@ test-suite th-path-tests
     haskell-src-exts,
     HaTeX,
     HUnit,
+    image-cache,
     jmacro,
     json,
     lens >= 4.13.1,
@@ -183,10 +164,6 @@ test-suite th-path-tests
     web-routes,
     web-routes-th
   default-language: Haskell2010
-  if flag(local-th-typegraph)
-    build-depends: process-extras, pureMD5, Unixutils, exceptions, process, hslogger, atp-haskell, data-default, web-routes-th, safecopy
-  else
-    Build-Depends: image-cache, th-context, th-typegraph, th-path
 
 source-repository head
   type:     git

@@ -6,8 +6,7 @@ import Data.Maybe
 import Data.Text.Lazy
 import Language.Haskell.TH
 import Language.Haskell.TH.Lift as TH (lift)
-import Language.Haskell.TH.Path.Core
-import Language.Haskell.TH.Path.View
+import Language.Haskell.TH.Path
 import Test.HUnit
 import Tests.Instances
 

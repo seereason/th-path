@@ -29,7 +29,7 @@ import Data.Proxy
 import Data.Tree (Tree(Node))
 import GHC.Generics (Generic)
 import Language.Haskell.TH
-import Language.Haskell.TH.Context (reifyInstancesWithContext)
+import Language.Haskell.TH.Path.Context (reifyInstancesWithContext)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Common (HasConQ(asConQ), HasCon(asCon), HasName(asName), HasType(asType), HasTypeQ(asTypeQ),
                                         makeUFieldCon, makeUPathType, ModelType(ModelType), PathType, telld, tells)
@@ -39,9 +39,9 @@ import Language.Haskell.TH.Path.Core (camelWords, Describe(describe'), IsPath(..
 import Language.Haskell.TH.Path.Graph (TypeGraphM)
 import Language.Haskell.TH.Path.Traverse (asP', Control(..), doNode)
 import Language.Haskell.TH.Syntax (liftString, qReify)
-import Language.Haskell.TH.TypeGraph.Shape (constructorName, Field)
-import Language.Haskell.TH.TypeGraph.TypeGraph (tgv, tgvSimple')
-import Language.Haskell.TH.TypeGraph.Vertex (field, TGVSimple)
+import Language.Haskell.TH.Path.Shape (constructorName, Field)
+import Language.Haskell.TH.Path.TypeGraph (tgv, tgvSimple')
+import Language.Haskell.TH.Path.Vertex (field, TGVSimple)
 
 newtype PeekType = PeekType {unPeekType :: Name} deriving (Eq, Ord, Show) -- e.g. Peek_AbbrevPairs
 newtype PeekCon = PeekCon {unPeekCon :: Name} deriving (Eq, Ord, Show) -- e.g. Peek_AbbrevPairs_Markup
@@ -324,7 +324,7 @@ upathTypeControl v =
 bestUPathTypeName :: HasName v => v -> PathType Name
 bestUPathTypeName = makeUPathType . ModelType . asName
 
--- | Convert a 'Language.Haskell.TH.TypeGraph.Shape.Field' into the argument used by describe'.
+-- | Convert a 'Language.Haskell.TH.Path.Shape.Field' into the argument used by describe'.
 fieldString :: Field -> ExpQ
 fieldString (_tname, con, Left fpos) = liftString (camelWords (nameBase (constructorName con)) ++ "[" ++ show fpos ++ "]")
 fieldString (_tname, _con, Right fname) = liftString (camelWords (nameBase fname))

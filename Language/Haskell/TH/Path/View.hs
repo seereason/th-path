@@ -25,9 +25,9 @@ import Debug.Trace (trace)
 import Language.Haskell.TH hiding (prim)
 import Language.Haskell.TH.Desugar as DS (DsMonad)
 import Language.Haskell.TH.Syntax (qReify)
-import Language.Haskell.TH.TypeGraph.Arity (typeArity)
-import Language.Haskell.TH.TypeGraph.Expand (E(E))
-import Language.Haskell.TH.TypeGraph.Prelude (unlifted)
+import Language.Haskell.TH.Path.Arity (typeArity)
+import Language.Haskell.TH.Path.Expand (E(E))
+import Language.Haskell.TH.Path.Prelude (unlifted)
 
 -- | If there is an instance of View for a type @a@, then when @a@
 -- appears in the data, the lens returned by 'viewLens' is used to

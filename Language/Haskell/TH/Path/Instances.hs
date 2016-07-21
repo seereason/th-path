@@ -25,9 +25,9 @@ import Data.Proxy (Proxy(Proxy))
 import Data.SafeCopy (base, deriveSafeCopy)
 import Data.Set.Extra as Set (Set)
 import Data.Text (pack)
-import Language.Haskell.TH.Context (ContextM, InstMap)
+import Language.Haskell.TH.Path.Context (ContextM, InstMap)
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.TypeGraph.Expand (ExpandMap)
+import Language.Haskell.TH.Path.Expand (ExpandMap)
 import Web.Routes
 
 instance (Monad m, MonadStates InstMap m) => MonadStates InstMap (StateT (Set s) m) where
