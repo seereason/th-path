@@ -14,7 +14,7 @@
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeSynonymInstances #-}
-module Language.Haskell.TH.Path.Decs.PathStart (peekDecs) where
+module Language.Haskell.TH.Path.Peek (peekDecs) where
 
 import Debug.Trace
 import Control.Lens hiding (cons, Strict)

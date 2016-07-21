@@ -61,6 +61,7 @@ library
     web-routes-th
   ghc-options:      -Wall -O2
   exposed-modules:
+    Language.Haskell.TH.Path
     Language.Haskell.TH.Path.Common
     Language.Haskell.TH.Path.Core
     Language.Haskell.TH.Path.Instances
@@ -68,8 +69,8 @@ library
   if !impl(ghcjs)
     exposed-modules:
       Language.Haskell.TH.Path.Decs
-      Language.Haskell.TH.Path.Decs.PathStart
       Language.Haskell.TH.Path.Graph
+      Language.Haskell.TH.Path.Peek
       Language.Haskell.TH.Path.Traverse
   default-language: Haskell2010
   if flag (local-th-typegraph)
