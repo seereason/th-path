@@ -234,20 +234,20 @@ deriving instance Generic (Peek u s)
 makeRow :: forall s u p q a. (u ~ UType p, s ~ SType p, UPath u s ~ p, PathStart u s,
                               u ~ UType q, a ~ SType q, UPath u a ~ q, PathStart u a) =>
              s -> (q -> p) -> [Tree (Peek u s)]
-makeRow x f = forestMap (mapPeek f) (map makePeek (hopValues f x))
+makeRow x f = List.map (fmap (mapPeek f)) (map makePeek (hopValues f x))
 
 -- | Given a function that lifts a path by one hop (e.g. a constructor
 -- such as Path_Left), return the peek(s?) resulting from traversing that hop.
 makeTrees :: forall s u p q a. (u ~ UType p, s ~ SType p, UPath u s ~ p, PathStart u s,
                                 u ~ UType q, a ~ SType q, UPath u a ~ q, PathStart u a) =>
              Maybe Int -> s -> (q -> p) -> [Tree (Peek u s)]
-makeTrees d x f = forestMap (mapPeek f) (map (upeekTree Proxy (fmap pred d)) (hopValues f x))
+makeTrees d x f = List.map (fmap (mapPeek f)) (map (upeekTree Proxy (fmap pred d)) (hopValues f x))
 
 -- | Helper function for implementing upeekCol
 makeCol :: forall s u p q a. (u ~ UType p, s ~ SType p, UPath u s ~ p, PathStart u s,
                               u ~ UType q, a ~ SType q, UPath u a ~ q, PathStart u a) =>
            s -> (q -> p) -> (p -> q) -> p -> [Tree (Peek u s)]
-makeCol x f g p = forestMap (mapPeek f) (map (upeekCol Proxy (g p)) (hopValues f x))
+makeCol x f g p = List.map (fmap (mapPeek f)) (map (upeekCol Proxy (g p)) (hopValues f x))
 
 mapPeek :: (PathStart u a, PathStart u s) => (UPath u a -> UPath u s) -> Peek u a -> Peek u s
 mapPeek f pk = Peek (f (upeekPath pk)) (upeekValue pk)
