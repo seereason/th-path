@@ -90,7 +90,7 @@ import Data.Order hiding (view)
 import Data.Proxy
 import Data.SafeCopy (base, deriveSafeCopy)
 import Data.Text as Text (Text, pack, unpack, unwords, words)
-import Data.Tree (Tree(..), Forest)
+import Data.Tree (Tree(..))
 import Data.UserId (UserId(..))
 import Debug.Trace (trace)
 import Language.Haskell.TH -- (Q, ExpQ, Exp(AppE, VarE, TupE, LitE, InfixE))

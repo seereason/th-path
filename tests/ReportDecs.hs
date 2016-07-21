@@ -19,6 +19,7 @@ import Appraisal.Image
 import Appraisal.ImageFile
 import Appraisal.IntJS
 import Appraisal.Markup (Markup(..))
+import Appraisal.Maybe
 import Appraisal.Permissions
 import Appraisal.Report
 import Appraisal.ReportImage
@@ -853,85 +854,6 @@ class HasUserId c
           lens_UserId__unUserId :: forall . Lens' c Integer
           lens_UserId__unUserId = (.) lens_userId lens_UserId__unUserId
           {-# INLINE lens_UserId__unUserId #-}
-instance PathStart Univ String
-    where type UPath Univ String = Path_View String UPath_JSONText
-          upeekRow _ x = Node (Peek idPath Nothing) (concat [concatMap (makeRow x) [Path_To Proxy]])
-          upeekTree _ d x = case d of
-                                Just 0 -> Node (Peek idPath (Just (u x))) []
-                                _ -> Node (Peek idPath Nothing) (concat [concatMap (makeTrees d x) [Path_To Proxy]])
-          upeekCol _ (_p@(Path_To _ _q)) x = Node (Peek idPath Nothing) (makeCol x (Path_To Proxy) (\(Path_To (Proxy) q) -> q) _p)
-          upeekCol _ _p x = Node (Peek idPath (Just (u x))) []
-instance PathStart Univ Int64
-    where type UPath Univ Int64 = UPath_Int64
-          upeekRow _ _ = Node (Peek idPath Nothing) []
-          upeekTree _ _ x = Node (Peek idPath (Just (u x))) []
-          upeekCol _ _ x = Node (Peek idPath (Just (u x))) []
-instance PathStart Univ Bool
-    where type UPath Univ Bool = Path_View Bool (Path_View String UPath_JSONText)
-          upeekRow _ x = Node (Peek idPath Nothing) (concat [concatMap (makeRow x) [Path_To Proxy]])
-          upeekTree _ d x = case d of
-                                Just 0 -> Node (Peek idPath (Just (u x))) []
-                                _ -> Node (Peek idPath Nothing) (concat [concatMap (makeTrees d x) [Path_To Proxy]])
-          upeekCol _ (_p@(Path_To _ _q)) x = Node (Peek idPath Nothing) (makeCol x (Path_To Proxy) (\(Path_To (Proxy) q) -> q) _p)
-          upeekCol _ _p x = Node (Peek idPath (Just (u x))) []
-instance PathStart Univ Double
-    where type UPath Univ Double = Path_View Double (Path_View String UPath_JSONText)
-          upeekRow _ x = Node (Peek idPath Nothing) (concat [concatMap (makeRow x) [Path_To Proxy]])
-          upeekTree _ d x = case d of
-                                Just 0 -> Node (Peek idPath (Just (u x))) []
-                                _ -> Node (Peek idPath Nothing) (concat [concatMap (makeTrees d x) [Path_To Proxy]])
-          upeekCol _ (_p@(Path_To _ _q)) x = Node (Peek idPath Nothing) (makeCol x (Path_To Proxy) (\(Path_To (Proxy) q) -> q) _p)
-          upeekCol _ _p x = Node (Peek idPath (Just (u x))) []
-instance PathStart Univ Int
-    where type UPath Univ Int = UPath_Int
-          upeekRow _ _ = Node (Peek idPath Nothing) []
-          upeekTree _ _ x = Node (Peek idPath (Just (u x))) []
-          upeekCol _ _ x = Node (Peek idPath (Just (u x))) []
-instance PathStart Univ Dimension
-    where type UPath Univ Dimension = Path_View Dimension UPath_JSONText
-          upeekRow _ x = Node (Peek idPath Nothing) (concat [concatMap (makeRow x) [Path_To Proxy]])
-          upeekTree _ d x = case d of
-                                Just 0 -> Node (Peek idPath (Just (u x))) []
-                                _ -> Node (Peek idPath Nothing) (concat [concatMap (makeTrees d x) [Path_To Proxy]])
-          upeekCol _ (_p@(Path_To _ _q)) x = Node (Peek idPath Nothing) (makeCol x (Path_To Proxy) (\(Path_To (Proxy) q) -> q) _p)
-          upeekCol _ _p x = Node (Peek idPath (Just (u x))) []
-instance PathStart Univ ImageCrop
-    where type UPath Univ ImageCrop = UPath_ImageCrop
-          upeekRow _ _ = Node (Peek idPath Nothing) []
-          upeekTree _ _ x = Node (Peek idPath (Just (u x))) []
-          upeekCol _ _ x = Node (Peek idPath (Just (u x))) []
-instance PathStart Univ ImageSize
-    where type UPath Univ ImageSize = UPath_ImageSize
-          upeekRow _ (x@(ImageSize {})) = Node (Peek idPath Nothing) (concat [concatMap (makeRow x) [UPath_ImageSize_dim],
-                                                                              concatMap (makeRow x) [UPath_ImageSize_size],
-                                                                              concatMap (makeRow x) [UPath_ImageSize_units]])
-          upeekTree _ d (x@(ImageSize {})) = case d of
-                                                 Just 0 -> Node (Peek idPath (Just (u x))) []
-                                                 _ -> Node (Peek idPath Nothing) (concat [concatMap (makeTrees d x) [UPath_ImageSize_dim],
-                                                                                          concatMap (makeTrees d x) [UPath_ImageSize_size],
-                                                                                          concatMap (makeTrees d x) [UPath_ImageSize_units]])
-          upeekCol _ (_p@(UPath_ImageSize_dim _q)) (x@(ImageSize {})) = Node (Peek idPath Nothing) (makeCol x UPath_ImageSize_dim (\(UPath_ImageSize_dim p) -> p) _p)
-          upeekCol _ (_p@(UPath_ImageSize_size _q)) (x@(ImageSize {})) = Node (Peek idPath Nothing) (makeCol x UPath_ImageSize_size (\(UPath_ImageSize_size p) -> p) _p)
-          upeekCol _ (_p@(UPath_ImageSize_units _q)) (x@(ImageSize {})) = Node (Peek idPath Nothing) (makeCol x UPath_ImageSize_units (\(UPath_ImageSize_units p) -> p) _p)
-          upeekCol _ _p (x@(ImageSize {})) = Node (Peek idPath (Just (u x))) []
-instance PathStart Univ Units
-    where type UPath Univ Units = Path_View Units UPath_JSONText
-          upeekRow _ x = Node (Peek idPath Nothing) (concat [concatMap (makeRow x) [Path_To Proxy]])
-          upeekTree _ d x = case d of
-                                Just 0 -> Node (Peek idPath (Just (u x))) []
-                                _ -> Node (Peek idPath Nothing) (concat [concatMap (makeTrees d x) [Path_To Proxy]])
-          upeekCol _ (_p@(Path_To _ _q)) x = Node (Peek idPath Nothing) (makeCol x (Path_To Proxy) (\(Path_To (Proxy) q) -> q) _p)
-          upeekCol _ _p x = Node (Peek idPath (Just (u x))) []
-instance PathStart Univ ImageFile
-    where type UPath Univ ImageFile = UPath_ImageFile
-          upeekRow _ _ = Node (Peek idPath Nothing) []
-          upeekTree _ _ x = Node (Peek idPath (Just (u x))) []
-          upeekCol _ _ x = Node (Peek idPath (Just (u x))) []
-instance PathStart Univ Integer
-    where type UPath Univ Integer = UPath_Integer
-          upeekRow _ _ = Node (Peek idPath Nothing) []
-          upeekTree _ _ x = Node (Peek idPath (Just (u x))) []
-          upeekCol _ _ x = Node (Peek idPath (Just (u x))) []
 instance PathStart Univ JSONText
     where type UPath Univ JSONText = UPath_JSONText
           upeekRow _ _ = Node (Peek idPath Nothing) []
@@ -1098,6 +1020,115 @@ instance PathStart Univ ReportImage
                                 _ -> Node (Peek idPath Nothing) (concat [concatMap (makeTrees d x) [Path_To Proxy]])
           upeekCol _ (_p@(Path_To _ _q)) x = Node (Peek idPath Nothing) (makeCol x (Path_To Proxy) (\(Path_To (Proxy) q) -> q) _p)
           upeekCol _ _p x = Node (Peek idPath (Just (u x))) []
+instance PathStart Univ Item
+    where type UPath Univ Item = UPath_Item
+          upeekRow _ (x@(Item {})) = Node (Peek idPath Nothing) (concat [concatMap (makeRow x) [UPath_Item_itemName],
+                                                                         concatMap (makeRow x) [UPath_Item_fields],
+                                                                         concatMap (makeRow x) [UPath_Item_images]])
+          upeekTree _ d (x@(Item {})) = case d of
+                                            Just 0 -> Node (Peek idPath (Just (u x))) []
+                                            _ -> Node (Peek idPath Nothing) (concat [concatMap (makeTrees d x) [UPath_Item_itemName],
+                                                                                     concatMap (makeTrees d x) [UPath_Item_fields],
+                                                                                     concatMap (makeTrees d x) [UPath_Item_images]])
+          upeekCol _ (_p@(UPath_Item_itemName _q)) (x@(Item {})) = Node (Peek idPath Nothing) (makeCol x UPath_Item_itemName (\(UPath_Item_itemName p) -> p) _p)
+          upeekCol _ (_p@(UPath_Item_fields _q)) (x@(Item {})) = Node (Peek idPath Nothing) (makeCol x UPath_Item_fields (\(UPath_Item_fields p) -> p) _p)
+          upeekCol _ (_p@(UPath_Item_images _q)) (x@(Item {})) = Node (Peek idPath Nothing) (makeCol x UPath_Item_images (\(UPath_Item_images p) -> p) _p)
+          upeekCol _ _p (x@(Item {})) = Node (Peek idPath (Just (u x))) []
+instance PathStart Univ ReportMap
+    where type UPath Univ ReportMap = UPath_ReportMap
+          upeekRow _ (x@(ReportMap {})) = Node (Peek idPath Nothing) (concat [concatMap (makeRow x) [UPath_ReportMap_unReportMap]])
+          upeekTree _ d (x@(ReportMap {})) = case d of
+                                                 Just 0 -> Node (Peek idPath (Just (u x))) []
+                                                 _ -> Node (Peek idPath Nothing) (concat [concatMap (makeTrees d x) [UPath_ReportMap_unReportMap]])
+          upeekCol _ (_p@(UPath_ReportMap_unReportMap _q)) (x@(ReportMap {})) = Node (Peek idPath Nothing) (makeCol x UPath_ReportMap_unReportMap (\(UPath_ReportMap_unReportMap p) -> p) _p)
+          upeekCol _ _p (x@(ReportMap {})) = Node (Peek idPath (Just (u x))) []
+instance PathStart Univ CIString
+    where type UPath Univ CIString = Path_View CIString (Path_View Text UPath_JSONText)
+          upeekRow _ x = Node (Peek idPath Nothing) (concat [concatMap (makeRow x) [Path_To Proxy]])
+          upeekTree _ d x = case d of
+                                Just 0 -> Node (Peek idPath (Just (u x))) []
+                                _ -> Node (Peek idPath Nothing) (concat [concatMap (makeTrees d x) [Path_To Proxy]])
+          upeekCol _ (_p@(Path_To _ _q)) x = Node (Peek idPath Nothing) (makeCol x (Path_To Proxy) (\(Path_To (Proxy) q) -> q) _p)
+          upeekCol _ _p x = Node (Peek idPath (Just (u x))) []
+instance PathStart Univ String
+    where type UPath Univ String = Path_View String UPath_JSONText
+          upeekRow _ x = Node (Peek idPath Nothing) (concat [concatMap (makeRow x) [Path_To Proxy]])
+          upeekTree _ d x = case d of
+                                Just 0 -> Node (Peek idPath (Just (u x))) []
+                                _ -> Node (Peek idPath Nothing) (concat [concatMap (makeTrees d x) [Path_To Proxy]])
+          upeekCol _ (_p@(Path_To _ _q)) x = Node (Peek idPath Nothing) (makeCol x (Path_To Proxy) (\(Path_To (Proxy) q) -> q) _p)
+          upeekCol _ _p x = Node (Peek idPath (Just (u x))) []
+instance PathStart Univ Int64
+    where type UPath Univ Int64 = UPath_Int64
+          upeekRow _ _ = Node (Peek idPath Nothing) []
+          upeekTree _ _ x = Node (Peek idPath (Just (u x))) []
+          upeekCol _ _ x = Node (Peek idPath (Just (u x))) []
+instance PathStart Univ Bool
+    where type UPath Univ Bool = Path_View Bool (Path_View String UPath_JSONText)
+          upeekRow _ x = Node (Peek idPath Nothing) (concat [concatMap (makeRow x) [Path_To Proxy]])
+          upeekTree _ d x = case d of
+                                Just 0 -> Node (Peek idPath (Just (u x))) []
+                                _ -> Node (Peek idPath Nothing) (concat [concatMap (makeTrees d x) [Path_To Proxy]])
+          upeekCol _ (_p@(Path_To _ _q)) x = Node (Peek idPath Nothing) (makeCol x (Path_To Proxy) (\(Path_To (Proxy) q) -> q) _p)
+          upeekCol _ _p x = Node (Peek idPath (Just (u x))) []
+instance PathStart Univ Double
+    where type UPath Univ Double = Path_View Double (Path_View String UPath_JSONText)
+          upeekRow _ x = Node (Peek idPath Nothing) (concat [concatMap (makeRow x) [Path_To Proxy]])
+          upeekTree _ d x = case d of
+                                Just 0 -> Node (Peek idPath (Just (u x))) []
+                                _ -> Node (Peek idPath Nothing) (concat [concatMap (makeTrees d x) [Path_To Proxy]])
+          upeekCol _ (_p@(Path_To _ _q)) x = Node (Peek idPath Nothing) (makeCol x (Path_To Proxy) (\(Path_To (Proxy) q) -> q) _p)
+          upeekCol _ _p x = Node (Peek idPath (Just (u x))) []
+instance PathStart Univ Int
+    where type UPath Univ Int = UPath_Int
+          upeekRow _ _ = Node (Peek idPath Nothing) []
+          upeekTree _ _ x = Node (Peek idPath (Just (u x))) []
+          upeekCol _ _ x = Node (Peek idPath (Just (u x))) []
+instance PathStart Univ Dimension
+    where type UPath Univ Dimension = Path_View Dimension UPath_JSONText
+          upeekRow _ x = Node (Peek idPath Nothing) (concat [concatMap (makeRow x) [Path_To Proxy]])
+          upeekTree _ d x = case d of
+                                Just 0 -> Node (Peek idPath (Just (u x))) []
+                                _ -> Node (Peek idPath Nothing) (concat [concatMap (makeTrees d x) [Path_To Proxy]])
+          upeekCol _ (_p@(Path_To _ _q)) x = Node (Peek idPath Nothing) (makeCol x (Path_To Proxy) (\(Path_To (Proxy) q) -> q) _p)
+          upeekCol _ _p x = Node (Peek idPath (Just (u x))) []
+instance PathStart Univ ImageCrop
+    where type UPath Univ ImageCrop = UPath_ImageCrop
+          upeekRow _ _ = Node (Peek idPath Nothing) []
+          upeekTree _ _ x = Node (Peek idPath (Just (u x))) []
+          upeekCol _ _ x = Node (Peek idPath (Just (u x))) []
+instance PathStart Univ ImageSize
+    where type UPath Univ ImageSize = UPath_ImageSize
+          upeekRow _ (x@(ImageSize {})) = Node (Peek idPath Nothing) (concat [concatMap (makeRow x) [UPath_ImageSize_dim],
+                                                                              concatMap (makeRow x) [UPath_ImageSize_size],
+                                                                              concatMap (makeRow x) [UPath_ImageSize_units]])
+          upeekTree _ d (x@(ImageSize {})) = case d of
+                                                 Just 0 -> Node (Peek idPath (Just (u x))) []
+                                                 _ -> Node (Peek idPath Nothing) (concat [concatMap (makeTrees d x) [UPath_ImageSize_dim],
+                                                                                          concatMap (makeTrees d x) [UPath_ImageSize_size],
+                                                                                          concatMap (makeTrees d x) [UPath_ImageSize_units]])
+          upeekCol _ (_p@(UPath_ImageSize_dim _q)) (x@(ImageSize {})) = Node (Peek idPath Nothing) (makeCol x UPath_ImageSize_dim (\(UPath_ImageSize_dim p) -> p) _p)
+          upeekCol _ (_p@(UPath_ImageSize_size _q)) (x@(ImageSize {})) = Node (Peek idPath Nothing) (makeCol x UPath_ImageSize_size (\(UPath_ImageSize_size p) -> p) _p)
+          upeekCol _ (_p@(UPath_ImageSize_units _q)) (x@(ImageSize {})) = Node (Peek idPath Nothing) (makeCol x UPath_ImageSize_units (\(UPath_ImageSize_units p) -> p) _p)
+          upeekCol _ _p (x@(ImageSize {})) = Node (Peek idPath (Just (u x))) []
+instance PathStart Univ Units
+    where type UPath Univ Units = Path_View Units UPath_JSONText
+          upeekRow _ x = Node (Peek idPath Nothing) (concat [concatMap (makeRow x) [Path_To Proxy]])
+          upeekTree _ d x = case d of
+                                Just 0 -> Node (Peek idPath (Just (u x))) []
+                                _ -> Node (Peek idPath Nothing) (concat [concatMap (makeTrees d x) [Path_To Proxy]])
+          upeekCol _ (_p@(Path_To _ _q)) x = Node (Peek idPath Nothing) (makeCol x (Path_To Proxy) (\(Path_To (Proxy) q) -> q) _p)
+          upeekCol _ _p x = Node (Peek idPath (Just (u x))) []
+instance PathStart Univ ImageFile
+    where type UPath Univ ImageFile = UPath_ImageFile
+          upeekRow _ _ = Node (Peek idPath Nothing) []
+          upeekTree _ _ x = Node (Peek idPath (Just (u x))) []
+          upeekCol _ _ x = Node (Peek idPath (Just (u x))) []
+instance PathStart Univ Integer
+    where type UPath Univ Integer = UPath_Integer
+          upeekRow _ _ = Node (Peek idPath Nothing) []
+          upeekTree _ _ x = Node (Peek idPath (Just (u x))) []
+          upeekCol _ _ x = Node (Peek idPath (Just (u x))) []
 instance PathStart Univ ReadOnlyFilePath
     where type UPath Univ ReadOnlyFilePath = Path_View ReadOnlyFilePath (Path_View String UPath_JSONText)
           upeekRow _ x = Node (Peek idPath Nothing) (concat [concatMap (makeRow x) [Path_To Proxy]])
@@ -1274,36 +1305,6 @@ instance PathStart Univ SaneSizeImageSize
                                 _ -> Node (Peek idPath Nothing) (concat [concatMap (makeTrees d x) [Path_To Proxy]])
           upeekCol _ (_p@(Path_To _ _q)) x = Node (Peek idPath Nothing) (makeCol x (Path_To Proxy) (\(Path_To (Proxy) q) -> q) _p)
           upeekCol _ _p x = Node (Peek idPath (Just (u x))) []
-instance PathStart Univ Item
-    where type UPath Univ Item = UPath_Item
-          upeekRow _ (x@(Item {})) = Node (Peek idPath Nothing) (concat [concatMap (makeRow x) [UPath_Item_itemName],
-                                                                         concatMap (makeRow x) [UPath_Item_fields],
-                                                                         concatMap (makeRow x) [UPath_Item_images]])
-          upeekTree _ d (x@(Item {})) = case d of
-                                            Just 0 -> Node (Peek idPath (Just (u x))) []
-                                            _ -> Node (Peek idPath Nothing) (concat [concatMap (makeTrees d x) [UPath_Item_itemName],
-                                                                                     concatMap (makeTrees d x) [UPath_Item_fields],
-                                                                                     concatMap (makeTrees d x) [UPath_Item_images]])
-          upeekCol _ (_p@(UPath_Item_itemName _q)) (x@(Item {})) = Node (Peek idPath Nothing) (makeCol x UPath_Item_itemName (\(UPath_Item_itemName p) -> p) _p)
-          upeekCol _ (_p@(UPath_Item_fields _q)) (x@(Item {})) = Node (Peek idPath Nothing) (makeCol x UPath_Item_fields (\(UPath_Item_fields p) -> p) _p)
-          upeekCol _ (_p@(UPath_Item_images _q)) (x@(Item {})) = Node (Peek idPath Nothing) (makeCol x UPath_Item_images (\(UPath_Item_images p) -> p) _p)
-          upeekCol _ _p (x@(Item {})) = Node (Peek idPath (Just (u x))) []
-instance PathStart Univ ReportMap
-    where type UPath Univ ReportMap = UPath_ReportMap
-          upeekRow _ (x@(ReportMap {})) = Node (Peek idPath Nothing) (concat [concatMap (makeRow x) [UPath_ReportMap_unReportMap]])
-          upeekTree _ d (x@(ReportMap {})) = case d of
-                                                 Just 0 -> Node (Peek idPath (Just (u x))) []
-                                                 _ -> Node (Peek idPath Nothing) (concat [concatMap (makeTrees d x) [UPath_ReportMap_unReportMap]])
-          upeekCol _ (_p@(UPath_ReportMap_unReportMap _q)) (x@(ReportMap {})) = Node (Peek idPath Nothing) (makeCol x UPath_ReportMap_unReportMap (\(UPath_ReportMap_unReportMap p) -> p) _p)
-          upeekCol _ _p (x@(ReportMap {})) = Node (Peek idPath (Just (u x))) []
-instance PathStart Univ CIString
-    where type UPath Univ CIString = Path_View CIString (Path_View Text UPath_JSONText)
-          upeekRow _ x = Node (Peek idPath Nothing) (concat [concatMap (makeRow x) [Path_To Proxy]])
-          upeekTree _ d x = case d of
-                                Just 0 -> Node (Peek idPath (Just (u x))) []
-                                _ -> Node (Peek idPath Nothing) (concat [concatMap (makeTrees d x) [Path_To Proxy]])
-          upeekCol _ (_p@(Path_To _ _q)) x = Node (Peek idPath Nothing) (makeCol x (Path_To Proxy) (\(Path_To (Proxy) q) -> q) _p)
-          upeekCol _ _p x = Node (Peek idPath (Just (u x))) []
 instance PathStart Univ URI
     where type UPath Univ URI = UPath_URI
           upeekRow _ _ = Node (Peek idPath Nothing) []
@@ -1327,50 +1328,6 @@ instance PathStart Univ UUID
           upeekRow _ _ = Node (Peek idPath Nothing) []
           upeekTree _ _ x = Node (Peek idPath (Just (u x))) []
           upeekCol _ _ x = Node (Peek idPath (Just (u x))) []
-instance U Univ String
-    where u = U45
-          unU' (U45 a) = Just a
-          unU' _ = Nothing
-instance U Univ Int64
-    where u = U15
-          unU' (U15 a) = Just a
-          unU' _ = Nothing
-instance U Univ Bool
-    where u = U5
-          unU' (U5 a) = Just a
-          unU' _ = Nothing
-instance U Univ Double
-    where u = U9
-          unU' (U9 a) = Just a
-          unU' _ = Nothing
-instance U Univ Int
-    where u = U14
-          unU' (U14 a) = Just a
-          unU' _ = Nothing
-instance U Univ Dimension
-    where u = U8
-          unU' (U8 a) = Just a
-          unU' _ = Nothing
-instance U Univ ImageCrop
-    where u = U11
-          unU' (U11 a) = Just a
-          unU' _ = Nothing
-instance U Univ ImageSize
-    where u = U13
-          unU' (U13 a) = Just a
-          unU' _ = Nothing
-instance U Univ Units
-    where u = U49
-          unU' (U49 a) = Just a
-          unU' _ = Nothing
-instance U Univ ImageFile
-    where u = U12
-          unU' (U12 a) = Just a
-          unU' _ = Nothing
-instance U Univ Integer
-    where u = U16
-          unU' (U16 a) = Just a
-          unU' _ = Nothing
 instance U Univ JSONText
     where u = U18
           unU' (U18 a) = Just a
@@ -1479,22 +1436,6 @@ instance U Univ ReportImages
     where u = U36
           unU' (U36 a) = Just a
           unU' _ = Nothing
-instance U Univ ReadOnlyFilePath
-    where u = U29
-          unU' (U29 a) = Just a
-          unU' _ = Nothing
-instance U Univ ReportImageView
-    where u = U35
-          unU' (U35 a) = Just a
-          unU' _ = Nothing
-instance U Univ ReportView
-    where u = U43
-          unU' (U43 a) = Just a
-          unU' _ = Nothing
-instance U Univ SaneSizeImageSize
-    where u = U44
-          unU' (U44 a) = Just a
-          unU' _ = Nothing
 instance U Univ Item
     where u = U17
           unU' (U17 a) = Just a
@@ -1514,6 +1455,66 @@ instance U Univ ReportMap
 instance U Univ CIString
     where u = U7
           unU' (U7 a) = Just a
+          unU' _ = Nothing
+instance U Univ String
+    where u = U45
+          unU' (U45 a) = Just a
+          unU' _ = Nothing
+instance U Univ Int64
+    where u = U15
+          unU' (U15 a) = Just a
+          unU' _ = Nothing
+instance U Univ Bool
+    where u = U5
+          unU' (U5 a) = Just a
+          unU' _ = Nothing
+instance U Univ Double
+    where u = U9
+          unU' (U9 a) = Just a
+          unU' _ = Nothing
+instance U Univ Int
+    where u = U14
+          unU' (U14 a) = Just a
+          unU' _ = Nothing
+instance U Univ Dimension
+    where u = U8
+          unU' (U8 a) = Just a
+          unU' _ = Nothing
+instance U Univ ImageCrop
+    where u = U11
+          unU' (U11 a) = Just a
+          unU' _ = Nothing
+instance U Univ ImageSize
+    where u = U13
+          unU' (U13 a) = Just a
+          unU' _ = Nothing
+instance U Univ Units
+    where u = U49
+          unU' (U49 a) = Just a
+          unU' _ = Nothing
+instance U Univ ImageFile
+    where u = U12
+          unU' (U12 a) = Just a
+          unU' _ = Nothing
+instance U Univ Integer
+    where u = U16
+          unU' (U16 a) = Just a
+          unU' _ = Nothing
+instance U Univ ReadOnlyFilePath
+    where u = U29
+          unU' (U29 a) = Just a
+          unU' _ = Nothing
+instance U Univ ReportImageView
+    where u = U35
+          unU' (U35 a) = Just a
+          unU' _ = Nothing
+instance U Univ ReportView
+    where u = U43
+          unU' (U43 a) = Just a
+          unU' _ = Nothing
+instance U Univ SaneSizeImageSize
+    where u = U44
+          unU' (U44 a) = Just a
           unU' _ = Nothing
 instance U Univ URI
     where u = U47
@@ -5903,22 +5904,6 @@ instance Show Univ
           show (U49 x) = "(u (" ++ (show x ++ " :: Units) :: Univ)")
           show (U50 x) = "(u (" ++ (show x ++ " :: UserId) :: Univ)")
           show (U51 x) = "(u (" ++ (show x ++ " :: UserIds) :: Univ)")
-instance Describe (Proxy Int64)
-    where describe' _f _ = Just (fromMaybe "Int64" _f)
-instance Describe (Proxy Int)
-    where describe' _f _ = Just (fromMaybe "Int" _f)
-instance Describe (Proxy Dimension)
-    where describe' _f _ = Just (fromMaybe "Dimension" _f)
-instance Describe (Proxy ImageCrop)
-    where describe' _f _ = Just (fromMaybe "Image Crop" _f)
-instance Describe (Proxy ImageSize)
-    where describe' _f _ = Just (fromMaybe "Image Size" _f)
-instance Describe (Proxy Units)
-    where describe' _f _ = Just (fromMaybe "Units" _f)
-instance Describe (Proxy ImageFile)
-    where describe' _f _ = Just (fromMaybe "Image File" _f)
-instance Describe (Proxy Integer)
-    where describe' _f _ = Just (fromMaybe "Integer" _f)
 instance Describe (Proxy Permissions)
     where describe' _f _ = Just (fromMaybe "Permissions" _f)
 instance Describe (Proxy UserIds)
@@ -5969,14 +5954,6 @@ instance Describe (Proxy ReportImage)
     where describe' _f _ = Just (fromMaybe "Report Image" _f)
 instance Describe (Proxy ReportImages)
     where describe' _f _ = Just (fromMaybe "Report Images" _f)
-instance Describe (Proxy ReadOnlyFilePath)
-    where describe' _f _ = Just (fromMaybe "Read Only File Path" _f)
-instance Describe (Proxy ReportImageView)
-    where describe' _f _ = Just (fromMaybe "Report Image View" _f)
-instance Describe (Proxy ReportView)
-    where describe' _f _ = Just (fromMaybe "Report View" _f)
-instance Describe (Proxy SaneSizeImageSize)
-    where describe' _f _ = Just (fromMaybe "Sane Size Image Size" _f)
 instance Describe (Proxy Item)
     where describe' _f _ = Just (fromMaybe "Item" _f)
 instance Describe (Proxy MIM)
@@ -5987,6 +5964,30 @@ instance Describe (Proxy ReportMap)
     where describe' _f _ = Just (fromMaybe "Report Map" _f)
 instance Describe (Proxy CIString)
     where describe' _f _ = Just (fromMaybe "CIString" _f)
+instance Describe (Proxy Int64)
+    where describe' _f _ = Just (fromMaybe "Int64" _f)
+instance Describe (Proxy Int)
+    where describe' _f _ = Just (fromMaybe "Int" _f)
+instance Describe (Proxy Dimension)
+    where describe' _f _ = Just (fromMaybe "Dimension" _f)
+instance Describe (Proxy ImageCrop)
+    where describe' _f _ = Just (fromMaybe "Image Crop" _f)
+instance Describe (Proxy ImageSize)
+    where describe' _f _ = Just (fromMaybe "Image Size" _f)
+instance Describe (Proxy Units)
+    where describe' _f _ = Just (fromMaybe "Units" _f)
+instance Describe (Proxy ImageFile)
+    where describe' _f _ = Just (fromMaybe "Image File" _f)
+instance Describe (Proxy Integer)
+    where describe' _f _ = Just (fromMaybe "Integer" _f)
+instance Describe (Proxy ReadOnlyFilePath)
+    where describe' _f _ = Just (fromMaybe "Read Only File Path" _f)
+instance Describe (Proxy ReportImageView)
+    where describe' _f _ = Just (fromMaybe "Report Image View" _f)
+instance Describe (Proxy ReportView)
+    where describe' _f _ = Just (fromMaybe "Report View" _f)
+instance Describe (Proxy SaneSizeImageSize)
+    where describe' _f _ = Just (fromMaybe "Sane Size Image Size" _f)
 instance Describe (Proxy URI)
     where describe' _f _ = Just (fromMaybe "URI" _f)
 instance Describe (Proxy UserId)

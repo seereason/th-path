@@ -16,9 +16,11 @@ import Appraisal.Image (Dimension, ImageCrop, ImageSize, lens_saneSize, Units)
 import Appraisal.ImageFile (ImageFile)
 import Appraisal.IntJS (IntJS, gjsonLens, JSONText)
 import Appraisal.Markup as M (Markup, lens_CIString_Text)
+import Appraisal.Maybe (lens_mrs')
 import Appraisal.Permissions (Permissions, UserIds)
-import Appraisal.Report (Authors, AbbrevPairs, EpochMilli, MarkupPairs, Markups, ReportElems, ReportFlags, ReportValueTypeInfo, ReportValueApproachInfo, Branding, Report(Report, reportLetterOfTransmittal), reportBrandingLens, MaybeReportIntendedUse, ReportStatus, ReportStandard, ReportStatus(Draft))
-import Appraisal.ReportImage (ReportImage(Pic), MaybeImageFile)
+import Appraisal.Report (Authors, AbbrevPairs, EpochMilli, MarkupPairs, Markups, ReportElems, ReportFlags, ReportValueTypeInfo, ReportValueApproachInfo, Branding, Report(Report, reportLetterOfTransmittal), reportBrandingLens, MaybeReportIntendedUse, ReportIntendedUse(..), ReportStatus, ReportStandard, ReportStatus(Draft),
+                         AbbrevPairID, AuthorID, MarkupID, MarkupPairID, ReportElemID)
+import Appraisal.ReportImage (ReportImage(Pic), MaybeImageFile, ReportImageID)
 import Appraisal.ReportItem (ItemFieldName)
 import Appraisal.ReportMap (ReportID, ReportMap)
 import Appraisal.Utils.CIString (CIString)
@@ -34,12 +36,19 @@ import Data.UserId (UserId(..))
 import Data.Word (Word32)
 import GHC.Generics (Generic)
 import Language.Haskell.TH
-import Language.Haskell.TH.Path.Core (camelWords, Describe(describe'), lens_mrs, lens_UserIds_Text,
-                                      readOnlyLens, readShowIso, SinkType)
+import Language.Haskell.TH.Path.Core (camelWords, Describe(describe'), HideType, lens_mrs, lens_UserIds_Text,
+                                      readOnlyLens, readShowIso, SelfPath, SinkType)
 import Language.Haskell.TH.Path.View (View(ViewType, viewLens))
+import Language.Haskell.TH.TypeGraph.Prelude ()
 import Text.LaTeX (LaTeX)
-import Text.Pandoc (Pandoc, Meta)
+import Text.Pandoc as P (Pandoc, Meta)
 import Web.Routes.TH (derivePathInfo)
+
+-- Hiding these types will hide three fields of Markup we don't want
+-- to appear in the UI.
+instance HideType LaTeX
+instance HideType [Markup]
+instance HideType P.Pandoc
 
 instance Describe (Proxy JSONText) where describe' _ Proxy = Nothing
 instance Describe (Proxy String) where describe' _ Proxy = Nothing
@@ -166,6 +175,23 @@ instance View Report where
                      a21 a22 a23 a24 a25 a26 a27 a28 a29 a30
                      a31 a32 a33 a34 a35 a36 a37 a38 a39 a40
                      a41 a42 a43 a44 a45
+
+instance View ReportIntendedUse where
+    type ViewType ReportIntendedUse = String
+    viewLens = readShowIso SalesAdvisory
+
+instance View MaybeReportIntendedUse where
+    type ViewType MaybeReportIntendedUse = String
+    viewLens = lens_mrs'
+
+instance SelfPath AbbrevPairID
+instance SelfPath AuthorID
+instance SelfPath MarkupID
+instance SelfPath MarkupPairID
+instance SelfPath ReportElemID
+instance SelfPath ReportImageID
+instance SelfPath ItemFieldName
+instance SelfPath ReportID
 
 instance SinkType File
 instance SinkType ImageCrop

@@ -130,6 +130,7 @@ test-suite th-path-tests
   build-depends:
     aeson,
     applicative-extras,
+    appraisalscribe-data,
     base,
     base-compat,
     binary,
