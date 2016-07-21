@@ -1,4 +1,4 @@
-:set -itests
+:set -i.:tests
 :set -XTemplateHaskell
 :set -XTypeFamilies
 :set -DMIN_VERSION_aeson(a,b,c)=1

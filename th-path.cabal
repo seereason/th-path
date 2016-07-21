@@ -70,19 +70,19 @@ library
       Language.Haskell.TH.Path.Peek
       Language.Haskell.TH.Path.Traverse
   other-modules:
-    Language.Haskell.TH.Path.Arity
-    Language.Haskell.TH.Path.ATP
-    Language.Haskell.TH.Path.Context
-    Language.Haskell.TH.Path.Edges
     Language.Haskell.TH.Path.Expand
-    Language.Haskell.TH.Path.Free
-    Language.Haskell.TH.Path.Lens
     Language.Haskell.TH.Path.Prelude
     Language.Haskell.TH.Path.Shape
+    Language.Haskell.TH.Path.Vertex
+    Language.Haskell.TH.Path.TypeInfo
+    Language.Haskell.TH.Path.Edges
     Language.Haskell.TH.Path.Stack
     Language.Haskell.TH.Path.TypeGraph
-    Language.Haskell.TH.Path.TypeInfo
-    Language.Haskell.TH.Path.Vertex
+    Language.Haskell.TH.Path.Lens
+    Language.Haskell.TH.Path.Arity
+    Language.Haskell.TH.Path.Free
+    Language.Haskell.TH.Path.ATP
+    Language.Haskell.TH.Path.Context
 
 -- test-suite th-path-tests
 --   type:             exitcode-stdio-1.0

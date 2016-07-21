@@ -1,14 +1,11 @@
 module Tests.Core where
 
-import Control.Lens
 import Control.Monad.State
-import Data.Maybe
-import Data.Text.Lazy
 import Language.Haskell.TH
 import Language.Haskell.TH.Lift as TH (lift)
 import Language.Haskell.TH.Path
 import Test.HUnit
-import Tests.Instances
+import Tests.Instances ()
 
 core :: Test
 core = TestList [view1 {-, view2-} ]
