@@ -60,7 +60,7 @@ instance Show a => TH.Ppr (F (Forest a)) where
 -}
 
 instance Show a => TH.Ppr (Tree a) where
-    ppr = TH.text . drawTree . treeMap show
+    ppr = TH.text . drawTree . fmap show
 
 assertEqual' :: (Eq a, Show a) => String -> a -> a -> Test
 assertEqual' label expected actual = TestLabel label $ TestCase $ assertEqual label expected actual
