@@ -1,7 +1,7 @@
 -- | Instances that don't depend on anything else in this package.
 
 {-# OPTIONS_GHC -fno-warn-orphans #-}
-{-# LANGUAGE CPP #-}
+{-# LANGUAGE CPP, TemplateHaskell #-}
 module Language.Haskell.TH.Path.Instances () where
 
 import Data.Proxy (Proxy(Proxy))
