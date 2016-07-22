@@ -33,6 +33,7 @@ import Data.Generics (Data, Typeable)
 import Data.Int (Int64)
 import Data.Map (toList)
 import Data.Maybe (fromMaybe)
+import Data.Order (Path_OMap(Path_At), toPairs)
 import Data.Proxy
 import Data.Text (Text)
 import Data.Tree (Tree(Node))
@@ -41,7 +42,6 @@ import Data.UUID (UUID)
 import Data.UUID.Orphans (showUUID)
 import GHC.Generics (Generic)
 import Language.Haskell.TH.Path.Core
-import Language.Haskell.TH.Path.Order (Path_OMap(Path_At), toPairs)
 import Language.Haskell.TH.Path.View (View(viewLens))
 import Network.URI (URI(URI), URIAuth)
 

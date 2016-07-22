@@ -20,19 +20,20 @@ module ReportPaths where
 import Appraisal.IntJS (JSONText)
 import Appraisal.ReportInstances (SaneSize, ReportView, ReportImageView, ReadOnly)
 import Appraisal.ReportMap (ReportMap)
-import Data.List (sort)
+import Data.Function (on)
+import Data.List (sortBy)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Lift (deriveLiftMany)
-import Language.Haskell.TH.Path.Decs (derivePaths, writePaths)
+import Language.Haskell.TH.Path (pprint1)
+import Language.Haskell.TH.Path.Decs (derivePaths, testAndWritePaths)
 import Language.Haskell.TH.Syntax (runIO, runQ)
 import System.FilePath.Find ((==?), (&&?), always, extension, fileType, FileType(RegularFile), find)
-import Text.LaTeX hiding (lift)
 
 $(do deps <- runQ (runIO (find always (extension ==? ".hs" &&? fileType ==? RegularFile) "Language/Haskell/TH/Path"))
-     decs <- sort <$> derivePaths [ [t|ReportMap|] ]
+     decs <- sortBy (compare `on` pprint1) <$> derivePaths [ [t|ReportMap|] ]
      runQ (runIO (writeFile "tests/ReportHs.hs" (unlines (map show decs))))
      hd <- runIO $ readFile "tests/ReportHead.hs"
-     writePaths hd mempty "tests/ReportDecs.hs" deps decs)
+     testAndWritePaths hd mempty "tests/ReportDecs.hs" deps decs)
 
 -- | Most (all?) of these should be moved back to live with their parent types.
 $(deriveLiftMany [''JSONText])
