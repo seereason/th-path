@@ -50,6 +50,7 @@ library
     th-desugar,
     th-kinds-fork,
     th-lift,
+    th-lift-instances,
     th-orphans,
     userid,
     uuid-types,
