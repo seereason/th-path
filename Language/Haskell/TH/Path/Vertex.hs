@@ -23,7 +23,7 @@ import Language.Haskell.TH.Syntax (Lift(lift))
 import Language.Haskell.TH.Path.Expand (E(E), unE)
 import Language.Haskell.TH.Path.Prelude (unReify, unReifyName)
 import Language.Haskell.TH.Path.Shape (Field)
-import Instances.TH.Lift () -- instance Lift (Set a)
+
 -- | A vertex of the type graph.  Includes a type and (optionally)
 -- what field of a parent type holds that type.  This allows special
 -- treatment of a type depending on the type that contains it.

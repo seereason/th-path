@@ -16,7 +16,7 @@
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeSynonymInstances #-}
-{-# OPTIONS_GHC -ddump-minimal-imports #-}
+
 module Language.Haskell.TH.Path.Traverse
     ( asP'
     , Control(..)

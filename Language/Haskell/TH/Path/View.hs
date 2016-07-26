@@ -23,8 +23,7 @@ import Data.Maybe (fromMaybe)
 import Data.Set as Set (fromList, Set)
 import Debug.Trace (trace)
 import Language.Haskell.TH hiding (prim)
-import Language.Haskell.TH.Desugar as DS (DsMonad)
-import Language.Haskell.TH.Syntax (qReify)
+import Language.Haskell.TH.Syntax (Quasi, qReify)
 import Language.Haskell.TH.Path.Arity (typeArity)
 import Language.Haskell.TH.Path.Expand (E(E))
 import Language.Haskell.TH.Path.Prelude (unlifted)
@@ -42,7 +41,7 @@ class View s where
 
 -- This is a dangerously weak imitation of unification.  We
 -- ought to implement unify for Type in atp-haskell and use that.
-fakeunify :: forall m. DsMonad m => E Type -> E Type -> m (Maybe (Map Type Type))
+fakeunify :: forall m. Quasi m => E Type -> E Type -> m (Maybe (Map Type Type))
 fakeunify (E a0) (E b0) =
     execStateT (unify a0 b0) (Just mempty)
     where
@@ -75,13 +74,13 @@ expandBindings _ x = x
 
 -- | Retrieve every View instance known to the Q monad and return the
 -- union of all of their a and b types.
-viewTypes :: DsMonad m => m (Set Type)
+viewTypes :: Quasi m => m (Set Type)
 viewTypes = do
   FamilyI _ tySynInsts <- runQ $ reify ''ViewType
   return $ Set.fromList $ concatMap (\ (TySynInstD _vt (TySynEqn [a] b)) -> [a, b]) tySynInsts
 
 -- | Attempt to implement viewInstanceType without the ExpandMap.
-viewInstanceType :: DsMonad m => Type -> m (Maybe Type)
+viewInstanceType :: Quasi m => Type -> m (Maybe Type)
 viewInstanceType typ =
     do prim <- unlifted typ
        arity <- typeArity typ

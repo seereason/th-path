@@ -18,11 +18,8 @@
 {-# LANGUAGE TypeSynonymInstances #-}
 module Language.Haskell.TH.Path.Decs
     ( derivePaths
-    , writePaths
-    , testAndWritePaths
     ) where
 
-import Control.Exception as E (IOException, throw, try)
 import Control.Lens (Iso', makeClassyFor)
 import Control.Monad.Writer (MonadWriter, execWriterT, runWriterT, tell)
 import Data.Aeson (FromJSON, ToJSON)
@@ -46,13 +43,11 @@ import Language.Haskell.TH.Path.Graph (runTypeGraphT, TypeGraphM)
 import Language.Haskell.TH.Path.Instances ()
 import Language.Haskell.TH.Path.Peek (peekDecs)
 import Language.Haskell.TH.Path.View (View)
-import Language.Haskell.TH.Syntax (addDependentFile, Quasi(qReify))
+import Language.Haskell.TH.Syntax (Quasi(qReify))
 import Language.Haskell.TH.Path.Lens (lensNamePairs)
-import Language.Haskell.TH.Path.Prelude (friendlyNames, pprint1, pprintW)
+import Language.Haskell.TH.Path.Prelude (pprint1)
 import Language.Haskell.TH.Path.TypeGraph (allPathStarts)
 import Language.Haskell.TH.Path.Vertex (TGVSimple, typeNames)
-import System.Directory (removeFile, renameFile)
-import System.IO.Error (isDoesNotExistError)
 
 derivePaths :: [TypeQ] -> Q [Dec]
 derivePaths st = do
@@ -109,60 +104,6 @@ doUniv = do
   telld [d| ulens :: U $(conT uname) a => Iso' $(conT uname) a
             ulens = ulens' Proxy |]
   return $ conT uname
-
-writePaths :: String -> String -> FilePath -> [FilePath] -> [Dec] -> Q [Dec]
-writePaths hdText tlText dest deps decs = do
-  new <- paths hdText tlText deps decs
-  runIO $ removeFileMaybe (dest <> "~")
-  runIO $ renameFileMaybe dest (dest <> "~")
-  runIO $ removeFileMaybe dest
-  runIO $ writeFile dest new
-  return decs
-
--- | Write the new paths file if it doesn't exist.  If it does, make
--- sure the new text matches the old using testPaths.
-testAndWritePaths :: String -> String -> FilePath -> [FilePath] -> [Dec] -> Q [Dec]
-testAndWritePaths hdText tlText dest deps decs = do
-  new <- paths hdText tlText deps decs
-  runIO $ testPaths new dest
-  return decs
-
-paths :: String -> String -> [FilePath] -> [Dec] -> Q String
-paths hdText tlText deps decs = do
-  runQ $ mapM_ addDependentFile deps
-  let code = (unlines . map (pprintW 250) . {-sort .-} map friendlyNames) decs
-  return $ hdText <> code <> tlText
-
--- | See if the new Paths code matches the old, if not write it to a
--- file with the suffix ".new" and throw an error so the new code can
--- be inspected and checked in.
-testPaths :: String -> FilePath -> IO ()
-testPaths new dest = do
-  old <- try (readFile dest) >>=
-         either (\(e :: IOException) -> case isDoesNotExistError e of
-                                          True -> pure Nothing
-                                          False -> throw e) (pure . Just)
-  removeFileMaybe $ dest <> ".new"
-  case old of
-    Nothing -> writeFile dest new -- No old version
-    Just x | x /= new -> -- Old version differs
-               do writeFile (dest <> ".new") new
-                  error $ "Generated " <> dest <> ".new does not match existing " <> dest
-    _ -> pure () -- Old version matches
-
-removeFileMaybe :: FilePath -> IO ()
-removeFileMaybe path =
-    try (removeFile path) >>=
-    either (\(e :: IOException) -> case isDoesNotExistError e of
-                                     True -> pure ()
-                                     False -> throw e) pure
-
-renameFileMaybe :: FilePath -> FilePath -> IO ()
-renameFileMaybe oldpath newpath =
-    try (renameFile oldpath newpath) >>=
-    either (\(e :: IOException) -> case isDoesNotExistError e of
-                                     True -> pure ()
-                                     False -> throw e) pure
 
 -- doType :: forall m. (TypeGraphM m, MonadWriter [Dec] m) => TypeQ -> Type -> m ()
 -- doType utype t = tgvSimple t >>= maybe (error $ "doType: No node for " ++ pprint1 t) (doNode utype)

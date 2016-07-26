@@ -26,6 +26,7 @@ import Control.Monad (foldM)
 import Data.Generics (Data, everywhere, mkT)
 import Data.Graph as Graph
 import Data.Maybe (fromJust, fromMaybe)
+import Instances.TH.Lift ()
 import Language.Haskell.TH
 import Language.Haskell.TH.Path.Instances ()
 import Language.Haskell.TH.PprLib (to_HPJ_Doc)

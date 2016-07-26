@@ -62,6 +62,7 @@ library
     Language.Haskell.TH.Path
     Language.Haskell.TH.Path.Common
     Language.Haskell.TH.Path.Core
+    Language.Haskell.TH.Path.Files
     Language.Haskell.TH.Path.Instances
     Language.Haskell.TH.Path.View
   if !impl(ghcjs)
