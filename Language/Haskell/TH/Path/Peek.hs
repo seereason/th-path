@@ -1,6 +1,7 @@
 -- | Return the declarations that implement the IsPath instances, the
 -- toLens methods, the PathType types, and the universal path type.
 
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
@@ -122,7 +123,11 @@ peekDecs utype v =
                            (normalB [| Just (fromMaybe $(liftString (camelWords (nameBase (asName v)))) $(varE f)) |]) []]]))
        when (not (null upcs))
             (do let pname = makeUPathType (ModelType (asName v))
+#if MIN_VERSION_template_haskell(2,11,0)
+                tells [dataD (cxt []) (asName pname) [] Nothing upcs (sequence (map conT supers))]
+#else
                 tells [dataD (cxt []) (asName pname) [] upcs supers]
+#endif
                 telld [d|instance IsPath $(asTypeQ pname) where
                             type UType $(asTypeQ pname) = $utype
                             type SType $(asTypeQ pname) = $(asTypeQ v)

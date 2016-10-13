@@ -100,6 +100,16 @@ doNode control v =
       doInfo tps (FamilyI dec _insts) = doDec tps dec
       doInfo _ info = error $ "doType: unexpected info: " ++ show info
       doDec :: [Type] -> Dec -> m r
+#if MIN_VERSION_template_haskell(2,11,0)
+      doDec tps (NewtypeD cx tname binds m con supers) = doDec tps (DataD cx tname binds m [con] supers)
+      doDec tps (DataD _cx _tname binds _ _cons _supers)
+          | length tps /= length binds =
+              error $ "Arity mismatch: binds: " ++ show binds ++ ", types: " ++ show tps
+      doDec tps (DataD _cx tname binds _ cons _supers) = do
+        let bindings = Map.fromList (zip (Prelude.map asName binds) tps)
+            subst = substG bindings
+        doCons subst tname cons
+#else
       doDec tps (NewtypeD cx tname binds con supers) = doDec tps (DataD cx tname binds [con] supers)
       doDec tps (DataD _cx _tname binds _cons _supers)
           | length tps /= length binds =
@@ -108,6 +118,7 @@ doNode control v =
         let bindings = Map.fromList (zip (Prelude.map asName binds) tps)
             subst = substG bindings
         doCons subst tname cons
+#endif
       doDec tps (TySynD _tname binds _typ)
           | length tps /= length binds =
               error $ "Arity mismatch: binds: " ++ show binds ++ ", types: " ++ show tps

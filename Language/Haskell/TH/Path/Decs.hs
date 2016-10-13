@@ -1,6 +1,7 @@
 -- | Return the declarations that implement the IsPath instances, the
 -- toLens methods, the Path types, and the universal path type.
 
+{-# LANGUAGE CPP #-}
 {-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
@@ -82,9 +83,15 @@ doUniv = do
                                   funD 'unU' [clause [conP ucon [varP a]] (normalB [|Just $(varE a)|]) [],
                                               clause [wildP] (normalB [|Nothing|]) []]
                                  ]]) info
+#if MIN_VERSION_template_haskell(2,11,0)
+  tells [dataD (pure []) uname [] Nothing
+               (map (\(typ, ucon, _, _) -> normalC ucon [strictType notStrict (pure typ)]) info)
+               (sequence (map conT [''Eq, ''Ord, ''Read, ''Data, ''Typeable, ''Generic, ''FromJSON, ''ToJSON])),
+#else
   tells [dataD (pure []) uname []
                (map (\(typ, ucon, _, _) -> normalC ucon [strictType notStrict (pure typ)]) info)
                [''Eq, ''Ord, ''Read, ''Data, ''Typeable, ''Generic, ''FromJSON, ''ToJSON],
+#endif
          funD (mkName "uMatch") (map (\(_, ucon, _, _) -> clause [conP ucon [wildP], conP ucon [wildP]] (normalB [|True|]) []) info ++
                                  [clause [wildP, wildP] (normalB [|False|]) []]),
          funD (mkName "uSimple") (map (\(_, ucon, simple, _) -> clause [conP ucon [wildP]] (normalB (lift simple)) []) info),
@@ -123,12 +130,21 @@ lensDecs v = mapM makePathLens (toList (typeNames v)) >>= tell . concat
       makePathLens tname = qReify tname >>= execWriterT . doInfo
       doInfo (TyConI dec) = doDec dec
       doInfo _ = return ()
+#if MIN_VERSION_template_haskell(2,11,0)
+      doDec (NewtypeD _ tname _ _ _ _) = do
+        pairs <- lensNamePairs fieldLensNamePair tname
+        tell =<< runQ (makeClassyFor (className tname) (lensName tname) pairs tname)
+      doDec (DataD _ tname _ _ _ _) = do
+        pairs <- lensNamePairs fieldLensNamePair tname
+        tell =<< runQ (makeClassyFor (className tname) (lensName tname) pairs tname)
+#else
       doDec (NewtypeD _ tname _ _ _) = do
         pairs <- lensNamePairs fieldLensNamePair tname
         tell =<< runQ (makeClassyFor (className tname) (lensName tname) pairs tname)
       doDec (DataD _ tname _ _ _) = do
         pairs <- lensNamePairs fieldLensNamePair tname
         tell =<< runQ (makeClassyFor (className tname) (lensName tname) pairs tname)
+#endif
       doDec _ = return ()
       className tname = "Has" ++ nameBase tname
       lensName tname = "lens_" ++ uncap (nameBase tname)

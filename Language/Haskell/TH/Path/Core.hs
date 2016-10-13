@@ -572,7 +572,11 @@ aOfS _utypeq expq stypeq = do
                  AppT (AppT (ConT mp) _k) a | mp == ''Map -> pure a
                  _ -> error "aOfS Map"
       doExp exp@(LamE [x@(VarP _)] (AppE (VarE fname) exp')) typ =
+#if MIN_VERSION_template_haskell(2,11,0)
+        do info@(VarI _ (AppT (AppT ArrowT rtype@(ConT tname)) ftype) _) <- qReify fname
+#else
         do info@(VarI _ (AppT (AppT ArrowT rtype@(ConT tname)) ftype) _ _) <- qReify fname
+#endif
            fld <- lift $ fromJust <$> lookupValueName (nameBase (unPathCon (makeUNamedFieldCon tname fname)))
            modify' (\e -> [|$(conE fld) $e|])
            t <- doView (LamE [x] exp') typ -- Should return a @ConT tname@
