@@ -65,13 +65,6 @@ library
     Language.Haskell.TH.Path.Files
     Language.Haskell.TH.Path.Instances
     Language.Haskell.TH.Path.View
-  if !impl(ghcjs)
-    exposed-modules:
-      Language.Haskell.TH.Path.Decs
-      Language.Haskell.TH.Path.Graph
-      Language.Haskell.TH.Path.Peek
-      Language.Haskell.TH.Path.Traverse
-  other-modules:
     Language.Haskell.TH.Path.Expand
     Language.Haskell.TH.Path.Prelude
     Language.Haskell.TH.Path.Shape
@@ -85,6 +78,12 @@ library
     Language.Haskell.TH.Path.Free
     Language.Haskell.TH.Path.ATP
     Language.Haskell.TH.Path.Context
+  if !impl(ghcjs)
+    exposed-modules:
+      Language.Haskell.TH.Path.Decs
+      Language.Haskell.TH.Path.Graph
+      Language.Haskell.TH.Path.Peek
+      Language.Haskell.TH.Path.Traverse
 
 -- test-suite th-path-tests
 --   type:             exitcode-stdio-1.0
