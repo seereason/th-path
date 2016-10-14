@@ -35,7 +35,7 @@ import Data.UUID.Types (UUID)
 import Data.UUID.Orphans (showUUID)
 import GHC.Generics (Generic)
 import Language.Haskell.TH
-import Language.Haskell.TH.Path.Context (ContextM, reifyInstancesWithContext)
+import Language.Haskell.TH.Context (ContextM, reifyInstancesWithContext)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Lift (lift)
 import Language.Haskell.TH.Path.Common (HasType(asType), HasTypeQ(asTypeQ), telld, tells)

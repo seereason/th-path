@@ -77,7 +77,6 @@ library
     Language.Haskell.TH.Path.Arity
     Language.Haskell.TH.Path.Free
     Language.Haskell.TH.Path.ATP
-    Language.Haskell.TH.Path.Context
   if !impl(ghcjs)
     exposed-modules:
       Language.Haskell.TH.Path.Decs

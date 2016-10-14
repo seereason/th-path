@@ -39,7 +39,7 @@ import Data.Order (Order)
 import Data.Set as Set (difference, empty, fromList, map, member, Set, singleton, toList)
 import Language.Haskell.Exts.Syntax ()
 import Language.Haskell.TH
-import Language.Haskell.TH.Path.Context (ContextM, InstMap, reifyInstancesWithContext)
+import Language.Haskell.TH.Context (ContextM, InstMap, reifyInstancesWithContext)
 import Language.Haskell.TH.Desugar (DsMonad)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.KindInference (inferKind)

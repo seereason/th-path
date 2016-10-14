@@ -31,7 +31,7 @@ import Data.Proxy
 import Data.Tree (Tree(Node))
 import GHC.Generics (Generic)
 import Language.Haskell.TH
-import Language.Haskell.TH.Path.Context (reifyInstancesWithContext)
+import Language.Haskell.TH.Context (reifyInstancesWithContext)
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Common (HasConQ(asConQ), HasCon(asCon), HasName(asName), HasType(asType), HasTypeQ(asTypeQ),
                                         makeUFieldCon, makeUPathType, ModelType(ModelType), PathType, telld, tells)
