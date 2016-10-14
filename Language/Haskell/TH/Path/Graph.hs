@@ -18,6 +18,7 @@ module Language.Haskell.TH.Path.Graph
     , TypeGraphM
     , runTypeGraphT
     , testIsPath
+    , S(..)
     ) where
 
 import Control.Applicative
