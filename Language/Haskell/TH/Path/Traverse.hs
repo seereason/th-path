@@ -38,7 +38,7 @@ import Language.Haskell.TH.Path.Core
 import Language.Haskell.TH.Path.Graph (TypeGraphM)
 import Language.Haskell.TH.Path.View (viewInstanceType)
 import Language.Haskell.TH.Syntax
-import Language.Haskell.TH.Path.Expand (unE)
+import Language.Haskell.TH.Expand (unE)
 import Language.Haskell.TH.Path.Prelude (pprint1)
 import Language.Haskell.TH.Path.Shape (constructorPat, Field)
 import Language.Haskell.TH.Path.TypeGraph (tgvSimple')

@@ -47,6 +47,7 @@ library
     syb,
     template-haskell >= 2.10,
     text,
+    th-context,
     th-desugar,
     th-kinds-fork,
     th-lift,
@@ -65,7 +66,6 @@ library
     Language.Haskell.TH.Path.Files
     Language.Haskell.TH.Path.Instances
     Language.Haskell.TH.Path.View
-    Language.Haskell.TH.Path.Expand
     Language.Haskell.TH.Path.Prelude
     Language.Haskell.TH.Path.Shape
     Language.Haskell.TH.Path.Vertex

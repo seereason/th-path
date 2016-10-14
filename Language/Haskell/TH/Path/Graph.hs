@@ -48,7 +48,7 @@ import Language.Haskell.TH.Path.Core (SinkType, HideType)
 import Language.Haskell.TH.Path.Instances ()
 import Language.Haskell.TH.Path.View (viewInstanceType, viewTypes)
 import Language.Haskell.TH.Path.Edges ({-cut, cutEdgesM,-} cutEdges, cutM, dissolveM, GraphEdges, isolate, linkM, simpleEdges, typeGraphEdges)
-import Language.Haskell.TH.Path.Expand (E(E, _unE), unE, ExpandMap, expandType)
+import Language.Haskell.TH.Expand (E(E, _unE), unE, ExpandMap, expandType)
 import Language.Haskell.TH.Path.Free (freeTypeVars)
 import Language.Haskell.TH.Path.Prelude ({-OverTypes(overTypes),-} unlifted)
 import Language.Haskell.TH.Path.TypeGraph (allPathKeys, graphFromMap, makeTypeGraph, tgvSimple, TypeGraph)
@@ -81,7 +81,7 @@ class (ContextM m, MonadReaders TypeGraph m, MonadReaders TypeInfo m) => TypeGra
 instance TypeGraphM (ReaderT TypeGraph (ReaderT TypeInfo (StateT S Q)))
 
 instance (Monoid w, TypeGraphM m) => TypeGraphM (WriterT w m)
-instance TypeGraphM m => TypeGraphM (StateT (Set Name) m)
+-- instance TypeGraphM m => TypeGraphM (StateT (Set Name) m)
 
 runContextT :: Monad m => StateT S m a -> m a
 runContextT action = evalStateT action (S mempty mempty "")

@@ -44,7 +44,7 @@ import Language.Haskell.TH
 import Language.Haskell.TH.Instances ()
 import Language.Haskell.TH.Path.Instances ()
 import Language.Haskell.TH.Syntax (Quasi)
-import Language.Haskell.TH.Path.Expand (E, unE)
+import Language.Haskell.TH.Expand (E, unE)
 import Language.Haskell.TH.Path.Shape (Field)
 import Language.Haskell.TH.Path.Vertex (bestType, bestTypeQ, etype, field, syns,
                                         TGV', TGVSimple', TGV, TGVSimple, vsimple)

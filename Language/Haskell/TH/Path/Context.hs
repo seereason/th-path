@@ -42,7 +42,7 @@ import Language.Haskell.TH
 import Language.Haskell.TH.Desugar as DS (DsMonad)
 import Language.Haskell.TH.PprLib (cat, ptext)
 import Language.Haskell.TH.Syntax hiding (lift)
-import Language.Haskell.TH.Path.Expand (ExpandMap, expandType, E, unE)
+import Language.Haskell.TH.Expand (ExpandMap, expandType, E, unE)
 #ifdef DEBUG
 import Language.Haskell.TH.Path.Prelude (pprint1)
 #endif
@@ -62,7 +62,7 @@ instance (Monad m, MonadStates InstMap m) => MonadStates InstMap (StateT (Set s)
 -- for debugging messages.
 class (DsMonad m, MonadStates InstMap m, MonadStates ExpandMap m, MonadStates String m) => ContextM m
 
-instance ContextM m => ContextM (StateT (Set a) m)
+-- instance ContextM m => ContextM (StateT (Set a) m)
 instance ContextM m => ContextM (ReaderT t m)
 instance (Monoid w, ContextM m) => ContextM (WriterT w m)
 
