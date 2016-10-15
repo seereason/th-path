@@ -45,10 +45,10 @@ import Language.Haskell.TH.Path.Instances ()
 import Language.Haskell.TH.Path.Peek (peekDecs)
 import Language.Haskell.TH.Path.View (View)
 import Language.Haskell.TH.Syntax (Quasi(qReify))
-import Language.Haskell.TH.Path.Lens (lensNamePairs)
-import Language.Haskell.TH.Path.Prelude (pprint1)
-import Language.Haskell.TH.Path.TypeGraph (allPathStarts)
-import Language.Haskell.TH.Path.Vertex (TGVSimple, typeNames)
+import Language.Haskell.TH.TypeGraph.Lens (lensNamePairs)
+import Language.Haskell.TH.TypeGraph.Prelude (pprint1)
+import Language.Haskell.TH.TypeGraph.TypeGraph (allPathStarts)
+import Language.Haskell.TH.TypeGraph.Vertex (TGVSimple, typeNames)
 
 derivePaths :: [TypeQ] -> Q [Dec]
 derivePaths st = do

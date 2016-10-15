@@ -25,7 +25,7 @@ import Control.Exception as E (IOException, throw, try)
 import Data.Monoid ((<>))
 import Language.Haskell.TH
 import Language.Haskell.TH.Instances ()
-import Language.Haskell.TH.Path.Prelude (friendlyNames, pprintW)
+import Language.Haskell.TH.TypeGraph.Prelude (friendlyNames, pprintW)
 import Language.Haskell.TH.Syntax (addDependentFile)
 import System.Directory (removeFile, renameFile)
 import System.IO.Error (isDoesNotExistError)

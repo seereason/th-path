@@ -12,7 +12,7 @@ import Data.Set as Set (Set, delete, difference, empty, fromList, insert, member
 import Language.Haskell.TH
 import Language.Haskell.TH.Desugar ({- instances -})
 import Language.Haskell.TH.Syntax (Quasi(qReify))
-import Language.Haskell.TH.Path.Prelude (pprint1)
+import Language.Haskell.TH.TypeGraph.Prelude (pprint1)
 
 data St
     = St { _result :: Set Name
